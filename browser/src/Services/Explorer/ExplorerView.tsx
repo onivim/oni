@@ -103,7 +103,6 @@ export interface IExplorerContainerProps {
 export interface IExplorerViewProps extends IExplorerContainerProps {
     nodes: ExplorerSelectors.ExplorerNode[]
     selectedId: string
-    hasFocus: boolean
     // recentFiles: IRecentFile[]
     // workspaceRoot: string
 }
@@ -139,7 +138,6 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 const mapStateToProps = (state: IExplorerState, containerProps: IExplorerContainerProps): IExplorerViewProps => {
     return {
         ...containerProps,
-        hasFocus: state.hasFocus,
         nodes: ExplorerSelectors.mapStateToNodeList(state),
         selectedId: state.selectedId,
     }

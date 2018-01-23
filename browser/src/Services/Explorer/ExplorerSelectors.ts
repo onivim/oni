@@ -38,25 +38,25 @@ export const isPathExpanded = (state: IExplorerState, pathToCheck: string): bool
 export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
     let ret: ExplorerNode[] = []
 
-    ret.push({
-        id: "opened",
-        type: "container",
-        expanded: true,
-        name: "Opened Files",
-    })
+//     ret.push({
+//         id: "opened",
+//         type: "container",
+//         expanded: true,
+//         name: "Opened Files",
+//     })
 
-    const openedFiles: ExplorerNode[] = Object.keys(state.openedFiles)
-        .filter(filePath => !!filePath)
-        .map(filePath => ({
-        type: "file",
-        id: "opened:" + filePath,
-        filePath,
-        name: path.basename(filePath),
-        modified: false, // TODO
-        indentationLevel: 0,
-    } as ExplorerNode))
+//     const openedFiles: ExplorerNode[] = Object.keys(state.openedFiles)
+//         .filter(filePath => !!filePath)
+//         .map(filePath => ({
+//         type: "file",
+//         id: "opened:" + filePath,
+//         filePath,
+//         name: path.basename(filePath),
+//         modified: false, // TODO
+//         indentationLevel: 0,
+//     } as ExplorerNode))
 
-    ret = [...ret, ...openedFiles]
+//     ret = [...ret, ...openedFiles]
 
     if (!state.rootFolder) {
         return ret
