@@ -20,9 +20,10 @@ import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import { Configuration } from "./../Configuration"
-import { editorManager } from "./../EditorManager"
+import { EditorManager } from "./../EditorManager"
 import { convertTextDocumentEditsToFileMap } from "./../Language/Edits"
 
+import * as WorkspaceCommands from "./WorkspaceCommands"
 import { WorkspaceConfiguration } from "./WorkspaceConfiguration"
 
 // Candidate interface to promote to Oni API
@@ -44,13 +45,15 @@ export class Workspace implements IWorkspace {
         return this._activeWorkspace
     }
 
-    constructor() {
+    constructor(
+        private _editorManager: EditorManager,
+    ) {
         this._mainWindow.on("focus", () => {
             this._onFocusGainedEvent.dispatch(this._lastActiveBuffer)
         })
 
         this._mainWindow.on("blur", () => {
-            this._lastActiveBuffer = editorManager.activeEditor.activeBuffer
+            this._lastActiveBuffer = this._editorManager.activeEditor.activeBuffer
             this._onFocusLostEvent.dispatch(this._lastActiveBuffer)
         })
     }
@@ -83,7 +86,7 @@ export class Workspace implements IWorkspace {
                 const fileName = Helpers.unwrapFileUriPath(fileUri)
                 // TODO: Sort changes?
                 Log.verbose("[Workspace] Opening file: " + fileName)
-                const buf = await editorManager.activeEditor.openFile(fileName)
+                const buf = await this._editorManager.activeEditor.openFile(fileName)
                 Log.verbose("[Workspace] Got buffer for file: " + buf.filePath + " and id: " + buf.id)
                 await buf.applyTextEdits(changes)
                 Log.verbose("[Workspace] Applied " + changes.length + " edits to buffer")
@@ -111,8 +114,8 @@ export class Workspace implements IWorkspace {
 let _workspace: Workspace = null
 let _workspaceConfiguration: WorkspaceConfiguration = null
 
-export const activate = (configuration: Configuration): void => {
-    _workspace = new Workspace()
+export const activate = (configuration: Configuration, editorManager: EditorManager): void => {
+    _workspace = new Workspace(editorManager)
 
     _workspaceConfiguration = new WorkspaceConfiguration(configuration, _workspace)
 
@@ -125,6 +128,8 @@ export const activate = (configuration: Configuration): void => {
     _workspace.onDirectoryChanged.subscribe((newDirectory) => {
         configuration.setValues({ "workspace.defaultWorkspace": newDirectory}, true)
     })
+
+    WorkspaceCommands.activateCommands(configuration, editorManager, _workspace)
 }
 
 export const getInstance = (): Workspace => {
