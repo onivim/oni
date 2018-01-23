@@ -23,6 +23,8 @@ npm run test:unit
 npm run lint
 npm run pack
 
+echo Using neovim path: $ONI_NEOVIM_PATH
+
 npm run test:integration
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
