@@ -393,7 +393,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                         Log.info("Attach success")
                         Performance.endMeasure("NeovimInstance.Start.Attach")
 
-
                         // TODO: #702 - Batch these calls via `nvim_call_atomic`
                         // Override completeopt so Oni works correctly with external popupmenu
                         // await this.command("set completeopt=longest,menu")
@@ -818,10 +817,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     private _getStartupOptionsForVersion(major: number,
-        minor: number,
-        patch: number,
-        shouldExtTabs: boolean,
-        shouldExtPopups: boolean) {
+                                         minor: number,
+                                         patch: number,
+                                         shouldExtTabs: boolean,
+                                         shouldExtPopups: boolean) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
             const useExtCmdLine = this._configuration.getValue("experimental.commandline.mode")
             const useExtWildMenu = this._configuration.getValue("experimental.wildmenu.mode")
