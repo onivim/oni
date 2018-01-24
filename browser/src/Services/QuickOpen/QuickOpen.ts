@@ -15,7 +15,7 @@ import { INeovimInstance } from "./../../neovim"
 import { commandManager } from "./../CommandManager"
 import { configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
-import { fuseFilter, Menu, menuManager } from "./../Menu"
+import { fuseFilter, Menu, MenuManager } from "./../Menu"
 
 import { FinderProcess } from "./FinderProcess"
 import { QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
@@ -32,7 +32,7 @@ export class QuickOpen {
     private _menu: Menu
     private _lastCommand: string | null = null
 
-    constructor(neovimInstance: INeovimInstance) {
+    constructor(menuManager: MenuManager, neovimInstance: INeovimInstance) {
         this._neovimInstance = neovimInstance
 
         this._menu = menuManager.create()

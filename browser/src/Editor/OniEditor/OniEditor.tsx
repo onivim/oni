@@ -26,10 +26,13 @@ import {
     LanguageManager,
 } from "./../../Services/Language"
 
+import { MenuManager } from "./../../Services/Menu"
+
 import {
     ISyntaxHighlighter,
 } from "./../../Services/SyntaxHighlighting"
 
+import { Tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { Workspace } from "./../../Services/Workspace"
 
@@ -104,11 +107,13 @@ export class OniEditor implements IEditor {
          configuration: Configuration,
          diagnostics: IDiagnosticsDataSource,
          languageManager: LanguageManager,
+         menuManager: MenuManager,
          pluginManager: PluginManager,
+         tasks: Tasks,
          themeManager: ThemeManager,
          workspace: Workspace,
     ) {
-        this._neovimEditor = new NeovimEditor(colors, completionProviders, configuration, diagnostics, languageManager, pluginManager, themeManager, workspace)
+        this._neovimEditor = new NeovimEditor(colors, completionProviders, configuration, diagnostics, languageManager, menuManager, pluginManager, tasks, themeManager, workspace)
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => wrapReactComponentWithLayer("oni.layer.scrollbar", <BufferScrollBarContainer />))
         this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => wrapReactComponentWithLayer("oni.layer.definition", <DefinitionContainer />))

@@ -6,10 +6,10 @@
 
 import { CallbackCommand, commandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
-import { menuManager } from "./../Menu"
+import { MenuManager } from "./../Menu"
 import { ThemeManager } from "./ThemeManager"
 
-const chooseTheme = async (configuration: Configuration, themeManager: ThemeManager) => {
+const chooseTheme = async (configuration: Configuration, menuManager: MenuManager, themeManager: ThemeManager) => {
         const themes = await themeManager.getAllThemes()
 
         const items = themes.map((t) => ({
@@ -44,13 +44,13 @@ const chooseTheme = async (configuration: Configuration, themeManager: ThemeMana
         })
 }
 
-export const activate = (configuration: Configuration, themeManager: ThemeManager) => {
+export const activate = (configuration: Configuration, menuManager: MenuManager, themeManager: ThemeManager) => {
 
     commandManager.registerCommand(
         new CallbackCommand(
             "oni.themes.choose",
             "Themes: Choose Theme",
             "Choose your theme from the available bundled themes.",
-            () => chooseTheme(configuration, themeManager),
+            () => chooseTheme(configuration, menuManager, themeManager),
         ))
 }
