@@ -1,10 +1,14 @@
 /**
- * NeovimEditor.ts
+ * OniEditor.ts
  *
- * IEditor implementation for Neovim
+ * IEditor implementation for Oni
+ *
+ * Extends the capabilities of the NeovimEditor
  */
 
 import * as React from "react"
+
+import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 import { IEvent } from "oni-types"
@@ -133,6 +137,10 @@ export class OniEditor implements IEditor {
 
     public async newFile(filePath: string): Promise<Oni.Buffer> {
         return this._neovimEditor.newFile(filePath)
+    }
+
+    public async setSelection(range: types.Range): Promise<void> {
+        return this._neovimEditor.setSelection(range)
     }
 
     public executeCommand(command: string): void {
