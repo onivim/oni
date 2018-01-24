@@ -1,7 +1,7 @@
 import * as React from "react"
 import { connect, Provider } from "react-redux"
 
-import * as take from "lodash/take"
+import { List } from "react-virtualized"
 
 import * as Oni from "oni-api"
 
@@ -48,18 +48,25 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
         }
 
         // TODO: sync max display items (10) with value in Reducer.popupMenuReducer() (Reducer.ts)
-        const initialItems = take(this.props.items, 10)
+        // const initialItems = take(this.props.items, 10)
 
+        // const initialItems = this.props.items
         // const pinnedItems = initialItems.filter(f => f.pinned)
         // const unpinnedItems = initialItems.filter(f => !f.pinned)
-        const items = initialItems.map((menuItem, index) =>
-            // FIXME: undefined
-            <MenuItem {...menuItem as any}
-                key={index}
-                filterText={this.props.filterText}
-                isSelected={index === this.props.selectedIndex}
-                onClick={() => this.props.onSelect(index)}
-            />)
+        // const items = initialItems.map((menuItem, index) =>
+        //     // FIXME: undefined
+        //     <MenuItem {...menuItem as any}
+        //         key={index}
+        //         filterText={this.props.filterText}
+        //         isSelected={index === this.props.selectedIndex}
+        //         onClick={() => this.props.onSelect(index)}
+        //     />)
+
+        const rowRenderer = (props: { key: string, index: number, style: React.CSSProperties}) => {
+            const item = this.props.items[props.index]
+            return <MenuItem {...item as any} key={props.key} filterText={this.props.filterText} isSelected={props.index === this.props.selectedIndex}
+                onClick={() => this.props.onSelect(props.index)} />
+        }
 
         const menuStyle = {
             backgroundColor: this.props.backgroundColor,
@@ -74,9 +81,12 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
                     overrideDefaultStyle={true}
                     backgroundColor={null}
                     foregroundColor={this.props.foregroundColor}
-                    onChange={(evt) => this._onChange(evt)} />
+                    onChange={(evt) => this._onChange(evt)}
+            />
                 <div className="items">
-                    {items}
+                    <div>
+                    <List scrollToIndex={this.props.selectedIndex} width={300} height={250} rowCount={this.props.items.length} rowHeight={20} rowRenderer={rowRenderer} />
+                    </div>
                 </div>
                 <div className={footerClassName} style={menuStyle}>
                     <div className="loading-spinner">

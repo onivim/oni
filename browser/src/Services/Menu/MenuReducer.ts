@@ -19,8 +19,7 @@ export function createReducer<T, FilteredT extends T>() {
 
     function popupMenuReducer(s: State.IMenu<T, FilteredT> | null, a: any): State.IMenu<T, FilteredT> {
 
-        // TODO: sync max display items (10) with value in Menu.render() (Menu.tsx)
-        const size = s ? Math.min(10, s.filteredOptions.length) : 0
+        const size = (s && s.filteredOptions) ? s.filteredOptions.length : 0
 
         switch (a.type) {
 
