@@ -73,7 +73,15 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
                 language: evt.buffer.language,
                 bufferId: evt.buffer.id,
                 lines,
-                version: number,
+                version: evt.buffer.version,
+            })
+        } else {
+            this._store.dispatch({
+                type: "SYTNAX_UPDATE_BUFFER_LINE",
+                bufferId: evt.buffer.id,
+                version: evt.buffer.version,
+                lineNumber: firstChange.range.start.line,
+                line: firstChange.text,
             })
         }
     }
