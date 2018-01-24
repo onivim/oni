@@ -88,6 +88,12 @@ export interface INeovimCommandLineSetCursorPosition {
     level: number
 }
 
+export interface IMessageInfo {
+    severity: "warn" | "error" | "info"
+    title: string
+    details: string
+}
+
 // Limit for the number of lines to handle buffer updates
 // If the file is too large, it ends up being too much traffic
 // between Neovim <-> Oni <-> Language Servers - so
@@ -123,6 +129,8 @@ export interface INeovimInstance {
     onCommandLineShow: IEvent<INeovimCommandLineShowEvent>
     onCommandLineHide: IEvent<void>
     onCommandLineSetCursorPosition: IEvent<INeovimCommandLineSetCursorPosition>
+
+    onMessage: IEvent<IMessageInfo>
 
     autoCommands: INeovimAutoCommands
 
@@ -206,6 +214,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onShowPopupMenu = new Event<INeovimCompletionInfo>()
     private _onSelectPopupMenu = new Event<number>()
     private _onLeave = new Event<void>()
+    private _onMessage = new Event<IMessageInfo>()
 
     private _onColorsChanged = new Event<void>()
 
@@ -245,6 +254,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onLeave(): IEvent<void> {
         return this._onLeave
+    }
+
+    public get onMessage(): IEvent<IMessageInfo> {
+        return this._onMessage
     }
 
     public get onModeChanged(): IEvent<Oni.Vim.Mode> {
@@ -342,67 +355,21 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public start(startOptions?: INeovimStartOptions): Promise<void> {
         Performance.startMeasure("NeovimInstance.Start")
         this._initPromise = startNeovim(startOptions)
-            .then((nv) => {
+            .then(async (nv) => {
                 Log.info("NeovimInstance: Neovim started")
 
                 // Workaround for issue where UI
                 // can fail to attach if there is a UI-blocking error
                 // nv.input("<ESC>")
-
                 this._neovim = nv
+
+                await this._checkAndFixIfBlocked()
 
                 this._neovim.on("error", (err: Error) => {
                     this._onError(err)
                 })
 
-                this._neovim.on("notification", (method: any, args: any) => {
-                    if (method === "redraw") {
-                        this._handleNotification(method, args)
-                        this._onRedrawComplete.dispatch()
-                    } else if (method === "oni_plugin_notify") {
-                        const pluginArgs = args[0]
-                        const pluginMethod = pluginArgs.shift()
-
-                        // TODO: Update pluginManager to subscribe from event here, instead of dupliating this
-
-                        if (pluginMethod === "buffer_update") {
-                            const eventContext: EventContext = args[0][0]
-
-                            this._bufferUpdateManager.notifyFullBufferUpdate(eventContext)
-                        } else if (pluginMethod === "oni_yank") {
-                            this._onYank.dispatch(args[0][0])
-                        } else if (pluginMethod === "oni_command") {
-                            this._onOniCommand.dispatch(args[0][0])
-                        } else if (pluginMethod === "event") {
-                            const eventName = args[0][0]
-                            const eventContext = args[0][1]
-
-                            if (eventName === "DirChanged") {
-                                this._updateProcessDirectory()
-                            } else if (eventName === "VimLeave") {
-                                this._isLeaving = true
-                                this._onLeave.dispatch()
-                            } else if (eventName === "ColorScheme") {
-                                this._onColorsChanged.dispatch()
-                            }
-
-                            this._autoCommands.notifyAutocommand(eventName, eventContext)
-
-                            this.emit("event", eventName, eventContext)
-
-                        } else if (pluginMethod === "incremental_buffer_update") {
-                            const eventContext = args[0][0]
-                            const lineContents = args[0][1]
-                            const lineNumber = args[0][2]
-
-                            this._bufferUpdateManager.notifyIncrementalBufferUpdate(eventContext, lineNumber, lineContents)
-                        } else {
-                            Log.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
-                        }
-                    } else {
-                        Log.warn("Unknown notification: " + method)
-                    }
-                })
+                this._neovim.on("notification", (method: any, args: any) => this._onNotification(method, args))
 
                 this._neovim.on("request", (method: any, _args: any, _resp: any) => {
                     Log.warn("Unhandled request: " + method)
@@ -425,6 +392,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     .then(async () => {
                         Log.info("Attach success")
                         Performance.endMeasure("NeovimInstance.Start.Attach")
+
 
                         // TODO: #702 - Batch these calls via `nvim_call_atomic`
                         // Override completeopt so Oni works correctly with external popupmenu
@@ -456,14 +424,14 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._fontHeightInPixels = height + linePadding
 
         this.emit("action", Actions.setFont({
-                fontFamily,
-                fontSize,
-                fontWidthInPixels: width,
-                fontHeightInPixels: height + linePadding,
-                linePaddingInPixels: linePadding,
-                isItalicAvailable,
-                isBoldAvailable,
-            }),
+            fontFamily,
+            fontSize,
+            fontWidthInPixels: width,
+            fontHeightInPixels: height + linePadding,
+            linePaddingInPixels: linePadding,
+            isItalicAvailable,
+            isBoldAvailable,
+        }),
         )
 
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
@@ -476,7 +444,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public openInitVim(): Promise<void> {
         const loadInitVim = this._configuration.getValue("oni.loadInitVim")
 
-        if (typeof(loadInitVim) === "string") {
+        if (typeof (loadInitVim) === "string") {
             return this.open(loadInitVim)
         } else {
             // Use path from: https://github.com/neovim/neovim/wiki/FAQ
@@ -570,6 +538,23 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             this._onScroll.dispatch(evt)
             this._pendingScrollTimeout = null
         })
+    }
+
+    private async _checkAndFixIfBlocked(): Promise<void> {
+        const mode: any = await this._neovim.request("nvim_get_mode", [])
+
+        if (mode.blocking) {
+            // The UI is blocked on some error message.
+            // Let's grab the message and show it, and unblock the UI
+            await this.input("<esc>")
+            const output = await this._neovim.request<string>("nvim_command_output", [":messages"])
+
+            this._onMessage.dispatch({
+                severity: "error",
+                title: "Problem loading `init.vim`:",
+                details: output,
+            })
+        }
     }
 
     private _resizeInternal(rows: number, columns: number): void {
@@ -743,7 +728,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     this._onWildMenuShowEvent.dispatch({ options })
                     break
                 case "wildmenu_select":
-                    const [[ selection ]] = a
+                    const [[selection]] = a
                     this._onWildMenuSelectEvent.dispatch({ selected: selection })
                     break
                 case "wildmenu_hide":
@@ -758,6 +743,53 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onError(error: Error | string): void {
         Log.error(error)
         this._onErrorEvent.dispatch(error)
+    }
+
+    private _onNotification(method: string, args: any): void {
+        if (method === "redraw") {
+            this._handleNotification(method, args)
+            this._onRedrawComplete.dispatch()
+        } else if (method === "oni_plugin_notify") {
+            const pluginArgs = args[0]
+            const pluginMethod = pluginArgs.shift()
+
+            if (pluginMethod === "buffer_update") {
+                const eventContext: EventContext = args[0][0]
+
+                this._bufferUpdateManager.notifyFullBufferUpdate(eventContext)
+            } else if (pluginMethod === "oni_yank") {
+                this._onYank.dispatch(args[0][0])
+            } else if (pluginMethod === "oni_command") {
+                this._onOniCommand.dispatch(args[0][0])
+            } else if (pluginMethod === "event") {
+                const eventName = args[0][0]
+                const eventContext = args[0][1]
+
+                if (eventName === "DirChanged") {
+                    this._updateProcessDirectory()
+                } else if (eventName === "VimLeave") {
+                    this._isLeaving = true
+                    this._onLeave.dispatch()
+                } else if (eventName === "ColorScheme") {
+                    this._onColorsChanged.dispatch()
+                }
+
+                this._autoCommands.notifyAutocommand(eventName, eventContext)
+
+                this.emit("event", eventName, eventContext)
+
+            } else if (pluginMethod === "incremental_buffer_update") {
+                const eventContext = args[0][0]
+                const lineContents = args[0][1]
+                const lineNumber = args[0][2]
+
+                this._bufferUpdateManager.notifyIncrementalBufferUpdate(eventContext, lineNumber, lineContents)
+            } else {
+                Log.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
+            }
+        } else {
+            Log.warn("Unknown notification: " + method)
+        }
     }
 
     private async _updateProcessDirectory(): Promise<void> {
@@ -777,22 +809,22 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`) // tslint:disable-line no-console
 
         const startupOptions = this._getStartupOptionsForVersion(version.major,
-                                                                 version.minor,
-                                                                 version.patch,
-                                                                 externaliseTabline,
-                                                                 externalisePopupWindows)
+            version.minor,
+            version.patch,
+            externaliseTabline,
+            externalisePopupWindows)
 
         await this._neovim.request("nvim_ui_attach", [columns, rows, startupOptions])
     }
 
     private _getStartupOptionsForVersion(major: number,
-                                         minor: number,
-                                         patch: number,
-                                         shouldExtTabs: boolean,
-                                         shouldExtPopups: boolean) {
+        minor: number,
+        patch: number,
+        shouldExtTabs: boolean,
+        shouldExtPopups: boolean) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
-            const useExtCmdLine =  this._configuration.getValue("experimental.commandline.mode")
-            const useExtWildMenu =  this._configuration.getValue("experimental.wildmenu.mode")
+            const useExtCmdLine = this._configuration.getValue("experimental.commandline.mode")
+            const useExtWildMenu = this._configuration.getValue("experimental.wildmenu.mode")
             return {
                 rgb: true,
                 popupmenu_external: shouldExtPopups,

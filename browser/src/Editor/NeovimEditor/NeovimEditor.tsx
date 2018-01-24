@@ -185,6 +185,11 @@ export class NeovimEditor extends Editor implements IEditor {
             this._toolTipsProvider,
         )
 
+        this._neovimInstance.onMessage.subscribe((messageInfo) => {
+            // TODO: Hook up real notifications
+            alert(messageInfo)
+        })
+
         this._renderer = new CanvasRenderer()
 
         this._rename = new Rename(this, this._languageManager, this._toolTipsProvider, this._workspace)
