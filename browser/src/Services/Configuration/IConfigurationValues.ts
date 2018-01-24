@@ -50,6 +50,8 @@ export interface IConfigurationValues {
     "experimental.commandline.mode": boolean,
     "experimental.commandline.icons": boolean,
 
+    "experimental.welcome.enabled": boolean,
+
     "autoClosingPairs.enabled": boolean
     "autoClosingPairs.default": any
 
@@ -99,6 +101,9 @@ export interface IConfigurationValues {
     // In addition, this enables <C-v> and <Cmd-v> behavior
     // in paste from clipboard in insert mode.
     "editor.clipboard.enabled": boolean
+
+    // Whether the 'go-to definition' language feature is enabled
+    "editor.definition.enabled": boolean
 
     "editor.quickInfo.enabled": boolean
     // Delay (in ms) for showing QuickInfo, when the cursor is on a term
@@ -232,6 +237,10 @@ export interface IConfigurationValues {
     "ui.fontFamily": string
     "ui.fontSize": string
     "ui.fontSmoothing": FontSmoothingOptions
+
+    // Path to the default workspace. The default workspace
+    // will be opened if no workspace is specified in configuration.
+    "workspace.defaultWorkspace": string
 
     // Handle other, non-predefined configuration keys
     [configurationKey: string]: any

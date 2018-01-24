@@ -36,6 +36,7 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.editor.textMateHighlighting.enabled": false,
     "experimental.commandline.mode": false,
     "experimental.commandline.icons": false,
+    "experimental.welcome.enabled": false,
     "experimental.wildmenu.mode": false,
 
     "experimental.neovim.transport": "stdio",
@@ -72,6 +73,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.clipboard.enabled": true,
 
+    "editor.definition.enabled": true,
     "editor.quickInfo.enabled": true,
     "editor.quickInfo.delay": 500,
 
@@ -209,6 +211,8 @@ const BaseConfiguration: IConfigurationValues = {
     "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
     "ui.fontSmoothing": "auto",
+
+    "workspace.defaultWorkspace": null,
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {

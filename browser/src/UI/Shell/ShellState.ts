@@ -27,6 +27,9 @@ export interface IToolTip {
     element: JSX.Element
 }
 
+export interface StatusBar { [key: string]: IStatusBarItem }
+export interface Overlays { [key: string]: IOverlay }
+
 export interface IState {
     // Editor
     hasFocus: boolean
@@ -39,8 +42,14 @@ export interface IState {
     windowTitle: string
 
     statusBar: { [id: string]: IStatusBarItem }
+    overlays: { [id: string]: IOverlay }
 
     errors: Errors
+}
+
+export interface IOverlay {
+    id: string
+    contents: JSX.Element
 }
 
 export enum StatusBarAlignment {
@@ -73,6 +82,7 @@ export const createDefaultState = (): IState => ({
     configuration: {} as IConfigurationValues,
 
     errors: {},
+    overlays: {},
     statusBar: {},
     windowTitle: "",
 })

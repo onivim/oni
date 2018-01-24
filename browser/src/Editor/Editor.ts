@@ -7,10 +7,14 @@
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
+import * as types from "vscode-languageserver-types"
+
 export interface IEditor extends Oni.Editor {
     // Methods
     init(filesToOpen: string[]): void
     render(): JSX.Element
+
+    setSelection(selectionRange: types.Range): Promise<void>
 }
 
 /**
