@@ -15,13 +15,13 @@ import * as State from "./NeovimEditorStore"
 
 import { EmptyArray } from "./../../Utility"
 
-export interface NeovimLayersViewProps {
+export interface NeovimBufferLayersViewProps {
     activeWindowId: number
     windows: State.IWindow[]
     layers: State.Layers
 }
 
-export class NeovimLayersView extends React.PureComponent<NeovimLayersViewProps, {}> {
+export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLayersViewProps, {}> {
     public render(): JSX.Element {
 
         const containers = this.props.windows.map((windowState) => {
@@ -37,12 +37,12 @@ export class NeovimLayersView extends React.PureComponent<NeovimLayersViewProps,
             }
 
             const layerElements = layers.map((l) => {
-                return l.render(layerContext)
+                return <div key={l.id}>{l.render(layerContext)}</div>
             })
 
             const dimensions = getWindowPixelDimensions(windowState)
 
-            return <NeovimActiveWindow {...dimensions} key={windowState.windowId}>
+            return <NeovimActiveWindow {...dimensions} key={windowState.windowId.toString()}>
                     {layerElements}
                 </NeovimActiveWindow>
         })
@@ -78,13 +78,13 @@ const getWindowPixelDimensions = (win: State.IWindow) => {
 
     return {
         pixelX: start.pixelX,
-        pixelY: start.pixelY,
+        pixelY: start.pixelY - 1,
         pixelWidth: size.pixelX,
-        pixelHeight: size.pixelY,
+        pixelHeight: size.pixelY + 2,
     }
 }
 
-const mapStateToProps = (state: State.IState): NeovimLayersViewProps => {
+const mapStateToProps = (state: State.IState): NeovimBufferLayersViewProps => {
     if (!state.activeVimTabPage) {
         return {
             activeWindowId: -1,
@@ -106,4 +106,4 @@ const mapStateToProps = (state: State.IState): NeovimLayersViewProps => {
     }
 }
 
-export const NeovimLayers = connect(mapStateToProps)(NeovimLayersView)
+export const NeovimBufferLayers = connect(mapStateToProps)(NeovimBufferLayersView)

@@ -12,6 +12,8 @@ import "rxjs/add/operator/map"
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
 
+import * as types from "vscode-languageserver-types"
+
 import { Provider } from "react-redux"
 import { bindActionCreators, Store } from "redux"
 
@@ -30,8 +32,7 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { IColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
-import { registerBuiltInCommands } from "./../../Services/Commands"
-import { Completion } from "./../../Services/Completion"
+import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
@@ -68,6 +69,7 @@ import { normalizePath, sleep } from "./../../Utility"
 
 import * as VimConfigurationSynchronizer from "./../../Services/VimConfigurationSynchronizer"
 
+import { BufferLayerManager } from "./BufferLayerManager"
 import { Definition } from "./Definition"
 import * as ActionCreators from "./NeovimEditorActions"
 import { NeovimEditorCommands } from "./NeovimEditorCommands"
@@ -75,6 +77,8 @@ import { createStore, IState } from "./NeovimEditorStore"
 import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
+
+import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
@@ -117,6 +121,8 @@ export class NeovimEditor extends Editor implements IEditor {
     private _toolTipsProvider: IToolTipsProvider
     private _commands: NeovimEditorCommands
 
+    private _bufferLayerManager: BufferLayerManager
+
     public /* override */ get activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
     }
@@ -126,12 +132,17 @@ export class NeovimEditor extends Editor implements IEditor {
         return this._neovimInstance
     }
 
+    public get bufferLayers(): BufferLayerManager {
+        return this._bufferLayerManager
+    }
+
     public get syntaxHighlighter(): ISyntaxHighlighter {
         return this._syntaxHighlighter
     }
 
     constructor(
         private _colors: IColors,
+        private _completionProviders: CompletionProviders,
         private _configuration: Configuration,
         private _diagnostics: IDiagnosticsDataSource,
         private _languageManager: LanguageManager,
@@ -146,6 +157,8 @@ export class NeovimEditor extends Editor implements IEditor {
         this._store = createStore()
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
         this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
+
+        this._bufferLayerManager = new BufferLayerManager()
 
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
@@ -179,7 +192,15 @@ export class NeovimEditor extends Editor implements IEditor {
         // Services
         const errorService = new Errors(this._neovimInstance)
 
-        registerBuiltInCommands(commandManager, this._neovimInstance)
+        this._commands = new NeovimEditorCommands(
+            commandManager,
+            this._contextMenuManager,
+            this._definition,
+            this._languageIntegration,
+            this._neovimInstance,
+            this._rename,
+            this._symbols,
+        )
 
         const updateViewport = () => {
             const width = document.body.offsetWidth
@@ -263,7 +284,14 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
             if (this._configuration.getValue("editor.clipboard.enabled")) {
-                clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+
+                const isYankAndAllowed = yankInfo.operator === "y" && this._configuration.getValue("editor.clipboard.synchronizeYank")
+                const isDeleteAndAllowed = yankInfo.operator === "d" && this._configuration.getValue("editor.clipboard.synchronizeDelete")
+                const isAllowed = isYankAndAllowed || isDeleteAndAllowed
+
+                if (isAllowed) {
+                    clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+                }
             }
         })
 
@@ -392,7 +420,7 @@ export class NeovimEditor extends Editor implements IEditor {
         const textMateHighlightingEnabled = this._configuration.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter(this._configuration, this) : new NullSyntaxHighlighter()
 
-        this._completion = new Completion(this, this._languageManager, this._configuration)
+        this._completion = new Completion(this, this._configuration, this._completionProviders, this._languageManager)
         this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
 
         this._completion.onShowCompletionItems.subscribe((completions) => {
@@ -435,6 +463,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._contextMenuManager,
             this._definition,
             this._languageIntegration,
+            this._neovimInstance,
             this._rename,
             this._symbols,
         )
@@ -531,6 +560,21 @@ export class NeovimEditor extends Editor implements IEditor {
         this._commands.deactivate()
     }
 
+    public async setSelection(range: types.Range): Promise<void> {
+
+        await this._neovimInstance.input("<esc>")
+
+        const atomicCalls = [
+            ["nvim_call_function", ["setpos", ["'<", [0, range.start.line + 1, range.start.character + 1]]]],
+            ["nvim_call_function", ["setpos", ["'>", [0, range.end.line + 1, range.end.character + 1]]]],
+            ["nvim_command", ["set selectmode=cmd"]],
+            ["nvim_command", ["normal! gv"]],
+            ["nvim_command", ["set selectmode="]],
+        ]
+
+        await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
+    }
+
     public async openFile(file: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":e " + file)
         return this.activeBuffer
@@ -576,6 +620,11 @@ export class NeovimEditor extends Editor implements IEditor {
 
         if (filesToOpen && filesToOpen.length > 0) {
             await this._openFiles(filesToOpen, ":tabnew")
+        } else {
+            if (this._configuration.getValue("experimental.welcome.enabled")) {
+                const buf = await this.openFile("WELCOME")
+                buf.addLayer(new WelcomeBufferLayer())
+            }
         }
 
         this._actions.setLoadingComplete()
@@ -604,7 +653,7 @@ export class NeovimEditor extends Editor implements IEditor {
         }
 
         const onKeyDown = (key: string) => {
-            this._onKeyDown(key)
+            this.input(key)
         }
 
         return (
@@ -627,6 +676,14 @@ export class NeovimEditor extends Editor implements IEditor {
                     />
                 </Provider>
         )
+    }
+
+    public async input(key: string): Promise<void> {
+        if (this._configuration.getValue("debug.fakeLag.neovimInput")) {
+            await sleep(this._configuration.getValue("debug.fakeLag.neovimInput"))
+        }
+
+        await this._neovimInstance.input(key)
     }
 
     private _onBounceStart(): void {
@@ -685,6 +742,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
+
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
             this.notifyBufferLeave({
@@ -694,6 +752,7 @@ export class NeovimEditor extends Editor implements IEditor {
         }
         this._lastBufferId = evt.current.bufferNumber.toString()
         this.notifyBufferEnter(buf)
+        this._bufferLayerManager.notifyBufferEnter(buf)
 
         // Existing buffers contains a duplicate current buffer object which should be filtered out
         // and current buffer sent instead. Finally Filter out falsy viml values.
@@ -785,13 +844,5 @@ export class NeovimEditor extends Editor implements IEditor {
                 this._renderer.draw(this._screen)
             }
         }
-    }
-
-    private async _onKeyDown(key: string): Promise<void> {
-        if (this._configuration.getValue("debug.fakeLag.neovimInput")) {
-            await sleep(this._configuration.getValue("debug.fakeLag.neovimInput"))
-        }
-
-        await this._neovimInstance.input(key)
     }
 }

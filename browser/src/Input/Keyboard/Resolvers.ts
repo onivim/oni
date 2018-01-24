@@ -40,6 +40,7 @@ const keysToRemap: { [key: string]: string } = {
     "ArrowRight": "right",   // ArrowRight
     "ArrowDown": "down",    // ArrowDown
     "Insert": "insert",
+    " ": "space",
 }
 
 export const remapResolver = (evt: KeyboardEvent, previousResolution: string | null): string | null => {
