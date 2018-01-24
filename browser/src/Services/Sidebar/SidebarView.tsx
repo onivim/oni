@@ -18,6 +18,7 @@ export interface ISidebarIconProps {
     active: boolean
     focused: boolean
     iconName: string
+    onClick: () => void
 }
 
 import { VimNavigator } from "./../../UI/components/VimNavigator"
@@ -28,18 +29,19 @@ const SidebarIconWrapper = withProps<ISidebarIconProps>(styled.div)`
     align-items: center;
     opacity: 0.5;
     outline: none;
-    cursor: ${props => props.active ? "pointer" : null};
+    cursor: pointer;
     opacity: ${props => props.active ? 0.9 : 0.75};
     border: 1px solid ${props => props.focused ? props.theme["sidebar.selection.border"] : "transparent"};
     background-color: ${ props => props.active ? props.theme["editor.background"] : props.theme.background};
+    transition: transform 0.2s ease-in;
+    transform: ${ props => (props.active || props.focused) ? "translateX(2px)" : "translateX(0px)"};
 
     &.active {
-        cursor: pointer;
         opacity: 0.75;
     }
 
     &:hover {
-        transform: translateY(1px);
+        transform: translateX(2px);
         opacity: 0.9;
     }
     `
@@ -103,12 +105,13 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
                         (selectedId: string): JSX.Element => {
                             const items = this.props.entries.map((e) => {
                                 const isActive = e.id === this.props.activeEntryId
-                                const isFocused = e.id === selectedId
+                                const isFocused = e.id === selectedId && this.props.isActive
                                 return <SidebarIcon
                                             key={e.id}
                                             iconName={e.icon}
                                             active={isActive}
                                             focused={isFocused}
+                                            onClick={() => this.props.onSelectionChanged(e.id)}
                                         />
                             })
                             return <div className="icons">{items}</div>
