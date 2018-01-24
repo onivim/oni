@@ -24,7 +24,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     const syntaxHighlighter = editorAsAny._syntaxHighlighter
 
     let tokens = null
-    oni.automation.waitFor(() => {
+    await oni.automation.waitFor(() => {
         tokens = syntaxHighlighter.getHighlightTokenAt(currentBuffer.id, types.Position.create(0, 0))
         return tokens && tokens.scopes && tokens.scopes.length > 0
     })
