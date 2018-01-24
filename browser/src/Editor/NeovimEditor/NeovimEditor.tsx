@@ -269,8 +269,8 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.wildMenuSelect(wildMenuInfo)
         })
 
-        this._neovimInstance.onWildMenuHide.subscribe(() => { 
-            this._actions.hideWildMenu() 
+        this._neovimInstance.onWildMenuHide.subscribe(() => {
+            this._actions.hideWildMenu()
             this._externalMenuOverlay.hide()
         })
 
