@@ -6,9 +6,11 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import { IEvent } from "oni-types"
+// import { IEvent } from "oni-types"
 
-import { KeyboardInputView } from "./../../Input/KeyboardInput"
+// import { KeyboardInputView } from "./../../Input/KeyboardInput"
+
+import { VimNavigator } from "./../../UI/components/VimNavigator"
 
 import { FileIcon } from "./../FileIcon"
 
@@ -95,102 +97,8 @@ export class ContainerView extends React.PureComponent<IContainerViewProps, {}> 
     }
 }
 
-export interface IExplorerContainerProps {
-    onEnter: IEvent<void>
-}
-
-export interface IExplorerViewProps extends IExplorerContainerProps {
+export interface IExplorerViewProps {
     nodes: ExplorerSelectors.ExplorerNode[]
-    // selectedId: string
-    // recentFiles: IRecentFile[]
-    // workspaceRoot: string
-}
-
-export interface IVimNavigatorProps {
-    // activateOnMount: boolean
-    ids: string[]
-
-    onEnter: IEvent<void>
-
-    render: (selectedId: string) => JSX.Element
-}
-
-export interface IVimNavigatorState {
-    selectedId: string
-}
-
-import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
-
-export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNavigatorState> {
-    private _activeBinding: IMenuBinding = null
-
-    constructor(props: IVimNavigatorProps) {
-        super(props)
-
-        this.state = {
-            selectedId: null,
-        }
-    }
-
-    public componentDidMount(): void {
-
-
-        this.props.onEnter.subscribe(() => {
-            this._releaseBinding()
-            this._activeBinding = getInstance().bindToMenu()
-
-            this._activeBinding.onCursorMoved.subscribe((newValue) => {
-                this.setState({
-                    selectedId: newValue,
-                })
-            })
-        })
-    }
-
-    public componentDidUpdate(newProps: IVimNavigatorProps, newState: IVimNavigatorState): void {
-        if (newProps.ids !== this.props.ids && this._activeBinding) {
-            this._activeBinding.setItems(newProps.ids)
-        }
-    }
-
-    public componentWillUnmount(): void {
-        this._releaseBinding()
-    }
-
-    private _releaseBinding(): void {
-        if (this._activeBinding) {
-            this._activeBinding.release()
-            this._activeBinding = null
-        }
-    }
-
-    public render() {
-        return <div>
-                <div className="items">
-                    {this.props.render(this.state.selectedId)}
-                </div>
-                <div className="input">
-                    <KeyboardInputView
-                        top={0}
-                        left={0}
-                        height={12}
-                        onActivate={this.props.onEnter}
-                        onKeyDown={(key) => this._onKeyDown(key)}
-                        foregroundColor={"white"}
-                        fontFamily={"Segoe UI"}
-                        fontSize={"12px"}
-                        fontCharacterWidthInPixels={12}
-
-                        />
-                </div>
-            </div>
-    }
-
-    private _onKeyDown(key: string): void {
-        if (this._activeBinding) {
-            this._activeBinding.input(key)
-        }
-    }
 }
 
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
@@ -199,9 +107,9 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 
         const ids = this.props.nodes.map((node) => node.id)
 
-        return <VimNavigator 
+        return <VimNavigator
                 ids={ids}
-                onEnter={this.props.onEnter}
+                active={false}
                 render={(selectedId: string) => {
                 const nodes = this.props.nodes.map((node) => <NodeView node={node} isSelected={node.id === selectedId}/>)
 
@@ -214,11 +122,9 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
     }
 }
 
-const mapStateToProps = (state: IExplorerState, containerProps: IExplorerContainerProps): IExplorerViewProps => {
+const mapStateToProps = (state: IExplorerState): IExplorerViewProps => {
     return {
-        ...containerProps,
         nodes: ExplorerSelectors.mapStateToNodeList(state),
-        // selectedId: state.selectedId,
     }
 }
 
