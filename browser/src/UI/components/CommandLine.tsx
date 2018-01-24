@@ -137,7 +137,7 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
         return (
             !waiting &&
             visible && (
-                <CommandLineBox className="command-line-box">
+                <CommandLineBox className="command-line">
                     <CommandLineOutput innerRef={e => (this._inputElement = e)}>
                         {this.renderIconOrChar(firstchar)}
                         {this.props.prompt}
