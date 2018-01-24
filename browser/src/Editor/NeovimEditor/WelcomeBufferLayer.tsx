@@ -184,7 +184,7 @@ export class WelcomeView extends React.PureComponent<{}, WelcomeViewState> {
     }
 
     public componentDidMount(): void {
-        
+
         getMetadata().then((metadata) => {
             this.setState({
                 version: metadata.version,
@@ -198,7 +198,7 @@ export class WelcomeView extends React.PureComponent<{}, WelcomeViewState> {
             return null
         }
 
-                return <Column>
+        return <Column>
                     <Row style={{width: "100%", paddingTop: "32px", animation: `${entranceFull} 0.25s ease-in 0.25s forwards`}}>
                         <Column />
                         <Column style={{alignItems: "flex-end"}}>
