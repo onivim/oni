@@ -44,6 +44,7 @@ const start = async (args: string[]): Promise<void> => {
 
     const themePickerPromise = import("./Services/Themes/ThemePicker")
     const cssPromise = import("./CSS")
+    const completionProvidersPromise = import("./Services/Completion/CompletionProviders")
 
     // Helper for debugging:
      Performance.startMeasure("Oni.Start.Config")
@@ -126,10 +127,13 @@ const start = async (args: string[]): Promise<void> => {
     const Diagnostics = await diagnosticsPromise
     const diagnostics = Diagnostics.getInstance()
 
+    const CompletionProviders = await completionProvidersPromise
+    CompletionProviders.activate(languageManager)
+
    await Promise.race([Utility.delay(5000),
      Promise.all([
         SharedNeovimInstance.activate(configuration, pluginManager),
-        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance(), workspace)
+        startEditors(parsedArgs._, Colors.getInstance(), CompletionProviders.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance(), workspace)
     ])
    ])
     Performance.endMeasure("Oni.Start.Editors")

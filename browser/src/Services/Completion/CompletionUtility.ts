@@ -4,7 +4,25 @@
  * Helper functions for auto completion
  */
 
+import * as Oni from "oni-api"
 import * as types from "vscode-languageserver-types"
+
+export const commitCompletion = async (buffer: Oni.Buffer, line: number, base: number, completion: string) => {
+    const currentLines = await buffer.getLines(line, line + 1)
+
+    const column = buffer.cursor.column
+
+    if (!currentLines || !currentLines.length) {
+        return
+    }
+
+    const originalLine = currentLines[0]
+
+    const newLine = replacePrefixWithCompletion(originalLine, base, column, completion)
+    await buffer.setLines(line, line + 1, [newLine])
+    const cursorOffset = newLine.length - originalLine.length
+    await buffer.setCursorPosition(line, column + cursorOffset)
+}
 
 export function getCompletionStart(bufferLine: string, cursorColumn: number, completion: string): number {
 
