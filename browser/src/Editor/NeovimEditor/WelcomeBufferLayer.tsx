@@ -163,7 +163,42 @@ export class WelcomeBufferLayer implements Oni.EditorLayer {
 
     public render(context: Oni.EditorLayerRenderContext): JSX.Element {
         return <WelcomeWrapper className="enable-mouse" style={{animation: `${entranceFull} 0.25s ease-in 0.1s forwards`}}>
-                <Column>
+                <WelcomeView />
+            </WelcomeWrapper>
+    }
+}
+
+export interface WelcomeViewState {
+    version: string
+}
+
+import { getMetadata } from "./../../Services/Metadata"
+
+export class WelcomeView extends React.PureComponent<{}, WelcomeViewState> {
+    constructor(props: any) {
+        super(props)
+
+        this.state = {
+            version: null,
+        }
+    }
+
+    public componentDidMount(): void {
+        
+        getMetadata().then((metadata) => {
+            this.setState({
+                version: metadata.version,
+            })
+        })
+    }
+
+    public render(): JSX.Element {
+
+        if (!this.state.version) {
+            return null
+        }
+
+                return <Column>
                     <Row style={{width: "100%", paddingTop: "32px", animation: `${entranceFull} 0.25s ease-in 0.25s forwards`}}>
                         <Column />
                         <Column style={{alignItems: "flex-end"}}>
@@ -174,6 +209,7 @@ export class WelcomeBufferLayer implements Oni.EditorLayer {
                             <HeroImage src="images/oni-icon-no-border.svg"/>
                         </Column>
                         <Column style={{alignItems: "flex-start"}}>
+                            <SubtitleText>{"v" + this.state.version}</SubtitleText>
                             <div>{"https://onivim.io"}</div>
                         </Column>
                         <Column />
@@ -202,6 +238,5 @@ export class WelcomeBufferLayer implements Oni.EditorLayer {
                         <Column />
                     </Row>
                 </Column>
-            </WelcomeWrapper>
     }
 }
