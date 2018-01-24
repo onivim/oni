@@ -1,5 +1,4 @@
 import * as React from "react"
-import * as ReactDOM from "react-dom"
 import { connect } from "react-redux"
 import styled from "styled-components"
 
@@ -28,23 +27,12 @@ interface Props {
 
 class ExternalMenus extends React.Component<Props> {
 
-    public constructor(props: Props, private stackLayer: HTMLDivElement) {
-        super(props)
-
-        this.stackLayer = document.querySelector(".stack .layer")
-    }
-
     public render() {
         const { wildmenu, commandLine } = this.props
         const visible = commandLine.visible || wildmenu.visible
-        return (
-            visible && ReactDOM.createPortal(
-                <MenuContainer loaded={commandLine.visible && wildmenu.visible}>
+        return visible ? <MenuContainer loaded={commandLine.visible && wildmenu.visible}>
                     {this.props.children}
-                </MenuContainer>,
-                this.stackLayer,
-            )
-        )
+                </MenuContainer> : null
     }
 }
 

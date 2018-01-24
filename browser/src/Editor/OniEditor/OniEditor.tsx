@@ -27,6 +27,7 @@ import {
 } from "./../../Services/Language"
 
 import { MenuManager } from "./../../Services/Menu"
+import { OverlayManager } from "./../../Services/Overlay"
 
 import {
     ISyntaxHighlighter,
@@ -108,12 +109,13 @@ export class OniEditor implements IEditor {
          diagnostics: IDiagnosticsDataSource,
          languageManager: LanguageManager,
          menuManager: MenuManager,
+         overlayManager: OverlayManager,
          pluginManager: PluginManager,
          tasks: Tasks,
          themeManager: ThemeManager,
          workspace: Workspace,
     ) {
-        this._neovimEditor = new NeovimEditor(colors, completionProviders, configuration, diagnostics, languageManager, menuManager, pluginManager, tasks, themeManager, workspace)
+        this._neovimEditor = new NeovimEditor(colors, completionProviders, configuration, diagnostics, languageManager, menuManager, overlayManager, pluginManager, tasks, themeManager, workspace)
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => wrapReactComponentWithLayer("oni.layer.scrollbar", <BufferScrollBarContainer />))
         this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => wrapReactComponentWithLayer("oni.layer.definition", <DefinitionContainer />))

@@ -11,15 +11,12 @@ import { IEvent } from "oni-types"
 import { NeovimInstance, NeovimScreen } from "./../../neovim"
 import { INeovimRenderer } from "./../../Renderer"
 
-import CommandLine from "./../../UI/components/CommandLine"
 import { Cursor } from "./../../UI/components/Cursor"
 import { CursorLine } from "./../../UI/components/CursorLine"
-import ExternalMenus from "./../../UI/components/ExternalMenus"
 import { InstallHelp } from "./../../UI/components/InstallHelp"
 import { TabsContainer } from "./../../UI/components/Tabs"
 import { ToolTips } from "./../../UI/components/ToolTip"
 import { TypingPrediction } from "./../../UI/components/TypingPredictions"
-import WildMenu from "./../../UI/components/WildMenu"
 
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
@@ -58,10 +55,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     onTabSelect={this.props.onTabSelect}/>
             </div>
             <div className="container full">
-                <ExternalMenus>
-                    <CommandLine />
-                    <WildMenu />
-                </ExternalMenus>
                 <div className="stack">
                     <NeovimRenderer renderer={this.props.renderer}
                         neovimInstance={this.props.neovimInstance}
