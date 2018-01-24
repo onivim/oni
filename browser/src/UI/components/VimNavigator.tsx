@@ -107,17 +107,22 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
 
             this._activeBinding.onCursorMoved.subscribe((newValue) => {
                 Log.info("[VimNavigator::onCursorMoved] - " + newValue)
-                this.setState({
-                    selectedId: newValue,
-                })
 
-                if (this.props.onSelectionChanged) {
-                    this.props.onSelectionChanged(newValue)
+                if (newValue !== this.state.selectedId) {
+                    this.setState({
+                        selectedId: newValue,
+                    })
+
+                    if (this.props.onSelectionChanged) {
+                        this.props.onSelectionChanged(newValue)
+                    }
                 }
             })
 
             this._activeBinding.setItems(this.props.ids, this.state.selectedId)
             this._activateEvent.dispatch()
+        } else if(props.active && this._activeBinding) {
+            this._activeBinding.setItems(this.props.ids, this.state.selectedId)
         } else if (!props.active && this._activeBinding) {
             this._releaseBinding()
         }

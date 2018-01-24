@@ -18,16 +18,16 @@ import { IWorkspace } from "./../../Services/Workspace"
 
 import { createStore, IExplorerState } from "./ExplorerStore"
 
-// import * as ExplorerSelectors from "./ExplorerSelectors"
+import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
 
-// import { rm } from "shelljs"
+import { rm } from "shelljs"
 
 export class ExplorerSplit {
 
     private _onEnterEvent: Event<void> = new Event<void>()
+    private _selectedId: string = null
 
-    // private _activeBinding: IMenuBinding = null
     private _store: Store<IExplorerState>
 
     public get id(): string {
@@ -87,55 +87,74 @@ export class ExplorerSplit {
     public render(): JSX.Element {
 
         return <Provider store={this._store}>
-                <Explorer onEnter={this._onEnterEvent} />
+                <Explorer onSelectionChanged={(id) => this._onSelectionChanged(id)} />
             </Provider>
     }
 
+    private _onSelectionChanged(id: string): void {
+        this._selectedId = id
+    }
+
     private _onOpenItem(): void {
-        // const selectedItem = this._getSelectedItem()
+        const selectedItem = this._getSelectedItem()
 
-        // if (!selectedItem) {
-        //     return
-        // }
+        if (!selectedItem) {
+            return
+        }
 
-        // const state = this._store.getState()
+        const state = this._store.getState()
 
-        // switch (selectedItem.type) {
-        //     case "file":
-        //         this._editorManager.activeEditor.openFile(selectedItem.filePath)
-        //         return
-        //     case "folder":
-        //         const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(state, selectedItem.folderPath)
-        //         this._store.dispatch({
-        //             type: isDirectoryExpanded ? "COLLAPSE_DIRECTORY" : "EXPAND_DIRECTORY",
-        //             directoryPath: selectedItem.folderPath,
-        //         })
-        //         return
-        //     default:
-        //         alert("Not implemented yet.") // tslint:disable-line
-        // }
+        switch (selectedItem.type) {
+            case "file":
+                this._editorManager.activeEditor.openFile(selectedItem.filePath)
+                return
+            case "folder":
+                const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(state, selectedItem.folderPath)
+                this._store.dispatch({
+                    type: isDirectoryExpanded ? "COLLAPSE_DIRECTORY" : "EXPAND_DIRECTORY",
+                    directoryPath: selectedItem.folderPath,
+                })
+                return
+            default:
+                alert("Not implemented yet.") // tslint:disable-line
+        }
+    }
+
+    private _getSelectedItem(): ExplorerSelectors.ExplorerNode {
+        const state = this._store.getState()
+
+
+        const nodes = ExplorerSelectors.mapStateToNodeList(state)
+
+        const items = nodes.filter((item) => item.id === this._selectedId)
+
+        if (!items || !items.length) {
+            return null
+        }
+
+        return items[0]
     }
 
     private _onDeleteItem(): void {
-        // const selectedItem = this._getSelectedItem()
+        const selectedItem = this._getSelectedItem()
 
-        // if (!selectedItem) {
-        //     return
-        // }
+        if (!selectedItem) {
+            return
+        }
 
-        // switch (selectedItem.type) {
-        //     case "file":
-        //         rm(selectedItem.filePath)
-        //         break
-        //     case "folder":
-        //         rm("-rf", selectedItem.folderPath)
-        //         break
-        //     default:
-        //         alert("Not implemented yet")
-        // }
+        switch (selectedItem.type) {
+            case "file":
+                rm(selectedItem.filePath)
+                break
+            case "folder":
+                rm("-rf", selectedItem.folderPath)
+                break
+            default:
+                alert("Not implemented yet")
+        }
 
-        // this._store.dispatch({
-        //     type: "REFRESH",
-        // })
+        this._store.dispatch({
+            type: "REFRESH",
+        })
     }
 }

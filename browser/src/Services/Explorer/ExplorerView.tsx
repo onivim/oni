@@ -97,8 +97,13 @@ export class ContainerView extends React.PureComponent<IContainerViewProps, {}> 
     }
 }
 
-export interface IExplorerViewProps {
+export interface IExplorerViewContainerProps {
+    onSelectionChanged: (id: string) => void
+}
+
+export interface IExplorerViewProps extends IExplorerViewContainerProps {
     nodes: ExplorerSelectors.ExplorerNode[]
+    isActive: boolean
 }
 
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
@@ -109,7 +114,8 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 
         return <VimNavigator
                 ids={ids}
-                active={false}
+                active={this.props.isActive}
+                onSelectionChanged={this.props.onSelectionChanged}
                 render={(selectedId: string) => {
                 const nodes = this.props.nodes.map((node) => <NodeView node={node} isSelected={node.id === selectedId}/>)
 
@@ -122,8 +128,10 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
     }
 }
 
-const mapStateToProps = (state: IExplorerState): IExplorerViewProps => {
+const mapStateToProps = (state: IExplorerState, containerProps: IExplorerViewContainerProps): IExplorerViewProps => {
     return {
+        ...containerProps,
+        isActive: state.hasFocus,
         nodes: ExplorerSelectors.mapStateToNodeList(state),
     }
 }
