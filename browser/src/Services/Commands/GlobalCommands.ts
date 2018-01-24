@@ -9,10 +9,10 @@ import { remote } from "electron"
 
 import * as Oni from "oni-api"
 
-import { menuManager } from "./../../Services/Menu"
+import { MenuManager } from "./../../Services/Menu"
 import { showAboutMessage } from "./../../Services/Metadata"
 import { multiProcess } from "./../../Services/MultiProcess"
-import { tasks } from "./../../Services/Tasks"
+import { Tasks } from "./../../Services/Tasks"
 import { windowManager } from "./../../Services/WindowManager"
 
 // import * as UI from "./../UI/index"
@@ -21,7 +21,22 @@ import { CallbackCommand, CommandManager } from "./../CommandManager"
 
 import * as Platform from "./../../Platform"
 
-export const activate = (commandManager: CommandManager) => {
+export const activate = (commandManager: CommandManager, menuManager: MenuManager, tasks: Tasks) => {
+
+    const popupMenuCommand = (innerCommand: Oni.Commands.CommandCallback) => {
+        return () => {
+            if (menuManager.isMenuOpen()) {
+                return innerCommand()
+            }
+
+            return false
+        }
+    }
+
+    const popupMenuClose = popupMenuCommand(() => menuManager.closeActiveMenu())
+    const popupMenuNext = popupMenuCommand(() => menuManager.nextMenuItem())
+    const popupMenuPrevious = popupMenuCommand(() => menuManager.previousMenuItem())
+    const popupMenuSelect = popupMenuCommand(() => menuManager.selectMenuItem())
 
     const commands = [
 
@@ -76,17 +91,3 @@ export const activate = (commandManager: CommandManager) => {
     commands.forEach((c) => commandManager.registerCommand(c))
 }
 
-const popupMenuCommand = (innerCommand: Oni.Commands.CommandCallback) => {
-    return () => {
-        if (menuManager.isMenuOpen()) {
-            return innerCommand()
-        }
-
-        return false
-    }
-}
-
-const popupMenuClose = popupMenuCommand(() => menuManager.closeActiveMenu())
-const popupMenuNext = popupMenuCommand(() => menuManager.nextMenuItem())
-const popupMenuPrevious = popupMenuCommand(() => menuManager.previousMenuItem())
-const popupMenuSelect = popupMenuCommand(() => menuManager.selectMenuItem())

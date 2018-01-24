@@ -10,13 +10,12 @@
  */
 
 import { remote } from "electron"
-import {EventEmitter} from "events"
 import * as find from "lodash/find"
 import * as flatten from "lodash/flatten"
 
 import * as Oni from "oni-api"
 
-import { Menu, menuManager } from "./../Services/Menu"
+import { Menu, MenuManager } from "./../Services/Menu"
 
 export interface ITask {
     name: string
@@ -31,12 +30,14 @@ export interface ITaskProvider {
     getTasks(): Promise<ITask[]>
 }
 
-export class Tasks extends EventEmitter {
+export class Tasks {
     private _lastTasks: ITask[] = []
-
     private _menu: Menu
-
     private _providers: ITaskProvider[] = []
+
+    constructor(
+        private _menuManager: MenuManager,
+    ) { }
 
     // TODO: This should be refactored, as it is simply
     // a timing dependency on when the object is created versus when
@@ -57,7 +58,7 @@ export class Tasks extends EventEmitter {
                             }
                         })
 
-            this._menu = menuManager.create()
+            this._menu = this._menuManager.create()
             this._menu.onItemSelected.subscribe((selection: any) => this._onItemSelected(selection))
             this._menu.show()
             this._menu.setItems(options)
@@ -89,4 +90,12 @@ export class Tasks extends EventEmitter {
     }
 }
 
-export const tasks = new Tasks()
+let _tasks: Tasks = null
+
+export const activate = (menuManager: MenuManager) => {
+    _tasks = new Tasks(menuManager)
+}
+
+export const getInstance = (): Tasks => {
+    return _tasks
+}

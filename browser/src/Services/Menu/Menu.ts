@@ -143,5 +143,3 @@ export class Menu {
         return menuState.menu.filteredOptions[index]
     }
 }
-
-export const menuManager = new MenuManager()

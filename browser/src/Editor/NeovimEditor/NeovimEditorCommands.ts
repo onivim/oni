@@ -17,7 +17,7 @@ import { getUserConfigFilePath } from "./../../Services/Configuration"
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 import { editorManager } from "./../../Services/EditorManager"
 import { findAllReferences, format, LanguageEditorIntegration } from "./../../Services/Language"
-import { menuManager } from "./../../Services/Menu"
+import { MenuManager } from "./../../Services/Menu"
 import { QuickOpen } from "./../../Services/QuickOpen"
 import { replaceAll } from "./../../Utility"
 
@@ -34,6 +34,7 @@ export class NeovimEditorCommands {
         private _contextMenuManager: ContextMenuManager,
         private _definition: Definition,
         private _languageEditorIntegration: LanguageEditorIntegration,
+        private _menuManager: MenuManager,
         private _neovimInstance: NeovimInstance,
         private _rename: Rename,
         private _symbols: Symbols,
@@ -45,7 +46,7 @@ export class NeovimEditorCommands {
         // TODO: This should be extracted
         // - Should not depend on NeovimInstance
         // - Should be able to work against the public 'IEditor' interface
-        const quickOpen = new QuickOpen(this._neovimInstance)
+        const quickOpen = new QuickOpen(this._menuManager, this._neovimInstance)
 
         const quickOpenCommand = (innerCommand: Oni.Commands.CommandCallback) => (qo: QuickOpen) => {
             return () => {
@@ -116,7 +117,7 @@ export class NeovimEditorCommands {
     }
 
         const shouldShowMenu = () => {
-            return !menuManager.isMenuOpen()
+            return !this._menuManager.isMenuOpen()
         }
 
         const openFolder = (neovimInstance: NeovimInstance) => {

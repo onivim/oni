@@ -50,7 +50,8 @@ import {
     SyntaxHighlighter,
 } from "./../../Services/SyntaxHighlighting"
 
-import { tasks } from "./../../Services/Tasks"
+import { MenuManager } from "./../../Services/Menu"
+import { Tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 import { Workspace } from "./../../Services/Workspace"
@@ -146,7 +147,9 @@ export class NeovimEditor extends Editor implements IEditor {
         private _configuration: Configuration,
         private _diagnostics: IDiagnosticsDataSource,
         private _languageManager: LanguageManager,
+        private _menuManager: MenuManager,
         private _pluginManager: PluginManager,
+        private _tasks: Tasks,
         private _themeManager: ThemeManager,
         private _workspace: Workspace,
     ) {
@@ -169,7 +172,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._hoverRenderer = new HoverRenderer(this._colors, this, this._configuration, this._toolTipsProvider)
 
         this._definition = new Definition(this, this._store)
-        this._symbols = new Symbols(this, this._definition, this._languageManager)
+        this._symbols = new Symbols(this, this._definition, this._languageManager, this._menuManager)
 
         this._diagnostics.onErrorsChanged.subscribe(() => {
             const errors = this._diagnostics.getErrors()
@@ -197,6 +200,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._contextMenuManager,
             this._definition,
             this._languageIntegration,
+            this._menuManager,
             this._neovimInstance,
             this._rename,
             this._symbols,
@@ -211,8 +215,8 @@ export class NeovimEditor extends Editor implements IEditor {
         window.addEventListener("resize", updateViewport)
         updateViewport()
 
-        tasks.registerTaskProvider(commandManager)
-        tasks.registerTaskProvider(errorService)
+        this._tasks.registerTaskProvider(commandManager)
+        this._tasks.registerTaskProvider(errorService)
 
         services.push(errorService)
 
@@ -457,16 +461,6 @@ export class NeovimEditor extends Editor implements IEditor {
         this._languageIntegration.onHideDefinition.subscribe((definition) => {
             this._actions.hideDefinition()
         })
-
-        this._commands = new NeovimEditorCommands(
-            commandManager,
-            this._contextMenuManager,
-            this._definition,
-            this._languageIntegration,
-            this._neovimInstance,
-            this._rename,
-            this._symbols,
-        )
 
         this._render()
 
