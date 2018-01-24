@@ -18,6 +18,7 @@ import * as Log from "./../../Log"
 import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { IColors } from "./../../Services/Colors"
+import { CompletionProviders } from "./../../Services/Completion"
 import { Configuration } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 
@@ -99,6 +100,7 @@ export class OniEditor implements IEditor {
 
     constructor(
          colors: IColors,
+         completionProviders: CompletionProviders,
          configuration: Configuration,
          diagnostics: IDiagnosticsDataSource,
          languageManager: LanguageManager,
@@ -106,7 +108,7 @@ export class OniEditor implements IEditor {
          themeManager: ThemeManager,
          workspace: Workspace,
     ) {
-        this._neovimEditor = new NeovimEditor(colors, configuration, diagnostics, languageManager, pluginManager, themeManager, workspace)
+        this._neovimEditor = new NeovimEditor(colors, completionProviders, configuration, diagnostics, languageManager, pluginManager, themeManager, workspace)
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => wrapReactComponentWithLayer("oni.layer.scrollbar", <BufferScrollBarContainer />))
         this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => wrapReactComponentWithLayer("oni.layer.definition", <DefinitionContainer />))

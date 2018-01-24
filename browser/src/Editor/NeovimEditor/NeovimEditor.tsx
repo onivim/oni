@@ -32,7 +32,6 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { IColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
-import { Completion } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
@@ -283,7 +282,14 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.onYank.subscribe((yankInfo) => {
             if (this._configuration.getValue("editor.clipboard.enabled")) {
-                clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+
+                const isYankAndAllowed = yankInfo.operator === "y" && this._configuration.getValue("editor.clipboard.synchronizeYank")
+                const isDeleteAndAllowed = yankInfo.operator === "d" && this._configuration.getValue("editor.clipboard.synchronizeDelete")
+                const isAllowed = isYankAndAllowed || isDeleteAndAllowed
+
+                if (isAllowed) {
+                    clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+                }
             }
         })
 
@@ -411,25 +417,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
         const textMateHighlightingEnabled = this._configuration.getValue("experimental.editor.textMateHighlighting.enabled")
         this._syntaxHighlighter = textMateHighlightingEnabled ? new SyntaxHighlighter(this._configuration, this) : new NullSyntaxHighlighter()
-
-        this._completion = new Completion(this, this._languageManager, this._configuration)
-        this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
-
-        this._completion.onShowCompletionItems.subscribe((completions) => {
-            this._completionMenu.show(completions.filteredCompletions, completions.base)
-        })
-
-        this._completion.onHideCompletionItems.subscribe((completions) => {
-            this._completionMenu.hide()
-        })
-
-        this._completionMenu.onItemFocused.subscribe((item) => {
-            this._completion.resolveItem(item)
-        })
-
-        this._completionMenu.onItemSelected.subscribe((item) => {
-            this._completion.commitItem(item)
-        })
 
         this._languageIntegration = new LanguageEditorIntegration(this, this._configuration, this._languageManager)
 

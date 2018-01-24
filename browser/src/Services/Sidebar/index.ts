@@ -22,7 +22,7 @@ export const activate = (configuration: Configuration, workspace: Workspace) => 
         leftDock.addSplit(new SidebarSplit(_sidebarManager))
         leftDock.addSplit(new SidebarContentSplit(_sidebarManager))
 
-        _sidebarManager.add("files-o", new ExplorerSplit(configuration, workspace, commandManager, editorManager))
+        _sidebarManager.add("files-o", new ExplorerSplit(workspace, commandManager, editorManager))
 
         const searchPane = new SidebarPane("oni.sidebar.search", "Search")
         _sidebarManager.add("search", searchPane)
