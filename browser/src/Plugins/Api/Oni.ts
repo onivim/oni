@@ -23,8 +23,10 @@ import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
 import { menuManager } from "./../../Services/Menu"
+import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
 import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
+import { getInstance as getSnippetsInstance } from "./../../Services/Snippets"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
 import { windowManager } from "./../../Services/WindowManager"
 import { getInstance as getWorkspaceInstance } from "./../../Services/Workspace"
@@ -78,6 +80,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return recorder
     }
 
+    public get snippets(): any {
+        return getSnippetsInstance()
+    }
+
     public get configuration(): OniApi.Configuration {
         return configuration
     }
@@ -104,6 +110,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     public get menu(): any /* TODO */ {
         return menuManager
+    }
+
+    public get overlays(): any /* TODO */ {
+        return getOverlayInstance()
     }
 
     public get process(): OniApi.Process {

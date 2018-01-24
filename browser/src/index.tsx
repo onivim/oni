@@ -26,6 +26,7 @@ const start = async (args: string[]): Promise<void> => {
     const iconThemesPromise = import("./Services/IconThemes")
 
     const sidebarPromise = import("./Services/Sidebar")
+    const overlayPromise = import("./Services/Overlay")
     const statusBarPromise = import("./Services/StatusBar")
     const startEditorsPromise = import("./startEditors")
 
@@ -35,9 +36,13 @@ const start = async (args: string[]): Promise<void> => {
     const colorsPromise = import("./Services/Colors")
     const diagnosticsPromise = import("./Services/Diagnostics")
     const editorManagerPromise = import("./Services/EditorManager")
+    const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const snippetPromise = import("./Services/Snippets")
     const workspacePromise = import("./Services/Workspace")
+
+    const themePickerPromise = import("./Services/Themes/ThemePicker")
     const cssPromise = import("./CSS")
 
     // Helper for debugging:
@@ -68,10 +73,6 @@ const start = async (args: string[]): Promise<void> => {
     configuration.onConfigurationChanged.subscribe(configChange)
     Performance.endMeasure("Oni.Start.Config")
 
-    const Workspace = await workspacePromise
-    Workspace.activate(configuration)
-    const workspace = Workspace.getInstance()
-
     const PluginManager = await pluginManagerPromise
     PluginManager.activate(configuration)
     const pluginManager = PluginManager.getInstance()
@@ -90,7 +91,7 @@ const start = async (args: string[]): Promise<void> => {
 
     const Colors = await colorsPromise
     Colors.activate(configuration, Themes.getThemeManagerInstance())
-    Shell.Actions.setColors(Themes.getThemeManagerInstance().getColors())
+    Shell.initializeColors(Colors.getInstance())
     Performance.endMeasure("Oni.Start.Themes")
 
     const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
@@ -98,9 +99,16 @@ const start = async (args: string[]): Promise<void> => {
 
     const { editorManager } = await editorManagerPromise
 
+    const Workspace = await workspacePromise
+    Workspace.activate(configuration, editorManager)
+    const workspace = Workspace.getInstance()
+
     const StatusBar = await statusBarPromise
     StatusBar.activate(configuration)
     const statusBar = StatusBar.getInstance()
+
+    const Overlay = await overlayPromise
+    Overlay.activate()
 
     const LanguageManager = await languageManagerPromise
     LanguageManager.activate(configuration, editorManager, statusBar, workspace)
@@ -131,7 +139,6 @@ const start = async (args: string[]): Promise<void> => {
     Sidebar.activate(configuration, workspace)
     Performance.endMeasure("Oni.Start.Sidebar")
 
-
     const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
 
     diagnostics.start(languageManager)
@@ -143,14 +150,26 @@ const start = async (args: string[]): Promise<void> => {
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     const { inputManager } = await inputManagerPromise
+    const { commandManager } = await import("./Services/CommandManager")
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+
+    const GlobalCommands = await globalCommandsPromise
+    GlobalCommands.activate(commandManager)
+
+    const Snippets = await snippetPromise
+    Snippets.activate()
+
+    const ThemePicker = await themePickerPromise
+    ThemePicker.activate(configuration, Themes.getThemeManagerInstance())
+
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()
 
     Performance.endMeasure("Oni.Start")
+    ipcRenderer.send("Oni.started", "started")
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {

@@ -15,9 +15,7 @@ export interface ISidebarState {
     // Active means that the tab is currently selected
     activeEntryId: string
 
-    // Focused means that there is keyboard focus,
-    // like 'hover' but for keyboard accessibility
-    focusedEntryId: string
+    isActive: boolean
 }
 
 export type SidebarIcon = string
@@ -32,6 +30,9 @@ export interface ISidebarEntry {
 export interface SidebarPane extends Oni.IWindowSplit {
     id: string
     title: string
+
+    enter(): void
+    leave(): void
 }
 
 export class SidebarManager {
@@ -54,11 +55,21 @@ export class SidebarManager {
         this._store = createStore()
     }
 
-    public setFocusedEntry(id: string): void {
-        this._store.dispatch({
-            type: "SET_FOCUSED_ID",
-            focusedEntryId: id,
-        })
+    public setActiveEntry(id: string): void {
+        if (id) {
+            this._store.dispatch({
+                type: "SET_ACTIVE_ID",
+                activeEntryId: id,
+            })
+        }
+    }
+
+    public enter(): void {
+        this._store.dispatch({ type: "ENTER" })
+    }
+
+    public leave(): void {
+        this._store.dispatch({ type: "LEAVE" })
     }
 
     public add(icon: SidebarIcon, pane: SidebarPane): void {
@@ -77,18 +88,19 @@ export class SidebarManager {
 const DefaultSidebarState: ISidebarState = {
     entries: [],
     activeEntryId: null,
-    focusedEntryId: null,
+    isActive: false,
 }
 
 export type SidebarActions = {
     type: "SET_ACTIVE_ID",
     activeEntryId: string,
 } | {
-    type: "SET_FOCUSED_ID",
-    focusedEntryId: string,
-} | {
     type: "ADD_ENTRY",
     entry: ISidebarEntry,
+} | {
+    type: "ENTER",
+} | {
+    type: "LEAVE",
 }
 
 export const sidebarReducer: Reducer<ISidebarState> = (
@@ -96,17 +108,21 @@ export const sidebarReducer: Reducer<ISidebarState> = (
     action: SidebarActions,
 ) => {
     switch (action.type) {
+        case "ENTER":
+            return {
+                ...state,
+                isActive: true,
+            }
+        case "LEAVE":
+            return {
+                ...state,
+                isActive: false,
+            }
         case "SET_ACTIVE_ID":
             return {
                 ...state,
                 activeEntryId: action.activeEntryId,
             }
-        case "SET_FOCUSED_ID":
-            return {
-                ...state,
-                focusedEntryId: action.focusedEntryId,
-            }
-
         case "ADD_ENTRY":
             if (!state.activeEntryId) {
                 return {

@@ -21,6 +21,8 @@ import StatusBar from "./../components/StatusBar"
 import { WindowSplits } from "./../components/WindowSplits"
 import { WindowTitle } from "./../components/WindowTitle"
 
+import { Overlays } from "./OverlayView"
+
 interface IShellViewComponentProps {
     theme: IThemeColors
     windowManager: WindowManager.WindowManager
@@ -48,6 +50,7 @@ export class ShellView extends React.PureComponent<IShellViewComponentProps, {}>
                             <div className="stack layer">
                                 <MenuContainer />
                             </div>
+                            <Overlays />
                         </div>
                         <div className="container fixed layer">
                             <StatusBar />
