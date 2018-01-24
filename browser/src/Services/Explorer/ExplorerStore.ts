@@ -46,37 +46,17 @@ export interface IFileSystem {
 }
 
 export interface IExplorerState {
-    // Recent
-    openedFiles: OpenedFiles
-
     // Open workspace
     rootFolder: IFolderState
 
     expandedFolders: ExpandedFolders
 
-    selectedId: string
-
     hasFocus: boolean
-
-    styling: IExplorerStyling
-}
-
-export interface IExplorerStyling {
-    fontFamily: string
-    fontSize: string
-}
-
-export const DefaultExplorerStyle: IExplorerStyling = {
-    fontFamily: null,
-    fontSize: null,
 }
 
 export const DefaultExplorerState: IExplorerState = {
-    openedFiles: {},
     rootFolder: null,
     expandedFolders: {},
-    selectedId: "explorer",
-    styling: DefaultExplorerStyle,
     hasFocus: false,
 }
 
@@ -94,22 +74,9 @@ export type ExplorerAction = {
     directoryPath: string,
     children: FolderOrFile[],
 } | {
-    type: "SET_SELECTED_ID",
-    selectedId: string,
-} | {
-    type: "SET_FONT",
-    fontFamily: string,
-    fontSize: string,
-} | {
     type: "ENTER",
 } | {
     type: "LEAVE",
-} | {
-    type: "BUFFER_OPENED",
-    filePath: string,
-} | {
-    type: "BUFFER_CLOSED",
-    filePath: string,
 } | {
     type: "REFRESH",
 }
@@ -131,25 +98,6 @@ export const rootFolderReducer: Reducer<IFolderState> = (
     }
 }
 
-export const openedFilesReducer: Reducer<OpenedFiles> = (
-    state: OpenedFiles = {},
-    action: ExplorerAction,
-) => {
-    switch (action.type) {
-        case "BUFFER_OPENED":
-            return {
-                ...state,
-                [action.filePath]: {},
-            }
-        case "BUFFER_CLOSED":
-            const newState = { ...state }
-            delete newState[action.filePath]
-            return newState
-        default:
-            return state
-    }
-}
-
 export const expandedFolderReducer: Reducer<ExpandedFolders> = (
     state: ExpandedFolders = {},
     action: ExplorerAction,
@@ -163,33 +111,6 @@ export const expandedFolderReducer: Reducer<ExpandedFolders> = (
             return {
                 ...state,
                 [action.directoryPath]: action.children,
-            }
-        default:
-            return state
-    }
-}
-
-export const selectedIdReducer: Reducer<string> = (
-    state: string = null,
-    action: ExplorerAction,
-) => {
-    switch (action.type) {
-        case "SET_SELECTED_ID":
-            return action.selectedId
-        default:
-            return state
-    }
-}
-
-export const stylingReducer: Reducer<IExplorerStyling> = (
-    state: IExplorerStyling = null,
-    action: ExplorerAction,
-) => {
-    switch (action.type) {
-        case "SET_FONT":
-            return {
-                fontFamily: action.fontFamily,
-                fontSize: action.fontSize,
             }
         default:
             return state
@@ -219,9 +140,6 @@ export const reducer: Reducer<IExplorerState> = (
         hasFocus: hasFocusReducer(state.hasFocus, action),
         rootFolder: rootFolderReducer(state.rootFolder, action),
         expandedFolders: expandedFolderReducer(state.expandedFolders, action),
-        selectedId: selectedIdReducer(state.selectedId, action),
-        styling: stylingReducer(state.styling, action),
-        openedFiles: openedFilesReducer(state.openedFiles, action),
     }
 }
 
