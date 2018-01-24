@@ -4,8 +4,8 @@ import * as types from "vscode-languageserver-types"
 
 import { Definition, IDefinitionProps } from "./../../../UI/components/Definition"
 
-import * as Selectors from "./../NeovimEditorSelectors"
-import * as State from "./../NeovimEditorStore"
+import * as Selectors from "./../../NeovimEditor/NeovimEditorSelectors"
+import * as State from "./../../NeovimEditor/NeovimEditorStore"
 
 const emptyRange = types.Range.create(
     types.Position.create(-1, -1),

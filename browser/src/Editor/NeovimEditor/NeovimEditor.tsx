@@ -69,6 +69,7 @@ import { normalizePath, sleep } from "./../../Utility"
 
 import * as VimConfigurationSynchronizer from "./../../Services/VimConfigurationSynchronizer"
 
+import { BufferLayerManager } from "./BufferLayerManager"
 import { Definition } from "./Definition"
 import * as ActionCreators from "./NeovimEditorActions"
 import { NeovimEditorCommands } from "./NeovimEditorCommands"
@@ -120,6 +121,8 @@ export class NeovimEditor extends Editor implements IEditor {
     private _toolTipsProvider: IToolTipsProvider
     private _commands: NeovimEditorCommands
 
+    private _bufferLayerManager: BufferLayerManager
+
     public /* override */ get activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
     }
@@ -127,6 +130,10 @@ export class NeovimEditor extends Editor implements IEditor {
     // Capabilities
     public get neovim(): Oni.NeovimEditorCapability {
         return this._neovimInstance
+    }
+
+    public get bufferLayers(): BufferLayerManager {
+        return this._bufferLayerManager
     }
 
     public get syntaxHighlighter(): ISyntaxHighlighter {
@@ -150,6 +157,8 @@ export class NeovimEditor extends Editor implements IEditor {
         this._store = createStore()
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
         this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
+
+        this._bufferLayerManager = new BufferLayerManager()
 
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
@@ -644,7 +653,7 @@ export class NeovimEditor extends Editor implements IEditor {
         }
 
         const onKeyDown = (key: string) => {
-            this._onKeyDown(key)
+            this.input(key)
         }
 
         return (
@@ -667,6 +676,14 @@ export class NeovimEditor extends Editor implements IEditor {
                     />
                 </Provider>
         )
+    }
+
+    public async input(key: string): Promise<void> {
+        if (this._configuration.getValue("debug.fakeLag.neovimInput")) {
+            await sleep(this._configuration.getValue("debug.fakeLag.neovimInput"))
+        }
+
+        await this._neovimInstance.input(key)
     }
 
     private _onBounceStart(): void {
@@ -725,6 +742,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
+
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
             this.notifyBufferLeave({
@@ -734,6 +752,7 @@ export class NeovimEditor extends Editor implements IEditor {
         }
         this._lastBufferId = evt.current.bufferNumber.toString()
         this.notifyBufferEnter(buf)
+        this._bufferLayerManager.notifyBufferEnter(buf)
 
         // Existing buffers contains a duplicate current buffer object which should be filtered out
         // and current buffer sent instead. Finally Filter out falsy viml values.
@@ -825,13 +844,5 @@ export class NeovimEditor extends Editor implements IEditor {
                 this._renderer.draw(this._screen)
             }
         }
-    }
-
-    private async _onKeyDown(key: string): Promise<void> {
-        if (this._configuration.getValue("debug.fakeLag.neovimInput")) {
-            await sleep(this._configuration.getValue("debug.fakeLag.neovimInput"))
-        }
-
-        await this._neovimInstance.input(key)
     }
 }
