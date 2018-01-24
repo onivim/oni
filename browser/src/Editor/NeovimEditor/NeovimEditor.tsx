@@ -262,7 +262,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.onWildMenuShow.subscribe(wildMenuInfo => {
             this._actions.showWildMenu(wildMenuInfo)
-            this._externalMenuOverlay.show()
         })
 
         this._neovimInstance.onWildMenuSelect.subscribe(wildMenuInfo => {
@@ -271,7 +270,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.onWildMenuHide.subscribe(() => {
             this._actions.hideWildMenu()
-            this._externalMenuOverlay.hide()
         })
 
         this._neovimInstance.onCommandLineHide.subscribe(() => {
