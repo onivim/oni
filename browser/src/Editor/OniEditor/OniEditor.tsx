@@ -109,7 +109,7 @@ export class OniEditor implements IEditor {
          languageManager: LanguageManager,
          menuManager: MenuManager,
          pluginManager: PluginManager,
-        tasks: Tasks,
+         tasks: Tasks,
          themeManager: ThemeManager,
          workspace: Workspace,
     ) {

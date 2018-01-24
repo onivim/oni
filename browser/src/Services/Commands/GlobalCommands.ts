@@ -90,4 +90,3 @@ export const activate = (commandManager: CommandManager, menuManager: MenuManage
 
     commands.forEach((c) => commandManager.registerCommand(c))
 }
-
