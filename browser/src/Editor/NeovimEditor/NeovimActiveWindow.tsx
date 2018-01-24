@@ -6,10 +6,6 @@
  */
 
 import * as React from "react"
-import { connect } from "react-redux"
-
-import * as Selectors from "./NeovimEditorSelectors"
-import * as State from "./NeovimEditorStore"
 
 export interface IActiveWindowProps {
     pixelX: number
@@ -36,15 +32,3 @@ export class NeovimActiveWindow extends React.PureComponent<IActiveWindowProps, 
         </div>
     }
 }
-
-const mapStateToProps = (state: State.IState): IActiveWindowProps => {
-    const dimensions = Selectors.getActiveWindowPixelDimensions(state)
-    return {
-        pixelX: dimensions.x,
-        pixelY: dimensions.y,
-        pixelWidth: dimensions.width,
-        pixelHeight: dimensions.height,
-    }
-}
-
-export const NeovimActiveWindowContainer = connect(mapStateToProps)(NeovimActiveWindow)
