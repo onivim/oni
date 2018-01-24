@@ -121,7 +121,7 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
 
             this._activeBinding.setItems(this.props.ids, this.state.selectedId)
             this._activateEvent.dispatch()
-        } else if(props.active && this._activeBinding) {
+        } else if (props.active && this._activeBinding) {
             this._activeBinding.setItems(this.props.ids, this.state.selectedId)
         } else if (!props.active && this._activeBinding) {
             this._releaseBinding()

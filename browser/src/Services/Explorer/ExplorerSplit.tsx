@@ -123,7 +123,6 @@ export class ExplorerSplit {
     private _getSelectedItem(): ExplorerSelectors.ExplorerNode {
         const state = this._store.getState()
 
-
         const nodes = ExplorerSelectors.mapStateToNodeList(state)
 
         const items = nodes.filter((item) => item.id === this._selectedId)
