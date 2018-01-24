@@ -6,6 +6,7 @@
 
 import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
+import * as path from "path"
 import * as Log from "./Log"
 import * as Performance from "./Performance"
 import * as Utility from "./Utility"
@@ -17,8 +18,6 @@ const start = async (args: string[]): Promise<void> => {
 
     const Shell = await import("./UI/Shell")
     Shell.activate()
-
-    const parsedArgs = minimist(args)
 
     const configurationPromise = import("./Services/Configuration")
     const pluginManagerPromise = import("./Plugins/PluginManager")
@@ -45,6 +44,10 @@ const start = async (args: string[]): Promise<void> => {
     const themePickerPromise = import("./Services/Themes/ThemePicker")
     const cssPromise = import("./CSS")
     const completionProvidersPromise = import("./Services/Completion/CompletionProviders")
+
+    const parsedArgs = minimist(args)
+    const currentWorkingDirectory = process.cwd()
+    const filesToOpen = parsedArgs._.map((arg) => path.join(currentWorkingDirectory, arg))
 
     // Helper for debugging:
      Performance.startMeasure("Oni.Start.Config")
@@ -133,7 +136,7 @@ const start = async (args: string[]): Promise<void> => {
    await Promise.race([Utility.delay(5000),
      Promise.all([
         SharedNeovimInstance.activate(configuration, pluginManager),
-        startEditors(parsedArgs._, Colors.getInstance(), CompletionProviders.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance(), workspace)
+        startEditors(filesToOpen, Colors.getInstance(), CompletionProviders.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance(), workspace)
     ])
    ])
     Performance.endMeasure("Oni.Start.Editors")
