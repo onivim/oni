@@ -31,26 +31,24 @@ export interface IDockProps {
 export class Dock extends React.PureComponent<IDockProps, {}> {
     public render(): JSX.Element {
         const docks = this.props.splits.map((s, i) => {
-            return (<div style={{display: "flex", flexDirection: "row"}}>
-            <WindowSplitHost
-                key={i}
-                containerClassName="split"
-                split={s}
-                isFocused={this.props.activeSplit === s}
-            />
-            <div className="split-spacer vertical" />
+            return (
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                    <WindowSplitHost
+                        key={i}
+                        containerClassName="split"
+                        split={s}
+                        isFocused={this.props.activeSplit === s}
+                    />
+                    <div className="split-spacer vertical" />
                 </div>
             )
         })
 
-        return <div className = "dock container fixed horizontal">
-            {docks}
-            </div>
+        return <div className="dock container fixed horizontal">{docks}</div>
     }
 }
 
 export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindowSplitsState> {
-
     constructor(props: IWindowSplitsProps) {
         super(props)
 
@@ -62,7 +60,7 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
     }
 
     public componentDidMount(): void {
-        this.props.windowManager.onSplitChanged.subscribe((newSplit) => {
+        this.props.windowManager.onSplitChanged.subscribe(newSplit => {
             this.setState({
                 splitRoot: newSplit,
             })
@@ -74,7 +72,7 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
             })
         })
 
-        this.props.windowManager.onActiveSplitChanged.subscribe((newSplit) => {
+        this.props.windowManager.onActiveSplitChanged.subscribe(newSplit => {
             this.setState({
                 activeSplit: newSplit,
             })
@@ -87,10 +85,10 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
         }
 
         const containerStyle: React.CSSProperties = {
-            "display": "flex",
-            "flexDirection": "row",
-            "width": "100%",
-            "height": "100%",
+            display: "flex",
+            flexDirection: "row",
+            width: "100%",
+            height: "100%",
         }
 
         const editors = this.state.splitRoot.splits.map((splitNode, i) => {
@@ -100,20 +98,33 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
                 const split: Oni.IWindowSplit = splitNode.contents
 
                 if (!split) {
-                    return <div className="container vertical full" key={i}>TODO: Implement an editor here...</div>
+                    return (
+                        <div className="container vertical full" key={i}>
+                            TODO: Implement an editor here...
+                        </div>
+                    )
                 } else {
-                    return <WindowSplitHost containerClassName={"editor"} key={i} split={split} isFocused={split === this.state.activeSplit}/>
+                    return (
+                        <WindowSplitHost
+                            containerClassName={"editor"}
+                            key={i}
+                            split={split}
+                            isFocused={split === this.state.activeSplit}
+                        />
+                    )
                 }
             }
         })
 
         // const spacer = this.state.leftDock.length > 0 ? <div className="split-spacer vertical" /> : null
 
-        return <div style={containerStyle}>
-                    <div className="container horizontal full">
-                        <Dock splits={this.state.leftDock} activeSplit={this.state.activeSplit} />
-                        {editors}
-                    </div>
+        return (
+            <div style={containerStyle}>
+                <div className="container horizontal full">
+                    <Dock splits={this.state.leftDock} activeSplit={this.state.activeSplit} />
+                    {editors}
                 </div>
+            </div>
+        )
     }
 }

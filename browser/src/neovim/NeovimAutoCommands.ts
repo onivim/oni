@@ -75,20 +75,19 @@ export class NeovimAutoCommands {
 
     constructor(private _neovimInstance: NeovimInstance) {
         this._nameToEvent = {
-            "BufEnter": this._onBufEnterEvent,
-            "BufWritePost": this._onBufWritePostEvent,
-            "BufWinEnter": this._onBufWinEnterEvent,
-            "BufWipeout": this._onBufWipeoutEvent,
-            "CursorMoved": this._onCursorMovedEvent,
-            "CursorMovedI": this._onCursorMovedIEvent,
-            "FileType": this._onFileTypeChangedEvent,
-            "WinEnter": this._onWinEnterEvent,
-            "VimResized": this._onVimResizedEvent,
+            BufEnter: this._onBufEnterEvent,
+            BufWritePost: this._onBufWritePostEvent,
+            BufWinEnter: this._onBufWinEnterEvent,
+            BufWipeout: this._onBufWipeoutEvent,
+            CursorMoved: this._onCursorMovedEvent,
+            CursorMovedI: this._onCursorMovedIEvent,
+            FileType: this._onFileTypeChangedEvent,
+            WinEnter: this._onWinEnterEvent,
+            VimResized: this._onVimResizedEvent,
         }
     }
 
     public notifyAutocommand(autoCommandName: string, context: EventContext): void {
-
         const evt = this._nameToEvent[autoCommandName]
 
         if (!evt) {

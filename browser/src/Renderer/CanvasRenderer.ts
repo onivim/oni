@@ -26,13 +26,15 @@ const cellsAreSameColor = (cell1: ICell, cell2: ICell): boolean => {
         return false
     }
 
-    return cell1.backgroundColor === cell2.backgroundColor
-        && cell1.foregroundColor === cell2.foregroundColor
-        && cell1.characterWidth === 1 && cell2.characterWidth === 1
+    return (
+        cell1.backgroundColor === cell2.backgroundColor &&
+        cell1.foregroundColor === cell2.foregroundColor &&
+        cell1.characterWidth === 1 &&
+        cell2.characterWidth === 1
+    )
 }
 
 const cellsAreEqual = (cell1: ICell, cell2: ICell): boolean => {
-
     if (cell1 === cell2) {
         return true
     }
@@ -86,7 +88,7 @@ export class CanvasRenderer implements INeovimRenderer {
             for (let y = 0; y < screenInfo.height; y++) {
                 const cell = screenInfo.getCell(x, y)
                 cellsToUpdate.push({ x, y })
-                this._lastRenderGrid.setCell(x, y , cell)
+                this._lastRenderGrid.setCell(x, y, cell)
             }
         }
 
@@ -97,12 +99,11 @@ export class CanvasRenderer implements INeovimRenderer {
         const cellsToUpdate: IPosition[] = []
         for (let x = 0; x < screenInfo.width; x++) {
             for (let y = 0; y < screenInfo.height; y++) {
-
                 const lastCell = this._lastRenderGrid.getCell(x, y)
                 const currentCell = screenInfo.getCell(x, y)
 
                 if (!cellsAreEqual(lastCell, currentCell)) {
-                    cellsToUpdate.push({ x, y})
+                    cellsToUpdate.push({ x, y })
                     this._lastRenderGrid.setCell(x, y, currentCell)
                 }
             }
@@ -207,12 +208,19 @@ export class CanvasRenderer implements INeovimRenderer {
         this._renderText(prevState, screenInfo)
     }
 
-    private _getNextRenderState(cell: ICell, x: number, y: number, currentState: IRenderState): IRenderState {
+    private _getNextRenderState(
+        cell: ICell,
+        x: number,
+        y: number,
+        currentState: IRenderState,
+    ): IRenderState {
         const isCurrentCellWhiteSpace = isWhiteSpace(cell.character)
-        if (cell.foregroundColor !== currentState.foregroundColor
-            || cell.backgroundColor !== currentState.backgroundColor
-            || isCurrentCellWhiteSpace !== currentState.isWhitespace
-            || cell.characterWidth > 1) {
+        if (
+            cell.foregroundColor !== currentState.foregroundColor ||
+            cell.backgroundColor !== currentState.backgroundColor ||
+            isCurrentCellWhiteSpace !== currentState.isWhitespace ||
+            cell.characterWidth > 1
+        ) {
             return {
                 isWhitespace: isCurrentCellWhiteSpace,
                 foregroundColor: cell.foregroundColor,
@@ -226,7 +234,6 @@ export class CanvasRenderer implements INeovimRenderer {
                 y,
             }
         } else {
-
             const adjustedCharacterWidth = isCurrentCellWhiteSpace ? 1 : cell.characterWidth
 
             // Not using spread (...) operator, which would simplify this,
@@ -252,7 +259,6 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     private _renderText(state: IRenderState, screenInfo: IScreen): void {
-
         // Spans can have a width of 0 if they are placeholders for cells
         // after a multibyte character. In this case, we don't need to bother
         // rendering or clearing, because that occurs with the multibyte character.
@@ -260,7 +266,15 @@ export class CanvasRenderer implements INeovimRenderer {
             return
         }
 
-        const { backgroundColor, foregroundColor, bold, italic,  /* underline ,*/ text, startX, y } = state
+        const {
+            backgroundColor,
+            foregroundColor,
+            bold,
+            italic,
+            /* underline ,*/ text,
+            startX,
+            y,
+        } = state
 
         const { fontWidthInPixels, fontHeightInPixels, linePaddingInPixels } = screenInfo
 
@@ -286,9 +300,19 @@ export class CanvasRenderer implements INeovimRenderer {
         this._canvasContext.fillStyle = backgroundColor || screenInfo.backgroundColor
 
         if (this._isOpaque || (backgroundColor && backgroundColor !== screenInfo.backgroundColor)) {
-            this._canvasContext.fillRect(normalizedBoundsStartX, normalizedHeight, normalizedBoundsWidth, fontHeightInPixels)
+            this._canvasContext.fillRect(
+                normalizedBoundsStartX,
+                normalizedHeight,
+                normalizedBoundsWidth,
+                fontHeightInPixels,
+            )
         } else {
-            this._canvasContext.clearRect(normalizedBoundsStartX, normalizedHeight, normalizedBoundsWidth, fontHeightInPixels)
+            this._canvasContext.clearRect(
+                normalizedBoundsStartX,
+                normalizedHeight,
+                normalizedBoundsWidth,
+                fontHeightInPixels,
+            )
         }
 
         if (!state.isWhitespace) {
@@ -300,7 +324,11 @@ export class CanvasRenderer implements INeovimRenderer {
             if (italic) {
                 this._canvasContext.font = `italic ${this._canvasContext.font}`
             }
-            this._canvasContext.fillText(text, boundsStartX, y * fontHeightInPixels + linePaddingInPixels / 2)
+            this._canvasContext.fillText(
+                text,
+                boundsStartX,
+                y * fontHeightInPixels + linePaddingInPixels / 2,
+            )
             this._canvasContext.font = lastFontStyle
         }
 
@@ -326,10 +354,15 @@ export class CanvasRenderer implements INeovimRenderer {
 
         this._editorElement.appendChild(this._canvasElement)
 
-        this._width = this._canvasElement.width = this._canvasElement.offsetWidth * this._devicePixelRatio
-        this._height = this._canvasElement.height = this._canvasElement.offsetHeight * this._devicePixelRatio
+        this._width = this._canvasElement.width =
+            this._canvasElement.offsetWidth * this._devicePixelRatio
+        this._height = this._canvasElement.height =
+            this._canvasElement.offsetHeight * this._devicePixelRatio
 
-        if (configuration.getValue("editor.backgroundImageUrl") && configuration.getValue("editor.backgroundOpacity") < 1.0) {
+        if (
+            configuration.getValue("editor.backgroundImageUrl") &&
+            configuration.getValue("editor.backgroundOpacity") < 1.0
+        ) {
             this._canvasContext = this._canvasElement.getContext("2d", { alpha: true })
             this._isOpaque = false
         } else {

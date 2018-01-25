@@ -8,11 +8,15 @@ export interface IGrammarLoader {
     getGrammarForLanguage(language: string, extension: string): Promise<IGrammar>
 }
 
-export interface ExtensionToGrammarMap { [extension: string]: string }
+export interface ExtensionToGrammarMap {
+    [extension: string]: string
+}
 
 export const getPathForLanguage = (language: string, extension: string): string => {
     const verifiedLanguage = language.includes(".") ? language.split(".")[0] : language
-    const grammar: string | ExtensionToGrammarMap = configuration.getValue("language." + verifiedLanguage + ".textMateGrammar")
+    const grammar: string | ExtensionToGrammarMap = configuration.getValue(
+        "language." + verifiedLanguage + ".textMateGrammar",
+    )
 
     if (!grammar) {
         Log.warn("No grammar found for language: " + language)
@@ -25,15 +29,11 @@ export const getPathForLanguage = (language: string, extension: string): string 
 }
 
 export class GrammarLoader implements IGrammarLoader {
-
     private _grammarCache: { [language: string]: IGrammar } = {}
 
-    constructor(
-        private _registry: Registry = new Registry(),
-    ) {}
+    constructor(private _registry: Registry = new Registry()) {}
 
     public async getGrammarForLanguage(language: string, extension: string): Promise<IGrammar> {
-
         if (!language) {
             return null
         }

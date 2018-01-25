@@ -27,12 +27,17 @@ export class CompletionProviders implements ICompletionsRequestor {
         })
     }
 
-    public async getCompletions(language: string, filePath: string, line: number, column: number): Promise<types.CompletionItem[]> {
-        const completionItemsPromise = this._completionProviders.map(async (prov) => {
+    public async getCompletions(
+        language: string,
+        filePath: string,
+        line: number,
+        column: number,
+    ): Promise<types.CompletionItem[]> {
+        const completionItemsPromise = this._completionProviders.map(async prov => {
             const items = await prov.provider.getCompletions(language, filePath, line, column)
 
             // Tag the items with the provider id, so we know who to ask for details
-            const augmentedItems = items.map((item) => {
+            const augmentedItems = items.map(item => {
                 return {
                     ...item,
                     __provider: prov.id,
@@ -44,14 +49,21 @@ export class CompletionProviders implements ICompletionsRequestor {
 
         const allItems = await Promise.all(completionItemsPromise)
 
-        const flattenedItems = allItems.reduce((prev: ICompletionInfoWithProvider[], current: ICompletionInfoWithProvider[]) => {
+        const flattenedItems = allItems.reduce(
+            (prev: ICompletionInfoWithProvider[], current: ICompletionInfoWithProvider[]) => {
                 return [...prev, ...current]
-        }, [] as ICompletionInfoWithProvider[])
+            },
+            [] as ICompletionInfoWithProvider[],
+        )
 
         return flattenedItems
     }
 
-    public async getCompletionDetails(language: string, filePath: string, completionItem: ICompletionInfoWithProvider): Promise<types.CompletionItem> {
+    public async getCompletionDetails(
+        language: string,
+        filePath: string,
+        completionItem: ICompletionInfoWithProvider,
+    ): Promise<types.CompletionItem> {
         if (completionItem.__provider) {
             const prov = this._getProviderById(completionItem.__provider)
 
@@ -64,7 +76,7 @@ export class CompletionProviders implements ICompletionsRequestor {
     }
 
     private _getProviderById(id: string): ICompletionsRequestor {
-        const providersMatchingId = this._completionProviders.filter((prov) => prov.id === id)
+        const providersMatchingId = this._completionProviders.filter(prov => prov.id === id)
 
         return providersMatchingId.length > 0 ? providersMatchingId[0].provider : null
     }
@@ -77,7 +89,10 @@ export const activate = (languageManager: LanguageManager) => {
 
     const languageServiceCompletion = new LanguageServiceCompletionsRequestor(languageManager)
 
-    _completionProviders.registerCompletionProvider("oni.completions.language-server", languageServiceCompletion)
+    _completionProviders.registerCompletionProvider(
+        "oni.completions.language-server",
+        languageServiceCompletion,
+    )
 }
 
 export const getInstance = (): CompletionProviders => {

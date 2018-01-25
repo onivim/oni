@@ -22,25 +22,24 @@ export interface IIconThemeLoader {
 }
 
 export class PluginIconThemeLoader {
-    constructor(private _pluginManager: PluginManager) {
-    }
+    constructor(private _pluginManager: PluginManager) {}
 
     public async loadIconTheme(themeName: string): Promise<IIconThemeLoadResult> {
         const plugins = this._pluginManager.plugins
 
-        const pluginsWithThemes = plugins.filter((p) => {
+        const pluginsWithThemes = plugins.filter(p => {
             return p.metadata && p.metadata.contributes && p.metadata.contributes.iconThemes
         })
 
-        const allIconThemes = pluginsWithThemes.reduce((previous: IIconThemeContribution[], current) => {
-            const iconThemes = current.metadata.contributes.iconThemes
-            return [
-                ...previous,
-                ...iconThemes,
-            ]
-        }, [] as IIconThemeContribution[])
+        const allIconThemes = pluginsWithThemes.reduce(
+            (previous: IIconThemeContribution[], current) => {
+                const iconThemes = current.metadata.contributes.iconThemes
+                return [...previous, ...iconThemes]
+            },
+            [] as IIconThemeContribution[],
+        )
 
-        const matchingIconTheme = allIconThemes.find((t) => t.id === themeName)
+        const matchingIconTheme = allIconThemes.find(t => t.id === themeName)
 
         if (!matchingIconTheme || !matchingIconTheme.path) {
             return null

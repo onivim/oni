@@ -4,9 +4,7 @@ export interface ITextProps {
     text: string
 }
 
-export class TextComponent extends React.PureComponent<ITextProps, {}> {
-
-}
+export class TextComponent extends React.PureComponent<ITextProps, {}> {}
 
 export class Text extends TextComponent {
     public render(): JSX.Element {

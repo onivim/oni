@@ -11,7 +11,6 @@ import { remote } from "electron"
 import { getDistPath, getRootPath } from "./DemoCommon"
 
 const getCompletionElement = () => {
-
     const elements = document.body.getElementsByClassName("autocompletion")
 
     if (!elements || !elements.length) {
@@ -25,16 +24,23 @@ export const test = async (oni: any) => {
     await oni.automation.waitForEditors()
 
     let lastAlertText = null
-    window.alert = (myText) => lastAlertText = myText
+    window.alert = myText => (lastAlertText = myText)
 
     // Use the `Completion.ts` file as the screenshot source
     remote.getCurrentWindow().setSize(800, 600)
 
     const outputPath = getDistPath()
 
-    oni.configuration.setValues({"recorder.outputPath": outputPath})
+    oni.configuration.setValues({ "recorder.outputPath": outputPath })
 
-    const filePath = path.join(getRootPath(), "browser", "src", "Services", "Language", "LanguageStore.ts")
+    const filePath = path.join(
+        getRootPath(),
+        "browser",
+        "src",
+        "Services",
+        "Language",
+        "LanguageStore.ts",
+    )
 
     oni.automation.sendKeys(":e WELCOME.md<CR>")
 

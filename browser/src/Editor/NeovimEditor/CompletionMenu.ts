@@ -24,11 +24,11 @@ export class CompletionMenu {
         return this._onItemSelectedEvent
     }
 
-    constructor(
-        private _contextMenu: ContextMenu,
-    ) {
-        this._contextMenu.onSelectedItemChanged.subscribe((item) => this._onItemFocusedEvent.dispatch(item))
-        this._contextMenu.onItemSelected.subscribe((item) => this._onItemSelectedEvent.dispatch(item))
+    constructor(private _contextMenu: ContextMenu) {
+        this._contextMenu.onSelectedItemChanged.subscribe(item =>
+            this._onItemFocusedEvent.dispatch(item),
+        )
+        this._contextMenu.onItemSelected.subscribe(item => this._onItemSelectedEvent.dispatch(item))
     }
 
     public show(options: types.CompletionItem[], filterText: string): void {
@@ -43,5 +43,4 @@ export class CompletionMenu {
     public hide(): void {
         this._contextMenu.hide()
     }
-
 }

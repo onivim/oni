@@ -166,8 +166,10 @@ export class NeovimScreen implements IScreen {
                 this._cursorColumn = action.col
                 break
             case Actions.PutAction: {
-                let foregroundColor = this._currentHighlight.foregroundColor || this._foregroundColor
-                let backgroundColor = this._currentHighlight.backgroundColor || this._backgroundColor
+                let foregroundColor =
+                    this._currentHighlight.foregroundColor || this._foregroundColor
+                let backgroundColor =
+                    this._currentHighlight.backgroundColor || this._backgroundColor
 
                 if (this._currentHighlight.reverse) {
                     const temp = foregroundColor
@@ -215,8 +217,10 @@ export class NeovimScreen implements IScreen {
                 break
             }
             case Actions.CLEAR_TO_END_OF_LINE: {
-                const foregroundColor = this._currentHighlight.foregroundColor || this._foregroundColor
-                const backgroundColor = this._currentHighlight.backgroundColor || this._backgroundColor
+                const foregroundColor =
+                    this._currentHighlight.foregroundColor || this._foregroundColor
+                const backgroundColor =
+                    this._currentHighlight.backgroundColor || this._backgroundColor
 
                 const row = this._cursorRow
                 for (let i = this._cursorColumn; i < this.width; i++) {
@@ -312,9 +316,11 @@ export class NeovimScreen implements IScreen {
     private _setCell(x: number, y: number, cell: ICell): void {
         const currentCell = this._grid.getCell(x, y)
         if (currentCell) {
-            if (currentCell.foregroundColor === cell.foregroundColor &&
+            if (
+                currentCell.foregroundColor === cell.foregroundColor &&
                 currentCell.backgroundColor === cell.backgroundColor &&
-                currentCell.character === cell.character) {
+                currentCell.character === cell.character
+            ) {
                 return
             }
         }

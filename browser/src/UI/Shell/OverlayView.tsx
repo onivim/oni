@@ -15,16 +15,20 @@ export interface IOverlaysViewProps {
 
 export class OverlaysView extends React.PureComponent<IOverlaysViewProps, {}> {
     public render(): JSX.Element[] {
-        const overlays = this.props.overlays.map((overlay) => {
-            return <div className="stack layer" key={overlay.id}>{overlay.contents}</div>
+        const overlays = this.props.overlays.map(overlay => {
+            return (
+                <div className="stack layer" key={overlay.id}>
+                    {overlay.contents}
+                </div>
+            )
         })
 
-        return (overlays)
+        return overlays
     }
 }
 
 export const mapStateToProps = (state: State.IState): IOverlaysViewProps => ({
-    overlays: Object.keys(state.overlays).map((k) => state.overlays[k]),
+    overlays: Object.keys(state.overlays).map(k => state.overlays[k]),
 })
 
 export const Overlays = connect(mapStateToProps)(OverlaysView)

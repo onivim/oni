@@ -24,7 +24,6 @@ import { Explorer } from "./ExplorerView"
 import { rm } from "shelljs"
 
 export class ExplorerSplit {
-
     private _onEnterEvent: Event<void> = new Event<void>()
     private _selectedId: string = null
 
@@ -46,7 +45,7 @@ export class ExplorerSplit {
     ) {
         this._store = createStore()
 
-        this._workspace.onDirectoryChanged.subscribe((newDirectory) => {
+        this._workspace.onDirectoryChanged.subscribe(newDirectory => {
             this._store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
                 rootPath: newDirectory,
@@ -60,7 +59,7 @@ export class ExplorerSplit {
             })
         }
 
-        this._editorManager.allEditors.onBufferEnter.subscribe((args) => {
+        this._editorManager.allEditors.onBufferEnter.subscribe(args => {
             this._store.dispatch({
                 type: "BUFFER_OPENED",
                 filePath: args.filePath,
@@ -69,26 +68,30 @@ export class ExplorerSplit {
     }
 
     public enter(): void {
-
-        this._store.dispatch({type: "ENTER"})
-        this._commandManager.registerCommand(new CallbackCommand("explorer.open", null, null, () => this._onOpenItem()))
-        this._commandManager.registerCommand(new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()))
+        this._store.dispatch({ type: "ENTER" })
+        this._commandManager.registerCommand(
+            new CallbackCommand("explorer.open", null, null, () => this._onOpenItem()),
+        )
+        this._commandManager.registerCommand(
+            new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
+        )
 
         this._onEnterEvent.dispatch()
     }
 
     public leave(): void {
-        this._store.dispatch({type: "LEAVE"})
+        this._store.dispatch({ type: "LEAVE" })
 
         this._commandManager.unregisterCommand("explorer.open")
         this._commandManager.unregisterCommand("explorer.delete")
     }
 
     public render(): JSX.Element {
-
-        return <Provider store={this._store}>
-                <Explorer onSelectionChanged={(id) => this._onSelectionChanged(id)} />
+        return (
+            <Provider store={this._store}>
+                <Explorer onSelectionChanged={id => this._onSelectionChanged(id)} />
             </Provider>
+        )
     }
 
     private _onSelectionChanged(id: string): void {
@@ -109,7 +112,10 @@ export class ExplorerSplit {
                 this._editorManager.activeEditor.openFile(selectedItem.filePath)
                 return
             case "folder":
-                const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(state, selectedItem.folderPath)
+                const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(
+                    state,
+                    selectedItem.folderPath,
+                )
                 this._store.dispatch({
                     type: isDirectoryExpanded ? "COLLAPSE_DIRECTORY" : "EXPAND_DIRECTORY",
                     directoryPath: selectedItem.folderPath,
@@ -125,7 +131,7 @@ export class ExplorerSplit {
 
         const nodes = ExplorerSelectors.mapStateToNodeList(state)
 
-        const items = nodes.filter((item) => item.id === this._selectedId)
+        const items = nodes.filter(item => item.id === this._selectedId)
 
         if (!items || !items.length) {
             return null

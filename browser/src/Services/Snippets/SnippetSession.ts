@@ -12,14 +12,12 @@ import { IBuffer } from "./../../Editor/BufferManager"
 import { IEditor } from "./../../Editor/Editor"
 
 export const splitLineAtPosition = (line: string, position: number): [string, string] => {
-
     const prefix = line.substring(0, position)
     const post = line.substring(position, line.length)
     return [prefix, post]
 }
 
 export class SnippetSession {
-
     private _buffer: IBuffer
     private _position: types.Position
 
@@ -29,15 +27,15 @@ export class SnippetSession {
 
     private _placeholderIndex: number = 0
 
-    constructor(
-        private _editor: IEditor,
-        private _snippet: OniSnippet,
-    ) { }
+    constructor(private _editor: IEditor, private _snippet: OniSnippet) {}
 
     public async start(): Promise<void> {
         this._buffer = this._editor.activeBuffer as IBuffer
         const cursorPosition = await this._buffer.getCursorPosition()
-        const [currentLine] = await this._buffer.getLines(cursorPosition.line, cursorPosition.line + 1)
+        const [currentLine] = await this._buffer.getLines(
+            cursorPosition.line,
+            cursorPosition.line + 1,
+        )
 
         this._position = cursorPosition
 
@@ -51,7 +49,11 @@ export class SnippetSession {
         snippetLines[0] = this._prefix + snippetLines[0]
         snippetLines[lastIndex] = snippetLines[lastIndex] + this._suffix
 
-        await this._buffer.setLines(cursorPosition.line, cursorPosition.line + snippetLines.length, snippetLines)
+        await this._buffer.setLines(
+            cursorPosition.line,
+            cursorPosition.line + snippetLines.length,
+            snippetLines,
+        )
     }
 
     public async nextPlaceholder(): Promise<void> {
@@ -61,9 +63,19 @@ export class SnippetSession {
         this._placeholderIndex++
 
         const adjustedLine = firstPlaceholder.line + this._position.line
-        const adjustedCharacter = firstPlaceholder.line === 0 ? this._position.character + firstPlaceholder.character : firstPlaceholder.character
+        const adjustedCharacter =
+            firstPlaceholder.line === 0
+                ? this._position.character + firstPlaceholder.character
+                : firstPlaceholder.character
         const placeHolderLength = firstPlaceholder.value.length
 
-        await this._editor.setSelection(types.Range.create(adjustedLine, adjustedCharacter, adjustedLine, adjustedCharacter + placeHolderLength))
+        await this._editor.setSelection(
+            types.Range.create(
+                adjustedLine,
+                adjustedCharacter,
+                adjustedLine,
+                adjustedCharacter + placeHolderLength,
+            ),
+        )
     }
 }

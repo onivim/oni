@@ -11,7 +11,7 @@ import * as mkdirp from "mkdirp"
 
 import * as Oni from "oni-api"
 
-import { getTemporaryFolder  } from "./Common"
+import { getTemporaryFolder } from "./Common"
 
 export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitForEditors()

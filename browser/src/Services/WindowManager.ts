@@ -21,7 +21,15 @@ export enum Direction {
 
 // TODO: Add optional `enter` and `leave` methods to `oni-api`
 
-import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, getFurthestSplitInDirection, ISplitInfo, SplitDirection } from "./WindowSplit"
+import {
+    applySplit,
+    closeSplit,
+    createSplitLeaf,
+    createSplitRoot,
+    getFurthestSplitInDirection,
+    ISplitInfo,
+    SplitDirection,
+} from "./WindowSplit"
 
 export interface INavigatable {
     contains(split: Oni.IWindowSplit): boolean
@@ -39,7 +47,6 @@ export interface IWindowDock extends INavigatable {
 }
 
 export class WindowDock implements IWindowDock {
-
     private _splits: Oni.IWindowSplit[] = []
     private _onSplitsChangedEvent: Event<void> = new Event<void>()
 
@@ -84,7 +91,7 @@ export class WindowDock implements IWindowDock {
     }
 
     public removeSplit(split: Oni.IWindowSplit): void {
-        this._splits = this._splits.filter((s) => s !== split)
+        this._splits = this._splits.filter(s => s !== split)
         this._onSplitsChangedEvent.dispatch()
     }
 }
@@ -158,7 +165,10 @@ export class WindowManager implements Oni.IWindowManager {
             if (newSplit) {
                 this._focusNewSplit(newSplit)
             } else {
-                const innerSplit = getFurthestSplitInDirection(this._splitRoot, 0 /* TODO - Reuse direction? */)
+                const innerSplit = getFurthestSplitInDirection(
+                    this._splitRoot,
+                    0 /* TODO - Reuse direction? */,
+                )
 
                 if (innerSplit) {
                     this._focusNewSplit(innerSplit.contents)

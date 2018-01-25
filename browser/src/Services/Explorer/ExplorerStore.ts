@@ -36,9 +36,13 @@ export interface IRecentFile {
 
 export type FolderOrFile = IFolderState | IFileState
 
-export interface ExpandedFolders { [fullPath: string]: FolderOrFile[]}
+export interface ExpandedFolders {
+    [fullPath: string]: FolderOrFile[]
+}
 
-export interface OpenedFiles { [fullPath: string]: any }
+export interface OpenedFiles {
+    [fullPath: string]: any
+}
 
 export interface IFileSystem {
     readdir(fullPath: string): Promise<FolderOrFile[]>
@@ -60,29 +64,36 @@ export const DefaultExplorerState: IExplorerState = {
     hasFocus: false,
 }
 
-export type ExplorerAction = {
-    type: "SET_ROOT_DIRECTORY",
-    rootPath: string,
-} | {
-    type: "EXPAND_DIRECTORY",
-    directoryPath: string,
-} | {
-    type: "COLLAPSE_DIRECTORY",
-    directoryPath: string,
-} | {
-    type: "EXPAND_DIRECTORY_RESULT",
-    directoryPath: string,
-    children: FolderOrFile[],
-} | {
-    type: "ENTER",
-} | {
-    type: "LEAVE",
-} | {
-    type: "REFRESH",
-}
+export type ExplorerAction =
+    | {
+          type: "SET_ROOT_DIRECTORY"
+          rootPath: string
+      }
+    | {
+          type: "EXPAND_DIRECTORY"
+          directoryPath: string
+      }
+    | {
+          type: "COLLAPSE_DIRECTORY"
+          directoryPath: string
+      }
+    | {
+          type: "EXPAND_DIRECTORY_RESULT"
+          directoryPath: string
+          children: FolderOrFile[]
+      }
+    | {
+          type: "ENTER"
+      }
+    | {
+          type: "LEAVE"
+      }
+    | {
+          type: "REFRESH"
+      }
 
 export const rootFolderReducer: Reducer<IFolderState> = (
-    state: IFolderState  = DefaultFolderState,
+    state: IFolderState = DefaultFolderState,
     action: ExplorerAction,
 ) => {
     switch (action.type) {
@@ -146,81 +157,75 @@ export const reducer: Reducer<IExplorerState> = (
 const NullAction: ExplorerAction = { type: null } as ExplorerAction
 
 const setRootDirectoryEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
-    action$.ofType("SET_ROOT_DIRECTORY")
-        .map((action) => {
+    action$.ofType("SET_ROOT_DIRECTORY").map(action => {
+        if (action.type !== "SET_ROOT_DIRECTORY") {
+            return NullAction
+        }
 
-            if (action.type !== "SET_ROOT_DIRECTORY") {
-                return NullAction
-            }
+        if (!action.rootPath) {
+            return NullAction
+        }
 
-            if (!action.rootPath) {
-                return NullAction
-            }
-
-            return {
-                type: "EXPAND_DIRECTORY",
-                directoryPath: action.rootPath,
-            } as ExplorerAction
-        })
+        return {
+            type: "EXPAND_DIRECTORY",
+            directoryPath: action.rootPath,
+        } as ExplorerAction
+    })
 
 const sortFilesAndFoldersFunc = (a: FolderOrFile, b: FolderOrFile) => {
-     if (a.type < b.type) {
-         return 1
-     } else if (a.type > b.type) {
-         return -1
-     } else {
-         if (a.fullPath < b.fullPath) {
-             return -1
-         } else {
-             return 1
-         }
-     }
- }
+    if (a.type < b.type) {
+        return 1
+    } else if (a.type > b.type) {
+        return -1
+    } else {
+        if (a.fullPath < b.fullPath) {
+            return -1
+        } else {
+            return 1
+        }
+    }
+}
 
 const refreshEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
-    action$.ofType("REFRESH")
-        .mergeMap(() => {
-            const state = store.getState()
+    action$.ofType("REFRESH").mergeMap(() => {
+        const state = store.getState()
 
-            return Object.keys(state.expandedFolders)
-                .map((p) => {
-                    return {
-                        type: "EXPAND_DIRECTORY",
-                        directoryPath: p,
-                    } as ExplorerAction
-                })
-        })
-
-const expandDirectoryEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState> => (action$, store) =>
-    action$.ofType("EXPAND_DIRECTORY")
-        .flatMap(async (action: ExplorerAction) => {
-            if (action.type !== "EXPAND_DIRECTORY") {
-                return NullAction
-            }
-
-            const pathToExpand = action.directoryPath
-
-            const filesAndFolders = await fileSystem.readdir(pathToExpand)
-
-            const sortedFilesAndFolders = filesAndFolders.sort(sortFilesAndFoldersFunc)
-
+        return Object.keys(state.expandedFolders).map(p => {
             return {
-                type: "EXPAND_DIRECTORY_RESULT",
-                directoryPath: pathToExpand,
-                children: sortedFilesAndFolders,
+                type: "EXPAND_DIRECTORY",
+                directoryPath: p,
             } as ExplorerAction
         })
+    })
+
+const expandDirectoryEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState> => (
+    action$,
+    store,
+) =>
+    action$.ofType("EXPAND_DIRECTORY").flatMap(async (action: ExplorerAction) => {
+        if (action.type !== "EXPAND_DIRECTORY") {
+            return NullAction
+        }
+
+        const pathToExpand = action.directoryPath
+
+        const filesAndFolders = await fileSystem.readdir(pathToExpand)
+
+        const sortedFilesAndFolders = filesAndFolders.sort(sortFilesAndFoldersFunc)
+
+        return {
+            type: "EXPAND_DIRECTORY_RESULT",
+            directoryPath: pathToExpand,
+            children: sortedFilesAndFolders,
+        } as ExplorerAction
+    })
 
 export const createStore = (fileSystem?: IFileSystem): Store<IExplorerState> => {
-
     fileSystem = fileSystem || new FileSystem(fs)
 
-    return createReduxStore("Explorer",
-        reducer,
-        DefaultExplorerState,
-        [createEpicMiddleware(combineEpics(
-            setRootDirectoryEpic,
-            expandDirectoryEpic(fileSystem),
-            refreshEpic,
-        ))])
+    return createReduxStore("Explorer", reducer, DefaultExplorerState, [
+        createEpicMiddleware(
+            combineEpics(setRootDirectoryEpic, expandDirectoryEpic(fileSystem), refreshEpic),
+        ),
+    ])
 }

@@ -22,9 +22,8 @@ export interface IAutoUpdater {
 }
 
 export const constructFeedUrl = async (baseUrl: string) => {
-
     const plat = os.platform()
-    const { version }  = await getMetadata()
+    const { version } = await getMetadata()
 
     const isDevelopment = process.env["NODE_ENV"] === "development" // tslint:disable-line no-string-literal
     const channel = isDevelopment ? "development" : "release"
@@ -48,15 +47,13 @@ export class AutoUpdater implements IAutoUpdater {
             return
         }
 
-        fetch(url)
-            .then((response) => {
-
-                if (response.status === 204) {
-                    this._onUpdateNotAvailable.next()
-                } else {
-                    this._onUpdateAvailable.next()
-                }
-            })
+        fetch(url).then(response => {
+            if (response.status === 204) {
+                this._onUpdateNotAvailable.next()
+            } else {
+                this._onUpdateAvailable.next()
+            }
+        })
     }
 }
 

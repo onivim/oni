@@ -26,13 +26,14 @@ interface Props {
 }
 
 class ExternalMenus extends React.Component<Props> {
-
     public render() {
         const { wildmenu, commandLine } = this.props
         const visible = commandLine.visible || wildmenu.visible
-        return visible ? <MenuContainer loaded={commandLine.visible && wildmenu.visible}>
-                    {this.props.children}
-                </MenuContainer> : null
+        return visible ? (
+            <MenuContainer loaded={commandLine.visible && wildmenu.visible}>
+                {this.props.children}
+            </MenuContainer>
+        ) : null
     }
 }
 

@@ -6,25 +6,32 @@ const DefaultCursorMatchRegEx = /[a-z]/i
 const DefaultTriggerCharacters = ["."]
 
 describe("CompletionUtility", () => {
-
     describe("getCompletionStart", () => {
         it("rewinds back to first character", () => {
             const bufferLine = "abc"
             const cursorColumn = 5
             const completion = "c"
 
-            const completionStart = CompletionUtility.getCompletionStart(bufferLine, cursorColumn, completion)
+            const completionStart = CompletionUtility.getCompletionStart(
+                bufferLine,
+                cursorColumn,
+                completion,
+            )
             assert.strictEqual(completionStart, 2)
         })
     })
 
     describe("getCompletionMeet", () => {
         it("shouldExpandCompletions is true when at end of word", () => {
-
             const line = "const"
             const cursorPosition = 5 // const|
 
-            const meet = CompletionUtility.getCompletionMeet(line, cursorPosition, DefaultCursorMatchRegEx, DefaultTriggerCharacters)
+            const meet = CompletionUtility.getCompletionMeet(
+                line,
+                cursorPosition,
+                DefaultCursorMatchRegEx,
+                DefaultTriggerCharacters,
+            )
 
             const expectedResult = {
                 position: 0,
@@ -40,7 +47,12 @@ describe("CompletionUtility", () => {
             const line = "const"
             const cursorPosition = 3 // con|st
 
-            const meet = CompletionUtility.getCompletionMeet(line, cursorPosition, DefaultCursorMatchRegEx, DefaultTriggerCharacters)
+            const meet = CompletionUtility.getCompletionMeet(
+                line,
+                cursorPosition,
+                DefaultCursorMatchRegEx,
+                DefaultTriggerCharacters,
+            )
 
             const expectedResult = {
                 position: 0,

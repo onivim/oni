@@ -22,7 +22,9 @@ const mergePathEnvironmentVariable = (currentPath: string, pathsToAdd: string[])
     return currentPath + separator + joinedPathsToAdd
 }
 
-const mergeSpawnOptions = async (originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions): Promise<any> => {
+const mergeSpawnOptions = async (
+    originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions,
+): Promise<any> => {
     let existingPath: string
 
     try {
@@ -41,7 +43,10 @@ const mergeSpawnOptions = async (originalSpawnOptions: ChildProcess.ExecOptions 
         },
     }
 
-    requiredOptions.env.PATH = mergePathEnvironmentVariable(existingPath, configuration.getValue("environment.additionalPaths"))
+    requiredOptions.env.PATH = mergePathEnvironmentVariable(
+        existingPath,
+        configuration.getValue("environment.additionalPaths"),
+    )
 
     return {
         ...originalSpawnOptions,
@@ -53,12 +58,17 @@ const mergeSpawnOptions = async (originalSpawnOptions: ChildProcess.ExecOptions 
  * API surface area responsible for handling process-related tasks
  * (spawning processes, managing running process, etc)
  */
-export const execNodeScript = async (scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): Promise<ChildProcess.ChildProcess> => {
+export const execNodeScript = async (
+    scriptPath: string,
+    args: string[] = [],
+    options: ChildProcess.ExecOptions = {},
+    callback: (err: any, stdout: string, stderr: string) => void,
+): Promise<ChildProcess.ChildProcess> => {
     const spawnOptions = await mergeSpawnOptions(options)
     spawnOptions.env.ELECTRON_RUN_AS_NODE = 1
 
     const execOptions = [process.execPath, scriptPath].concat(args)
-    const execString = execOptions.map((s) => `"${s}"`).join(" ")
+    const execString = execOptions.map(s => `"${s}"`).join(" ")
 
     const proc = ChildProcess.exec(execString, spawnOptions, callback)
     _spawnedProcessIds.push(proc.pid)
@@ -75,7 +85,11 @@ export const getPIDs = (): number[] => {
 /**
  * Wrapper around `child_process.exec` to run using electron as opposed to node
  */
-export const spawnNodeScript = async (scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): Promise<ChildProcess.ChildProcess> => {
+export const spawnNodeScript = async (
+    scriptPath: string,
+    args: string[] = [],
+    options: ChildProcess.SpawnOptions = {},
+): Promise<ChildProcess.ChildProcess> => {
     const spawnOptions = await mergeSpawnOptions(options)
     spawnOptions.env.ELECTRON_RUN_AS_NODE = 1
 
@@ -89,7 +103,11 @@ export const spawnNodeScript = async (scriptPath: string, args: string[] = [], o
 /**
  * Spawn process - wrapper around `child_process.spawn`
  */
-export const spawnProcess = async (startCommand: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): Promise<ChildProcess.ChildProcess> => {
+export const spawnProcess = async (
+    startCommand: string,
+    args: string[] = [],
+    options: ChildProcess.SpawnOptions = {},
+): Promise<ChildProcess.ChildProcess> => {
     const spawnOptions = await mergeSpawnOptions(options)
 
     const proc = ChildProcess.spawn(startCommand, args, spawnOptions)
@@ -99,4 +117,4 @@ export const spawnProcess = async (startCommand: string, args: string[] = [], op
     })
 
     return proc
-    }
+}
