@@ -18,7 +18,6 @@ export interface IErrorsProps {
     fontWidthInPixels: number
     fontHeightInPixels: number
 
-    cursorLine: number
     bufferToScreen: Oni.Coordinates.BufferToScreen
     screenToPixel: Oni.Coordinates.ScreenToPixel
 }
@@ -44,10 +43,9 @@ export class Errors extends React.PureComponent<IErrorsProps, {}> {
 
             const screenY = screenLine
             const pixelPosition = this.props.screenToPixel({screenX: 0, screenY })
-            const isActive = this.props.cursorLine - 1 === e.range.start.line
             const pixelY = pixelPosition.pixelY - (padding / 2)
 
-            return <ErrorMarker isActive={isActive}
+            return <ErrorMarker
                 y={pixelY}
                 text={e.message}
                 color={getColorFromSeverity(e.severity)} />
@@ -92,7 +90,6 @@ export class Errors extends React.PureComponent<IErrorsProps, {}> {
 export interface IErrorMarkerProps {
     y: number
     text: string
-    isActive: boolean
     color: string
 }
 

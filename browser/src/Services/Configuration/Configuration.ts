@@ -13,6 +13,7 @@ import { DefaultConfiguration } from "./DefaultConfiguration"
 import { checkDeprecatedSettings } from "./DeprecatedConfigurationValues"
 import { FileConfigurationProvider } from "./FileConfigurationProvider"
 import { IConfigurationValues } from "./IConfigurationValues"
+import { PersistedConfiguration } from "./PersistentSettings"
 import * as UserConfiguration from "./UserConfiguration"
 
 export interface IConfigurationProvider {
@@ -32,16 +33,24 @@ interface ConfigurationProviderInfo {
     disposables: IDisposable[]
 }
 
+/**
+ * Interface describing persistence layer for configuration
+ */
+export interface IPersistedConfiguration {
+    getPersistedValues(): GenericConfigurationValues
+    setPersistedValues(configurationValues: GenericConfigurationValues): void
+}
+
 export class Configuration implements Oni.Configuration {
     private _configurationProviders: IConfigurationProvider[] = []
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
     private _onConfigurationErrorEvent: Event<Error> = new Event<Error>()
 
     private _oniApi: Oni.Plugin.Api = null
-    private _config: GenericConfigurationValues = { }
+    private _config: GenericConfigurationValues = {}
 
-    private _setValues: { [configValue: string]: any } = { }
-    private _fileToProvider: { [key: string]: IConfigurationProvider } = { }
+    private _setValues: { [configValue: string]: any } = {}
+    private _fileToProvider: { [key: string]: IConfigurationProvider } = {}
     private _configProviderInfo = new Map<IConfigurationProvider, ConfigurationProviderInfo>()
 
     public get onConfigurationError(): IEvent<Error> {
@@ -54,6 +63,7 @@ export class Configuration implements Oni.Configuration {
 
     constructor(
         private _defaultConfiguration: GenericConfigurationValues = DefaultConfiguration,
+        private _persistedConfiguration: IPersistedConfiguration = new PersistedConfiguration(),
     ) {
         this._updateConfig()
     }
@@ -121,13 +131,17 @@ export class Configuration implements Oni.Configuration {
         return !!this.getValue(configValue)
     }
 
-    public setValues(configValues: { [configValue: string]: any }): void {
+    public setValues(configValues: { [configValue: string]: any }, persist: boolean = false): void {
 
         this._setValues = configValues
 
         this._config = {
             ...this._config,
             ...configValues,
+        }
+
+        if (persist) {
+            this._persistedConfiguration.setPersistedValues(configValues)
         }
 
         this._onConfigurationChangedEvent.dispatch(configValues)
@@ -154,12 +168,14 @@ export class Configuration implements Oni.Configuration {
     private _updateConfig(): void {
         const previousConfig = this._config
 
-        let currentConfig = { ...this._defaultConfiguration, ...this._setValues }
+        let currentConfig = {
+            ...this._defaultConfiguration,
+            ...this._persistedConfiguration.getPersistedValues(),
+            ...this._setValues,
+        }
 
         this._configurationProviders.forEach((configProvider) => {
-
             const configurationValues = configProvider.getValues()
-
             currentConfig = { ...currentConfig, ...configurationValues }
         })
 

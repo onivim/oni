@@ -9,7 +9,6 @@ import * as Platform from "./../../Platform"
 import { getKeyEventToVimKey } from "./../../Input/Keyboard"
 import { focusManager } from "./../../Services/FocusManager"
 import { inputManager } from "./../../Services/InputManager"
-import { MenuContainer } from "./../../Services/Menu"
 import { IThemeColors } from "./../../Services/Themes/ThemeManager"
 import * as WindowManager from "./../../Services/WindowManager"
 
@@ -20,6 +19,8 @@ import StatusBar from "./../components/StatusBar"
 
 import { WindowSplits } from "./../components/WindowSplits"
 import { WindowTitle } from "./../components/WindowTitle"
+
+import { Overlays } from "./OverlayView"
 
 interface IShellViewComponentProps {
     theme: IThemeColors
@@ -45,9 +46,7 @@ export class ShellView extends React.PureComponent<IShellViewComponentProps, {}>
                             <div className="stack">
                                 <WindowSplits windowManager={this.props.windowManager} />
                             </div>
-                            <div className="stack layer">
-                                <MenuContainer />
-                            </div>
+                            <Overlays />
                         </div>
                         <div className="container fixed layer">
                             <StatusBar />

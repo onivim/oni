@@ -151,6 +151,7 @@ export class MockEditor extends Editor {
 export class MockBuffer {
 
     private _mockHighlights = new  MockBufferHighlightsUpdater()
+    private _cursorPosition = types.Position.create(0, 0)
 
     public get id(): string {
         return "1"
@@ -179,6 +180,14 @@ export class MockBuffer {
     ) {
     }
 
+    public async getCursorPosition(): Promise<types.Position> {
+        return this._cursorPosition
+    }
+
+    public setCursorPosition(position: types.Position) {
+        this._cursorPosition = position
+    }
+
     public setLinesSync(lines: string[]): void {
         this._lines = lines
     }
@@ -190,6 +199,16 @@ export class MockBuffer {
         }
 
         this._lines[line] = lineContents
+    }
+
+    public async setLines(start: number, end: number, lines: string[]): Promise<void> {
+        while (this._lines.length <= end) {
+            this._lines.push("")
+        }
+
+        for (let i = 0; i < lines.length; i++) {
+            this._lines[start + i] = lines[i]
+        }
     }
 
     public getLines(start: number = 0, end?: number): Promise<string[]> {

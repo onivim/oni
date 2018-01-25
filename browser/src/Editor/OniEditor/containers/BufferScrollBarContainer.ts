@@ -6,8 +6,8 @@ import { createSelector } from "reselect"
 import { getColorFromSeverity } from "./../../../Services/Errors"
 import { BufferScrollBar, IBufferScrollBarProps, IScrollBarMarker } from "./../../../UI/components/BufferScrollBar"
 
-import * as Selectors from "./../NeovimEditorSelectors"
-import * as State from "./../NeovimEditorStore"
+import * as Selectors from "./../../NeovimEditor/NeovimEditorSelectors"
+import * as State from "./../../NeovimEditor/NeovimEditorStore"
 
 export const getCurrentLine = createSelector(
     [Selectors.getActiveWindow],
