@@ -42,11 +42,13 @@ export class RelationalSplitProvider implements IWindowSplitProvider {
         return this._getContainingSplit(split) !== null
     }
 
-    public close(split: Oni.IWindowSplit): void {
+    public close(split: Oni.IWindowSplit): boolean {
         const containingSplit = this._getContainingSplit(split)
 
         if (containingSplit) {
-            containingSplit.close(split)
+            return containingSplit.close(split)
+        } else {
+            return false
         }
     }
 

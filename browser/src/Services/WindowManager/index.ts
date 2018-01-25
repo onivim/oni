@@ -49,7 +49,7 @@ export interface IWindowSplitProvider {
 
     split(startSplit: Oni.IWindowSplit, direction: SplitDirection): boolean
 
-    close(split: Oni.IWindowSplit): void
+    close(split: Oni.IWindowSplit): boolean
 }
 
 export class SingleSplitProvider implements IWindowSplitProvider {
@@ -74,8 +74,9 @@ export class SingleSplitProvider implements IWindowSplitProvider {
         return false
     }
 
-    public close(split: Oni.IWindowSplit): void {
+    public close(split: Oni.IWindowSplit): boolean {
         this._split = null
+        return true
     }
 }
 
@@ -138,8 +139,9 @@ export class WindowDock implements IWindowDock {
         this._onSplitsChangedEvent.dispatch()
     }
 
-    public close (split: Oni.IWindowSplit): void {
+    public close (split: Oni.IWindowSplit): boolean {
         this.removeSplit(split)
+        return true
     }
 
     public removeSplit(split: Oni.IWindowSplit): void {
