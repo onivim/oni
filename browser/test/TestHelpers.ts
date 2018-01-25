@@ -11,6 +11,10 @@ export const runAllTimers = (): void => {
     global["clock"].runAll() // tslint:disable-line
 }
 
+export const tick = (timeInMilliseconds: number): void => {
+    global["clock"].tick(timeInMilliseconds)
+}
+
 /**
  * Wait for pending promise calls - needed for any code paths that have an asynchronous timer or use `Promise.resolve`
  */

@@ -5,13 +5,13 @@
  */
 
 import { Store } from "redux"
+
 import { INotificationsState, NotificationLevel } from "./NotificationStore"
 
 export class Notification {
     private _title: string = ""
     private _detail: string = ""
     private _level: NotificationLevel = "info"
-    private _lifeTimeInMilliseconds: number = 2500 /* 2.5s */
 
     constructor(
         private _id: string,
@@ -27,10 +27,6 @@ export class Notification {
         this._level = level
     }
 
-    public setLifetime(lifeTimeInMilliseconds: number): void {
-        this._lifeTimeInMilliseconds = lifeTimeInMilliseconds
-    }
-
     public show(): void {
         this._store.dispatch({
             type: "SHOW_NOTIFICATION",
@@ -38,7 +34,6 @@ export class Notification {
             title: this._title,
             detail: this._detail,
             level: this._level,
-            lifeTime: this._lifeTimeInMilliseconds,
         })
     }
 

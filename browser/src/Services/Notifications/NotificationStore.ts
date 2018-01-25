@@ -24,16 +24,14 @@ export interface INotification {
     level: NotificationLevel
     title: string
     detail: string
-    lifeTime: number
 }
 
-export type NotificationActions = {
+export type NotificationAction = {
     type: "SHOW_NOTIFICATION",
     id: string,
     level: NotificationLevel,
     title: string,
     detail: string,
-    lifeTime: number,
 } | {
     type: "HIDE_NOTIFICATION",
     id: string,
@@ -41,7 +39,7 @@ export type NotificationActions = {
 
 export const notificationsReducer: Reducer<IdToNotification> = (
     state: IdToNotification = {},
-    action: NotificationActions,
+    action: NotificationAction,
 ) => {
     switch (action.type) {
         case "SHOW_NOTIFICATION":
@@ -52,7 +50,6 @@ export const notificationsReducer: Reducer<IdToNotification> = (
                     level: action.level,
                     title: action.title,
                     detail: action.detail,
-                    lifeTime: action.lifeTime,
                 }
             }
         case "HIDE_NOTIFICATION":
@@ -67,7 +64,7 @@ export const notificationsReducer: Reducer<IdToNotification> = (
 
 export const stateReducer: Reducer<INotificationsState> = (
     state: INotificationsState = DefaultNotificationState,
-    action: NotificationActions,
+    action: NotificationAction,
 ) => {
     return {
         notifications: notificationsReducer(state.notifications, action),

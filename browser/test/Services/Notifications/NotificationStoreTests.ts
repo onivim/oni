@@ -13,7 +13,6 @@ describe("NotificationStore", () => {
             title: "title-test",
             detail: "detail-test",
             level: "info",
-            lifeTime: 0,
         })
 
         const state = store.getState()
@@ -24,7 +23,6 @@ describe("NotificationStore", () => {
                 title: "title-test",
                 detail: "detail-test",
                 level: "info",
-                lifeTime: 0,
             }
         })
     })
@@ -38,7 +36,6 @@ describe("NotificationStore", () => {
             title: "title-test",
             detail: "detail-test",
             level: "info",
-            lifeTime: 0,
         })
 
         store.dispatch({
