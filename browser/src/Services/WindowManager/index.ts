@@ -11,6 +11,7 @@
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
+export * from "./RelationalSplitProvider"
 export * from "./WindowSplit"
 
 // TODO: Possible API types?
@@ -61,7 +62,12 @@ export class SingleSplitProvider implements IWindowSplitProvider {
     }
 
     public move(split: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit {
-        return null
+    
+        if (split === null) {
+            return this._split
+        } else {
+            return null
+        }
     }
 
     public split(split: Oni.IWindowSplit, direction: SplitDirection): boolean {
