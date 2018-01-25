@@ -4447,9 +4447,9 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@0.0.24:
-  version "0.0.24"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.24.tgz#f666c455edbdb859cf02682fbe361a78ab3732ba"
+oni-api@^0.0.25:
+  version "0.0.25"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.25.tgz#797e972b415ad66e1a600f226e4197be2539690b"
 
 oni-neovim-binaries@0.1.0:
   version "0.1.0"
@@ -6650,13 +6650,6 @@ vscode-css-languageserver-bin@^1.2.1:
   dependencies:
     vscode-css-languageservice "^3.0.3"
     vscode-languageserver "^3.5.0"
-
-vscode-css-languageservice@^3.0.3:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-3.0.3.tgz#02cc4efa5335f5104e0a2f3b6920faaf59db4f7a"
-  dependencies:
-    vscode-languageserver-types "3.5.0"
-    vscode-nls "^2.0.1"
 
 vscode-css-languageservice@^3.0.3:
   version "3.0.3"

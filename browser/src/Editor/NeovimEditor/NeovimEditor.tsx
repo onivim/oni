@@ -56,7 +56,7 @@ import { Workspace } from "./../../Services/Workspace"
 
 import { Editor, IEditor } from "./../Editor"
 
-import { BufferManager, InactiveBuffer } from "./../BufferManager"
+import { BufferManager } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
@@ -599,7 +599,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._scheduleRender()
     }
 
-    public getBuffers(): Array<Oni.Buffer | InactiveBuffer> {
+    public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
         return this._bufferManager.getBuffers()
     }
 

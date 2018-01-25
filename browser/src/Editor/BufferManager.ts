@@ -310,7 +310,7 @@ export class BufferManager {
     }
 }
 
-export class InactiveBuffer {
+export class InactiveBuffer implements Oni.InactiveBuffer {
     private _id: string
     private _filePath: string
     private _language: string
