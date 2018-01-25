@@ -37,7 +37,7 @@ describe("FileMappings", () => {
                 sourceFolder: "browser/src",
 
                 mappedFolder: "browser/test",
-                mappedFileName: "${fileName}Test.ts",
+                mappedFileName: "${fileName}Test.ts", // tslint:disable-line
             }
 
             const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping)
@@ -61,7 +61,7 @@ describe("FileMappings", () => {
                 sourceFolder: "browser/src",
 
                 mappedFolder: "browser/test",
-                mappedFileName: "${fileName}.test.ts",
+                mappedFileName: "${fileName}.test.ts", // tslint:disable-line
             }
 
             const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping)
