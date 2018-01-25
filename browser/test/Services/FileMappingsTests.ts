@@ -36,7 +36,7 @@ describe("FileMappings", () => {
                 mappedFileName: "${fileName}Test.${ext}", // tslint:disable-line
             }
 
-            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping, fileSystem)
+            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping)
             assert.strictEqual(mappedFile, null, "Validate mapping returned null since there was no test file")
         })
 
@@ -52,10 +52,10 @@ describe("FileMappings", () => {
                 sourceFolder: "browser/src",
 
                 mappedFolder: "browser/test",
-                mappedFileName: "sourceTest.ts",
+                mappedFileName: "${fileName}Test.ts",
             }
 
-            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping, fileSystem)
+            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping)
             assert.strictEqual(mappedFile, testFile, "Validate mapping worked correctly")
         })
 
@@ -67,7 +67,7 @@ describe("FileMappings", () => {
             fileSystem.mkdirpSync(nestedTestFolder)
 
             const srcFile = path.join(nestedSrcFolder, "source.ts")
-            const testFile = path.join(nestedTestFolder, "sourceTest.ts")
+            const testFile = path.join(nestedTestFolder, "source.test.ts")
 
             fileSystem.writeFileSync(srcFile, " ")
             fileSystem.writeFileSync(testFile, " ")
@@ -76,10 +76,10 @@ describe("FileMappings", () => {
                 sourceFolder: "browser/src",
 
                 mappedFolder: "browser/test",
-                mappedFileName: "sourceTest.ts",
+                mappedFileName: "{fileName}.test.ts",
             }
 
-            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping, fileSystem)
+            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping)
             assert.strictEqual(mappedFile, testFile, "Validate mapping worked correctly")
         })
     })
