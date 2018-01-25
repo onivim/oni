@@ -28,10 +28,11 @@ export const createStore = <TState>(
     defaultState: TState,
     optionalMiddleware: Middleware[] = [],
 ): Store<TState> => {
+    // tslinst:disable-next-line no-string-literal
+    const composeFunction: any = window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"]
+
     const composeEnhancers =
-        typeof window === "object" && window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"] // tslint:disable-line no-string-literal
-            ? window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"]({ name })
-            : compose // tslint:disable-line no-string-literal
+        typeof window === "object" && composeFunction ? composeFunction({ name }) : compose // tslint:disable-line no-string-literal
 
     const loggingMiddleware: Middleware = createLoggingMiddleware(name)
 

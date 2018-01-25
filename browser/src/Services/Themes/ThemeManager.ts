@@ -154,7 +154,7 @@ export const getColorsFromBackgroundAndForeground = (background: string, foregro
     return {
         ...DefaultThemeColors,
         background: shellBackground,
-        foreground: foreground,
+        foreground,
         "editor.background": background,
         "editor.foreground": foreground,
 
