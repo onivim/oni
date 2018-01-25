@@ -156,6 +156,14 @@ export class OniEditor implements IEditor {
         this._neovimEditor.executeCommand(command)
     }
 
+    public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
+        return this._neovimEditor.getBuffers()
+    }
+
+    public async bufferDelete(bufferId: string = this.activeBuffer.id): Promise<void> {
+        this.neovim.command(`:bd! ${bufferId}`)
+    }
+
     public async init(filesToOpen: string[]): Promise<void> {
         Log.info("[OniEditor::init] Called with filesToOpen: " + filesToOpen)
 

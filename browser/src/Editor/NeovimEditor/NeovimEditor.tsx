@@ -774,11 +774,8 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
-<<<<<<< HEAD
         this._bufferManager.populateBufferList(evt)
-=======
 
->>>>>>> dec1182ad26ebe76673c2689822b9fa474c4c4f8
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
             this.notifyBufferLeave({

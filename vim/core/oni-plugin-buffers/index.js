@@ -19,10 +19,7 @@ const activate = Oni => {
       detail: truncateFilePath(b.filePath),
       icon: Oni.ui.getIconClassForFile(b.filePath),
       pinned: active === b.filePath,
-      metadata: {
-        filepath: b.filepath,
-        id: b.id,
-      },
+      metadata: { filePath: b.filePath, id: b.id },
     }));
 
     return bufferMenuItems;
@@ -48,9 +45,14 @@ const activate = Oni => {
   const openBuffer = (menu, orientation) => {
     if (menu.selectedItem && menu.isOpen()) {
       const buffers = Oni.editors.activeEditor.getBuffers();
-      const { filepath } = menu.selectedItem.metatadata;
-      Oni.editors.activeEditor.openFile(filePath, orientation);
-      menu.hide();
+      try {
+        const { filePath = '' } = menu.selectedItem.metadata;
+        Oni.editors.activeEditor.openFile(filePath, orientation);
+      } catch(e) {
+        console.warn('[Oni Buffer Plugin Error]: ', e);
+      } finally {
+        menu.hide();
+      }
     }
     return;
   };
