@@ -20,7 +20,7 @@ export class Notifications {
     private _store: Store<INotificationsState>
 
     constructor(
-        private _overlayManager: OverlayManager
+        private _overlayManager: OverlayManager,
     ) {
         this._store = createStore()
 

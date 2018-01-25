@@ -12,7 +12,7 @@ export const runAllTimers = (): void => {
 }
 
 export const tick = (timeInMilliseconds: number): void => {
-    global["clock"].tick(timeInMilliseconds)
+    global["clock"].tick(timeInMilliseconds) // tslint:disable-line
 }
 
 /**

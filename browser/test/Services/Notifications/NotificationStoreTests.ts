@@ -23,7 +23,7 @@ describe("NotificationStore", () => {
                 title: "title-test",
                 detail: "detail-test",
                 level: "info",
-            }
+            },
         })
     })
 

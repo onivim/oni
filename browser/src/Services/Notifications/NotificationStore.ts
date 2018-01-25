@@ -9,7 +9,7 @@ import { createStore as createReduxStore } from "./../../Redux"
 
 export type NotificationLevel = "info" | "warn" | "error"
 
-export type IdToNotification = { [key: string]: INotification }
+export interface IdToNotification { [key: string]: INotification }
 
 export interface INotificationsState {
     notifications: IdToNotification
@@ -50,7 +50,7 @@ export const notificationsReducer: Reducer<IdToNotification> = (
                     level: action.level,
                     title: action.title,
                     detail: action.detail,
-                }
+                },
             }
         case "HIDE_NOTIFICATION":
             return {

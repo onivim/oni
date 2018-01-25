@@ -8,7 +8,7 @@ import * as React from "react"
 
 import { connect, Provider } from "react-redux"
 
-import styled, { keyframes }  from "styled-components"
+import styled, { keyframes } from "styled-components"
 
 import { CSSTransition, TransitionGroup } from "react-transition-group"
 
@@ -20,7 +20,6 @@ export interface NotificationsViewProps {
     notifications: INotification[]
 }
 
-
 const Transition = (props: { children: any }) => {
      return <CSSTransition
     {...props}
@@ -28,11 +27,9 @@ const Transition = (props: { children: any }) => {
     classNames="notification"
   >
     {props.children}
-  </CSSTransition> 
+  </CSSTransition>
 
 }
-
-
 
 const NotificationsWrapper = styled.div`
     position: absolute;
@@ -62,17 +59,17 @@ const frames = keyframes`
 const NotificationWrapper = styled.div`
     background-color: red;
     color: white;
-    width: 300px;
-    height: 50px;
+    width: 20em;
+    height: 4em;
 
-    margin: 8px;
+    margin: 1em;
 
     display: flex;
     flex-direction: row;
 
     justify-content: center;
     align-items: center;
-    
+
     pointer-events: auto;
     cursor: pointer;
 
@@ -83,7 +80,7 @@ const NotificationWrapper = styled.div`
     }
 
     &:hover {
-        transform: translateY(1px);
+        transform: translateY(-1px);
     }
 `
 
@@ -120,11 +117,9 @@ const NotificationDescription = styled.div`
     font-size: 0.9em;
 `
 
+// export interface NotificationViewProps extends INotification { }
 
-
-export interface NotificationViewProps extends INotification { }
-
-export class NotificationView extends React.PureComponent<NotificationViewProps, {}> {
+export class NotificationView extends React.PureComponent<INotification, {}> {
     public render(): JSX.Element {
         return <NotificationWrapper key={this.props.id}>
                 <NotificationIconWrapper>
