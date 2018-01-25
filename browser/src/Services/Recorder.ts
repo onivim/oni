@@ -39,16 +39,16 @@ class Recorder {
             if (error) {
                 throw error
             }
+            // tslint:disable-next-line prefer-for-of
             for (let i = 0; i < sources.length; i++) {
-                // tslint:disable-line prefer-for-of
                 const src = sources[i]
                 if (src.name === ONI_RECORDER_TITLE) {
                     document.title = title
 
                     const size = getDimensions()
+                    // tslint:disable-next-line no-string-literal
                     navigator["webkitGetUserMedia"](
                         {
-                            // tslint:disable-line no-string-literal
                             audio: false,
                             video: {
                                 mandatory: {

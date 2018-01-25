@@ -29,8 +29,8 @@ export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, {}
 
         if (!this._boundOnResizeMethod) {
             this._boundOnResizeMethod = this._onResize.bind(this)
+            // tslint:disable-next-line no-string-literal
             this._resizeObserver = new window["ResizeObserver"]((entries: any) => {
-                // tslint:disable-line no-string-literal
                 if (this._boundOnResizeMethod) {
                     this._boundOnResizeMethod()
                 }
