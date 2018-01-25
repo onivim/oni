@@ -35,9 +35,7 @@ export class Tasks {
     private _menu: Menu
     private _providers: ITaskProvider[] = []
 
-    constructor(
-        private _menuManager: MenuManager,
-    ) { }
+    constructor(private _menuManager: MenuManager) {}
 
     // TODO: This should be refactored, as it is simply
     // a timing dependency on when the object is created versus when
@@ -49,14 +47,14 @@ export class Tasks {
     public show(): void {
         this._refreshTasks().then(() => {
             const options: Oni.Menu.MenuOption[] = this._lastTasks
-                        .filter((t) => t.name || t.detail)
-                        .map((f) => {
-                            return {
-                                icon: "tasks",
-                                label: f.name,
-                                detail: f.detail,
-                            }
-                        })
+                .filter(t => t.name || t.detail)
+                .map(f => {
+                    return {
+                        icon: "tasks",
+                        label: f.name,
+                        detail: f.detail,
+                    }
+                })
 
             this._menu = this._menuManager.create()
             this._menu.onItemSelected.subscribe((selection: any) => this._onItemSelected(selection))
@@ -66,16 +64,20 @@ export class Tasks {
     }
 
     private async _onItemSelected(selectedOption: Oni.Menu.MenuOption): Promise<void> {
-        const {label, detail} = selectedOption
+        const { label, detail } = selectedOption
 
-        const selectedTask = find(this._lastTasks, (t) => t.name === label && t.detail === detail)
+        const selectedTask = find(this._lastTasks, t => t.name === label && t.detail === detail)
 
         if (selectedTask) {
             await selectedTask.callback()
 
             // TODO: we should make the callback return a bool so we can display either success/fail messages
             if (selectedTask.messageSuccess != null) {
-              remote.dialog.showMessageBox({type: "info", title: "Success", message: selectedTask.messageSuccess})
+                remote.dialog.showMessageBox({
+                    type: "info",
+                    title: "Success",
+                    message: selectedTask.messageSuccess,
+                })
             }
         }
     }
@@ -85,7 +87,9 @@ export class Tasks {
 
         const initialProviders: ITaskProvider[] = []
         const taskProviders = initialProviders.concat(this._providers)
-        const allTasks = await Promise.all(taskProviders.map(async (t: ITaskProvider) => await t.getTasks() || []))
+        const allTasks = await Promise.all(
+            taskProviders.map(async (t: ITaskProvider) => (await t.getTasks()) || []),
+        )
         this._lastTasks = flatten(allTasks)
     }
 }

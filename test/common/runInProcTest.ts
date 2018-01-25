@@ -12,7 +12,7 @@ export interface ITestCase {
     configPath: string
 }
 
-const normalizePath = (p) => p.split("\\").join("/")
+const normalizePath = p => p.split("\\").join("/")
 
 const loadTest = (rootPath: string, testName: string): ITestCase => {
     const testPath = path.join(rootPath, testName + ".js")
@@ -23,7 +23,9 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
     const normalizedMeta: ITestCase = {
         name: testDescription.name || testName,
         testPath: normalizePath(testPath),
-        configPath: testDescription.configPath ? normalizePath(path.join(rootPath, testDescription.configPath)) : "",
+        configPath: testDescription.configPath
+            ? normalizePath(path.join(rootPath, testDescription.configPath))
+            : "",
     }
 
     return normalizedMeta
@@ -41,7 +43,6 @@ const logWithTimeStamp = (message: string) => {
 
 export const runInProcTest = (rootPath: string, testName: string, timeout: number = 5000) => {
     describe(testName, () => {
-
         const testCase = loadTest(rootPath, testName)
 
         let oni: Oni
@@ -83,7 +84,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
 
             console.log("Retrieving logs...")
             const writeLogs = (logs: any[]): void => {
-                logs.forEach((log) => {
+                logs.forEach(log => {
                     console.log(`[${log.level}] ${log.message}`)
                 })
             }

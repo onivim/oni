@@ -77,7 +77,6 @@ class AllEditors implements Oni.Editor {
     }
 
     public get activeBuffer(): Oni.Buffer {
-
         // TODO: Replace with null-object pattern
         if (!this._activeEditor) {
             return null
@@ -95,15 +94,18 @@ class AllEditors implements Oni.Editor {
     }
 
     public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
-        const cmd = new Proxy({
-            tab: "taball!",
-            horizontal: "sp!",
-            vertical: "vsp!",
-            edit: "e!",
-        }, {
-            get: (target: { [cmd: string]: string }, name: string) =>
-                name in target ? target[name] : "e!",
-        })
+        const cmd = new Proxy(
+            {
+                tab: "taball!",
+                horizontal: "sp!",
+                vertical: "vsp!",
+                edit: "e!",
+            },
+            {
+                get: (target: { [cmd: string]: string }, name: string) =>
+                    name in target ? target[name] : "e!",
+            },
+        )
 
         await this._activeEditor.neovim.command(`:${cmd[method]} ${file}`)
         return this._activeEditor.activeBuffer
@@ -148,14 +150,26 @@ class AllEditors implements Oni.Editor {
 
     public setActiveEditor(newEditor: Oni.Editor) {
         this._activeEditor = newEditor
-        this._subscriptions.forEach((d) => d.dispose())
+        this._subscriptions.forEach(d => d.dispose())
         this._subscriptions = []
-        this._subscriptions.push(newEditor.onModeChanged.subscribe((val) => this._onModeChanged.dispatch(val)))
-        this._subscriptions.push(newEditor.onBufferEnter.subscribe((val) => this._onBufferEnter.dispatch(val)))
-        this._subscriptions.push(newEditor.onBufferLeave.subscribe((val) => this._onBufferLeave.dispatch(val)))
-        this._subscriptions.push(newEditor.onBufferChanged.subscribe((val) => this._onBufferChanged.dispatch(val)))
-        this._subscriptions.push(newEditor.onBufferSaved.subscribe((val) => this._onBufferSaved.dispatch(val)))
-        this._subscriptions.push(newEditor.onBufferScrolled.subscribe((val) => this._onBufferScrolled.dispatch(val)))
+        this._subscriptions.push(
+            newEditor.onModeChanged.subscribe(val => this._onModeChanged.dispatch(val)),
+        )
+        this._subscriptions.push(
+            newEditor.onBufferEnter.subscribe(val => this._onBufferEnter.dispatch(val)),
+        )
+        this._subscriptions.push(
+            newEditor.onBufferLeave.subscribe(val => this._onBufferLeave.dispatch(val)),
+        )
+        this._subscriptions.push(
+            newEditor.onBufferChanged.subscribe(val => this._onBufferChanged.dispatch(val)),
+        )
+        this._subscriptions.push(
+            newEditor.onBufferSaved.subscribe(val => this._onBufferSaved.dispatch(val)),
+        )
+        this._subscriptions.push(
+            newEditor.onBufferScrolled.subscribe(val => this._onBufferScrolled.dispatch(val)),
+        )
     }
 
     public getUnderlyingEditor(): Oni.Editor {

@@ -11,15 +11,22 @@ import * as Capabilities from "./Api/Capabilities"
 
 import * as Log from "./../Log"
 
-const remapToAbsolutePaths = (packageRoot: string, contributes: Capabilities.IContributions): Capabilities.IContributions => {
-    const remapThemePath = (themes: Capabilities.IThemeContribution): Capabilities.IThemeContribution => {
+const remapToAbsolutePaths = (
+    packageRoot: string,
+    contributes: Capabilities.IContributions,
+): Capabilities.IContributions => {
+    const remapThemePath = (
+        themes: Capabilities.IThemeContribution,
+    ): Capabilities.IThemeContribution => {
         return {
             ...themes,
             path: path.join(packageRoot, themes.path),
         }
     }
 
-    const remapIconPath = (iconThemes: Capabilities.IIconThemeContribution): Capabilities.IIconThemeContribution => {
+    const remapIconPath = (
+        iconThemes: Capabilities.IIconThemeContribution,
+    ): Capabilities.IIconThemeContribution => {
         return {
             ...iconThemes,
             path: path.join(packageRoot, iconThemes.path),
@@ -28,13 +35,12 @@ const remapToAbsolutePaths = (packageRoot: string, contributes: Capabilities.ICo
 
     return {
         ...contributes,
-        themes: contributes.themes.map((t) => remapThemePath(t)),
-        iconThemes: contributes.iconThemes.map((it) => remapIconPath(it)),
+        themes: contributes.themes.map(t => remapThemePath(t)),
+        iconThemes: contributes.iconThemes.map(it => remapIconPath(it)),
     }
 }
 
 export const readMetadata = (packagePath: string): Capabilities.IPluginMetadata | null => {
-
     const packageContents = fs.readFileSync(packagePath, "utf8")
 
     let metadata: Capabilities.IPluginMetadata = null
@@ -48,7 +54,8 @@ export const readMetadata = (packagePath: string): Capabilities.IPluginMetadata 
         return null
     }
 
-    if (!metadata.engines || !metadata.engines["oni"]) { // tslint:disable-line no-string-literal
+    // tslint:disable-next-line no-string-literal
+    if (!metadata.engines || !metadata.engines["oni"]) {
         Log.warn("Aborting plugin load as Oni engine version not specified")
         return null
     }

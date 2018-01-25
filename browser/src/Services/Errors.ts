@@ -53,20 +53,23 @@ export class Errors implements ITaskProvider {
     }
 
     private _setQuickFixErrors(): void {
-        const arrayOfErrors = keys(this._errors).map((filename) => {
-            return this._errors[filename].map((e) => ({
+        const arrayOfErrors = keys(this._errors).map(filename => {
+            return this._errors[filename].map(e => ({
                 ...e,
                 filename,
             }))
         })
 
         const flattenedErrors = flatten(arrayOfErrors)
-        const errors = flattenedErrors.map((e) => ({
-            filename: e.filename,
-            col: e.range.start.character || 0,
-            lnum: e.range.start.line + 1,
-            text: e.message,
-        }) as any)
+        const errors = flattenedErrors.map(
+            e =>
+                ({
+                    filename: e.filename,
+                    col: e.range.start.character || 0,
+                    lnum: e.range.start.line + 1,
+                    text: e.message,
+                } as any),
+        )
 
         this._neovimInstance.quickFix.setqflist(errors, "Errors", " ")
     }

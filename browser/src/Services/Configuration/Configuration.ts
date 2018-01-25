@@ -27,7 +27,9 @@ export interface IConfigurationProvider {
     deactivate(): void
 }
 
-export interface GenericConfigurationValues { [configKey: string]: any }
+export interface GenericConfigurationValues {
+    [configKey: string]: any
+}
 
 interface ConfigurationProviderInfo {
     disposables: IDisposable[]
@@ -43,7 +45,9 @@ export interface IPersistedConfiguration {
 
 export class Configuration implements Oni.Configuration {
     private _configurationProviders: IConfigurationProvider[] = []
-    private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
+    private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<
+        Partial<IConfigurationValues>
+    >()
     private _onConfigurationErrorEvent: Event<Error> = new Event<Error>()
 
     private _oniApi: Oni.Plugin.Api = null
@@ -94,7 +98,7 @@ export class Configuration implements Oni.Configuration {
     }
 
     public getErrors(): Error[] {
-        return this._configurationProviders.map((cfp) => cfp.getLastError())
+        return this._configurationProviders.map(cfp => cfp.getLastError())
     }
 
     public addConfigurationProvider(configurationProvider: IConfigurationProvider): void {
@@ -105,7 +109,7 @@ export class Configuration implements Oni.Configuration {
             this._updateConfig()
         })
 
-        const d2 = configurationProvider.onConfigurationError.subscribe((error) => {
+        const d2 = configurationProvider.onConfigurationError.subscribe(error => {
             this._onConfigurationErrorEvent.dispatch(error)
         })
 
@@ -117,10 +121,12 @@ export class Configuration implements Oni.Configuration {
     }
 
     public removeConfigurationProvider(configurationProvider: IConfigurationProvider): void {
-        this._configurationProviders = this._configurationProviders.filter((prov) => prov !== configurationProvider)
+        this._configurationProviders = this._configurationProviders.filter(
+            prov => prov !== configurationProvider,
+        )
 
         const configurationInfo = this._configProviderInfo.get(configurationProvider)
-        configurationInfo.disposables.forEach((dispose) => dispose.dispose())
+        configurationInfo.disposables.forEach(dispose => dispose.dispose())
 
         this._configProviderInfo.delete(configurationProvider)
 
@@ -132,7 +138,6 @@ export class Configuration implements Oni.Configuration {
     }
 
     public setValues(configValues: { [configValue: string]: any }, persist: boolean = false): void {
-
         this._setValues = configValues
 
         this._config = {
@@ -174,7 +179,7 @@ export class Configuration implements Oni.Configuration {
             ...this._setValues,
         }
 
-        this._configurationProviders.forEach((configProvider) => {
+        this._configurationProviders.forEach(configProvider => {
             const configurationValues = configProvider.getValues()
             currentConfig = { ...currentConfig, ...configurationValues }
         })
@@ -192,12 +197,16 @@ export class Configuration implements Oni.Configuration {
     private _activateIfOniObjectIsAvailable(): void {
         if (this._oniApi) {
             applyDefaultKeyBindings(this._oniApi, this)
-            this._configurationProviders.forEach((configurationProvider) => configurationProvider.activate(this._oniApi))
+            this._configurationProviders.forEach(configurationProvider =>
+                configurationProvider.activate(this._oniApi),
+            )
         }
     }
 
     private _deactivate(): void {
-        this._configurationProviders.forEach((configurationProvider) => configurationProvider.deactivate())
+        this._configurationProviders.forEach(configurationProvider =>
+            configurationProvider.deactivate(),
+        )
         if (this._config && this._config.deactivate) {
             this._config.deactivate()
         }
@@ -208,20 +217,22 @@ export class Configuration implements Oni.Configuration {
 
         const changedValues = diff(this._config, previousConfig)
 
-        const diffObject = changedValues.reduce((previous: Partial<IConfigurationValues>, current: string) => {
+        const diffObject = changedValues.reduce(
+            (previous: Partial<IConfigurationValues>, current: string) => {
+                const currentValue = this._config[current]
 
-            const currentValue = this._config[current]
+                // Skip functions, because those will always be different
+                if (currentValue && typeof currentValue === "function") {
+                    return previous
+                }
 
-            // Skip functions, because those will always be different
-            if (currentValue && typeof currentValue === "function") {
-                return previous
-            }
-
-            return {
-                ...previous,
-                [current]: this._config[current],
-            }
-        }, {})
+                return {
+                    ...previous,
+                    [current]: this._config[current],
+                }
+            },
+            {},
+        )
 
         this._onConfigurationChangedEvent.dispatch(diffObject)
     }

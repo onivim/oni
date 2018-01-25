@@ -24,8 +24,12 @@ const notifySelectedItemChange = (contextMenuState: any) => {
     }
 }
 
-export const showPopupMenu = (id: string, opts?: MenuActions.IMenuOptions, items?: any, filter?: string) => {
-
+export const showPopupMenu = (
+    id: string,
+    opts?: MenuActions.IMenuOptions,
+    items?: any,
+    filter?: string,
+) => {
     const state: any = Shell.store.getState()
     const backgroundColor = state.colors["menu.background"]
     const foregroundColor = state.colors["menu.foreground"]
@@ -103,7 +107,6 @@ export const previousMenuItem = () => (dispatch: any, getState: any) => {
 }
 
 export const filterMenu = (filterString: string) => (dispatch: any, getState: any) => {
-
     const state = getState()
 
     if (!state.menu) {

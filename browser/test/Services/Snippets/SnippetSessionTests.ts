@@ -12,7 +12,6 @@ import { SnippetSession } from "./../../../src/Services/Snippets/SnippetSession"
 import * as Mocks from "./../../Mocks"
 
 describe("SnippetSession", () => {
-
     let mockEditor: Mocks.MockEditor
     let mockBuffer: Mocks.MockBuffer
     let snippetSession: SnippetSession

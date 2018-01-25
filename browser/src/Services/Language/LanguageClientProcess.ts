@@ -14,7 +14,7 @@ import * as path from "path"
 import { ChildProcess } from "child_process"
 import * as rpc from "vscode-jsonrpc"
 
-import { Event, IEvent} from "oni-types"
+import { Event, IEvent } from "oni-types"
 
 import * as Log from "./../../Log"
 
@@ -61,14 +61,13 @@ export interface InitializationOptions {
 }
 
 export class LanguageClientProcess {
-
     private _process: ChildProcess
     private _connection: rpc.MessageConnection
     private _onConnectionChangedEvent = new Event<rpc.MessageConnection>()
 
     private _lastWorkingDirectory: string = null
     private _lastRootPath: string = null
-    private _serverCapabilities: IServerCapabilities = { }
+    private _serverCapabilities: IServerCapabilities = {}
 
     // Notifies when the connection has changed (due to process restart)
     // This allows consumers to re-subscribe to events
@@ -83,17 +82,18 @@ export class LanguageClientProcess {
     constructor(
         private _serverOptions: ServerRunOptions,
         private _initializationOptions: InitializationOptions,
-        private _configuration: any = null) {
-    }
+        private _configuration: any = null,
+    ) {}
 
     public async ensureActive(fileName: string): Promise<rpc.MessageConnection> {
         const rootDir = normalizePath(path.dirname(fileName))
         const workingDirectory = await this._serverOptions.workingDirectory(rootDir)
         const rootPath = await this._initializationOptions.rootPath(rootDir)
 
-        const shouldRestartServer = workingDirectory !== this._lastWorkingDirectory
-                || this._lastRootPath !== rootPath
-                || !this._connection
+        const shouldRestartServer =
+            workingDirectory !== this._lastWorkingDirectory ||
+            this._lastRootPath !== rootPath ||
+            !this._connection
 
         if (shouldRestartServer) {
             this._end()
@@ -112,10 +112,16 @@ export class LanguageClientProcess {
         }
 
         if (this._serverOptions.command) {
-            Log.info(`[LanguageClientProcess]: Starting process via '${this._serverOptions.command}'`)
+            Log.info(
+                `[LanguageClientProcess]: Starting process via '${this._serverOptions.command}'`,
+            )
             this._process = await Process.spawnProcess(this._serverOptions.command, args, options)
         } else if (this._serverOptions.module) {
-            Log.info(`[LanguageClientProcess]: Starting process via node script '${this._serverOptions.module}'`)
+            Log.info(
+                `[LanguageClientProcess]: Starting process via node script '${
+                    this._serverOptions.module
+                }'`,
+            )
             this._process = await Process.spawnNodeScript(this._serverOptions.module, args, options)
         } else {
             throw new Error("A command or module must be specified to start the server")
@@ -127,7 +133,7 @@ export class LanguageClientProcess {
 
         Log.info(`[LanguageClientProcess]: Started process ${this._process.pid}`)
 
-        this._process.stderr.on("data", (msg) => {
+        this._process.stderr.on("data", msg => {
             Log.info(`[LANGUAGE CLIENT - STDERR]: ${msg}`)
             // this._statusBar.setStatus(LanguageClientState.Error)
         })
@@ -136,9 +142,10 @@ export class LanguageClientProcess {
         this._lastRootPath = rootPath
 
         this._connection = rpc.createMessageConnection(
-            (new rpc.StreamMessageReader(this._process.stdout)) as any,
-            (new rpc.StreamMessageWriter(this._process.stdin)) as any,
-            new LanguageClientLogger())
+            new rpc.StreamMessageReader(this._process.stdout) as any,
+            new rpc.StreamMessageWriter(this._process.stdin) as any,
+            new LanguageClientLogger(),
+        )
 
         this._onConnectionChangedEvent.dispatch(this._connection)
 
@@ -179,7 +186,7 @@ export class LanguageClientProcess {
                             commitCharactersSupport: true,
                             documentationFormat: SupportedMarkup,
                         },
-                        completionItemKind: { },
+                        completionItemKind: {},
                         contextSupport: false,
                     },
                     hover: {
@@ -205,7 +212,10 @@ export class LanguageClientProcess {
         }
 
         try {
-            const response: any = await this._connection.sendRequest("initialize", oniLanguageClientParams)
+            const response: any = await this._connection.sendRequest(
+                "initialize",
+                oniLanguageClientParams,
+            )
             Log.info(`[LanguageClientManager]: Initialized`)
             if (response && response.capabilities) {
                 this._serverCapabilities = response.capabilities
@@ -213,7 +223,9 @@ export class LanguageClientProcess {
 
             if (this._configuration) {
                 Log.verbose("[LanguageClientProcess]: Sending configuration")
-                this._connection.sendNotification("workspace/didChangeConfiguration", { settings: this._configuration })
+                this._connection.sendNotification("workspace/didChangeConfiguration", {
+                    settings: this._configuration,
+                })
             }
         } catch (ex) {
             Log.error(ex)

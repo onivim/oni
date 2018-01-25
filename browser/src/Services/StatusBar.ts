@@ -32,7 +32,6 @@ export class StatusBarItem implements Oni.StatusBarItem {
         private _alignment?: StatusBarAlignment | null,
         private _priority?: number | null,
     ) {
-
         this._subscription = this._setContentsSubject
             .debounceTime(25)
             .subscribe((contents: any) => {
