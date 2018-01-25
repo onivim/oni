@@ -49,9 +49,8 @@ export interface ITestCase {
     configPath: string
 }
 
+// tslint:disable-next-line only-arrow-functions
 describe("ci tests", function() {
-    // tslint:disable-line only-arrow-functions
-
     const tests = Platform.isWindows()
         ? [...CiTests, ...WindowsOnlyTests]
         : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
