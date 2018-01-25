@@ -6,17 +6,7 @@
  *  - Closing a split
  */
 
-export enum Split {
-    Right = 0,
-    Bottom = 1,
-    Left = 2,
-    Top = 3,
-}
-
-export enum SplitDirection {
-    Horizontal = 0,
-    Vertical = 1,
-}
+import { Direction, SplitDirection } from "./index"
 
 export type SplitOrLeaf<T> = ISplitInfo<T> | ISplitLeaf<T>
 
@@ -32,7 +22,7 @@ export interface ISplitLeaf<T> {
     contents: T
 }
 
-export const getFurthestSplitInDirection = <T>(root: SplitOrLeaf<T>, direction: Split): ISplitLeaf<T> => {
+export const getFurthestSplitInDirection = <T>(root: SplitOrLeaf<T>, direction: Direction): ISplitLeaf<T> => {
     if (!root) {
         return null
     }
@@ -49,7 +39,7 @@ export function createSplitRoot<T>(direction: SplitDirection, parent?: ISplitInf
     return {
         type: "Split",
         splits: [],
-        direction: SplitDirection.Horizontal,
+        direction: "horizontal",
         parent: parent || null,
     }
 }

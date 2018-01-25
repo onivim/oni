@@ -1,8 +1,8 @@
 import * as assert from "assert"
 
-import * as WindowSplit from "./../../src/Services/WindowSplit"
+import * as WindowSplit from "./../../../src/Services/WindowManager"
 
-function getRoot<T>() { return WindowSplit.createSplitRoot<T>(WindowSplit.SplitDirection.Horizontal, null) }
+function getRoot<T>() { return WindowSplit.createSplitRoot<T>("horizontal") }
 
 describe("WindowSplit", () => {
 
@@ -12,7 +12,7 @@ describe("WindowSplit", () => {
 
              const leaf = WindowSplit.createSplitLeaf(1)
 
-             const result = WindowSplit.applySplit(root, WindowSplit.SplitDirection.Horizontal, leaf)
+             const result = WindowSplit.applySplit(root,"horizontal", leaf)
 
              assert.strictEqual(result.splits.length, 1)
              assert.strictEqual(result.splits[0], leaf)
@@ -23,7 +23,7 @@ describe("WindowSplit", () => {
         it("removes split from array", () => {
              const root = getRoot<number>()
              const leaf = WindowSplit.createSplitLeaf(1)
-             const result = WindowSplit.applySplit(root, WindowSplit.SplitDirection.Horizontal, leaf)
+             const result = WindowSplit.applySplit(root,"horizontal", leaf)
 
              const resultAfterClose = WindowSplit.closeSplit(result, 1)
 

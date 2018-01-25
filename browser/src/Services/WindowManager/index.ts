@@ -13,16 +13,8 @@ import { Event, IEvent } from "oni-types"
 
 export * from "./WindowSplit"
 
-// TODO: Add 'direction' enum to `oni-types'
-// export enum Direction {
-//     Right = 0,
-//     Bottom = 1,
-//     Left = 2,
-//     Top = 3,
-// }
-
+// TODO: Possible API types?
 export type Direction = "up" | "down" | "left" | "right"
-
 export type SplitDirection = "horizontal" | "vertical"
 
 export const getInverseDirection = (direction: Direction): Direction => {
@@ -40,9 +32,7 @@ export const getInverseDirection = (direction: Direction): Direction => {
     }
 }
 
-// TODO: Add optional `enter` and `leave` methods to `oni-api`
-
-import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, getFurthestSplitInDirection, ISplitInfo, SplitDirection } from "./WindowSplit"
+import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, getFurthestSplitInDirection, ISplitInfo } from "./WindowSplit"
 
 /**
  * Interface for something that can manage window splits:
@@ -109,13 +99,18 @@ export class WindowDock implements IWindowDock {
         return this._splits.indexOf(split) >= 0
     }
 
+    public split(startSplit: Oni.IWindowSplit, splitDirection: SplitDirection): boolean {
+        this.addSplit(startSplit)
+        return true
+    }
+
     public move(startSplit: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit {
         const currentIndex = this._splits.indexOf(startSplit)
 
         if (currentIndex === -1) {
-            if (direction === Direction.Left) {
+            if (direction === "left") {
                 return this._splits[this._splits.length - 1]
-            } else if (direction === Direction.Right) {
+            } else if (direction === "right") {
                 return this._splits[0]
             } else {
                 return null
@@ -123,7 +118,7 @@ export class WindowDock implements IWindowDock {
         }
 
         // TODO: Generalize this - this is baked for a 'left dock' case right now
-        const newIndex = direction === Direction.Left ? currentIndex - 1 : currentIndex + 1
+        const newIndex = direction === "left" ? currentIndex - 1 : currentIndex + 1
 
         if (newIndex >= 0 && newIndex < this._splits.length) {
             return this._splits[newIndex]
@@ -147,7 +142,7 @@ export class WindowDock implements IWindowDock {
     }
 }
 
-export class WindowManager implements Oni.IWindowManager {
+export class WindowManager {
     private _activeSplit: any
     private _splitRoot: ISplitInfo<Oni.IWindowSplit>
 
@@ -184,7 +179,7 @@ export class WindowManager implements Oni.IWindowManager {
 
     constructor() {
         this._leftDock = new WindowDock()
-        this._splitRoot = createSplitRoot(SplitDirection.Horizontal)
+        this._splitRoot = createSplitRoot("horizontal")
         // this._activeSplit = null
     }
 
@@ -198,25 +193,25 @@ export class WindowManager implements Oni.IWindowManager {
     }
 
     public moveLeft(): void {
-        const leftDock = this.getDock(Direction.Left)
+        const leftDock = this.getDock("left")
 
         if (leftDock && leftDock.splits) {
-            const newSplit = leftDock.move(this._activeSplit, Direction.Left)
+            const newSplit = leftDock.move(this._activeSplit,"left")
             this._focusNewSplit(newSplit)
         }
     }
 
     public moveRight(): void {
-        const leftDock = this.getDock(Direction.Left)
+        const leftDock = this.getDock("left")
 
         if (leftDock.contains(this._activeSplit)) {
-            const newSplit = leftDock.move(this._activeSplit, Direction.Right)
+            const newSplit = leftDock.move(this._activeSplit,"right")
 
             // Navigation occurred within left dock
             if (newSplit) {
                 this._focusNewSplit(newSplit)
             } else {
-                const innerSplit = getFurthestSplitInDirection(this._splitRoot, 0 /* TODO - Reuse direction? */)
+                const innerSplit = getFurthestSplitInDirection(this._splitRoot, "right" /* TODO - Reuse direction? */)
 
                 if (innerSplit) {
                     this._focusNewSplit(innerSplit.contents)
@@ -234,7 +229,7 @@ export class WindowManager implements Oni.IWindowManager {
     }
 
     public getDock(direction: Direction): IWindowDock {
-        if (direction === Direction.Left) {
+        if (direction === "left") {
             return this._leftDock
         } else {
             // TODO

@@ -25,7 +25,7 @@ export const startEditors = async (args: any, colors: Colors, completionProvider
 
     const editor = new OniEditor(colors, completionProviders, configuration, diagnostics, languageManager, menuManager, overlayManager, pluginManager, tasks, themeManager, workspace)
     editorManager.setActiveEditor(editor)
-    windowManager.split(0, editor)
+    windowManager.split("horizontal", editor)
 
     await editor.init(args)
 }
