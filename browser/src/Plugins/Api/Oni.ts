@@ -29,11 +29,12 @@ import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
 import { getInstance as getSnippetsInstance } from "./../../Services/Snippets"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
+import { getInstance as getTasksInstance } from "./../../Services/Tasks"
 import { getThemeManagerInstance } from "./../../Services/Themes"
 import { windowManager } from "./../../Services/WindowManager"
 import { getInstance as getWorkspaceInstance } from "./../../Services/Workspace"
 
-import { NeovimEditor } from "./../../Editor/NeovimEditor"
+import { OniEditor } from "./../../Editor/OniEditor"
 
 import { getInstance as getPluginManagerInstance } from "./../../Plugins/PluginManager"
 
@@ -159,9 +160,8 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return helpers
     }
 
-    public createNeovimEditor(): NeovimEditor {
-        const editor = new NeovimEditor(getColors(), configuration, getDiagnosticsInstance(), this.language, getPluginManagerInstance(), getThemeManagerInstance(), getWorkspaceInstance())
-        editor.init([])
+    public createNeovimEditor(): OniEditor {
+        const editor = new OniEditor(getColors(), getCompletionProvidersInstance(), configuration, getDiagnosticsInstance(), this.language, getMenuManagerInstance(), getPluginManagerInstance(), getTasksInstance(), getThemeManagerInstance(), getWorkspaceInstance())
         return editor
     }
 
