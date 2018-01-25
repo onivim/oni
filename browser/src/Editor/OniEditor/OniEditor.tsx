@@ -161,7 +161,7 @@ export class OniEditor implements IEditor {
     }
 
     public async bufferDelete(bufferId: string = this.activeBuffer.id): Promise<void> {
-        this.neovim.command(`:bd! ${bufferId}`)
+        this._neovimEditor.bufferDelete(bufferId)
     }
 
     public async init(filesToOpen: string[]): Promise<void> {
