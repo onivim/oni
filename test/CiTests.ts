@@ -17,6 +17,7 @@ const CiTests = [
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
+    "Editor.ExternalCommandLineTest",
     "LargeFileTest",
     "PaintPerformanceTest",
     "QuickOpenTest",

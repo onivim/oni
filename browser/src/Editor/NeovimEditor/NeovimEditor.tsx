@@ -36,6 +36,7 @@ import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
+import { Overlay, OverlayManager } from "./../../Services/Overlay"
 import * as Shell from "./../../UI/Shell"
 
 import {
@@ -79,6 +80,10 @@ import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
 
+import CommandLine from "./../../UI/components/CommandLine"
+import ExternalMenus from "./../../UI/components/ExternalMenus"
+import WildMenu from "./../../UI/components/WildMenu"
+
 import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
 export class NeovimEditor extends Editor implements IEditor {
@@ -121,6 +126,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _definition: Definition = null
     private _toolTipsProvider: IToolTipsProvider
     private _commands: NeovimEditorCommands
+    private _externalMenuOverlay: Overlay
 
     private _bufferLayerManager: BufferLayerManager
 
@@ -148,6 +154,7 @@ export class NeovimEditor extends Editor implements IEditor {
         private _diagnostics: IDiagnosticsDataSource,
         private _languageManager: LanguageManager,
         private _menuManager: MenuManager,
+        private _overlayManager: OverlayManager,
         private _pluginManager: PluginManager,
         private _tasks: Tasks,
         private _themeManager: ThemeManager,
@@ -178,6 +185,15 @@ export class NeovimEditor extends Editor implements IEditor {
             const errors = this._diagnostics.getErrors()
             this._actions.setErrors(errors)
         })
+
+        this._externalMenuOverlay = this._overlayManager.createItem()
+        this._externalMenuOverlay.setContents(
+                <Provider store={this._store}>
+                    <ExternalMenus>
+                        <CommandLine />
+                        <WildMenu />
+                    </ExternalMenus>
+                </Provider>)
 
         this._popupMenu = new NeovimPopupMenu(
             this._neovimInstance.onShowPopupMenu,
@@ -241,6 +257,7 @@ export class NeovimEditor extends Editor implements IEditor {
                 showCommandLineInfo.indent,
                 showCommandLineInfo.level,
             )
+            this._externalMenuOverlay.show()
         })
 
         this._neovimInstance.onWildMenuShow.subscribe(wildMenuInfo => {
@@ -251,10 +268,13 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.wildMenuSelect(wildMenuInfo)
         })
 
-        this._neovimInstance.onWildMenuHide.subscribe(this._actions.hideWildMenu)
+        this._neovimInstance.onWildMenuHide.subscribe(() => {
+            this._actions.hideWildMenu()
+        })
 
         this._neovimInstance.onCommandLineHide.subscribe(() => {
             this._actions.hideCommandLine()
+            this._externalMenuOverlay.hide()
         })
 
         this._neovimInstance.onCommandLineSetCursorPosition.subscribe(commandLinePos => {
