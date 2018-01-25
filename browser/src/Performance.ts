@@ -1,4 +1,3 @@
-
 /**
  * Thin wrapper around browser performance API
  */

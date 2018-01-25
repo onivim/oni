@@ -15,7 +15,6 @@ import * as TestHelpers from "./../../TestHelpers"
 const MemoryFileSystem = require("memory-fs") // tslint:disable-line
 
 describe("ExplorerStore", () => {
-
     let fileSystem: any
     let store: Store<ExplorerState.IExplorerState>
 
@@ -32,7 +31,6 @@ describe("ExplorerStore", () => {
     })
 
     describe("SET_ROOT_DIRECTORY", () => {
-
         it("expands directory automatically", async () => {
             store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
@@ -44,9 +42,11 @@ describe("ExplorerStore", () => {
             // At this point, the FS operations are synchronous
             const state = store.getState()
 
-            assert.deepEqual(state.expandedFolders[rootPath], [
-                { type: "file", fullPath: filePath },
-            ], "Validate expanded folders is set")
+            assert.deepEqual(
+                state.expandedFolders[rootPath],
+                [{ type: "file", fullPath: filePath }],
+                "Validate expanded folders is set",
+            )
         })
     })
 })

@@ -16,12 +16,12 @@ const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length >
 
 interface IWindowState {
     bounds?: {
-        x: number,
-        y: number,
-        height: number,
-        width: number,
+        x: number
+        y: number
+        height: number
+        width: number
     }
-    isMaximized?: boolean,
+    isMaximized?: boolean
 }
 
 let windowState: IWindowState = {
@@ -69,11 +69,10 @@ let mainWindow: BrowserWindow = null
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
 if (!isDevelopment && !isDebug) {
-
     let processArgs = process.argv || []
 
     // If running from spectron, ignore the arguments
-    if (processArgs.find((f) => f.indexOf("--test-type=webdriver") >= 0)) {
+    if (processArgs.find(f => f.indexOf("--test-type=webdriver") >= 0)) {
         Log.warn("Clearing arguments because running from automation!")
         processArgs = []
     }
@@ -84,7 +83,7 @@ if (!isDevelopment && !isDebug) {
     }
 
     Log.info("Making single instance...")
-    makeSingleInstance(currentOptions, (options) => {
+    makeSingleInstance(currentOptions, options => {
         Log.info("Creating single instance")
         loadFileFromArguments(process.platform, options.args, options.workingDirectory)
     })
@@ -108,17 +107,22 @@ export function createWindow(
     workingDirectory,
     delayedEvent: IDelayedEvent = null,
 ) {
-    Log.info(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
+    Log.info(
+        `Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`,
+    )
     const webPreferences = {
         blinkFeatures: "ResizeObserver,Accelerated2dCanvas,Canvas2dFixedRenderingMode",
     }
 
-    const backgroundColor = (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
+    const backgroundColor =
+        (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
 
     try {
         const internalWindowState = PersistentSettings.get("_internal.windowState") as IWindowState
-        if (internalWindowState &&
-            (internalWindowState.bounds || internalWindowState.isMaximized)) {
+        if (
+            internalWindowState &&
+            (internalWindowState.bounds || internalWindowState.isMaximized)
+        ) {
             windowState = internalWindowState
         }
     } catch (e) {
@@ -135,7 +139,7 @@ export function createWindow(
         webPreferences,
         backgroundColor,
         titleBarStyle: "hidden",
-        x:  windowState.bounds.x,
+        x: windowState.bounds.x,
         y: windowState.bounds.y,
         height: windowState.bounds.height,
         width: windowState.bounds.width,
@@ -153,7 +157,7 @@ export function createWindow(
         })
     })
 
-    ipcMain.once("Oni.started", (evt) => {
+    ipcMain.once("Oni.started", evt => {
         Log.info("Oni started")
 
         if (delayedEvent) {

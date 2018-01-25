@@ -12,10 +12,11 @@ import { editorManager } from "./../EditorManager"
 import * as LanguageManager from "./LanguageManager"
 
 export const format = async () => {
-
     const activeBuffer = editorManager.activeEditor.activeBuffer
 
-    const capabilities = await LanguageManager.getInstance().getCapabilitiesForLanguage(activeBuffer.language)
+    const capabilities = await LanguageManager.getInstance().getCapabilitiesForLanguage(
+        activeBuffer.language,
+    )
 
     if (capabilities.documentFormattingProvider) {
         await formatDocument()
@@ -37,7 +38,12 @@ export const formatDocument = async () => {
 
     let result: types.TextEdit[] = null
     try {
-        result = await LanguageManager.getInstance().sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/formatting", args)
+        result = await LanguageManager.getInstance().sendLanguageServerRequest(
+            activeBuffer.language,
+            activeBuffer.filePath,
+            "textDocument/formatting",
+            args,
+        )
     } catch (ex) {
         Log.warn(ex)
     }
@@ -45,7 +51,6 @@ export const formatDocument = async () => {
     if (result) {
         await activeBuffer.applyTextEdits(result)
     }
-
 }
 
 export const rangeFormatDocument = async () => {
@@ -60,7 +65,12 @@ export const rangeFormatDocument = async () => {
 
     let result: types.TextEdit[] = null
     try {
-        result = await LanguageManager.getInstance().sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/rangeFormatting", args)
+        result = await LanguageManager.getInstance().sendLanguageServerRequest(
+            activeBuffer.language,
+            activeBuffer.filePath,
+            "textDocument/rangeFormatting",
+            args,
+        )
     } catch (ex) {
         Log.warn(ex)
     }

@@ -7,26 +7,23 @@ const MemoryFileSystem = require("memory-fs") // tslint:disable-line
 import * as FileMappings from "./../../src/Services/FileMappings"
 
 describe("FileMappings", () => {
-
     let rootPath: string
     let srcPath: string
     let testPath: string
     let fileSystem: any
 
     beforeEach(() => {
+        rootPath = path.join("C:/", "oni-unit-test-container")
+        srcPath = path.join(rootPath, "browser", "src")
+        testPath = path.join(rootPath, "browser", "test")
 
-            rootPath = path.join("C:/", "oni-unit-test-container")
-            srcPath = path.join(rootPath, "browser", "src")
-            testPath = path.join(rootPath, "browser", "test")
-
-            fileSystem = new MemoryFileSystem()
-            fileSystem.mkdirpSync(srcPath)
-            fileSystem.mkdirpSync(testPath)
+        fileSystem = new MemoryFileSystem()
+        fileSystem.mkdirpSync(srcPath)
+        fileSystem.mkdirpSync(testPath)
     })
 
     describe("getMappedFile", () => {
         it("returns simple mapping", () => {
-
             const srcFile = path.join(srcPath, "source.ts")
             const testFile = path.join(testPath, "sourceTest.ts")
 

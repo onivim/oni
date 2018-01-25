@@ -1,4 +1,3 @@
-
 import * as types from "vscode-languageserver-types"
 
 export interface IHighlight {
@@ -11,4 +10,7 @@ export interface IHighlight {
 
 export type HighlightGroupId = string
 
-export interface HighlightInfo { range: types.Range, highlightGroup: HighlightGroupId }
+export interface HighlightInfo {
+    range: types.Range
+    highlightGroup: HighlightGroupId
+}

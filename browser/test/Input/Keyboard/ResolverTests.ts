@@ -1,6 +1,11 @@
 import * as assert from "assert"
 
-import { createMetaKeyResolver, ignoreMetaKeyResolver, KeyResolver, remapResolver } from "./../../../src/Input/Keyboard/Resolvers"
+import {
+    createMetaKeyResolver,
+    ignoreMetaKeyResolver,
+    KeyResolver,
+    remapResolver,
+} from "./../../../src/Input/Keyboard/Resolvers"
 
 describe("Resolvers", () => {
     describe("ignoreMetaResolver", () => {
@@ -33,7 +38,7 @@ describe("Resolvers", () => {
         describe("*", () => {
             it("Handles <s- > (shift+space)", () => {
                 const layout = {
-                    "Space": {
+                    Space: {
                         unmodified: " ",
                         withShift: " ",
                     },
@@ -95,14 +100,14 @@ describe("Resolvers", () => {
 })
 
 const englishLayout = {
-    "KeyP": {
+    KeyP: {
         unmodified: "p",
         withShift: "P",
     },
 }
 
 const englishInternationalLayout = {
-    "KeyS": {
+    KeyS: {
         unmodified: "s",
         withShift: "S",
         withAltGraph: "ß",
@@ -111,7 +116,7 @@ const englishInternationalLayout = {
 }
 
 const germanLayout = {
-    "Semicolon": {
+    Semicolon: {
         unmodified: "ö",
         withShift: "Ö",
     },
@@ -123,7 +128,7 @@ const createKeyEvent = (key: string, code: string): any => ({
     ctrlKey: false,
     altKey: false,
     shiftKey: false,
-    preventDefault: () => { }, // tslint:disable-line no-empty
+    preventDefault: () => {}, // tslint:disable-line no-empty
 })
 
 const control = (keyEvent: KeyboardEvent): KeyboardEvent => ({

@@ -7,15 +7,11 @@ import { Definition, IDefinitionProps } from "./../../../UI/components/Definitio
 import * as Selectors from "./../../NeovimEditor/NeovimEditorSelectors"
 import * as State from "./../../NeovimEditor/NeovimEditorStore"
 
-const emptyRange = types.Range.create(
-    types.Position.create(-1, -1),
-    types.Position.create(-1, -1),
-)
+const emptyRange = types.Range.create(types.Position.create(-1, -1), types.Position.create(-1, -1))
 
 const getActiveDefinition = (state: State.IState) => state.definition
 
 const mapStateToProps = (state: State.IState): IDefinitionProps => {
-
     const window = Selectors.getActiveWindow(state)
 
     const noop = (): any => null

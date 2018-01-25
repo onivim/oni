@@ -1,6 +1,7 @@
 {
     "extends": "tslint:latest",
     "rules": {
+        "align": false,
         "arrow-parens": [false],
         "max-classes-per-file": [false],
         "max-line-length": [false],
@@ -10,7 +11,7 @@
         "no-namespace": false,
         "object-literal-key-quotes": false,
         "object-literal-sort-keys": false,
-        "semicolon": [true, "never"],
+        "semicolon": false,
         "interface-name": [false],
         "variable-name": [
             true,
@@ -19,14 +20,7 @@
             "ban-keywords",
             "check-format"
         ],
-        "whitespace": [
-            true,
-            "check-branch",
-            "check-decl",
-            "check-operator",
-            "check-separator",
-            "check-type"
-        ],
+        "whitespace": false,
         "trailing-comma": [
             true,
             {

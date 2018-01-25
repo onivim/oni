@@ -15,7 +15,6 @@ export interface ITextInputViewProps {
     foregroundColor: string
 
     overrideDefaultStyle?: boolean
-
 }
 
 // TODO: Is there a better value for this?
@@ -27,7 +26,6 @@ const EmptyStyle: React.CSSProperties = {}
  * common functionality (like focus management, key handling)
  */
 export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> {
-
     private _element: HTMLInputElement
 
     public componentDidMount(): void {
@@ -37,11 +35,12 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
     }
 
     public render(): JSX.Element {
-
-        const containerStyle: React.CSSProperties = this.props.overrideDefaultStyle ? EmptyStyle : {
-            padding: "4px",
-            border: "1px solid " + this.props.foregroundColor,
-        }
+        const containerStyle: React.CSSProperties = this.props.overrideDefaultStyle
+            ? EmptyStyle
+            : {
+                  padding: "4px",
+                  border: "1px solid " + this.props.foregroundColor,
+              }
 
         const inputStyle: React.CSSProperties = {
             outline: "none",
@@ -53,18 +52,23 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
 
         const defaultValue = this.props.defaultValue || ""
 
-        return <div style={containerStyle}><input type="text"
-            style={inputStyle}
-            placeholder={defaultValue}
-            onKeyDown={(evt) => this._onKeyDown(evt)}
-            onChange={(evt) => this._onChange(evt)}
-            onFocus={(evt) => evt.currentTarget.select()}
-            ref={(elem) => this._element = elem} /></div>
+        return (
+            <div style={containerStyle}>
+                <input
+                    type="text"
+                    style={inputStyle}
+                    placeholder={defaultValue}
+                    onKeyDown={evt => this._onKeyDown(evt)}
+                    onChange={evt => this._onChange(evt)}
+                    onFocus={evt => evt.currentTarget.select()}
+                    ref={elem => (this._element = elem)}
+                />
+            </div>
+        )
     }
 
     public componentWillUnmount(): void {
         if (this._element) {
-
             if (this.props.onComplete) {
                 this.props.onComplete(this._element.value)
             }
@@ -81,24 +85,20 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
     }
 
     private _onKeyDown(keyboardEvent: React.KeyboardEvent<HTMLInputElement>): void {
-
         if (this._element && keyboardEvent.ctrlKey) {
-
             switch (keyboardEvent.key) {
-                case "u":
-                    {
-                        this._element.value = ""
-                        break
-                    }
-                case "h":
-                    {
-                        const previousValue = this._element.value
+                case "u": {
+                    this._element.value = ""
+                    break
+                }
+                case "h": {
+                    const previousValue = this._element.value
 
-                        if (previousValue.length > 0) {
-                            this._element.value = previousValue.substring(0, previousValue.length - 1)
-                        }
-                        break
+                    if (previousValue.length > 0) {
+                        this._element.value = previousValue.substring(0, previousValue.length - 1)
                     }
+                    break
+                }
                 case "w":
                     {
                         const previousValue = this._element.value
@@ -117,7 +117,6 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
                     break
                 default:
                     return
-
             }
         }
     }

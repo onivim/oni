@@ -61,7 +61,10 @@ export interface IKeyboardInputProps {
  *
  * Helper for managing state and sanitizing input from dead keys, IME, etc
  */
-export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewProps, IKeyboardInputViewState> {
+export class KeyboardInputView extends React.PureComponent<
+    IKeyboardInputViewProps,
+    IKeyboardInputViewState
+> {
     private _keyboardElement: HTMLInputElement
     private _disposables: IDisposable[] = []
 
@@ -131,19 +134,22 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             width: this.state.compositionTextWidthInPixels + "px",
         }
 
-        return <div style={containerStyle}>
-            <div style={backgroundStyle} />
-            <input
-                style={inputStyle}
-                ref={(elem) => this._keyboardElement = elem}
-                type={"text"}
-                onKeyDown={(evt) => this._onKeyDown(evt)}
-                onKeyUp={(evt) => this._onKeyUp(evt)}
-                onCompositionEnd={(evt) => this._onCompositionEnd(evt)}
-                onCompositionUpdate={(evt) => this._onCompositionUpdate(evt)}
-                onCompositionStart={(evt) => this._onCompositionStart(evt)}
-                onInput={(evt) => this._onInput(evt)} />
-        </div>
+        return (
+            <div style={containerStyle}>
+                <div style={backgroundStyle} />
+                <input
+                    style={inputStyle}
+                    ref={elem => (this._keyboardElement = elem)}
+                    type={"text"}
+                    onKeyDown={evt => this._onKeyDown(evt)}
+                    onKeyUp={evt => this._onKeyUp(evt)}
+                    onCompositionEnd={evt => this._onCompositionEnd(evt)}
+                    onCompositionUpdate={evt => this._onCompositionUpdate(evt)}
+                    onCompositionStart={evt => this._onCompositionStart(evt)}
+                    onInput={evt => this._onInput(evt)}
+                />
+            </div>
+        )
     }
 
     private _onKeyUp(evt: React.KeyboardEvent<HTMLInputElement>) {
@@ -182,7 +188,6 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
             evt.preventDefault()
             return
         } else {
-
             if (this.props.typingPrediction) {
                 this.props.typingPrediction.addPrediction(key)
             }
@@ -205,7 +210,6 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
 
     private _onCompositionUpdate(evt: React.CompositionEvent<HTMLInputElement>) {
         if (this._keyboardElement) {
-
             const measurements = measureFont(this.props.fontSize, this.props.fontFamily, evt.data)
 
             // Add some padding for an extra character to the end of the input box
@@ -252,7 +256,10 @@ export class KeyboardInputView extends React.PureComponent<IKeyboardInputViewPro
     }
 }
 
-const mapStateToProps = (state: IState, originalProps: IKeyboardInputProps): IKeyboardInputViewProps => {
+const mapStateToProps = (
+    state: IState,
+    originalProps: IKeyboardInputProps,
+): IKeyboardInputViewProps => {
     return {
         ...originalProps,
         top: state.cursorPixelY,
