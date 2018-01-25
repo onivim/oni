@@ -34,9 +34,26 @@ export const getMappedFileFromMapping = (rootFolder: string, filePath: string, m
     const fullSourceRoot = path.join(rootFolder, mapping.sourceFolder)
     const difference = getPathDifference(fullSourceRoot, path.dirname(filePath))
 
-    const mappedFile = path.join(rootFolder, mapping.mappedFolder, difference, mapping.mappedFileName)
+    // Resolve the variables in the file path, like `${fileName}`
+    const resolvedMappedFile = replaceVariablesInFileName(mapping.mappedFileName, filePath)
 
+    const mappedFile = path.join(rootFolder, mapping.mappedFolder, difference, resolvedMappedFile)
     return mappedFile
+}
+
+export const replaceVariablesInFileName = (mappingFileNameWithVariables: string, originalFilePath: string): string => {
+
+    const originalFileNameWithExtension = path.basename(originalFilePath)
+    const originalExtension = path.extname(originalFileNameWithExtension)
+
+    const originalFileNameWithoutExtension = path.basename(originalFilePath, originalExtension)
+
+    let ret = mappingFileNameWithVariables
+
+    // Resolve '${fileName}' variable
+    ret = ret.split("${fileName}").join(originalFileNameWithoutExtension) // tslint:disable-line
+
+    return ret
 }
 
 export const getPathDifference = (path1: string, path2: string): string => {

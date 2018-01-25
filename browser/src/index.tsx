@@ -50,7 +50,7 @@ const start = async (args: string[]): Promise<void> => {
 
     const parsedArgs = minimist(args)
     const currentWorkingDirectory = process.cwd()
-    const filesToOpen = parsedArgs._.map((arg) => path.join(currentWorkingDirectory, arg))
+    const filesToOpen = parsedArgs._.map((arg) => path.isAbsolute(arg) ? arg : path.join(currentWorkingDirectory, arg))
 
     // Helper for debugging:
      Performance.startMeasure("Oni.Start.Config")
