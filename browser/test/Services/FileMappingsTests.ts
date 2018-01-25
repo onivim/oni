@@ -25,21 +25,6 @@ describe("FileMappings", () => {
     })
 
     describe("getMappedFile", () => {
-        it("returns null if no mapped file exists", () => {
-            const srcFile = path.join(srcPath, "source.ts")
-            fileSystem.writeFileSync(srcFile, " ")
-
-            const mapping: FileMappings.IFileMapping = {
-                sourceFolder: "browser/src",
-
-                mappedFolder: "browser/test",
-                mappedFileName: "${fileName}Test.${ext}", // tslint:disable-line
-            }
-
-            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping)
-            assert.strictEqual(mappedFile, null, "Validate mapping returned null since there was no test file")
-        })
-
         it("returns simple mapping", () => {
 
             const srcFile = path.join(srcPath, "source.ts")
@@ -76,7 +61,7 @@ describe("FileMappings", () => {
                 sourceFolder: "browser/src",
 
                 mappedFolder: "browser/test",
-                mappedFileName: "{fileName}.test.ts",
+                mappedFileName: "${fileName}.test.ts",
             }
 
             const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping)
