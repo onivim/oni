@@ -7,7 +7,7 @@
 
 import * as Oni from "oni-api"
 
-import { getInverseDirection, IWindowSplitProvider, Direction, SingleSplitProvider, SplitDirection } from "./index"
+import { IWindowSplitProvider, Direction, SingleSplitProvider, SplitDirection } from "./index"
 
 export class LinearSplitProvider implements IWindowSplitProvider {
 
@@ -44,6 +44,10 @@ export class LinearSplitProvider implements IWindowSplitProvider {
 
         const containingSplit = this._getProviderForSplit(split)
 
+        if (!containingSplit) {
+            return false
+        }
+
         const result = containingSplit.split(split, direction)
 
         // Containing split handled it, so we're good
@@ -51,14 +55,15 @@ export class LinearSplitProvider implements IWindowSplitProvider {
             return true
         }
 
-        // If the split is vertical, and we're horizontal, can't handle it..
+        // If the split requested is oriented differently,
+        // create a new provider to handle that
         if (direction !== this._direction) {
-            return false
+            // TODO
+        } else {
+            // Otherwise, we can - let's wrap up the split in a provider
+            const singleSplitProvider = new SingleSplitProvider(split)
+            this._splitProviders.push(singleSplitProvider)
         }
-
-        // Otherwise, we can - let's wrap up the split in a provider
-        const singleSplitProvider = new SingleSplitProvider(split)
-        this._splitProviders.push(singleSplitProvider)
 
         return true
     }
@@ -88,7 +93,7 @@ export class LinearSplitProvider implements IWindowSplitProvider {
         }
 
         if (!this._canHandleMove(direction)) {
-            return false
+            return null
         }
 
         // Since this wasn't handled by the containing split, let's try and handle it
@@ -101,15 +106,23 @@ export class LinearSplitProvider implements IWindowSplitProvider {
                 increment = 1
             }
 
-        index += increment
+        const newIndex = index +  increment
 
-        if (index < 0 || index >= this._splitProviders.length) {
-            return false
+        if (newIndex < 0 || newIndex >= this._splitProviders.length) {
+            return null
         }
 
         // Move into the next split over
-        return this._splitProviders[index].move(null, direction)
+        return this._splitProviders[newIndex].move(null, direction)
     }
+
+//     private _getOppositeOrientation(): SplitDirection {
+//         if (this._direction === "horizontal") {
+//             return "vertical"
+//         } else {
+//             return "horizontal"
+//         }
+//     }
 
     private _canHandleMove(direction: Direction): boolean {
         switch (direction) {
