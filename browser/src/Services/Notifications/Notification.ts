@@ -4,7 +4,8 @@
  * API interface for notification UX
  */
 
-import { NotificationLevel } from "./Notifications"
+import { Store } from "redux"
+import { INotificationsState, NotificationLevel } from "./NotificationStore"
 
 export class Notification {
     private _title: string = ""
@@ -14,6 +15,7 @@ export class Notification {
 
     constructor(
         private _id: string,
+        private _store: Store<INotificationsState>,
     ) { }
 
     public setContents(title: string, detail: string): void {
@@ -30,6 +32,20 @@ export class Notification {
     }
 
     public show(): void {
-        console.log(this._id + this._title + this._detail + this._level + this._lifeTimeInMilliseconds)
+        this._store.dispatch({
+            type: "SHOW_NOTIFICATION",
+            id: this._id,
+            title: this._title,
+            detail: this._detail,
+            level: this._level,
+            lifeTime: this._lifeTimeInMilliseconds,
+        })
+    }
+
+    public hide(): void {
+        this._store.dispatch({
+            type: "HIDE_NOTIFICATION",
+            id: this._id,
+        })
     }
 }
