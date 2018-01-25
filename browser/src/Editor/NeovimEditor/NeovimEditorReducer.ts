@@ -183,13 +183,16 @@ export const definitionReducer = (s: State.IDefinition, a: Actions.SimpleAction)
 }
 
 export const viewportReducer = (s: State.IViewport, a: Actions.ISetViewportAction) => {
+    const { focusedEditor, width, height } = a.payload
+    const editor = focusedEditor || s.focusedEditor
     switch (a.type) {
         case "SET_VIEWPORT":
             return {
-                width: a.payload.width,
-                height: a.payload.height,
-                focusedEditor: a.payload.focusedEditor,
-        }
+                ...s,
+                width,
+                height,
+                focusedEditor: editor,
+            }
         default:
             return s
     }
