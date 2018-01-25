@@ -12,24 +12,110 @@ import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 // TODO: Add 'direction' enum to `oni-types'
-export enum Direction {
-    Right = 0,
-    Bottom = 1,
-    Left = 2,
-    Top = 3,
+// export enum Direction {
+//     Right = 0,
+//     Bottom = 1,
+//     Left = 2,
+//     Top = 3,
+// }
+
+export type Direction = "up" | "down" | "left" | "right"
+
+export const getInverseDirection = (direction: Direction): Direction => {
+    switch(direction) {
+        case "up":
+            return "down"
+        case "down":
+            return "up"
+        case "left":
+            return "left"
+        case "right":
+            return "right"
+        default:
+            return null
+    }
 }
 
 // TODO: Add optional `enter` and `leave` methods to `oni-api`
 
 import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, getFurthestSplitInDirection, ISplitInfo, SplitDirection } from "./WindowSplit"
 
-export interface INavigatable {
+/**
+ * Interface for something that can manage window splits:
+ * - Navigating splits
+ * - Creating a new split
+ * - Removing a split
+ * Later - resizing a split?
+ */
+export interface IWindowSplitProvider {
     contains(split: Oni.IWindowSplit): boolean
 
     move(startSplit: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit
+
+    split(startSplit: Oni.IWindowSplit, direction: Direction): boolean
+
+    close(split: Oni.IWindowSplit): void
 }
 
-export interface IWindowDock extends INavigatable {
+export interface WindowSplitRelationship {
+    from: IWindowSplitProvider
+    to: IWindowSplitProvider
+    direction: string
+}
+
+export class SingleSplitProvider implements IWindowSplitProvider {
+    constructor(
+        private _split: Oni.IWindowSplit
+    ) { }
+
+    public contains(split: Oni.IWindowSplit): boolean {
+        return this._split === split
+    }
+
+    public move(split: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit {
+        return null
+    }
+
+    public split(split: Oni.IWindowSplit, direction: Direction): boolean {
+        return false
+    }
+
+    public close(split: Oni.IWindowSplit): void {
+        this._split = null
+    }
+}
+
+export class RelationalSplitProvider implements IWindowSplitProvider {
+
+    private _relationships: WindowSplitRelationship[] = []
+    private _providers: IWindowSplitProvider[] = []
+
+    public setRelationship(from: IWindowSplitProvider, to: IWindowSplitProvider, direction: Direction): void {
+        this._relationships.push({
+            from,
+            to,
+            direction
+        })
+
+        // Also push the inverse
+        this._relationships.push({
+            from: to,
+            to: from,
+            direction: getInverseDirection(direction)
+        })
+
+        this._addToProvidersIfNeeded(from)
+        this._addToProvidersIfNeeded(to)
+    }
+
+    private _addToProvidersIfNeeded(provider: IWindowSplitProvider): void {
+        if (this._providers.indexOf(provider) === -1) {
+            this._providers.push(provider)
+        }
+    }
+}
+
+export interface IWindowDock extends IWindowSplitProvider {
     splits: Oni.IWindowSplit[]
 
     onSplitsChanged: IEvent<void>
@@ -81,6 +167,10 @@ export class WindowDock implements IWindowDock {
     public addSplit(split: Oni.IWindowSplit): void {
         this._splits = [...this._splits, split]
         this._onSplitsChangedEvent.dispatch()
+    }
+
+    public close (split: Oni.IWindowSplit): void {
+        this.removeSplit(split)
     }
 
     public removeSplit(split: Oni.IWindowSplit): void {
