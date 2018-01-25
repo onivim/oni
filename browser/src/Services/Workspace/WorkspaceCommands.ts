@@ -44,7 +44,7 @@ export const activateCommands = (configuration: Configuration, editorManager: Ed
                 const containingFolder = path.dirname(mappedFile)
                 mkdirp.sync(containingFolder)
             }
-            
+
             editorManager.activeEditor.openFile(mappedFile)
         }
     }

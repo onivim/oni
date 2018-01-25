@@ -16,6 +16,6 @@ module.exports = {
     "workspace.testFileMappings": [{
         sourceFolder: "browser/src",
         mappedFolder: "browser/test",
-        mappedFileName: "${fileName}Test.ts",
+        mappedFileName: "${fileName}Tests.ts",
     }]
 }
