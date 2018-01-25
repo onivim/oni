@@ -21,6 +21,8 @@ import { Event, IEvent } from "oni-types"
 
 export type Direction = "up" | "down" | "left" | "right"
 
+export type SplitDirection = "horizontal" | "vertical"
+
 export const getInverseDirection = (direction: Direction): Direction => {
     switch(direction) {
         case "up":
@@ -52,7 +54,7 @@ export interface IWindowSplitProvider {
 
     move(startSplit: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit
 
-    split(startSplit: Oni.IWindowSplit, direction: Direction): boolean
+    split(startSplit: Oni.IWindowSplit, direction: SplitDirection): boolean
 
     close(split: Oni.IWindowSplit): void
 }
@@ -107,6 +109,82 @@ export class RelationalSplitProvider implements IWindowSplitProvider {
         this._addToProvidersIfNeeded(from)
         this._addToProvidersIfNeeded(to)
     }
+
+    public contains(split: Oni.IWindowSplit): boolean {
+        return this._getContainingSplit(split) !== null
+    }
+
+    public close(split: Oni.IWindowSplit): void {
+        const containingSplit = this._getContainingSplit(split)
+
+        if (containingSplit) {
+            containingSplit.close(split)
+        }
+    }
+
+    public split(split: Oni.IWindowSplit, direction: SplitDirection): boolean {
+        const containingSplit = this._getContainingSplit(split)
+
+        if (containingSplit) {
+            return containingSplit.split(split, direction)
+        } else {
+            return false
+        }
+    }
+
+    public move(split: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit {
+
+        // If there is no current split, that means we are entering
+        if (split === null) {
+            // Need to find the furthest split in the *reverse* direction.
+            // For example, if we are moving *right* into this split,
+            // we want to grab the furthest *left* split
+            const reverseDirection = getInverseDirection(direction)
+            const splitProvider = this._getFurthestSplitInDirection(reverseDirection, null)
+            return splitProvider.move(null, direction)
+        }
+
+
+        const containingSplit = this._getContainingSplit(split)
+
+        if (!containingSplit) {
+            return null
+        }
+
+        // Check if the containing split handled it
+        const moveResult = containingSplit.move(split, direction)
+        if (moveResult) {
+            return moveResult
+        }
+
+        // The containing split couldn't handle it, so let's see if there is a relationship from the containing split
+        const applicableRelationship = this._relationships.filter((rel) => rel.from === containingSplit && rel.direction === direction)
+
+        if (applicableRelationship.length > 0) {
+            return applicableRelationship[0].to.move(null, direction)
+        } else {
+            return null
+        }
+    }
+
+    private _getFurthestSplitInDirection(direction: Direction, split: IWindowSplitProvider): IWindowSplitProvider {
+        const splits = this._relationships.filter((rel) => rel.direction === direction && rel.from === split || split === null)
+
+        // Base case - there are no further splits in that direction, so return the current one
+        if (splits.length === 0) {
+            return split
+        }
+
+        // Recursive case - take the 'to' split and see if there is anything further
+        const currentRelationship = splits[0]
+        return this._getFurthestSplitInDirection(direction, currentRelationship.to)
+    }
+
+    private _getContainingSplit(split: Oni.IWindowSplit): IWindowSplitProvider {
+        const providers = this._providers.filter((s) => s.contains(split))
+        return providers.length === 0 ? null : providers[0]
+    }
+
 
     private _addToProvidersIfNeeded(provider: IWindowSplitProvider): void {
         if (this._providers.indexOf(provider) === -1) {
