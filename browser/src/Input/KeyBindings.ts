@@ -76,7 +76,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind(
         ["<s-enter>", "<s-f12>"],
         "language.gotoDefinition.openHorizontal",
-        () => isNormalMode() && !menu.IsMenuOpen(),
+        () => isNormalMode() && !menu.isMenuOpen(),
     )
     input.bind("<S-C-P>", "commands.show", isNormalMode)
     input.bind("<C-pageup>", "oni.process.cyclePrevious")
