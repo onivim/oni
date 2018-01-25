@@ -15,6 +15,10 @@ import * as MenuFilter from "./MenuFilter"
 import { createReducer } from "./MenuReducer"
 import * as State from "./MenuState"
 
+import { MenuContainer } from "./MenuComponent"
+
+import { Overlay, OverlayManager } from "./../Overlay"
+
 export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
     labelHighlights: number[]
     detailHighlights: number[]
@@ -30,6 +34,15 @@ export const menuActions: typeof ActionCreators = bindActionCreators(ActionCreat
 
 export class MenuManager {
     private _id: number = 0
+    private _overlay: Overlay
+
+    constructor(
+        private _overlayManager: OverlayManager,
+    ) {
+        this._overlay = this._overlayManager.createItem()
+        this._overlay.setContents(MenuContainer())
+        this._overlay.show()
+    }
 
     public create(): Menu {
         this._id++
@@ -143,5 +156,3 @@ export class Menu {
         return menuState.menu.filteredOptions[index]
     }
 }
-
-export const menuManager = new MenuManager()

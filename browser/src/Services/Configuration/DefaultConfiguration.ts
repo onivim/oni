@@ -72,6 +72,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.backgroundImageSize": "cover",
 
     "editor.clipboard.enabled": true,
+    "editor.clipboard.synchronizeYank": true,
+    "editor.clipboard.synchronizeDelete": false,
 
     "editor.definition.enabled": true,
     "editor.quickInfo.enabled": true,
@@ -211,6 +213,8 @@ const BaseConfiguration: IConfigurationValues = {
     "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
     "ui.fontSmoothing": "auto",
+
+    "workspace.defaultWorkspace": null,
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {

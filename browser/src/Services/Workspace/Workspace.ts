@@ -63,7 +63,10 @@ export class Workspace implements IWorkspace {
     }
 
     public changeDirectory(newDirectory: string) {
-        process.chdir(newDirectory)
+        if (newDirectory) {
+            process.chdir(newDirectory)
+        }
+
         this._activeWorkspace = newDirectory
         this._onDirectoryChangedEvent.dispatch(newDirectory)
     }
@@ -118,6 +121,16 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
     _workspace = new Workspace(editorManager)
 
     _workspaceConfiguration = new WorkspaceConfiguration(configuration, _workspace)
+
+    const defaultWorkspace = configuration.getValue("workspace.defaultWorkspace")
+
+    if (defaultWorkspace) {
+        _workspace.changeDirectory(defaultWorkspace)
+    }
+
+    _workspace.onDirectoryChanged.subscribe((newDirectory) => {
+        configuration.setValues({ "workspace.defaultWorkspace": newDirectory}, true)
+    })
 
     WorkspaceCommands.activateCommands(configuration, editorManager, _workspace)
 }

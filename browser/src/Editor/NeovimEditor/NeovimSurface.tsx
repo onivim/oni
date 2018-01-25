@@ -11,26 +11,18 @@ import { IEvent } from "oni-types"
 import { NeovimInstance, NeovimScreen } from "./../../neovim"
 import { INeovimRenderer } from "./../../Renderer"
 
-import CommandLine from "./../../UI/components/CommandLine"
 import { Cursor } from "./../../UI/components/Cursor"
 import { CursorLine } from "./../../UI/components/CursorLine"
-import ExternalMenus from "./../../UI/components/ExternalMenus"
 import { InstallHelp } from "./../../UI/components/InstallHelp"
 import { TabsContainer } from "./../../UI/components/Tabs"
 import { ToolTips } from "./../../UI/components/ToolTip"
 import { TypingPrediction } from "./../../UI/components/TypingPredictions"
-import WildMenu from "./../../UI/components/WildMenu"
-
-import { BufferScrollBarContainer } from "./containers/BufferScrollBarContainer"
-import { DefinitionContainer } from "./containers/DefinitionContainer"
-import { ErrorsContainer } from "./containers/ErrorsContainer"
 
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
-import { NeovimActiveWindowContainer } from "./NeovimActiveWindow"
+import { NeovimBufferLayers } from "./NeovimBufferLayersView"
 import { NeovimEditorLoadingOverlay } from "./NeovimEditorLoadingOverlay"
 import { NeovimInput } from "./NeovimInput"
-import { NeovimLayers } from "./NeovimLayersView"
 import { NeovimRenderer } from "./NeovimRenderer"
 
 export interface INeovimSurfaceProps {
@@ -63,10 +55,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     onTabSelect={this.props.onTabSelect}/>
             </div>
             <div className="container full">
-                <ExternalMenus>
-                    <CommandLine />
-                    <WildMenu />
-                </ExternalMenus>
                 <div className="stack">
                     <NeovimRenderer renderer={this.props.renderer}
                         neovimInstance={this.props.neovimInstance}
@@ -77,11 +65,6 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     <Cursor typingPrediction={this.props.typingPrediction}/>
                     <CursorLine lineType={"line"} />
                     <CursorLine lineType={"column"} />
-                    <NeovimActiveWindowContainer>
-                        <DefinitionContainer />
-                        <ErrorsContainer />
-                        <BufferScrollBarContainer />
-                    </NeovimActiveWindowContainer>
                 </div>
                 <NeovimInput
                     onActivate={this.props.onActivate}
@@ -93,7 +76,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     onImeStart={this.props.onImeStart}
                     onImeEnd={this.props.onImeEnd}
                     onKeyDown={this.props.onKeyDown}/>
-                <NeovimLayers />
+                <NeovimBufferLayers />
                 <div className="stack layer">
                     <ToolTips />
                 </div>

@@ -7,9 +7,6 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import { IEvent } from "oni-types"
-
-import { KeyboardInputView } from "./../../Input/KeyboardInput"
 import { Icon, IconSize } from "./../../UI/Icon"
 
 import { ISidebarEntry, ISidebarState } from "./SidebarStore"
@@ -21,7 +18,10 @@ export interface ISidebarIconProps {
     active: boolean
     focused: boolean
     iconName: string
+    onClick: () => void
 }
+
+import { VimNavigator } from "./../../UI/components/VimNavigator"
 
 const SidebarIconWrapper = withProps<ISidebarIconProps>(styled.div)`
     display: flex;
@@ -29,18 +29,19 @@ const SidebarIconWrapper = withProps<ISidebarIconProps>(styled.div)`
     align-items: center;
     opacity: 0.5;
     outline: none;
-    cursor: ${props => props.active ? "pointer" : null};
+    cursor: pointer;
     opacity: ${props => props.active ? 0.9 : 0.75};
     border: 1px solid ${props => props.focused ? props.theme["sidebar.selection.border"] : "transparent"};
-    background-color: ${ props => props.active ? props.theme["sidebar.active.background"] : "transparent"};
+    background-color: ${ props => props.active ? props.theme["editor.background"] : props.theme.background};
+    transition: transform 0.2s ease-in;
+    transform: ${ props => (props.active || props.focused) ? "translateX(2px)" : "translateX(0px)"};
 
     &.active {
-        cursor: pointer;
         opacity: 0.75;
     }
 
     &:hover {
-        transform: translateY(1px);
+        transform: translateX(2px);
         opacity: 0.9;
     }
     `
@@ -66,12 +67,11 @@ export interface ISidebarViewProps extends ISidebarContainerProps {
     visible: boolean
     entries: ISidebarEntry[]
     activeEntryId: string
-    focusedEntryId: string
+    isActive: boolean
 }
 
 export interface ISidebarContainerProps {
-    onEnter: IEvent<void>
-    onKeyDown: (key: string) => void
+    onSelectionChanged: (selectedId: string) => void
 }
 
 export interface ISidebarWrapperProps {
@@ -85,7 +85,6 @@ const SidebarWrapper = withProps<ISidebarWrapperProps>(styled.div)`
     flex-direction: column;
 
     color: ${props => props.theme["sidebar.foreground"]};
-    background-color: ${props => props.theme["sidebar.background"]};
     width: ${props => props.width};
 `
 
@@ -95,34 +94,30 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
             return null
         }
 
-        const icons = this.props.entries.map((e) => {
-            const isActive = e.id === this.props.activeEntryId
-            const isFocused = e.id === this.props.focusedEntryId
-            return <SidebarIcon
-                        key={e.id}
-                        iconName={e.icon}
-                        active={isActive}
-                        focused={isFocused}
-                    />
-        })
+        const ids = this.props.entries.map((e) => e.id)
 
         return <SidebarWrapper width={this.props.width}>
-                <div className="icons">
-                    {icons}
-                </div>
-                <div className="input">
-                    <KeyboardInputView
-                        top={0}
-                        left={0}
-                        height={12}
-                        onActivate={this.props.onEnter}
-                        onKeyDown={this.props.onKeyDown}
-                        foregroundColor={"white"}
-                        fontFamily={"Segoe UI"}
-                        fontSize={"12px"}
-                        fontCharacterWidthInPixels={12}
-                        />
-                </div>
+                <VimNavigator
+                    ids={ids}
+                    active={this.props.isActive}
+                    onSelectionChanged={(val) => this.props.onSelectionChanged(val)}
+                    render={
+                        (selectedId: string): JSX.Element => {
+                            const items = this.props.entries.map((e) => {
+                                const isActive = e.id === this.props.activeEntryId
+                                const isFocused = e.id === selectedId && this.props.isActive
+                                return <SidebarIcon
+                                            key={e.id}
+                                            iconName={e.icon}
+                                            active={isActive}
+                                            focused={isFocused}
+                                            onClick={() => this.props.onSelectionChanged(e.id)}
+                                        />
+                            })
+                            return <div className="icons">{items}</div>
+                        }
+                    }
+                    />
             </SidebarWrapper>
 
     }
@@ -133,7 +128,7 @@ export const mapStateToProps = (state: ISidebarState, containerProps: ISidebarCo
         ...containerProps,
         entries: state.entries,
         activeEntryId: state.activeEntryId,
-        focusedEntryId: state.focusedEntryId,
+        isActive: state.isActive,
         visible: true,
         width: "50px",
     }

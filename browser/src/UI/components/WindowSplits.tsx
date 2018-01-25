@@ -30,13 +30,18 @@ export interface IDockProps {
 
 export class Dock extends React.PureComponent<IDockProps, {}> {
     public render(): JSX.Element {
-        const docks = this.props.splits.map((s, i) =>
+        const docks = this.props.splits.map((s, i) => {
+            return (<div style={{display: "flex", flexDirection: "row"}}>
             <WindowSplitHost
                 key={i}
                 containerClassName="split"
                 split={s}
                 isFocused={this.props.activeSplit === s}
-            />)
+            />
+            <div className="split-spacer vertical" />
+                </div>
+            )
+        })
 
         return <div className = "dock container fixed horizontal">
             {docks}
@@ -102,12 +107,11 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
             }
         })
 
-        const spacer = this.state.leftDock.length > 0 ? <div className="split-spacer vertical" /> : null
+        // const spacer = this.state.leftDock.length > 0 ? <div className="split-spacer vertical" /> : null
 
         return <div style={containerStyle}>
                     <div className="container horizontal full">
                         <Dock splits={this.state.leftDock} activeSplit={this.state.activeSplit} />
-                        {spacer}
                         {editors}
                     </div>
                 </div>

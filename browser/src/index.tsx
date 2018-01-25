@@ -6,6 +6,7 @@
 
 import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
+import * as path from "path"
 import * as Log from "./Log"
 import * as Performance from "./Performance"
 import * as Utility from "./Utility"
@@ -18,16 +19,17 @@ const start = async (args: string[]): Promise<void> => {
     const Shell = await import("./UI/Shell")
     Shell.activate()
 
-    const parsedArgs = minimist(args)
-
     const configurationPromise = import("./Services/Configuration")
     const pluginManagerPromise = import("./Plugins/PluginManager")
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
 
     const sidebarPromise = import("./Services/Sidebar")
+    const overlayPromise = import("./Services/Overlay")
     const statusBarPromise = import("./Services/StatusBar")
     const startEditorsPromise = import("./startEditors")
+
+    const menuPromise = import("./Services/Menu")
 
     const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
@@ -35,13 +37,20 @@ const start = async (args: string[]): Promise<void> => {
     const colorsPromise = import("./Services/Colors")
     const diagnosticsPromise = import("./Services/Diagnostics")
     const editorManagerPromise = import("./Services/EditorManager")
+    const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
     const snippetPromise = import("./Services/Snippets")
+    const taksPromise = import("./Services/Tasks")
     const workspacePromise = import("./Services/Workspace")
 
     const themePickerPromise = import("./Services/Themes/ThemePicker")
     const cssPromise = import("./CSS")
+    const completionProvidersPromise = import("./Services/Completion/CompletionProviders")
+
+    const parsedArgs = minimist(args)
+    const currentWorkingDirectory = process.cwd()
+    const filesToOpen = parsedArgs._.map((arg) => path.isAbsolute(arg) ? arg : path.join(currentWorkingDirectory, arg))
 
     // Helper for debugging:
      Performance.startMeasure("Oni.Start.Config")
@@ -105,6 +114,18 @@ const start = async (args: string[]): Promise<void> => {
     StatusBar.activate(configuration)
     const statusBar = StatusBar.getInstance()
 
+    const Overlay = await overlayPromise
+    Overlay.activate()
+    const overlayManager = Overlay.getInstance()
+
+    const Menu = await menuPromise
+    Menu.activate(overlayManager)
+    const menuManager = Menu.getInstance()
+
+    const Tasks = await taksPromise
+    Tasks.activate(menuManager)
+    const tasks = Tasks.getInstance()
+
     const LanguageManager = await languageManagerPromise
     LanguageManager.activate(configuration, editorManager, statusBar, workspace)
     const languageManager = LanguageManager.getInstance()
@@ -121,10 +142,13 @@ const start = async (args: string[]): Promise<void> => {
     const Diagnostics = await diagnosticsPromise
     const diagnostics = Diagnostics.getInstance()
 
+    const CompletionProviders = await completionProvidersPromise
+    CompletionProviders.activate(languageManager)
+
    await Promise.race([Utility.delay(5000),
      Promise.all([
         SharedNeovimInstance.activate(configuration, pluginManager),
-        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, pluginManager, Themes.getThemeManagerInstance(), workspace)
+        startEditors(filesToOpen, Colors.getInstance(), CompletionProviders.getInstance(), configuration, diagnostics, languageManager, menuManager, overlayManager, pluginManager, tasks, Themes.getThemeManagerInstance(), workspace)
     ])
    ])
     Performance.endMeasure("Oni.Start.Editors")
@@ -145,15 +169,19 @@ const start = async (args: string[]): Promise<void> => {
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     const { inputManager } = await inputManagerPromise
+    const { commandManager } = await import("./Services/CommandManager")
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+
+    const GlobalCommands = await globalCommandsPromise
+    GlobalCommands.activate(commandManager, menuManager, tasks)
 
     const Snippets = await snippetPromise
     Snippets.activate()
 
     const ThemePicker = await themePickerPromise
-    ThemePicker.activate(configuration, Themes.getThemeManagerInstance())
+    ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())
 
     Performance.endMeasure("Oni.Start.Activate")
 

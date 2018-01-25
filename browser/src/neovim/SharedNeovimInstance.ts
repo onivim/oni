@@ -17,6 +17,8 @@ import { PluginManager } from "./../Plugins/PluginManager"
 import { commandManager } from "./../Services/CommandManager"
 import { Configuration } from "./../Services/Configuration"
 
+import { PromiseQueue } from "./../Services/Language/PromiseQueue"
+
 import * as Log from "./../Log"
 
 export interface IBinding {
@@ -66,8 +68,11 @@ export class Binding implements IBinding {
 export class MenuBinding extends Binding implements IMenuBinding {
 
     private _currentOptions: string[] = []
-
+    private _currentId: string = null
     private _onCursorMovedEvent: Event<string> = new Event<string>()
+    private _promiseQueue = new PromiseQueue()
+
+    private _isUpdating: boolean = false
 
     public get onCursorMoved(): IEvent<string> {
         return this._onCursorMovedEvent
@@ -77,6 +82,11 @@ export class MenuBinding extends Binding implements IMenuBinding {
         super(neovimInstance)
 
         const subscription = this.neovimInstance.autoCommands.onCursorMoved.subscribe((evt) => {
+
+            if (this._isUpdating) {
+                return
+            }
+
             const line = evt.line - 1
             if (line < this._currentOptions.length) {
                 this._onCursorMovedEvent.dispatch(this._currentOptions[line])
@@ -87,26 +97,36 @@ export class MenuBinding extends Binding implements IMenuBinding {
     }
 
     public async setItems(items: string[], activeId?: string): Promise<void> {
-        this._currentOptions = items
 
-        const currentWinId = await this.neovimInstance.request("nvim_get_current_win", [])
-        const currentBufId = await this.neovimInstance.eval("bufnr('%')")
-        const bufferLength = await this.neovimInstance.eval<number>("line('$')")
+        this._promiseQueue.enqueuePromise(async () => {
+            if (items === this._currentOptions && activeId === this._currentId) {
+                return
+            }
 
-        const elems = []
+            this._isUpdating = true
 
-        for (let i = 0; i < this._currentOptions.length; i++) {
-            elems.push(i.toString())
-        }
+            this._currentOptions = items
+            this._currentId = activeId
 
-        let idx = 1
-        if (activeId) {
-            idx = this._currentOptions.indexOf(activeId) + 1
-        }
+            const currentWinId = await this.neovimInstance.request("nvim_get_current_win", [])
+            const currentBufId = await this.neovimInstance.eval("bufnr('%')")
+            const bufferLength = await this.neovimInstance.eval<number>("line('$')")
 
-        await this.neovimInstance.request("nvim_buf_set_lines", [currentBufId, 0, bufferLength, false, elems])
+            const elems = []
 
-        await this.neovimInstance.request("nvim_win_set_cursor", [currentWinId, [idx, 1]])
+            for (let i = 0; i < this._currentOptions.length; i++) {
+                elems.push(i.toString())
+            }
+
+            let idx = 1
+            if (activeId) {
+                idx = this._currentOptions.indexOf(activeId) + 1
+            }
+
+            await this.neovimInstance.request("nvim_buf_set_lines", [currentBufId, 0, bufferLength, false, elems])
+            await this.neovimInstance.request("nvim_win_set_cursor", [currentWinId, [idx, 1]])
+            this._isUpdating = false
+        })
     }
 }
 
