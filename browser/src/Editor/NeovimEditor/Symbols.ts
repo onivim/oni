@@ -7,7 +7,7 @@ import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import { menuManager } from "./../../Services/Menu"
+import { MenuManager } from "./../../Services/Menu"
 
 import { LanguageManager } from "./../../Services/Language"
 
@@ -21,12 +21,13 @@ export class Symbols {
         private _editor: Oni.Editor,
         private _definition: Definition,
         private _languageManager: LanguageManager,
+        private _menuManager: MenuManager,
     ) {
 
     }
 
     public async openWorkspaceSymbolsMenu() {
-        const menu = menuManager.create()
+        const menu = this._menuManager.create()
 
         menu.show()
         menu.setItems([{
@@ -79,7 +80,7 @@ export class Symbols {
     }
 
     public async openDocumentSymbolsMenu(): Promise<void> {
-        const menu = menuManager.create()
+        const menu = this._menuManager.create()
 
         menu.show()
         menu.setLoading(true)

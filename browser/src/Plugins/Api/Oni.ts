@@ -17,12 +17,14 @@ import { Ui } from "./Ui"
 import { automation } from "./../../Services/Automation"
 import { Colors, getInstance as getColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
+import { getInstance as getCompletionProvidersInstance } from "./../../Services/Completion/CompletionProviders"
 import { configuration } from "./../../Services/Configuration"
 import { getInstance as getDiagnosticsInstance } from "./../../Services/Diagnostics"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
-import { menuManager } from "./../../Services/Menu"
+import { getInstance as getMenuManagerInstance } from "./../../Services/Menu"
+import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
 import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
 import { getInstance as getSnippetsInstance } from "./../../Services/Snippets"
@@ -79,8 +81,9 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return recorder
     }
 
-    public get snippets(): any {
-        return getSnippetsInstance()
+    public get completions(): any {
+        return getCompletionProvidersInstance()
+
     }
 
     public get configuration(): OniApi.Configuration {
@@ -108,7 +111,11 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     public get menu(): any /* TODO */ {
-        return menuManager
+        return getMenuManagerInstance()
+    }
+
+    public get overlays(): any /* TODO */ {
+        return getOverlayInstance()
     }
 
     public get process(): OniApi.Process {
@@ -117,6 +124,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     public get sidebar(): any {
         return getSidebarInstance()
+    }
+
+    public get snippets(): any {
+        return getSnippetsInstance()
     }
 
     public get statusBar(): OniApi.StatusBar {

@@ -36,6 +36,11 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
             input.bind("<m-v>", "editor.clipboard.paste", isInsertOrCommandMode)
         }
+
+        // Browser
+        input.bind("<m-left>", "browser.goBack")
+        input.bind("<m-right>", "browser.goForward")
+        input.bind("<m-r>", "browser.reload")
     } else {
         input.bind("<a-f4>", "oni.quit")
         input.bind("<c-p>", "quickOpen.show", () => isNormalMode() && !isMenuOpen())
@@ -49,6 +54,11 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
             input.bind("<c-c>", "editor.clipboard.yank", isVisualMode)
             input.bind("<c-v>", "editor.clipboard.paste", isInsertOrCommandMode)
         }
+
+        // Browser
+        input.bind("<a-left>", "browser.goBack")
+        input.bind("<a-right>", "browser.goForward")
+        input.bind("<f5>", "browser.reload")
     }
 
     input.bind("<f2>", "editor.rename", () => isNormalMode()),
@@ -83,5 +93,4 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     input.bind("<enter>", "explorer.open")
     input.bind("<delete>", "explorer.delete")
-
 }

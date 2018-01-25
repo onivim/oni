@@ -10,16 +10,22 @@ import { Oni, runInProcTest } from "./common"
 const LongTimeout = 5000
 
 const CiTests = [
+    // Core functionality tests
     "Api.Buffer.AddLayer",
+    "Api.Overlays.AddRemoveTest",
     "AutoClosingPairsTest",
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
+    "Editor.ExternalCommandLineTest",
     "LargeFileTest",
     "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
     "NoInstalledNeovim",
+    "Workspace.ConfigurationTest",
+
+    // Regression Tests
     "Regression.1251.NoAdditionalProcessesOnStartup",
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",

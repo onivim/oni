@@ -6,9 +6,11 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import { IEvent } from "oni-types"
+// import { IEvent } from "oni-types"
 
-import { KeyboardInputView } from "./../../Input/KeyboardInput"
+// import { KeyboardInputView } from "./../../Input/KeyboardInput"
+
+import { VimNavigator } from "./../../UI/components/VimNavigator"
 
 import { FileIcon } from "./../FileIcon"
 
@@ -95,53 +97,42 @@ export class ContainerView extends React.PureComponent<IContainerViewProps, {}> 
     }
 }
 
-export interface IExplorerContainerProps {
-    onEnter: IEvent<void>
-    onKeyDown: (key: string) => void
+export interface IExplorerViewContainerProps {
+    onSelectionChanged: (id: string) => void
 }
 
-export interface IExplorerViewProps extends IExplorerContainerProps {
+export interface IExplorerViewProps extends IExplorerViewContainerProps {
     nodes: ExplorerSelectors.ExplorerNode[]
-    selectedId: string
-    hasFocus: boolean
-    // recentFiles: IRecentFile[]
-    // workspaceRoot: string
+    isActive: boolean
 }
 
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 
     public render(): JSX.Element {
 
-        const nodes = this.props.nodes.map((node) => <NodeView node={node} isSelected={node.id === this.props.selectedId}/>)
+        const ids = this.props.nodes.map((node) => node.id)
 
-        return <div className="explorer enable-mouse">
-                <div className="items">
-                    {nodes}
-                </div>
-                <div className="input">
-                    <KeyboardInputView
-                        top={0}
-                        left={0}
-                        height={12}
-                        onActivate={this.props.onEnter}
-                        onKeyDown={this.props.onKeyDown}
-                        foregroundColor={"white"}
-                        fontFamily={"Segoe UI"}
-                        fontSize={"12px"}
-                        fontCharacterWidthInPixels={12}
+        return <VimNavigator
+                ids={ids}
+                active={this.props.isActive}
+                onSelectionChanged={this.props.onSelectionChanged}
+                render={(selectedId: string) => {
+                const nodes = this.props.nodes.map((node) => <NodeView node={node} isSelected={node.id === selectedId}/>)
 
-                        />
-                </div>
-            </div>
+                return <div className="explorer enable-mouse">
+                        <div className="items">
+                            {nodes}
+                        </div>
+                    </div>
+                }} />
     }
 }
 
-const mapStateToProps = (state: IExplorerState, containerProps: IExplorerContainerProps): IExplorerViewProps => {
+const mapStateToProps = (state: IExplorerState, containerProps: IExplorerViewContainerProps): IExplorerViewProps => {
     return {
         ...containerProps,
-        hasFocus: state.hasFocus,
+        isActive: state.hasFocus,
         nodes: ExplorerSelectors.mapStateToNodeList(state),
-        selectedId: state.selectedId,
     }
 }
 
