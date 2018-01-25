@@ -24,9 +24,9 @@ export const getInverseDirection = (direction: Direction): Direction => {
         case "down":
             return "up"
         case "left":
-            return "left"
-        case "right":
             return "right"
+        case "right":
+            return "left"
         default:
             return null
     }
