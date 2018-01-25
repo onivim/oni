@@ -40,9 +40,13 @@ export class LinearSplitProvider implements IWindowSplitProvider {
         return true
     }
 
-    public split(split: Oni.IWindowSplit, direction: SplitDirection): boolean {
+    public split(split: Oni.IWindowSplit, direction: SplitDirection, referenceSplit?: Oni.IWindowSplit): boolean {
+        // If there is no reference split, we can just tack this split on
+        if (!referenceSplit) {
+            this._splitProviders.push(new SingleSplitProvider(split))
+        }
 
-        const containingSplit = this._getProviderForSplit(split)
+        const containingSplit = this._getProviderForSplit(referenceSplit)
 
         if (!containingSplit) {
             return false

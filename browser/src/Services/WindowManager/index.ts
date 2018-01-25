@@ -11,6 +11,7 @@
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
+export * from "./LinearSplitProvider"
 export * from "./RelationalSplitProvider"
 export * from "./WindowSplit"
 
@@ -47,7 +48,7 @@ export interface IWindowSplitProvider {
 
     move(startSplit: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit
 
-    split(startSplit: Oni.IWindowSplit, direction: SplitDirection): boolean
+    split(newSplit: Oni.IWindowSplit, direction: SplitDirection, referenceSplit?: Oni.IWindowSplit): boolean
 
     close(split: Oni.IWindowSplit): boolean
 }
