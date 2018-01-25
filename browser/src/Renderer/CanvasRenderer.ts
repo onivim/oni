@@ -266,15 +266,7 @@ export class CanvasRenderer implements INeovimRenderer {
             return
         }
 
-        const {
-            backgroundColor,
-            foregroundColor,
-            bold,
-            italic,
-            /* underline ,*/ text,
-            startX,
-            y,
-        } = state
+        const { backgroundColor, foregroundColor, bold, italic, text, startX, y } = state
 
         const { fontWidthInPixels, fontHeightInPixels, linePaddingInPixels } = screenInfo
 

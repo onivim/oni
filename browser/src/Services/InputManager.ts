@@ -83,8 +83,8 @@ export class InputManager implements Oni.InputManager {
 
         const boundKey = this._boundKeys[keyChord]
 
+        // tslint:disable-next-line prefer-for-of
         for (let i = 0; i < boundKey.length; i++) {
-            // tslint:disable-line prefer-for-of
             const binding = boundKey[i]
 
             // Does the binding pass filter?

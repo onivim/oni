@@ -28,7 +28,7 @@ export const createStore = <TState>(
     defaultState: TState,
     optionalMiddleware: Middleware[] = [],
 ): Store<TState> => {
-    // tslinst:disable-next-line no-string-literal
+    // tslint:disable-next-line no-string-literal
     const composeFunction: any = window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"]
 
     const composeEnhancers =

@@ -74,7 +74,7 @@ export const render = (state: State.IState): void => {
 }
 
 // Don't execute code that depends on DOM in unit-tests
+// tslint:disable-next-line
 if (global["window"]) {
-    // tslint:disable-line
     document.body.addEventListener("click", () => focusManager.enforceFocus())
 }
