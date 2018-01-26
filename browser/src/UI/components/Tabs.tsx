@@ -219,7 +219,9 @@ const getTabsFromBuffers = createSelector(
                 (activeBufferId !== null && buf.id === activeBufferId) || bufferCount === 1
             return {
                 id: buf.id,
-                name: getIdPrefix(buf.id, shouldShowId) + getTabName(buf.file),
+                name:
+                    getIdPrefix(buf.id, shouldShowId) +
+                    (buf.title ? buf.title : getTabName(buf.file)),
                 iconFileName: showFileIcon ? getTabName(buf.file) : "",
                 highlightColor: isActive ? color : "transparent",
                 isSelected: isActive,

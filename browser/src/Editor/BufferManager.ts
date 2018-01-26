@@ -116,6 +116,10 @@ export class Buffer implements Oni.Buffer {
         return lines
     }
 
+    public setTitle(title: string): void {
+        this._actions.setBufferTitle(parseInt(this._id, 10), title)
+    }
+
     public async setLanguage(language: string): Promise<void> {
         await this._neovimInstance.request<any>("nvim_buf_set_option", [
             parseInt(this._id, 10),

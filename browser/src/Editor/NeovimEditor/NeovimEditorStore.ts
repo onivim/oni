@@ -125,6 +125,7 @@ export interface IBuffer {
     totalLines: number
     hidden: boolean
     listed: boolean
+    title: string
 }
 
 export interface ITab {

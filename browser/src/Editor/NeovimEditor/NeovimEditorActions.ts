@@ -168,6 +168,14 @@ export interface IBufferUpdateAction {
     }
 }
 
+export interface ISetBufferTitleAction {
+    type: "SET_BUFFER_TITLE"
+    payload: {
+        id: number
+        title: string
+    }
+}
+
 export interface IBufferSaveAction {
     type: "BUFFER_SAVE"
     payload: {
@@ -290,6 +298,7 @@ export type SimpleAction =
     | IShowToolTipAction
     | IHideDefinitionAction
     | IShowDefinitionAction
+    | ISetBufferTitleAction
     | ISetModeAction
     | ISetCursorScaleAction
     | ISetErrorsAction
@@ -451,6 +460,14 @@ export const bufferSave = (id: number, modified: boolean, version: number) => ({
         id,
         modified,
         version,
+    },
+})
+
+export const setBufferTitle = (id: number, title: string) => ({
+    type: "SET_BUFFER_TITLE",
+    payload: {
+        id,
+        title,
     },
 })
 

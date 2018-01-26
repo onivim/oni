@@ -230,6 +230,7 @@ export const buffersReducer = (
         hidden: true,
         listed: false,
         totalLines: 0,
+        title: null,
     })
 
     switch (a.type) {
@@ -260,6 +261,20 @@ export const buffersReducer = (
                     id: a.payload.id,
                     modified: a.payload.modified,
                     lastSaveVersion: a.payload.version,
+                },
+            }
+
+            return {
+                ...s,
+                byId,
+            }
+        case "SET_BUFFER_TITLE":
+            const currentItem4 = s.byId[a.payload.id] || emptyBuffer(a.payload.id)
+            byId = {
+                ...s.byId,
+                [a.payload.id]: {
+                    ...currentItem4,
+                    title: a.payload.title,
                 },
             }
 
