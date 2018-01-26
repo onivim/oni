@@ -94,20 +94,7 @@ class AllEditors implements Oni.Editor {
     }
 
     public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
-        const cmd = new Proxy(
-            {
-                tab: "taball!",
-                horizontal: "sp!",
-                vertical: "vsp!",
-                edit: "e!",
-            },
-            {
-                get: (target: { [cmd: string]: string }, name: string) =>
-                    name in target ? target[name] : "e!",
-            },
-        )
-
-        await this._activeEditor.neovim.command(`:${cmd[method]} ${file}`)
+        await this._activeEditor.openFile(file, method)
         return this._activeEditor.activeBuffer
     }
 

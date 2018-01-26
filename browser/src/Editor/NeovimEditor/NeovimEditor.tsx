@@ -735,7 +735,16 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public async bufferDelete(bufferId: string = this.activeBuffer.id): Promise<void> {
-        this._neovimInstance.command(`:bd! ${bufferId}`)
+        // FIXME: currently this command forces a bufEnter event by navigating away
+        // from the closed buffer which is currently the only means of updating Oni
+        // post a BufDelete events
+        await this._neovimInstance.command(`bd ${bufferId}`)
+        if (bufferId === "%" || bufferId === this.activeBuffer.id) {
+            await this._neovimInstance.command(`bnext`)
+        } else {
+            await this._neovimInstance.command(`bnext`)
+            await this._neovimInstance.command(`bprev`)
+        }
     }
 
     public render(): JSX.Element {

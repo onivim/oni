@@ -37,11 +37,8 @@ const activate = Oni => {
 
     const deleteBuffer = async menu => {
         if (menu.selectedItem) {
-            await Oni.editors.activeEditor.bufferDelete(menu.selectedItem.metadata.id)
-            // This line forces vim to navigate to the next buffer after deleting
-            // NOTE: This is essential as otherwise Oni does not properly register the buffer
-            // delete event
-            await Oni.editors.activeEditor.neovim.command("bn")
+            const id = menu.selectedItem.label.includes("%") ? "%" : menu.selectedItem.metadata.id
+            await Oni.editors.activeEditor.bufferDelete(id)
             menu.hide()
         }
     }
@@ -62,38 +59,38 @@ const activate = Oni => {
     }
 
     Oni.commands.registerCommand({
-        command: "bufferlist.delete",
+        command: "buffer.delete",
         name: "Delete Selected Buffer",
         execute: async () => menu.isOpen() && (await deleteBuffer(menu)),
     })
 
     Oni.commands.registerCommand({
-        command: "bufferlist.split",
+        command: "buffer.split",
         name: "Split Selected Buffer",
         execute: () => menu.isOpen() && openBuffer(menu, "horizontal"),
     })
 
     Oni.commands.registerCommand({
-        command: "bufferlist.vsplit",
+        command: "buffer.vsplit",
         name: "Vertical Split Selected Buffer",
         execute: () => menu.isOpen() && openBuffer(menu, "vertical"),
     })
 
     Oni.commands.registerCommand({
-        command: "bufferlist.tabedit",
+        command: "buffer.tabedit",
         name: "Open Selected Buffer in a Tab",
         execute: () => menu.isOpen() && openBuffer(menu, "tab"),
     })
 
     Oni.commands.registerCommand({
-        command: "bufferlist.open",
+        command: "buffer.open",
         name: "Open Bufferlist ",
         detail: "Open A List of All Available Buffers",
         execute: createBufferList,
     })
 
     Oni.commands.registerCommand({
-        command: "bufferlist.toggle",
+        command: "buffer.toggle",
         name: "Toggle Bufferlist ",
         detail: "Toggle A List of All Available Buffers",
         execute: toggleBufferList,
