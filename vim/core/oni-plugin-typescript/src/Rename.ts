@@ -17,10 +17,15 @@ import { IRenameParams } from "./Types"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
 import * as Utility from "./Utility"
 
-export const doRename = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (message: string, payload: IRenameParams): Promise<types.WorkspaceEdit> => {
+export const doRename = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (
+    message: string,
+    payload: IRenameParams,
+): Promise<types.WorkspaceEdit> => {
     const textDocument: types.TextDocumentIdentifier = payload.textDocument
     const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-    const oneBasedPosition: types.Position = Utility.zeroBasedPositionToOneBasedPosition(payload.position)
+    const oneBasedPosition: types.Position = Utility.zeroBasedPositionToOneBasedPosition(
+        payload.position,
+    )
 
     const val = await host.rename(filePath, oneBasedPosition.line, oneBasedPosition.character)
 
@@ -29,19 +34,26 @@ export const doRename = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => asy
     }
 
     const mapLocsToTextEdit = (textSpan: protocol.TextSpan): types.TextEdit => {
-       const range = types.Range.create(textSpan.start.line - 1, textSpan.start.offset - 1, textSpan.end.line - 1, textSpan.end.offset - 1)
-       const newText = payload.newName
+        const range = types.Range.create(
+            textSpan.start.line - 1,
+            textSpan.start.offset - 1,
+            textSpan.end.line - 1,
+            textSpan.end.offset - 1,
+        )
+        const newText = payload.newName
 
-       return {
-           range,
-           newText,
-       }
+        return {
+            range,
+            newText,
+        }
     }
 
     return val.locs.reduce<any>((previousValue, currentValue) => {
         return {
             ...previousValue,
-            [oni.language.wrapPathInFileUri(currentValue.file)]: currentValue.locs.map((l) => mapLocsToTextEdit(l)),
+            [oni.language.wrapPathInFileUri(currentValue.file)]: currentValue.locs.map(l =>
+                mapLocsToTextEdit(l),
+            ),
         }
     }, {})
 }
