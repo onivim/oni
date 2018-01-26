@@ -15,6 +15,7 @@ import { CallbackCommand, CommandManager } from "./../../Services/CommandManager
 // import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
 import { IWorkspace } from "./../../Services/Workspace"
+import { windowManager } from "./../../Services/WindowManager"
 
 import { createStore, IExplorerState } from "./ExplorerStore"
 
@@ -113,6 +114,7 @@ export class ExplorerSplit {
         switch (selectedItem.type) {
             case "file":
                 this._editorManager.activeEditor.openFile(selectedItem.filePath)
+                windowManager.focusSplit(this._editorManager.activeEditor as any)
                 return
             case "folder":
                 const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(
