@@ -6,7 +6,7 @@
 
 import * as Oni from "oni-api"
 
-import { IWindowSplitProvider } from "./index"
+import { Direction, IWindowSplitProvider, SplitDirection, SplitOrLeaf } from "./index"
 
 export class SingleSplitProvider implements IWindowSplitProvider {
     constructor(private _split: Oni.IWindowSplit) {}

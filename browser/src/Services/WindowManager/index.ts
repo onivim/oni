@@ -9,12 +9,12 @@
  */
 
 import * as Oni from "oni-api"
-import { Event } from "oni-types"
 
 export * from "./LinearSplitProvider"
 export * from "./RelationalSplitProvider"
 export * from "./SingleSplitProvider"
 export * from "./WindowDock"
+export * from "./WindowManager"
 export * from "./WindowState"
 
 // TODO: Possible API types?
@@ -36,8 +36,7 @@ export const getInverseDirection = (direction: Direction): Direction => {
     }
 }
 
-import { WindowDock } from "./WindowDock"
-import { ISplitInfo, SplitOrLeaf } from "./WindowState"
+import { SplitOrLeaf } from "./WindowState"
 
 import { WindowManager } from "./WindowManager"
 

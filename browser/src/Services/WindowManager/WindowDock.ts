@@ -2,6 +2,11 @@
  * WindowDock.ts
  */
 
+import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
+
+import { Direction, SplitDirection } from "./index"
+
 export interface IWindowDock {
     splits: Oni.IWindowSplit[]
 

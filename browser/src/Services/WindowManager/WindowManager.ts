@@ -11,11 +11,11 @@
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
-import { IWindowDock, WindowDock } from "./WindowDock"
-import { ISplitInfo, SplitOrLeaf } from "./WindowState"
-
+import { Direction, SplitDirection } from "./index"
 import { LinearSplitProvider } from "./LinearSplitProvider"
 import { RelationalSplitNavigator } from "./RelationalSplitProvider"
+import { WindowDock } from "./WindowDock"
+import { ISplitInfo } from "./WindowState"
 
 export class WindowManager {
     private _activeSplit: any
