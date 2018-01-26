@@ -12,10 +12,29 @@ const getExecutablePath = () => {
         case "win32":
             return path.join(__dirname, "..", "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
         case "darwin":
-            return path.join(__dirname, "..", "..", "..", "dist", "mac", "Oni.app", "Contents", "MacOS", "Oni")
+            return path.join(
+                __dirname,
+                "..",
+                "..",
+                "..",
+                "dist",
+                "mac",
+                "Oni.app",
+                "Contents",
+                "MacOS",
+                "Oni",
+            )
         case "linux":
             const archFlag = process.arch === "x64" ? "" : "ia32-"
-            return path.join(__dirname, "..", "..", "..", "dist", `linux-${archFlag}unpacked`, "oni")
+            return path.join(
+                __dirname,
+                "..",
+                "..",
+                "..",
+                "dist",
+                `linux-${archFlag}unpacked`,
+                "oni",
+            )
         default:
             throw new Error(`Unable to find Oni executable for platform ${process.platform}`)
     }
@@ -40,7 +59,7 @@ export class Oni {
 
         this._app = new Application({
             path: executablePath,
-            env: options.configurationPath ? { "ONI_CONFIG_FILE": options.configurationPath } : {},
+            env: options.configurationPath ? { ONI_CONFIG_FILE: options.configurationPath } : {},
         })
 
         log("Oni starting...")

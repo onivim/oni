@@ -6,9 +6,11 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import { IEvent } from "oni-types"
+// import { IEvent } from "oni-types"
 
-import { KeyboardInputView } from "./../../Input/KeyboardInput"
+// import { KeyboardInputView } from "./../../Input/KeyboardInput"
+
+import { VimNavigator } from "./../../UI/components/VimNavigator"
 
 import { FileIcon } from "./../FileIcon"
 
@@ -29,13 +31,19 @@ export class FileView extends React.PureComponent<IFileViewProps, {}> {
     public render(): JSX.Element {
         const style = {
             paddingLeft: (INDENT_AMOUNT * this.props.indentationLevel).toString() + "px",
-            borderLeft: this.props.isSelected ? "4px solid rgb(97, 175, 239)" : "4px solid transparent",
+            borderLeft: this.props.isSelected
+                ? "4px solid rgb(97, 175, 239)"
+                : "4px solid transparent",
             backgroundColor: this.props.isSelected ? "rgba(97, 175, 239, 0.1)" : "transparent",
         }
-        return <div className="item" style={style}>
-                <div className="icon"><FileIcon fileName={this.props.fileName} isLarge={true}/></div>
+        return (
+            <div className="item" style={style}>
+                <div className="icon">
+                    <FileIcon fileName={this.props.fileName} isLarge={true} />
+                </div>
                 <div className="name">{this.props.fileName}</div>
             </div>
+        )
     }
 }
 
@@ -50,11 +58,32 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 
         switch (node.type) {
             case "file":
-                return <FileView fileName={node.name} isSelected={this.props.isSelected} indentationLevel={node.indentationLevel}/>
+                return (
+                    <FileView
+                        fileName={node.name}
+                        isSelected={this.props.isSelected}
+                        indentationLevel={node.indentationLevel}
+                    />
+                )
             case "container":
-                return <ContainerView expanded={node.expanded} name={node.name} isContainer={true} isSelected={this.props.isSelected}/>
+                return (
+                    <ContainerView
+                        expanded={node.expanded}
+                        name={node.name}
+                        isContainer={true}
+                        isSelected={this.props.isSelected}
+                    />
+                )
             case "folder":
-                return <ContainerView expanded={node.expanded} name={node.name} isContainer={false} isSelected={this.props.isSelected} indentationLevel={node.indentationLevel}/>
+                return (
+                    <ContainerView
+                        expanded={node.expanded}
+                        name={node.name}
+                        isContainer={false}
+                        isSelected={this.props.isSelected}
+                        indentationLevel={node.indentationLevel}
+                    />
+                )
             default:
                 return <div>{JSON.stringify(node)}</div>
         }
@@ -71,77 +100,75 @@ export interface IContainerViewProps {
 
 export class ContainerView extends React.PureComponent<IContainerViewProps, {}> {
     public render(): JSX.Element {
-
         const indentLevel = this.props.indentationLevel || 0
 
         const headerStyle = {
             paddingLeft: (indentLevel * INDENT_AMOUNT).toString() + "px",
-            backgroundColor: this.props.isContainer ? "#1e2127" : this.props.isSelected ? "rgba(97, 175, 239, 0.1)" : "transparent",
-            borderLeft: this.props.isSelected ? "4px solid rgb(97, 175, 239)" : "4px solid transparent",
+            backgroundColor: this.props.isContainer
+                ? "#1e2127"
+                : this.props.isSelected ? "rgba(97, 175, 239, 0.1)" : "transparent",
+            borderLeft: this.props.isSelected
+                ? "4px solid rgb(97, 175, 239)"
+                : "4px solid transparent",
         }
 
         const caretStyle = {
             transform: this.props.expanded ? "rotateZ(45deg)" : "rotateZ(0deg)",
         }
 
-        return <div className="item" style={headerStyle}>
-            <div className="icon">
-                <i style={caretStyle} className="fa fa-caret-right" />
+        return (
+            <div className="item" style={headerStyle}>
+                <div className="icon">
+                    <i style={caretStyle} className="fa fa-caret-right" />
+                </div>
+                <div className="name">{this.props.name}</div>
             </div>
-            <div className="name">
-                {this.props.name}
-            </div>
-        </div>
+        )
     }
 }
 
-export interface IExplorerContainerProps {
-    onEnter: IEvent<void>
-    onKeyDown: (key: string) => void
+export interface IExplorerViewContainerProps {
+    onSelectionChanged: (id: string) => void
 }
 
-export interface IExplorerViewProps extends IExplorerContainerProps {
+export interface IExplorerViewProps extends IExplorerViewContainerProps {
     nodes: ExplorerSelectors.ExplorerNode[]
-    selectedId: string
-    hasFocus: boolean
-    // recentFiles: IRecentFile[]
-    // workspaceRoot: string
+    isActive: boolean
 }
 
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
-
     public render(): JSX.Element {
+        const ids = this.props.nodes.map(node => node.id)
 
-        const nodes = this.props.nodes.map((node) => <NodeView node={node} isSelected={node.id === this.props.selectedId}/>)
+        return (
+            <VimNavigator
+                ids={ids}
+                active={this.props.isActive}
+                onSelectionChanged={this.props.onSelectionChanged}
+                render={(selectedId: string) => {
+                    const nodes = this.props.nodes.map(node => (
+                        <NodeView node={node} isSelected={node.id === selectedId} />
+                    ))
 
-        return <div className="explorer enable-mouse">
-                <div className="items">
-                    {nodes}
-                </div>
-                <div className="input">
-                    <KeyboardInputView
-                        top={0}
-                        left={0}
-                        height={12}
-                        onActivate={this.props.onEnter}
-                        onKeyDown={this.props.onKeyDown}
-                        foregroundColor={"white"}
-                        fontFamily={"Segoe UI"}
-                        fontSize={"12px"}
-                        fontCharacterWidthInPixels={12}
-
-                        />
-                </div>
-            </div>
+                    return (
+                        <div className="explorer enable-mouse">
+                            <div className="items">{nodes}</div>
+                        </div>
+                    )
+                }}
+            />
+        )
     }
 }
 
-const mapStateToProps = (state: IExplorerState, containerProps: IExplorerContainerProps): IExplorerViewProps => {
+const mapStateToProps = (
+    state: IExplorerState,
+    containerProps: IExplorerViewContainerProps,
+): IExplorerViewProps => {
     return {
         ...containerProps,
-        hasFocus: state.hasFocus,
+        isActive: state.hasFocus,
         nodes: ExplorerSelectors.mapStateToNodeList(state),
-        selectedId: state.selectedId,
     }
 }
 

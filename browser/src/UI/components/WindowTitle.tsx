@@ -18,9 +18,7 @@ export interface IWindowTitleViewProps {
 }
 
 export class WindowTitleView extends React.PureComponent<IWindowTitleViewProps, {}> {
-
     public render(): null | JSX.Element {
-
         if (!this.props.visible) {
             return null
         }
@@ -36,7 +34,11 @@ export class WindowTitleView extends React.PureComponent<IWindowTitleViewProps, 
             WebkitUserSelect: "none",
         }
 
-        return <div id={"oni-titlebar"} style={style}>{this.props.title}</div>
+        return (
+            <div id={"oni-titlebar"} style={style}>
+                {this.props.title}
+            </div>
+        )
     }
 }
 
@@ -44,7 +46,10 @@ export interface IWindowTitleProps {
     visible: boolean
 }
 
-export const mapStateToProps = (state: State.IState, props: IWindowTitleProps): IWindowTitleViewProps => {
+export const mapStateToProps = (
+    state: State.IState,
+    props: IWindowTitleProps,
+): IWindowTitleViewProps => {
     return {
         visible: props.visible && !state.isFullScreen,
         title: state.windowTitle,

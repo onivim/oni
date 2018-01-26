@@ -15,8 +15,16 @@ export interface ILanguageClient {
     subscribe(notificationName: string, evt: Event<any>): void
     handleRequest(requestName: string, handler: LanguageClientTypes.RequestHandler): void
 
-    sendRequest<T>(fileName: string, requestName: string, protocolArguments: LanguageClientTypes.NotificationValueOrThunk): Promise<T>
-    sendNotification(fileName: string, notificationName: string, protocolArguments: LanguageClientTypes.NotificationValueOrThunk): void
+    sendRequest<T>(
+        fileName: string,
+        requestName: string,
+        protocolArguments: LanguageClientTypes.NotificationValueOrThunk,
+    ): Promise<T>
+    sendNotification(
+        fileName: string,
+        notificationName: string,
+        protocolArguments: LanguageClientTypes.NotificationValueOrThunk,
+    ): void
 }
 
 export class LanguageClient implements ILanguageClient {
@@ -30,30 +38,29 @@ export class LanguageClient implements ILanguageClient {
         return this._languageClientProcess.serverCapabilities
     }
 
-    constructor(
-        private _language: string,
-        private _languageClientProcess: ILanguageClientProcess) {
+    constructor(private _language: string, private _languageClientProcess: ILanguageClientProcess) {
+        this._languageClientProcess.onConnectionChanged.subscribe(
+            (newConnection: rpc.MessageConnection) => {
+                this._connection = newConnection
 
-        this._languageClientProcess.onConnectionChanged.subscribe((newConnection: rpc.MessageConnection) => {
-            this._connection = newConnection
-
-            Object.keys(this._subscriptions).forEach((notification) => {
-                const evt = this._subscriptions[notification]
-                this._connection.onNotification(notification, (args: any) => {
-                    evt.dispatch({
-                        language: this._language,
-                        payload: args,
+                Object.keys(this._subscriptions).forEach(notification => {
+                    const evt = this._subscriptions[notification]
+                    this._connection.onNotification(notification, (args: any) => {
+                        evt.dispatch({
+                            language: this._language,
+                            payload: args,
+                        })
                     })
                 })
-            })
 
-            Object.keys(this._requestHandlers).forEach((request) => {
-                const handler = this._requestHandlers[request]
-                if (handler) {
-                    this._connection.onRequest(request, handler)
-                }
-            })
-        })
+                Object.keys(this._requestHandlers).forEach(request => {
+                    const handler = this._requestHandlers[request]
+                    if (handler) {
+                        this._connection.onRequest(request, handler)
+                    }
+                })
+            },
+        )
     }
 
     public subscribe(notificationName: string, evt: Event<any>) {
@@ -81,12 +88,18 @@ export class LanguageClient implements ILanguageClient {
         this._requestHandlers[requestName] = handler
     }
 
-    public sendRequest<T>(fileName: string, requestName: string, protocolArguments: LanguageClientTypes.NotificationValueOrThunk): Promise<T> {
+    public sendRequest<T>(
+        fileName: string,
+        requestName: string,
+        protocolArguments: LanguageClientTypes.NotificationValueOrThunk,
+    ): Promise<T> {
         return this._promiseQueue.enqueuePromise<T>(async () => {
-
             this._connection = await this._languageClientProcess.ensureActive(fileName)
 
-            const args = await LanguageClientTypes.unwrapThunkOrValue(protocolArguments, this.serverCapabilities)
+            const args = await LanguageClientTypes.unwrapThunkOrValue(
+                protocolArguments,
+                this.serverCapabilities,
+            )
 
             logInfo(`Request ${requestName} - ${fileName}: start`)
             const result = await this._connection.sendRequest<T>(requestName, args)
@@ -95,11 +108,18 @@ export class LanguageClient implements ILanguageClient {
         })
     }
 
-    public sendNotification(fileName: string, notificationName: string, protocolArguments: LanguageClientTypes.NotificationValueOrThunk): void {
+    public sendNotification(
+        fileName: string,
+        notificationName: string,
+        protocolArguments: LanguageClientTypes.NotificationValueOrThunk,
+    ): void {
         this._promiseQueue.enqueuePromise(async () => {
             this._connection = await this._languageClientProcess.ensureActive(fileName)
 
-            const args = await LanguageClientTypes.unwrapThunkOrValue(protocolArguments, this.serverCapabilities)
+            const args = await LanguageClientTypes.unwrapThunkOrValue(
+                protocolArguments,
+                this.serverCapabilities,
+            )
 
             logInfo(`Notification ${notificationName} - ${fileName}: start`)
 

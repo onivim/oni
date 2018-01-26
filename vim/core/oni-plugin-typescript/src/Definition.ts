@@ -15,9 +15,11 @@ import * as Oni from "oni-api"
 
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
 
-export const getDefinition = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (protocolName: string, payload: any): Promise<types.Location> => {
-
-    const textDocument: types.TextDocument  = payload.textDocument
+export const getDefinition = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (
+    protocolName: string,
+    payload: any,
+): Promise<types.Location> => {
+    const textDocument: types.TextDocument = payload.textDocument
     const position: types.Position = payload.position
 
     const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
@@ -29,7 +31,12 @@ export const getDefinition = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) =
         return null
     }
 
-    const range = types.Range.create(resultPos.start.line - 1, resultPos.start.offset - 1, resultPos.end.line - 1, resultPos.end.offset - 1)
+    const range = types.Range.create(
+        resultPos.start.line - 1,
+        resultPos.start.offset - 1,
+        resultPos.end.line - 1,
+        resultPos.end.offset - 1,
+    )
 
     return {
         uri: oni.language.wrapPathInFileUri(resultPos.file),

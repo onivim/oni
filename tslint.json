@@ -1,42 +1,37 @@
 {
-  "extends": "tslint:latest",
-  "rules": {
-    "arrow-parens": [
-      false
-    ],
-    "max-classes-per-file": [
-      false
-    ],
-    "max-line-length": [
-      false
-    ],
-    "no-object-literal-type-assertion": false,
-    "no-submodule-imports": false,
-    "no-reference": false,
-    "no-namespace": false,
-    "object-literal-key-quotes": false,
-    "object-literal-sort-keys": false,
-    "semicolon": [
-      true,
-      "never"
-    ],
-    "interface-name": [
-        false
-    ],
-    "variable-name": [
-      true,
-      "allow-leading-underscore",
-      "allow-pascal-case",
-      "ban-keywords",
-      "check-format"
-    ],
-    "whitespace": [
-        true,
-        "check-branch",
-        "check-decl",
-        "check-operator",
-        "check-separator",
-        "check-type"
-    ]
-  }
+    "extends": "tslint:latest",
+    "rules": {
+        "align": false,
+        "arrow-parens": [false],
+        "max-classes-per-file": [false],
+        "max-line-length": [false],
+        "no-object-literal-type-assertion": false,
+        "no-submodule-imports": false,
+        "no-reference": false,
+        "no-namespace": false,
+        "object-literal-key-quotes": false,
+        "object-literal-sort-keys": false,
+        "semicolon": false,
+        "interface-name": [false],
+        "variable-name": [
+            true,
+            "allow-leading-underscore",
+            "allow-pascal-case",
+            "ban-keywords",
+            "check-format"
+        ],
+        "whitespace": false,
+        "trailing-comma": [
+            true,
+            {
+                "multiline": {
+                    "objects": "always",
+                    "arrays": "always",
+                    "functions": "always",
+                    "typeLiterals": "ignore"
+                },
+                "esSpecCompliant": true
+            }
+        ]
+    }
 }

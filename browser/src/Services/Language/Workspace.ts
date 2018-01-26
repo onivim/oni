@@ -10,12 +10,15 @@ import { IWorkspace } from "./../Workspace"
 
 import { LanguageManager } from "./LanguageManager"
 
-export const listenForWorkspaceEdits = (languageManager: LanguageManager, workspace: IWorkspace) => {
+export const listenForWorkspaceEdits = (
+    languageManager: LanguageManager,
+    workspace: IWorkspace,
+) => {
     languageManager.handleLanguageServerRequest("workspace/applyEdit", async (args: any) => {
-         const payload: types.WorkspaceEdit = args.payload.edit.changes
-         await workspace.applyEdits(payload)
-         return {
-             applied: true,
-         }
+        const payload: types.WorkspaceEdit = args.payload.edit.changes
+        await workspace.applyEdits(payload)
+        return {
+            applied: true,
+        }
     })
 }

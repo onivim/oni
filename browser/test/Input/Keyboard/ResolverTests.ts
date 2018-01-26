@@ -1,6 +1,11 @@
 import * as assert from "assert"
 
-import { createMetaKeyResolver, ignoreMetaKeyResolver, KeyResolver, remapResolver } from "./../../../src/Input/Keyboard/Resolvers"
+import {
+    createMetaKeyResolver,
+    ignoreMetaKeyResolver,
+    KeyResolver,
+    remapResolver,
+} from "./../../../src/Input/Keyboard/Resolvers"
 
 describe("Resolvers", () => {
     describe("ignoreMetaResolver", () => {
@@ -16,9 +21,14 @@ describe("Resolvers", () => {
     })
 
     describe("remapResolver", () => {
-        it("remaps key in list", () => {
+        it("remaps Backspace key", () => {
             const result = remapResolver(keyBackSpace, "Backspace")
             assert.equal(result, "bs")
+        })
+
+        it("remaps Space key", () => {
+            const result = remapResolver(keySpace, " ")
+            assert.equal(result, "space")
         })
     })
 
@@ -28,7 +38,7 @@ describe("Resolvers", () => {
         describe("*", () => {
             it("Handles <s- > (shift+space)", () => {
                 const layout = {
-                    "Space": {
+                    Space: {
                         unmodified: " ",
                         withShift: " ",
                     },
@@ -90,14 +100,14 @@ describe("Resolvers", () => {
 })
 
 const englishLayout = {
-    "KeyP": {
+    KeyP: {
         unmodified: "p",
         withShift: "P",
     },
 }
 
 const englishInternationalLayout = {
-    "KeyS": {
+    KeyS: {
         unmodified: "s",
         withShift: "S",
         withAltGraph: "ß",
@@ -106,7 +116,7 @@ const englishInternationalLayout = {
 }
 
 const germanLayout = {
-    "Semicolon": {
+    Semicolon: {
         unmodified: "ö",
         withShift: "Ö",
     },
@@ -118,7 +128,7 @@ const createKeyEvent = (key: string, code: string): any => ({
     ctrlKey: false,
     altKey: false,
     shiftKey: false,
-    preventDefault: () => { }, // tslint:disable-line no-empty
+    preventDefault: () => {}, // tslint:disable-line no-empty
 })
 
 const control = (keyEvent: KeyboardEvent): KeyboardEvent => ({
@@ -142,3 +152,4 @@ const keyShift = shift(createKeyEvent("Shift", "Shift"))
 const keyS = createKeyEvent("s", "KeyS")
 const keyP = createKeyEvent("p", "KeyP")
 const keyUmlautedO = createKeyEvent("ö", "Semicolon")
+const keySpace = createKeyEvent(" ", " ")

@@ -20,9 +20,10 @@ import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import { Configuration } from "./../Configuration"
-import { editorManager } from "./../EditorManager"
+import { EditorManager } from "./../EditorManager"
 import { convertTextDocumentEditsToFileMap } from "./../Language/Edits"
 
+import * as WorkspaceCommands from "./WorkspaceCommands"
 import { WorkspaceConfiguration } from "./WorkspaceConfiguration"
 
 // Candidate interface to promote to Oni API
@@ -44,13 +45,13 @@ export class Workspace implements IWorkspace {
         return this._activeWorkspace
     }
 
-    constructor() {
+    constructor(private _editorManager: EditorManager) {
         this._mainWindow.on("focus", () => {
             this._onFocusGainedEvent.dispatch(this._lastActiveBuffer)
         })
 
         this._mainWindow.on("blur", () => {
-            this._lastActiveBuffer = editorManager.activeEditor.activeBuffer
+            this._lastActiveBuffer = this._editorManager.activeEditor.activeBuffer
             this._onFocusLostEvent.dispatch(this._lastActiveBuffer)
         })
     }
@@ -60,13 +61,15 @@ export class Workspace implements IWorkspace {
     }
 
     public changeDirectory(newDirectory: string) {
-        process.chdir(newDirectory)
+        if (newDirectory) {
+            process.chdir(newDirectory)
+        }
+
         this._activeWorkspace = newDirectory
         this._onDirectoryChangedEvent.dispatch(newDirectory)
     }
 
     public async applyEdits(edits: types.WorkspaceEdit): Promise<void> {
-
         let editsToUse = edits
         if (edits.documentChanges) {
             editsToUse = convertTextDocumentEditsToFileMap(edits.documentChanges)
@@ -83,16 +86,18 @@ export class Workspace implements IWorkspace {
                 const fileName = Helpers.unwrapFileUriPath(fileUri)
                 // TODO: Sort changes?
                 Log.verbose("[Workspace] Opening file: " + fileName)
-                const buf = await editorManager.activeEditor.openFile(fileName)
-                Log.verbose("[Workspace] Got buffer for file: " + buf.filePath + " and id: " + buf.id)
+                const buf = await this._editorManager.activeEditor.openFile(fileName)
+                Log.verbose(
+                    "[Workspace] Got buffer for file: " + buf.filePath + " and id: " + buf.id,
+                )
                 await buf.applyTextEdits(changes)
                 Log.verbose("[Workspace] Applied " + changes.length + " edits to buffer")
             })
         })
 
         await Observable.from(deferredEdits)
-                .concatMap(de => de)
-                .toPromise()
+            .concatMap(de => de)
+            .toPromise()
 
         Log.verbose("[Workspace] Completed applying edits")
 
@@ -111,10 +116,22 @@ export class Workspace implements IWorkspace {
 let _workspace: Workspace = null
 let _workspaceConfiguration: WorkspaceConfiguration = null
 
-export const activate = (configuration: Configuration): void => {
-    _workspace = new Workspace()
+export const activate = (configuration: Configuration, editorManager: EditorManager): void => {
+    _workspace = new Workspace(editorManager)
 
     _workspaceConfiguration = new WorkspaceConfiguration(configuration, _workspace)
+
+    const defaultWorkspace = configuration.getValue("workspace.defaultWorkspace")
+
+    if (defaultWorkspace) {
+        _workspace.changeDirectory(defaultWorkspace)
+    }
+
+    _workspace.onDirectoryChanged.subscribe(newDirectory => {
+        configuration.setValues({ "workspace.defaultWorkspace": newDirectory }, true)
+    })
+
+    WorkspaceCommands.activateCommands(configuration, editorManager, _workspace)
 }
 
 export const getInstance = (): Workspace => {

@@ -11,7 +11,6 @@ export interface IPeriodicJob {
 }
 
 export class PeriodicJobManager {
-
     private _currentScheduledJob: number = null
     private _pendingJobs: IPeriodicJob[] = []
 
@@ -45,7 +44,7 @@ export class PeriodicJobManager {
 
     private _executePendingJobs(): boolean {
         const completedJobs: IPeriodicJob[] = []
-        this._pendingJobs.forEach((job) => {
+        this._pendingJobs.forEach(job => {
             const completed = job.execute()
 
             if (completed) {
@@ -54,7 +53,7 @@ export class PeriodicJobManager {
         })
 
         // Remove completed jobs
-        this._pendingJobs = this._pendingJobs.filter((job) => completedJobs.indexOf(job) === -1)
+        this._pendingJobs = this._pendingJobs.filter(job => completedJobs.indexOf(job) === -1)
 
         if (this._pendingJobs.length === 0) {
             Log.verbose("[PeriodicJobManager] All jobs complete.")

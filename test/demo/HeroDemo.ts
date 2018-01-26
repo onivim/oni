@@ -30,11 +30,11 @@ export const test = async (oni: any) => {
     await shortDelay()
 
     oni.automation.sendKeys("i")
-    await simulateTyping("const greeting = \"Hello World\";")
+    await simulateTyping('const greeting = "Hello World";')
 
     oni.automation.sendKeys("<CR>")
 
-    await simulateTyping("greeting = \"Hello again\";")
+    await simulateTyping('greeting = "Hello again";')
 
     await shortDelay()
 

@@ -12,7 +12,7 @@ export interface ITestCase {
     configPath: string
 }
 
-const normalizePath = (p) => p.split("\\").join("/")
+const normalizePath = p => p.split("\\").join("/")
 
 const loadTest = (rootPath: string, testName: string): ITestCase => {
     const testPath = path.join(rootPath, testName + ".js")
@@ -23,7 +23,9 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
     const normalizedMeta: ITestCase = {
         name: testDescription.name || testName,
         testPath: normalizePath(testPath),
-        configPath: testDescription.configPath ? normalizePath(path.join(rootPath, testDescription.configPath)) : "",
+        configPath: testDescription.configPath
+            ? normalizePath(path.join(rootPath, testDescription.configPath))
+            : "",
     }
 
     return normalizedMeta
@@ -41,7 +43,6 @@ const logWithTimeStamp = (message: string) => {
 
 export const runInProcTest = (rootPath: string, testName: string, timeout: number = 5000) => {
     describe(testName, () => {
-
         const testCase = loadTest(rootPath, testName)
 
         let oni: Oni
@@ -78,26 +79,30 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
             oni.client.execute("Oni.automation.runTest('" + testCase.testPath + "')")
 
             logWithTimeStamp("Waiting for result...") // tslint:disable-line
-            await oni.client.waitForExist(".automated-test-result", 30000)
-            const resultText = await oni.client.getText(".automated-test-result")
-
-            logWithTimeStamp("---RESULT")
-            console.log(resultText) // tslint:disable-line
-            console.log("---")
-            console.log("")
+            const value = await oni.client.waitForExist(".automated-test-result", 60000)
+            logWithTimeStamp("waitForExist for 'automated-test-result' complete: " + value)
 
             console.log("Retrieving logs...")
-
             const writeLogs = (logs: any[]): void => {
-                logs.forEach((log) => {
+                logs.forEach(log => {
                     console.log(`[${log.level}] ${log.message}`)
                 })
             }
 
             const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
-            console.log("---LOGS (Renderer): ")
+            console.log("")
+            console.log("---LOGS (Renderer): " + testName)
             writeLogs(rendererLogs)
-            console.log("---")
+            console.log("--- " + testName + " ---")
+
+            console.log("Getting result...")
+            const resultText = await oni.client.getText(".automated-test-result")
+
+            console.log("")
+            logWithTimeStamp("---RESULT: " + testName)
+            console.log(resultText) // tslint:disable-line
+            console.log("--- " + testName + " ---")
+            console.log("")
 
             const result = JSON.parse(resultText)
             assert.ok(result.passed)
