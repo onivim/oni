@@ -13,7 +13,7 @@ import { Event, IEvent } from "oni-types"
 
 import { Direction, SplitDirection } from "./index"
 import { LinearSplitProvider } from "./LinearSplitProvider"
-import { RelationalSplitNavigator } from "./RelationalSplitProvider"
+import { RelationalSplitNavigator } from "./RelationalSplitNavigator"
 import { WindowDock } from "./WindowDock"
 import { ISplitInfo } from "./WindowState"
 
