@@ -8,7 +8,7 @@ import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 
-import { clipboard, remote } from "electron"
+import { clipboard } from "electron"
 import * as Oni from "oni-api"
 
 import { NeovimInstance } from "./../../neovim"
