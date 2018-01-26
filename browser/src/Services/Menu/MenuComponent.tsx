@@ -168,8 +168,12 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
             className += " selected"
         }
 
-        const icon = this.props.icon ? <Icon name={this.props.icon} /> : null
-
+        const icon =
+            this.props.icon && typeof this.props.icon === "string" ? (
+                <Icon name={this.props.icon} />
+            ) : (
+                this.props.icon
+            )
         return (
             <div className={className} onClick={() => this.props.onClick()}>
                 {icon}

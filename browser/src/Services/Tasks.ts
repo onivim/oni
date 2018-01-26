@@ -58,7 +58,7 @@ export class Tasks {
                     }
                 })
 
-            this._menu = menuManager.create()
+            this._menu = this._menuManager.create()
             this._menu.onItemSelected.subscribe((selection: any) => this._onItemSelected(selection))
             this._menu.show()
             this._menu.setItems(options)
