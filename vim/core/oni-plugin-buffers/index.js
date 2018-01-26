@@ -35,10 +35,13 @@ const activate = Oni => {
         !menu.isOpen() ? createBufferList() : menu.hide()
     }
 
-    const deleteBuffer = menu => {
+    const deleteBuffer = async menu => {
         if (menu.selectedItem) {
-            // FIXME:
-            Oni.editors.activeEditor.bufferDelete(menu.selectedItem.metadata.id)
+            await Oni.editors.activeEditor.bufferDelete(menu.selectedItem.metadata.id)
+            // This line forces vim to navigate to the next buffer after deleting
+            // NOTE: This is essential as otherwise Oni does not properly register the buffer
+            // delete event
+            await Oni.editors.activeEditor.neovim.command("bn")
             menu.hide()
         }
     }
@@ -58,11 +61,11 @@ const activate = Oni => {
         return
     }
 
-    // Oni.commands.registerCommand({
-    //     command: "bufferlist.delete",
-    //     name: "Delete Selected Buffer",
-    //     execute: () => menu.isOpen() && deleteBuffer(menu),
-    // })
+    Oni.commands.registerCommand({
+        command: "bufferlist.delete",
+        name: "Delete Selected Buffer",
+        execute: async () => menu.isOpen() && (await deleteBuffer(menu)),
+    })
 
     Oni.commands.registerCommand({
         command: "bufferlist.split",

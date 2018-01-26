@@ -368,6 +368,14 @@ export class NeovimEditor extends Editor implements IEditor {
             this._bufferManager.updateBufferFromEvent(current)
         })
 
+        this._neovimInstance.autoCommands.onBufDelete.subscribe((evt: BufferEventContext) =>
+            this._onBufDelete(evt),
+        )
+
+        this._neovimInstance.autoCommands.onBufUnload.subscribe((evt: BufferEventContext) =>
+            this._onBufUnload(evt),
+        )
+
         this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: BufferEventContext) =>
             this._onBufEnter(evt),
         )
@@ -878,6 +886,16 @@ export class NeovimEditor extends Editor implements IEditor {
             filePath: evt.bufferFullPath,
             language: evt.filetype,
         })
+    }
+
+    private async _onBufUnload(evt: BufferEventContext): Promise<void> {
+        this._bufferManager.populateBufferList(evt)
+        this._neovimInstance.getBufferIds().then(ids => this._actions.setCurrentBuffers(ids))
+    }
+
+    private async _onBufDelete(evt: BufferEventContext): Promise<void> {
+        this._bufferManager.populateBufferList(evt)
+        this._neovimInstance.getBufferIds().then(ids => this._actions.setCurrentBuffers(ids))
     }
 
     private async _onBufWipeout(evt: BufferEventContext): Promise<void> {
