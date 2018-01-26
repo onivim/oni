@@ -142,7 +142,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     public get windows(): OniApi.IWindowManager {
-        return windowManager
+        return windowManager as any
     }
 
     public get workspace(): OniApi.Workspace {

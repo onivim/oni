@@ -49,7 +49,7 @@ export const startEditors = async (
         workspace,
     )
     editorManager.setActiveEditor(editor)
-    windowManager.split(0, editor)
+    windowManager.split("horizontal", editor)
 
     await editor.init(args)
 }

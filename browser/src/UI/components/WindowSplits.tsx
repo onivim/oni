@@ -10,8 +10,7 @@ import * as Oni from "oni-api"
 
 import { WindowSplitHost } from "./WindowSplitHost"
 
-import { Direction, WindowManager } from "./../../Services/WindowManager"
-import { ISplitInfo } from "./../../Services/WindowSplit"
+import { ISplitInfo, WindowManager } from "./../../Services/WindowManager"
 
 export interface IWindowSplitsProps {
     windowManager: WindowManager
@@ -55,7 +54,7 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
         this.state = {
             activeSplit: props.windowManager.activeSplit,
             splitRoot: props.windowManager.splitRoot,
-            leftDock: [...props.windowManager.getDock(Direction.Left).splits],
+            leftDock: [...props.windowManager.getDock("left").splits],
         }
     }
 
@@ -66,9 +65,9 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
             })
         })
 
-        this.props.windowManager.getDock(Direction.Left).onSplitsChanged.subscribe(() => {
+        this.props.windowManager.getDock("left").onSplitsChanged.subscribe(() => {
             this.setState({
-                leftDock: [...this.props.windowManager.getDock(Direction.Left).splits],
+                leftDock: [...this.props.windowManager.getDock("left").splits],
             })
         })
 

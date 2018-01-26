@@ -50,7 +50,6 @@ export const getMappedFileFromMapping = (
     const resolvedMappedFile = replaceVariablesInFileName(mapping.mappedFileName, filePath)
 
     const mappedFile = path.join(rootFolder, mapping.mappedFolder, difference, resolvedMappedFile)
-
     return mappedFile
 }
 
