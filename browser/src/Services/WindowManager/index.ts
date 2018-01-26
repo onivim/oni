@@ -203,7 +203,7 @@ export class WindowManager {
         this._leftDock = new WindowDock()
         this._primarySplit = new LinearSplitProvider("horizontal")
 
-        this._rootNavigator.setRelationship(this._leftDock, this._primarySplit, "left")
+        this._rootNavigator.setRelationship(this._leftDock, this._primarySplit, "right")
     }
 
     public split(direction: SplitDirection, newSplit: Oni.IWindowSplit, referenceSplit?: Oni.IWindowSplit) {
@@ -215,7 +215,8 @@ export class WindowManager {
     }
 
     public move(direction: Direction): void {
-        this._rootNavigator.move(this._activeSplit, direction)
+        const newSplit = this._rootNavigator.move(this._activeSplit, direction)
+        this._focusNewSplit(newSplit)
     }
 
     public moveLeft(): void {
