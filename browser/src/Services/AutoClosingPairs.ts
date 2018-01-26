@@ -31,10 +31,34 @@ export const activate = (
 
     let subscriptions: Oni.DisposeFunction[] = []
 
-    const handleOpenCharacter = (pair: IAutoClosingPair, editor: Oni.Editor) => () => {
+    const handleOpenCharacter = (
+        pair: IAutoClosingPair,
+        editor: Oni.Editor,
+        openCharacterSameAsClosed: boolean,
+    ) => () => {
         const neovim: NeovimInstance = editor.neovim as any
         neovim.blockInput(async (inputFunc: any) => {
             // TODO: PERFORMANCE: Look at how to collapse this instead of needed multiple asynchronous calls.
+
+            if (openCharacterSameAsClosed) {
+                const activeBuffer = editor.activeBuffer
+                const lines = await (activeBuffer as any).getLines(
+                    activeBuffer.cursor.line,
+                    activeBuffer.cursor.line + 1,
+                    false,
+                )
+                const currentLine = lines[0]
+
+                if (currentLine[activeBuffer.cursor.column] === pair.open) {
+                    await activeBuffer.setCursorPosition(
+                        activeBuffer.cursor.line,
+                        activeBuffer.cursor.column + 1,
+                    )
+
+                    return
+                }
+            }
+
             await inputFunc(pair.open + pair.close)
 
             const pos = await neovim.callFunction("getpos", ["."])
@@ -161,10 +185,20 @@ export const activate = (
         const autoClosingPairs = getAutoClosingPairs(configuration, newBuffer.language)
 
         autoClosingPairs.forEach(pair => {
+            if (pair.open === pair.close) {
+                subscriptions.push(
+                    inputManager.bind(
+                        pair.open,
+                        handleOpenCharacter(pair, editorManager.activeEditor, true),
+                        insertModeFilter,
+                    ),
+                )
+            }
+
             subscriptions.push(
                 inputManager.bind(
                     pair.open,
-                    handleOpenCharacter(pair, editorManager.activeEditor),
+                    handleOpenCharacter(pair, editorManager.activeEditor, false),
                     insertModeFilter,
                 ),
             )
