@@ -37,6 +37,7 @@ const activate = Oni => {
 
     const deleteBuffer = menu => {
         if (menu.selectedItem) {
+            // FIXME:
             Oni.editors.activeEditor.bufferDelete(menu.selectedItem.metadata.id)
             menu.hide()
         }
