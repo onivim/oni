@@ -60,6 +60,7 @@ const NodeWrapper = styled.div`
     }
 `
 
+// tslint:disable-next-line
 const noop = (elem: HTMLElement) => {}
 const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
     // tslint:disable-next-line
