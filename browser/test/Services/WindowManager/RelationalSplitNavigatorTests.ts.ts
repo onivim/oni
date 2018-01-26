@@ -1,5 +1,5 @@
 /**
- * RelationalSplitProviderTests.ts
+ * RelationalSplitNavigatorTests.ts
  */
 
 import * as assert from "assert"
@@ -15,7 +15,7 @@ export class MockWindowSplit {
     }
 }
 
-describe("RelationalSplitProvider", () => {
+describe("RelationalSplitNavigator", () => {
     let splitProvider: RelationalSplitNavigator
     let split1: MockWindowSplit
     let split2: MockWindowSplit

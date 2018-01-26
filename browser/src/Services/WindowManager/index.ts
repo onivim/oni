@@ -11,7 +11,7 @@
 import * as Oni from "oni-api"
 
 export * from "./LinearSplitProvider"
-export * from "./RelationalSplitProvider"
+export * from "./RelationalSplitNavigator"
 export * from "./SingleSplitProvider"
 export * from "./WindowDock"
 export * from "./WindowManager"
