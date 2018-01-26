@@ -26,7 +26,7 @@ const childStyles = css`
     > * {
         margin: 0.2rem;
 
-       a {
+        a {
             color: ${p => p.theme["highlight.mode.normal.background"]};
         }
 
@@ -34,7 +34,7 @@ const childStyles = css`
             ${codeBlockStyle};
         }
 
-    /* All code blocks are set to black but
+        /* All code blocks are set to black but
     this overriden for code block INSIDE a Pre element */
 
         code {
@@ -53,7 +53,7 @@ export const Documentation = styled.div`
     padding: 0.5rem;
     line-height: 1.5;
     ${smallScrollbar};
-    background-color:${p => p.theme["editor.hover.contents.background"]};
+    background-color: ${p => p.theme["editor.hover.contents.background"]};
     color: ${p => p.theme["editor.hover.contents.foreground"]};
 
     &:hover {
@@ -63,8 +63,7 @@ export const Documentation = styled.div`
     ${childStyles};
 
     pre {
-        ${smallScrollbar}
-        ${codeBlockStyle};
+        ${smallScrollbar} ${codeBlockStyle};
     }
 `
 // NOTE: Currently with a max-width in CursorPositioner the text
@@ -98,15 +97,15 @@ export const QuickInfoContainer = withProps<{ hasDocs: boolean }>(styled.div)`
   max-height: fit-content;
   overflow: hidden;
   width: 100%;
-  padding-bottom: ${p => p.hasDocs ? "0.5rem" : "0"};
+  padding-bottom: ${p => (p.hasDocs ? "0.5rem" : "0")};
   background-color: ${p => p.theme["editor.hover.contents.background"]};
 `
 
 export interface ITextProps {
-    padding?: string,
-    text?: string,
+    padding?: string
+    text?: string
     html?: {
-        __html: string,
+        __html: string
     }
 }
 
@@ -117,7 +116,11 @@ export class QuickInfoTitle extends React.PureComponent<ITextProps> {
             return null
         }
 
-        return <Title padding={padding} dangerouslySetInnerHTML={html}>{text}</Title>
+        return (
+            <Title padding={padding} dangerouslySetInnerHTML={html}>
+                {text}
+            </Title>
+        )
     }
 }
 
@@ -131,7 +134,6 @@ export class QuickInfoDocumentation extends React.PureComponent<ITextProps> {
 
                 return <Documentation>{divs}</Documentation>
             case Boolean(html && html.__html.length):
-
                 return <Documentation dangerouslySetInnerHTML={this.props.html} />
             default:
                 return null

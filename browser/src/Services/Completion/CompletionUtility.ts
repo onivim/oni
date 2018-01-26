@@ -7,7 +7,12 @@
 import * as Oni from "oni-api"
 import * as types from "vscode-languageserver-types"
 
-export const commitCompletion = async (buffer: Oni.Buffer, line: number, base: number, completion: string) => {
+export const commitCompletion = async (
+    buffer: Oni.Buffer,
+    line: number,
+    base: number,
+    completion: string,
+) => {
     const currentLines = await buffer.getLines(line, line + 1)
 
     const column = buffer.cursor.column
@@ -24,13 +29,15 @@ export const commitCompletion = async (buffer: Oni.Buffer, line: number, base: n
     await buffer.setCursorPosition(line, column + cursorOffset)
 }
 
-export function getCompletionStart(bufferLine: string, cursorColumn: number, completion: string): number {
-
+export function getCompletionStart(
+    bufferLine: string,
+    cursorColumn: number,
+    completion: string,
+): number {
     cursorColumn = Math.min(cursorColumn, bufferLine.length)
 
     let x = cursorColumn
     while (x >= 0) {
-
         const subWord = bufferLine.substring(x, cursorColumn + 1)
 
         if (completion.indexOf(subWord) === -1) {
@@ -47,7 +54,12 @@ export const getInsertText = (completionItem: types.CompletionItem): string => {
     return completionItem.insertText || completionItem.label
 }
 
-export function replacePrefixWithCompletion(bufferLine: string, basePosition: number, cursorColumn: number, completion: string): string {
+export function replacePrefixWithCompletion(
+    bufferLine: string,
+    basePosition: number,
+    cursorColumn: number,
+    completion: string,
+): string {
     const startPosition = basePosition
 
     const before = bufferLine.substring(0, startPosition)
@@ -70,15 +82,22 @@ export interface CompletionMeetResult {
     shouldExpandCompletions: boolean
 }
 
-export const doesCharacterMatchTriggerCharacters = (character: string, triggerCharacters: string[]): boolean => {
+export const doesCharacterMatchTriggerCharacters = (
+    character: string,
+    triggerCharacters: string[],
+): boolean => {
     return triggerCharacters.indexOf(character) >= 0
 }
 
 /**
  * Returns the start of the 'completion meet' along with the current base for completion
  */
-export function getCompletionMeet(line: string, cursorColumn: number, characterMatchRegex: RegExp, completionTriggerCharacters: string[]): CompletionMeetResult {
-
+export function getCompletionMeet(
+    line: string,
+    cursorColumn: number,
+    characterMatchRegex: RegExp,
+    completionTriggerCharacters: string[],
+): CompletionMeetResult {
     // Clamp column to within string bounds
     let col = Math.max(cursorColumn - 1, 0)
     col = Math.min(col, line.length - 1)
@@ -88,7 +107,10 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
     while (col >= 0 && col < line.length) {
         const currentCharacter = line[col]
 
-        if (!currentCharacter.match(characterMatchRegex) || doesCharacterMatchTriggerCharacters(currentCharacter, completionTriggerCharacters)) {
+        if (
+            !currentCharacter.match(characterMatchRegex) ||
+            doesCharacterMatchTriggerCharacters(currentCharacter, completionTriggerCharacters)
+        ) {
             break
         }
 
@@ -98,11 +120,16 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
 
     const basePos = col + 1
 
-    const isFromTriggerCharacter = doesCharacterMatchTriggerCharacters(line[basePos - 1], completionTriggerCharacters)
+    const isFromTriggerCharacter = doesCharacterMatchTriggerCharacters(
+        line[basePos - 1],
+        completionTriggerCharacters,
+    )
 
-    const isCharacterAfterCursor = (cursorColumn < line.length) && line[cursorColumn].match(characterMatchRegex)
+    const isCharacterAfterCursor =
+        cursorColumn < line.length && line[cursorColumn].match(characterMatchRegex)
 
-    const shouldExpandCompletions = (currentPrefix.length > 0 || isFromTriggerCharacter) && !isCharacterAfterCursor
+    const shouldExpandCompletions =
+        (currentPrefix.length > 0 || isFromTriggerCharacter) && !isCharacterAfterCursor
 
     const positionToQuery = isFromTriggerCharacter ? basePos : basePos + 1
 
@@ -115,7 +142,6 @@ export function getCompletionMeet(line: string, cursorColumn: number, characterM
 }
 
 export const convertKindToIconName = (completionKind: types.CompletionItemKind) => {
-
     switch (completionKind) {
         case types.CompletionItemKind.Class:
             return "cube"

@@ -3,7 +3,12 @@ import * as assert from "assert"
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
-import { Configuration, GenericConfigurationValues, IConfigurationProvider, IPersistedConfiguration } from "./../../../src/Services/Configuration"
+import {
+    Configuration,
+    GenericConfigurationValues,
+    IConfigurationProvider,
+    IPersistedConfiguration,
+} from "./../../../src/Services/Configuration"
 
 describe("Configuration", () => {
     it("has default configuration values set on instantiation", () => {
@@ -26,7 +31,7 @@ describe("Configuration", () => {
         const configuration = new Configuration({})
 
         const errors: Error[] = []
-        configuration.onConfigurationError.subscribe((err) => {
+        configuration.onConfigurationError.subscribe(err => {
             errors.push(err)
         })
 
@@ -49,10 +54,14 @@ describe("Configuration", () => {
             hitCount++
         })
 
-        configProvider.simulateConfigChange({ "test.config": 3})
+        configProvider.simulateConfigChange({ "test.config": 3 })
 
         assert.strictEqual(hitCount, 1, "Validate 'onConfigurationChanged' was dispatched")
-        assert.strictEqual(configuration.getValue("test.config"), 3, "Validate configuration was updated")
+        assert.strictEqual(
+            configuration.getValue("test.config"),
+            3,
+            "Validate configuration was updated",
+        )
     })
 
     describe("removeConfiguratioProvider", () => {
@@ -63,7 +72,11 @@ describe("Configuration", () => {
             configuration.addConfigurationProvider(configProvider)
             configuration.removeConfigurationProvider(configProvider)
 
-            assert.strictEqual(configuration.getValue("test.config"), 1, "Value should now be 1 since the provider was removed")
+            assert.strictEqual(
+                configuration.getValue("test.config"),
+                1,
+                "Value should now be 1 since the provider was removed",
+            )
         })
 
         it("doesn't listen to events from removed provider", () => {
@@ -80,19 +93,34 @@ describe("Configuration", () => {
 
             configuration.removeConfigurationProvider(configProvider)
 
-            assert.strictEqual(changeHitCount, 1, "Should've been one change when applying settings after remove")
+            assert.strictEqual(
+                changeHitCount,
+                1,
+                "Should've been one change when applying settings after remove",
+            )
 
             configProvider.simulateConfigChange({ "test.config": 3 })
-            assert.strictEqual(changeHitCount, 1, "Validate change hit count is still 1, since we shouldn't be listening to the removed config provider")
-            assert.strictEqual(configuration.getValue("test.config"), 1, "Validate the value is still at 1")
+            assert.strictEqual(
+                changeHitCount,
+                1,
+                "Validate change hit count is still 1, since we shouldn't be listening to the removed config provider",
+            )
+            assert.strictEqual(
+                configuration.getValue("test.config"),
+                1,
+                "Validate the value is still at 1",
+            )
 
             configProvider.simulateError(new Error("some error"))
-            assert.strictEqual(errorHitCount, 0, "Validate there was no event triggered for the removed providers error event")
+            assert.strictEqual(
+                errorHitCount,
+                0,
+                "Validate there was no event triggered for the removed providers error event",
+            )
         })
     })
 
     describe("persisted configuration", () => {
-
         let persistedConfiguration: IPersistedConfiguration
 
         beforeEach(() => {
@@ -104,7 +132,11 @@ describe("Configuration", () => {
                 "test.config": 2,
             })
             const configuration = new Configuration({ "test.config": 1 }, persistedConfiguration)
-            assert.strictEqual(configuration.getValue("test.config"), 2, "Validate persisted configuration value is read")
+            assert.strictEqual(
+                configuration.getValue("test.config"),
+                2,
+                "Validate persisted configuration value is read",
+            )
         })
 
         it("are overwritten by explicitly set configuration values", () => {
@@ -116,7 +148,11 @@ describe("Configuration", () => {
 
             const configuration = new Configuration({ "test.config": 1 }, persistedConfiguration)
             configuration.addConfigurationProvider(configProvider)
-            assert.strictEqual(configuration.getValue("test.config"), 3, "Validate persisted configuration is overwrittten by explicitly set configuration")
+            assert.strictEqual(
+                configuration.getValue("test.config"),
+                3,
+                "Validate persisted configuration is overwrittten by explicitly set configuration",
+            )
         })
 
         it("doesn't set values when 'persist' argument is false", () => {
@@ -124,29 +160,36 @@ describe("Configuration", () => {
                 "test.config": 1,
             })
 
-            const configuration = new Configuration({ "test.config": 1}, persistedConfiguration)
+            const configuration = new Configuration({ "test.config": 1 }, persistedConfiguration)
 
-            configuration.setValues({"test.config": 2}, false)
+            configuration.setValues({ "test.config": 2 }, false)
 
-            assert.deepEqual(persistedConfiguration.getPersistedValues(), {
-                "test.config": 1,
-            }, "Validate persisted configuration wasn't overwritten since persist was false")
+            assert.deepEqual(
+                persistedConfiguration.getPersistedValues(),
+                {
+                    "test.config": 1,
+                },
+                "Validate persisted configuration wasn't overwritten since persist was false",
+            )
         })
 
         it("does set values when 'persist' argument is true", () => {
-            const configuration = new Configuration({ "test.config": 1}, persistedConfiguration)
+            const configuration = new Configuration({ "test.config": 1 }, persistedConfiguration)
 
-            configuration.setValues({"test.config": 2}, true)
+            configuration.setValues({ "test.config": 2 }, true)
 
-            assert.deepEqual(persistedConfiguration.getPersistedValues(), {
-                "test.config": 2,
-            }, "Validate persisted configuration was overwritten since persist was true")
+            assert.deepEqual(
+                persistedConfiguration.getPersistedValues(),
+                {
+                    "test.config": 2,
+                },
+                "Validate persisted configuration was overwritten since persist was true",
+            )
         })
     })
 })
 
 export class MockPersistedConfiguration implements IPersistedConfiguration {
-
     private _values: GenericConfigurationValues = {}
 
     public getPersistedValues(): GenericConfigurationValues {

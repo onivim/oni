@@ -21,7 +21,6 @@ export interface ITypingPrediction {
 }
 
 export class TypingPredictionManager {
-
     private _predictionsChanged: Event<ITypingPrediction> = new Event<ITypingPrediction>()
     private _predictions: IPredictedCharacter[] = []
     private _backgroundColor: string
@@ -52,7 +51,7 @@ export class TypingPredictionManager {
         const line = screen.cursorRow
         const column = screen.cursorColumn
 
-        const {foregroundColor, backgroundColor}  = getLastTextColorFromScreen(screen)
+        const { foregroundColor, backgroundColor } = getLastTextColorFromScreen(screen)
 
         this._foregroundColor = foregroundColor
         this._backgroundColor = backgroundColor
@@ -77,7 +76,7 @@ export class TypingPredictionManager {
         if (shouldClearAll) {
             this.clearAllPredictions()
         } else {
-            this._predictions = this._predictions.filter((pd) => {
+            this._predictions = this._predictions.filter(pd => {
                 return pd.id > this._column
             })
 
@@ -86,7 +85,6 @@ export class TypingPredictionManager {
     }
 
     public addPrediction(character: string): void {
-
         if (!this._enabled || !this._latestScreenState) {
             return null
         }
@@ -99,10 +97,7 @@ export class TypingPredictionManager {
             return
         }
 
-        this._predictions = [
-            ...this._predictions,
-            { id, character },
-        ]
+        this._predictions = [...this._predictions, { id, character }]
 
         this._notifyPredictionsChanged()
     }
@@ -123,7 +118,9 @@ export class TypingPredictionManager {
     }
 }
 
-export const getLastTextColorFromScreen = (screen: IScreen): { foregroundColor: string, backgroundColor: string } => {
+export const getLastTextColorFromScreen = (
+    screen: IScreen,
+): { foregroundColor: string; backgroundColor: string } => {
     const previousCharacterColumn = screen.cursorColumn - 2
 
     if (previousCharacterColumn <= 0) {

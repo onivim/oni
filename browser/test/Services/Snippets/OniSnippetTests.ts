@@ -7,7 +7,7 @@ describe("getLineCharacterFromOffset", () => {
         const lines = ["foo"]
 
         const result = getLineCharacterFromOffset(1, lines)
-        assert.deepEqual(result, { line: 0, character: 1})
+        assert.deepEqual(result, { line: 0, character: 1 })
     })
 
     it("handles multi-line case", () => {

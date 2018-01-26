@@ -79,14 +79,13 @@ const HeroImage = styled.img`
 `
 
 const SectionHeader = styled.div`
-
     margin-top: 1em;
     margin-bottom: 1em;
 
     font-size: 1.1em;
     font-weight: bold;
     text-align: center;
-    width:100%;
+    width: 100%;
 `
 
 const WelcomeButtonHoverStyled = `
@@ -140,10 +139,12 @@ export interface WelcomeButtonProps {
 
 export class WelcomeButton extends React.PureComponent<WelcomeButtonProps, {}> {
     public render(): JSX.Element {
-        return <WelcomeButtonWrapper>
+        return (
+            <WelcomeButtonWrapper>
                 <WelcomeButtonTitle>{this.props.title}</WelcomeButtonTitle>
                 <WelcomeButtonDescription>{this.props.description}</WelcomeButtonDescription>
             </WelcomeButtonWrapper>
+        )
     }
 }
 
@@ -152,7 +153,6 @@ export interface WelcomeHeaderState {
 }
 
 export class WelcomeBufferLayer implements Oni.EditorLayer {
-
     public get id(): string {
         return "oni.welcome"
     }
@@ -162,9 +162,14 @@ export class WelcomeBufferLayer implements Oni.EditorLayer {
     }
 
     public render(context: Oni.EditorLayerRenderContext): JSX.Element {
-        return <WelcomeWrapper className="enable-mouse" style={{animation: `${entranceFull} 0.25s ease-in 0.1s forwards`}}>
+        return (
+            <WelcomeWrapper
+                className="enable-mouse"
+                style={{ animation: `${entranceFull} 0.25s ease-in 0.1s forwards` }}
+            >
                 <WelcomeView />
             </WelcomeWrapper>
+        )
     }
 }
 
@@ -184,8 +189,7 @@ export class WelcomeView extends React.PureComponent<{}, WelcomeViewState> {
     }
 
     public componentDidMount(): void {
-
-        getMetadata().then((metadata) => {
+        getMetadata().then(metadata => {
             this.setState({
                 version: metadata.version,
             })
@@ -193,50 +197,104 @@ export class WelcomeView extends React.PureComponent<{}, WelcomeViewState> {
     }
 
     public render(): JSX.Element {
-
         if (!this.state.version) {
             return null
         }
 
-        return <Column>
-                    <Row style={{width: "100%", paddingTop: "32px", animation: `${entranceFull} 0.25s ease-in 0.25s forwards`}}>
-                        <Column />
-                        <Column style={{alignItems: "flex-end"}}>
-                            <TitleText>Oni</TitleText>
-                            <SubtitleText>Modern Modal Editing</SubtitleText>
-                        </Column>
-                        <Column style={{flex: "0 0"}}>
-                            <HeroImage src="images/oni-icon-no-border.svg"/>
-                        </Column>
-                        <Column style={{alignItems: "flex-start"}}>
-                            <SubtitleText>{"v" + this.state.version}</SubtitleText>
-                            <div>{"https://onivim.io"}</div>
-                        </Column>
-                        <Column />
-                    </Row>
-                    <Row style={{width: "100%", marginTop: "64px", opacity: 1}}>
-                        <Column />
-                        <Column>
-                            <div style={{width: "100%", animation: `${entranceFull} 0.25s ease-in 0.5s both`}}>
-                                <SectionHeader>Learn</SectionHeader>
-                                <WelcomeButton title="Tutor" description="Learn VIM with an interactive tutorial." command="oni.tutor.open" />
-                                <WelcomeButton title="Documentation" description="Discover what Oni can do for you." command="oni.docs.open" />
-                            </div>
-                            <div style={{width: "100%", animation: `${entranceFull} 0.25s ease-in 0.75s both`}}>
-                                <SectionHeader>Customize</SectionHeader>
-                                <WelcomeButton title="Configure" description="Make Oni work the way you want." command="oni.configuration.open" />
-                                <WelcomeButton title="Themes" description="Choose a theme that works for you." command="oni.themes.open" />
-                            </div>
-                            <div style={{width: "100%", animation: `${entranceFull} 0.25s ease-in 1s both`}}>
-                                <SectionHeader>Quick Commands</SectionHeader>
-                                <WelcomeButton title="New File" description="Control + N" command="oni.configuration.open" />
-                                <WelcomeButton title="Open File / Folder" description="Control + O" command="oni.configuration.open" />
-                                <WelcomeButton title="Command Palette" description="Control + Shift + P" command="oni.configuration.open" />
-                                <WelcomeButton title="Vim Ex Commands" description=":" command="oni.openEx" />
-                            </div>
-                        </Column>
-                        <Column />
-                    </Row>
-                </Column>
+        return (
+            <Column>
+                <Row
+                    style={{
+                        width: "100%",
+                        paddingTop: "32px",
+                        animation: `${entranceFull} 0.25s ease-in 0.25s forwards`,
+                    }}
+                >
+                    <Column />
+                    <Column style={{ alignItems: "flex-end" }}>
+                        <TitleText>Oni</TitleText>
+                        <SubtitleText>Modern Modal Editing</SubtitleText>
+                    </Column>
+                    <Column style={{ flex: "0 0" }}>
+                        <HeroImage src="images/oni-icon-no-border.svg" />
+                    </Column>
+                    <Column style={{ alignItems: "flex-start" }}>
+                        <SubtitleText>{"v" + this.state.version}</SubtitleText>
+                        <div>{"https://onivim.io"}</div>
+                    </Column>
+                    <Column />
+                </Row>
+                <Row style={{ width: "100%", marginTop: "64px", opacity: 1 }}>
+                    <Column />
+                    <Column>
+                        <div
+                            style={{
+                                width: "100%",
+                                animation: `${entranceFull} 0.25s ease-in 0.5s both`,
+                            }}
+                        >
+                            <SectionHeader>Learn</SectionHeader>
+                            <WelcomeButton
+                                title="Tutor"
+                                description="Learn VIM with an interactive tutorial."
+                                command="oni.tutor.open"
+                            />
+                            <WelcomeButton
+                                title="Documentation"
+                                description="Discover what Oni can do for you."
+                                command="oni.docs.open"
+                            />
+                        </div>
+                        <div
+                            style={{
+                                width: "100%",
+                                animation: `${entranceFull} 0.25s ease-in 0.75s both`,
+                            }}
+                        >
+                            <SectionHeader>Customize</SectionHeader>
+                            <WelcomeButton
+                                title="Configure"
+                                description="Make Oni work the way you want."
+                                command="oni.configuration.open"
+                            />
+                            <WelcomeButton
+                                title="Themes"
+                                description="Choose a theme that works for you."
+                                command="oni.themes.open"
+                            />
+                        </div>
+                        <div
+                            style={{
+                                width: "100%",
+                                animation: `${entranceFull} 0.25s ease-in 1s both`,
+                            }}
+                        >
+                            <SectionHeader>Quick Commands</SectionHeader>
+                            <WelcomeButton
+                                title="New File"
+                                description="Control + N"
+                                command="oni.configuration.open"
+                            />
+                            <WelcomeButton
+                                title="Open File / Folder"
+                                description="Control + O"
+                                command="oni.configuration.open"
+                            />
+                            <WelcomeButton
+                                title="Command Palette"
+                                description="Control + Shift + P"
+                                command="oni.configuration.open"
+                            />
+                            <WelcomeButton
+                                title="Vim Ex Commands"
+                                description=":"
+                                command="oni.openEx"
+                            />
+                        </div>
+                    </Column>
+                    <Column />
+                </Row>
+            </Column>
+        )
     }
 }

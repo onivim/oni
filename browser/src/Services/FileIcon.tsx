@@ -20,14 +20,15 @@ export interface IFileIconProps {
 
 export class FileIcon extends React.PureComponent<IFileIconProps, {}> {
     public render(): JSX.Element {
-
         if (!this.props.fileName) {
             return null
         }
 
         const icons = getInstance()
 
-        const className = icons.getIconClassForFile(this.props.fileName, this.props.language) + (this.props.isLarge ? " fa-lg" : "")
+        const className =
+            icons.getIconClassForFile(this.props.fileName, this.props.language) +
+            (this.props.isLarge ? " fa-lg" : "")
         const additionalClasses = this.props.additionalClassNames || ""
 
         return <i className={className + " " + additionalClasses} aria-hidden={true} />

@@ -6,15 +6,17 @@ export interface ISpan {
 }
 
 export interface IPosition {
-    x: number,
+    x: number
     y: number
 }
 
-export interface RowMap { [key: number]: ISpan[] }
+export interface RowMap {
+    [key: number]: ISpan[]
+}
 
 export function getSpansToEdit(grid: Grid<ISpan>, cells: IPosition[]): RowMap {
     const rowToSpans: RowMap = {}
-    cells.forEach((cell) => {
+    cells.forEach(cell => {
         const { x, y } = cell
 
         const info = grid.getCell(x, y)
@@ -62,10 +64,13 @@ export function flattenSpansToArray(spans: ISpan[]): any[] {
         return []
     }
 
-    const bounds = spans.reduce((prev, cur) => ({
-        startX: Math.min(prev.startX, cur.startX),
-        endX: Math.max(prev.endX, cur.endX),
-    }), { startX: spans[0].startX, endX: spans[0].endX })
+    const bounds = spans.reduce(
+        (prev, cur) => ({
+            startX: Math.min(prev.startX, cur.startX),
+            endX: Math.max(prev.endX, cur.endX),
+        }),
+        { startX: spans[0].startX, endX: spans[0].endX },
+    )
 
     const array: any[] = []
 
@@ -77,7 +82,7 @@ export function flattenSpansToArray(spans: ISpan[]): any[] {
         array.push(false)
     }
 
-    spans.forEach((s) => {
+    spans.forEach(s => {
         for (let i = s.startX; i < s.endX; i++) {
             array[i] = true
         }
@@ -87,7 +92,6 @@ export function flattenSpansToArray(spans: ISpan[]): any[] {
 }
 
 export function expandArrayToSpans(array: any[]): ISpan[] {
-
     if (!array || !array.length) {
         return []
     }
@@ -102,7 +106,6 @@ export function expandArrayToSpans(array: any[]): ISpan[] {
 
     let x = 0
     while (x < array.length) {
-
         if (array[x]) {
             if (currentSpan === null) {
                 currentSpan = {

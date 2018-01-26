@@ -29,8 +29,10 @@ const DefaultStartOptions: INeovimStartOptions = {
     transport: "stdio",
 }
 
-const getSessionFromProcess = async (neovimProcess: ChildProcess, transport: MsgPackTransport = "stdio"): Promise<Session> => {
-
+const getSessionFromProcess = async (
+    neovimProcess: ChildProcess,
+    transport: MsgPackTransport = "stdio",
+): Promise<Session> => {
     Log.info("Initializing neovim process using transport: " + transport)
 
     const stdioSession = new Session(neovimProcess.stdin, neovimProcess.stdout)
@@ -48,19 +50,38 @@ const getSessionFromProcess = async (neovimProcess: ChildProcess, transport: Msg
     return new Session(client, client)
 }
 
-export const startNeovim = async (options: INeovimStartOptions = DefaultStartOptions): Promise<Session> => {
-
+export const startNeovim = async (
+    options: INeovimStartOptions = DefaultStartOptions,
+): Promise<Session> => {
     const runtimePaths = options.runtimePaths || []
 
     const noopInitVimPath = remapPathToUnpackedAsar(path.join(__dirname, "vim", "noop.vim"))
 
-    const nvimWindowsProcessPath = path.join(__dirname, "node_modules", "oni-neovim-binaries", "bin", "Neovim", "bin", "nvim.exe")
-    const nvimMacProcessPath = path.join(__dirname, "node_modules", "oni-neovim-binaries", "bin", "nvim-osx64", "bin", "nvim")
+    const nvimWindowsProcessPath = path.join(
+        __dirname,
+        "node_modules",
+        "oni-neovim-binaries",
+        "bin",
+        "Neovim",
+        "bin",
+        "nvim.exe",
+    )
+    const nvimMacProcessPath = path.join(
+        __dirname,
+        "node_modules",
+        "oni-neovim-binaries",
+        "bin",
+        "nvim-osx64",
+        "bin",
+        "nvim",
+    )
 
     // Assume nvim is available in path for Linux
     const nvimLinuxPath = process.env["ONI_NEOVIM_PATH"] || "nvim" // tslint:disable-line
 
-    let nvimProcessPath = Platform.isWindows() ? nvimWindowsProcessPath : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
+    let nvimProcessPath = Platform.isWindows()
+        ? nvimWindowsProcessPath
+        : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
 
     nvimProcessPath = remapPathToUnpackedAsar(nvimProcessPath)
 
@@ -72,22 +93,27 @@ export const startNeovim = async (options: INeovimStartOptions = DefaultStartOpt
 
     Log.info("[NeovimProcessSpawnwer::startNeovim] Neovim process path: " + nvimProcessPath)
 
-    const joinedRuntimePaths = runtimePaths
-                                    .map((p) => remapPathToUnpackedAsar(p))
-                                    .join(",")
+    const joinedRuntimePaths = runtimePaths.map(p => remapPathToUnpackedAsar(p)).join(",")
 
     const loadInitVimConfigOption = configuration.getValue("oni.loadInitVim")
     const useDefaultConfig = configuration.getValue("oni.useDefaultConfig")
 
     let initVimArg = []
-    initVimArg = (loadInitVimConfigOption || !useDefaultConfig) ? [] : ["-u", noopInitVimPath]
+    initVimArg = loadInitVimConfigOption || !useDefaultConfig ? [] : ["-u", noopInitVimPath]
 
-    if (typeof(loadInitVimConfigOption) === "string") {
+    if (typeof loadInitVimConfigOption === "string") {
         initVimArg = ["-u", loadInitVimConfigOption]
     }
 
-    const argsToPass = initVimArg
-        .concat(["--cmd", `let &rtp.=',${joinedRuntimePaths}'`, "--cmd", "let g:gui_oni = 1", "-N", "--embed", "--"])
+    const argsToPass = initVimArg.concat([
+        "--cmd",
+        `let &rtp.=',${joinedRuntimePaths}'`,
+        "--cmd",
+        "let g:gui_oni = 1",
+        "-N",
+        "--embed",
+        "--",
+    ])
 
     const nvimProc = await spawnProcess(nvimProcessPath, argsToPass, {})
 

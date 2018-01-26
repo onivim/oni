@@ -8,7 +8,9 @@ import * as path from "path"
 
 import * as Platform from "./../../Platform"
 
-export const ocamlLanguageServerPath = Platform.isWindows() ? path.join(__dirname, "node_modules", ".bin", "ocaml-language-server.cmd") : path.join(__dirname, "node_modules", ".bin", "ocaml-language-server")
+export const ocamlLanguageServerPath = Platform.isWindows()
+    ? path.join(__dirname, "node_modules", ".bin", "ocaml-language-server.cmd")
+    : path.join(__dirname, "node_modules", ".bin", "ocaml-language-server")
 
 // If Windows, wrap in `bash -ic` to support WSL
 const wrapCommand = Platform.isWindows() ? (str: string) => "bash -ic " + str : (str: string) => str

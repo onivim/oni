@@ -22,15 +22,12 @@ import { CompletionProviders } from "./../../Services/Completion"
 import { Configuration } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 
-import {
-    LanguageManager,
-} from "./../../Services/Language"
+import { LanguageManager } from "./../../Services/Language"
 
 import { MenuManager } from "./../../Services/Menu"
+import { OverlayManager } from "./../../Services/Overlay"
 
-import {
-    ISyntaxHighlighter,
-} from "./../../Services/SyntaxHighlighting"
+import { ISyntaxHighlighter } from "./../../Services/SyntaxHighlighting"
 
 import { Tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
@@ -48,12 +45,11 @@ import { NeovimEditor } from "./../NeovimEditor"
 const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.EditorLayer => {
     return {
         id,
-        render: (context: Oni.EditorLayerRenderContext) => context.isActive ? component : null,
+        render: (context: Oni.EditorLayerRenderContext) => (context.isActive ? component : null),
     }
 }
 
 export class OniEditor implements IEditor {
-
     private _neovimEditor: NeovimEditor
 
     public get mode(): string {
@@ -88,7 +84,7 @@ export class OniEditor implements IEditor {
         return this._neovimEditor.onBufferScrolled
     }
 
-    public /* override */ get activeBuffer(): Oni.Buffer {
+    public get /* override */ activeBuffer(): Oni.Buffer {
         return this._neovimEditor.activeBuffer
     }
 
@@ -102,26 +98,44 @@ export class OniEditor implements IEditor {
     }
 
     constructor(
-         colors: IColors,
-         completionProviders: CompletionProviders,
-         configuration: Configuration,
-         diagnostics: IDiagnosticsDataSource,
-         languageManager: LanguageManager,
-         menuManager: MenuManager,
-         pluginManager: PluginManager,
-         tasks: Tasks,
-         themeManager: ThemeManager,
-         workspace: Workspace,
+        colors: IColors,
+        completionProviders: CompletionProviders,
+        configuration: Configuration,
+        diagnostics: IDiagnosticsDataSource,
+        languageManager: LanguageManager,
+        menuManager: MenuManager,
+        overlayManager: OverlayManager,
+        pluginManager: PluginManager,
+        tasks: Tasks,
+        themeManager: ThemeManager,
+        workspace: Workspace,
     ) {
-        this._neovimEditor = new NeovimEditor(colors, completionProviders, configuration, diagnostics, languageManager, menuManager, pluginManager, tasks, themeManager, workspace)
+        this._neovimEditor = new NeovimEditor(
+            colors,
+            completionProviders,
+            configuration,
+            diagnostics,
+            languageManager,
+            menuManager,
+            overlayManager,
+            pluginManager,
+            tasks,
+            themeManager,
+            workspace,
+        )
 
-        this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => wrapReactComponentWithLayer("oni.layer.scrollbar", <BufferScrollBarContainer />))
-        this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => wrapReactComponentWithLayer("oni.layer.definition", <DefinitionContainer />))
-        this._neovimEditor.bufferLayers.addBufferLayer("*", (buf) => wrapReactComponentWithLayer("oni.layer.errors", <ErrorsContainer />))
+        this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
+            wrapReactComponentWithLayer("oni.layer.scrollbar", <BufferScrollBarContainer />),
+        )
+        this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
+            wrapReactComponentWithLayer("oni.layer.definition", <DefinitionContainer />),
+        )
+        this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
+            wrapReactComponentWithLayer("oni.layer.errors", <ErrorsContainer />),
+        )
     }
 
     public dispose(): void {
-
         if (this._neovimEditor) {
             this._neovimEditor.dispose()
             this._neovimEditor = null
