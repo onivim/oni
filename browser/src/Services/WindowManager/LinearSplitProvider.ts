@@ -7,11 +7,9 @@
 
 import * as Oni from "oni-api"
 
-import { IWindowSplitProvider, Direction, SingleSplitProvider, SplitDirection } from "./index"
+import { IWindowSplitProvider, Direction, SingleSplitProvider, SplitDirection, SplitOrLeaf } from "./index"
 
 export class LinearSplitProvider implements IWindowSplitProvider {
-
-
     private _splitProviders: IWindowSplitProvider[] = []
 
     constructor(
@@ -120,13 +118,13 @@ export class LinearSplitProvider implements IWindowSplitProvider {
         return this._splitProviders[newIndex].move(null, direction)
     }
 
-//     private _getOppositeOrientation(): SplitDirection {
-//         if (this._direction === "horizontal") {
-//             return "vertical"
-//         } else {
-//             return "horizontal"
-//         }
-//     }
+    public getState(): SplitOrLeaf<Oni.IWindowSplit> {
+        return { 
+            type: "Split",
+            direction: this._direction,
+            splits: this._splitProviders.map((sp) => sp.getState())
+        }
+    }
 
     private _canHandleMove(direction: Direction): boolean {
         switch (direction) {

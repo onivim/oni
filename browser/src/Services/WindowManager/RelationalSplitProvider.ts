@@ -7,20 +7,20 @@
 
 import * as Oni from "oni-api"
 
-import { getInverseDirection, IWindowSplitProvider, Direction, SplitDirection } from "./index"
+import { getInverseDirection, IWindowSplitNavigator, Direction } from "./index"
 
 export interface WindowSplitRelationship {
-    from: IWindowSplitProvider
-    to: IWindowSplitProvider
+    from: IWindowSplitNavigator
+    to: IWindowSplitNavigator
     direction: string
 }
 
-export class RelationalSplitProvider implements IWindowSplitProvider {
+export class RelationalSplitNavigator implements IWindowSplitNavigator {
 
     private _relationships: WindowSplitRelationship[] = []
-    private _providers: IWindowSplitProvider[] = []
+    private _providers: IWindowSplitNavigator[] = []
 
-    public setRelationship(from: IWindowSplitProvider, to: IWindowSplitProvider, direction: Direction): void {
+    public setRelationship(from: IWindowSplitNavigator, to: IWindowSplitNavigator, direction: Direction): void {
         this._relationships.push({
             from,
             to,
@@ -40,26 +40,6 @@ export class RelationalSplitProvider implements IWindowSplitProvider {
 
     public contains(split: Oni.IWindowSplit): boolean {
         return this._getContainingSplit(split) !== null
-    }
-
-    public close(split: Oni.IWindowSplit): boolean {
-        const containingSplit = this._getContainingSplit(split)
-
-        if (containingSplit) {
-            return containingSplit.close(split)
-        } else {
-            return false
-        }
-    }
-
-    public split(split: Oni.IWindowSplit, direction: SplitDirection): boolean {
-        const containingSplit = this._getContainingSplit(split)
-
-        if (containingSplit) {
-            return containingSplit.split(split, direction)
-        } else {
-            return false
-        }
     }
 
     public move(split: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit {
@@ -97,7 +77,7 @@ export class RelationalSplitProvider implements IWindowSplitProvider {
         }
     }
 
-    private _getFurthestSplitInDirection(direction: Direction, split: IWindowSplitProvider): IWindowSplitProvider {
+    private _getFurthestSplitInDirection(direction: Direction, split: IWindowSplitNavigator): IWindowSplitNavigator {
         const splits = this._relationships.filter((rel) => rel.direction === direction && rel.from === split || split === null)
 
         // Base case - there are no further splits in that direction, so return the current one
@@ -110,13 +90,13 @@ export class RelationalSplitProvider implements IWindowSplitProvider {
         return this._getFurthestSplitInDirection(direction, currentRelationship.to)
     }
 
-    private _getContainingSplit(split: Oni.IWindowSplit): IWindowSplitProvider {
+    private _getContainingSplit(split: Oni.IWindowSplit): IWindowSplitNavigator {
         const providers = this._providers.filter((s) => s.contains(split))
         return providers.length === 0 ? null : providers[0]
     }
 
 
-    private _addToProvidersIfNeeded(provider: IWindowSplitProvider): void {
+    private _addToProvidersIfNeeded(provider: IWindowSplitNavigator): void {
         if (this._providers.indexOf(provider) === -1) {
             this._providers.push(provider)
         }

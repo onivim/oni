@@ -14,7 +14,6 @@ export interface ISplitInfo<T> {
     type: "Split"
     splits: Array<SplitOrLeaf<T>>
     direction: SplitDirection
-    parent: ISplitInfo<T>
 }
 
 export interface ISplitLeaf<T> {
@@ -32,47 +31,5 @@ export const getFurthestSplitInDirection = <T>(root: SplitOrLeaf<T>, direction: 
             return root
         case "Split":
             return getFurthestSplitInDirection(root.splits[0], direction)
-    }
-}
-
-export function createSplitRoot<T>(direction: SplitDirection, parent?: ISplitInfo<T>): ISplitInfo<T> {
-    return {
-        type: "Split",
-        splits: [],
-        direction: "horizontal",
-        parent: parent || null,
-    }
-}
-
-export function createSplitLeaf<T>(contents: T): ISplitLeaf<T> {
-    return {
-        type: "Leaf",
-        contents,
-    }
-}
-
-export function applySplit<T>(originalSplit: ISplitInfo<T>, direction: SplitDirection, leaf: ISplitLeaf<T>): ISplitInfo<T> {
-    // TODO: Implement split direction & nested splits
-    return {
-        ...originalSplit,
-        splits: [...originalSplit.splits, leaf],
-    }
-}
-
-export function closeSplit<T>(originalSplit: ISplitInfo<T>, contents: T): ISplitInfo<T> {
-    // TODO: Implement this in the recursive case, for nesetd splits
-
-    const filteredSplits = originalSplit.splits.filter((s) => {
-        switch (s.type) {
-            case "Split":
-                return true
-            case "Leaf":
-                return s.contents !== contents
-        }
-    })
-
-    return {
-        ...originalSplit,
-        splits: filteredSplits,
     }
 }

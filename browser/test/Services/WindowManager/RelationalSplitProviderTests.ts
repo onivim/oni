@@ -4,14 +4,14 @@
 
 import * as assert from "assert"
 
-import { RelationalSplitProvider, SingleSplitProvider } from "./../../../src/Services/WindowManager"
+import { RelationalSplitNavigator, SingleSplitProvider } from "./../../../src/Services/WindowManager"
 
 export class MockWindowSplit {
     public render(): JSX.Element { return null }
 }
 
 describe("RelationalSplitProvider", () => {
-    let splitProvider: RelationalSplitProvider
+    let splitProvider: RelationalSplitNavigator
     let split1: MockWindowSplit
     let split2: MockWindowSplit
     let split1Provider: SingleSplitProvider
@@ -19,7 +19,7 @@ describe("RelationalSplitProvider", () => {
 
 
     beforeEach(() => {
-        splitProvider = new RelationalSplitProvider()
+        splitProvider = new RelationalSplitNavigator()
         split1 = new MockWindowSplit()
         split2 = new MockWindowSplit()
         split1Provider = new SingleSplitProvider(split1)

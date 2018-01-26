@@ -34,7 +34,15 @@ export const getInverseDirection = (direction: Direction): Direction => {
     }
 }
 
-import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, getFurthestSplitInDirection, ISplitInfo } from "./WindowSplit"
+import { ISplitInfo, SplitOrLeaf } from "./WindowSplit"
+
+import { LinearSplitProvider } from "./LinearSplitProvider"
+import { RelationalSplitNavigator } from "./RelationalSplitProvider"
+
+export interface IWindowSplitNavigator {
+    contains(split: Oni.IWindowSplit): boolean
+    move(startSplit: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit
+}
 
 /**
  * Interface for something that can manage window splits:
@@ -43,14 +51,10 @@ import { applySplit, closeSplit, createSplitLeaf, createSplitRoot, getFurthestSp
  * - Removing a split
  * Later - resizing a split?
  */
-export interface IWindowSplitProvider {
-    contains(split: Oni.IWindowSplit): boolean
-
-    move(startSplit: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit
-
+export interface IWindowSplitProvider extends IWindowSplitNavigator {
     split(newSplit: Oni.IWindowSplit, direction: SplitDirection, referenceSplit?: Oni.IWindowSplit): boolean
-
     close(split: Oni.IWindowSplit): boolean
+    getState(): SplitOrLeaf<Oni.IWindowSplit>
 }
 
 export class SingleSplitProvider implements IWindowSplitProvider {
@@ -76,12 +80,18 @@ export class SingleSplitProvider implements IWindowSplitProvider {
     }
 
     public close(split: Oni.IWindowSplit): boolean {
-        this._split = null
-        return true
+        return false
+    }
+
+    public getState(): SplitOrLeaf<Oni.IWindowSplit> {
+        return {
+            type: "Leaf",
+            contents: this._split,
+        }
     }
 }
 
-export interface IWindowDock extends IWindowSplitProvider {
+export interface IWindowDock {
     splits: Oni.IWindowSplit[]
 
     onSplitsChanged: IEvent<void>
@@ -153,12 +163,13 @@ export class WindowDock implements IWindowDock {
 
 export class WindowManager {
     private _activeSplit: any
-    private _splitRoot: ISplitInfo<Oni.IWindowSplit>
 
     private _onActiveSplitChangedEvent = new Event<Oni.IWindowSplit>()
     private _onSplitChanged = new Event<ISplitInfo<Oni.IWindowSplit>>()
 
-    private _leftDock: IWindowDock = null
+    private _leftDock: WindowDock = null
+    private _primarySplit: LinearSplitProvider
+    private _rootNavigator: RelationalSplitNavigator
 
     public get onActiveSplitChanged(): IEvent<Oni.IWindowSplit> {
         return this._onActiveSplitChangedEvent
@@ -175,7 +186,7 @@ export class WindowManager {
     }
 
     public get splitRoot(): ISplitInfo<Oni.IWindowSplit> {
-        return this._splitRoot
+        return this._primarySplit.getState() as ISplitInfo<Oni.IWindowSplit>
     }
 
     public get activeSplit(): Oni.IWindowSplit {
@@ -187,57 +198,43 @@ export class WindowManager {
     }
 
     constructor() {
+        this._rootNavigator = new RelationalSplitNavigator()
+
         this._leftDock = new WindowDock()
-        this._splitRoot = createSplitRoot("horizontal")
-        // this._activeSplit = null
+        this._primarySplit = new LinearSplitProvider("horizontal")
+
+        this._rootNavigator.setRelationship(this._leftDock, this._primarySplit, "left")
     }
 
-    public split(direction: SplitDirection, newSplit: Oni.IWindowSplit) {
-        const newLeaf = createSplitLeaf(newSplit)
-        this._splitRoot = applySplit(this._splitRoot, direction, newLeaf)
+    public split(direction: SplitDirection, newSplit: Oni.IWindowSplit, referenceSplit?: Oni.IWindowSplit) {
+        this._primarySplit.split(newSplit, direction, referenceSplit)
+        const newState = this._primarySplit.getState() as ISplitInfo<Oni.IWindowSplit>
 
-        this._onSplitChanged.dispatch(this._splitRoot)
-
+        this._onSplitChanged.dispatch(newState)
         this._focusNewSplit(newSplit)
     }
 
-    public moveLeft(): void {
-        const leftDock = this.getDock("left")
+    public move(direction: Direction): void {
+        this._rootNavigator.move(this._activeSplit, direction)
+    }
 
-        if (leftDock && leftDock.splits) {
-            const newSplit = leftDock.move(this._activeSplit,"left")
-            this._focusNewSplit(newSplit)
-        }
+    public moveLeft(): void {
+        this.move("left")
     }
 
     public moveRight(): void {
-        const leftDock = this.getDock("left")
-
-        if (leftDock.contains(this._activeSplit)) {
-            const newSplit = leftDock.move(this._activeSplit,"right")
-
-            // Navigation occurred within left dock
-            if (newSplit) {
-                this._focusNewSplit(newSplit)
-            } else {
-                const innerSplit = getFurthestSplitInDirection(this._splitRoot, "right" /* TODO - Reuse direction? */)
-
-                if (innerSplit) {
-                    this._focusNewSplit(innerSplit.contents)
-                }
-            }
-        }
+        this.move("right")
     }
 
     public moveUp(): void {
-        // TODO
+        this.move("up")
     }
 
     public moveDown(): void {
-        // TODO
+        this.move("down")
     }
 
-    public getDock(direction: Direction): IWindowDock {
+    public getDock(direction: Direction): WindowDock {
         if (direction === "left") {
             return this._leftDock
         } else {
@@ -252,8 +249,8 @@ export class WindowManager {
     }
 
     public close(split: Oni.IWindowSplit) {
-        this._splitRoot = closeSplit(this._splitRoot, split)
-        this._onSplitChanged.dispatch(this._splitRoot)
+        this._primarySplit.close(split)
+        this._onSplitChanged.dispatch(this.splitRoot)
     }
 
     private _focusNewSplit(newSplit: any): void {
