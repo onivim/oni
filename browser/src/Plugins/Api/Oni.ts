@@ -159,6 +159,15 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return helpers
     }
 
+    constructor() {
+        super()
+        this._colors = getColors()
+
+        this._dependencies = new Dependencies()
+        this._ui = new Ui(react)
+        this._services = new Services()
+    }
+
     public createNeovimEditor(): OniEditor {
         const editor = new OniEditor(
             getColors(),
@@ -174,15 +183,6 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
             getWorkspaceInstance(),
         )
         return editor
-    }
-
-    constructor() {
-        super()
-        this._colors = getColors()
-
-        this._dependencies = new Dependencies()
-        this._ui = new Ui(react)
-        this._services = new Services()
     }
 
     public async execNodeScript(
