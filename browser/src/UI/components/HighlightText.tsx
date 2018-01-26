@@ -8,24 +8,21 @@ export interface IHighlightTextProps {
 }
 
 export class HighlightText extends React.PureComponent<IHighlightTextProps, {}> {
-
     public render(): JSX.Element {
-
         const childNodes: JSX.Element[] = []
 
         const letterCountDictionary = createLetterCountDictionary(this.props.highlightText)
 
         this.props.text.split("").forEach((c: string, idx: number) => {
-
             const currentVal = letterCountDictionary[c]
             letterCountDictionary[c] = currentVal - 1
 
             if (currentVal > 0) {
                 childNodes.push(
-                    <span
-                        key={`${idx}-${c}`}
-                        className={this.props.highlightClassName}>
-                    {c}</span>)
+                    <span key={`${idx}-${c}`} className={this.props.highlightClassName}>
+                        {c}
+                    </span>,
+                )
             } else {
                 childNodes.push(<span key={`${idx}-${c}`}>{c}</span>)
             }
@@ -44,20 +41,20 @@ export interface IHighlightTextByIndexProps {
 
 export class HighlightTextByIndex extends React.PureComponent<IHighlightTextByIndexProps, {}> {
     public render(): JSX.Element {
-
         const childNodes: JSX.Element[] = []
         const highlightIndices = this.props.highlightIndices || []
         const text = this.props.text || ""
 
         text.split("").forEach((c: string, idx: number) => {
-
             if (shouldHighlightIndex(idx, highlightIndices)) {
                 childNodes.push(
                     <span
                         key={`${idx}-${highlightIndices}-${c}`}
-                        className={this.props.highlightClassName}>
+                        className={this.props.highlightClassName}
+                    >
                         {c}
-                    </span>)
+                    </span>,
+                )
             } else {
                 childNodes.push(<span key={`${idx}-${highlightIndices}-${c}`}>{c}</span>)
             }
@@ -65,14 +62,15 @@ export class HighlightTextByIndex extends React.PureComponent<IHighlightTextByIn
 
         return <span className={this.props.className}>{childNodes}</span>
     }
-
 }
 
 function shouldHighlightIndex(index: number, highlights: number[]): boolean {
     return highlights.indexOf(index) >= 0
 }
 
-export interface LetterCountDictionary { [letter: string]: number }
+export interface LetterCountDictionary {
+    [letter: string]: number
+}
 
 export function createLetterCountDictionary(text: string): LetterCountDictionary {
     const array: string[] = text.split("")

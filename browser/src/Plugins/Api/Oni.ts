@@ -83,7 +83,6 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     public get completions(): any {
         return getCompletionProvidersInstance()
-
     }
 
     public get configuration(): OniApi.Configuration {
@@ -163,8 +162,15 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         this._services = new Services()
     }
 
-    public async execNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.ExecOptions = {}, callback: (err: any, stdout: string, stderr: string) => void): Promise<ChildProcess.ChildProcess> {
-        Log.warn("WARNING: `OniApi.execNodeScript` is deprecated. Please use `OniApi.process.execNodeScript` instead")
+    public async execNodeScript(
+        scriptPath: string,
+        args: string[] = [],
+        options: ChildProcess.ExecOptions = {},
+        callback: (err: any, stdout: string, stderr: string) => void,
+    ): Promise<ChildProcess.ChildProcess> {
+        Log.warn(
+            "WARNING: `OniApi.execNodeScript` is deprecated. Please use `OniApi.process.execNodeScript` instead",
+        )
 
         return await Process.execNodeScript(scriptPath, args, options, callback)
     }
@@ -172,9 +178,14 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     /**
      * Wrapper around `child_process.exec` to run using electron as opposed to node
      */
-    public async spawnNodeScript(scriptPath: string, args: string[] = [], options: ChildProcess.SpawnOptions = {}): Promise<ChildProcess.ChildProcess> {
-
-        Log.warn("WARNING: `OniApi.spawnNodeScript` is deprecated. Please use `OniApi.process.spawnNodeScript` instead")
+    public async spawnNodeScript(
+        scriptPath: string,
+        args: string[] = [],
+        options: ChildProcess.SpawnOptions = {},
+    ): Promise<ChildProcess.ChildProcess> {
+        Log.warn(
+            "WARNING: `OniApi.spawnNodeScript` is deprecated. Please use `OniApi.process.spawnNodeScript` instead",
+        )
 
         return await Process.spawnNodeScript(scriptPath, args, options)
     }

@@ -20,7 +20,7 @@ export type Direction = "up" | "down" | "left" | "right"
 export type SplitDirection = "horizontal" | "vertical"
 
 export const getInverseDirection = (direction: Direction): Direction => {
-    switch(direction) {
+    switch (direction) {
         case "up":
             return "down"
         case "down":
@@ -52,22 +52,23 @@ export interface IWindowSplitNavigator {
  * Later - resizing a split?
  */
 export interface IWindowSplitProvider extends IWindowSplitNavigator {
-    split(newSplit: Oni.IWindowSplit, direction: SplitDirection, referenceSplit?: Oni.IWindowSplit): boolean
+    split(
+        newSplit: Oni.IWindowSplit,
+        direction: SplitDirection,
+        referenceSplit?: Oni.IWindowSplit,
+    ): boolean
     close(split: Oni.IWindowSplit): boolean
     getState(): SplitOrLeaf<Oni.IWindowSplit>
 }
 
 export class SingleSplitProvider implements IWindowSplitProvider {
-    constructor(
-        private _split: Oni.IWindowSplit
-    ) { }
+    constructor(private _split: Oni.IWindowSplit) {}
 
     public contains(split: Oni.IWindowSplit): boolean {
         return this._split === split
     }
 
     public move(split: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit {
-    
         if (split === null) {
             return this._split
         } else {
@@ -101,7 +102,6 @@ export interface IWindowDock {
 }
 
 export class WindowDock implements IWindowDock {
-
     private _splits: Oni.IWindowSplit[] = []
     private _onSplitsChangedEvent: Event<void> = new Event<void>()
 
@@ -150,13 +150,13 @@ export class WindowDock implements IWindowDock {
         this._onSplitsChangedEvent.dispatch()
     }
 
-    public close (split: Oni.IWindowSplit): boolean {
+    public close(split: Oni.IWindowSplit): boolean {
         this.removeSplit(split)
         return true
     }
 
     public removeSplit(split: Oni.IWindowSplit): void {
-        this._splits = this._splits.filter((s) => s !== split)
+        this._splits = this._splits.filter(s => s !== split)
         this._onSplitsChangedEvent.dispatch()
     }
 }
@@ -211,7 +211,11 @@ export class WindowManager {
         this._rootNavigator.setRelationship(this._leftDock, this._primarySplit, "right")
     }
 
-    public split(direction: SplitDirection, newSplit: Oni.IWindowSplit, referenceSplit?: Oni.IWindowSplit) {
+    public split(
+        direction: SplitDirection,
+        newSplit: Oni.IWindowSplit,
+        referenceSplit?: Oni.IWindowSplit,
+    ) {
         this._primarySplit.split(newSplit, direction, referenceSplit)
         const newState = this._primarySplit.getState() as ISplitInfo<Oni.IWindowSplit>
 

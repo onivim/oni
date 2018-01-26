@@ -45,9 +45,7 @@ export class Workspace implements IWorkspace {
         return this._activeWorkspace
     }
 
-    constructor(
-        private _editorManager: EditorManager,
-    ) {
+    constructor(private _editorManager: EditorManager) {
         this._mainWindow.on("focus", () => {
             this._onFocusGainedEvent.dispatch(this._lastActiveBuffer)
         })
@@ -72,7 +70,6 @@ export class Workspace implements IWorkspace {
     }
 
     public async applyEdits(edits: types.WorkspaceEdit): Promise<void> {
-
         let editsToUse = edits
         if (edits.documentChanges) {
             editsToUse = convertTextDocumentEditsToFileMap(edits.documentChanges)
@@ -90,15 +87,17 @@ export class Workspace implements IWorkspace {
                 // TODO: Sort changes?
                 Log.verbose("[Workspace] Opening file: " + fileName)
                 const buf = await this._editorManager.activeEditor.openFile(fileName)
-                Log.verbose("[Workspace] Got buffer for file: " + buf.filePath + " and id: " + buf.id)
+                Log.verbose(
+                    "[Workspace] Got buffer for file: " + buf.filePath + " and id: " + buf.id,
+                )
                 await buf.applyTextEdits(changes)
                 Log.verbose("[Workspace] Applied " + changes.length + " edits to buffer")
             })
         })
 
         await Observable.from(deferredEdits)
-                .concatMap(de => de)
-                .toPromise()
+            .concatMap(de => de)
+            .toPromise()
 
         Log.verbose("[Workspace] Completed applying edits")
 
@@ -128,8 +127,8 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         _workspace.changeDirectory(defaultWorkspace)
     }
 
-    _workspace.onDirectoryChanged.subscribe((newDirectory) => {
-        configuration.setValues({ "workspace.defaultWorkspace": newDirectory}, true)
+    _workspace.onDirectoryChanged.subscribe(newDirectory => {
+        configuration.setValues({ "workspace.defaultWorkspace": newDirectory }, true)
     })
 
     WorkspaceCommands.activateCommands(configuration, editorManager, _workspace)

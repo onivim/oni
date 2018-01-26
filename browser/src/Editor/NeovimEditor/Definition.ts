@@ -17,11 +17,7 @@ export enum OpenType {
 }
 
 export class Definition {
-
-    constructor(
-        private _editor: Oni.Editor,
-        private _store: Store<State.IState>,
-    ) { }
+    constructor(private _editor: Oni.Editor, private _store: Store<State.IState>) {}
 
     public async gotoDefinitionUnderCursor(openType: OpenType = OpenType.NewTab): Promise<void> {
         const activeDefinition = this._store.getState().definition
@@ -38,7 +34,12 @@ export class Definition {
         await this.gotoPositionInUri(uri, line, column, openType)
     }
 
-    public async gotoPositionInUri(uri: string, line: number, column: number, openType: OpenType = OpenType.NewTab): Promise<void> {
+    public async gotoPositionInUri(
+        uri: string,
+        line: number,
+        column: number,
+        openType: OpenType = OpenType.NewTab,
+    ): Promise<void> {
         const filePath = Helpers.unwrapFileUriPath(uri)
 
         const activeEditor = this._editor

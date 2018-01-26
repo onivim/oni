@@ -15,7 +15,6 @@ export const createBufferFilterFromLanguage = (language: string) => (buf: Oni.Bu
     } else {
         return buf.language === language
     }
-
 }
 
 export interface BufferLayerInfo {
@@ -27,16 +26,21 @@ export class BufferLayerManager {
     private _layers: BufferLayerInfo[] = []
 
     private _buffers: Oni.Buffer[] = []
-    public addBufferLayer(filterOrLanguage: BufferFilter | string, layerFactory: BufferLayerFactory) {
-
-        const filter: BufferFilter = typeof filterOrLanguage === "string" ? createBufferFilterFromLanguage(filterOrLanguage) : filterOrLanguage
+    public addBufferLayer(
+        filterOrLanguage: BufferFilter | string,
+        layerFactory: BufferLayerFactory,
+    ) {
+        const filter: BufferFilter =
+            typeof filterOrLanguage === "string"
+                ? createBufferFilterFromLanguage(filterOrLanguage)
+                : filterOrLanguage
 
         this._layers.push({
             filter,
             layerFactory,
         })
 
-        this._buffers.forEach((buf) => {
+        this._buffers.forEach(buf => {
             if (filter(buf)) {
                 buf.addLayer(layerFactory(buf))
             }
@@ -47,7 +51,7 @@ export class BufferLayerManager {
         if (this._buffers.indexOf(buf) === -1) {
             this._buffers.push(buf)
 
-            this._layers.forEach((layerInfo) => {
+            this._layers.forEach(layerInfo => {
                 if (layerInfo.filter(buf)) {
                     buf.addLayer(layerInfo.layerFactory(buf))
                 }
@@ -56,9 +60,12 @@ export class BufferLayerManager {
     }
 }
 
-export const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.EditorLayer => {
+export const wrapReactComponentWithLayer = (
+    id: string,
+    component: JSX.Element,
+): Oni.EditorLayer => {
     return {
         id,
-        render: (context: Oni.EditorLayerRenderContext) => context.isActive ? component : null,
+        render: (context: Oni.EditorLayerRenderContext) => (context.isActive ? component : null),
     }
 }

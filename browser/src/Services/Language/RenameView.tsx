@@ -14,11 +14,11 @@ export interface IRenameViewProps {
 }
 
 export class RenameView extends React.PureComponent<IRenameViewProps, {}> {
-
     public render(): JSX.Element {
-
-        return <div className="rename">
-                    <TextInput {...this.props} defaultValue={this.props.tokenName} />
-                </div>
+        return (
+            <div className="rename">
+                <TextInput {...this.props} defaultValue={this.props.tokenName} />
+            </div>
+        )
     }
 }

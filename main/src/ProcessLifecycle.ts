@@ -14,7 +14,7 @@ const pendingAppReadyCallbacks = []
 app.on("ready", () => {
     isAppReady = true
 
-    pendingAppReadyCallbacks.forEach((callback) => callback())
+    pendingAppReadyCallbacks.forEach(callback => callback())
 })
 
 app.on("will-quit", () => {
@@ -28,7 +28,7 @@ app.on("will-quit", () => {
     }
 })
 
-const waitForAppReady = (callback) => {
+const waitForAppReady = callback => {
     if (isAppReady) {
         callback()
     } else {
@@ -38,7 +38,6 @@ const waitForAppReady = (callback) => {
 
 // Inspired by atom's workaround in `atom-application.coffee`
 export const makeSingleInstance = (options, callbackFunction) => {
-
     const socketPath = getSocketPath()
 
     const initializePrimaryInstance = () => {
@@ -49,10 +48,10 @@ export const makeSingleInstance = (options, callbackFunction) => {
 
         deleteSocketFile(socketPath)
 
-        const server = net.createServer((connection) => {
+        const server = net.createServer(connection => {
             let data = ""
 
-            connection.on("data", (chunk) => {
+            connection.on("data", chunk => {
                 data = data + chunk
             })
 
@@ -93,7 +92,7 @@ export const makeSingleInstance = (options, callbackFunction) => {
     })
 }
 
-const deleteSocketFile = (socketPath) => {
+const deleteSocketFile = socketPath => {
     if (process.platform === "win32") {
         return
     }
@@ -110,7 +109,6 @@ const deleteSocketFile = (socketPath) => {
                 throw error
             }
         }
-
     }
 }
 
@@ -121,7 +119,6 @@ const getSocketFileName = () => {
 }
 
 const getSocketPath = () => {
-
     const socketFile = getSocketFileName()
 
     if (process.platform === "win32") {
@@ -129,7 +126,6 @@ const getSocketPath = () => {
     } else {
         return path.join(os.tmpdir(), socketFile + ".sock")
     }
-
 }
 
 const getUserName = () => {

@@ -14,7 +14,6 @@ import { configuration } from "./../../Services/Configuration"
 import { IMenuOptionWithHighlights } from "./Menu"
 
 export const shouldFilterbeCaseSensitive = (searchString: string): boolean => {
-
     // TODO: Technically, this makes the reducer 'impure',
     // which is not ideal - need to refactor eventually.
     //
@@ -32,17 +31,19 @@ export const shouldFilterbeCaseSensitive = (searchString: string): boolean => {
         // If the string is all lower-case, not case sensitive..
         if (searchString === searchString.toLowerCase()) {
             return false
-        // Otherwise, it is case sensitive..
+            // Otherwise, it is case sensitive..
         } else {
             return true
         }
     }
 }
 
-export const fuseFilter = (options: Oni.Menu.MenuOption[], searchString: string): IMenuOptionWithHighlights[] => {
-
+export const fuseFilter = (
+    options: Oni.Menu.MenuOption[],
+    searchString: string,
+): IMenuOptionWithHighlights[] => {
     if (!searchString) {
-        const opt = options.map((o) => {
+        const opt = options.map(o => {
             return {
                 ...o,
                 label: o.label,
@@ -54,17 +55,20 @@ export const fuseFilter = (options: Oni.Menu.MenuOption[], searchString: string)
             }
         })
 
-        return sortBy(opt, (o) => o.pinned ? 0 : 1)
+        return sortBy(opt, o => (o.pinned ? 0 : 1))
     }
 
     const fuseOptions = {
-        keys: [{
-            name: "label",
-            weight: 0.6,
-        }, {
-            name: "detail",
-            weight: 0.4,
-        }],
+        keys: [
+            {
+                name: "label",
+                weight: 0.6,
+            },
+            {
+                name: "detail",
+                weight: 0.4,
+            },
+        ],
         caseSensitive: shouldFilterbeCaseSensitive(searchString),
         include: ["matches"],
     }
@@ -74,8 +78,7 @@ export const fuseFilter = (options: Oni.Menu.MenuOption[], searchString: string)
 
     // remove any items that don't have all the characters from searchString
     // For this first pass, ignore case
-    const filteredOptions = options.filter((o) => {
-
+    const filteredOptions = options.filter(o => {
         if (!o.label && !o.detail) {
             return false
         }
@@ -127,7 +130,7 @@ export const fuseFilter = (options: Oni.Menu.MenuOption[], searchString: string)
 const convertArrayOfPairsToIndices = (pairs: number[][]): number[] => {
     const ret: number[] = []
 
-    pairs.forEach((p) => {
+    pairs.forEach(p => {
         const [startIndex, endIndex] = p
 
         for (let i = startIndex; i <= endIndex; i++) {
