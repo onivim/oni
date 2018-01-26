@@ -116,8 +116,8 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
 
         let isBlock: boolean = false
         const originalLinesCount: number = markdownLines.length - 1
-        for (let i = originalLinesCount; i > 0; i--) {
-            // tslint:disable-line
+        // tslint:disable-next-line
+        for (var i = originalLinesCount; i > 0; i--) {
             if (markdownLines[i].includes("```")) {
                 isBlock = !isBlock
             } else if (isBlock) {
