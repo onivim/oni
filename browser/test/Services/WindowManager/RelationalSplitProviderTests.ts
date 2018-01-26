@@ -4,10 +4,15 @@
 
 import * as assert from "assert"
 
-import { RelationalSplitNavigator, SingleSplitProvider } from "./../../../src/Services/WindowManager"
+import {
+    RelationalSplitNavigator,
+    SingleSplitProvider,
+} from "./../../../src/Services/WindowManager"
 
 export class MockWindowSplit {
-    public render(): JSX.Element { return null }
+    public render(): JSX.Element {
+        return null
+    }
 }
 
 describe("RelationalSplitProvider", () => {
@@ -16,7 +21,6 @@ describe("RelationalSplitProvider", () => {
     let split2: MockWindowSplit
     let split1Provider: SingleSplitProvider
     let split2Provider: SingleSplitProvider
-
 
     beforeEach(() => {
         splitProvider = new RelationalSplitNavigator()
@@ -47,5 +51,4 @@ describe("RelationalSplitProvider", () => {
             assert.strictEqual(inverseResult, split1, "Move in the inverse direction works")
         })
     })
-
 })

@@ -7,14 +7,18 @@
 
 import * as Oni from "oni-api"
 
-import { IWindowSplitProvider, Direction, SingleSplitProvider, SplitDirection, SplitOrLeaf } from "./index"
+import {
+    Direction,
+    IWindowSplitProvider,
+    SingleSplitProvider,
+    SplitDirection,
+    SplitOrLeaf,
+} from "./index"
 
 export class LinearSplitProvider implements IWindowSplitProvider {
     private _splitProviders: IWindowSplitProvider[] = []
 
-    constructor(
-        private _direction: SplitDirection
-    ) { }
+    constructor(private _direction: SplitDirection) {}
 
     public contains(split: Oni.IWindowSplit): boolean {
         return this._getProviderForSplit(split) != null
@@ -34,11 +38,15 @@ export class LinearSplitProvider implements IWindowSplitProvider {
         }
 
         // If it was unhandled by the split provider, but the provider contains it, then we'll remove the provider
-        this._splitProviders = this._splitProviders.filter((prov) => prov !== containingSplit)
+        this._splitProviders = this._splitProviders.filter(prov => prov !== containingSplit)
         return true
     }
 
-    public split(split: Oni.IWindowSplit, direction: SplitDirection, referenceSplit?: Oni.IWindowSplit): boolean {
+    public split(
+        split: Oni.IWindowSplit,
+        direction: SplitDirection,
+        referenceSplit?: Oni.IWindowSplit,
+    ): boolean {
         // If there is no reference split, we can just tack this split on
         if (!referenceSplit) {
             this._splitProviders.push(new SingleSplitProvider(split))
@@ -71,7 +79,6 @@ export class LinearSplitProvider implements IWindowSplitProvider {
     }
 
     public move(split: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit {
-
         if (!split) {
             if (this._direction === "horizontal") {
                 const index = direction === "left" ? this._splitProviders.length - 1 : 0
@@ -99,16 +106,18 @@ export class LinearSplitProvider implements IWindowSplitProvider {
         }
 
         // Since this wasn't handled by the containing split, let's try and handle it
-        const index = this._splitProviders.indexOf(containingSplit)
+        const originalIndex = this._splitProviders.indexOf(containingSplit)
 
         let increment = -1
 
-        if ((this._direction === "horizontal" && direction === "right" )
-            || (this._direction === "vertical" && direction === "down") ) {
-                increment = 1
-            }
+        if (
+            (this._direction === "horizontal" && direction === "right") ||
+            (this._direction === "vertical" && direction === "down")
+        ) {
+            increment = 1
+        }
 
-        const newIndex = index +  increment
+        const newIndex = originalIndex + increment
 
         if (newIndex < 0 || newIndex >= this._splitProviders.length) {
             return null
@@ -119,10 +128,10 @@ export class LinearSplitProvider implements IWindowSplitProvider {
     }
 
     public getState(): SplitOrLeaf<Oni.IWindowSplit> {
-        return { 
+        return {
             type: "Split",
             direction: this._direction,
-            splits: this._splitProviders.map((sp) => sp.getState())
+            splits: this._splitProviders.map(sp => sp.getState()),
         }
     }
 
@@ -142,7 +151,7 @@ export class LinearSplitProvider implements IWindowSplitProvider {
     }
 
     private _getProviderForSplit(split: Oni.IWindowSplit): IWindowSplitProvider {
-        const providers = this._splitProviders.filter((prov) => prov.contains(split))
+        const providers = this._splitProviders.filter(prov => prov.contains(split))
 
         return providers.length > 0 ? providers[0] : null
     }

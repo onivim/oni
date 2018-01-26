@@ -39,6 +39,9 @@ import { ISplitInfo, SplitOrLeaf } from "./WindowSplit"
 import { LinearSplitProvider } from "./LinearSplitProvider"
 import { RelationalSplitNavigator } from "./RelationalSplitProvider"
 
+/**
+ * Interface for something that can navigate between window splits
+ */
 export interface IWindowSplitNavigator {
     contains(split: Oni.IWindowSplit): boolean
     move(startSplit: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit
