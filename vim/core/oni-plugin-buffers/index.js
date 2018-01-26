@@ -60,25 +60,25 @@ const activate = Oni => {
     Oni.commands.registerCommand({
         command: "bufferlist.delete",
         name: "Delete Selected Buffer",
-        execute: () => menu.isMenuOpen() && deleteBuffer(menu),
+        execute: () => menu.isOpen() && deleteBuffer(menu),
     })
 
     Oni.commands.registerCommand({
         command: "bufferlist.split",
         name: "Split Selected Buffer",
-        execute: () => menu.isMenuOpen() && openBuffer(menu, "horizontal"),
+        execute: () => menu.isOpen() && openBuffer(menu, "horizontal"),
     })
 
     Oni.commands.registerCommand({
         command: "bufferlist.vsplit",
         name: "Vertical Split Selected Buffer",
-        execute: () => menu.isMenuOpen() && openBuffer(menu, "vertical"),
+        execute: () => menu.isOpen() && openBuffer(menu, "vertical"),
     })
 
     Oni.commands.registerCommand({
         command: "bufferlist.tabedit",
         name: "Open Selected Buffer in a Tab",
-        execute: () => menu.isMenuOpen() && openBuffer(menu, "tab"),
+        execute: () => menu.isOpen() && openBuffer(menu, "tab"),
     })
 
     Oni.commands.registerCommand({

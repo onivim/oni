@@ -152,8 +152,8 @@ export class OniEditor implements IEditor {
         this._neovimEditor.leave()
     }
 
-    public async openFile(file: string): Promise<Oni.Buffer> {
-        return this._neovimEditor.openFile(file)
+    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
+        return this._neovimEditor.openFile(file, method)
     }
 
     public async newFile(filePath: string): Promise<Oni.Buffer> {
