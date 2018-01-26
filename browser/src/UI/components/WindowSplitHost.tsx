@@ -23,8 +23,11 @@ export class WindowSplitHost extends React.PureComponent<IWindowSplitHostProps, 
             this.props.containerClassName + (this.props.isFocused ? " focus" : " not-focused")
 
         return (
-            <div className="container vertical full">
-                <div className={className}>{this.props.split.render()}</div>
+            <div className="container horizontal full">
+                <div className="container vertical full">
+                    <div className={className}>{this.props.split.render()}</div>
+                </div>
+                <div className="split-spacer vertical" />
             </div>
         )
     }

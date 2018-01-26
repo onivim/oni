@@ -38,7 +38,6 @@ export class Dock extends React.PureComponent<IDockProps, {}> {
                         split={s}
                         isFocused={this.props.activeSplit === s}
                     />
-                    <div className="split-spacer vertical" />
                 </div>
             )
         })
