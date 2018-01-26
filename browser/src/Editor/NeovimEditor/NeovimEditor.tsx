@@ -674,10 +674,6 @@ export class NeovimEditor extends Editor implements IEditor {
         commandManager.executeCommand(command, null)
     }
 
-    public async bufferDelete(bufferId: string = this.activeBuffer.id): Promise<void> {
-        this._neovimInstance.command(`:bd! ${bufferId}`)
-    }
-
     public async init(filesToOpen: string[]): Promise<void> {
         Log.info("[NeovimEditor::init] Called with filesToOpen: " + filesToOpen)
         const startOptions: INeovimStartOptions = {
@@ -728,6 +724,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
     public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
         return this._bufferManager.getBuffers()
+    }
+
+    public async bufferDelete(bufferId: string = this.activeBuffer.id): Promise<void> {
+        this._neovimInstance.command(`:bd! ${bufferId}`)
     }
 
     public render(): JSX.Element {
@@ -881,6 +881,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private async _onBufWipeout(evt: BufferEventContext): Promise<void> {
+        this._bufferManager.populateBufferList(evt)
         this._neovimInstance.getBufferIds().then(ids => this._actions.setCurrentBuffers(ids))
     }
 

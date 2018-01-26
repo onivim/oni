@@ -58,11 +58,11 @@ const activate = Oni => {
         return
     }
 
-    Oni.commands.registerCommand({
-        command: "bufferlist.delete",
-        name: "Delete Selected Buffer",
-        execute: () => menu.isOpen() && deleteBuffer(menu),
-    })
+    // Oni.commands.registerCommand({
+    //     command: "bufferlist.delete",
+    //     name: "Delete Selected Buffer",
+    //     execute: () => menu.isOpen() && deleteBuffer(menu),
+    // })
 
     Oni.commands.registerCommand({
         command: "bufferlist.split",
