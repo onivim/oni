@@ -231,6 +231,7 @@ export const buffersReducer = (
         listed: false,
         totalLines: 0,
         title: null,
+        icon: null,
     })
 
     switch (a.type) {
@@ -261,6 +262,20 @@ export const buffersReducer = (
                     id: a.payload.id,
                     modified: a.payload.modified,
                     lastSaveVersion: a.payload.version,
+                },
+            }
+
+            return {
+                ...s,
+                byId,
+            }
+        case "SET_BUFFER_ICON":
+            const currentItem5 = s.byId[a.payload.id] || emptyBuffer(a.payload.id)
+            byId = {
+                ...s.byId,
+                [a.payload.id]: {
+                    ...currentItem5,
+                    icon: a.payload.icon,
                 },
             }
 

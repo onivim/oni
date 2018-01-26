@@ -120,6 +120,10 @@ export class Buffer implements Oni.Buffer {
         this._actions.setBufferTitle(parseInt(this._id, 10), title)
     }
 
+    public setIcon(icon: JSX.Element): void {
+        this._actions.setBufferIcon(parseInt(this._id, 10), icon)
+    }
+
     public async setLanguage(language: string): Promise<void> {
         await this._neovimInstance.request<any>("nvim_buf_set_option", [
             parseInt(this._id, 10),

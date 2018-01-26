@@ -176,6 +176,14 @@ export interface ISetBufferTitleAction {
     }
 }
 
+export interface ISetBufferIconAction {
+    type: "SET_BUFFER_ICON"
+    payload: {
+        id: number
+        icon: JSX.Element
+    }
+}
+
 export interface IBufferSaveAction {
     type: "BUFFER_SAVE"
     payload: {
@@ -299,6 +307,7 @@ export type SimpleAction =
     | IHideDefinitionAction
     | IShowDefinitionAction
     | ISetBufferTitleAction
+    | ISetBufferIconAction
     | ISetModeAction
     | ISetCursorScaleAction
     | ISetErrorsAction
@@ -468,6 +477,14 @@ export const setBufferTitle = (id: number, title: string) => ({
     payload: {
         id,
         title,
+    },
+})
+
+export const setBufferIcon = (id: number, icon: JSX.Element) => ({
+    type: "SET_BUFFER_ICON",
+    payload: {
+        id,
+        icon,
     },
 })
 

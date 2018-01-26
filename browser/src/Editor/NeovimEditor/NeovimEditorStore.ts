@@ -126,6 +126,7 @@ export interface IBuffer {
     hidden: boolean
     listed: boolean
     title: string
+    icon: JSX.Element
 }
 
 export interface ITab {
