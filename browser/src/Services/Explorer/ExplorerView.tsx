@@ -6,6 +6,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
+import styled from "styled-components"
 // import { IEvent } from "oni-types"
 
 // import { KeyboardInputView } from "./../../Input/KeyboardInput"
@@ -53,12 +54,28 @@ export interface INodeViewProps {
     onClick: () => void
 }
 
+const NodeWrapper = styled.div`
+    &:hover {
+        text-decoration: underline;
+    }
+`
+
+const noop = (elem: HTMLElement) => {}
+const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
+    // tslint:disable-next-line
+    elem && elem["scrollIntoViewIfNeeded"] && elem["scrollIntoViewIfNeeded"]()
+}
+
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     public render(): JSX.Element {
         return (
-            <div style={{ cursor: "pointer" }} onClick={() => this.props.onClick()}>
+            <NodeWrapper
+                style={{ cursor: "pointer" }}
+                onClick={() => this.props.onClick()}
+                innerRef={this.props.isSelected ? scrollIntoViewIfNeeded : noop}
+            >
                 {this.getElement()}
-            </div>
+            </NodeWrapper>
         )
     }
 
