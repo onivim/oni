@@ -21,7 +21,10 @@ export interface ISplitLeaf<T> {
     contents: T
 }
 
-export const getFurthestSplitInDirection = <T>(root: SplitOrLeaf<T>, direction: Direction): ISplitLeaf<T> => {
+export const getFurthestSplitInDirection = <T>(
+    root: SplitOrLeaf<T>,
+    direction: Direction,
+): ISplitLeaf<T> => {
     if (!root) {
         return null
     }
