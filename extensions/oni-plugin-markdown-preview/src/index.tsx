@@ -50,9 +50,9 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
 
     public componentDidMount() {
         const activeEditor: Oni.Editor = this.props.oni.editors.activeEditor
-        this.subscribe(activeEditor.onBufferChanged, (args) => this.onBufferChanged(args))
+        this.subscribe(activeEditor.onBufferChanged, args => this.onBufferChanged(args))
         // TODO: Subscribe "onFocusChanged"
-        this.subscribe(activeEditor.onBufferScrolled, (args) => this.onBufferScrolled(args))
+        this.subscribe(activeEditor.onBufferScrolled, args => this.onBufferScrolled(args))
 
         this.previewBuffer(activeEditor.activeBuffer)
     }
@@ -67,7 +67,7 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     public render(): JSX.Element {
         const html = this.generateMarkdown() + this.generateContainerStyle()
         const classes = "stack enable-mouse oniPluginMarkdownPreviewContainerStyle"
-        return <div className={classes} dangerouslySetInnerHTML={{__html: html}}></div>
+        return <div className={classes} dangerouslySetInnerHTML={{ __html: html }} />
     }
 
     private generateContainerStyle(): string {
@@ -116,7 +116,8 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
 
         let isBlock: boolean = false
         const originalLinesCount: number = markdownLines.length - 1
-        for (var i = originalLinesCount; i > 0; i--) { // tslint:disable-line
+        // tslint:disable-next-line
+        for (var i = originalLinesCount; i > 0; i--) {
             if (markdownLines[i].includes("```")) {
                 isBlock = !isBlock
             } else if (isBlock) {
@@ -155,22 +156,21 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 
     private previewBuffer(buffer: Oni.Buffer): void {
-        buffer.getLines().then((lines: string[]) => {this.previewString(lines.join("\n"))})
+        buffer.getLines().then((lines: string[]) => {
+            this.previewString(lines.join("\n"))
+        })
     }
 
     private previewString(str: string): void {
-        this.setState({source: str})
+        this.setState({ source: str })
     }
 }
 
 class MarkdownPreviewEditor implements Oni.IWindowSplit {
-
     private _open: boolean = false
 
-    constructor(
-        private _oni: Oni.Plugin.Api,
-    ) {
-        this._oni.editors.activeEditor.onBufferEnter.subscribe((args) => this.onBufferEnter(args))
+    constructor(private _oni: Oni.Plugin.Api) {
+        this._oni.editors.activeEditor.onBufferEnter.subscribe(args => this.onBufferEnter(args))
     }
 
     public toggle(): void {
@@ -217,26 +217,38 @@ export const activate = (oni: any) => {
         preview = new MarkdownPreviewEditor(oni)
     }
 
-    oni.commands.registerCommand(new Command(
-        "markdown.openPreview",
-        "Open Markdown Preview",
-        "Open the Markdown preview pane if it is not already opened",
-        () => { preview.open() },
-    ))
+    oni.commands.registerCommand(
+        new Command(
+            "markdown.openPreview",
+            "Open Markdown Preview",
+            "Open the Markdown preview pane if it is not already opened",
+            () => {
+                preview.open()
+            },
+        ),
+    )
 
-    oni.commands.registerCommand(new Command(
-        "markdown.closePreview",
-        "Close Markdown Preview",
-        "Close the Markdown preview pane if it is not already closed",
-        () => { preview.close() },
-    ))
+    oni.commands.registerCommand(
+        new Command(
+            "markdown.closePreview",
+            "Close Markdown Preview",
+            "Close the Markdown preview pane if it is not already closed",
+            () => {
+                preview.close()
+            },
+        ),
+    )
 
-    oni.commands.registerCommand(new Command(
-        "markdown.togglePreview",
-        "Toggle Markdown Preview",
-        "Open the Markdown preview pane if it is closed, otherwise open it",
-        () => { preview.toggle() },
-    ))
+    oni.commands.registerCommand(
+        new Command(
+            "markdown.togglePreview",
+            "Toggle Markdown Preview",
+            "Open the Markdown preview pane if it is closed, otherwise open it",
+            () => {
+                preview.toggle()
+            },
+        ),
+    )
 }
 
 class Command implements Oni.Commands.ICommand {

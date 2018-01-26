@@ -158,7 +158,7 @@
         "lint:plugin:oni-layer-browser":
             "tslint --project extensions/oni-layer-browser/tsconfig.json --config tslint.json",
         "lint:browser":
-            "tslint --project browser/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+            "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
         "lint:test":
             "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",

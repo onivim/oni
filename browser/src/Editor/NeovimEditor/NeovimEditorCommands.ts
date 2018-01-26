@@ -8,7 +8,7 @@ import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 
-import { clipboard, remote } from "electron"
+import { clipboard } from "electron"
 import * as Oni from "oni-api"
 
 import { NeovimInstance } from "./../../neovim"
@@ -126,26 +126,6 @@ export class NeovimEditorCommands {
             return !this._menuManager.isMenuOpen()
         }
 
-        const openFolder = (neovimInstance: NeovimInstance) => {
-            const dialogOptions: any = {
-                title: "Open Folder",
-                properties: ["openDirectory"],
-            }
-
-            remote.dialog.showOpenDialog(
-                remote.getCurrentWindow(),
-                dialogOptions,
-                (folder: string[]) => {
-                    if (!folder || !folder[0]) {
-                        return
-                    }
-
-                    const folderToOpen = folder[0]
-                    neovimInstance.chdir(folderToOpen)
-                },
-            )
-        }
-
         const isRenameActive = () => this._rename.isRenameActive()
 
         const commands = [
@@ -259,13 +239,6 @@ export class NeovimEditorCommands {
                 "Edit Neovim Config",
                 "Edit configuration file ('init.vim') for Neovim",
                 () => this._neovimInstance.openInitVim(),
-            ),
-
-            new CallbackCommand(
-                "oni.openFolder",
-                "Open Folder",
-                "Set a folder as the working directory for Oni",
-                () => openFolder(this._neovimInstance),
             ),
 
             // TODO: Factor these out
