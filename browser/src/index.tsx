@@ -119,6 +119,11 @@ const start = async (args: string[]): Promise<void> => {
     Overlay.activate()
     const overlayManager = Overlay.getInstance()
 
+    const sneakPromise = import("./Services/Sneak")
+    const { commandManager } = await import("./Services/CommandManager")
+    const Sneak = await sneakPromise
+    Sneak.activate(commandManager, overlayManager)
+
     const Menu = await menuPromise
     Menu.activate(overlayManager)
     const menuManager = Menu.getInstance()
@@ -185,17 +190,11 @@ const start = async (args: string[]): Promise<void> => {
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     const { inputManager } = await inputManagerPromise
-    const { commandManager } = await import("./Services/CommandManager")
 
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
-    const sneakPromise = import("./Services/Sneak")
-    const { commandManager } = await import("./Services/CommandManager")
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
-
-    const Sneak = await sneakPromise
-    Sneak.activate(commandManager)
 
     const GlobalCommands = await globalCommandsPromise
     GlobalCommands.activate(commandManager, menuManager, tasks)

@@ -41,7 +41,7 @@ const enableMouse = css`
     pointer-events: auto;
 `
 
-export const Overlay = styled.div`
+export const OverlayWrapper = styled.div`
     position: absolute;
     top: 0px;
     left: 0px;

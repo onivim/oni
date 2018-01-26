@@ -14,6 +14,8 @@ import { ISidebarEntry, ISidebarState } from "./SidebarStore"
 import styled from "styled-components"
 import { withProps } from "./../../UI/components/common"
 
+import { Sneakable } from "./../../UI/components/Sneakable"
+
 export interface ISidebarIconProps {
     active: boolean
     focused: boolean
@@ -56,11 +58,13 @@ const SidebarIconInner = styled.div`
 export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
     public render(): JSX.Element {
         return (
-            <SidebarIconWrapper {...this.props} tabIndex={0}>
-                <SidebarIconInner>
-                    <Icon name={this.props.iconName} size={IconSize.Large} />
-                </SidebarIconInner>
-            </SidebarIconWrapper>
+            <Sneakable callback={this.props.onClick}>
+                <SidebarIconWrapper {...this.props} tabIndex={0}>
+                    <SidebarIconInner>
+                        <Icon name={this.props.iconName} size={IconSize.Large} />
+                    </SidebarIconInner>
+                </SidebarIconWrapper>
+            </Sneakable>
         )
     }
 }
