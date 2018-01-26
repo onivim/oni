@@ -147,26 +147,26 @@ const start = async (args: string[]): Promise<void> => {
     const CompletionProviders = await completionProvidersPromise
     CompletionProviders.activate(languageManager)
 
-    await Promise.race([
-        Utility.delay(5000),
-        Promise.all([
-            SharedNeovimInstance.activate(configuration, pluginManager),
-            startEditors(
-                filesToOpen,
-                Colors.getInstance(),
-                CompletionProviders.getInstance(),
-                configuration,
-                diagnostics,
-                languageManager,
-                menuManager,
-                overlayManager,
-                pluginManager,
-                tasks,
-                Themes.getThemeManagerInstance(),
-                workspace,
-            ),
-        ]),
-    ])
+    const initializeAllEditors = async () => {
+        await startEditors(
+            filesToOpen,
+            Colors.getInstance(),
+            CompletionProviders.getInstance(),
+            configuration,
+            diagnostics,
+            languageManager,
+            menuManager,
+            overlayManager,
+            pluginManager,
+            tasks,
+            Themes.getThemeManagerInstance(),
+            workspace,
+        )
+
+        await SharedNeovimInstance.activate(configuration, pluginManager)
+    }
+
+    await Promise.race([Utility.delay(5000), initializeAllEditors()])
     Performance.endMeasure("Oni.Start.Editors")
 
     Performance.startMeasure("Oni.Start.Sidebar")
