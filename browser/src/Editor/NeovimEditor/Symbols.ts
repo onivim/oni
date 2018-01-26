@@ -7,7 +7,7 @@ import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import { menuManager } from "./../../Services/Menu"
+import { MenuManager } from "./../../Services/Menu"
 
 import { LanguageManager } from "./../../Services/Language"
 
@@ -16,22 +16,22 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 import { Definition } from "./Definition"
 
 export class Symbols {
-
     constructor(
         private _editor: Oni.Editor,
         private _definition: Definition,
         private _languageManager: LanguageManager,
-    ) {
-
-    }
+        private _menuManager: MenuManager,
+    ) {}
 
     public async openWorkspaceSymbolsMenu() {
-        const menu = menuManager.create()
+        const menu = this._menuManager.create()
 
         menu.show()
-        menu.setItems([{
-            label: "Type to search symbols....",
-        }])
+        menu.setItems([
+            {
+                label: "Type to search symbols....",
+            },
+        ])
         menu.setLoading(true)
 
         const filterTextChanged$ = menu.onFilterTextChanged.asObservable()
@@ -42,9 +42,12 @@ export class Symbols {
             const loc = keyToLocation[key]
 
             if (loc) {
-                this._definition.gotoPositionInUri(loc.uri, loc.range.start.line, loc.range.start.character)
+                this._definition.gotoPositionInUri(
+                    loc.uri,
+                    loc.range.start.line,
+                    loc.range.start.character,
+                )
             }
-
         })
 
         let keyToLocation: any = {}
@@ -56,17 +59,22 @@ export class Symbols {
             .do(() => menu.setLoading(true))
             .concatMap(async (newText: string) => {
                 const buffer = this._editor.activeBuffer
-                const symbols: types.SymbolInformation[] = await this._languageManager.sendLanguageServerRequest(buffer.language, buffer.filePath, "workspace/symbol", {
-                    textDocument: {
-                        uri: Helpers.wrapPathInFileUri(buffer.filePath),
+                const symbols: types.SymbolInformation[] = await this._languageManager.sendLanguageServerRequest(
+                    buffer.language,
+                    buffer.filePath,
+                    "workspace/symbol",
+                    {
+                        textDocument: {
+                            uri: Helpers.wrapPathInFileUri(buffer.filePath),
+                        },
+                        query: newText,
                     },
-                    query: newText,
-                })
+                )
                 return symbols
             })
             .subscribe((newItems: types.SymbolInformation[]) => {
                 menu.setLoading(false)
-                menu.setItems(newItems.map((item) => this._symbolInfoToMenuItem(item)))
+                menu.setItems(newItems.map(item => this._symbolInfoToMenuItem(item)))
 
                 keyToLocation = newItems.reduce((prev, curr) => {
                     return {
@@ -74,25 +82,29 @@ export class Symbols {
                         [getKey(curr)]: curr.location,
                     }
                 }, {})
-
             })
     }
 
     public async openDocumentSymbolsMenu(): Promise<void> {
-        const menu = menuManager.create()
+        const menu = this._menuManager.create()
 
         menu.show()
         menu.setLoading(true)
 
         const buffer = this._editor.activeBuffer
 
-        const result: types.SymbolInformation[] = await this._languageManager.sendLanguageServerRequest(buffer.language, buffer.filePath, "textDocument/documentSymbol", {
-            textDocument: {
-                uri: Helpers.wrapPathInFileUri(buffer.filePath),
+        const result: types.SymbolInformation[] = await this._languageManager.sendLanguageServerRequest(
+            buffer.language,
+            buffer.filePath,
+            "textDocument/documentSymbol",
+            {
+                textDocument: {
+                    uri: Helpers.wrapPathInFileUri(buffer.filePath),
+                },
             },
-        })
+        )
 
-        const options: Oni.Menu.MenuOption[] = result.map((item) => this._symbolInfoToMenuItem(item))
+        const options: Oni.Menu.MenuOption[] = result.map(item => this._symbolInfoToMenuItem(item))
 
         const labelToLocation = result.reduce((prev, curr) => {
             return {
@@ -101,10 +113,14 @@ export class Symbols {
             }
         }, {})
 
-        menu.onItemSelected.subscribe((selectedItem) => {
+        menu.onItemSelected.subscribe(selectedItem => {
             const location: types.Location = labelToLocation[selectedItem.label]
             if (location) {
-                this._definition.gotoPositionInUri(location.uri, location.range.start.line, location.range.start.character)
+                this._definition.gotoPositionInUri(
+                    location.uri,
+                    location.range.start.line,
+                    location.range.start.character,
+                )
             }
         })
 
@@ -113,7 +129,6 @@ export class Symbols {
     }
 
     private _getDetailFromSymbol(si: types.SymbolInformation): string {
-
         const unwrappedPath = Helpers.unwrapFileUriPath(si.location.uri)
 
         if (si.containerName) {
@@ -133,30 +148,30 @@ export class Symbols {
 
     private _convertSymbolKindToIconName(symbolKind: types.SymbolKind): string {
         switch (symbolKind) {
-                case types.SymbolKind.Class:
-                   return "cube"
-                case types.SymbolKind.Constructor:
-                   return "building"
-                case types.SymbolKind.Enum:
-                   return "sitemap"
-                case types.SymbolKind.Field:
-                   return "var"
-                case types.SymbolKind.File:
-                   return "file"
-                case types.SymbolKind.Function:
-                   return "cog"
-                case types.SymbolKind.Interface:
-                   return "plug"
-                case types.SymbolKind.Method:
-                   return "flash"
-                case types.SymbolKind.Module:
-                   return "cubes"
-                case types.SymbolKind.Property:
-                   return "wrench"
-                case types.SymbolKind.Variable:
-                   return "code"
-                default:
-                    return "question"
+            case types.SymbolKind.Class:
+                return "cube"
+            case types.SymbolKind.Constructor:
+                return "building"
+            case types.SymbolKind.Enum:
+                return "sitemap"
+            case types.SymbolKind.Field:
+                return "var"
+            case types.SymbolKind.File:
+                return "file"
+            case types.SymbolKind.Function:
+                return "cog"
+            case types.SymbolKind.Interface:
+                return "plug"
+            case types.SymbolKind.Method:
+                return "flash"
+            case types.SymbolKind.Module:
+                return "cubes"
+            case types.SymbolKind.Property:
+                return "wrench"
+            case types.SymbolKind.Variable:
+                return "code"
+            default:
+                return "question"
         }
     }
 }

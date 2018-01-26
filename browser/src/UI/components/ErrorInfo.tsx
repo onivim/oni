@@ -14,21 +14,24 @@ export interface IErrorInfoProps {
  * Helper component to render errors in the QuickInfo bubble
  */
 export class ErrorInfo extends React.PureComponent<IErrorInfoProps, {}> {
-
     public render(): null | JSX.Element {
         if (!this.props.errors) {
             return null
         }
 
-        const errs = this.props.errors.map((e) => <div className="diagnostic">
-                                           <ErrorIcon color={getColorFromSeverity(e.severity)} />
-                                           <span>{e.message}</span>
-                                           </div>)
+        const errs = this.props.errors.map(e => (
+            <div className="diagnostic">
+                <ErrorIcon color={getColorFromSeverity(e.severity)} />
+                <span>{e.message}</span>
+            </div>
+        ))
 
         const style = this.props.style || {}
 
-        return <div className="diagnostic-container" style={style}>
-            {errs}
-        </div>
+        return (
+            <div className="diagnostic-container" style={style}>
+                {errs}
+            </div>
+        )
     }
 }

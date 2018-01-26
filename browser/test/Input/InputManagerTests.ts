@@ -5,24 +5,28 @@ import { InputManager } from "./../../src/Services/InputManager"
 describe("InputManager", () => {
     describe("bind", () => {
         it("adds a key handler", () => {
-
             const im = new InputManager()
 
             let count = 0
-            im.bind("<c-a>", () => { count++; return true })
+            im.bind("<c-a>", () => {
+                count++
+                return true
+            })
 
             const handled = im.handleKey("<c-a>")
 
             assert.strictEqual(count, 1, "Validate handler was called")
             assert.strictEqual(handled, true)
-
         })
 
         it("removes key handler when calling dispose", () => {
             const im = new InputManager()
 
             let count = 0
-            const dispose = im.bind("<c-a>", () => { count++; return true })
+            const dispose = im.bind("<c-a>", () => {
+                count++
+                return true
+            })
             dispose()
 
             const handled = im.handleKey("<c-a>")
@@ -35,7 +39,10 @@ describe("InputManager", () => {
             const im = new InputManager()
 
             let count = 0
-            const dispose = im.bind("{", () => { count++; return true })
+            const dispose = im.bind("{", () => {
+                count++
+                return true
+            })
 
             im.unbindAll()
 

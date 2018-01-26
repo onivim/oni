@@ -10,6 +10,7 @@ import * as OniApi from "oni-api"
 
 import * as Utility from "./../Utility"
 
+import { getInstance as getSharedNeovimInstance } from "./../neovim/SharedNeovimInstance"
 import { getUserConfigFilePath } from "./Configuration"
 import { editorManager } from "./EditorManager"
 import { inputManager } from "./InputManager"
@@ -25,24 +26,28 @@ export interface ITestResult {
 import { Oni } from "./../Plugins/Api/Oni"
 
 export class Automation implements OniApi.Automation.Api {
-
     public sendKeys(keys: string): void {
         Log.info("[AUTOMATION] Sending keys: " + keys)
 
         if (!inputManager.handleKey(keys)) {
             Log.info("[AUTOMATION] InputManager did not handle key: " + keys)
             const anyEditor: any = editorManager.activeEditor as any
-            anyEditor._onKeyDown(keys)
+            anyEditor.input(keys)
         }
     }
 
     public async sleep(time: number = 1000): Promise<void> {
         Log.info("[AUTOMATION] Sleeping for " + time + "ms")
-        return new Promise<void>((r) => window.setTimeout(() => r(), time))
+        return new Promise<void>(r => window.setTimeout(() => r(), time))
     }
 
     public async waitFor(condition: () => boolean, timeout: number = 10000): Promise<void> {
-        Log.info("[AUTOMATION] Starting wait - limit: " + timeout + " condition: " + condition.toString())
+        Log.info(
+            "[AUTOMATION] Starting wait - limit: " +
+                timeout +
+                " condition: " +
+                condition.toString(),
+        )
         let time = 0
         const interval = 1000
 
@@ -75,9 +80,21 @@ export class Automation implements OniApi.Automation.Api {
         await this.waitFor(() => (Shell.store.getState() as any).isLoaded, 30000)
         Log.info("[AUTOMATION] Startup complete!")
 
-        Log.info("[AUTOMATION] Waiting for neovim to attach...")
-        await this.waitFor(() => editorManager.activeEditor.neovim && (editorManager.activeEditor as any).neovim.isInitialized, 30000)
-        Log.info("[AUTOMATION] Neovim attached!")
+        Log.info("[AUTOMATION] Waiting for neovim to attach to editor...")
+        await this.waitFor(
+            () =>
+                editorManager.activeEditor.neovim &&
+                (editorManager.activeEditor as any).neovim.isInitialized,
+            30000,
+        )
+        Log.info("[AUTOMATION] Neovim initialized!")
+
+        Log.info("[AUTOMATION] Waiting for shared neovim instance...")
+        await this.waitFor(
+            () => getSharedNeovimInstance() && getSharedNeovimInstance().isInitialized,
+            30000,
+        )
+        Log.info("[AUTOMATION] Shared neovim instance initialized!")
     }
 
     public async runTest(testPath: string): Promise<void> {
@@ -133,7 +150,10 @@ export class Automation implements OniApi.Automation.Api {
     }
 
     private _reportResult(passed: boolean, exception?: any): void {
-        const resultElement = this._createElement("automated-test-result", this._getOrCreateTestContainer("automated-test-container"))
+        const resultElement = this._createElement(
+            "automated-test-result",
+            this._getOrCreateTestContainer("automated-test-container"),
+        )
 
         resultElement.textContent = JSON.stringify({
             passed,

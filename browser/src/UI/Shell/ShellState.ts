@@ -11,7 +11,9 @@ import * as Oni from "oni-api"
 import { IConfigurationValues } from "./../../Services/Configuration"
 import { DefaultThemeColors, IThemeColors } from "./../../Services/Themes"
 
-export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
+export interface Errors {
+    [file: string]: { [key: string]: types.Diagnostic[] }
+}
 
 /**
  * Viewport encompasses the actual 'app' height
@@ -22,9 +24,16 @@ export interface IViewport {
 }
 
 export interface IToolTip {
-    id: string,
-    options: Oni.ToolTip.ToolTipOptions,
+    id: string
+    options: Oni.ToolTip.ToolTipOptions
     element: JSX.Element
+}
+
+export interface StatusBar {
+    [key: string]: IStatusBarItem
+}
+export interface Overlays {
+    [key: string]: IOverlay
 }
 
 export interface IState {
@@ -39,8 +48,14 @@ export interface IState {
     windowTitle: string
 
     statusBar: { [id: string]: IStatusBarItem }
+    overlays: { [id: string]: IOverlay }
 
     errors: Errors
+}
+
+export interface IOverlay {
+    id: string
+    contents: JSX.Element
 }
 
 export enum StatusBarAlignment {
@@ -55,8 +70,10 @@ export interface IStatusBarItem {
     visible: boolean
 }
 
-export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurationValues, k: K): IConfigurationValues[K] {
-
+export function readConf<K extends keyof IConfigurationValues>(
+    conf: IConfigurationValues,
+    k: K,
+): IConfigurationValues[K] {
     if (!conf) {
         return null
     } else {
@@ -73,6 +90,7 @@ export const createDefaultState = (): IState => ({
     configuration: {} as IConfigurationValues,
 
     errors: {},
+    overlays: {},
     statusBar: {},
     windowTitle: "",
 })

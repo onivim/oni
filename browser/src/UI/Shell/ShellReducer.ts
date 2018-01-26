@@ -9,8 +9,10 @@ import { IConfigurationValues } from "./../../Services/Configuration"
 import * as Actions from "./ShellActions"
 import * as State from "./ShellState"
 
-export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>) {
-
+export function reducer<K extends keyof IConfigurationValues>(
+    s: State.IState,
+    a: Actions.Action<K>,
+) {
     if (!s) {
         return s
     }
@@ -45,21 +47,47 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             return {
                 ...s,
                 colors: a.payload.colors,
-                    }
+            }
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value
-            const newConfig = {...s.configuration, ...obj}
-            return {...s,
-                    configuration: newConfig}
+            const newConfig = { ...s.configuration, ...obj }
+            return {
+                ...s,
+                configuration: newConfig,
+            }
         default:
-            return {...s,
-                    statusBar: statusBarReducer(s.statusBar, a),
-                    }
+            return {
+                ...s,
+                overlays: overlaysReducer(s.overlays, a),
+                statusBar: statusBarReducer(s.statusBar, a),
+            }
     }
 }
 
-export const statusBarReducer = (s: { [key: string]: State.IStatusBarItem }, a: Actions.SimpleAction) => {
+export const overlaysReducer = (s: State.Overlays, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "OVERLAY_SHOW":
+            return {
+                ...s,
+                [a.payload.id]: {
+                    id: a.payload.id,
+                    contents: a.payload.contents,
+                },
+            }
+        case "OVERLAY_HIDE":
+            const newState = {
+                ...s,
+            }
+
+            delete newState[a.payload.id]
+            return newState
+        default:
+            return s
+    }
+}
+
+export const statusBarReducer = (s: State.StatusBar, a: Actions.SimpleAction) => {
     switch (a.type) {
         case "STATUSBAR_SHOW":
             const existingItem = s[a.payload.id] || {}

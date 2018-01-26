@@ -15,12 +15,14 @@ import { INeovimInstance } from "./../../neovim"
 import { commandManager } from "./../CommandManager"
 import { configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
-import { fuseFilter, Menu, menuManager } from "./../Menu"
+import { fuseFilter, Menu, MenuManager } from "./../Menu"
 
 import { FinderProcess } from "./FinderProcess"
 import { QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
 import { regexFilter } from "./RegExFilter"
 import * as RipGrep from "./RipGrep"
+
+import { getFileIcon } from "./../FileIcon"
 
 export class QuickOpen {
     private _finderProcess: FinderProcess
@@ -30,11 +32,13 @@ export class QuickOpen {
     private _menu: Menu
     private _lastCommand: string | null = null
 
-    constructor(neovimInstance: INeovimInstance) {
+    constructor(menuManager: MenuManager, neovimInstance: INeovimInstance) {
         this._neovimInstance = neovimInstance
 
         this._menu = menuManager.create()
-        this._menu.onItemSelected.subscribe((selectedItem: any) => { this._onItemSelected(selectedItem) })
+        this._menu.onItemSelected.subscribe((selectedItem: any) => {
+            this._onItemSelected(selectedItem)
+        })
 
         this._menu.onHide.subscribe(() => {
             this._stopFinderProcess()
@@ -42,7 +46,10 @@ export class QuickOpen {
 
         this._menu.onFilterTextChanged.subscribe((newFilter: any) => {
             if (this._isFinderCommandDynamic() && this._menu.isOpen()) {
-                const commandWithFilter = this._getDynamicSearchCommand(this._lastCommand, newFilter)
+                const commandWithFilter = this._getDynamicSearchCommand(
+                    this._lastCommand,
+                    newFilter,
+                )
                 this._updateFinderProcess(commandWithFilter)
             }
         })
@@ -88,7 +95,6 @@ export class QuickOpen {
 
         //  If in exec directory or home, show bookmarks to change cwd to
         if (this._isInstallDirectoryOrHome()) {
-
             this._menu.show()
             this._loadDefaultMenuItems()
 
@@ -106,7 +112,8 @@ export class QuickOpen {
         } else {
             // Default strategy
             const excludeFiles = configuration.getValue("oni.exclude")
-            const command = RipGrep.getCommand() + " " + RipGrep.getArguments(excludeFiles).join(" ")
+            const command =
+                RipGrep.getCommand() + " " + RipGrep.getArguments(excludeFiles).join(" ")
             this.loadMenu(command, "\n")
         }
     }
@@ -218,7 +225,10 @@ export class QuickOpen {
             // If we are a directory, open it.
             if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmark)) {
                 // If I use this one more place I'm going to make a function >.>
-                fullPath = fullPath.replace("~", process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"])
+                fullPath = fullPath.replace(
+                    "~",
+                    process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"],
+                )
 
                 if (lstatSync(fullPath).isDirectory()) {
                     this._neovimInstance.chdir(fullPath)
@@ -233,22 +243,24 @@ export class QuickOpen {
 
     // If we are in home or install dir offer to open folder/bookmark (Basically user hasn't opened a folder yet)
     private _isInstallDirectoryOrHome() {
-        return path.dirname(process.execPath) === process.cwd() ||
-               process.env[(process.platform  === "win32") ? "USERPROFILE" : "HOME"] === process.cwd()
+        return (
+            path.dirname(process.execPath) === process.cwd() ||
+            process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"] === process.cwd()
+        )
     }
-            // <Visible visible={this.props.pinned}>
-            //     <Icon name="clock-o" />
-            // </Visible>
+    // <Visible visible={this.props.pinned}>
+    //     <Icon name="clock-o" />
+    // </Visible>
 
     // Show menu based on items given
     private _setItemsFromQuickOpenItems(items: QuickOpenItem[]): void {
-        const options = items.map((qitem) => {
+        const options = items.map(qitem => {
             const f = qitem.item.trim()
             const file = path.basename(f)
             const folder = path.dirname(f)
 
             return {
-                icon: qitem.icon,
+                icon: getFileIcon(file) as any,
                 label: file,
                 detail: folder,
                 pinned: this._seenItems.indexOf(f) >= 0,
@@ -260,10 +272,7 @@ export class QuickOpen {
 
     private _loadDefaultMenuItems() {
         // Open folder help at top
-        this._loadedItems.push(new QuickOpenItem(
-            "Open Folder",
-            QuickOpenType.folderHelp,
-        ))
+        this._loadedItems.push(new QuickOpenItem("Open Folder", QuickOpenType.folderHelp))
 
         // Get bookmarks, if we added remove them all so we don't think we have length
         const bookmarks = configuration.getValue("oni.bookmarks")

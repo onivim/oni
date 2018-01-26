@@ -10,17 +10,13 @@ export interface ISidebarPaneViewProps {
 
 export class SidebarPaneView extends React.PureComponent<ISidebarPaneViewProps, {}> {
     public render(): JSX.Element[] {
-
         const context: SidebarPaneStore.IWidgetRenderContext = {
             selectedId: this.props.selectedId,
         }
 
         return this.props.widgets.map((w, i) => {
-            return <div key={i}>
-            {w.render(context)}
-            </div>
-        },
-        )
+            return <div key={i}>{w.render(context)}</div>
+        })
     }
 }
 

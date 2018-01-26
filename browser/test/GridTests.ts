@@ -3,7 +3,6 @@ import * as assert from "assert"
 import { Grid } from "./../src/Grid"
 
 describe("Grid", () => {
-
     it("getCell returns correct value", () => {
         const grid = new Grid<string>()
 
@@ -22,10 +21,7 @@ describe("Grid", () => {
 
     describe("shift", () => {
         it("shift(0) does not shift", () => {
-            const val = [
-                [1, 2],
-                [3, 4],
-            ]
+            const val = [[1, 2], [3, 4]]
 
             const startGrid = createGridFromNestedArray(val)
             startGrid.shiftRows(0)
@@ -33,74 +29,47 @@ describe("Grid", () => {
         })
 
         it("shift(1) shifts upwards", () => {
-            const val = [
-                [1, 2],
-                [3, 4],
-            ]
+            const val = [[1, 2], [3, 4]]
 
             const startGrid = createGridFromNestedArray(val)
             startGrid.shiftRows(1)
 
-            const expectedOutput = [
-                [3, 4],
-                [null, null],
-            ]
+            const expectedOutput = [[3, 4], [null, null]]
             assertGridValues(startGrid, expectedOutput)
         })
 
         it("shift(-1) shifts downwards", () => {
-            const val = [
-                [1, 2],
-                [3, 4],
-            ]
+            const val = [[1, 2], [3, 4]]
 
             const startGrid = createGridFromNestedArray(val)
             startGrid.shiftRows(-1)
 
-            const expectedOutput = [
-                [null, null],
-                [1, 2],
-            ]
+            const expectedOutput = [[null, null], [1, 2]]
             assertGridValues(startGrid, expectedOutput)
         })
     })
 
     describe("setRegion", () => {
         it("sets value", () => {
-
-            const val = [
-                [1, 2],
-                [3, 4],
-            ]
+            const val = [[1, 2], [3, 4]]
 
             const startGrid = createGridFromNestedArray(val)
 
             startGrid.setRegion(0, 0, 2, 2, 5)
 
-            const expectedVal = [
-                [5, 5],
-                [5, 5],
-            ]
+            const expectedVal = [[5, 5], [5, 5]]
 
             assertGridValues(startGrid, expectedVal)
         })
 
         it("sets null correctly", () => {
-            const val = [
-                [1, 2, 3],
-                [3, 4, 5],
-                [6, 7, 8],
-            ]
+            const val = [[1, 2, 3], [3, 4, 5], [6, 7, 8]]
 
             const startGrid = createGridFromNestedArray(val)
 
             startGrid.setRegion(0, 0, 2, 2, null)
 
-            const expectedOuput = [
-                [null, null, 3],
-                [null, null, 5],
-                [6, 7, 8],
-            ]
+            const expectedOuput = [[null, null, 3], [null, null, 5], [6, 7, 8]]
 
             assertGridValues(startGrid, expectedOuput)
         })
@@ -108,10 +77,7 @@ describe("Grid", () => {
 
     describe("cloneRegion", () => {
         it("returns new grid for single item", () => {
-            const val = [
-                [1, 2],
-                [3, 4],
-            ]
+            const val = [[1, 2], [3, 4]]
 
             const startGrid = createGridFromNestedArray(val)
 
@@ -127,11 +93,7 @@ describe("Grid", () => {
         })
 
         it("returns square subsection", () => {
-            const val = [
-                [1, 2, 3],
-                [3, 4, 5],
-                [6, 7, 8],
-            ]
+            const val = [[1, 2, 3], [3, 4, 5], [6, 7, 8]]
 
             const startGrid = createGridFromNestedArray(val)
 
@@ -139,28 +101,18 @@ describe("Grid", () => {
             assert.strictEqual(topLeftGrid.width, 2)
             assert.strictEqual(topLeftGrid.height, 2)
 
-            const expectedOutput = [
-                [1, 2],
-                [3, 4],
-            ]
+            const expectedOutput = [[1, 2], [3, 4]]
 
             assertGridValues(topLeftGrid, expectedOutput)
         })
 
         it("handles null & undefined correctly", () => {
-            const val = [
-                [null, undefined, 3],
-                [0, 1, 5],
-                [6, 7, 8],
-            ]
+            const val = [[null, undefined, 3], [0, 1, 5], [6, 7, 8]]
 
             const startGrid = createGridFromNestedArray(val)
             const outGrid = startGrid.cloneRegion(0, 0, 2, 2)
 
-            const expectedOutput = [
-                [null, null],
-                [0, 1],
-            ]
+            const expectedOutput = [[null, null], [0, 1]]
 
             assertGridValues(outGrid, expectedOutput)
         })
@@ -168,7 +120,6 @@ describe("Grid", () => {
 })
 
 function createGridFromNestedArray<T>(array: T[][]): Grid<T> {
-
     const grid = new Grid<T>()
 
     for (let row = 0; row < array.length; row++) {
@@ -185,7 +136,6 @@ function createGridFromNestedArray<T>(array: T[][]): Grid<T> {
 }
 
 function assertGridValues<T>(grid: Grid<T>, array: T[][]): void {
-
     for (let row = 0; row < array.length; row++) {
         const rowItems = array[row]
 

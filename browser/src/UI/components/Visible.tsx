@@ -5,7 +5,6 @@ export interface IVisibleProps {
 }
 
 export class Visible extends React.PureComponent<IVisibleProps, {}> {
-
     public render(): null | JSX.Element {
         if (this.props.visible) {
             return React.Children.only(this.props.children)

@@ -24,5 +24,8 @@ export const test = async (oni: Oni.Plugin.Api) => {
     const completionElement = getCompletionElement()
     const textContent = completionElement.textContent
 
-    assert.ok(textContent.indexOf("position") >= 0, "Verify 'position' was presented as a completion")
+    assert.ok(
+        textContent.indexOf("position") >= 0,
+        "Verify 'position' was presented as a completion",
+    )
 }
