@@ -6,7 +6,6 @@ import * as React from "react"
 
 import * as Platform from "./../../Platform"
 
-import { getKeyEventToVimKey } from "./../../Input/Keyboard"
 import { focusManager } from "./../../Services/FocusManager"
 import { inputManager } from "./../../Services/InputManager"
 import { IThemeColors } from "./../../Services/Themes/ThemeManager"
@@ -63,7 +62,7 @@ export class ShellView extends React.PureComponent<IShellViewComponentProps, {}>
     }
 
     private _onRootKeyDown(evt: React.KeyboardEvent<HTMLElement>): void {
-        const vimKey = getKeyEventToVimKey()(evt.nativeEvent)
+        const vimKey = inputManager.resolvers.resolveKeyEvent(evt.nativeEvent)
         if (inputManager.handleKey(vimKey)) {
             evt.stopPropagation()
             evt.preventDefault()

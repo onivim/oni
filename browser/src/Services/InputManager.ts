@@ -17,8 +17,25 @@ export interface KeyBindingMap {
     [key: string]: KeyBinding[]
 }
 
+import { KeyboardResolver } from "./../Input/Keyboard/KeyboardResolver"
+
+import {
+    ignoreMetaKeyResolver,
+    remapResolver,
+    getMetaKeyResolver,
+} from "./../Input/Keyboard/Resolvers"
+
 export class InputManager implements Oni.InputManager {
     private _boundKeys: KeyBindingMap = {}
+    private _resolver: KeyboardResolver
+
+    constructor() {
+        this._resolver = new KeyboardResolver()
+
+        this._resolver.addResolver(ignoreMetaKeyResolver)
+        this._resolver.addResolver(remapResolver)
+        this._resolver.addResolver(getMetaKeyResolver())
+    }
 
     /**
      * API Methods
@@ -67,6 +84,10 @@ export class InputManager implements Oni.InputManager {
      */
     public hasBinding(keyChord: string): boolean {
         return !!this._boundKeys[keyChord]
+    }
+
+    public get resolvers(): KeyboardResolver {
+        return this._resolver
     }
 
     /**

@@ -13,8 +13,8 @@ import { connect } from "react-redux"
 import { IDisposable, IEvent } from "oni-types"
 
 import { IState } from "./../Editor/NeovimEditor/NeovimEditorStore"
-import { getKeyEventToVimKey } from "./../Input/Keyboard"
 import { focusManager } from "./../Services/FocusManager"
+import { inputManager } from "./../Services/InputManager"
 import { TypingPredictionManager } from "./../Services/TypingPredictionManager"
 
 import { measureFont } from "./../Font"
@@ -173,7 +173,7 @@ export class KeyboardInputView extends React.PureComponent<
             this.props.onBounceStart()
         }
 
-        const key = getKeyEventToVimKey()(evt.nativeEvent)
+        const key = inputManager.resolvers.resolveKeyEvent(evt.nativeEvent)
 
         if (!key) {
             return
