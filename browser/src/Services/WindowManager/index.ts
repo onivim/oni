@@ -166,6 +166,7 @@ export class WindowManager {
 
     private _onActiveSplitChangedEvent = new Event<Oni.IWindowSplit>()
     private _onSplitChanged = new Event<ISplitInfo<Oni.IWindowSplit>>()
+    private _onUnhandledMoveEvent = new Event<Direction>()
 
     private _leftDock: WindowDock = null
     private _primarySplit: LinearSplitProvider
@@ -177,6 +178,10 @@ export class WindowManager {
 
     public get onSplitChanged(): IEvent<ISplitInfo<Oni.IWindowSplit>> {
         return this._onSplitChanged
+    }
+
+    public get onUnhandledMove(): IEvent<Direction> {
+        return this._onUnhandledMoveEvent
     }
 
     private _onFocusChanged = new Event<ISplitInfo<Oni.IWindowSplit>>()
@@ -216,7 +221,12 @@ export class WindowManager {
 
     public move(direction: Direction): void {
         const newSplit = this._rootNavigator.move(this._activeSplit, direction)
-        this._focusNewSplit(newSplit)
+
+        if (newSplit) {
+            this._focusNewSplit(newSplit)
+        } else {
+            this._onUnhandledMoveEvent.dispatch(direction)
+        }
     }
 
     public moveLeft(): void {
