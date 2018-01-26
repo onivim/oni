@@ -167,6 +167,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
             getDiagnosticsInstance(),
             this.language,
             getMenuManagerInstance(),
+            getOverlayInstance(),
             getPluginManagerInstance(),
             getTasksInstance(),
             getThemeManagerInstance(),
