@@ -21,6 +21,7 @@ const activate = Oni => {
             if (!evt) {
                 return
             }
+
             const filePath = evt.filePath || evt.bufferFullPath
             const gitId = "oni.status.git"
             const gitBranchIndicator = Oni.statusBar.createItem(1, gitId)
