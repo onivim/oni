@@ -31,6 +31,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<s-m-t>", "language.symbols.document")
         input.bind("<m-m>", "oni.editor.minimize")
         input.bind("<m-h>", "oni.editor.hide")
+        input.bind("<c-tab>", "buffer.toggle")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
@@ -48,6 +49,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<a-enter>", "language.codeAction.expand")
         input.bind("<c-t>", "language.symbols.workspace", () => !menu.isMenuOpen())
         input.bind("<s-c-t>", "language.symbols.document")
+        input.bind("<c-tab>", "buffer.toggle")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<c-c>", "editor.clipboard.yank", isVisualMode)
@@ -74,7 +76,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind(
         ["<s-enter>", "<s-f12>"],
         "language.gotoDefinition.openHorizontal",
-        () => isNormalMode() && !menu.IsMenuOpen(),
+        () => isNormalMode() && !menu.isMenuOpen(),
     )
     input.bind("<S-C-P>", "commands.show", isNormalMode)
     input.bind("<C-pageup>", "oni.process.cyclePrevious")
