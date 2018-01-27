@@ -1,7 +1,6 @@
 /**
- * Test script to verify the scenario where no neovim is installed
+ * Test script to verify the behaviour of the auto closing pair feature.
  *
- * We should be showing a descriptive error message...
  */
 
 import * as assert from "assert"
@@ -36,6 +35,10 @@ export const test = async (oni: Oni.Plugin.Api) => {
     oni.automation.sendKeys(" => ")
     oni.automation.sendKeys("{")
     oni.automation.sendKeys("<enter>")
+    oni.automation.sendKeys("let testString = ")
+    oni.automation.sendKeys('"')
+    oni.automation.sendKeys("Oni")
+    oni.automation.sendKeys('"')
 
     // Because the input is asynchronous, we need to use `waitFor` to wait
     // for them to complete.
@@ -46,10 +49,16 @@ export const test = async (oni: Oni.Plugin.Api) => {
     const expectedResult = [
         "const test = {",
         "    window.setTimeout(() => {",
-        "        ",
+        '        let testString = "Oni"',
         "    })",
         "}",
     ]
 
+    console.log(expectedResult)
     assert.deepEqual(lines, expectedResult, "Verify lines are as expected")
+}
+
+// Bring in custom config to include the "" pair, which isn't part of the default config.
+export const settings = {
+    configPath: "AutoClosingPairTest.config.js",
 }
