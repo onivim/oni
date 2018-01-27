@@ -4,6 +4,7 @@ const { promisify } = require("util")
 const fsStat = promisify(fs.stat)
 
 const activate = Oni => {
+    const showPerFileChanges = Oni.configuration.getValue("statusbar.git.changes.useLocal", {})
     const React = Oni.dependencies.React
     let isLoaded = false
     try {
@@ -29,18 +30,14 @@ const activate = Oni => {
             try {
                 const isDir = await pathIsDir(filePath)
                 const dir = isDir ? filePath : path.dirname(filePath)
-                let branchName
-                let summary
+                let branchName, summary
                 try {
                     branchName = await Oni.services.git.getBranch(dir)
                     summary = await Oni.services.git.getGitSummary(dir)
-                    console.log("summary after attempt: ", summary)
                 } catch (e) {
                     console.warn("[Oni.Git.Plugin]: ", e)
                     gitBranchIndicator.hide()
                     return
-                    // return console.warn('[Oni.plugin.git]: No branch name found', e);
-                    // branchName = 'Not a Git Repo';
                 }
 
                 const props = {
@@ -68,24 +65,54 @@ const activate = Oni => {
                 let components = []
                 if (summary && (summary.insertions || summary.deletions)) {
                     const { insertions, deletions, files } = summary
-                    // Ideas:
-                    // heavy plus unicode - \u2795
-                    // { style: { color: '#2dc937' } },
+                    const { activeBuffer: { filePath } } = Oni.editors.activeEditor
+
+                    const perFile = files.reduce((acc, modified) => {
+                        if (filePath.includes(modified.file)) {
+                            acc.insertions = modified.insertions
+                            acc.deletions = modified.deletions
+                        }
+                        return acc
+                    }, {})
+
+                    const localProps = { style: { color: "#7D634D" } }
+
+                    const localInsertions =
+                        perFile.insertions && showPerFileChanges ? ` (${perFile.insertions})` : ``
+
+                    const localInsertionsSpan = React.createElement(
+                        "span",
+                        localProps,
+                        localInsertions,
+                    )
+
                     const insertionsSpan = React.createElement(
                         "span",
                         null,
                         `${insertions ? `+${insertions}` : ``}`,
                     )
 
-                    // Ideas:
-                    // heavy minus unicode - \u2796
-                    // { style: { color: '#cc3232' } },
+                    const localDeletions =
+                        perFile.deletions && showPerFileChanges ? ` (${perFile.deletions})` : ``
+
+                    const localDeletionSpan = React.createElement(
+                        "span",
+                        localProps,
+                        localDeletions,
+                    )
+
                     const deletionsSpan = React.createElement(
                         "span",
                         null,
-                        `${deletions ? `, -${deletions} ` : ``}`,
+                        `${deletions ? `, -${deletions}` : ``}`,
                     )
-                    components = [...components, insertionsSpan, deletionsSpan]
+                    components = [
+                        ...components,
+                        insertionsSpan,
+                        localInsertionsSpan,
+                        deletionsSpan,
+                        localDeletionSpan,
+                    ]
                 }
 
                 const branchContainer = React.createElement(
@@ -109,7 +136,7 @@ const activate = Oni => {
                 gitBranchIndicator.setContents(gitBranch)
                 gitBranchIndicator.show()
             } catch (e) {
-                console.log("[Oni.plugin.git]: ", e)
+                console.warn("[Oni.plugin.git]: ", e)
                 return gitBranchIndicator.hide()
             }
         }

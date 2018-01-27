@@ -16,10 +16,30 @@ interface IExecOptions {
     cwd?: string
 }
 
+interface IStatus extends git.DiffResult {
+    modified?: number
+}
+
 export interface GitFunctions {
     getGitSummary(workspace: string): Promise<git.DiffResult | null>
     getBranch(path?: string): Promise<Error | string>
     getGitRoot(): Promise<string | null>
+}
+
+const numFromString = (s: string) => Number(s.match(/\d+/)[0])
+
+const formatFileAndChanges = (files: string[]) => {
+    return files.map(unformattedStr => {
+        const [file, changes] = unformattedStr.split("|")
+        const insertions = changes.replace(/[^+]/g, "").split("+").length
+        const deletions = changes.replace(/[^-]/g, "").split("-").length
+        return {
+            file: file.trim(),
+            changes: numFromString(changes),
+            insertions,
+            deletions,
+        }
+    })
 }
 
 export async function getGitRoot(): Promise<string | null> {
@@ -32,7 +52,7 @@ export async function getGitRoot(): Promise<string | null> {
     }
 }
 
-export async function getGitSummary(currentDir: string): Promise<git.DiffResult | null> {
+export async function getGitSummary(currentDir: string): Promise<IStatus | null> {
     Log.info(`Current Directory is ${currentDir}`)
     let status = null
     if (currentDir) {
@@ -41,6 +61,21 @@ export async function getGitSummary(currentDir: string): Promise<git.DiffResult 
         const isRepo = await project.checkIsRepo()
         if (isRepo) {
             status = await project.diffSummary()
+            if (status.files || status.deletions || status.insertions) {
+                return status
+            }
+            const options: IExecOptions = {
+                cwd: currentDir,
+            }
+            const cmd = `git diff --stat=4096`
+            const output = (await execPromise(cmd, options)) as any
+            const outputArray = output.split("\n").filter((v: string) => !!v)
+            const changeSummary = outputArray[outputArray.length - 1]
+            const filesChanged = outputArray.slice(0, outputArray.length - 1)
+            const [modified, insertions, deletions] = changeSummary.split(",").map(numFromString)
+            const files = formatFileAndChanges(filesChanged)
+
+            status = { files, insertions, deletions, modified }
         }
     }
     return status
