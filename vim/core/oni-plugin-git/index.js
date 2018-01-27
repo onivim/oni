@@ -80,16 +80,16 @@ const activate = Oni => {
                     const localProps = { style: { color: "goldenrod" } }
                     const iconStyles = { style: { fontSize: "0.7rem", paddingRight: "0.15rem" } }
 
-                    let minusIcon,
-                        minusContainer,
-                        plusIcon,
-                        plusContainer = null
-                    let localInsertions,
-                        localInsertionSpan,
-                        insertionSpan = null
-                    let localDeletions,
-                        localDeletionSpan,
-                        deletionSpan = null
+                    let minusIcon = null
+                    let minusContainer = null
+                    let plusIcon = null
+                    let plusContainer = null
+                    let localInsertions = null
+                    let localInsertionSpan = null
+                    let insertionSpan = null
+                    let localDeletions = null
+                    let localDeletionSpan = null
+                    let deletionSpan = null
 
                     if (insertions) {
                         plusIcon = Oni.ui.createIcon({ name: "plus" })
