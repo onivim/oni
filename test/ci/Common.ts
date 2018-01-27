@@ -1,5 +1,5 @@
 /**
- * Test scripts for QuickOpen
+ * Common functions used across the CI tests.
  */
 
 import * as Oni from "oni-api"
