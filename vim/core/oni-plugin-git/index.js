@@ -77,41 +77,65 @@ const activate = Oni => {
                         return acc
                     }, {})
 
-                    const localProps = { style: { color: "#7D634D" } }
+                    const localProps = { style: { color: "goldenrod" } }
+                    const iconStyles = { style: { fontSize: "0.7rem", paddingRight: "0.15rem" } }
 
-                    const localInsertions =
-                        perFile.insertions && showPerFileChanges ? ` (${perFile.insertions})` : ``
+                    let minusIcon,
+                        minusContainer,
+                        plusIcon,
+                        plusContainer = null
+                    let localInsertions,
+                        localInsertionSpan,
+                        insertionSpan = null
+                    let localDeletions,
+                        localDeletionSpan,
+                        deletionSpan = null
 
-                    const localInsertionsSpan = React.createElement(
-                        "span",
-                        localProps,
-                        localInsertions,
-                    )
+                    if (insertions) {
+                        plusIcon = Oni.ui.createIcon({ name: "plus" })
+                        plusContainer = React.createElement("span", iconStyles, plusIcon)
+                        if (showPerFileChanges) {
+                            localInsertionSpan = React.createElement(
+                                "span",
+                                localProps,
+                                perFile.insertions ? `(${perFile.insertions})` : ``,
+                            )
+                        }
 
-                    const insertionsSpan = React.createElement(
-                        "span",
-                        null,
-                        `${insertions ? `+${insertions}` : ``}`,
-                    )
+                        insertionsSpan = React.createElement("span", null, [
+                            plusContainer,
+                            `${insertions || ``}`,
+                        ])
+                    }
+                    if (deletions) {
+                        minusIcon = Oni.ui.createIcon({ name: "minus" })
+                        minusContainer = React.createElement("span", iconStyles, minusIcon)
 
-                    const localDeletions =
-                        perFile.deletions && showPerFileChanges ? ` (${perFile.deletions})` : ``
+                        if (showPerFileChanges) {
+                            localDeletionSpan = React.createElement(
+                                "span",
+                                localProps,
+                                perFile.deletions ? `(${perFile.deletions})` : ``,
+                            )
+                        }
 
-                    const localDeletionSpan = React.createElement(
-                        "span",
-                        localProps,
-                        localDeletions,
-                    )
+                        deletionsSpan = React.createElement("span", null, [
+                            minusContainer,
+                            `${deletions || ``}`,
+                        ])
+                    }
 
-                    const deletionsSpan = React.createElement(
-                        "span",
-                        null,
-                        `${deletions ? `, -${deletions}` : ``}`,
-                    )
+                    let spacer = null
+
+                    if (deletions && insertions) {
+                        spacer = React.createElement("span", null, ", ")
+                    }
+
                     components = [
                         ...components,
                         insertionsSpan,
-                        localInsertionsSpan,
+                        localInsertionSpan,
+                        spacer,
                         deletionsSpan,
                         localDeletionSpan,
                     ]

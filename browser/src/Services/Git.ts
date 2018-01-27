@@ -72,7 +72,7 @@ export async function getGitSummary(currentDir: string): Promise<IStatus | null>
             }
             const cmd = `git diff --stat=4096`
             try {
-                const output = await execPromise(cmd, options)
+                const output: string = await execPromise(cmd, options)
                 if (output) {
                     const outputArray = output.split("\n").filter((v: string) => !!v)
                     const changeSummary = outputArray[outputArray.length - 1]
@@ -100,6 +100,6 @@ export async function getBranch(filePath?: string): Promise<string> {
         options.cwd = filePath
     }
 
-    const result = await execPromise("git rev-parse --abbrev-ref HEAD", options)
+    const result: string = await execPromise("git rev-parse --abbrev-ref HEAD", options)
     return result
 }
