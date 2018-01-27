@@ -71,17 +71,19 @@ export async function getGitSummary(currentDir: string): Promise<IStatus | null>
                 cwd: currentDir,
             }
             const cmd = `git diff --stat=4096`
-            const output = (await execPromise(cmd, options)) as any
             try {
-                const outputArray = output.split("\n").filter((v: string) => !!v)
-                const changeSummary = outputArray[outputArray.length - 1]
-                const filesChanged = outputArray.slice(0, outputArray.length - 1)
-                const [modified, insertions, deletions] = changeSummary
-                    .split(",")
-                    .map(numFromString)
-                const files = formatFileAndChanges(filesChanged)
+                const output = (await execPromise(cmd, options)) as any
+                if (output) {
+                    const outputArray = output.split("\n").filter((v: string) => !!v)
+                    const changeSummary = outputArray[outputArray.length - 1]
+                    const filesChanged = outputArray.slice(0, outputArray.length - 1)
+                    const [modified, insertions, deletions] = changeSummary
+                        .split(",")
+                        .map(numFromString)
+                    const files = formatFileAndChanges(filesChanged)
 
-                status = { files, insertions, deletions, modified }
+                    status = { files, insertions, deletions, modified }
+                }
             } catch (e) {
                 // tslint:disable-next-line
                 console.warn("[Oni.Git.Plugin]:", e)
