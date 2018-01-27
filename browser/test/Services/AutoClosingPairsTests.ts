@@ -4,23 +4,26 @@ import * as types from "vscode-languageserver-types"
 
 import * as Mocks from "./../Mocks"
 
-import * as AutoClosingPairs from "./../../src/Services/AutoClosingPairs"
-import { IAutoClosingPair } from "./../../src/Services/AutoClosingPairs"
+import {
+    checkOpenCharacter,
+    getWhiteSpacePrefix,
+    IAutoClosingPair,
+} from "./../../src/Services/AutoClosingPairs"
 
 describe("AutoClosingPairs", () => {
     describe("getWhitespacePrefix", () => {
         it("returns empty if the string doesn't have whitespace", () => {
-            const result = AutoClosingPairs.getWhiteSpacePrefix("test")
+            const result = getWhiteSpacePrefix("test")
             assert.strictEqual(result, "")
         })
 
         it("returns tab", () => {
-            const result = AutoClosingPairs.getWhiteSpacePrefix("\ttest")
+            const result = getWhiteSpacePrefix("\ttest")
             assert.strictEqual(result, "\t")
         })
 
         it("returns spaces", () => {
-            const result = AutoClosingPairs.getWhiteSpacePrefix("  test")
+            const result = getWhiteSpacePrefix("  test")
             assert.strictEqual(result, "  ")
         })
     })
@@ -39,7 +42,7 @@ describe("AutoClosingPairs", () => {
             const pair = { open: "(", close: ")" } as IAutoClosingPair
 
             mockBuffer.setLinesSync(["("])
-            AutoClosingPairs.checkOpenCharacter(
+            checkOpenCharacter(
                 (str: string) => {
                     mockBuffer.setLinesSync([str])
                 },
@@ -58,7 +61,7 @@ describe("AutoClosingPairs", () => {
 
             mockBuffer.setLinesSync(['"Oni"'])
             mockBuffer.setCursorPosition(types.Position.create(0, 4))
-            AutoClosingPairs.checkOpenCharacter(
+            checkOpenCharacter(
                 (str: string) => {
                     mockBuffer.setLinesSync([str])
                 },
@@ -77,7 +80,7 @@ describe("AutoClosingPairs", () => {
 
             mockBuffer.setLinesSync(['"Oni"'])
             mockBuffer.setCursorPosition(types.Position.create(0, 4))
-            AutoClosingPairs.checkOpenCharacter(
+            checkOpenCharacter(
                 (str: string) => {
                     mockBuffer.setLinesSync([str])
                 },

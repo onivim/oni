@@ -54,7 +54,6 @@ export const test = async (oni: Oni.Plugin.Api) => {
         "}",
     ]
 
-    console.log(expectedResult)
     assert.deepEqual(lines, expectedResult, "Verify lines are as expected")
 }
 

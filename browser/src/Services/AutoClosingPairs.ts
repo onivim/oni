@@ -6,11 +6,11 @@
 
 import * as Oni from "oni-api"
 
+import { IBuffer } from "./../Editor/BufferManager"
 import { Configuration } from "./Configuration"
 import { EditorManager } from "./EditorManager"
 import { InputManager } from "./InputManager"
 import { LanguageManager } from "./Language"
-import { IBuffer } from "./../Editor/BufferManager"
 
 import { NeovimInstance } from "./../neovim"
 
