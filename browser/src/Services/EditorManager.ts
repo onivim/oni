@@ -93,9 +93,9 @@ class AllEditors implements Oni.Editor {
         return this._activeEditor.neovim
     }
 
-    public openFile(file: string): Promise<Oni.Buffer> {
-        Log.warn("Not implemented")
-        return Promise.resolve(null)
+    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
+        await this._activeEditor.openFile(file, method)
+        return this._activeEditor.activeBuffer
     }
 
     public openFiles(files: string[]): Promise<Oni.Buffer[]> {
