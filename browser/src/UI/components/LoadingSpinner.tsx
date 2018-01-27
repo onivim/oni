@@ -25,8 +25,10 @@ const LoadingIconWrapper = styled.div`
 
 export class LoadingSpinner extends React.PureComponent<{}, {}> {
     public render(): JSX.Element {
-        return <LoadingIconWrapper>
-            <Icon name="circle-o-notch" size={IconSize.FourX} />
-        </LoadingIconWrapper>
+        return (
+            <LoadingIconWrapper>
+                <Icon name="circle-o-notch" size={IconSize.FourX} />
+            </LoadingIconWrapper>
+        )
     }
 }

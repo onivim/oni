@@ -1,4 +1,3 @@
-
 import * as types from "vscode-languageserver-types"
 
 import { IServerCapabilities } from "./ServerCapabilities"

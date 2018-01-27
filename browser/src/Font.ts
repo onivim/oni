@@ -1,4 +1,5 @@
-export const FallbackFonts = "Consolas,Monaco,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace"
+export const FallbackFonts =
+    "Consolas,Monaco,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace"
 
 export interface IFontMeasurement {
     width: number

@@ -15,7 +15,11 @@ import { ContextMenuView, IContextMenuItem } from "./../../Services/ContextMenu"
 
 import { IToolTipsProvider } from "./ToolTipsProvider"
 
-const mapNeovimCompletionItemToContextMenuItem = (item: INeovimCompletionItem, idx: number, totalLength: number): IContextMenuItem  => ({
+const mapNeovimCompletionItemToContextMenuItem = (
+    item: INeovimCompletionItem,
+    idx: number,
+    totalLength: number,
+): IContextMenuItem => ({
     label: item.word,
     detail: item.menu,
     documentation: (idx + 1).toString() + " of " + totalLength.toString(),
@@ -23,7 +27,6 @@ const mapNeovimCompletionItemToContextMenuItem = (item: INeovimCompletionItem, i
 })
 
 export class NeovimPopupMenu {
-
     private _lastItems: IContextMenuItem[] = []
 
     constructor(
@@ -34,14 +37,15 @@ export class NeovimPopupMenu {
         private _colors: IColors,
         private _toolTipsProvider: IToolTipsProvider,
     ) {
-
-        this._popupMenuShowEvent.subscribe((completionInfo) => {
-            this._lastItems = completionInfo.items.map((i, idx) => mapNeovimCompletionItemToContextMenuItem(i, idx, completionInfo.items.length))
+        this._popupMenuShowEvent.subscribe(completionInfo => {
+            this._lastItems = completionInfo.items.map((i, idx) =>
+                mapNeovimCompletionItemToContextMenuItem(i, idx, completionInfo.items.length),
+            )
 
             this._renderCompletionMenu(completionInfo.selectedIndex)
         })
 
-        this._popupMenuSelectEvent.subscribe((idx) => {
+        this._popupMenuSelectEvent.subscribe(idx => {
             this._renderCompletionMenu(idx)
         })
 
@@ -60,11 +64,10 @@ export class NeovimPopupMenu {
     }
 
     private _renderCompletionMenu(selectedIndex: number): void {
-
         let itemsToRender: IContextMenuItem[] = []
         let adjustedIndex = selectedIndex
 
-        if  (selectedIndex < 10) {
+        if (selectedIndex < 10) {
             itemsToRender = this._lastItems.slice(0, 10)
         } else {
             itemsToRender = this._lastItems.slice(selectedIndex - 9, selectedIndex + 1)
@@ -82,13 +85,14 @@ export class NeovimPopupMenu {
                 backgroundColor={"black"}
                 borderColor={"black"}
                 highlightColor={highlightColor}
-                foregroundColor={"white"} />
+                foregroundColor={"white"}
+            />
         )
 
         this._toolTipsProvider.showToolTip("nvim-popup", completionElement, {
-                position: null,
-                openDirection: 2,
-                padding: "0px",
-            })
+            position: null,
+            openDirection: 2,
+            padding: "0px",
+        })
     }
 }

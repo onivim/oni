@@ -28,7 +28,7 @@ export class LoadingView extends React.PureComponent<ILoadingViewProps, {}> {
             transition: "opacity 0.5s ease",
         }
 
-        return <div style={style}></div>
+        return <div style={style} />
     }
 }
 

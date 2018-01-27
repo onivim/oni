@@ -21,9 +21,7 @@ export class PluginManager {
         return this._plugins
     }
 
-    constructor(
-        private _config: Configuration,
-    ) { }
+    constructor(private _config: Configuration) {}
 
     public discoverPlugins(): void {
         this._rootPluginPaths.push(corePluginsRoot)
@@ -37,14 +35,15 @@ export class PluginManager {
         this._rootPluginPaths.push(path.join(getUserConfigFolderPath(), "plugins"))
 
         const allPluginPaths = this._getAllPluginPaths()
-        this._plugins = allPluginPaths.map((pluginRootDirectory) => this._createPlugin(pluginRootDirectory))
+        this._plugins = allPluginPaths.map(pluginRootDirectory =>
+            this._createPlugin(pluginRootDirectory),
+        )
 
         this._anonymousPlugin = new AnonymousPlugin()
     }
 
     public startApi(): Oni.Plugin.Api {
-
-        this._plugins.forEach((plugin) => {
+        this._plugins.forEach(plugin => {
             plugin.activate()
         })
 
@@ -63,7 +62,7 @@ export class PluginManager {
 
     private _getAllPluginPaths(): string[] {
         const paths: string[] = []
-        this._rootPluginPaths.forEach((rp) => {
+        this._rootPluginPaths.forEach(rp => {
             const subPaths = getDirectories(rp)
             paths.push(...subPaths)
         })
@@ -85,7 +84,8 @@ function getDirectories(rootPath: string): string[] {
         return []
     }
 
-    return fs.readdirSync(rootPath)
-        .map((f) => path.join(rootPath.toString(), f))
-        .filter((f) => fs.statSync(f).isDirectory())
+    return fs
+        .readdirSync(rootPath)
+        .map(f => path.join(rootPath.toString(), f))
+        .filter(f => fs.statSync(f).isDirectory())
 }
