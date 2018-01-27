@@ -29,6 +29,9 @@ export interface GitFunctions {
 const numFromString = (s: string) => Number(s.match(/\d+/)[0])
 
 const formatFileAndChanges = (files: string[]) => {
+    if (!files.length) {
+        return null
+    }
     return files.map(unformattedStr => {
         const [file, changes] = unformattedStr.split("|")
         const insertions = changes.replace(/[^+]/g, "").split("+").length
@@ -69,13 +72,21 @@ export async function getGitSummary(currentDir: string): Promise<IStatus | null>
             }
             const cmd = `git diff --stat=4096`
             const output = (await execPromise(cmd, options)) as any
-            const outputArray = output.split("\n").filter((v: string) => !!v)
-            const changeSummary = outputArray[outputArray.length - 1]
-            const filesChanged = outputArray.slice(0, outputArray.length - 1)
-            const [modified, insertions, deletions] = changeSummary.split(",").map(numFromString)
-            const files = formatFileAndChanges(filesChanged)
+            try {
+                const outputArray = output.split("\n").filter((v: string) => !!v)
+                const changeSummary = outputArray[outputArray.length - 1]
+                const filesChanged = outputArray.slice(0, outputArray.length - 1)
+                const [modified, insertions, deletions] = changeSummary
+                    .split(",")
+                    .map(numFromString)
+                const files = formatFileAndChanges(filesChanged)
 
-            status = { files, insertions, deletions, modified }
+                status = { files, insertions, deletions, modified }
+            } catch (e) {
+                // tslint:disable-next-line
+                console.warn("[Oni.Git.Plugin]:", e)
+                return status
+            }
         }
     }
     return status

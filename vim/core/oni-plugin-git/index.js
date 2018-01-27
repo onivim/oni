@@ -27,6 +27,7 @@ const activate = Oni => {
 
             isLoaded = true
             let dir
+
             try {
                 const isDir = await pathIsDir(filePath)
                 const dir = isDir ? filePath : path.dirname(filePath)
