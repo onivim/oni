@@ -33,11 +33,12 @@ export async function getGitSummary(currentDir: string): Promise<git.DiffResult 
     Log.info(`Current Directory is ${currentDir}`)
     let status = null
     if (currentDir) {
-        const project = git(currentDir)
-        const isRepo = await (project as any).checkIsRepo()
+        const isRepo = await git(currentDir).checkIsRepo()
+        console.log("isRepo ==========================: ", isRepo)
         if (isRepo) {
-            status = project.diffSummary()
-            Log.info(`Current Git Status:  ${JSON.stringify(status, null, 2)}`)
+            status = await git(currentDir).diffSummary()
+            console.log("git(currentDir): ", git(currentDir))
+            console.log("status =============================: ", status)
         }
     }
     return status

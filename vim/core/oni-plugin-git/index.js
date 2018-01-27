@@ -35,8 +35,8 @@ const activate = Oni => {
                     branchName = await Oni.services.git.getBranch(dir)
                     summary = await Oni.services.git.getGitSummary(dir)
                     console.log("summary after attempt: ", summary)
-                    console.warn("[Oni.Git.Plugin]: Could not get Summary", e)
                 } catch (e) {
+                    console.warn("[Oni.Git.Plugin]: ", e)
                     gitBranchIndicator.hide()
                     return
                     // return console.warn('[Oni.plugin.git]: No branch name found', e);
