@@ -67,7 +67,6 @@ const activate = Oni => {
 
                 let components = []
                 if (summary && (summary.insertions || summary.deletions)) {
-                    console.log("summary ========================: ", summary)
                     const { insertions, deletions, files } = summary
                     // Ideas:
                     // heavy plus unicode - \u2795
@@ -75,7 +74,7 @@ const activate = Oni => {
                     const insertionsSpan = React.createElement(
                         "span",
                         null,
-                        `${insertions ? `+${insertions}` : ``} `,
+                        `${insertions ? `+${insertions}` : ``}`,
                     )
 
                     // Ideas:
@@ -84,7 +83,7 @@ const activate = Oni => {
                     const deletionsSpan = React.createElement(
                         "span",
                         null,
-                        `${deletions ? `,-${deletions} ` : ``}`,
+                        `${deletions ? `, -${deletions} ` : ``}`,
                     )
                     components = [...components, insertionsSpan, deletionsSpan]
                 }

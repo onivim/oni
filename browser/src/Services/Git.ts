@@ -7,7 +7,10 @@
 import { exec } from "child_process"
 import * as path from "path"
 import * as git from "simple-git/promise"
+import { promisify } from "util"
 import * as Log from "./../Log"
+
+const execPromise = promisify(exec)
 
 interface IExecOptions {
     cwd?: string
@@ -33,34 +36,22 @@ export async function getGitSummary(currentDir: string): Promise<git.DiffResult 
     Log.info(`Current Directory is ${currentDir}`)
     let status = null
     if (currentDir) {
-        const isRepo = await git(currentDir).checkIsRepo()
-        console.log("isRepo ==========================: ", isRepo)
+        // TODO: .customBinary()
+        const project = git(currentDir)
+        const isRepo = await project.checkIsRepo()
         if (isRepo) {
-            status = await git(currentDir).diffSummary()
-            console.log("git(currentDir): ", git(currentDir))
-            console.log("status =============================: ", status)
+            status = await project.diffSummary()
         }
     }
     return status
 }
 
-export function getBranch(filePath?: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const options: IExecOptions = {}
-        if (filePath) {
-            options.cwd = filePath
-        }
+export async function getBranch(filePath?: string): Promise<string> {
+    const options: IExecOptions = {}
+    if (filePath) {
+        options.cwd = filePath
+    }
 
-        exec(
-            "git rev-parse --abbrev-ref HEAD",
-            options,
-            (error: any, stdout: string, stderr: string) => {
-                if (error && error.code) {
-                    reject(new Error(stderr))
-                } else {
-                    resolve(stdout)
-                }
-            },
-        )
-    })
+    const result = (await execPromise("git rev-parse --abbrev-ref HEAD", options)) as any
+    return result
 }
