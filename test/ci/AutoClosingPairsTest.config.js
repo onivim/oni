@@ -10,4 +10,4 @@ module.exports = {
         { open: '"', close: '"' },
     ],
     "autoClosingPairs.enabled": true,
-}
+};
