@@ -84,10 +84,8 @@ const activate = Oni => {
                     let minusContainer = null
                     let plusIcon = null
                     let plusContainer = null
-                    let localInsertions = null
                     let localInsertionSpan = null
                     let insertionSpan = null
-                    let localDeletions = null
                     let localDeletionSpan = null
                     let deletionSpan = null
 
@@ -102,7 +100,7 @@ const activate = Oni => {
                             )
                         }
 
-                        insertionsSpan = React.createElement("span", null, [
+                        insertionSpan = React.createElement("span", null, [
                             plusContainer,
                             `${insertions || ``}`,
                         ])
@@ -119,7 +117,7 @@ const activate = Oni => {
                             )
                         }
 
-                        deletionsSpan = React.createElement("span", null, [
+                        deletionSpan = React.createElement("span", null, [
                             minusContainer,
                             `${deletions || ``}`,
                         ])
@@ -133,10 +131,10 @@ const activate = Oni => {
 
                     components = [
                         ...components,
-                        insertionsSpan,
+                        insertionSpan,
                         localInsertionSpan,
                         spacer,
-                        deletionsSpan,
+                        deletionSpan,
                         localDeletionSpan,
                     ]
                 }
