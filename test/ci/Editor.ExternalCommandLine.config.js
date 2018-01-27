@@ -4,4 +4,4 @@
 
 module.exports = {
     "experimental.commandline.mode": true,
-}
+};
