@@ -6,8 +6,9 @@
  */
 
 import { remote } from "electron"
-import { access } from "fs"
+import { stat } from "fs"
 import { promisify } from "util"
+
 import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
 import "rxjs/add/operator/concatMap"
@@ -28,7 +29,7 @@ import { convertTextDocumentEditsToFileMap } from "./../Language/Edits"
 import * as WorkspaceCommands from "./WorkspaceCommands"
 import { WorkspaceConfiguration } from "./WorkspaceConfiguration"
 
-const fsAccess = promisify(access)
+const fsStat = promisify(stat)
 
 // Candidate interface to promote to Oni API
 export interface IWorkspace extends Oni.Workspace {
@@ -64,15 +65,15 @@ export class Workspace implements IWorkspace {
         return this._onDirectoryChangedEvent
     }
 
-    public changeDirectory(newDirectory: string) {
-        const dirExists = fsAccess(newDirectory)
-        console.log("dirExists: ", dirExists)
-        if (newDirectory && dirExists) {
+    public async changeDirectory(newDirectory: string) {
+        const exists = await this.pathIsDir(newDirectory)
+        const dir = exists ? newDirectory : null
+        if (newDirectory && exists) {
             process.chdir(newDirectory)
-
-            this._activeWorkspace = newDirectory
-            this._onDirectoryChangedEvent.dispatch(newDirectory)
         }
+
+        this._activeWorkspace = dir
+        this._onDirectoryChangedEvent.dispatch(dir)
     }
 
     public async applyEdits(edits: types.WorkspaceEdit): Promise<void> {
@@ -116,6 +117,16 @@ export class Workspace implements IWorkspace {
 
     public get onFocusLost(): IEvent<Oni.Buffer> {
         return this._onFocusLostEvent
+    }
+
+    public pathIsDir = async (p: string) => {
+        try {
+            const stats = await fsStat(p)
+            return stats.isDirectory()
+        } catch (error) {
+            Log.info(error)
+            return false
+        }
     }
 }
 

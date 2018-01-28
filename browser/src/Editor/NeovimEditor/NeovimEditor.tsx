@@ -397,8 +397,8 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.setNeovimError(true)
         })
 
-        this._neovimInstance.onDirectoryChanged.subscribe(newDirectory => {
-            this._workspace.changeDirectory(newDirectory)
+        this._neovimInstance.onDirectoryChanged.subscribe(async newDirectory => {
+            await this._workspace.changeDirectory(newDirectory)
         })
 
         this._neovimInstance.on("action", (action: any) => {
