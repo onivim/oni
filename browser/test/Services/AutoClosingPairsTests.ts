@@ -74,9 +74,9 @@ describe("AutoClosingPairs", () => {
         })
 
         it("moves the cursor correctly onto the closing quote", async () => {
-            const pair = { open: '"', close: '"' } as IAutoClosingPair
+            const pair = { open: "'", close: "'" } as IAutoClosingPair
 
-            mockBuffer.setLinesSync(['"Oni"'])
+            mockBuffer.setLinesSync(["'Oni'"])
             mockBuffer.setCursorPosition(0, 4)
 
             await checkOpenCharacter(
