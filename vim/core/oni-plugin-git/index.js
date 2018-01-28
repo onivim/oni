@@ -4,19 +4,9 @@ const { promisify } = require("util")
 const fsStat = promisify(fs.stat)
 
 const activate = Oni => {
-    const showPerFileChanges = Oni.configuration.getValue("statusbar.git.changes.useLocal", {})
     const React = Oni.dependencies.React
     let isLoaded = false
     try {
-        const pathIsDir = async p => {
-            try {
-                const stats = await fsStat(p)
-                return stats.isDirectory()
-            } catch (error) {
-                return error
-            }
-        }
-
         const updateBranchIndicator = async evt => {
             if (!evt) {
                 return
@@ -30,7 +20,7 @@ const activate = Oni => {
             let dir
 
             try {
-                const isDir = await pathIsDir(filePath)
+                const isDir = await Oni.workspace.pathIsDir(filePath)
                 const dir = isDir ? filePath : path.dirname(filePath)
                 let branchName, summary
                 try {
@@ -77,28 +67,18 @@ const activate = Oni => {
                         return acc
                     }, {})
 
-                    const localProps = { style: { color: "goldenrod" } }
                     const iconStyles = { style: { fontSize: "0.7rem", paddingRight: "0.15rem" } }
 
                     let minusIcon = null
                     let minusContainer = null
                     let plusIcon = null
                     let plusContainer = null
-                    let localInsertionSpan = null
                     let insertionSpan = null
-                    let localDeletionSpan = null
                     let deletionSpan = null
 
                     if (insertions) {
                         plusIcon = Oni.ui.createIcon({ name: "plus" })
                         plusContainer = React.createElement("span", iconStyles, plusIcon)
-                        if (showPerFileChanges) {
-                            localInsertionSpan = React.createElement(
-                                "span",
-                                localProps,
-                                perFile.insertions ? `(${perFile.insertions})` : ``,
-                            )
-                        }
 
                         insertionSpan = React.createElement("span", null, [
                             plusContainer,
@@ -108,14 +88,6 @@ const activate = Oni => {
                     if (deletions) {
                         minusIcon = Oni.ui.createIcon({ name: "minus" })
                         minusContainer = React.createElement("span", iconStyles, minusIcon)
-
-                        if (showPerFileChanges) {
-                            localDeletionSpan = React.createElement(
-                                "span",
-                                localProps,
-                                perFile.deletions ? `(${perFile.deletions})` : ``,
-                            )
-                        }
 
                         deletionSpan = React.createElement("span", null, [
                             minusContainer,
@@ -129,14 +101,7 @@ const activate = Oni => {
                         spacer = React.createElement("span", null, ", ")
                     }
 
-                    components = [
-                        ...components,
-                        insertionSpan,
-                        localInsertionSpan,
-                        spacer,
-                        deletionSpan,
-                        localDeletionSpan,
-                    ]
+                    components = [...components, insertionSpan, spacer, deletionSpan]
                 }
 
                 const branchContainer = React.createElement(

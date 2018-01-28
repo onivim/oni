@@ -27,7 +27,13 @@ export interface GitFunctions {
     getGitRoot(): Promise<string | null>
 }
 
-const numFromString = (s: string) => Number(s.match(/\d+/)[0])
+const numFromString = (s: string) => {
+    const num = s.match(/\d+/)
+    if (num && num.length) {
+        return Number(num[0])
+    }
+    return null
+}
 
 const formatFileAndChanges = (files: string[]) => {
     if (!files.length) {
@@ -35,8 +41,10 @@ const formatFileAndChanges = (files: string[]) => {
     }
     return files.map(unformattedStr => {
         const [file, changes] = unformattedStr.split("|")
-        const insertions = changes.replace(/[^+]/g, "").split("+").length
-        const deletions = changes.replace(/[^-]/g, "").split("-").length
+        const pluses = changes.replace(/[^+]/g, "")
+        const insertions = pluses.length
+        const minuses = changes.replace(/[^-]/g, "")
+        const deletions = minuses.length
         return {
             file: file.trim(),
             changes: numFromString(changes),
@@ -74,7 +82,7 @@ export async function getGitSummary(currentDir: string): Promise<IStatus | null>
             try {
                 const output: string = await execPromise(cmd, options)
                 if (output) {
-                    const outputArray = output.split("\n").filter((v: string) => !!v)
+                    const outputArray = output.split("\n").filter(v => !!v)
                     const changeSummary = outputArray[outputArray.length - 1]
                     const filesChanged = outputArray.slice(0, outputArray.length - 1)
                     const [modified, insertions, deletions] = changeSummary
