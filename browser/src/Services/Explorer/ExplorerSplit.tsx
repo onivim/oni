@@ -14,6 +14,7 @@ import { Event } from "oni-types"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 // import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
+import { windowManager } from "./../../Services/WindowManager"
 import { IWorkspace } from "./../../Services/Workspace"
 
 import { createStore, IExplorerState } from "./ExplorerStore"
@@ -113,6 +114,7 @@ export class ExplorerSplit {
         switch (selectedItem.type) {
             case "file":
                 this._editorManager.activeEditor.openFile(selectedItem.filePath)
+                windowManager.focusSplit(this._editorManager.activeEditor as any)
                 return
             case "folder":
                 const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(
