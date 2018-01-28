@@ -125,7 +125,7 @@ const activate = Oni => {
                 gitBranchIndicator.setContents(gitBranch)
                 gitBranchIndicator.show()
             } catch (e) {
-                console.warn("[Oni.plugin.git]: ", e)
+                console.log("[Oni.plugin.git]: ", e)
                 return gitBranchIndicator.hide()
             }
         }

@@ -124,6 +124,10 @@ export class WindowManager {
         this._onSplitChanged.dispatch(this.splitRoot)
     }
 
+    public focusSplit(split: Oni.IWindowSplit): void {
+        this._focusNewSplit(split)
+    }
+
     private _focusNewSplit(newSplit: any): void {
         if (this._activeSplit && this._activeSplit.leave) {
             this._activeSplit.leave()
