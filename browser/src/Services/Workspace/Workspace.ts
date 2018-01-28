@@ -6,6 +6,8 @@
  */
 
 import { remote } from "electron"
+import { access } from "fs"
+import { promisify } from "util"
 import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
 import "rxjs/add/operator/concatMap"
@@ -25,6 +27,8 @@ import { convertTextDocumentEditsToFileMap } from "./../Language/Edits"
 
 import * as WorkspaceCommands from "./WorkspaceCommands"
 import { WorkspaceConfiguration } from "./WorkspaceConfiguration"
+
+const fsAccess = promisify(access)
 
 // Candidate interface to promote to Oni API
 export interface IWorkspace extends Oni.Workspace {
@@ -61,12 +65,14 @@ export class Workspace implements IWorkspace {
     }
 
     public changeDirectory(newDirectory: string) {
-        if (newDirectory) {
+        const dirExists = fsAccess(newDirectory)
+        console.log("dirExists: ", dirExists)
+        if (newDirectory && dirExists) {
             process.chdir(newDirectory)
-        }
 
-        this._activeWorkspace = newDirectory
-        this._onDirectoryChangedEvent.dispatch(newDirectory)
+            this._activeWorkspace = newDirectory
+            this._onDirectoryChangedEvent.dispatch(newDirectory)
+        }
     }
 
     public async applyEdits(edits: types.WorkspaceEdit): Promise<void> {
