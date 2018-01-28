@@ -172,7 +172,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
             "WARNING: `OniApi.execNodeScript` is deprecated. Please use `OniApi.process.execNodeScript` instead",
         )
 
-        return await Process.execNodeScript(scriptPath, args, options, callback)
+        return Process.execNodeScript(scriptPath, args, options, callback)
     }
 
     /**
@@ -187,6 +187,6 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
             "WARNING: `OniApi.spawnNodeScript` is deprecated. Please use `OniApi.process.spawnNodeScript` instead",
         )
 
-        return await Process.spawnNodeScript(scriptPath, args, options)
+        return Process.spawnNodeScript(scriptPath, args, options)
     }
 }
