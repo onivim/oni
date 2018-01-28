@@ -1,7 +1,5 @@
 import * as assert from "assert"
 
-import * as types from "vscode-languageserver-types"
-
 import * as Mocks from "./../Mocks"
 
 import {
@@ -42,7 +40,7 @@ describe("AutoClosingPairs", () => {
             const pair = { open: "(", close: ")" } as IAutoClosingPair
 
             mockBuffer.setLinesSync(["("])
-            checkOpenCharacter(
+            await checkOpenCharacter(
                 (str: string) => {
                     mockBuffer.setLinesSync([str])
                 },
@@ -60,8 +58,8 @@ describe("AutoClosingPairs", () => {
             const pair = { open: '"', close: '"' } as IAutoClosingPair
 
             mockBuffer.setLinesSync(['"Oni"'])
-            mockBuffer.setCursorPosition(types.Position.create(0, 4))
-            checkOpenCharacter(
+            mockBuffer.setCursorPosition(0, 4)
+            await checkOpenCharacter(
                 (str: string) => {
                     mockBuffer.setLinesSync([str])
                 },
@@ -79,8 +77,9 @@ describe("AutoClosingPairs", () => {
             const pair = { open: '"', close: '"' } as IAutoClosingPair
 
             mockBuffer.setLinesSync(['"Oni"'])
-            mockBuffer.setCursorPosition(types.Position.create(0, 4))
-            checkOpenCharacter(
+            mockBuffer.setCursorPosition(0, 4)
+
+            await checkOpenCharacter(
                 (str: string) => {
                     mockBuffer.setLinesSync([str])
                 },
@@ -90,8 +89,7 @@ describe("AutoClosingPairs", () => {
             )
 
             const endCursorPos = await mockBuffer.getCursorPosition()
-
-            assert.strictEqual(endCursorPos, types.Position.create(0, 5))
+            assert.strictEqual(endCursorPos.character, 5)
         })
     })
 })
