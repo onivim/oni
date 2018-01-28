@@ -117,7 +117,7 @@ export const activateCommands = (
             "workspace.closeFolder",
             "Workspace: Close Folder",
             "Close the current folder",
-            async () => await workspace.changeDirectory(null),
+            async () => workspace.changeDirectory(null),
             () => !!workspace.activeWorkspace,
         ),
     ]
