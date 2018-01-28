@@ -15,17 +15,17 @@ import * as State from "./NeovimEditorStore"
 
 import { EmptyArray } from "./../../Utility"
 
-export interface NeovimLayersViewProps {
+export interface NeovimBufferLayersViewProps {
     activeWindowId: number
     windows: State.IWindow[]
     layers: State.Layers
 }
 
-export class NeovimLayersView extends React.PureComponent<NeovimLayersViewProps, {}> {
+export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLayersViewProps, {}> {
     public render(): JSX.Element {
-
-        const containers = this.props.windows.map((windowState) => {
-            const layers = this.props.layers[windowState.bufferId] || (EmptyArray as Oni.EditorLayer[])
+        const containers = this.props.windows.map(windowState => {
+            const layers =
+                this.props.layers[windowState.bufferId] || (EmptyArray as Oni.EditorLayer[])
 
             const layerContext = {
                 isActive: windowState.windowId === this.props.activeWindowId,
@@ -36,20 +36,20 @@ export class NeovimLayersView extends React.PureComponent<NeovimLayersViewProps,
                 dimensions: windowState.dimensions,
             }
 
-            const layerElements = layers.map((l) => {
-                return l.render(layerContext)
+            const layerElements = layers.map(l => {
+                return <div key={l.id}>{l.render(layerContext)}</div>
             })
 
             const dimensions = getWindowPixelDimensions(windowState)
 
-            return <NeovimActiveWindow {...dimensions} key={windowState.windowId}>
+            return (
+                <NeovimActiveWindow {...dimensions} key={windowState.windowId.toString()}>
                     {layerElements}
                 </NeovimActiveWindow>
+            )
         })
 
-        return <div className="stack layer">
-                    {containers}
-                </div>
+        return <div className="stack layer">{containers}</div>
     }
 }
 
@@ -61,7 +61,6 @@ const EmptySize = {
 }
 
 const getWindowPixelDimensions = (win: State.IWindow) => {
-
     if (!win || !win.screenToPixel) {
         return EmptySize
     }
@@ -78,13 +77,13 @@ const getWindowPixelDimensions = (win: State.IWindow) => {
 
     return {
         pixelX: start.pixelX,
-        pixelY: start.pixelY,
+        pixelY: start.pixelY - 1,
         pixelWidth: size.pixelX,
-        pixelHeight: size.pixelY,
+        pixelHeight: size.pixelY + 2,
     }
 }
 
-const mapStateToProps = (state: State.IState): NeovimLayersViewProps => {
+const mapStateToProps = (state: State.IState): NeovimBufferLayersViewProps => {
     if (!state.activeVimTabPage) {
         return {
             activeWindowId: -1,
@@ -93,7 +92,7 @@ const mapStateToProps = (state: State.IState): NeovimLayersViewProps => {
         }
     }
 
-    const windows = state.activeVimTabPage.windowIds.map((windowId) => {
+    const windows = state.activeVimTabPage.windowIds.map(windowId => {
         return state.windowState.windows[windowId]
     })
 
@@ -106,4 +105,4 @@ const mapStateToProps = (state: State.IState): NeovimLayersViewProps => {
     }
 }
 
-export const NeovimLayers = connect(mapStateToProps)(NeovimLayersView)
+export const NeovimBufferLayers = connect(mapStateToProps)(NeovimBufferLayersView)

@@ -12,7 +12,6 @@ export const getCompletionElement = () => {
 }
 
 export const getElementByClassName = (className: string) => {
-
     const elements = document.body.getElementsByClassName(className)
 
     if (!elements || !elements.length) {
@@ -23,7 +22,6 @@ export const getElementByClassName = (className: string) => {
 }
 
 export const createNewFile = async (fileExtension: string, oni: Oni.Plugin.Api): Promise<void> => {
-
     const tempFilePath = getTemporaryFilePath(fileExtension)
     await navigateToFile(tempFilePath, oni)
 }
@@ -31,13 +29,22 @@ export const createNewFile = async (fileExtension: string, oni: Oni.Plugin.Api):
 export const getTemporaryFilePath = (fileExtension: string): string => {
     const dir = os.tmpdir()
     const testFileName = `testFile-${new Date().getTime()}.${fileExtension}`
-    const tempFilePath = path.join(dir, testFileName)
-    return tempFilePath
+    return path.join(dir, testFileName)
+}
+
+export const getTemporaryFolder = (): string => {
+    const dir = os.tmpdir()
+    const testFolderName = `oni-test-folder-${new Date().getTime()}`
+    const testFolderPath = path.join(dir, testFolderName)
+    return testFolderPath
 }
 
 export const navigateToFile = async (filePath: string, oni: Oni.Plugin.Api): Promise<void> => {
     oni.automation.sendKeys(":e " + filePath)
     oni.automation.sendKeys("<cr>")
 
-    await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.filePath === filePath, 10000)
+    await oni.automation.waitFor(
+        () => oni.editors.activeEditor.activeBuffer.filePath === filePath,
+        10000,
+    )
 }

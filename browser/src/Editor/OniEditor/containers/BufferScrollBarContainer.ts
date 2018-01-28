@@ -4,16 +4,18 @@ import { connect } from "react-redux"
 import { createSelector } from "reselect"
 
 import { getColorFromSeverity } from "./../../../Services/Errors"
-import { BufferScrollBar, IBufferScrollBarProps, IScrollBarMarker } from "./../../../UI/components/BufferScrollBar"
+import {
+    BufferScrollBar,
+    IBufferScrollBarProps,
+    IScrollBarMarker,
+} from "./../../../UI/components/BufferScrollBar"
 
-import * as Selectors from "./../NeovimEditorSelectors"
-import * as State from "./../NeovimEditorStore"
+import * as Selectors from "./../../NeovimEditor/NeovimEditorSelectors"
+import * as State from "./../../NeovimEditor/NeovimEditorStore"
 
-export const getCurrentLine = createSelector(
-    [Selectors.getActiveWindow],
-    (activeWindow) => {
-        return activeWindow.line
-    })
+export const getCurrentLine = createSelector([Selectors.getActiveWindow], activeWindow => {
+    return activeWindow.line
+})
 
 const NoScrollBar: IBufferScrollBarProps = {
     windowId: null,
@@ -49,7 +51,8 @@ export const getMarkers = createSelector(
 
             return [...errorMarkers, cursorMarker]
         }
-    })
+    },
+)
 
 const mapStateToProps = (state: State.IState): IBufferScrollBarProps => {
     const visible = state.configuration["editor.scrollBar.visible"]

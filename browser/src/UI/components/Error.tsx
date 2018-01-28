@@ -18,7 +18,6 @@ export interface IErrorsProps {
     fontWidthInPixels: number
     fontHeightInPixels: number
 
-    cursorLine: number
     bufferToScreen: Oni.Coordinates.BufferToScreen
     screenToPixel: Oni.Coordinates.ScreenToPixel
 }
@@ -33,9 +32,10 @@ export class Errors extends React.PureComponent<IErrorsProps, {}> {
             return null
         }
 
-        const markers = errors.map((e) => {
-
-            const screenSpaceStart = this.props.bufferToScreen(types.Position.create(e.range.start.line, e.range.start.character))
+        const markers = errors.map(e => {
+            const screenSpaceStart = this.props.bufferToScreen(
+                types.Position.create(e.range.start.line, e.range.start.character),
+            )
             if (!screenSpaceStart) {
                 return null
             }
@@ -43,74 +43,82 @@ export class Errors extends React.PureComponent<IErrorsProps, {}> {
             const screenLine = screenSpaceStart.screenY
 
             const screenY = screenLine
-            const pixelPosition = this.props.screenToPixel({screenX: 0, screenY })
-            const isActive = this.props.cursorLine - 1 === e.range.start.line
-            const pixelY = pixelPosition.pixelY - (padding / 2)
+            const pixelPosition = this.props.screenToPixel({ screenX: 0, screenY })
+            const pixelY = pixelPosition.pixelY - padding / 2
 
-            return <ErrorMarker isActive={isActive}
-                y={pixelY}
-                text={e.message}
-                color={getColorFromSeverity(e.severity)} />
+            return (
+                <ErrorMarker y={pixelY} text={e.message} color={getColorFromSeverity(e.severity)} />
+            )
         })
 
         const squiggles = errors
-            .filter((e) => e && e.range && e.range.start && e.range.end)
-            .map((e) => {
-            const lineNumber = e.range.start.line
-            const column = e.range.start.character
-            const endColumn = e.range.end.character
+            .filter(e => e && e.range && e.range.start && e.range.end)
+            .map(e => {
+                const lineNumber = e.range.start.line
+                const column = e.range.start.character
+                const endColumn = e.range.end.character
 
-            const startPosition = this.props.bufferToScreen(types.Position.create(lineNumber, column))
+                const startPosition = this.props.bufferToScreen(
+                    types.Position.create(lineNumber, column),
+                )
 
-            if (!startPosition) {
-                return null
-            }
+                if (!startPosition) {
+                    return null
+                }
 
-            const endPosition = this.props.bufferToScreen(types.Position.create(lineNumber, endColumn))
+                const endPosition = this.props.bufferToScreen(
+                    types.Position.create(lineNumber, endColumn),
+                )
 
-            if (!endPosition) {
-                return null
-            }
+                if (!endPosition) {
+                    return null
+                }
 
-            const pixelStart = this.props.screenToPixel(startPosition)
-            const pixelEnd = this.props.screenToPixel(endPosition)
-            const pixelWidth = pixelEnd.pixelX - pixelStart.pixelX
-            const normalizedPixelWidth = pixelWidth === 0 ? this.props.fontWidthInPixels : pixelWidth
+                const pixelStart = this.props.screenToPixel(startPosition)
+                const pixelEnd = this.props.screenToPixel(endPosition)
+                const pixelWidth = pixelEnd.pixelX - pixelStart.pixelX
+                const normalizedPixelWidth =
+                    pixelWidth === 0 ? this.props.fontWidthInPixels : pixelWidth
 
-            return <ErrorSquiggle
-                y={pixelStart.pixelY}
-                height={this.props.fontHeightInPixels}
-                x={pixelStart.pixelX}
-                width={normalizedPixelWidth}
-                color={getColorFromSeverity(e.severity)} />
-        })
+                return (
+                    <ErrorSquiggle
+                        y={pixelStart.pixelY}
+                        height={this.props.fontHeightInPixels}
+                        x={pixelStart.pixelX}
+                        width={normalizedPixelWidth}
+                        color={getColorFromSeverity(e.severity)}
+                    />
+                )
+            })
 
-        return <div>{markers}{squiggles}</div>
+        return (
+            <div>
+                {markers}
+                {squiggles}
+            </div>
+        )
     }
 }
 
 export interface IErrorMarkerProps {
     y: number
     text: string
-    isActive: boolean
     color: string
 }
 
 export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, {}> {
-
     public render(): JSX.Element {
-
         const iconPositionStyles = {
             top: this.props.y.toString() + "px",
         }
 
-        const errorIcon = <div style={iconPositionStyles} className="error-marker">
-            <ErrorIcon color={this.props.color} />
-        </div>
+        const errorIcon = (
+            <div style={iconPositionStyles} className="error-marker">
+                <ErrorIcon color={this.props.color} />
+            </div>
+        )
 
-        return <div>
-            {errorIcon}
-        </div>
+        return <div>{errorIcon}</div>
     }
 }
 
@@ -119,22 +127,23 @@ export interface IErrorIconProps {
 }
 
 export const ErrorIcon = (props: IErrorIconProps) => {
-    return <div className="icon-container" style={{ color: props.color }}>
-        <Icon name="exclamation-circle" />
-    </div>
+    return (
+        <div className="icon-container" style={{ color: props.color }}>
+            <Icon name="exclamation-circle" />
+        </div>
+    )
 }
 
 export interface IErrorSquiggleProps {
-    x: number,
-    y: number,
-    height: number,
-    width: number,
-    color: string,
+    x: number
+    y: number
+    height: number
+    width: number
+    color: string
 }
 
 export class ErrorSquiggle extends React.PureComponent<IErrorSquiggleProps, {}> {
     public render(): JSX.Element {
-
         const { x, y, width, height, color } = this.props
 
         const style = {
@@ -145,6 +154,6 @@ export class ErrorSquiggle extends React.PureComponent<IErrorSquiggleProps, {}> 
             borderBottom: `1px dashed ${color}`,
         }
 
-        return <div className="error-squiggle" style={style}></div>
+        return <div className="error-squiggle" style={style} />
     }
 }

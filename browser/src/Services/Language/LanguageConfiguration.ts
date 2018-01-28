@@ -7,7 +7,11 @@
 import * as Log from "./../../Log"
 
 import { LanguageClient } from "./LanguageClient"
-import { InitializationOptions, LanguageClientProcess, ServerRunOptions } from "./LanguageClientProcess"
+import {
+    InitializationOptions,
+    LanguageClientProcess,
+    ServerRunOptions,
+} from "./LanguageClientProcess"
 import * as LanguageManager from "./LanguageManager"
 
 import { getRootProjectFileFunc } from "./../../Utility"
@@ -23,34 +27,42 @@ export interface ILightweightLanguageServerConfiguration {
     configuration?: any
 }
 
-export const createLanguageClientsFromConfiguration = (configurationValues: { [key: string]: any }) => {
+export const createLanguageClientsFromConfiguration = (configurationValues: {
+    [key: string]: any
+}) => {
     const languageInfo = expandLanguageConfiguration(configurationValues)
     const languages = Object.keys(languageInfo)
 
-    languages.forEach((lang) => {
+    languages.forEach(lang => {
         createLanguageClientFromConfig(lang, languageInfo[lang])
     })
 }
 
 const expandLanguageConfiguration = (configuration: { [key: string]: any }) => {
-
     // Filter for all `language.` keys, ie `language.go.languageServerCommand`
-    const keys = Object.keys(configuration).filter((k) => k.indexOf("language.") === 0)
+    const keys = Object.keys(configuration).filter(k => k.indexOf("language.") === 0)
 
     if (keys.length === 0) {
         return {}
     }
 
     const expanded = keys.reduce<any>((prev, current) => {
-
-        const newValue = expandConfigurationSetting(prev, current.split("."), configuration[current])
+        const newValue = expandConfigurationSetting(
+            prev,
+            current.split("."),
+            configuration[current],
+        )
         return newValue
     }, {})
 
     return expanded.language
 }
 
-const expandConfigurationSetting = (rootObject: any, configurationPath: string[], value: string): any  => {
+const expandConfigurationSetting = (
+    rootObject: any,
+    configurationPath: string[],
+    value: string,
+): any => {
     if (!configurationPath || !configurationPath.length) {
         return value
     }
@@ -67,7 +79,10 @@ const expandConfigurationSetting = (rootObject: any, configurationPath: string[]
 
 const simplePathResolver = (filePath: string) => Promise.resolve(filePath)
 
-const createLanguageClientFromConfig = (language: string, config: ILightweightLanguageConfiguration): void => {
+const createLanguageClientFromConfig = (
+    language: string,
+    config: ILightweightLanguageConfiguration,
+): void => {
     if (!config || !config.languageServer || !config.languageServer.command) {
         return
     }
@@ -77,9 +92,15 @@ const createLanguageClientFromConfig = (language: string, config: ILightweightLa
     const args = config.languageServer.arguments || []
     const configuration = config.languageServer.configuration || null
 
-    Log.info(`[Language Manager - Config] Registering info for language: ${language} - command: ${config.languageServer.command}`)
+    Log.info(
+        `[Language Manager - Config] Registering info for language: ${language} - command: ${
+            config.languageServer.command
+        }`,
+    )
 
-    const commandOrModule = lightweightCommand.endsWith(".js") ? { module: lightweightCommand } : { command: lightweightCommand }
+    const commandOrModule = lightweightCommand.endsWith(".js")
+        ? { module: lightweightCommand }
+        : { command: lightweightCommand }
 
     let pathResolver = simplePathResolver
 
@@ -96,6 +117,9 @@ const createLanguageClientFromConfig = (language: string, config: ILightweightLa
     const initializationOptions: InitializationOptions = {
         rootPath: pathResolver,
     }
-    const languageClient = new LanguageClient(language, new LanguageClientProcess(serverRunOptions, initializationOptions, configuration))
+    const languageClient = new LanguageClient(
+        language,
+        new LanguageClientProcess(serverRunOptions, initializationOptions, configuration),
+    )
     LanguageManager.getInstance().registerLanguageClient(language, languageClient)
 }

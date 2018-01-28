@@ -19,6 +19,7 @@ export const getUserConfigFilePath = (): string => {
 }
 
 export const getUserConfigFolderPath = (): string => {
-    return Platform.isWindows() ? path.join(Platform.getUserHome(), "oni") :
-                                  path.join(Platform.getUserHome(), ".oni")
+    return Platform.isWindows()
+        ? path.join(Platform.getUserHome(), "oni")
+        : path.join(Platform.getUserHome(), ".oni")
 }

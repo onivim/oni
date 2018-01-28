@@ -13,10 +13,20 @@ import * as Platform from "./../../Platform"
 import { IConfigurationValues } from "./IConfigurationValues"
 import { ocamlAndReasonConfiguration, ocamlLanguageServerPath } from "./ReasonConfiguration"
 
-const noop = () => { } // tslint:disable-line no-empty
+const noop = () => {} // tslint:disable-line no-empty
 
-const cssLanguageServerPath = path.join(__dirname, "node_modules", "vscode-css-languageserver-bin", "cssServerMain.js")
-const htmlLanguageServerPath = path.join(__dirname, "node_modules", "vscode-html-languageserver-bin", "htmlServerMain.js")
+const cssLanguageServerPath = path.join(
+    __dirname,
+    "node_modules",
+    "vscode-css-languageserver-bin",
+    "cssServerMain.js",
+)
+const htmlLanguageServerPath = path.join(
+    __dirname,
+    "node_modules",
+    "vscode-html-languageserver-bin",
+    "htmlServerMain.js",
+)
 
 const BaseConfiguration: IConfigurationValues = {
     activate: noop,
@@ -36,6 +46,7 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.editor.textMateHighlighting.enabled": false,
     "experimental.commandline.mode": false,
     "experimental.commandline.icons": false,
+    "experimental.welcome.enabled": false,
     "experimental.wildmenu.mode": false,
 
     "experimental.neovim.transport": "stdio",
@@ -48,9 +59,9 @@ const BaseConfiguration: IConfigurationValues = {
 
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
-        { "open": "{", "close": "}" },
-        { "open": "[", "close": "]" },
-        { "open": "(", "close": ")" },
+        { open: "{", close: "}" },
+        { open: "[", close: "]" },
+        { open: "(", close: ")" },
     ],
 
     "oni.audio.bellUrl": null,
@@ -71,7 +82,10 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.backgroundImageSize": "cover",
 
     "editor.clipboard.enabled": true,
+    "editor.clipboard.synchronizeYank": true,
+    "editor.clipboard.synchronizeDelete": false,
 
+    "editor.definition.enabled": true,
     "editor.quickInfo.enabled": true,
     "editor.quickInfo.delay": 500,
 
@@ -103,31 +117,40 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumn": false,
     "editor.cursorColumnOpacity": 0.1,
 
-    "editor.tokenColors": [{
-        scope: "variable.object",
-        settings: "Identifier",
-    }, {
-        scope: "variable.other.constant",
-        settings: "Constant",
-    }, {
-        scope: "variable.language",
-        settings: "Identifier",
-    }, {
-        scope: "variable.parameter",
-        settings: "Identifier",
-    }, {
-        scope: "variable.other",
-        settings: "Identifier",
-    }, {
-        scope: "support.function",
-        settings: "Function",
-    }, {
-        scope: "entity.name",
-        settings: "Function",
-    }, {
-        scope: "entity.other",
-        settings: "Constant",
-    }],
+    "editor.tokenColors": [
+        {
+            scope: "variable.object",
+            settings: "Identifier",
+        },
+        {
+            scope: "variable.other.constant",
+            settings: "Constant",
+        },
+        {
+            scope: "variable.language",
+            settings: "Identifier",
+        },
+        {
+            scope: "variable.parameter",
+            settings: "Identifier",
+        },
+        {
+            scope: "variable.other",
+            settings: "Identifier",
+        },
+        {
+            scope: "support.function",
+            settings: "Function",
+        },
+        {
+            scope: "entity.name",
+            settings: "Function",
+        },
+        {
+            scope: "entity.other",
+            settings: "Constant",
+        },
+    ],
 
     "environment.additionalPaths": [],
 
@@ -143,24 +166,48 @@ const BaseConfiguration: IConfigurationValues = {
 
     "language.css.languageServer.command": cssLanguageServerPath,
     "language.css.languageServer.arguments": ["--stdio"],
-    "language.css.textMateGrammar": path.join(__dirname, "extensions", "css", "syntaxes", "css.tmLanguage.json"),
+    "language.css.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "css",
+        "syntaxes",
+        "css.tmLanguage.json",
+    ),
     "language.css.tokenRegex": "[$_a-zA-Z0-9-]",
 
     "language.less.languageServer.command": cssLanguageServerPath,
     "language.less.languageServer.arguments": ["--stdio"],
-    "language.less.textMateGrammar": path.join(__dirname, "extensions", "less", "syntaxes", "less.tmLanguage.json"),
+    "language.less.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "less",
+        "syntaxes",
+        "less.tmLanguage.json",
+    ),
     "language.less.tokenRegex": "[$_a-zA-Z0-9-]",
 
     "language.scss.languageServer.command": cssLanguageServerPath,
     "language.scss.languageServer.arguments": ["--stdio"],
-    "language.scss.textMateGrammar": path.join(__dirname, "extensions", "scss", "syntaxes", "scss.json"),
+    "language.scss.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "scss",
+        "syntaxes",
+        "scss.json",
+    ),
     "language.scss.tokenRegex": "[$_a-zA-Z0-9-]",
 
     "language.reason.languageServer.command": ocamlLanguageServerPath,
     "language.reason.languageServer.arguments": ["--stdio"],
     "language.reason.languageServer.rootFiles": [".merlin", "bsconfig.json"],
     "language.reason.languageServer.configuration": ocamlAndReasonConfiguration,
-    "language.reason.textMateGrammar": path.join(__dirname, "extensions", "reason", "syntaxes", "reason.json"),
+    "language.reason.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "reason",
+        "syntaxes",
+        "reason.json",
+    ),
 
     "language.ocaml.languageServer.command": ocamlLanguageServerPath,
     "language.ocaml.languageServer.arguments": ["--stdio"],
@@ -168,13 +215,37 @@ const BaseConfiguration: IConfigurationValues = {
 
     "language.typescript.completionTriggerCharacters": [".", "/", "\\"],
     "language.typescript.textMateGrammar": {
-        ".ts": path.join(__dirname, "extensions", "typescript", "syntaxes", "TypeScript.tmLanguage.json"),
-        ".tsx": path.join(__dirname, "extensions", "typescript", "syntaxes", "TypeScriptReact.tmLanguage.json"),
+        ".ts": path.join(
+            __dirname,
+            "extensions",
+            "typescript",
+            "syntaxes",
+            "TypeScript.tmLanguage.json",
+        ),
+        ".tsx": path.join(
+            __dirname,
+            "extensions",
+            "typescript",
+            "syntaxes",
+            "TypeScriptReact.tmLanguage.json",
+        ),
     },
     "language.javascript.completionTriggerCharacters": [".", "/", "\\"],
     "language.javascript.textMateGrammar": {
-        ".js": path.join(__dirname, "extensions", "javascript", "syntaxes", "JavaScript.tmLanguage.json"),
-        ".jsx": path.join(__dirname, "extensions", "javascript", "syntaxes", "JavaScriptReact.tmLanguage.json"),
+        ".js": path.join(
+            __dirname,
+            "extensions",
+            "javascript",
+            "syntaxes",
+            "JavaScript.tmLanguage.json",
+        ),
+        ".jsx": path.join(
+            __dirname,
+            "extensions",
+            "javascript",
+            "syntaxes",
+            "JavaScriptReact.tmLanguage.json",
+        ),
     },
 
     "menu.caseSensitive": "smart",
@@ -206,17 +277,17 @@ const BaseConfiguration: IConfigurationValues = {
     "ui.animations.enabled": true,
     "ui.colorscheme": "onedark",
     "ui.iconTheme": "theme-icons-seti",
-    "ui.fontFamily": "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
+    "ui.fontFamily":
+        "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
     "ui.fontSize": "13px",
     "ui.fontSmoothing": "auto",
+
+    "workspace.defaultWorkspace": null,
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {
     "editor.fontFamily": "Menlo",
-    "environment.additionalPaths": [
-        "/usr/bin",
-        "/usr/local/bin",
-    ],
+    "environment.additionalPaths": ["/usr/bin", "/usr/local/bin"],
 }
 
 const WindowsConfigOverrides: Partial<IConfigurationValues> = {
@@ -225,13 +296,12 @@ const WindowsConfigOverrides: Partial<IConfigurationValues> = {
 
 const LinuxConfigOverrides: Partial<IConfigurationValues> = {
     "editor.fontFamily": "DejaVu Sans Mono",
-    "environment.additionalPaths": [
-        "/usr/bin",
-        "/usr/local/bin",
-    ],
+    "environment.additionalPaths": ["/usr/bin", "/usr/local/bin"],
 }
 
-const PlatformConfigOverride = Platform.isWindows() ? WindowsConfigOverrides : Platform.isLinux() ? LinuxConfigOverrides : MacConfigOverrides
+const PlatformConfigOverride = Platform.isWindows()
+    ? WindowsConfigOverrides
+    : Platform.isLinux() ? LinuxConfigOverrides : MacConfigOverrides
 
 export const DefaultConfiguration = {
     ...BaseConfiguration,

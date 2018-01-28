@@ -18,16 +18,24 @@ import { ILatestCursorAndBufferInfo } from "./addInsertModeLanguageFunctionality
 import * as LanguageManager from "./LanguageManager"
 import * as SignatureHelp from "./SignatureHelpView"
 
-export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>, modeChanged$: Observable<Oni.Vim.Mode>, toolTips: IToolTipsProvider) => {
-
+export const initUI = (
+    latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>,
+    modeChanged$: Observable<Oni.Vim.Mode>,
+    toolTips: IToolTipsProvider,
+) => {
     const signatureHelpToolTipName = "signature-help-tool-tip"
 
     // Show signature help as the cursor moves
     latestCursorAndBufferInfo$
-        .flatMap(async (val) => {
-            return await showSignatureHelp(val.language, val.filePath, val.cursorLine, val.cursorColumn)
+        .flatMap(async val => {
+            return await showSignatureHelp(
+                val.language,
+                val.filePath,
+                val.cursorLine,
+                val.cursorColumn,
+            )
         })
-        .subscribe((result) => {
+        .subscribe(result => {
             if (result) {
                 toolTips.showToolTip(signatureHelpToolTipName, SignatureHelp.render(result), {
                     position: null,
@@ -40,18 +48,21 @@ export const initUI = (latestCursorAndBufferInfo$: Observable<ILatestCursorAndBu
         })
 
     // Hide signature help when we leave insert mode
-    modeChanged$
-        .subscribe((newMode) => {
-            if (newMode !== "insert") {
-                toolTips.hideToolTip(signatureHelpToolTipName)
-            }
-        })
+    modeChanged$.subscribe(newMode => {
+        if (newMode !== "insert") {
+            toolTips.hideToolTip(signatureHelpToolTipName)
+        }
+    })
 }
 
-export const showSignatureHelp = async (language: string, filePath: string, line: number, column: number): Promise<types.SignatureHelp> => {
+export const showSignatureHelp = async (
+    language: string,
+    filePath: string,
+    line: number,
+    column: number,
+): Promise<types.SignatureHelp> => {
     const languageManager = LanguageManager.getInstance()
     if (languageManager.isLanguageServerAvailable(language)) {
-
         const buffer = editorManager.activeEditor.activeBuffer
         const currentLine = await buffer.getLines(line, line + 1)
 
@@ -73,8 +84,15 @@ export const showSignatureHelp = async (language: string, filePath: string, line
 
         let result: types.SignatureHelp = null
         try {
-            result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/signatureHelp", args)
-        } catch (ex) { Log.debug(ex) }
+            result = await languageManager.sendLanguageServerRequest(
+                language,
+                filePath,
+                "textDocument/signatureHelp",
+                args,
+            )
+        } catch (ex) {
+            Log.debug(ex)
+        }
 
         return result
     } else {
@@ -83,8 +101,11 @@ export const showSignatureHelp = async (language: string, filePath: string, line
 }
 
 // TODO: `getSignatureHelpTriggerColumn` rename to `getNearestTriggerCharacter`
-export const getSignatureHelpTriggerColumn = (line: string, character: number, triggerCharacters: string[]): number => {
-
+export const getSignatureHelpTriggerColumn = (
+    line: string,
+    character: number,
+    triggerCharacters: string[],
+): number => {
     let idx = character
     while (idx >= 0) {
         if (line[idx] === triggerCharacters[0]) {

@@ -16,7 +16,6 @@ export interface INeovimRendererProps {
 }
 
 export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, {}> {
-
     private _element: HTMLDivElement
     private _boundOnResizeMethod: any
     private _resizeObserver: any
@@ -30,7 +29,8 @@ export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, {}
 
         if (!this._boundOnResizeMethod) {
             this._boundOnResizeMethod = this._onResize.bind(this)
-            this._resizeObserver = new window["ResizeObserver"]((entries: any) => { // tslint:disable-line no-string-literal
+            // tslint:disable-next-line no-string-literal
+            this._resizeObserver = new window["ResizeObserver"]((entries: any) => {
                 if (this._boundOnResizeMethod) {
                     this._boundOnResizeMethod()
                 }
@@ -53,7 +53,7 @@ export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, {}
     }
 
     public render(): JSX.Element {
-        return <div ref={ (elem) => this._element = elem } className="stack layer"></div>
+        return <div ref={elem => (this._element = elem)} className="stack layer" />
     }
 
     private _onResize(): void {

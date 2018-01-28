@@ -13,8 +13,10 @@ import { Errors } from "./../../Services/Diagnostics"
 
 import * as pick from "lodash/pick"
 
-export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>): State.IState {
-
+export function reducer<K extends keyof IConfigurationValues>(
+    s: State.IState,
+    a: Actions.Action<K>,
+): State.IState {
     if (!s) {
         return s
     }
@@ -36,29 +38,35 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
                 isLoaded: true,
             }
         case "SET_NEOVIM_ERROR":
-             return { ...s,
-                      neovimError: a.payload.neovimError }
+            return {
+                ...s,
+                neovimError: a.payload.neovimError,
+            }
         case "SET_VIEWPORT":
-            return { ...s,
-                     viewport: viewportReducer(s.viewport, a) }
+            return {
+                ...s,
+                viewport: viewportReducer(s.viewport, a),
+            }
         case "SET_CURSOR_SCALE":
             return {
-            ...s,
-            cursorScale: a.payload.cursorScale,
-        }
+                ...s,
+                cursorScale: a.payload.cursorScale,
+            }
         case "SET_ACTIVE_VIM_TAB_PAGE":
             return {
                 ...s,
                 activeVimTabPage: a.payload,
             }
         case "SET_CURSOR_POSITION":
-            return {...s,
-                    cursorPixelX: a.payload.pixelX,
-                    cursorPixelY: a.payload.pixelY,
-                    fontPixelWidth: a.payload.fontPixelWidth,
-                    fontPixelHeight: a.payload.fontPixelHeight,
-                    cursorCharacter: a.payload.cursorCharacter,
-                    cursorPixelWidth: a.payload.cursorPixelWidth }
+            return {
+                ...s,
+                cursorPixelX: a.payload.pixelX,
+                cursorPixelY: a.payload.pixelY,
+                fontPixelWidth: a.payload.fontPixelWidth,
+                fontPixelHeight: a.payload.fontPixelHeight,
+                cursorCharacter: a.payload.cursorCharacter,
+                cursorPixelWidth: a.payload.cursorPixelWidth,
+            }
         case "SET_IME_ACTIVE":
             return {
                 ...s,
@@ -75,7 +83,7 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value
-            const newConfig = {...s.configuration, ...obj}
+            const newConfig = { ...s.configuration, ...obj }
             return {
                 ...s,
                 configuration: newConfig,
@@ -136,21 +144,23 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
         case "SET_COMMAND_LINE_POSITION":
             return {
                 ...s,
-                commandLine :  {
+                commandLine: {
                     ...s.commandLine,
                     position: a.payload.position,
                     level: a.payload.level,
                 },
             }
         default:
-            return {...s,
-                    buffers: buffersReducer(s.buffers, a),
-                    definition: definitionReducer(s.definition, a),
-                    layers: layersReducer(s.layers, a),
-                    tabState: tabStateReducer(s.tabState, a),
-                    errors: errorsReducer(s.errors, a),
-                    toolTips: toolTipsReducer(s.toolTips, a),
-                    windowState: windowStateReducer(s.windowState, a)}
+            return {
+                ...s,
+                buffers: buffersReducer(s.buffers, a),
+                definition: definitionReducer(s.definition, a),
+                layers: layersReducer(s.layers, a),
+                tabState: tabStateReducer(s.tabState, a),
+                errors: errorsReducer(s.errors, a),
+                toolTips: toolTipsReducer(s.toolTips, a),
+                windowState: windowStateReducer(s.windowState, a),
+            }
     }
 }
 
@@ -172,9 +182,9 @@ export const definitionReducer = (s: State.IDefinition, a: Actions.SimpleAction)
         case "SHOW_DEFINITION":
             const { definitionLocation, token } = a.payload
             return {
-                    definitionLocation,
-                    token,
-                }
+                definitionLocation,
+                token,
+            }
         case "HIDE_DEFINITION":
             return null
         default:
@@ -188,7 +198,7 @@ export const viewportReducer = (s: State.IViewport, a: Actions.ISetViewportActio
             return {
                 width: a.payload.width,
                 height: a.payload.height,
-        }
+            }
         default:
             return s
     }
@@ -206,8 +216,10 @@ export const tabStateReducer = (s: State.ITabState, a: Actions.SimpleAction): St
     }
 }
 
-export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): State.IBufferState => {
-
+export const buffersReducer = (
+    s: State.IBufferState,
+    a: Actions.SimpleAction,
+): State.IBufferState => {
     let byId = s.byId
     let allIds = s.allIds
 
@@ -222,7 +234,6 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
 
     switch (a.type) {
         case "BUFFER_ENTER":
-
             byId = a.payload.buffers.reduce((buffersById, buffer) => {
                 buffersById[buffer.id] = {
                     ...buffer,
@@ -233,7 +244,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
 
             const bufIds = a.payload.buffers.map(b => b.id)
 
-            allIds = [ ...new Set(bufIds)]
+            allIds = [...new Set(bufIds)]
 
             return {
                 activeBufferId: a.payload.buffers[0].id,
@@ -279,7 +290,7 @@ export const buffersReducer = (s: State.IBufferState, a: Actions.SimpleAction): 
                 byId,
             }
         case "SET_CURRENT_BUFFERS":
-            allIds = s.allIds.filter((id) => a.payload.bufferIds.indexOf(id) >= 0)
+            allIds = s.allIds.filter(id => a.payload.bufferIds.indexOf(id) >= 0)
 
             let activeBufferId = s.activeBufferId
 
@@ -334,8 +345,10 @@ export const toolTipsReducer = (s: State.ToolTips, a: Actions.SimpleAction): Sta
     }
 }
 
-export const windowStateReducer = (s: State.IWindowState, a: Actions.SimpleAction): State.IWindowState => {
-
+export const windowStateReducer = (
+    s: State.IWindowState,
+    a: Actions.SimpleAction,
+): State.IWindowState => {
     let currentWindow
     switch (a.type) {
         case "SET_WINDOW_CURSOR":

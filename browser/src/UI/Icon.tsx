@@ -24,10 +24,10 @@ export interface IconProps {
 
 export class Icon extends React.PureComponent<IconProps, {}> {
     public render(): JSX.Element {
-
-        const className = "fa fa-" + this.props.name + " " + this._getClassForIconSize(this.props.size as any) // FIXME: undefined
+        const className =
+            "fa fa-" + this.props.name + " " + this._getClassForIconSize(this.props.size as any) // FIXME: undefined
         const additionalClass = this.props.className || ""
-        return <i className={className + additionalClass} aria-hidden="true"></i>
+        return <i className={className + additionalClass} aria-hidden="true" />
     }
 
     private _getClassForIconSize(size: IconSize): string {

@@ -6,7 +6,6 @@ import { sortTextEdits } from "./../../../src/Services/Language/Edits"
 
 describe("sortTextEdits", () => {
     it("sorts descending by lines", () => {
-
         const rangeLine1 = types.Range.create(1, 0, 1, 0)
         const rangeLine2 = types.Range.create(2, 0, 2, 0)
 
@@ -34,7 +33,6 @@ describe("sortTextEdits", () => {
     })
 
     it("sorts first by lines, then by characters", () => {
-
         const rangeLine1 = types.Range.create(1, 1, 1, 5)
         const rangeLine2 = types.Range.create(1, 10, 1, 15)
         const rangeLine3 = types.Range.create(2, 1, 2, 5)
