@@ -50,6 +50,7 @@ export const Documentation = styled.div`
     ${boxShadowInset};
     overflow: hidden;
     max-height: 25vh;
+    max-width: 45vw;
     padding: 0.5rem;
     line-height: 1.5;
     ${smallScrollbar};
@@ -76,6 +77,7 @@ export const Title = withProps<{ padding?: string }>(styled.div)`
     padding: ${p => p.padding || "0.5rem"};
     overflow: hidden;
     max-height: 25vh;
+    max-width: 45vw;
     word-break: break-all;
     ${smallScrollbar};
     background-color:${p => p.theme["editor.hover.title.background"]};
