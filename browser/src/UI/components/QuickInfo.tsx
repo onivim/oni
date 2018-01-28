@@ -14,8 +14,6 @@ const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
     padding: 0.4em 0.4em 0.4em 0.4em;
     margin: 0.4em 0.4em 0.4em 0.4em;
-    /* necessary to prevent overflow */
-    max-width: 55vw;
 
     > code {
         background-color: inherit;
@@ -24,7 +22,9 @@ const codeBlockStyle = css`
 
 const childStyles = css`
     > * {
+        /* necessary to prevent overflow */
         margin: 0.2rem;
+        max-width: 55vw;
 
         a {
             color: ${p => p.theme["highlight.mode.normal.background"]};
@@ -35,7 +35,7 @@ const childStyles = css`
         }
 
         /* All code blocks are set to black but
-    this overriden for code block INSIDE a Pre element */
+    this is overriden for code blocks INSIDE a Pre element */
 
         code {
             background-color: ${p => p.theme["editor.hover.contents.codeblock.background"]};
