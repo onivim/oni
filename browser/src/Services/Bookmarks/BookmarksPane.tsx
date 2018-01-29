@@ -6,9 +6,14 @@
 
 import * as React from "react"
 
+import { IDisposable } from "oni-types"
+
+import { IBookmark, IBookmarksProvider } from "./index"
 import { SidebarPane } from "./../Sidebar"
 
 export class BookmarksPane implements SidebarPane {
+    constructor(private _bookmarksProvider: IBookmarksProvider) {}
+
     public get id(): string {
         return "oni.sidebar.bookmarks"
     }
@@ -26,12 +31,49 @@ export class BookmarksPane implements SidebarPane {
     }
 
     public render(): JSX.Element {
-        return <BookmarksPaneView />
+        return <BookmarksPaneView bookmarksProvider={this._bookmarksProvider} />
     }
 }
 
-export class BookmarksPaneView extends React.PureComponent<{}, {}> {
+export interface IBookmarksPaneViewProps {
+    bookmarksProvider: IBookmarksProvider
+}
+
+export interface IBookmarksPaneViewState {
+    bookmarks: IBookmark[]
+}
+
+export class BookmarksPaneView extends React.PureComponent<
+    IBookmarksPaneViewProps,
+    IBookmarksPaneViewState
+> {
+    private _subscriptions: IDisposable[] = []
+
+    constructor(props: IBookmarksPaneViewProps) {
+        super(props)
+        this.state = {
+            bookmarks: this.props.bookmarksProvider.bookmarks,
+        }
+    }
+
+    public componentDidMount(): void {
+        const s1 = this.props.bookmarksProvider.onBookmarksUpdated.subscribe(() => {
+            this.setState({
+                bookmarks: this.props.bookmarksProvider.bookmarks,
+            })
+        })
+
+        this._subscriptions = [...this._subscriptions, s1]
+    }
+
+    public componentWillUnmount(): void {
+        this._subscriptions.forEach(sub => sub.dispose())
+        this._subscriptions = []
+    }
+
     public render(): JSX.Element {
-        return <div>"hello"</div>
+        const elems = this.state.bookmarks.map(bm => <div>{JSON.stringify(bm)}</div>)
+
+        return <div>{elems}</div>
     }
 }
