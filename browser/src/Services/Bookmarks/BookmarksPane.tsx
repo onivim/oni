@@ -11,6 +11,8 @@ import { IDisposable } from "oni-types"
 import { IBookmark, IBookmarksProvider } from "./index"
 import { SidebarPane } from "./../Sidebar"
 
+import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
+
 export class BookmarksPane implements SidebarPane {
     constructor(private _bookmarksProvider: IBookmarksProvider) {}
 
@@ -72,8 +74,12 @@ export class BookmarksPaneView extends React.PureComponent<
     }
 
     public render(): JSX.Element {
-        const elems = this.state.bookmarks.map(bm => <div>{JSON.stringify(bm)}</div>)
+        if (this.state.bookmarks.length === 0) {
+            return <SidebarEmptyPaneView contentsText="No bookmarks, yet!" />
+        } else {
+            const elems = this.state.bookmarks.map(bm => <div>{JSON.stringify(bm)}</div>)
 
-        return <div>{elems}</div>
+            return <div>{elems}</div>
+        }
     }
 }
