@@ -115,7 +115,7 @@ export class NeovimWindowManager {
         const inactiveWindowIds = allWindows.filter(w => w.id !== context.windowNumber)
 
         const windowPromise = await inactiveWindowIds.map(async (window: any) => {
-            return await this._remeasureInactiveWindow(window.id)
+            return this._remeasureInactiveWindow(window.id)
         })
 
         const inactiveWindows = await Promise.all(windowPromise)
