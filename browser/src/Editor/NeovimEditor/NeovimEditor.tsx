@@ -70,7 +70,7 @@ import { BufferManager } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
-import { NeovimSurface } from "./NeovimSurface"
+import NeovimSurface from "./NeovimSurface"
 
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 

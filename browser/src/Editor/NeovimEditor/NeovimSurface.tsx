@@ -5,6 +5,7 @@
  */
 
 import * as React from "react"
+import { connect } from "react-redux"
 
 import { IEvent } from "oni-types"
 
@@ -20,6 +21,7 @@ import { TypingPrediction } from "./../../UI/components/TypingPredictions"
 
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
+import { setViewport } from "./../NeovimEditor/NeovimEditorActions"
 import { NeovimBufferLayers } from "./NeovimBufferLayersView"
 import { NeovimEditorLoadingOverlay } from "./NeovimEditorLoadingOverlay"
 import { NeovimInput } from "./NeovimInput"
@@ -42,9 +44,32 @@ export interface INeovimSurfaceProps {
     onBounceEnd: () => void
     onTabClose?: (tabId: number) => void
     onTabSelect?: (tabId: number) => void
+    setViewport: any
 }
 
-export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> {
+class NeovimSurface extends React.Component<INeovimSurfaceProps> {
+    private observer: any
+    private _editor: HTMLDivElement
+
+    public componentDidMount(): void {
+        // tslint:disable-next-line
+        this.observer = new window["ResizeObserver"](([entry]: any) => {
+            const editorDimensions = {
+                width: entry.contentRect.width,
+                height: entry.contentRect.height,
+            }
+            this.setDimensions(editorDimensions)
+        })
+
+        this.observer.observe(this._editor)
+    }
+
+    public setDimensions = (editorDimensions: any) => {
+        const height = document.body.clientHeight
+        const width = document.body.clientWidth
+        this.props.setViewport(width, height, editorDimensions)
+    }
+
     public render(): JSX.Element {
         return (
             <div className="container vertical full">
@@ -57,7 +82,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     />
                 </div>
                 <div className="container full">
-                    <div className="stack">
+                    <div className="stack" ref={(e: HTMLDivElement) => (this._editor = e)}>
                         <NeovimRenderer
                             renderer={this.props.renderer}
                             neovimInstance={this.props.neovimInstance}
@@ -92,3 +117,4 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
         )
     }
 }
+export default connect(null, { setViewport })(NeovimSurface)
