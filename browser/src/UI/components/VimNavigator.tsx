@@ -62,27 +62,28 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
     }
 
     public render() {
-
-        const inputElement = <div className="input">
-                    <KeyboardInputView
-                        top={0}
-                        left={0}
-                        height={12}
-                        onActivate={this._activateEvent}
-                        onKeyDown={(key) => this._onKeyDown(key)}
-                        foregroundColor={"white"}
-                        fontFamily={"Segoe UI"}
-                        fontSize={"12px"}
-                        fontCharacterWidthInPixels={12}
-                        />
-                </div>
-
-        return <div>
-                <div className="items">
-                    {this.props.render(this.state.selectedId)}
-                </div>
-                { this.props.active ? inputElement : null}
+        const inputElement = (
+            <div className="input">
+                <KeyboardInputView
+                    top={0}
+                    left={0}
+                    height={12}
+                    onActivate={this._activateEvent}
+                    onKeyDown={key => this._onKeyDown(key)}
+                    foregroundColor={"white"}
+                    fontFamily={"Segoe UI"}
+                    fontSize={"12px"}
+                    fontCharacterWidthInPixels={12}
+                />
             </div>
+        )
+
+        return (
+            <div>
+                <div className="items">{this.props.render(this.state.selectedId)}</div>
+                {this.props.active ? inputElement : null}
+            </div>
+        )
     }
 
     private _onKeyDown(key: string): void {
@@ -99,13 +100,12 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
     }
 
     private _updateBasedOnProps(props: IVimNavigatorProps) {
-
         if (props.active && !this._activeBinding) {
             Log.info("[VimNavigator::activating]")
             this._releaseBinding()
             this._activeBinding = getInstance().bindToMenu()
 
-            this._activeBinding.onCursorMoved.subscribe((newValue) => {
+            this._activeBinding.onCursorMoved.subscribe(newValue => {
                 Log.info("[VimNavigator::onCursorMoved] - " + newValue)
 
                 if (newValue !== this.state.selectedId) {
@@ -127,5 +127,4 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
             this._releaseBinding()
         }
     }
-
 }

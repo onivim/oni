@@ -23,9 +23,9 @@ export interface NeovimBufferLayersViewProps {
 
 export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLayersViewProps, {}> {
     public render(): JSX.Element {
-
-        const containers = this.props.windows.map((windowState) => {
-            const layers = this.props.layers[windowState.bufferId] || (EmptyArray as Oni.EditorLayer[])
+        const containers = this.props.windows.map(windowState => {
+            const layers =
+                this.props.layers[windowState.bufferId] || (EmptyArray as Oni.EditorLayer[])
 
             const layerContext = {
                 isActive: windowState.windowId === this.props.activeWindowId,
@@ -36,20 +36,20 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
                 dimensions: windowState.dimensions,
             }
 
-            const layerElements = layers.map((l) => {
+            const layerElements = layers.map(l => {
                 return <div key={l.id}>{l.render(layerContext)}</div>
             })
 
             const dimensions = getWindowPixelDimensions(windowState)
 
-            return <NeovimActiveWindow {...dimensions} key={windowState.windowId.toString()}>
+            return (
+                <NeovimActiveWindow {...dimensions} key={windowState.windowId.toString()}>
                     {layerElements}
                 </NeovimActiveWindow>
+            )
         })
 
-        return <div className="stack layer">
-                    {containers}
-                </div>
+        return <div className="stack layer">{containers}</div>
     }
 }
 
@@ -61,7 +61,6 @@ const EmptySize = {
 }
 
 const getWindowPixelDimensions = (win: State.IWindow) => {
-
     if (!win || !win.screenToPixel) {
         return EmptySize
     }
@@ -93,7 +92,7 @@ const mapStateToProps = (state: State.IState): NeovimBufferLayersViewProps => {
         }
     }
 
-    const windows = state.activeVimTabPage.windowIds.map((windowId) => {
+    const windows = state.activeVimTabPage.windowIds.map(windowId => {
         return state.windowState.windows[windowId]
     })
 

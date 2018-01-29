@@ -21,17 +21,17 @@ export class LabelWidget implements ISidebarWidget {
 export type ItemWidgetRenderFunction = (widgetRenderContext: IWidgetRenderContext) => JSX.Element
 
 export class ItemWidget implements ISidebarWidget {
-
     public get ids(): string[] {
         return [this._id]
     }
     private _renderer: ItemWidgetRenderFunction
 
     constructor(
-        private _id: string,
-        // private _renderer: ItemWidgetRenderFunction = (context) => <div style={{fontWeight: context.selectedId === this._id ? "bold" : null}}>Test2</div>
+        private _id: string, // private _renderer: ItemWidgetRenderFunction = (context) => <div style={{fontWeight: context.selectedId === this._id ? "bold" : null}}>Test2</div>
     ) {
-           this._renderer = (context) => <div style={{fontWeight: context.selectedId === this._id ? "bold" : null}}>Test2</div>
+        this._renderer = context => (
+            <div style={{ fontWeight: context.selectedId === this._id ? "bold" : null }}>Test2</div>
+        )
     }
 
     public render(widgetRenderContext: IWidgetRenderContext): JSX.Element {
@@ -51,7 +51,6 @@ export const ContainerWidgetWrapper = styled.div`
 `
 
 export class ContainerWidget implements ISidebarWidget {
-
     public get ids(): string[] {
         return []
     }
@@ -61,14 +60,13 @@ export class ContainerWidget implements ISidebarWidget {
         const caretStyle = {
             transform: expanded ? "rotateZ(45deg)" : "rotateZ(0deg)",
         }
-        return <ContainerWidgetWrapper>
-            <div className="icon">
-                <i style={caretStyle} className="fa fa-caret-right" />
-            </div>
-            <div className="name">
-                {"test"}
-            </div>
-        </ContainerWidgetWrapper>
+        return (
+            <ContainerWidgetWrapper>
+                <div className="icon">
+                    <i style={caretStyle} className="fa fa-caret-right" />
+                </div>
+                <div className="name">{"test"}</div>
+            </ContainerWidgetWrapper>
+        )
     }
-
 }

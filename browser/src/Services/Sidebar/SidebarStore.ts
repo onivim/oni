@@ -36,7 +36,6 @@ export interface SidebarPane extends Oni.IWindowSplit {
 }
 
 export class SidebarManager {
-
     private _store: Store<ISidebarState>
 
     public get activeEntryId(): string {
@@ -91,17 +90,21 @@ const DefaultSidebarState: ISidebarState = {
     isActive: false,
 }
 
-export type SidebarActions = {
-    type: "SET_ACTIVE_ID",
-    activeEntryId: string,
-} | {
-    type: "ADD_ENTRY",
-    entry: ISidebarEntry,
-} | {
-    type: "ENTER",
-} | {
-    type: "LEAVE",
-}
+export type SidebarActions =
+    | {
+          type: "SET_ACTIVE_ID"
+          activeEntryId: string
+      }
+    | {
+          type: "ADD_ENTRY"
+          entry: ISidebarEntry
+      }
+    | {
+          type: "ENTER"
+      }
+    | {
+          type: "LEAVE"
+      }
 
 export const sidebarReducer: Reducer<ISidebarState> = (
     state: ISidebarState = DefaultSidebarState,

@@ -20,7 +20,9 @@ interface IPublishDiagnosticsParams {
     diagnostics: types.Diagnostic[]
 }
 
-export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
+export interface Errors {
+    [file: string]: { [key: string]: types.Diagnostic[] }
+}
 
 export interface IDiagnosticsDataSource {
     onErrorsChanged: IEvent<void>
@@ -51,7 +53,6 @@ export const getAllErrorsForFile = (fileName: string, errors: Errors): types.Dia
 }
 
 export class DiagnosticsDataSource {
-
     private _errors: Errors = {}
     private _onErrorsChangedEvent = new Event<void>()
 
@@ -78,30 +79,36 @@ export class DiagnosticsDataSource {
         return this._errors
     }
 
-    public getErrorsForPosition(filePath: string, line: number, column: number): types.Diagnostic[] {
+    public getErrorsForPosition(
+        filePath: string,
+        line: number,
+        column: number,
+    ): types.Diagnostic[] {
         const errors = getAllErrorsForFile(Utility.normalizePath(filePath), this._errors)
 
-        return errors.filter((diagnostic) => {
+        return errors.filter(diagnostic => {
             return Utility.isInRange(line, column, diagnostic.range)
         })
     }
 
     public start(languageManager: LanguageManager): void {
-        languageManager.subscribeToLanguageServerNotification("textDocument/publishDiagnostics", (args: ILanguageServerNotificationResponse) => {
-            const test = args.payload as IPublishDiagnosticsParams
+        languageManager.subscribeToLanguageServerNotification(
+            "textDocument/publishDiagnostics",
+            (args: ILanguageServerNotificationResponse) => {
+                const test = args.payload as IPublishDiagnosticsParams
 
-            const file = Helpers.unwrapFileUriPath(test.uri)
-            const key = "language-" + args.language
+                const file = Helpers.unwrapFileUriPath(test.uri)
+                const key = "language-" + args.language
 
-            this.setErrors(file, key, test.diagnostics)
-        })
+                this.setErrors(file, key, test.diagnostics)
+            },
+        )
     }
 }
 
 let _diagnostics: DiagnosticsDataSource = null
 
 export const getInstance = (): IDiagnosticsDataSource => {
-
     if (!_diagnostics) {
         _diagnostics = new DiagnosticsDataSource()
     }

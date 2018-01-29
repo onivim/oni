@@ -10,11 +10,12 @@ const DemoTests = [
 
 // tslint:disable:no-console
 
-describe("demo tests", function() { // tslint:disable-line only-arrow-functions
+describe("demo tests", function() {
+    // tslint:disable-line only-arrow-functions
     // Retry up to two times
     this.retries(2)
 
-    DemoTests.forEach((test) => {
+    DemoTests.forEach(test => {
         runInProcTest(path.join(__dirname, "demo"), test)
     })
 })

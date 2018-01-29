@@ -22,18 +22,22 @@ export const activate = (configuration: Configuration, colors: Colors) => {
         // TODO: Read from 'persisted setting' instead
         const backgroundColor = colors.getColor("background")
         if (backgroundColor) {
-            const background: string = Color(backgroundColor).lighten(0.1).hex().toString();
-            (browserWindow as any).setBackgroundColor(background)
+            const background: string = Color(backgroundColor)
+                .lighten(0.1)
+                .hex()
+                .toString()
+            ;(browserWindow as any).setBackgroundColor(background)
         }
     }
 
     colors.onColorsChanged.subscribe(() => onColorsChanged())
 
     const onConfigChanged = (newConfigValues: Partial<IConfigurationValues>) => {
-
         document.body.style.fontFamily = configuration.getValue("ui.fontFamily")
         document.body.style.fontSize = addDefaultUnitIfNeeded(configuration.getValue("ui.fontSize"))
-        document.body.style.fontVariant = configuration.getValue("editor.fontLigatures") ? "normal" : "none"
+        document.body.style.fontVariant = configuration.getValue("editor.fontLigatures")
+            ? "normal"
+            : "none"
 
         const fontSmoothing = configuration.getValue("ui.fontSmoothing")
 

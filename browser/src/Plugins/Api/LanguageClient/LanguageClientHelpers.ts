@@ -40,11 +40,13 @@ export interface ServerCapabilities {
 
 export const wrapPathInFileUri = (path: string) => getFilePrefix() + Utility.normalizePath(path)
 
-export const unwrapFileUriPath = (uri: string) => decodeURIComponent((uri).split(getFilePrefix())[1])
+export const unwrapFileUriPath = (uri: string) => decodeURIComponent(uri.split(getFilePrefix())[1])
 
-export const getTextFromContents = (contents: types.MarkedString | types.MarkedString[]): string[] => {
+export const getTextFromContents = (
+    contents: types.MarkedString | types.MarkedString[],
+): string[] => {
     if (contents instanceof Array) {
-        return flatMap(contents, (markedString) => getTextFromMarkedString(markedString))
+        return flatMap(contents, markedString => getTextFromMarkedString(markedString))
     } else {
         return getTextFromMarkedString(contents)
     }
@@ -56,7 +58,12 @@ export const pathToTextDocumentIdentifierParms = (path: string) => ({
     },
 })
 
-export const pathToTextDocumentItemParams = (path: string, language: string, text: string, version: number) => ({
+export const pathToTextDocumentItemParams = (
+    path: string,
+    language: string,
+    text: string,
+    version: number,
+) => ({
     textDocument: {
         uri: wrapPathInFileUri(path),
         languageId: language,
@@ -76,7 +83,11 @@ export const eventContextToCodeActionParams = (filePath: string, range: types.Ra
     }
 }
 
-export const createTextDocumentPositionParams = (filePath: string, line: number, column: number) => ({
+export const createTextDocumentPositionParams = (
+    filePath: string,
+    line: number,
+    column: number,
+) => ({
     textDocument: {
         uri: wrapPathInFileUri(filePath),
     },
@@ -87,10 +98,18 @@ export const createTextDocumentPositionParams = (filePath: string, line: number,
 })
 
 export const bufferToTextDocumentPositionParams = (buffer: Oni.Buffer) => {
-    return createTextDocumentPositionParams(buffer.filePath, buffer.cursor.line, buffer.cursor.column)
+    return createTextDocumentPositionParams(
+        buffer.filePath,
+        buffer.cursor.line,
+        buffer.cursor.column,
+    )
 }
 
-export const createDidChangeTextDocumentParams = (bufferFullPath: string, lines: string[], version: number) => {
+export const createDidChangeTextDocumentParams = (
+    bufferFullPath: string,
+    lines: string[],
+    version: number,
+) => {
     const text = lines.join(os.EOL)
 
     return {
@@ -98,9 +117,11 @@ export const createDidChangeTextDocumentParams = (bufferFullPath: string, lines:
             uri: wrapPathInFileUri(bufferFullPath),
             version,
         },
-        contentChanges: [{
-            text,
-        }],
+        contentChanges: [
+            {
+                text,
+            },
+        ],
     }
 }
 
@@ -115,7 +136,8 @@ const getTextFromMarkedString = (markedString: types.MarkedString): string[] => 
 
 const splitByNewlines = (str: string) => {
     // Remove '/r'
-    return str.split("\r")
+    return str
+        .split("\r")
         .join("")
         .split("\n")
 }
@@ -126,4 +148,4 @@ const getFilePrefix = () => {
     } else {
         return "file://"
     }
- }
+}

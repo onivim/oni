@@ -14,11 +14,10 @@ import { SidebarPane } from "./SidebarPane"
 let _sidebarManager: SidebarManager = null
 
 export const activate = (configuration: Configuration, workspace: Workspace) => {
-
     _sidebarManager = new SidebarManager()
 
     if (configuration.getValue("experimental.sidebar.enabled")) {
-        const leftDock = windowManager.getDock(2)
+        const leftDock = windowManager.getDock("left")
         leftDock.addSplit(new SidebarSplit(_sidebarManager))
         leftDock.addSplit(new SidebarContentSplit(_sidebarManager))
 

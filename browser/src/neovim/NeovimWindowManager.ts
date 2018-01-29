@@ -49,7 +49,6 @@ export interface NeovimInactiveWindowState {
 }
 
 export class NeovimWindowManager {
-
     private _scrollObservable: Subject<EventContext>
 
     private _onWindowStateChangedEvent = new Event<NeovimTabPageState>()
@@ -58,17 +57,14 @@ export class NeovimWindowManager {
         return this._onWindowStateChangedEvent
     }
 
-    constructor(
-        private _neovimInstance: NeovimInstance,
-    ) {
-
+    constructor(private _neovimInstance: NeovimInstance) {
         this._scrollObservable = new Subject<EventContext>()
 
         const updateScroll = (evt: EventContext) => this._scrollObservable.next(evt)
         // First element of the BufEnter event is the current buffer
-        this._neovimInstance.autoCommands.onBufEnter.subscribe((bufs) => updateScroll(bufs.current))
+        this._neovimInstance.autoCommands.onBufEnter.subscribe(bufs => updateScroll(bufs.current))
         this._neovimInstance.autoCommands.onBufWinEnter.subscribe(updateScroll)
-        this._neovimInstance.onBufferUpdate.subscribe((buf) => updateScroll(buf.eventContext))
+        this._neovimInstance.onBufferUpdate.subscribe(buf => updateScroll(buf.eventContext))
         this._neovimInstance.autoCommands.onWinEnter.subscribe(updateScroll)
         this._neovimInstance.autoCommands.onCursorMoved.subscribe(updateScroll)
         this._neovimInstance.autoCommands.onVimResized.subscribe(updateScroll)
@@ -90,7 +86,6 @@ export class NeovimWindowManager {
         shouldMeasure$
             .withLatestFrom(this._scrollObservable)
             .switchMap((args: [any, EventContext]) => {
-
                 const [, evt] = args
                 return Observable.defer(() => this._remeasure(evt))
             })
@@ -111,14 +106,16 @@ export class NeovimWindowManager {
 
     private async _remeasure(context: EventContext): Promise<NeovimTabPageState> {
         const tabNumber = context.tabNumber
-        const allWindows = await this._neovimInstance.request<any[]>("nvim_tabpage_list_wins", [tabNumber])
+        const allWindows = await this._neovimInstance.request<any[]>("nvim_tabpage_list_wins", [
+            tabNumber,
+        ])
 
         const activeWindow = await this._remeasureActiveWindow(context.windowNumber, context)
 
-        const inactiveWindowIds = allWindows.filter((w) => w.id !== context.windowNumber)
+        const inactiveWindowIds = allWindows.filter(w => w.id !== context.windowNumber)
 
-        const windowPromise =  await inactiveWindowIds.map(async (window: any) => {
-                return await this._remeasureInactiveWindow(window.id)
+        const windowPromise = await inactiveWindowIds.map(async (window: any) => {
+            return this._remeasureInactiveWindow(window.id)
         })
 
         const inactiveWindows = await Promise.all(windowPromise)
@@ -143,13 +140,18 @@ export class NeovimWindowManager {
     // - How each buffer line maps to the screen space
     //
     // We can derive these from information coming from the event handlers, along with screen width
-    private async _remeasureActiveWindow(currentWinId: number, context: EventContext): Promise<NeovimActiveWindowState> {
-
+    private async _remeasureActiveWindow(
+        currentWinId: number,
+        context: EventContext,
+    ): Promise<NeovimActiveWindowState> {
         const atomicCalls = [
             ["nvim_win_get_position", [currentWinId]],
             ["nvim_win_get_width", [currentWinId]],
             ["nvim_win_get_height", [currentWinId]],
-            ["nvim_buf_get_lines", [context.bufferNumber, context.windowTopLine - 1, context.windowBottomLine, false]],
+            [
+                "nvim_buf_get_lines",
+                [context.bufferNumber, context.windowTopLine - 1, context.windowBottomLine, false],
+            ],
         ]
 
         const response = await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
@@ -174,7 +176,9 @@ export class NeovimWindowManager {
 
             const rangesOnScreen = getBufferRanges(lines, context.windowTopLine - 1, contentWidth)
 
-            const indexWhereCursorIs = rangesOnScreen.findIndex((val: types.Range) => Utility.isInRange(context.line - 1, context.column - 1, val))
+            const indexWhereCursorIs = rangesOnScreen.findIndex((val: types.Range) =>
+                Utility.isInRange(context.line - 1, context.column - 1, val),
+            )
 
             const arrayStart = indexWhereCursorIs - (context.winline - 1)
             const arrayEnd = arrayStart + height
@@ -184,8 +188,13 @@ export class NeovimWindowManager {
             // If there is no text in the buffer, the range will be (line, 0) -> (line, 0).
             // This means we we wouldn't be able to map positions that don't exist yet,
             // so we should expand out the ranges to the full content width if they are less)
-            const expandedWidthRanges = ranges.map((r) => {
-                return types.Range.create(r.start.line, r.start.character, r.end.line, Math.max(r.end.character, contentWidth))
+            const expandedWidthRanges = ranges.map(r => {
+                return types.Range.create(
+                    r.start.line,
+                    r.start.character,
+                    r.end.line,
+                    Math.max(r.end.character, contentWidth),
+                )
             })
 
             const dimensions = {
@@ -218,8 +227,9 @@ export class NeovimWindowManager {
      * Windows that are inactive give us less state, unfortunately - so the buffer/pixel mapping
      * is unavailable. We should still measure the width/height/position for overlay scenarios, though
      */
-    private async _remeasureInactiveWindow(currentWinId: number): Promise<NeovimInactiveWindowState> {
-
+    private async _remeasureInactiveWindow(
+        currentWinId: number,
+    ): Promise<NeovimInactiveWindowState> {
         const atomicCalls = [
             ["nvim_win_get_position", [currentWinId]],
             ["nvim_win_get_width", [currentWinId]],
@@ -257,8 +267,12 @@ export class NeovimWindowManager {
     }
 }
 
-const getBufferToScreenFromRanges = (gutterOffset: number, ranges: types.Range[]) => (bufferPosition: types.Position) => {
-    const screenLine = ranges.findIndex((v) => Utility.isInRange(bufferPosition.line, bufferPosition.character, v))
+const getBufferToScreenFromRanges = (gutterOffset: number, ranges: types.Range[]) => (
+    bufferPosition: types.Position,
+) => {
+    const screenLine = ranges.findIndex(v =>
+        Utility.isInRange(bufferPosition.line, bufferPosition.character, v),
+    )
 
     if (screenLine === -1) {
         return null
@@ -275,8 +289,11 @@ const getBufferToScreenFromRanges = (gutterOffset: number, ranges: types.Range[]
 }
 
 // TODO: Need to properly handle multibyte characters here
-const getBufferRanges = (bufferLines: string[], startLine: number, width: number): types.Range[] => {
-
+const getBufferRanges = (
+    bufferLines: string[],
+    startLine: number,
+    width: number,
+): types.Range[] => {
     let ranges: types.Range[] = []
 
     for (let i = 0; i < bufferLines.length; i++) {
@@ -298,7 +315,10 @@ const getRangesForLine = (bufferLine: string, lineNumber: number, width: number)
 
     for (let i = 0; i < length; i += width) {
         const startPosition = types.Position.create(lineNumber, i)
-        const endPosition = types.Position.create(lineNumber, Math.min(bufferLine.length, i + width))
+        const endPosition = types.Position.create(
+            lineNumber,
+            Math.min(bufferLine.length, i + width),
+        )
         const range = types.Range.create(startPosition, endPosition)
         chunks.push(range)
     }

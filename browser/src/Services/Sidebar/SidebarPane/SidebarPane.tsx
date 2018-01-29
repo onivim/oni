@@ -15,7 +15,6 @@ import { SidebarPaneContainer } from "./SidebarPaneView"
 import * as flatMap from "lodash/flatMap"
 
 export class SidebarPane {
-
     private _store: Store<SidebarPaneStore.ISidebarPaneState>
     private _menuBinding: IMenuBinding
     private _onEnterEvent: Event<void> = new Event<void>()
@@ -28,19 +27,19 @@ export class SidebarPane {
         return this._title
     }
 
-    constructor(
-        private _id: string,
-        private _title: string,
-    ) {
-        this._store = createStore("SidebarPane." + this._id, SidebarPaneStore.reducer, SidebarPaneStore.DefaultSidebarPaneState)
+    constructor(private _id: string, private _title: string) {
+        this._store = createStore(
+            "SidebarPane." + this._id,
+            SidebarPaneStore.reducer,
+            SidebarPaneStore.DefaultSidebarPaneState,
+        )
     }
 
     public enter(): void {
-
         this._menuBinding = getInstance().bindToMenu()
 
         const widgets = this._store.getState().widgets
-        const ids = flatMap(widgets, (w) => w.ids)
+        const ids = flatMap(widgets, w => w.ids)
 
         this._menuBinding.setItems(ids)
 
@@ -73,29 +72,29 @@ export class SidebarPane {
             type: "SET_WIDGETS",
             widgets,
         })
-
     }
 
     public render(): JSX.Element {
-        return <Provider store={this._store}>
-            <div>
-                <SidebarPaneContainer />
-                <div className="input">
-                    <KeyboardInputView
-                        top={0}
-                        left={0}
-                        height={12}
-                        onActivate={this._onEnterEvent}
-                        onKeyDown={(key) => this._onKeyDown(key)}
-                        foregroundColor={"white"}
-                        fontFamily={"Segoe UI"}
-                        fontSize={"12px"}
-                        fontCharacterWidthInPixels={12}
-
-                    />
+        return (
+            <Provider store={this._store}>
+                <div>
+                    <SidebarPaneContainer />
+                    <div className="input">
+                        <KeyboardInputView
+                            top={0}
+                            left={0}
+                            height={12}
+                            onActivate={this._onEnterEvent}
+                            onKeyDown={key => this._onKeyDown(key)}
+                            foregroundColor={"white"}
+                            fontFamily={"Segoe UI"}
+                            fontSize={"12px"}
+                            fontCharacterWidthInPixels={12}
+                        />
+                    </div>
                 </div>
-            </div>
-        </Provider>
+            </Provider>
+        )
     }
 
     private _onKeyDown(key: string) {

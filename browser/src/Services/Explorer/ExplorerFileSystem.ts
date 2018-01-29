@@ -17,15 +17,12 @@ export interface IFileSystem {
 }
 
 export class FileSystem implements IFileSystem {
-
-    constructor(
-        private _fs: typeof fs,
-    ) {}
+    constructor(private _fs: typeof fs) {}
 
     public readdir(directoryPath: string): Promise<FolderOrFile[]> {
         const files = this._fs.readdirSync(directoryPath)
 
-        const filesAndFolders = files.map((f) => {
+        const filesAndFolders = files.map(f => {
             const fullPath = path.join(directoryPath, f)
             const stat = this._fs.statSync(fullPath)
             if (stat.isDirectory()) {

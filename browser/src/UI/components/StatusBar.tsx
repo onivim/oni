@@ -70,8 +70,8 @@ const StatusBarComponent = withProps<IStatusComponent>(styled.div)`
 
 const StatusBarContainer = withProps<StatusBarStyleProps>(styled.div)`
     font-family: ${({ fontFamily }) => fontFamily};
-    font-size: ${({ fontSize }) => fontSize };
-    background-color: ${({ theme }) => theme.background };
+    font-size: ${({ fontSize }) => fontSize};
+    background-color: ${({ theme }) => theme.background};
     color: ${({ theme }) => theme.foreground};
     box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
     pointer-events: auto;

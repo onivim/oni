@@ -21,11 +21,35 @@ import { ThemeManager } from "./Services/Themes"
 import { windowManager } from "./Services/WindowManager"
 import { Workspace } from "./Services/Workspace"
 
-export const startEditors = async (args: any, colors: Colors, completionProviders: CompletionProviders, configuration: Configuration, diagnostics: IDiagnosticsDataSource, languageManager: LanguageManager, menuManager: MenuManager, overlayManager: OverlayManager, pluginManager: PluginManager, tasks: Tasks, themeManager: ThemeManager, workspace: Workspace): Promise<void> => {
-
-    const editor = new OniEditor(colors, completionProviders, configuration, diagnostics, languageManager, menuManager, overlayManager, pluginManager, tasks, themeManager, workspace)
+export const startEditors = async (
+    args: any,
+    colors: Colors,
+    completionProviders: CompletionProviders,
+    configuration: Configuration,
+    diagnostics: IDiagnosticsDataSource,
+    languageManager: LanguageManager,
+    menuManager: MenuManager,
+    overlayManager: OverlayManager,
+    pluginManager: PluginManager,
+    tasks: Tasks,
+    themeManager: ThemeManager,
+    workspace: Workspace,
+): Promise<void> => {
+    const editor = new OniEditor(
+        colors,
+        completionProviders,
+        configuration,
+        diagnostics,
+        languageManager,
+        menuManager,
+        overlayManager,
+        pluginManager,
+        tasks,
+        themeManager,
+        workspace,
+    )
     editorManager.setActiveEditor(editor)
-    windowManager.split(0, editor)
+    windowManager.split("horizontal", editor)
 
     await editor.init(args)
 }

@@ -9,8 +9,10 @@ import { IConfigurationValues } from "./../../Services/Configuration"
 import * as Actions from "./ShellActions"
 import * as State from "./ShellState"
 
-export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a: Actions.Action<K>) {
-
+export function reducer<K extends keyof IConfigurationValues>(
+    s: State.IState,
+    a: Actions.Action<K>,
+) {
     if (!s) {
         return s
     }
@@ -45,18 +47,21 @@ export function reducer<K extends keyof IConfigurationValues>(s: State.IState, a
             return {
                 ...s,
                 colors: a.payload.colors,
-                    }
+            }
         case "SET_CONFIGURATION_VALUE":
             const obj: Partial<IConfigurationValues> = {}
             obj[a.payload.key] = a.payload.value
-            const newConfig = {...s.configuration, ...obj}
-            return {...s,
-                    configuration: newConfig}
+            const newConfig = { ...s.configuration, ...obj }
+            return {
+                ...s,
+                configuration: newConfig,
+            }
         default:
-            return {...s,
-                    overlays: overlaysReducer(s.overlays, a),
-                    statusBar: statusBarReducer(s.statusBar, a),
-                    }
+            return {
+                ...s,
+                overlays: overlaysReducer(s.overlays, a),
+                statusBar: statusBarReducer(s.statusBar, a),
+            }
     }
 }
 

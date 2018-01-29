@@ -1,0 +1,17 @@
+{
+    "name": "oni-plugin-buffers",
+    "version": "1.0.0",
+    "main": "index.js",
+    "engines": {
+        "oni": "^0.2.6"
+    },
+    "scripts": {
+    },
+    "oni": {
+        "supportedFileTypes": ["*"]
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
+    }
+}

@@ -1,4 +1,3 @@
-
 import * as Oni from "oni-api"
 
 import { commandManager } from "./CommandManager"
@@ -19,16 +18,19 @@ export interface KeyBindingMap {
 }
 
 export class InputManager implements Oni.InputManager {
-
     private _boundKeys: KeyBindingMap = {}
 
     /**
      * API Methods
      */
-    public bind(keyChord: string | string[], action: ActionOrCommand, filterFunction?: () => boolean): Oni.DisposeFunction {
+    public bind(
+        keyChord: string | string[],
+        action: ActionOrCommand,
+        filterFunction?: () => boolean,
+    ): Oni.DisposeFunction {
         if (Array.isArray(keyChord)) {
-            const disposalFunctions = keyChord.map((key) => this.bind(key, action, filterFunction))
-            return () => disposalFunctions.forEach((df) => df())
+            const disposalFunctions = keyChord.map(key => this.bind(key, action, filterFunction))
+            return () => disposalFunctions.forEach(df => df())
         }
 
         const normalizedKeyChord = keyChord.toLowerCase()
@@ -41,14 +43,14 @@ export class InputManager implements Oni.InputManager {
             const existingBindings = this._boundKeys[normalizedKeyChord]
 
             if (existingBindings) {
-                this._boundKeys[normalizedKeyChord] = existingBindings.filter((f) => f !== newBinding)
+                this._boundKeys[normalizedKeyChord] = existingBindings.filter(f => f !== newBinding)
             }
         }
     }
 
     public unbind(keyChord: string | string[]) {
         if (Array.isArray(keyChord)) {
-            keyChord.forEach((key) => this.unbind(keyChord))
+            keyChord.forEach(key => this.unbind(keyChord))
             return
         }
 
@@ -81,7 +83,8 @@ export class InputManager implements Oni.InputManager {
 
         const boundKey = this._boundKeys[keyChord]
 
-        for (let i = 0; i < boundKey.length; i++) { // tslint:disable-line prefer-for-of
+        // tslint:disable-next-line prefer-for-of
+        for (let i = 0; i < boundKey.length; i++) {
             const binding = boundKey[i]
 
             // Does the binding pass filter?

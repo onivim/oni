@@ -10,7 +10,10 @@ export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitForEditors()
 
     // Validate that setting the configuration via 'colors' actually sets the color...
-    oni.configuration.setValues({"colors.foreground": "magenta", "colors.editor.foreground": "magenta" })
+    oni.configuration.setValues({
+        "colors.foreground": "magenta",
+        "colors.editor.foreground": "magenta",
+    })
 
     // Wait for it to be set on the body..
     oni.automation.waitFor(() => {

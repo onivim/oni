@@ -14,8 +14,12 @@ export interface IFileMapping {
     mappedFileName: string
 }
 
-export const getMappedFile = (rootFolder: string, filePath: string, mappings: IFileMapping[]): string | null => {
-    const mappingsThatApply = mappings.filter((m) => doesMappingMatchFile(rootFolder, filePath, m))
+export const getMappedFile = (
+    rootFolder: string,
+    filePath: string,
+    mappings: IFileMapping[],
+): string | null => {
+    const mappingsThatApply = mappings.filter(m => doesMappingMatchFile(rootFolder, filePath, m))
 
     if (mappingsThatApply.length === 0) {
         return null
@@ -26,11 +30,19 @@ export const getMappedFile = (rootFolder: string, filePath: string, mappings: IF
     return getMappedFileFromMapping(rootFolder, filePath, mapping)
 }
 
-export const doesMappingMatchFile = (rootFolder: string, filePath: string, mapping: IFileMapping): boolean => {
+export const doesMappingMatchFile = (
+    rootFolder: string,
+    filePath: string,
+    mapping: IFileMapping,
+): boolean => {
     return filePath.indexOf(path.join(rootFolder, mapping.sourceFolder)) === 0
 }
 
-export const getMappedFileFromMapping = (rootFolder: string, filePath: string, mapping: IFileMapping): string | null => {
+export const getMappedFileFromMapping = (
+    rootFolder: string,
+    filePath: string,
+    mapping: IFileMapping,
+): string | null => {
     const fullSourceRoot = path.join(rootFolder, mapping.sourceFolder)
     const difference = getPathDifference(fullSourceRoot, path.dirname(filePath))
 
@@ -38,12 +50,13 @@ export const getMappedFileFromMapping = (rootFolder: string, filePath: string, m
     const resolvedMappedFile = replaceVariablesInFileName(mapping.mappedFileName, filePath)
 
     const mappedFile = path.join(rootFolder, mapping.mappedFolder, difference, resolvedMappedFile)
-
     return mappedFile
 }
 
-export const replaceVariablesInFileName = (mappingFileNameWithVariables: string, originalFilePath: string): string => {
-
+export const replaceVariablesInFileName = (
+    mappingFileNameWithVariables: string,
+    originalFilePath: string,
+): string => {
     const originalFileNameWithExtension = path.basename(originalFilePath)
     const originalExtension = path.extname(originalFileNameWithExtension)
 
@@ -69,7 +82,6 @@ export const getPathDifference = (path1: string, path2: string): string => {
     let idx = 0
     let isEqual: boolean = true
     while (idx < diffPathParts.length) {
-
         if (idx >= basePathParts.length) {
             deltaPathParts.push(diffPathParts[idx])
         } else {

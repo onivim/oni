@@ -7,7 +7,9 @@
 import * as Oni from "oni-api"
 import * as React from "react"
 import { connect } from "react-redux"
-import { /* ISetViewportAction, */ setViewport } from "./../../Editor/NeovimEditor/NeovimEditorActions"
+import {
+    /* ISetViewportAction, */ setViewport,
+} from "./../../Editor/NeovimEditor/NeovimEditorActions"
 
 export interface IWindowSplitHostProps {
     split: Oni.IWindowSplit

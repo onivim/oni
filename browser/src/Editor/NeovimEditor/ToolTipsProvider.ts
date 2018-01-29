@@ -8,11 +8,13 @@ export interface IToolTipsProvider {
 }
 
 export class NeovimEditorToolTipsProvider implements IToolTipsProvider {
-    constructor(
-        private _actions: typeof Actions,
-    ) { }
+    constructor(private _actions: typeof Actions) {}
 
-    public showToolTip(id: string, element: JSX.Element, options: Oni.ToolTip.ToolTipOptions): void {
+    public showToolTip(
+        id: string,
+        element: JSX.Element,
+        options: Oni.ToolTip.ToolTipOptions,
+    ): void {
         this._actions.showToolTip(id, element, options)
     }
 
