@@ -13,6 +13,8 @@ import { SidebarPane } from "./SidebarPane"
 
 let _sidebarManager: SidebarManager = null
 
+export * from "./SidebarStore"
+
 export const activate = (configuration: Configuration, workspace: Workspace) => {
     _sidebarManager = new SidebarManager()
 
@@ -23,11 +25,11 @@ export const activate = (configuration: Configuration, workspace: Workspace) => 
 
         _sidebarManager.add("files-o", new ExplorerSplit(workspace, commandManager, editorManager))
 
-        const tasksPane = new SidebarPane("oni.sidebar.tasks", "Tasks")
-        _sidebarManager.add("cogs", tasksPane)
+        // const tasksPane = new SidebarPane("oni.sidebar.tasks", "Tasks")
+        // _sidebarManager.add("cogs", tasksPane)
 
-        const bookmarksPane = new SidebarPane("oni.sidebar.bookmarks", "Bookmarks")
-        _sidebarManager.add("bookmark", bookmarksPane)
+        // const bookmarksPane = new SidebarPane("oni.sidebar.bookmarks", "Bookmarks")
+        // _sidebarManager.add("bookmark", bookmarksPane)
 
         const searchPane = new SidebarPane("oni.sidebar.search", "Search")
         _sidebarManager.add("search", searchPane)
