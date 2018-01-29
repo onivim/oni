@@ -7,28 +7,28 @@ import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
 
-import * as Oni from "oni-api"
 import { Event } from "oni-types"
 
-import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
+// import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
-import { Configuration } from "./../../Services/Configuration"
+// import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
+import { windowManager } from "./../../Services/WindowManager"
+import { IWorkspace } from "./../../Services/Workspace"
 
 import { createStore, IExplorerState } from "./ExplorerStore"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
 
+import { rm } from "shelljs"
+
 export class ExplorerSplit {
-
     private _onEnterEvent: Event<void> = new Event<void>()
+    private _selectedId: string = null
 
-    // private _activeBinding: IMenuBinding = null
-    private _activeBinding: IMenuBinding = null
     private _store: Store<IExplorerState>
-    private _lastState: IExplorerState = null
 
     public get id(): string {
         return "oni.sidebar.explorer"
@@ -39,114 +39,88 @@ export class ExplorerSplit {
     }
 
     constructor(
-        private _configuration: Configuration,
-        private _workspace: Oni.Workspace,
+        // private _configuration: Configuration,
+        private _workspace: IWorkspace,
         private _commandManager: CommandManager,
         private _editorManager: EditorManager,
     ) {
         this._store = createStore()
 
-        this._store.dispatch({
-            type: "SET_FONT",
-            fontFamily: this._configuration.getValue<string>("ui.fontFamily"),
-            fontSize: this._configuration.getValue<string>("ui.fontSize"),
-        })
-
-        this._workspace.onDirectoryChanged.subscribe((newDirectory) => {
+        this._workspace.onDirectoryChanged.subscribe(newDirectory => {
             this._store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
                 rootPath: newDirectory,
             })
         })
 
-        this._editorManager.allEditors.onBufferEnter.subscribe((args) => {
+        if (this._workspace.activeWorkspace) {
+            this._store.dispatch({
+                type: "SET_ROOT_DIRECTORY",
+                rootPath: this._workspace.activeWorkspace,
+            })
+        }
+
+        this._editorManager.allEditors.onBufferEnter.subscribe(args => {
             this._store.dispatch({
                 type: "BUFFER_OPENED",
                 filePath: args.filePath,
             })
         })
-
-        this._store.subscribe(() => this._updateBindingFromState())
     }
 
     public enter(): void {
-
-        this._store.dispatch({type: "ENTER"})
-        this._commandManager.registerCommand(new CallbackCommand("explorer.open", null, null, () => this._onOpenItem()))
+        this._store.dispatch({ type: "ENTER" })
+        this._commandManager.registerCommand(
+            new CallbackCommand("explorer.open", null, null, () => this._onOpenItem()),
+        )
+        this._commandManager.registerCommand(
+            new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
+        )
 
         this._onEnterEvent.dispatch()
-
-        this._activeBinding = getInstance().bindToMenu()
-
-        this._updateBindingFromState()
-
-        this._activeBinding.onCursorMoved.subscribe((id: string) => {
-
-            if (id === this._store.getState().selectedId) {
-                return
-            }
-
-            this._store.dispatch({
-                type: "SET_SELECTED_ID",
-                selectedId: id,
-            })
-        })
     }
 
     public leave(): void {
-        if (this._activeBinding) {
-            this._activeBinding.release()
-            this._activeBinding = null
-        }
-
-        this._store.dispatch({type: "LEAVE"})
+        this._store.dispatch({ type: "LEAVE" })
 
         this._commandManager.unregisterCommand("explorer.open")
+        this._commandManager.unregisterCommand("explorer.delete")
     }
 
     public render(): JSX.Element {
-
-        return <Provider store={this._store}>
-                <Explorer onEnter={this._onEnterEvent} onKeyDown={(key: string) => this._onKeyDown(key)}/>
+        return (
+            <Provider store={this._store}>
+                <Explorer
+                    onSelectionChanged={id => this._onSelectionChanged(id)}
+                    onClick={id => this._onOpenItem(id)}
+                />
             </Provider>
+        )
     }
 
-    private _updateBindingFromState(): void {
-
-        if (!this._activeBinding) {
-            return
-        }
-
-        const state = this._store.getState()
-
-        if (this._lastState === state) {
-            return
-        }
-
-        this._lastState = state
-        const flattenedState = ExplorerSelectors.mapStateToNodeList(state)
-        const items = flattenedState.map((fs) => fs.id)
-        this._activeBinding.setItems(items, state.selectedId)
+    private _onSelectionChanged(id: string): void {
+        this._selectedId = id
     }
 
-    private _onOpenItem(): void {
-        const state = this._store.getState()
-        const flattenedState = ExplorerSelectors.mapStateToNodeList(state)
-
-        const selectedId = state.selectedId
-
-        const selectedItem = flattenedState.find((item) => item.id === selectedId)
+    private _onOpenItem(id?: string): void {
+        const selectedItem = this._getSelectedItem(id)
 
         if (!selectedItem) {
             return
         }
 
+        const state = this._store.getState()
+
         switch (selectedItem.type) {
             case "file":
                 this._editorManager.activeEditor.openFile(selectedItem.filePath)
+                windowManager.focusSplit(this._editorManager.activeEditor as any)
                 return
             case "folder":
-                const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(state, selectedItem.folderPath)
+                const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(
+                    state,
+                    selectedItem.folderPath,
+                )
                 this._store.dispatch({
                     type: isDirectoryExpanded ? "COLLAPSE_DIRECTORY" : "EXPAND_DIRECTORY",
                     directoryPath: selectedItem.folderPath,
@@ -157,9 +131,42 @@ export class ExplorerSplit {
         }
     }
 
-    private _onKeyDown(key: string): void {
-        if (this._activeBinding) {
-            this._activeBinding.input(key)
+    private _getSelectedItem(id?: string): ExplorerSelectors.ExplorerNode {
+        const state = this._store.getState()
+
+        const nodes = ExplorerSelectors.mapStateToNodeList(state)
+
+        const idToUse = id || this._selectedId
+
+        const items = nodes.filter(item => item.id === idToUse)
+
+        if (!items || !items.length) {
+            return null
         }
+
+        return items[0]
+    }
+
+    private _onDeleteItem(): void {
+        const selectedItem = this._getSelectedItem()
+
+        if (!selectedItem) {
+            return
+        }
+
+        switch (selectedItem.type) {
+            case "file":
+                rm(selectedItem.filePath)
+                break
+            case "folder":
+                rm("-rf", selectedItem.folderPath)
+                break
+            default:
+                alert("Not implemented yet")
+        }
+
+        this._store.dispatch({
+            type: "REFRESH",
+        })
     }
 }

@@ -3,11 +3,13 @@ import * as assert from "assert"
 import * as Oni from "oni-api"
 
 import * as Actions from "./../../../src/Editor/NeovimEditor/NeovimEditorActions"
-import { layersReducer, windowStateReducer } from "./../../../src/Editor/NeovimEditor/NeovimEditorReducer"
+import {
+    layersReducer,
+    windowStateReducer,
+} from "./../../../src/Editor/NeovimEditor/NeovimEditorReducer"
 import * as State from "./../../../src/Editor/NeovimEditor/NeovimEditorStore"
 
 describe("NeovimEditorReducer", () => {
-
     describe("layersReducer", () => {
         it("Adds layer via 'ADD_BUFFER_LAYER'", () => {
             const simpleLayer: Oni.EditorLayer = {
@@ -29,7 +31,6 @@ describe("NeovimEditorReducer", () => {
 
     describe("windowStateReducer", () => {
         it("Sets inactive window state via 'SET_INACTIVE_WINDOW_STATE'", () => {
-
             const windowState: State.IWindowState = {
                 activeWindow: -1,
                 windows: {},

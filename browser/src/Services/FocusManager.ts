@@ -2,30 +2,33 @@
  * FocusManager.ts
  */
 
-class FocusManager {
+import * as Log from "./../Log"
 
+class FocusManager {
     private _focusElementStack: HTMLElement[] = []
 
     public pushFocus(element: HTMLElement) {
-
         this._focusElementStack = [element, ...this._focusElementStack]
 
         element.focus()
     }
 
     public popFocus(element: HTMLElement) {
-        this._focusElementStack = this._focusElementStack.filter((elem) => elem !== element)
+        this._focusElementStack = this._focusElementStack.filter(elem => elem !== element)
 
         this.enforceFocus()
     }
 
     public setFocus(element: HTMLElement): void {
-        this._focusElementStack = [element]
-        element.focus()
+        if (element) {
+            this._focusElementStack = [element]
+            element.focus()
+        } else {
+            Log.warn("FocusManager.setFocus called with null element")
+        }
     }
 
     public enforceFocus(): void {
-
         if (this._focusElementStack.length === 0) {
             return
         }

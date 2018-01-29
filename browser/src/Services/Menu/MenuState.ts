@@ -10,10 +10,10 @@ export interface IMenus<T, FilteredT> {
 }
 
 export interface IMenu<T, FilteredT> {
-    id: string,
-    filter: string,
-    filteredOptions: FilteredT[],
-    options: T[],
+    id: string
+    filter: string
+    filteredOptions: FilteredT[]
+    options: T[]
     selectedIndex: number
     isLoading: boolean
 

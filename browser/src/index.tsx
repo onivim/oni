@@ -6,6 +6,7 @@
 
 import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
+import * as path from "path"
 import * as Log from "./Log"
 import * as Performance from "./Performance"
 import * as Utility from "./Utility"
@@ -18,16 +19,17 @@ const start = async (args: string[]): Promise<void> => {
     const Shell = await import("./UI/Shell")
     Shell.activate()
 
-    const parsedArgs = minimist(args)
-
     const configurationPromise = import("./Services/Configuration")
     const pluginManagerPromise = import("./Plugins/PluginManager")
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
 
     const sidebarPromise = import("./Services/Sidebar")
+    const overlayPromise = import("./Services/Overlay")
     const statusBarPromise = import("./Services/StatusBar")
     const startEditorsPromise = import("./startEditors")
+
+    const menuPromise = import("./Services/Menu")
 
     const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
@@ -35,20 +37,31 @@ const start = async (args: string[]): Promise<void> => {
     const colorsPromise = import("./Services/Colors")
     const diagnosticsPromise = import("./Services/Diagnostics")
     const editorManagerPromise = import("./Services/EditorManager")
+    const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const snippetPromise = import("./Services/Snippets")
+    const taksPromise = import("./Services/Tasks")
+    const workspacePromise = import("./Services/Workspace")
+
+    const themePickerPromise = import("./Services/Themes/ThemePicker")
     const cssPromise = import("./CSS")
+    const completionProvidersPromise = import("./Services/Completion/CompletionProviders")
+
+    const parsedArgs = minimist(args)
+    const currentWorkingDirectory = process.cwd()
+    const filesToOpen = parsedArgs._.map(
+        arg => (path.isAbsolute(arg) ? arg : path.join(currentWorkingDirectory, arg)),
+    )
 
     // Helper for debugging:
-    window["Shell"] = Shell // tslint:disable-line no-string-literal
-
     Performance.startMeasure("Oni.Start.Config")
 
     const { configuration } = await configurationPromise
 
-    const initialConfigParsingError = configuration.getParsingError()
-    if (initialConfigParsingError) {
-        Log.error(initialConfigParsingError)
+    const initialConfigParsingErrors = configuration.getErrors()
+    if (initialConfigParsingErrors && initialConfigParsingErrors.length > 0) {
+        initialConfigParsingErrors.forEach((err: Error) => Log.error(err))
     }
 
     const configChange = (newConfigValues: Partial<IConfigurationValues>) => {
@@ -58,13 +71,20 @@ const start = async (args: string[]): Promise<void> => {
         }
     }
 
+    configuration.onConfigurationError.subscribe(err => {
+        // TODO: Better / nicer handling of error:
+        alert(err)
+    })
+
     configuration.start()
 
     configChange(configuration.getValues()) // initialize values
     configuration.onConfigurationChanged.subscribe(configChange)
     Performance.endMeasure("Oni.Start.Config")
 
-    const { pluginManager } = await pluginManagerPromise
+    const PluginManager = await pluginManagerPromise
+    PluginManager.activate(configuration)
+    const pluginManager = PluginManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
@@ -74,13 +94,13 @@ const start = async (args: string[]): Promise<void> => {
     const Themes = await themesPromise
     const IconThemes = await iconThemesPromise
     await Promise.all([
-        Themes.activate(configuration),
-        IconThemes.activate(configuration, pluginManager)
+        Themes.activate(configuration, pluginManager),
+        IconThemes.activate(configuration, pluginManager),
     ])
 
     const Colors = await colorsPromise
     Colors.activate(configuration, Themes.getThemeManagerInstance())
-    Shell.Actions.setColors(Themes.getThemeManagerInstance().getColors())
+    Shell.initializeColors(Colors.getInstance())
     Performance.endMeasure("Oni.Start.Themes")
 
     const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
@@ -88,12 +108,28 @@ const start = async (args: string[]): Promise<void> => {
 
     const { editorManager } = await editorManagerPromise
 
+    const Workspace = await workspacePromise
+    Workspace.activate(configuration, editorManager)
+    const workspace = Workspace.getInstance()
+
     const StatusBar = await statusBarPromise
     StatusBar.activate(configuration)
     const statusBar = StatusBar.getInstance()
 
+    const Overlay = await overlayPromise
+    Overlay.activate()
+    const overlayManager = Overlay.getInstance()
+
+    const Menu = await menuPromise
+    Menu.activate(overlayManager)
+    const menuManager = Menu.getInstance()
+
+    const Tasks = await taksPromise
+    Tasks.activate(menuManager)
+    const tasks = Tasks.getInstance()
+
     const LanguageManager = await languageManagerPromise
-    LanguageManager.activate(configuration, editorManager, statusBar)
+    LanguageManager.activate(configuration, editorManager, statusBar, workspace)
     const languageManager = LanguageManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Editors")
@@ -108,21 +144,38 @@ const start = async (args: string[]): Promise<void> => {
     const Diagnostics = await diagnosticsPromise
     const diagnostics = Diagnostics.getInstance()
 
-   await Promise.race([Utility.delay(5000),
-     Promise.all([
-        SharedNeovimInstance.activate(),
-        startEditors(parsedArgs._, Colors.getInstance(), configuration, diagnostics, languageManager, Themes.getThemeManagerInstance())
-    ])
-   ])
+    const CompletionProviders = await completionProvidersPromise
+    CompletionProviders.activate(languageManager)
+
+    const initializeAllEditors = async () => {
+        await startEditors(
+            filesToOpen,
+            Colors.getInstance(),
+            CompletionProviders.getInstance(),
+            configuration,
+            diagnostics,
+            languageManager,
+            menuManager,
+            overlayManager,
+            pluginManager,
+            tasks,
+            Themes.getThemeManagerInstance(),
+            workspace,
+        )
+
+        await SharedNeovimInstance.activate(configuration, pluginManager)
+    }
+
+    await Promise.race([Utility.delay(5000), initializeAllEditors()])
     Performance.endMeasure("Oni.Start.Editors")
 
     Performance.startMeasure("Oni.Start.Sidebar")
     const Sidebar = await sidebarPromise
-    Sidebar.activate(configuration)
+    Sidebar.activate(configuration, workspace)
     Performance.endMeasure("Oni.Start.Sidebar")
 
-
-    const createLanguageClientsFromConfiguration = LanguageManager.createLanguageClientsFromConfiguration
+    const createLanguageClientsFromConfiguration =
+        LanguageManager.createLanguageClientsFromConfiguration
 
     diagnostics.start(languageManager)
 
@@ -133,14 +186,26 @@ const start = async (args: string[]): Promise<void> => {
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     const { inputManager } = await inputManagerPromise
+    const { commandManager } = await import("./Services/CommandManager")
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+
+    const GlobalCommands = await globalCommandsPromise
+    GlobalCommands.activate(commandManager, menuManager, tasks)
+
+    const Snippets = await snippetPromise
+    Snippets.activate()
+
+    const ThemePicker = await themePickerPromise
+    ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())
+
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()
 
     Performance.endMeasure("Oni.Start")
+    ipcRenderer.send("Oni.started", "started")
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {

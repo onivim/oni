@@ -12,19 +12,21 @@ import * as Oni from "oni-api"
 import { Icon } from "./../../UI/Icon"
 
 export class LanguageClientStatusBar {
-
     private _item: Oni.StatusBarItem
     private _fileType: string
 
-    constructor(
-        private _statusBar: Oni.StatusBar,
-    ) {
+    constructor(private _statusBar: Oni.StatusBar) {
         this._item = this._statusBar.createItem(0, "oni.status.fileType")
     }
 
     public show(fileType: string): void {
         this._fileType = fileType
-        this._item.setContents(<StatusBarRenderer state={LanguageClientState.NotAvailable} language={this._fileType} />)
+        this._item.setContents(
+            <StatusBarRenderer
+                state={LanguageClientState.NotAvailable}
+                language={this._fileType}
+            />,
+        )
         this._item.show()
     }
 
@@ -102,10 +104,16 @@ const StatusBarRenderer = (props: StatusBarRendererProps) => {
 
     const iconName = getIconFromStatus(props.state)
 
-    const icon = iconName ? <span style={iconStyle}><Icon name={iconName} className={getClassNameFromstatus(props.state)} /></span> : null
+    const icon = iconName ? (
+        <span style={iconStyle}>
+            <Icon name={iconName} className={getClassNameFromstatus(props.state)} />
+        </span>
+    ) : null
 
-    return <div style={containerStyle} onClick={onClick}>
-        {icon}
-        <span>{props.language}</span>
-    </div>
+    return (
+        <div style={containerStyle} onClick={onClick}>
+            {icon}
+            <span>{props.language}</span>
+        </div>
+    )
 }

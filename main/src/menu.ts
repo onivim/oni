@@ -1,7 +1,7 @@
 import * as os from "os"
 
-import { app, dialog, Menu } from "electron"
-import { createWindow } from "./main"
+import { app, BrowserWindow, dialog, Menu } from "electron"
+import { createWindow, IDelayedEvent } from "./main"
 
 export const buildDockMenu = (mainWindow, loadInit) => {
     const menu = []
@@ -21,22 +21,44 @@ export const buildMenu = (mainWindow, loadInit) => {
     // On Windows, both the forward slash `/` and the backward slash `\` are accepted as path delimiters.
     // The node APIs only return the backward slash, ie: `C:\\oni\\README.md`, but this causes problems
     // for VIM as it sees escape keys.
-    const normalizePath = (fileName) => fileName.split("\\").join("/")
 
-    const executeVimCommand = (command) => mainWindow.webContents.send("menu-item-click", command)
+    const executeMenuAction = (browserWindow: BrowserWindow, delayedEvent: IDelayedEvent) => {
+        if (browserWindow) {
+            return browserWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
+        }
+        createWindow([], process.cwd(), delayedEvent)
+    }
 
-    const executeVimCommandForMultipleFiles = (command, files) => mainWindow.webContents.send("open-files", command, files)
+    const normalizePath = fileName => fileName.split("\\").join("/")
 
-    const executeOniCommand = (command) => mainWindow.webContents.send("execute-command", command)
+    const executeVimCommand = (browserWindow: BrowserWindow, command: string) => {
+        executeMenuAction(browserWindow, { evt: "menu-item-click", cmd: [command] })
+    }
 
-    const openUrl = (url) => mainWindow.webContents.send("execute-command", "browser.openUrl", url)
+    const executeVimCommandForMultipleFiles = (
+        browserWindow: BrowserWindow,
+        command: string,
+        files: string[],
+    ) => {
+        executeMenuAction(browserWindow, { evt: "open-files", cmd: [command, files] })
+    }
 
-    const executeVimCommandForFiles = (command, files) => {
+    const executeOniCommand = (browserWindow: BrowserWindow, command: string) => {
+        executeMenuAction(browserWindow, { evt: "execute-command", cmd: [command] })
+    }
+
+    const openUrl = (browserWindow: BrowserWindow, url: string) => {
+        executeMenuAction(browserWindow, { evt: "execute-command", cmd: ["browser.openUrl", url] })
+    }
+
+    const executeVimCommandForFiles = (browserWindow, command, files) => {
         if (!files || !files.length) {
             return
         }
 
-        files.forEach((fileName) => executeVimCommand(`${command} ${normalizePath(fileName)}`))
+        files.forEach(fileName =>
+            executeVimCommand(browserWindow, `${command} ${normalizePath(fileName)}`),
+        )
     }
 
     const isWindows = os.platform() === "win32"
@@ -47,21 +69,19 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Edit Oni config",
                 click(item, focusedWindow) {
-                    executeOniCommand("oni.config.openConfigJs")
+                    executeOniCommand(focusedWindow, "oni.config.openConfigJs")
                 },
             },
         ],
     }
 
     if (loadInit) {
-        preferences.submenu.push(
-            {
-                label: "Edit Neovim config",
-                click(item, focusedWindow) {
-                    executeOniCommand("oni.config.openInitVim")
-                },
+        preferences.submenu.push({
+            label: "Edit Neovim config",
+            click(item, focusedWindow) {
+                executeOniCommand(focusedWindow, "oni.config.openInitVim")
             },
-        )
+        })
     }
 
     const reopenWithEncoding = {
@@ -71,11 +91,54 @@ export const buildMenu = (mainWindow, loadInit) => {
 
     // TODO: Maybe better show normal encoding name in submenu?
     // Encoding list from http://vimdoc.sourceforge.net/htmldoc/mbyte.html#encoding-values
-    const encodingList = ["utf-8", "utf-16le", "utf-16be", "utf-32le", "utf-32be", "latin1", "koi8-r", "koi8-u", "macroman", "cp437", "cp737", "cp775", "cp850", "cp852", "cp855", "cp857", "cp860", "cp861", "cp862", "cp863", "cp865", "cp866", "cp869", "cp874", "cp1250", "cp1251", "cp1253", "cp1254", "cp1255", "cp1256", "cp1257", "cp1258", "cp932", "euc-jp", "sjis", "cp949", "euc-kr", "cp936", "euc-cn", "cp950", "big5", "euc-tw"].map((val) => {
+    const encodingList = [
+        "utf-8",
+        "utf-16le",
+        "utf-16be",
+        "utf-32le",
+        "utf-32be",
+        "latin1",
+        "koi8-r",
+        "koi8-u",
+        "macroman",
+        "cp437",
+        "cp737",
+        "cp775",
+        "cp850",
+        "cp852",
+        "cp855",
+        "cp857",
+        "cp860",
+        "cp861",
+        "cp862",
+        "cp863",
+        "cp865",
+        "cp866",
+        "cp869",
+        "cp874",
+        "cp1250",
+        "cp1251",
+        "cp1253",
+        "cp1254",
+        "cp1255",
+        "cp1256",
+        "cp1257",
+        "cp1258",
+        "cp932",
+        "euc-jp",
+        "sjis",
+        "cp949",
+        "euc-kr",
+        "cp936",
+        "euc-cn",
+        "cp950",
+        "big5",
+        "euc-tw",
+    ].map(val => {
         return {
             label: val.toUpperCase(),
             click(item, focusedWindow) {
-                executeVimCommand(":e! ++enc=" + val)
+                executeVimCommand(focusedWindow, ":e! ++enc=" + val)
             },
         }
     })
@@ -87,27 +150,36 @@ export const buildMenu = (mainWindow, loadInit) => {
         submenu: [
             {
                 label: "New File",
+                accelerator: "CmdOrCtrl+N",
                 click(item, focusedWindow) {
-                    executeVimCommand(":enew")
+                    executeVimCommand(focusedWindow, ":enew")
                 },
             },
             {
                 label: "Open File…",
+                accelerator: "CmdOrCtrl+O",
                 click(item, focusedWindow) {
-                    dialog.showOpenDialog(mainWindow, { properties: ["openFile", "multiSelections"] }, (files) => executeVimCommandForMultipleFiles(":tabnew ", files))
+                    dialog.showOpenDialog(
+                        focusedWindow,
+                        { properties: ["openFile", "multiSelections"] },
+                        files =>
+                            executeVimCommandForMultipleFiles(focusedWindow, ":tabnew ", files),
+                    )
                 },
             },
             {
                 label: "Open Folder…",
                 click(item, focusedWindow) {
-                    executeOniCommand("oni.openFolder")
+                    executeOniCommand(focusedWindow, "oni.openFolder")
                 },
             },
             reopenWithEncoding,
             {
                 label: "Split Open…",
                 click(item, focusedWindow) {
-                    dialog.showOpenDialog(mainWindow, { properties: ["openFile"] }, (files) => executeVimCommandForFiles(":sp", files))
+                    dialog.showOpenDialog(focusedWindow, { properties: ["openFile"] }, files =>
+                        executeVimCommandForFiles(focusedWindow, ":sp", files),
+                    )
                 },
             },
             {
@@ -120,20 +192,26 @@ export const buildMenu = (mainWindow, loadInit) => {
                 },
             },
             {
+                label: "Hide Window",
+                click(item, focusedWindow) {
+                    focusedWindow.hide()
+                },
+            },
+            {
                 type: "separator",
             },
             {
                 label: "Save",
                 click(item, focusedWindow) {
-                    executeVimCommand(":w")
+                    executeVimCommand(focusedWindow, ":w")
                 },
             },
             {
                 label: "Save As…",
                 click(item, focusedWindow) {
-                    dialog.showSaveDialog(mainWindow, {}, (name) => {
+                    dialog.showSaveDialog(focusedWindow, {}, name => {
                         if (name) {
-                            executeVimCommand(":save " + normalizePath(name))
+                            executeVimCommand(focusedWindow, ":save " + normalizePath(name))
                         }
                     })
                 },
@@ -141,7 +219,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Save All",
                 click(item, focusedWindow) {
-                    executeVimCommand(":wall")
+                    executeVimCommand(focusedWindow, ":wall")
                 },
             },
             {
@@ -154,19 +232,19 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Close File",
                 click(item, focusedWindow) {
-                    executeVimCommand(":close")
+                    executeVimCommand(focusedWindow, ":close")
                 },
             },
             {
                 label: "Revert File",
                 click(item, focusedWindow) {
-                    executeVimCommand(":e!")
+                    executeVimCommand(focusedWindow, ":e!")
                 },
             },
             {
                 label: "Close All File",
                 click(item, focusedWindow) {
-                    executeVimCommand(":%bw")
+                    executeVimCommand(focusedWindow, ":%bw")
                 },
             },
             {
@@ -188,19 +266,19 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Undo",
                 click(item, focusedWindow) {
-                    executeVimCommand("u")
+                    executeVimCommand(focusedWindow, "u")
                 },
             },
             {
                 label: "Redo",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-r>")
+                    executeVimCommand(focusedWindow, "\\<C-r>")
                 },
             },
             {
                 label: "Repeat",
                 click(item, focusedWindow) {
-                    executeVimCommand(".")
+                    executeVimCommand(focusedWindow, ".")
                 },
             },
             {
@@ -209,31 +287,31 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Copy",
                 click(item, focusedWindow) {
-                    executeVimCommand('\\"+y')
+                    executeVimCommand(focusedWindow, '\\"+y')
                 },
             },
             {
                 label: "Cut",
                 click(item, focusedWindow) {
-                    executeVimCommand('\\"+x')
+                    executeVimCommand(focusedWindow, '\\"+x')
                 },
             },
             {
                 label: "Paste",
                 click(item, focusedWindow) {
-                    executeVimCommand('\\"+gP')
+                    executeVimCommand(focusedWindow, '\\"+gP')
                 },
             },
             {
                 label: "Paste Line Before",
                 click(item, focusedWindow) {
-                    executeVimCommand("[p")
+                    executeVimCommand(focusedWindow, "[p")
                 },
             },
             {
                 label: "Paste Line After",
                 click(item, focusedWindow) {
-                    executeVimCommand("]p")
+                    executeVimCommand(focusedWindow, "]p")
                 },
             },
             {
@@ -242,37 +320,61 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Full Path",
                         click(item, focusedWindow) {
-                            executeVimCommand(":let @" + (isWindows ? "*" : "+") + "=expand('%:p')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":let @" + (isWindows ? "*" : "+") + "=expand('%:p')",
+                            )
                         },
                     },
                     {
                         label: "Full Path with Line Number",
                         click(item, focusedWindow) {
-                            executeVimCommand(":let @" + (isWindows ? "*" : "+") + "=expand('%:p') . ':' . line('.')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":let @" +
+                                    (isWindows ? "*" : "+") +
+                                    "=expand('%:p') . ':' . line('.')",
+                            )
                         },
                     },
                     {
                         label: "Relative Path",
                         click(item, focusedWindow) {
-                            executeVimCommand(":let @" + (isWindows ? "*" : "+") + "=expand('%')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":let @" + (isWindows ? "*" : "+") + "=expand('%')",
+                            )
                         },
                     },
                     {
                         label: "Relative Path with Line Number",
                         click(item, focusedWindow) {
-                            executeVimCommand(":let @" + (isWindows ? "*" : "+") + "=expand('%') . ':' . line('.')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":let @" +
+                                    (isWindows ? "*" : "+") +
+                                    "=expand('%') . ':' . line('.')",
+                            )
                         },
                     },
                     {
                         label: "File Name",
                         click(item, focusedWindow) {
-                            executeVimCommand(":let @" + (isWindows ? "*" : "+") + "=expand('%:t')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":let @" + (isWindows ? "*" : "+") + "=expand('%:t')",
+                            )
                         },
                     },
                     {
                         label: "File Name with Line Number",
                         click(item, focusedWindow) {
-                            executeVimCommand(":let @" + (isWindows ? "*" : "+") + "=expand('%:t') . ':' . line('.')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":let @" +
+                                    (isWindows ? "*" : "+") +
+                                    "=expand('%:t') . ':' . line('.')",
+                            )
                         },
                     },
                 ],
@@ -286,19 +388,19 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Indent",
                         click(item, focusedWindow) {
-                            executeVimCommand(">")
+                            executeVimCommand(focusedWindow, ">")
                         },
                     },
                     {
                         label: "Unindent",
                         click(item, focusedWindow) {
-                            executeVimCommand("<")
+                            executeVimCommand(focusedWindow, "<")
                         },
                     },
                     {
                         label: "Reindent",
                         click(item, focusedWindow) {
-                            executeVimCommand("=i{")
+                            executeVimCommand(focusedWindow, "=i{")
                         },
                     },
                     {
@@ -307,13 +409,13 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Move Up",
                         click(item, focusedWindow) {
-                            executeVimCommand("m+")
+                            executeVimCommand(focusedWindow, "m+")
                         },
                     },
                     {
                         label: "Move Down",
                         click(item, focusedWindow) {
-                            executeVimCommand("m--")
+                            executeVimCommand(focusedWindow, "m--")
                         },
                     },
                     {
@@ -322,39 +424,38 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Duplicate",
                         click(item, focusedWindow) {
-                            executeVimCommand("Yp")
+                            executeVimCommand(focusedWindow, "Yp")
                         },
                     },
                     {
                         label: "Copy",
                         click(item, focusedWindow) {
-                            executeVimCommand("Y")
+                            executeVimCommand(focusedWindow, "Y")
                         },
                     },
                     {
                         label: "Cut",
                         click(item, focusedWindow) {
-                            executeVimCommand("Y^D")
+                            executeVimCommand(focusedWindow, "Y^D")
                         },
                     },
                     {
                         label: "Delete",
                         click(item, focusedWindow) {
-                            executeVimCommand("dd")
+                            executeVimCommand(focusedWindow, "dd")
                         },
                     },
                     {
                         label: "Clear",
                         click(item, focusedWindow) {
-                            executeVimCommand("^D")
+                            executeVimCommand(focusedWindow, "^D")
                         },
                     },
                     {
                         label: "Join",
                         click(item, focusedWindow) {
-                            executeVimCommand("J")
+                            executeVimCommand(focusedWindow, "J")
                         },
-
                     },
                 ],
             },
@@ -364,19 +465,19 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Upper Case",
                         click(item, focusedWindow) {
-                            executeVimCommand("U")
+                            executeVimCommand(focusedWindow, "U")
                         },
                     },
                     {
                         label: "Lower Case",
                         click(item, focusedWindow) {
-                            executeVimCommand("u")
+                            executeVimCommand(focusedWindow, "u")
                         },
                     },
                     {
                         label: "Swap Case",
                         click(item, focusedWindow) {
-                            executeVimCommand("~")
+                            executeVimCommand(focusedWindow, "~")
                         },
                     },
                     {
@@ -385,50 +486,50 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Delete Inner Word",
                         click(item, focusedWindow) {
-                            executeVimCommand("diw")
+                            executeVimCommand(focusedWindow, "diw")
                         },
                     },
                     {
                         label: "Delete Previous Word",
                         click(item, focusedWindow) {
-                            executeVimCommand("bbdw")
+                            executeVimCommand(focusedWindow, "bbdw")
                         },
                     },
                     {
                         label: "Delete Next Word",
                         click(item, focusedWindow) {
-                            executeVimCommand("nwdw")
+                            executeVimCommand(focusedWindow, "nwdw")
                         },
                     },
                     {
                         label: "Strip First Character",
                         click(item, focusedWindow) {
-                            executeVimCommand(":%normal ^x")
+                            executeVimCommand(focusedWindow, ":%normal ^x")
                         },
                     },
                     {
                         label: "Strip Last Character",
                         click(item, focusedWindow) {
-                            executeVimCommand(":%normal $x")
+                            executeVimCommand(focusedWindow, ":%normal $x")
                         },
                     },
                     {
                         label: "Strip Trailings Blanks",
                         click(item, focusedWindow) {
-                            executeVimCommand(":%s/^\s\+//")
-                            executeVimCommand(":%s/\s\+$//")
+                            executeVimCommand(focusedWindow, ":%s/^s+//")
+                            executeVimCommand(focusedWindow, ":%s/s+$//")
                         },
                     },
                     {
                         label: "Delete Line",
                         click(item, focusedWindow) {
-                            executeVimCommand("dd")
+                            executeVimCommand(focusedWindow, "dd")
                         },
                     },
                     {
                         label: "Remove Blank Lines",
                         click(item, focusedWindow) {
-                            executeVimCommand(":g/^$/d")
+                            executeVimCommand(focusedWindow, ":g/^$/d")
                         },
                     },
                 ],
@@ -439,7 +540,7 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Toggle Comment",
                         click(item, focusedWindow) {
-                            executeVimCommand(":Commentary")
+                            executeVimCommand(focusedWindow, ":Commentary")
                         },
                     },
                 ],
@@ -450,7 +551,7 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Encoding Identifier",
                         click(item, focusedWindow) {
-                            executeVimCommand(":put =&fileencoding")
+                            executeVimCommand(focusedWindow, ":put =&fileencoding")
                         },
                     },
                     {
@@ -459,13 +560,16 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Date / Time (Short)",
                         click(item, focusedWindow) {
-                            executeVimCommand(":put =strftime('%c')")
+                            executeVimCommand(focusedWindow, ":put =strftime('%c')")
                         },
                     },
                     {
                         label: "Date / Time (Long)",
                         click(item, focusedWindow) {
-                            executeVimCommand(":put =strftime('%a, %d %b %Y %H:%M:%S')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":put =strftime('%a, %d %b %Y %H:%M:%S')",
+                            )
                         },
                     },
                     {
@@ -474,19 +578,22 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Full Path",
                         click(item, focusedWindow) {
-                            executeVimCommand(":put =expand('%:p')")
+                            executeVimCommand(focusedWindow, ":put =expand('%:p')")
                         },
                     },
                     {
                         label: "File Name",
                         click(item, focusedWindow) {
-                            executeVimCommand(":put =expand('%:t')")
+                            executeVimCommand(focusedWindow, ":put =expand('%:t')")
                         },
                     },
                     {
                         label: "File Name with Line Number",
                         click(item, focusedWindow) {
-                            executeVimCommand(":put =expand('%:t') . ':' . line('.')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":put =expand('%:t') . ':' . line('.')",
+                            )
                         },
                     },
                 ],
@@ -497,7 +604,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Select All",
                 click(item, focusedWindow) {
-                    executeVimCommand("ggVG")
+                    executeVimCommand(focusedWindow, "ggVG")
                 },
             },
         ],
@@ -506,29 +613,29 @@ export const buildMenu = (mainWindow, loadInit) => {
     // Window menu
     menu.push({
         label: "Split",
-        submenu : [
+        submenu: [
             {
                 label: "New Horizontal Split",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-w>n")
+                    executeVimCommand(focusedWindow, "\\<C-w>n")
                 },
             },
             {
                 label: "Split File Horizontally",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-w>s")
+                    executeVimCommand(focusedWindow, "\\<C-w>s")
                 },
             },
             {
                 label: "Split File Vertically",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-w>v")
+                    executeVimCommand(focusedWindow, "\\<C-w>v")
                 },
             },
             {
                 label: "File Explorer Split",
                 click(item, focusedWindow) {
-                    executeVimCommand(":Lexplore | vertical resize 30")
+                    executeVimCommand(focusedWindow, ":Lexplore | vertical resize 30")
                 },
             },
             {
@@ -537,13 +644,13 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Close",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-w>c")
+                    executeVimCommand(focusedWindow, "\\<C-w>c")
                 },
             },
             {
                 label: "Close Other Split(s)",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-w>o")
+                    executeVimCommand(focusedWindow, "\\<C-w>o")
                 },
             },
             {
@@ -555,25 +662,25 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Top",
                         click(item, focusedWindow) {
-                            executeVimCommand("\\<C-w>K")
+                            executeVimCommand(focusedWindow, "\\<C-w>K")
                         },
                     },
                     {
                         label: "Bottom",
                         click(item, focusedWindow) {
-                            executeVimCommand("\\<C-w>J")
+                            executeVimCommand(focusedWindow, "\\<C-w>J")
                         },
                     },
                     {
                         label: "Left Side",
                         click(item, focusedWindow) {
-                            executeVimCommand("\\<C-w>H")
+                            executeVimCommand(focusedWindow, "\\<C-w>H")
                         },
                     },
                     {
                         label: "Right Side",
                         click(item, focusedWindow) {
-                            executeVimCommand("\\<C-w>L")
+                            executeVimCommand(focusedWindow, "\\<C-w>L")
                         },
                     },
                 ],
@@ -581,13 +688,13 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Rotate Up",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-w>R")
+                    executeVimCommand(focusedWindow, "\\<C-w>R")
                 },
             },
             {
                 label: "Rotate Down",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-w>r")
+                    executeVimCommand(focusedWindow, "\\<C-w>r")
                 },
             },
             {
@@ -596,31 +703,31 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Equal Size",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-w>=")
+                    executeVimCommand(focusedWindow, "\\<C-w>=")
                 },
             },
             {
                 label: "Max Height",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-w>_")
+                    executeVimCommand(focusedWindow, "\\<C-w>_")
                 },
             },
             {
                 label: "Min Height",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-w>1_")
+                    executeVimCommand(focusedWindow, "\\<C-w>1_")
                 },
             },
             {
                 label: "Max Width",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-w>|")
+                    executeVimCommand(focusedWindow, "\\<C-w>|")
                 },
             },
             {
                 label: "Min Width",
                 click(item, focusedWindow) {
-                    executeVimCommand("\\<C-w>1|")
+                    executeVimCommand(focusedWindow, "\\<C-w>1|")
                 },
             },
         ],
@@ -633,27 +740,27 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Learn more",
                 click(item, focusedWindow) {
-                    openUrl("https://github.com/onivim/oni#introduction")
+                    openUrl(focusedWindow, "https://github.com/onivim/oni#introduction")
                 },
             },
             {
                 label: "Issues",
                 click(item, focusedWindow) {
-                    openUrl("https://github.com/onivim/oni/issues")
+                    openUrl(focusedWindow, "https://github.com/onivim/oni/issues")
                 },
             },
             {
                 label: "Github",
                 sublabel: "https://github.com/onivim/oni",
                 click(item, focusedWindow) {
-                    openUrl("https://github.com/onivim/oni")
+                    openUrl(focusedWindow, "https://github.com/onivim/oni")
                 },
             },
             {
                 label: "Website",
                 sublabel: "https://www.onivim.io",
                 click(item, focusedWindow) {
-                    openUrl("https://www.onivim.io")
+                    openUrl(focusedWindow, "https://www.onivim.io")
                 },
             },
             {
@@ -662,7 +769,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "About Oni",
                 click(item, focusedWindow) {
-                    executeOniCommand("oni.about")
+                    executeOniCommand(focusedWindow, "oni.about")
                 },
             },
             {
@@ -671,7 +778,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Developer Tools",
                 click(item, focusedWindow) {
-                    executeOniCommand("oni.debug.openDevTools")
+                    executeOniCommand(focusedWindow, "oni.debug.openDevTools")
                 },
             },
         ],

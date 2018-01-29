@@ -11,10 +11,19 @@ import * as os from "os"
 import * as path from "path"
 import * as readline from "readline"
 
-const tssPath = path.join(__dirname, "..", "..", "..", "..", "node_modules", "typescript", "lib", "tsserver.js")
+const tssPath = path.join(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "..",
+    "node_modules",
+    "typescript",
+    "lib",
+    "tsserver.js",
+)
 
 export class TypeScriptServerHost extends events.EventEmitter {
-
     private _tssProcess = null
     private _seqNumber = 0
     private _seqToPromises = {}
@@ -58,19 +67,19 @@ export class TypeScriptServerHost extends events.EventEmitter {
             console.warn("Error from tss: " + data) // tslint:disable-line no-console
         })
 
-        this._tssProcess.on("error", (data) => {
+        this._tssProcess.on("error", data => {
             debugger // tslint:disable-line no-debugger
         })
 
-        this._tssProcess.on("exit", (data) => {
+        this._tssProcess.on("exit", data => {
             debugger // tslint:disable-line no-debugger
         })
 
-        this._tssProcess.on("close", (data) => {
+        this._tssProcess.on("close", data => {
             debugger // tslint:disable-line no-debugger
         })
 
-        this._rl.on("line", (msg) => {
+        this._rl.on("line", msg => {
             if (msg.indexOf("{") === 0) {
                 this._parseResponse(msg)
             }
@@ -78,7 +87,6 @@ export class TypeScriptServerHost extends events.EventEmitter {
     }
 
     public async openFile(file: string, text?: string): Promise<any> {
-
         if (this._openedFiles.indexOf(file) >= 0) {
             return
         }
@@ -113,7 +121,13 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public getFormattingEdits(file: string, line: number, offset: number, endLine: number, endOffset: number): Promise<protocol.CodeEdit[]> {
+    public getFormattingEdits(
+        file: string,
+        line: number,
+        offset: number,
+        endLine: number,
+        endOffset: number,
+    ): Promise<protocol.CodeEdit[]> {
         return this._makeTssRequest<protocol.CodeEdit[]>("format", {
             file,
             line,
@@ -123,7 +137,12 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public getCompletions(file: string, line: number, offset: number, prefix: string): Promise<any> {
+    public getCompletions(
+        file: string,
+        line: number,
+        offset: number,
+        prefix: string,
+    ): Promise<any> {
         return this._makeTssRequest<void>("completions", {
             file,
             line,
@@ -132,7 +151,12 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public getCompletionDetails(file: string, line: number, offset: number, entryNames: string[]): Promise<any> {
+    public getCompletionDetails(
+        file: string,
+        line: number,
+        offset: number,
+        entryNames: string[],
+    ): Promise<any> {
         return this._makeTssRequest<void>("completionEntryDetails", {
             file,
             line,
@@ -141,7 +165,13 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public getRefactors(file: string, startLine: number, startOffset: number, endLine: number, endOffset: number): Promise<protocol.ApplicableRefactorInfo[]> {
+    public getRefactors(
+        file: string,
+        startLine: number,
+        startOffset: number,
+        endLine: number,
+        endOffset: number,
+    ): Promise<protocol.ApplicableRefactorInfo[]> {
         return this._makeTssRequest<protocol.ApplicableRefactorInfo[]>("getApplicableRefactors", {
             file,
             startLine,
@@ -151,18 +181,27 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public getEditsForRefactor(refactor: string, action: string, file: string, startLine: number, startOffset: number, endLine: number, endOffset: number): Promise<protocol.RefactorEditInfo> {
+    public getEditsForRefactor(
+        refactor: string,
+        action: string,
+        file: string,
+        startLine: number,
+        startOffset: number,
+        endLine: number,
+        endOffset: number,
+    ): Promise<protocol.RefactorEditInfo> {
         return this._makeTssRequest<protocol.RefactorEditInfo>("getEditsForRefactor", {
-                                        refactor,
-                                        action,
-                                        file,
-                                        startLine,
-                                        startOffset,
-                                        endLine,
-                                        endOffset})
+            refactor,
+            action,
+            file,
+            startLine,
+            startOffset,
+            endLine,
+            endOffset,
+        })
     }
 
-    public  updateFile(file: string, fileContent: string): Promise<void> {
+    public updateFile(file: string, fileContent: string): Promise<void> {
         const totalLines = fileContent.split(os.EOL)
         return this._makeTssRequest<void>("change", {
             file,
@@ -235,7 +274,11 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public findAllReferences(file: string, line: number, offset: number): Promise<protocol.ReferencesResponseBody> {
+    public findAllReferences(
+        file: string,
+        line: number,
+        offset: number,
+    ): Promise<protocol.ReferencesResponseBody> {
         return this._makeTssRequest<protocol.ReferencesResponseBody>("references", {
             file,
             line,
@@ -249,13 +292,17 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
-    public rename(file: string, line: number, offset: number): Promise<protocol.RenameResponseBody> {
+    public rename(
+        file: string,
+        line: number,
+        offset: number,
+    ): Promise<protocol.RenameResponseBody> {
         return this._makeTssRequest<protocol.RenameResponseBody>("rename", {
             file,
             line,
             offset,
-            findInComments: true,
-            findInStrings: true,
+            findInComments: false,
+            findInStrings: false,
         })
     }
 
@@ -317,5 +364,4 @@ export class TypeScriptServerHost extends events.EventEmitter {
             promise,
         }
     }
-
 }

@@ -4,10 +4,14 @@ import * as types from "vscode-languageserver-types"
 
 import * as Mocks from "./../../Mocks"
 
-import { HighlightInfo, ISyntaxHighlightLineInfo, ISyntaxHighlightState, SyntaxHighlightReconciler } from "./../../../src/Services/SyntaxHighlighting"
+import {
+    HighlightInfo,
+    ISyntaxHighlightLineInfo,
+    ISyntaxHighlightState,
+    SyntaxHighlightReconciler,
+} from "./../../../src/Services/SyntaxHighlighting"
 
 describe("SyntaxHighlightReconciler", () => {
-
     let syntaxHighlightReconciler: SyntaxHighlightReconciler
     let mockConfiguration: Mocks.MockConfiguration
     let mockEditor: Mocks.MockEditor
@@ -17,12 +21,17 @@ describe("SyntaxHighlightReconciler", () => {
         mockConfiguration = new Mocks.MockConfiguration()
         mockEditor = new Mocks.MockEditor()
 
-        mockConfiguration.setValue("editor.tokenColors", [{
-            scope: "scope.test",
-            settings: "Identifier",
-        }])
+        mockConfiguration.setValue("editor.tokenColors", [
+            {
+                scope: "scope.test",
+                settings: "Identifier",
+            },
+        ])
 
-        syntaxHighlightReconciler = new SyntaxHighlightReconciler(mockConfiguration as any, mockEditor as any)
+        syntaxHighlightReconciler = new SyntaxHighlightReconciler(
+            mockConfiguration as any,
+            mockEditor as any,
+        )
 
         mockBuffer = new Mocks.MockBuffer("javascript", "test.js", [])
         mockEditor.simulateBufferEnter(mockBuffer)
@@ -59,7 +68,6 @@ describe("SyntaxHighlightReconciler", () => {
     }
 
     it("sets tokens", () => {
-
         const tokenInfo = {
             scopes: ["scope.test"],
             range: types.Range.create(0, 0, 0, 5),
@@ -71,16 +79,21 @@ describe("SyntaxHighlightReconciler", () => {
 
         const highlights = mockBuffer.mockHighlights.getHighlightsForLine(0)
 
-        const expectedHighlights: HighlightInfo[] = [{
+        const expectedHighlights: HighlightInfo[] = [
+            {
                 highlightGroup: "Identifier",
                 range: types.Range.create(0, 0, 0, 5),
-            }]
+            },
+        ]
 
-        assert.deepEqual(highlights, expectedHighlights, "Validate highlightsAfterClearing are correct")
+        assert.deepEqual(
+            highlights,
+            expectedHighlights,
+            "Validate highlightsAfterClearing are correct",
+        )
     })
 
     it("clears tokens", () => {
-
         const tokenInfo = {
             scopes: ["scope.test"],
             range: types.Range.create(0, 0, 0, 5),
@@ -96,6 +109,10 @@ describe("SyntaxHighlightReconciler", () => {
 
         const highlightsAfterClearing = mockBuffer.mockHighlights.getHighlightsForLine(0)
         const expectedHighlights: HighlightInfo[] = []
-        assert.deepEqual(highlightsAfterClearing, expectedHighlights, "Validate highlightsAfterClearing are cleared")
+        assert.deepEqual(
+            highlightsAfterClearing,
+            expectedHighlights,
+            "Validate highlightsAfterClearing are cleared",
+        )
     })
 })

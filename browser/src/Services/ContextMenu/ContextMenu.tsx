@@ -15,7 +15,7 @@ import { Event, IEvent } from "oni-types"
 
 import { IToolTipsProvider } from "./../../Editor/NeovimEditor/ToolTipsProvider"
 import { createStore } from "./../../Redux"
-import { Colors } from "./../../Services/Colors"
+import { IColors } from "./../../Services/Colors"
 
 import * as ActionCreators from "./../Menu/MenuActionCreators"
 import { createReducer } from "./../Menu/MenuReducer"
@@ -25,7 +25,8 @@ import { ContextMenuContainer } from "./ContextMenuComponent"
 
 // TODO: Remove filtering from the context menu responsibility
 const reducer = createReducer<types.CompletionItem, types.CompletionItem>()
-const noopFilter = (opts: types.CompletionItem[], searchText: string): types.CompletionItem[] => opts
+const noopFilter = (opts: types.CompletionItem[], searchText: string): types.CompletionItem[] =>
+    opts
 
 // TODO: This is essentially a duplicate of `MenuManager.ts` - can this be consolidated?
 // Can potentially move to a higher-order class that takes contextMenuActions/store as arguments
@@ -37,17 +38,20 @@ export class ContextMenuManager {
     private _store: Store<ContextMenuState>
     private _actions: typeof ActionCreators
 
-    constructor(
-        private _toolTips: IToolTipsProvider,
-        private _colors: Colors,
-    ) {
+    constructor(private _toolTips: IToolTipsProvider, private _colors: IColors) {
         this._store = createStore("CONTEXT-MENU", reducer, State.createDefaultState(), [thunk])
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
     }
 
     public create(): ContextMenu {
         this._id++
-        return new ContextMenu(this._id.toString(), this._store, this._actions, this._toolTips, this._colors)
+        return new ContextMenu(
+            this._id.toString(),
+            this._store,
+            this._actions,
+            this._toolTips,
+            this._colors,
+        )
     }
 
     public isMenuOpen(): boolean {
@@ -108,8 +112,8 @@ export class ContextMenu {
         private _store: Store<State.IMenus<types.CompletionItem, types.CompletionItem>>,
         private _actions: typeof ActionCreators,
         private _toolTips: IToolTipsProvider,
-        private _colors: Colors,
-    ) { }
+        private _colors: IColors,
+    ) {}
 
     public isOpen(): boolean {
         const contextMenuState = this._store.getState()
@@ -117,7 +121,6 @@ export class ContextMenu {
     }
 
     public setFilter(filter: string): void {
-
         const contextMenuState = this._store.getState()
 
         if (contextMenuState.menu && contextMenuState.menu.filter !== filter) {
@@ -130,7 +133,6 @@ export class ContextMenu {
     }
 
     public setItems(items: Oni.Menu.MenuOption[]): void {
-
         if (items === this._lastItems) {
             return
         }
@@ -141,7 +143,6 @@ export class ContextMenu {
     }
 
     public show(items?: any[], filter?: string): void {
-
         const backgroundColor = this._colors.getColor("contextMenu.background")
         const foregroundColor = this._colors.getColor("contextMenu.foreground")
         const borderColor = this._colors.getColor("contextMenu.border") || foregroundColor
@@ -154,21 +155,30 @@ export class ContextMenu {
             highlightColor,
         }
 
-        this._actions.showPopupMenu(this._id, {
-            ...colors,
-            filterFunction: noopFilter,
-            onSelectedItemChanged: (item: any) => this._onSelectedItemChanged.dispatch(item),
-            onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
-            onHide: () => this._onHidden(),
-            onFilterTextChanged: (newText: string) => this._onFilterTextChanged.dispatch(newText),
-        } as any, items, filter)
+        this._actions.showPopupMenu(
+            this._id,
+            {
+                ...colors,
+                filterFunction: noopFilter,
+                onSelectedItemChanged: (item: any) => this._onSelectedItemChanged.dispatch(item),
+                onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
+                onHide: () => this._onHidden(),
+                onFilterTextChanged: (newText: string) =>
+                    this._onFilterTextChanged.dispatch(newText),
+            } as any,
+            items,
+            filter,
+        )
 
-        this._toolTips.showToolTip(this._getContextMenuId(), <ContextMenuContainer store={this._store}/>, {
-            openDirection: 2,
-            position: null,
-            padding: "0px",
-        })
-
+        this._toolTips.showToolTip(
+            this._getContextMenuId(),
+            <ContextMenuContainer store={this._store} />,
+            {
+                openDirection: 2,
+                position: null,
+                padding: "0px",
+            },
+        )
     }
 
     public updateItem(item: any): void {
@@ -180,7 +190,6 @@ export class ContextMenu {
     }
 
     private _onItemSelectedHandler(idx?: number): void {
-
         const selectedOption = this._getSelectedItem(idx)
         this._onItemSelected.dispatch(selectedOption)
 
@@ -194,7 +203,7 @@ export class ContextMenu {
             return null
         }
 
-        const index = (typeof idx === "number") ? idx : contextMenuState.menu.selectedIndex
+        const index = typeof idx === "number" ? idx : contextMenuState.menu.selectedIndex
 
         return contextMenuState.menu.filteredOptions[index]
     }

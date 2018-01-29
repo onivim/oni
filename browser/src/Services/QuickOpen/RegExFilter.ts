@@ -10,11 +10,17 @@ import * as Oni from "oni-api"
 
 import { IMenuOptionWithHighlights, shouldFilterbeCaseSensitive } from "./../Menu"
 
-import { createLetterCountDictionary, LetterCountDictionary } from "./../../UI/components/HighlightText"
+import {
+    createLetterCountDictionary,
+    LetterCountDictionary,
+} from "./../../UI/components/HighlightText"
 
-export const regexFilter = (options: Oni.Menu.MenuOption[], searchString: string): IMenuOptionWithHighlights[] => {
+export const regexFilter = (
+    options: Oni.Menu.MenuOption[],
+    searchString: string,
+): IMenuOptionWithHighlights[] => {
     if (!searchString) {
-        const opt = options.map((o) => {
+        const opt = options.map(o => {
             return {
                 ...o,
                 detailHighlights: [],
@@ -22,7 +28,7 @@ export const regexFilter = (options: Oni.Menu.MenuOption[], searchString: string
             }
         })
 
-        return sortBy(opt, (o) => o.pinned ? 0 : 1)
+        return sortBy(opt, o => (o.pinned ? 0 : 1))
     }
 
     const isCaseSensitive = shouldFilterbeCaseSensitive(searchString)
@@ -33,7 +39,7 @@ export const regexFilter = (options: Oni.Menu.MenuOption[], searchString: string
 
     const filterRegExp = new RegExp(".*" + searchString.split("").join(".*") + ".*")
 
-    const filteredOptions = options.filter((f) => {
+    const filteredOptions = options.filter(f => {
         let textToFilterOn = f.detail + f.label
 
         if (!isCaseSensitive) {
@@ -43,7 +49,7 @@ export const regexFilter = (options: Oni.Menu.MenuOption[], searchString: string
         return textToFilterOn.match(filterRegExp)
     })
 
-    const ret = filteredOptions.map((fo) => {
+    const ret = filteredOptions.map(fo => {
         const letterCountDictionary = createLetterCountDictionary(searchString)
 
         const detailHighlights = getHighlightsFromString(fo.detail, letterCountDictionary)
@@ -59,7 +65,10 @@ export const regexFilter = (options: Oni.Menu.MenuOption[], searchString: string
     return ret
 }
 
-export const getHighlightsFromString = (text: string, letterCountDictionary: LetterCountDictionary): number[] => {
+export const getHighlightsFromString = (
+    text: string,
+    letterCountDictionary: LetterCountDictionary,
+): number[] => {
     if (!text) {
         return []
     }

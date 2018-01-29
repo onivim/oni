@@ -31,13 +31,10 @@ export interface IMenuProps {
 }
 
 export class MenuView extends React.PureComponent<IMenuProps, {}> {
-
     private _inputElement: HTMLInputElement = null
 
     public componentWillUpdate(newProps: Readonly<IMenuProps>): void {
-        if (newProps.visible !== this.props.visible
-            && !newProps.visible
-            && this._inputElement) {
+        if (newProps.visible !== this.props.visible && !newProps.visible && this._inputElement) {
             focusManager.popFocus(this._inputElement)
         }
     }
@@ -52,14 +49,16 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
 
         // const pinnedItems = initialItems.filter(f => f.pinned)
         // const unpinnedItems = initialItems.filter(f => !f.pinned)
-        const items = initialItems.map((menuItem, index) =>
+        const items = initialItems.map((menuItem, index) => (
             // FIXME: undefined
-            <MenuItem {...menuItem as any}
+            <MenuItem
+                {...menuItem as any}
                 key={index}
                 filterText={this.props.filterText}
                 isSelected={index === this.props.selectedIndex}
                 onClick={() => this.props.onSelect(index)}
-            />)
+            />
+        ))
 
         const menuStyle = {
             backgroundColor: this.props.backgroundColor,
@@ -68,23 +67,28 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
 
         const footerClassName = "footer " + (this.props.isLoading ? "loading" : "loaded")
 
-        return <div className="menu-background enable-mouse">
-            <div className="menu" style={menuStyle}>
-                <TextInputView
-                    overrideDefaultStyle={true}
-                    backgroundColor={null}
-                    foregroundColor={this.props.foregroundColor}
-                    onChange={(evt) => this._onChange(evt)} />
-                <div className="items">
-                    {items}
-                </div>
-                <div className={footerClassName} style={menuStyle}>
-                    <div className="loading-spinner">
-                        <Icon name="circle-o-notch" className=" fa-spin" size={IconSize.Large} />
+        return (
+            <div className="menu-background enable-mouse">
+                <div className="menu" style={menuStyle}>
+                    <TextInputView
+                        overrideDefaultStyle={true}
+                        backgroundColor={null}
+                        foregroundColor={this.props.foregroundColor}
+                        onChange={evt => this._onChange(evt)}
+                    />
+                    <div className="items">{items}</div>
+                    <div className={footerClassName} style={menuStyle}>
+                        <div className="loading-spinner">
+                            <Icon
+                                name="circle-o-notch"
+                                className=" fa-spin"
+                                size={IconSize.Large}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        )
     }
 
     private _onChange(evt: React.FormEvent<HTMLInputElement>) {
@@ -94,7 +98,7 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
 }
 
 const EmptyArray: any[] = []
-const noop = () => { } // tslint:disable-line
+const noop = () => {} // tslint:disable-line
 
 const mapStateToProps = (state: State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlights>) => {
     if (!state.menu) {
@@ -136,13 +140,15 @@ const mapDispatchToProps = (dispatch: any) => {
 export const ConnectedMenu = connect(mapStateToProps, mapDispatchToProps)(MenuView)
 
 export const MenuContainer = () => {
-    return <Provider store={menuStore}>
+    return (
+        <Provider store={menuStore}>
             <ConnectedMenu />
         </Provider>
+    )
 }
 
 export interface IMenuItemProps {
-    icon?: string
+    icon?: string | JSX.Element
     isSelected: boolean
     filterText: string
     label: string
@@ -154,7 +160,6 @@ export interface IMenuItemProps {
 }
 
 export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
-
     public render(): JSX.Element {
         let className = "item"
 
@@ -162,15 +167,32 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
             className += " selected"
         }
 
-        const icon = this.props.icon ? <Icon name={this.props.icon} /> : null
+        const icon =
+            this.props.icon && typeof this.props.icon === "string" ? (
+                <Icon name={this.props.icon} />
+            ) : (
+                this.props.icon
+            )
 
-        return <div className={className} onClick={() => this.props.onClick()}>
-            {icon}
-            <HighlightTextByIndex className="label" text={this.props.label} highlightIndices={this.props.labelHighlights} highlightClassName={"highlight"} />
-            <HighlightTextByIndex className="detail" text={this.props.detail} highlightIndices={this.props.detailHighlights} highlightClassName={"highlight"} />
-            <Visible visible={this.props.pinned}>
-                <Icon name="clock-o" />
-            </Visible>
-        </div>
+        return (
+            <div className={className} onClick={() => this.props.onClick()}>
+                {icon}
+                <HighlightTextByIndex
+                    className="label"
+                    text={this.props.label}
+                    highlightIndices={this.props.labelHighlights}
+                    highlightClassName={"highlight"}
+                />
+                <HighlightTextByIndex
+                    className="detail"
+                    text={this.props.detail}
+                    highlightIndices={this.props.detailHighlights}
+                    highlightClassName={"highlight"}
+                />
+                <Visible visible={this.props.pinned}>
+                    <Icon name="clock-o" />
+                </Visible>
+            </div>
+        )
     }
 }

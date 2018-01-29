@@ -24,13 +24,13 @@ interface State {
     containerWidth: number
     children: {
         [id: string]: {
-            id: string;
-            width: number;
-            alignment: number;
-            hide?: boolean;
-            priority: number;
-            passWidth: PassWidth;
-        };
+            id: string
+            width: number
+            alignment: number
+            hide?: boolean
+            priority: number
+            passWidth: PassWidth
+        }
     }
 }
 
@@ -41,7 +41,7 @@ interface Section {
 
 const StatusbarSection = withProps<Section>(styled.div)`
     flex: 1 1 auto;
-    display: ${({ count }) => count ? `none` : `flex`};
+    display: ${({ count }) => (count ? `none` : `flex`)};
     flex-direction: row;
     height: 100%;
     max-width: 48%;
@@ -63,7 +63,8 @@ class StatusBarResizer extends React.Component<Props, State> {
         this.setState({
             containerWidth: this.elem.getBoundingClientRect().width,
         })
-        this.observer = new window["ResizeObserver"](([entry]: any) => { //tslint:disable-line
+        // tslint:disable-next-line
+        this.observer = new window["ResizeObserver"](([entry]: any) => {
             this.setState({ containerWidth: entry.contentRect.width }, this.resize)
         })
         this.observer.observe(this.elem)
@@ -85,7 +86,7 @@ class StatusBarResizer extends React.Component<Props, State> {
                 innerRef={(elem: Element) => (this.elem = elem)}
             >
                 {containerWidth !== undefined &&
-                React.Children.map(children, (child: React.ReactElement<any>) => {
+                    React.Children.map(children, (child: React.ReactElement<any>) => {
                         const current = this.state.children[child.props.id]
                         return React.cloneElement(child, {
                             ...child.props,
@@ -100,13 +101,16 @@ class StatusBarResizer extends React.Component<Props, State> {
 
     private passWidth = (childDimensions: IChildDimensions) => {
         const { width, id, priority, hide } = childDimensions
-        this.setState(state => ({
-            ...state,
-            children: {
-                ...state.children,
-                [id]: { id, width, priority, hide },
-            },
-        }), this.resize)
+        this.setState(
+            state => ({
+                ...state,
+                children: {
+                    ...state.children,
+                    [id]: { id, width, priority, hide },
+                },
+            }),
+            this.resize,
+        )
     }
 
     private resize = () => {

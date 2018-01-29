@@ -22,7 +22,10 @@ const keysToIgnore = [
     "AudioVolumeDown",
 ]
 
-export const ignoreMetaKeyResolver = (evt: KeyboardEvent, previousResolution: string | null): string | null => {
+export const ignoreMetaKeyResolver = (
+    evt: KeyboardEvent,
+    previousResolution: string | null,
+): string | null => {
     if (keysToIgnore.indexOf(evt.key) >= 0) {
         return null
     } else {
@@ -31,23 +34,26 @@ export const ignoreMetaKeyResolver = (evt: KeyboardEvent, previousResolution: st
 }
 
 const keysToRemap: { [key: string]: string } = {
-    "Backspace": "bs",
-    "Escape": "esc",
-    "Enter": "enter",
-    "Tab": "tab",     // Tab
-    "ArrowLeft": "left",    // ArrowLeft
-    "ArrowUp": "up",      // ArrowUp
-    "ArrowRight": "right",   // ArrowRight
-    "ArrowDown": "down",    // ArrowDown
-    "Insert": "insert",
+    Backspace: "bs",
+    Escape: "esc",
+    Enter: "enter",
+    Tab: "tab", // Tab
+    ArrowLeft: "left", // ArrowLeft
+    ArrowUp: "up", // ArrowUp
+    ArrowRight: "right", // ArrowRight
+    ArrowDown: "down", // ArrowDown
+    Insert: "insert",
+    " ": "space",
 }
 
-export const remapResolver = (evt: KeyboardEvent, previousResolution: string | null): string | null => {
+export const remapResolver = (
+    evt: KeyboardEvent,
+    previousResolution: string | null,
+): string | null => {
     return keysToRemap[evt.key] ? keysToRemap[evt.key] : previousResolution
 }
 
 export const createMetaKeyResolver = (keyMap: IKeyMap) => {
-
     return (evt: KeyboardEvent, previousResolution: string | null): null | string => {
         const isCharacterFromShiftKey = isShiftCharacter(keyMap, evt)
         const isCharacterFromAltGraphKey = isAltGraphCharacter(keyMap, evt)
@@ -92,7 +98,6 @@ export const createMetaKeyResolver = (keyMap: IKeyMap) => {
 }
 
 const isShiftCharacter = (keyMap: IKeyMap, evt: KeyboardEvent): boolean => {
-
     const { key, code } = evt
 
     const mappedKey: IKeyInfo = keyMap[code]
