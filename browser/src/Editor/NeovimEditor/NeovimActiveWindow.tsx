@@ -24,6 +24,8 @@ export class NeovimActiveWindow extends React.PureComponent<IActiveWindowProps, 
             top: px(this.props.pixelY),
             width: px(this.props.pixelWidth),
             height: px(this.props.pixelHeight),
+            overflowY: "hidden",
+            overflowX: "hidden",
         }
 
         return <div style={style}>{this.props.children}</div>
