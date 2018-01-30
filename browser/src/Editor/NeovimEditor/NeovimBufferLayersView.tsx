@@ -21,6 +21,16 @@ export interface NeovimBufferLayersViewProps {
     layers: State.Layers
 }
 
+const InnerLayerStyle: React.CSSProperties = {
+    position: "absolute",
+    top: "0px",
+    left: "0px",
+    right: "0px",
+    bottom: "0px",
+    overflowY: "auto",
+    overflowX: "auto",
+}
+
 export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLayersViewProps, {}> {
     public render(): JSX.Element {
         const containers = this.props.windows.map(windowState => {
@@ -37,7 +47,11 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
             }
 
             const layerElements = layers.map(l => {
-                return <div key={l.id}>{l.render(layerContext)}</div>
+                return (
+                    <div key={l.id} style={InnerLayerStyle}>
+                        {l.render(layerContext)}
+                    </div>
+                )
             })
 
             const dimensions = getWindowPixelDimensions(windowState)
