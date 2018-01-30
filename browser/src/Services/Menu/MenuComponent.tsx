@@ -62,13 +62,16 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
         const rowRenderer = (props: { key: string; index: number; style: React.CSSProperties }) => {
             const item = this.props.items[props.index]
             return (
-                <MenuItem
-                    {...item as any}
-                    key={props.key}
-                    filterText={this.props.filterText}
-                    isSelected={props.index === this.props.selectedIndex}
-                    onClick={() => this.props.onSelect(props.index)}
-                />
+                <div style={props.style}>
+                    <MenuItem
+                        {...item as any}
+                        key={props.key}
+                        filterText={this.props.filterText}
+                        isSelected={props.index === this.props.selectedIndex}
+                        onClick={() => this.props.onSelect(props.index)}
+                        height={25}
+                    />
+                </div>
             )
         }
 
@@ -93,9 +96,9 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
                             <List
                                 scrollToIndex={this.props.selectedIndex}
                                 width={300}
-                                height={250}
+                                height={300}
                                 rowCount={this.props.items.length}
-                                rowHeight={20}
+                                rowHeight={50}
                                 rowRenderer={rowRenderer}
                             />
                         </div>
@@ -180,6 +183,7 @@ export interface IMenuItemProps {
     detailHighlights: number[]
     pinned: boolean
     onClick: () => void
+    height: number
 }
 
 export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
@@ -198,7 +202,11 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
             )
 
         return (
-            <div className={className} onClick={() => this.props.onClick()}>
+            <div
+                className={className}
+                onClick={() => this.props.onClick()}
+                style={{ height: this.props.height + "px" }}
+            >
                 {icon}
                 <HighlightTextByIndex
                     className="label"
