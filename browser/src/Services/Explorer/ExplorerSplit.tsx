@@ -14,6 +14,7 @@ import { Event } from "oni-types"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 // import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
+import { windowManager } from "./../../Services/WindowManager"
 import { IWorkspace } from "./../../Services/Workspace"
 
 import { createStore, IExplorerState } from "./ExplorerStore"
@@ -89,7 +90,10 @@ export class ExplorerSplit {
     public render(): JSX.Element {
         return (
             <Provider store={this._store}>
-                <Explorer onSelectionChanged={id => this._onSelectionChanged(id)} />
+                <Explorer
+                    onSelectionChanged={id => this._onSelectionChanged(id)}
+                    onClick={id => this._onOpenItem(id)}
+                />
             </Provider>
         )
     }
@@ -98,8 +102,8 @@ export class ExplorerSplit {
         this._selectedId = id
     }
 
-    private _onOpenItem(): void {
-        const selectedItem = this._getSelectedItem()
+    private _onOpenItem(id?: string): void {
+        const selectedItem = this._getSelectedItem(id)
 
         if (!selectedItem) {
             return
@@ -110,6 +114,7 @@ export class ExplorerSplit {
         switch (selectedItem.type) {
             case "file":
                 this._editorManager.activeEditor.openFile(selectedItem.filePath)
+                windowManager.focusSplit(this._editorManager.activeEditor as any)
                 return
             case "folder":
                 const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(
@@ -126,12 +131,14 @@ export class ExplorerSplit {
         }
     }
 
-    private _getSelectedItem(): ExplorerSelectors.ExplorerNode {
+    private _getSelectedItem(id?: string): ExplorerSelectors.ExplorerNode {
         const state = this._store.getState()
 
         const nodes = ExplorerSelectors.mapStateToNodeList(state)
 
-        const items = nodes.filter(item => item.id === this._selectedId)
+        const idToUse = id || this._selectedId
+
+        const items = nodes.filter(item => item.id === idToUse)
 
         if (!items || !items.length) {
             return null

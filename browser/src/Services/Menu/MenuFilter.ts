@@ -50,6 +50,7 @@ export const fuseFilter = (
                 detail: o.detail,
                 icon: o.icon,
                 pinned: o.pinned,
+                metadata: o.metadata,
                 detailHighlights: [],
                 labelHighlights: [],
             }
@@ -119,6 +120,7 @@ export const fuseFilter = (
             pinned: f.item.pinned,
             label: f.item.label,
             detail: f.item.detail,
+            metadata: f.item.metadata,
             labelHighlights: convertArrayOfPairsToIndices(labelHighlights),
             detailHighlights: convertArrayOfPairsToIndices(detailHighlights),
         }

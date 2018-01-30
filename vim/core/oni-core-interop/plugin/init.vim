@@ -53,8 +53,13 @@ function OniNotifyEvent(eventName)
     call OniNotify(["event", a:eventName, context])
 endfunction
 
+
+function! s:filter_buffer(i)
+  return bufexists(a:i) && buflisted(a:i) && "quickfix" !=? getbufvar(a:i, "&buftype")
+endfunction
+
 function User_buffers() " help buffers are always unlisted, but quickfix buffers are not
-  return filter(range(1,bufnr('$')),'buflisted(v:val) && "quickfix" !=? getbufvar(v:val, "&buftype")')
+  return filter(range(1,bufnr('$')),'s:filter_buffer(v:val)')
 endfunction
 
 function OniGetAllBuffers()
@@ -131,6 +136,7 @@ augroup OniEventListeners
     autocmd! FileType * :call OniNotifyEvent("FileType")
     autocmd! WinEnter * :call OniNotifyEvent("WinEnter")
     autocmd! BufDelete * :call OniNotifyWithBuffers("BufDelete")
+    autocmd! BufUnload * :call OniNotifyWithBuffers("BufUnload")
     autocmd! BufWipeout * :call OniNotifyWithBuffers("BufWipeout")
     autocmd! CursorMoved * :call OniNotifyEvent("CursorMoved")
     autocmd! CursorMovedI * :call OniNotifyEvent("CursorMovedI")
