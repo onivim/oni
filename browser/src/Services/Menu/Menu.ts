@@ -41,7 +41,7 @@ export const menuActions: typeof ActionCreators = bindActionCreators(
 )
 
 export const sanitizeConfigurationValue = (value: any, defaultValue: number): number => {
-    const parsedValue = parseInt(value)
+    const parsedValue = parseInt(value, 10)
     return parsedValue > 0 ? parsedValue : defaultValue
 }
 
