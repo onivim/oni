@@ -137,9 +137,7 @@ export class Workspace implements IWorkspace {
         const filePath = await findup(projectMarkers, { cwd })
         if (filePath) {
             const dir = path.dirname(filePath)
-            process.chdir(dir)
-            this._activeWorkspace = dir
-            this._onDirectoryChangedEvent.dispatch(dir)
+            this.changeDirectory(dir)
         }
     }
 
