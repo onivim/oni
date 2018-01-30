@@ -47,10 +47,10 @@ const getConfigPath = (settings: any, rootPath: string) => {
 // Returns the path to the serialized config
 const serializeConfig = (configValues: { [key: string]: any }): string => {
     const stringifiedConfig = Object.keys(configValues).map(
-        key => `"${key}": "${configValues[key]}",`,
+        key => `"${key}": ${configValues[key]},`,
     )
 
-    const outputConfig = `module.exports = {${stringifiedConfig.join(os.EOL)}`
+    const outputConfig = `module.exports = {${stringifiedConfig.join(os.EOL)}}`
 
     const folder = os.tmpdir()
     const fileName = "config_" + new Date().getTime().toString() + ".js"
