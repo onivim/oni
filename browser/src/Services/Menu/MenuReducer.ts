@@ -15,7 +15,24 @@ export function createReducer<T, FilteredT extends T>() {
     ): State.IMenus<T, FilteredT> => {
         return {
             ...s,
+            configuration: configurationReducer(s.configuration, a),
             menu: popupMenuReducer(s.menu, a),
+        }
+    }
+
+    const configurationReducer = (
+        s: State.IMenuConfigurationSettings = State.DefaultMenuConfigurationSettings,
+        a: Actions.MenuAction,
+    ) => {
+        switch (a.type) {
+            case "SET_MENU_CONFIGURATION":
+                return {
+                    ...s,
+                    rowHeight: a.payload.rowHeight,
+                    maxItemsToShow: a.payload.maxItemsToShow,
+                }
+            default:
+                return s
         }
     }
 

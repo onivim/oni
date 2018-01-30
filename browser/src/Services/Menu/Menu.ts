@@ -40,6 +40,11 @@ export const menuActions: typeof ActionCreators = bindActionCreators(
     menuStore.dispatch,
 )
 
+export const sanitizeConfigurationValue = (value: any, defaultValue: number): number => {
+    const parsedValue = parseInt(value)
+    return parsedValue > 0 ? parsedValue : defaultValue
+}
+
 export class MenuManager {
     private _id: number = 0
     private _overlay: Overlay
@@ -50,8 +55,10 @@ export class MenuManager {
         this._overlay.show()
 
         this._configuration.onConfigurationChanged.subscribe(() => {
-            console.log("changed")
+            this._updateConfiguration()
         })
+
+        this._updateConfiguration()
     }
 
     public create(): Menu {
@@ -81,6 +88,17 @@ export class MenuManager {
         if (menuState && menuState.menu) {
             menuState.menu.onSelectItem(idx)
         }
+    }
+
+    private _updateConfiguration(): void {
+        const values = this._configuration.getValues()
+        const rowHeightUnsanitized = values["menu.rowHeight"]
+        const maxItemsUnsanitized = values["menu.maxItemsToShow"]
+
+        menuActions.setMenuConfiguration(
+            sanitizeConfigurationValue(rowHeightUnsanitized, 40),
+            sanitizeConfigurationValue(maxItemsUnsanitized, 6),
+        )
     }
 }
 

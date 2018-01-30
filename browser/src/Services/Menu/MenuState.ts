@@ -16,6 +16,11 @@ export interface IMenuConfigurationSettings {
     maxItemsToShow: number
 }
 
+export const DefaultMenuConfigurationSettings: IMenuConfigurationSettings = {
+    rowHeight: 40,
+    maxItemsToShow: 6,
+}
+
 export interface IMenu<T, FilteredT> {
     id: string
     filter: string
