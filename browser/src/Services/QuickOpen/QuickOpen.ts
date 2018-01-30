@@ -261,7 +261,7 @@ export class QuickOpen {
                 icon: getFileIcon(file) as any,
                 label: file,
                 detail: folder,
-                pinned: pinned,
+                pinned,
                 additionalComponent: renderPinnedIcon({ pinned }),
             }
         })
