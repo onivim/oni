@@ -100,6 +100,8 @@ export const getBufferMetadata = createSelector([getAllBuffers], buffers =>
         id: b.id,
         file: b.file,
         modified: b.modified,
+        title: b.title,
+        icon: b.icon,
     })),
 )
 

@@ -24,7 +24,7 @@ export interface ITabProps {
     description: string
     isSelected: boolean
     isDirty: boolean
-    iconFileName?: string
+    icon: JSX.Element | string
     highlightColor?: string
 }
 
@@ -115,6 +115,24 @@ export interface ITabPropsWithClick extends ITabProps {
     maxWidth: string
 }
 
+const getIconFromFileName = (fileName: string): JSX.Element => {
+    return (
+        <FileIcon
+            fileName={fileName}
+            isLarge={true}
+            additionalClassNames={"file-icon-appear-animation"}
+        />
+    )
+}
+
+const renderIcon = (icon: JSX.Element | string): JSX.Element => {
+    if (typeof icon === "string") {
+        return getIconFromFileName(icon)
+    } else {
+        return icon
+    }
+}
+
 export const Tab = (props: ITabPropsWithClick) => {
     const cssClasses = classNames("tab", {
         selected: props.isSelected,
@@ -134,11 +152,7 @@ export const Tab = (props: ITabPropsWithClick) => {
     return (
         <div className={cssClasses} title={props.description} style={style}>
             <div className="corner" onClick={props.onClickName}>
-                <FileIcon
-                    fileName={props.iconFileName}
-                    isLarge={true}
-                    additionalClassNames={"file-icon-appear-animation"}
-                />
+                {renderIcon(props.icon)}
             </div>
             <div className="name" onClick={props.onClickName}>
                 <span className="name-inner">{props.name}</span>
@@ -219,8 +233,10 @@ const getTabsFromBuffers = createSelector(
                 (activeBufferId !== null && buf.id === activeBufferId) || bufferCount === 1
             return {
                 id: buf.id,
-                name: getIdPrefix(buf.id, shouldShowId) + getTabName(buf.file),
-                iconFileName: showFileIcon ? getTabName(buf.file) : "",
+                name:
+                    getIdPrefix(buf.id, shouldShowId) +
+                    (buf.title ? buf.title : getTabName(buf.file)),
+                icon: showFileIcon ? (buf.icon ? buf.icon : getTabName(buf.file)) : "",
                 highlightColor: isActive ? color : "transparent",
                 isSelected: isActive,
                 isDirty: buf.modified,
@@ -238,7 +254,7 @@ const getTabsFromVimTabs = createSelector(
             id: t.id,
             name: getIdPrefix((idx + 1).toString(), shouldShowId) + getTabName(t.name),
             highlightColor: t.id === tabState.selectedTabId ? color : "transparent",
-            iconFileName: showFileIcon ? getTabName(t.name) : "",
+            icon: showFileIcon ? getTabName(t.name) : "",
             isSelected: t.id === tabState.selectedTabId,
             isDirty: false,
             description: t.name,
