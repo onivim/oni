@@ -164,6 +164,8 @@ export interface IExplorerViewProps extends IExplorerViewContainerProps {
     isActive: boolean
 }
 
+import { Sneakable } from "./../../UI/components/Sneakable"
+
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
     public render(): JSX.Element {
         const ids = this.props.nodes.map(node => node.id)
@@ -175,11 +177,13 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                 onSelectionChanged={this.props.onSelectionChanged}
                 render={(selectedId: string) => {
                     const nodes = this.props.nodes.map(node => (
-                        <NodeView
-                            node={node}
-                            isSelected={node.id === selectedId}
-                            onClick={() => this.props.onClick(node.id)}
-                        />
+                        <Sneakable callback={() => this.props.onClick(node.id)}>
+                            <NodeView
+                                node={node}
+                                isSelected={node.id === selectedId}
+                                onClick={() => this.props.onClick(node.id)}
+                            />
+                        </Sneakable>
                     ))
 
                     return (

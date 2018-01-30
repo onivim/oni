@@ -130,7 +130,9 @@ export class SneakView extends React.PureComponent<ISneakViewProps, ISneakViewSt
         const filteredSneaks = this.props.sneaks.filter(
             sneak => sneak.triggerKeys.indexOf(normalizedFilterText) === 0,
         )
-        const sneaks = filteredSneaks.map(si => <SneakItemView sneak={si} />)
+        const sneaks = filteredSneaks.map(si => (
+            <SneakItemView sneak={si} filterLength={normalizedFilterText.length} />
+        ))
 
         if (filteredSneaks.length === 1) {
             this.props.onComplete(filteredSneaks[0])
@@ -138,13 +140,15 @@ export class SneakView extends React.PureComponent<ISneakViewProps, ISneakViewSt
 
         return (
             <OverlayWrapper>
-                <TextInputView
-                    onChange={evt => {
-                        this.setState({ filterText: evt.currentTarget.value })
-                    }}
-                    backgroundColor={"black"}
-                    foregroundColor={"white"}
-                />
+                <div style={{ opacity: 0.01 }}>
+                    <TextInputView
+                        onChange={evt => {
+                            this.setState({ filterText: evt.currentTarget.value })
+                        }}
+                        backgroundColor={"black"}
+                        foregroundColor={"white"}
+                    />
+                </div>
                 {sneaks}
             </OverlayWrapper>
         )
@@ -153,7 +157,15 @@ export class SneakView extends React.PureComponent<ISneakViewProps, ISneakViewSt
 
 export interface ISneakItemViewProps {
     sneak: IAugmentedSneakInfo
+    filterLength: number
 }
+
+import styled from "styled-components"
+
+const SneakItemWrapper = styled.div`
+    background-color: ${props => props.theme["highlight.mode.operator.background"]};
+    color: ${props => props.theme["highlight.mode.operator.foreground"]};
+`
 
 const SneakItemViewSize = 20
 const px = (num: number): string => num.toString() + "px"
@@ -161,16 +173,25 @@ export class SneakItemView extends React.PureComponent<ISneakItemViewProps, {}> 
     public render(): JSX.Element {
         const style: React.CSSProperties = {
             position: "absolute",
-
-            backgroundColor: "red",
-
             left: px(this.props.sneak.rectangle.x),
             top: px(this.props.sneak.rectangle.y),
             width: px(SneakItemViewSize),
             height: px(SneakItemViewSize),
         }
 
-        return <div style={style}>{this.props.sneak.triggerKeys}</div>
+        return (
+            <SneakItemWrapper style={style}>
+                <span style={{ fontWeight: "bold" }}>
+                    {this.props.sneak.triggerKeys.substring(0, this.props.filterLength)}
+                </span>
+                <span>
+                    {this.props.sneak.triggerKeys.substring(
+                        this.props.filterLength,
+                        this.props.sneak.triggerKeys.length,
+                    )}
+                </span>
+            </SneakItemWrapper>
+        )
     }
 }
 
