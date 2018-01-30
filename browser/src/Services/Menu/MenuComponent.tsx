@@ -1,7 +1,7 @@
 import * as React from "react"
 import { connect, Provider } from "react-redux"
 
-import { List } from "react-virtualized"
+import { AutoSizer, List } from "react-virtualized"
 
 import * as Oni from "oni-api"
 
@@ -69,7 +69,6 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
                         filterText={this.props.filterText}
                         isSelected={props.index === this.props.selectedIndex}
                         onClick={() => this.props.onSelect(props.index)}
-                        height={25}
                     />
                 </div>
             )
@@ -93,14 +92,18 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
                     />
                     <div className="items">
                         <div>
-                            <List
-                                scrollToIndex={this.props.selectedIndex}
-                                width={300}
-                                height={300}
-                                rowCount={this.props.items.length}
-                                rowHeight={50}
-                                rowRenderer={rowRenderer}
-                            />
+                            <AutoSizer disableHeight={true}>
+                                {({ width }) => (
+                                    <List
+                                        scrollToIndex={this.props.selectedIndex}
+                                        width={width}
+                                        height={300}
+                                        rowCount={this.props.items.length}
+                                        rowHeight={50}
+                                        rowRenderer={rowRenderer}
+                                    />
+                                )}
+                            </AutoSizer>
                         </div>
                     </div>
                     <div className={footerClassName} style={menuStyle}>
