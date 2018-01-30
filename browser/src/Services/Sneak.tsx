@@ -32,6 +32,10 @@ export class Sneak {
 
     constructor(private _overlayManager: OverlayManager) {}
 
+    public get isActive(): boolean {
+        return !!this._activeOverlay
+    }
+
     public addSneakProvider(provider: SneakProvider): IDisposable {
         this._providers.push(provider)
         const dispose = () => (this._providers = this._providers.filter(prov => prov !== provider))
@@ -56,8 +60,15 @@ export class Sneak {
         this._activeOverlay.show()
     }
 
+    public close(): void {
+        if (this._activeOverlay) {
+            this._activeOverlay.hide()
+            this._activeOverlay = null
+        }
+    }
+
     private _onComplete(sneakInfo: ISneakInfo): void {
-        this._activeOverlay.hide()
+        this.close()
         sneakInfo.callback()
     }
 
@@ -139,7 +150,7 @@ export class SneakView extends React.PureComponent<ISneakViewProps, ISneakViewSt
         }
 
         return (
-            <OverlayWrapper>
+            <OverlayWrapper style={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}>
                 <div style={{ opacity: 0.01 }}>
                     <TextInputView
                         onChange={evt => {
@@ -161,10 +172,11 @@ export interface ISneakItemViewProps {
 }
 
 import styled from "styled-components"
+import { boxShadow } from "./../UI/components/common"
 
 const SneakItemWrapper = styled.div`
-    background-color: ${props => props.theme["highlight.mode.operator.background"]};
-    color: ${props => props.theme["highlight.mode.operator.foreground"]};
+    ${boxShadow} background-color: ${props => props.theme["highlight.mode.visual.background"]};
+    color: ${props => props.theme["highlight.mode.visual.foreground"]};
 `
 
 const SneakItemViewSize = 20
@@ -208,6 +220,16 @@ export const activate = (commandManager: CommandManager, overlayManager: Overlay
             () => {
                 _sneak.show()
             },
+        ),
+    )
+
+    commandManager.registerCommand(
+        new CallbackCommand(
+            "sneak.hide",
+            "Sneak: Hide",
+            "Hide sneak view",
+            () => _sneak.close(),
+            () => _sneak.isActive,
         ),
     )
 }

@@ -108,4 +108,5 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<delete>", "explorer.delete")
 
     input.bind("s", "sneak.show", () => isNormalMode() && !menu.isMenuOpen())
+    input.bind(["<esc>", "<c-c>"], "sneak.hide")
 }
