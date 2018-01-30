@@ -1,4 +1,3 @@
-
 /**
  * The conventions for project configuration are inspired from the VSCode launch.json:
  * https://code.visualstudio.com/Docs/editor/debugging
@@ -17,7 +16,7 @@ export interface ILaunchConfiguration {
     name: string
     program: string
     args: string[]
-    cwd: string,
+    cwd: string
     dependentCommands: string[]
 }
 
@@ -25,7 +24,7 @@ export interface ILaunchConfiguration {
  * Per-project configuration options
  */
 export interface IProjectConfiguration {
-    launchConfigurations: ILaunchConfiguration[],
+    launchConfigurations: ILaunchConfiguration[]
 }
 
 const DefaultConfiguration: IProjectConfiguration = {
@@ -37,8 +36,7 @@ const DefaultConfiguration: IProjectConfiguration = {
  * Search upward for the relevant .oni folder
  */
 export function getProjectConfiguration(filePath: string): Promise<IProjectConfiguration> {
-    return findUp(".oni", { cwd: filePath })
-    .then((oniDir: string) => {
+    return findUp(".oni", { cwd: filePath }).then((oniDir: string) => {
         if (!oniDir) {
             return DefaultConfiguration
         }
@@ -47,17 +45,19 @@ export function getProjectConfiguration(filePath: string): Promise<IProjectConfi
 }
 
 function loadConfigurationFromFolder(folder: string): IProjectConfiguration {
-
     const launchPath = path.join(folder, "launch.json")
 
     if (!fs.existsSync(launchPath)) {
         return DefaultConfiguration
     } else {
-       const launchInfo: ILaunchConfiguration = JSON.parse(fs.readFileSync(launchPath, "utf8"))
-       const config = {...DefaultConfiguration, ...{
-           launchConfigurations: [launchInfo],
-       }}
+        const launchInfo: ILaunchConfiguration = JSON.parse(fs.readFileSync(launchPath, "utf8"))
+        const config = {
+            ...DefaultConfiguration,
+            ...{
+                launchConfigurations: [launchInfo],
+            },
+        }
 
-       return config
+        return config
     }
 }

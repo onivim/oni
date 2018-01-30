@@ -6,6 +6,9 @@
  */
 
 import { remote } from "electron"
+import { stat } from "fs"
+import { promisify } from "util"
+
 import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
 import "rxjs/add/operator/concatMap"
@@ -26,6 +29,8 @@ import { convertTextDocumentEditsToFileMap } from "./../Language/Edits"
 import * as WorkspaceCommands from "./WorkspaceCommands"
 import { WorkspaceConfiguration } from "./WorkspaceConfiguration"
 
+const fsStat = promisify(stat)
+
 // Candidate interface to promote to Oni API
 export interface IWorkspace extends Oni.Workspace {
     activeWorkspace: string
@@ -45,9 +50,7 @@ export class Workspace implements IWorkspace {
         return this._activeWorkspace
     }
 
-    constructor(
-        private _editorManager: EditorManager,
-    ) {
+    constructor(private _editorManager: EditorManager) {
         this._mainWindow.on("focus", () => {
             this._onFocusGainedEvent.dispatch(this._lastActiveBuffer)
         })
@@ -62,17 +65,18 @@ export class Workspace implements IWorkspace {
         return this._onDirectoryChangedEvent
     }
 
-    public changeDirectory(newDirectory: string) {
-        if (newDirectory) {
+    public async changeDirectory(newDirectory: string) {
+        const exists = await this.pathIsDir(newDirectory)
+        const dir = exists ? newDirectory : null
+        if (newDirectory && exists) {
             process.chdir(newDirectory)
         }
 
-        this._activeWorkspace = newDirectory
-        this._onDirectoryChangedEvent.dispatch(newDirectory)
+        this._activeWorkspace = dir
+        this._onDirectoryChangedEvent.dispatch(dir)
     }
 
     public async applyEdits(edits: types.WorkspaceEdit): Promise<void> {
-
         let editsToUse = edits
         if (edits.documentChanges) {
             editsToUse = convertTextDocumentEditsToFileMap(edits.documentChanges)
@@ -90,15 +94,17 @@ export class Workspace implements IWorkspace {
                 // TODO: Sort changes?
                 Log.verbose("[Workspace] Opening file: " + fileName)
                 const buf = await this._editorManager.activeEditor.openFile(fileName)
-                Log.verbose("[Workspace] Got buffer for file: " + buf.filePath + " and id: " + buf.id)
+                Log.verbose(
+                    "[Workspace] Got buffer for file: " + buf.filePath + " and id: " + buf.id,
+                )
                 await buf.applyTextEdits(changes)
                 Log.verbose("[Workspace] Applied " + changes.length + " edits to buffer")
             })
         })
 
         await Observable.from(deferredEdits)
-                .concatMap(de => de)
-                .toPromise()
+            .concatMap(de => de)
+            .toPromise()
 
         Log.verbose("[Workspace] Completed applying edits")
 
@@ -111,6 +117,16 @@ export class Workspace implements IWorkspace {
 
     public get onFocusLost(): IEvent<Oni.Buffer> {
         return this._onFocusLostEvent
+    }
+
+    public pathIsDir = async (p: string) => {
+        try {
+            const stats = await fsStat(p)
+            return stats.isDirectory()
+        } catch (error) {
+            Log.info(error)
+            return false
+        }
     }
 }
 
@@ -128,8 +144,8 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         _workspace.changeDirectory(defaultWorkspace)
     }
 
-    _workspace.onDirectoryChanged.subscribe((newDirectory) => {
-        configuration.setValues({ "workspace.defaultWorkspace": newDirectory}, true)
+    _workspace.onDirectoryChanged.subscribe(newDirectory => {
+        configuration.setValues({ "workspace.defaultWorkspace": newDirectory }, true)
     })
 
     WorkspaceCommands.activateCommands(configuration, editorManager, _workspace)

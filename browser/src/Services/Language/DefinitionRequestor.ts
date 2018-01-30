@@ -19,17 +19,23 @@ export interface IDefinitionResult {
 }
 
 export interface IDefinitionRequestor {
-    getDefinition(fileLanguage: string, filePath: string, line: number, column: number): Promise<IDefinitionResult>
+    getDefinition(
+        fileLanguage: string,
+        filePath: string,
+        line: number,
+        column: number,
+    ): Promise<IDefinitionResult>
 }
 
 export class LanguageServiceDefinitionRequestor {
+    constructor(private _languageManager: LanguageManager, private _editor: Oni.Editor) {}
 
-    constructor(
-        private _languageManager: LanguageManager,
-        private _editor: Oni.Editor,
-    ) { }
-
-    public async getDefinition(fileLanguage: string, filePath: string, line: number, column: number): Promise<IDefinitionResult> {
+    public async getDefinition(
+        fileLanguage: string,
+        filePath: string,
+        line: number,
+        column: number,
+    ): Promise<IDefinitionResult> {
         const args = { ...Helpers.createTextDocumentPositionParams(filePath, line, column) }
 
         const token: Oni.IToken = await this._editor.activeBuffer.getTokenAt(line, column)
@@ -43,7 +49,12 @@ export class LanguageServiceDefinitionRequestor {
 
         let result: types.Location | types.Location[] = null
         try {
-            result = await this._languageManager.sendLanguageServerRequest(fileLanguage, filePath, "textDocument/definition", args)
+            result = await this._languageManager.sendLanguageServerRequest(
+                fileLanguage,
+                filePath,
+                "textDocument/definition",
+                args,
+            )
         } catch (ex) {
             Log.warn(ex)
         }
@@ -55,7 +66,9 @@ export class LanguageServiceDefinitionRequestor {
     }
 }
 
-export const getFirstLocationFromArray = (result: types.Location | types.Location[]): types.Location => {
+export const getFirstLocationFromArray = (
+    result: types.Location | types.Location[],
+): types.Location => {
     if (!result) {
         return null
     }

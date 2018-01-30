@@ -7,12 +7,12 @@
 import * as msgpackLite from "msgpack-lite"
 
 export class MsgPackObjectReference {
-  public id: string
+    public id: string
 }
 
-export class NeovimBufferReference extends MsgPackObjectReference { }
-export class NeovimWindowReference extends MsgPackObjectReference { }
-export class NeovimTabReference extends MsgPackObjectReference { }
+export class NeovimBufferReference extends MsgPackObjectReference {}
+export class NeovimWindowReference extends MsgPackObjectReference {}
+export class NeovimTabReference extends MsgPackObjectReference {}
 
 export const Pack = (reference: MsgPackObjectReference) => {
     return msgpackLite.encode(reference.id)

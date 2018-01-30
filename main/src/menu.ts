@@ -29,7 +29,7 @@ export const buildMenu = (mainWindow, loadInit) => {
         createWindow([], process.cwd(), delayedEvent)
     }
 
-    const normalizePath = (fileName) => fileName.split("\\").join("/")
+    const normalizePath = fileName => fileName.split("\\").join("/")
 
     const executeVimCommand = (browserWindow: BrowserWindow, command: string) => {
         executeMenuAction(browserWindow, { evt: "menu-item-click", cmd: [command] })
@@ -44,7 +44,7 @@ export const buildMenu = (mainWindow, loadInit) => {
     }
 
     const executeOniCommand = (browserWindow: BrowserWindow, command: string) => {
-            executeMenuAction(browserWindow, { evt: "execute-command", cmd: [command] })
+        executeMenuAction(browserWindow, { evt: "execute-command", cmd: [command] })
     }
 
     const openUrl = (browserWindow: BrowserWindow, url: string) => {
@@ -56,7 +56,9 @@ export const buildMenu = (mainWindow, loadInit) => {
             return
         }
 
-        files.forEach((fileName) => executeVimCommand(browserWindow, `${command} ${normalizePath(fileName)}`))
+        files.forEach(fileName =>
+            executeVimCommand(browserWindow, `${command} ${normalizePath(fileName)}`),
+        )
     }
 
     const isWindows = os.platform() === "win32"
@@ -74,14 +76,12 @@ export const buildMenu = (mainWindow, loadInit) => {
     }
 
     if (loadInit) {
-        preferences.submenu.push(
-            {
-                label: "Edit Neovim config",
-                click(item, focusedWindow) {
-                    executeOniCommand(focusedWindow, "oni.config.openInitVim")
-                },
+        preferences.submenu.push({
+            label: "Edit Neovim config",
+            click(item, focusedWindow) {
+                executeOniCommand(focusedWindow, "oni.config.openInitVim")
             },
-        )
+        })
     }
 
     const reopenWithEncoding = {
@@ -91,7 +91,50 @@ export const buildMenu = (mainWindow, loadInit) => {
 
     // TODO: Maybe better show normal encoding name in submenu?
     // Encoding list from http://vimdoc.sourceforge.net/htmldoc/mbyte.html#encoding-values
-    const encodingList = ["utf-8", "utf-16le", "utf-16be", "utf-32le", "utf-32be", "latin1", "koi8-r", "koi8-u", "macroman", "cp437", "cp737", "cp775", "cp850", "cp852", "cp855", "cp857", "cp860", "cp861", "cp862", "cp863", "cp865", "cp866", "cp869", "cp874", "cp1250", "cp1251", "cp1253", "cp1254", "cp1255", "cp1256", "cp1257", "cp1258", "cp932", "euc-jp", "sjis", "cp949", "euc-kr", "cp936", "euc-cn", "cp950", "big5", "euc-tw"].map((val) => {
+    const encodingList = [
+        "utf-8",
+        "utf-16le",
+        "utf-16be",
+        "utf-32le",
+        "utf-32be",
+        "latin1",
+        "koi8-r",
+        "koi8-u",
+        "macroman",
+        "cp437",
+        "cp737",
+        "cp775",
+        "cp850",
+        "cp852",
+        "cp855",
+        "cp857",
+        "cp860",
+        "cp861",
+        "cp862",
+        "cp863",
+        "cp865",
+        "cp866",
+        "cp869",
+        "cp874",
+        "cp1250",
+        "cp1251",
+        "cp1253",
+        "cp1254",
+        "cp1255",
+        "cp1256",
+        "cp1257",
+        "cp1258",
+        "cp932",
+        "euc-jp",
+        "sjis",
+        "cp949",
+        "euc-kr",
+        "cp936",
+        "euc-cn",
+        "cp950",
+        "big5",
+        "euc-tw",
+    ].map(val => {
         return {
             label: val.toUpperCase(),
             click(item, focusedWindow) {
@@ -119,23 +162,23 @@ export const buildMenu = (mainWindow, loadInit) => {
                     dialog.showOpenDialog(
                         focusedWindow,
                         { properties: ["openFile", "multiSelections"] },
-                        (files) => executeVimCommandForMultipleFiles(focusedWindow, ":tabnew ", files),
+                        files =>
+                            executeVimCommandForMultipleFiles(focusedWindow, ":tabnew ", files),
                     )
                 },
             },
             {
                 label: "Open Folder…",
                 click(item, focusedWindow) {
-                    executeOniCommand(focusedWindow, "oni.openFolder")
+                    executeOniCommand(focusedWindow, "workspace.openFolder")
                 },
             },
             reopenWithEncoding,
             {
                 label: "Split Open…",
                 click(item, focusedWindow) {
-                    dialog.showOpenDialog(
-                        focusedWindow, { properties: ["openFile"] },
-                        (files) => executeVimCommandForFiles(focusedWindow, ":sp", files),
+                    dialog.showOpenDialog(focusedWindow, { properties: ["openFile"] }, files =>
+                        executeVimCommandForFiles(focusedWindow, ":sp", files),
                     )
                 },
             },
@@ -166,7 +209,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Save As…",
                 click(item, focusedWindow) {
-                    dialog.showSaveDialog(focusedWindow, {}, (name) => {
+                    dialog.showSaveDialog(focusedWindow, {}, name => {
                         if (name) {
                             executeVimCommand(focusedWindow, ":save " + normalizePath(name))
                         }
@@ -277,37 +320,61 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Full Path",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, ":let @" + (isWindows ? "*" : "+") + "=expand('%:p')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":let @" + (isWindows ? "*" : "+") + "=expand('%:p')",
+                            )
                         },
                     },
                     {
                         label: "Full Path with Line Number",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, ":let @" + (isWindows ? "*" : "+") + "=expand('%:p') . ':' . line('.')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":let @" +
+                                    (isWindows ? "*" : "+") +
+                                    "=expand('%:p') . ':' . line('.')",
+                            )
                         },
                     },
                     {
                         label: "Relative Path",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, ":let @" + (isWindows ? "*" : "+") + "=expand('%')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":let @" + (isWindows ? "*" : "+") + "=expand('%')",
+                            )
                         },
                     },
                     {
                         label: "Relative Path with Line Number",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, ":let @" + (isWindows ? "*" : "+") + "=expand('%') . ':' . line('.')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":let @" +
+                                    (isWindows ? "*" : "+") +
+                                    "=expand('%') . ':' . line('.')",
+                            )
                         },
                     },
                     {
                         label: "File Name",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, ":let @" + (isWindows ? "*" : "+") + "=expand('%:t')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":let @" + (isWindows ? "*" : "+") + "=expand('%:t')",
+                            )
                         },
                     },
                     {
                         label: "File Name with Line Number",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, ":let @" + (isWindows ? "*" : "+") + "=expand('%:t') . ':' . line('.')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":let @" +
+                                    (isWindows ? "*" : "+") +
+                                    "=expand('%:t') . ':' . line('.')",
+                            )
                         },
                     },
                 ],
@@ -389,7 +456,6 @@ export const buildMenu = (mainWindow, loadInit) => {
                         click(item, focusedWindow) {
                             executeVimCommand(focusedWindow, "J")
                         },
-
                     },
                 ],
             },
@@ -450,8 +516,8 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Strip Trailings Blanks",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, ":%s/^\s\+//")
-                            executeVimCommand(focusedWindow, ":%s/\s\+$//")
+                            executeVimCommand(focusedWindow, ":%s/^s+//")
+                            executeVimCommand(focusedWindow, ":%s/s+$//")
                         },
                     },
                     {
@@ -500,7 +566,10 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "Date / Time (Long)",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, ":put =strftime('%a, %d %b %Y %H:%M:%S')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":put =strftime('%a, %d %b %Y %H:%M:%S')",
+                            )
                         },
                     },
                     {
@@ -521,7 +590,10 @@ export const buildMenu = (mainWindow, loadInit) => {
                     {
                         label: "File Name with Line Number",
                         click(item, focusedWindow) {
-                            executeVimCommand(focusedWindow, ":put =expand('%:t') . ':' . line('.')")
+                            executeVimCommand(
+                                focusedWindow,
+                                ":put =expand('%:t') . ':' . line('.')",
+                            )
                         },
                     },
                 ],
@@ -541,7 +613,7 @@ export const buildMenu = (mainWindow, loadInit) => {
     // Window menu
     menu.push({
         label: "Split",
-        submenu : [
+        submenu: [
             {
                 label: "New Horizontal Split",
                 click(item, focusedWindow) {

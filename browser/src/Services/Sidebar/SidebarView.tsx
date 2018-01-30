@@ -30,11 +30,13 @@ const SidebarIconWrapper = withProps<ISidebarIconProps>(styled.div)`
     opacity: 0.5;
     outline: none;
     cursor: pointer;
-    opacity: ${props => props.active ? 0.9 : 0.75};
-    border: 1px solid ${props => props.focused ? props.theme["sidebar.selection.border"] : "transparent"};
-    background-color: ${ props => props.active ? props.theme["editor.background"] : props.theme.background};
+    opacity: ${props => (props.active ? 0.9 : 0.75)};
+    border: 1px solid ${props =>
+        props.focused ? props.theme["sidebar.selection.border"] : "transparent"};
+    background-color: ${props =>
+        props.active ? props.theme["editor.background"] : props.theme.background};
     transition: transform 0.2s ease-in;
-    transform: ${ props => (props.active || props.focused) ? "translateX(2px)" : "translateX(0px)"};
+    transform: ${props => (props.active || props.focused ? "translateX(2px)" : "translateX(0px)")};
 
     &.active {
         opacity: 0.75;
@@ -53,12 +55,13 @@ const SidebarIconInner = styled.div`
 
 export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
     public render(): JSX.Element {
-
-        return <SidebarIconWrapper {...this.props} tabIndex={0}>
-                    <SidebarIconInner>
-                        <Icon name={this.props.iconName} size={IconSize.Large} />
-                    </SidebarIconInner>
-                </SidebarIconWrapper>
+        return (
+            <SidebarIconWrapper {...this.props} tabIndex={0}>
+                <SidebarIconInner>
+                    <Icon name={this.props.iconName} size={IconSize.Large} />
+                </SidebarIconInner>
+            </SidebarIconWrapper>
+        )
     }
 }
 
@@ -94,36 +97,40 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
             return null
         }
 
-        const ids = this.props.entries.map((e) => e.id)
+        const ids = this.props.entries.map(e => e.id)
 
-        return <SidebarWrapper width={this.props.width}>
+        return (
+            <SidebarWrapper width={this.props.width}>
                 <VimNavigator
                     ids={ids}
                     active={this.props.isActive}
-                    onSelectionChanged={(val) => this.props.onSelectionChanged(val)}
-                    render={
-                        (selectedId: string): JSX.Element => {
-                            const items = this.props.entries.map((e) => {
-                                const isActive = e.id === this.props.activeEntryId
-                                const isFocused = e.id === selectedId && this.props.isActive
-                                return <SidebarIcon
-                                            key={e.id}
-                                            iconName={e.icon}
-                                            active={isActive}
-                                            focused={isFocused}
-                                            onClick={() => this.props.onSelectionChanged(e.id)}
-                                        />
-                            })
-                            return <div className="icons">{items}</div>
-                        }
-                    }
-                    />
+                    onSelectionChanged={val => this.props.onSelectionChanged(val)}
+                    render={(selectedId: string): JSX.Element => {
+                        const items = this.props.entries.map(e => {
+                            const isActive = e.id === this.props.activeEntryId
+                            const isFocused = e.id === selectedId && this.props.isActive
+                            return (
+                                <SidebarIcon
+                                    key={e.id}
+                                    iconName={e.icon}
+                                    active={isActive}
+                                    focused={isFocused}
+                                    onClick={() => this.props.onSelectionChanged(e.id)}
+                                />
+                            )
+                        })
+                        return <div className="icons">{items}</div>
+                    }}
+                />
             </SidebarWrapper>
-
+        )
     }
 }
 
-export const mapStateToProps = (state: ISidebarState, containerProps: ISidebarContainerProps): ISidebarViewProps => {
+export const mapStateToProps = (
+    state: ISidebarState,
+    containerProps: ISidebarContainerProps,
+): ISidebarViewProps => {
     return {
         ...containerProps,
         entries: state.entries,

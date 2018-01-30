@@ -18,14 +18,13 @@ export interface ITokenColorsSetting {
 export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiased" | "none"
 
 export interface IConfigurationValues {
-
-    "activate": (oni: Oni.Plugin.Api) => void
-    "deactivate": () => void
+    activate: (oni: Oni.Plugin.Api) => void
+    deactivate: () => void
 
     // Debug settings
     "debug.fixedSize": {
-        rows: number,
-        columns: number,
+        rows: number
+        columns: number
     } | null
 
     // Option to override neovim path. Used for testing new versions before bringing them in.
@@ -39,18 +38,16 @@ export interface IConfigurationValues {
     "debug.fakeLag.languageServer": number | null
     "debug.fakeLag.neovimInput": number | null
 
-        // - textMateHighlighting
+    // - textMateHighlighting
     "experimental.editor.textMateHighlighting.enabled": boolean
-
-    "experimental.sidebar.enabled": boolean
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
-    "experimental.commandline.mode": boolean,
-    "experimental.commandline.icons": boolean,
+    "experimental.commandline.mode": boolean
+    "experimental.commandline.icons": boolean
 
-    "experimental.welcome.enabled": boolean,
+    "experimental.welcome.enabled": boolean
 
     "autoClosingPairs.enabled": boolean
     "autoClosingPairs.default": any
@@ -143,7 +140,7 @@ export interface IConfigurationValues {
 
     // Maximum supported file size (by lines)
     // to include language services/completion/syntax highlight/etc
-    "editor.maxLinesForLanguageServices": 2500,
+    "editor.maxLinesForLanguageServices": 2500
 
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
@@ -201,18 +198,19 @@ export interface IConfigurationValues {
     // of saving to file
     "recorder.copyScreenshotToClipboard": boolean
 
+    "sidebar.enabled": boolean
     "sidebar.width": string
 
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
 
     "statusbar.priority": {
-        "oni.status.filetype": number,
-        "oni.status.workingDirectory": number,
-        "oni.status.git": number,
-        "oni.status.gitHubRepo": number,
-        "oni.status.linenumber": number,
-        "oni.status.mode": number,
+        "oni.status.filetype": number
+        "oni.status.workingDirectory": number
+        "oni.status.git": number
+        "oni.status.gitHubRepo": number
+        "oni.status.linenumber": number
+        "oni.status.mode": number
     }
 
     "tabs.mode": string
