@@ -32,7 +32,9 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
 import * as os from "os"
 
 const getConfigPath = (settings: any, rootPath: string) => {
-    if (settings.configPath) {
+    if (!settings) {
+        return ""
+    } else if (settings.configPath) {
         return normalizePath(path.join(rootPath, settings.configPath))
     } else if (settings.config) {
         return normalizePath(serializeConfig(settings.config))
