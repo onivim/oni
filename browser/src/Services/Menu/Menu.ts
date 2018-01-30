@@ -79,7 +79,7 @@ export class MenuManager {
     }
 }
 
-export class Menu {
+export class Menu implements Oni.Menu.MenuInstance {
     private _onItemSelected = new Event<any>()
     private _onSelectedItemChanged = new Event<Oni.Menu.MenuOption>()
     private _onFilterTextChanged = new Event<string>()

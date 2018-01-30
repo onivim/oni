@@ -28,12 +28,7 @@ export const initUI = (
     // Show signature help as the cursor moves
     latestCursorAndBufferInfo$
         .flatMap(async val => {
-            return await showSignatureHelp(
-                val.language,
-                val.filePath,
-                val.cursorLine,
-                val.cursorColumn,
-            )
+            return showSignatureHelp(val.language, val.filePath, val.cursorLine, val.cursorColumn)
         })
         .subscribe(result => {
             if (result) {
