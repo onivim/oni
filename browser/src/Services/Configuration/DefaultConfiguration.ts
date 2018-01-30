@@ -55,8 +55,6 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.maxLinesForLanguageServices": 2500,
 
-    "experimental.sidebar.enabled": false,
-
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
         { open: "{", close: "}" },
@@ -253,6 +251,7 @@ const BaseConfiguration: IConfigurationValues = {
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
 
+    "sidebar.enabled": true,
     "sidebar.width": "50px",
 
     "statusbar.enabled": true,
