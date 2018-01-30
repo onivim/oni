@@ -19,23 +19,35 @@ export interface IHoverResult {
 }
 
 export interface IHoverRequestor {
-    getHover(fileLanguage: string, filePath: string, line: number, column: number): Promise<IHoverResult>
+    getHover(
+        fileLanguage: string,
+        filePath: string,
+        line: number,
+        column: number,
+    ): Promise<IHoverResult>
 }
 
 export class LanguageServiceHoverRequestor {
+    constructor(private _languageManager: LanguageManager) {}
 
-    constructor(
-        private _languageManager: LanguageManager,
-    ) { }
-
-    public async getHover(language: string, filePath: string, line: number, column: number): Promise<IHoverResult> {
+    public async getHover(
+        language: string,
+        filePath: string,
+        line: number,
+        column: number,
+    ): Promise<IHoverResult> {
         const args = { ...Helpers.createTextDocumentPositionParams(filePath, line, column) }
 
         let result: types.Hover = null
 
         if (this._languageManager.isLanguageServerAvailable(language)) {
             try {
-                result = await this._languageManager.sendLanguageServerRequest(language, filePath, "textDocument/hover", args)
+                result = await this._languageManager.sendLanguageServerRequest(
+                    language,
+                    filePath,
+                    "textDocument/hover",
+                    args,
+                )
             } catch (ex) {
                 Log.warn(ex)
             }

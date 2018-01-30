@@ -15,6 +15,10 @@ import * as MenuFilter from "./MenuFilter"
 import { createReducer } from "./MenuReducer"
 import * as State from "./MenuState"
 
+import { MenuContainer } from "./MenuComponent"
+
+import { Overlay, OverlayManager } from "./../Overlay"
+
 export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
     labelHighlights: number[]
     detailHighlights: number[]
@@ -24,12 +28,26 @@ export type MenuState = State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlig
 
 const reducer = createReducer<Oni.Menu.MenuOption, IMenuOptionWithHighlights>()
 
-export const menuStore = createStore<MenuState>(reducer, State.createDefaultState<Oni.Menu.MenuOption, IMenuOptionWithHighlights>(), applyMiddleware(thunk))
+export const menuStore = createStore<MenuState>(
+    reducer,
+    State.createDefaultState<Oni.Menu.MenuOption, IMenuOptionWithHighlights>(),
+    applyMiddleware(thunk),
+)
 
-export const menuActions: typeof ActionCreators = bindActionCreators(ActionCreators as any, menuStore.dispatch)
+export const menuActions: typeof ActionCreators = bindActionCreators(
+    ActionCreators as any,
+    menuStore.dispatch,
+)
 
 export class MenuManager {
     private _id: number = 0
+    private _overlay: Overlay
+
+    constructor(private _overlayManager: OverlayManager) {
+        this._overlay = this._overlayManager.createItem()
+        this._overlay.setContents(MenuContainer())
+        this._overlay.show()
+    }
 
     public create(): Menu {
         this._id++
@@ -61,7 +79,7 @@ export class MenuManager {
     }
 }
 
-export class Menu {
+export class Menu implements Oni.Menu.MenuInstance {
     private _onItemSelected = new Event<any>()
     private _onSelectedItemChanged = new Event<Oni.Menu.MenuOption>()
     private _onFilterTextChanged = new Event<string>()
@@ -88,8 +106,7 @@ export class Menu {
         return this._getSelectedItem()
     }
 
-    constructor(private _id: string) {
-    }
+    constructor(private _id: string) {}
 
     public isOpen(): boolean {
         const menuState = menuStore.getState()
@@ -104,18 +121,22 @@ export class Menu {
         menuActions.setMenuItems(this._id, items)
     }
 
-    public setFilterFunction(filterFunc: (items: Oni.Menu.MenuOption[], searchString: string) => IMenuOptionWithHighlights[]) {
+    public setFilterFunction(
+        filterFunc: (
+            items: Oni.Menu.MenuOption[],
+            searchString: string,
+        ) => IMenuOptionWithHighlights[],
+    ) {
         this._filterFunction = filterFunc
     }
 
     public show(): void {
-
         menuActions.showPopupMenu(this._id, {
             filterFunction: this._filterFunction,
-            onSelectedItemChanged: (item) => this._onSelectedItemChanged.dispatch(item),
+            onSelectedItemChanged: item => this._onSelectedItemChanged.dispatch(item),
             onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
             onHide: () => this._onHide.dispatch(),
-            onFilterTextChanged: (newText) => this._onFilterTextChanged.dispatch(newText),
+            onFilterTextChanged: newText => this._onFilterTextChanged.dispatch(newText),
         })
     }
 
@@ -124,7 +145,6 @@ export class Menu {
     }
 
     private _onItemSelectedHandler(idx?: number): void {
-
         const selectedOption = this._getSelectedItem(idx)
         this._onItemSelected.dispatch(selectedOption)
 
@@ -138,10 +158,8 @@ export class Menu {
             return null
         }
 
-        const index = (typeof idx === "number") ? idx : menuState.menu.selectedIndex
+        const index = typeof idx === "number" ? idx : menuState.menu.selectedIndex
 
         return menuState.menu.filteredOptions[index]
     }
 }
-
-export const menuManager = new MenuManager()

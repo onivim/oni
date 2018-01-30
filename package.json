@@ -1,306 +1,313 @@
 {
-  "name": "oni",
-  "author": "",
-  "email": "bryphe@outlook.com",
-  "homepage": "https://www.onivim.io",
-  "version": "0.2.21",
-  "description": "NeoVim front-end with IDE-style extensibility",
-  "keywords": [
-    "vim",
-    "neovim",
-    "text",
-    "editor",
-    "ide",
-    "vim"
-  ],
-  "main": "./lib/main/src/main.js",
-  "bin": {
-    "oni": "./cli/oni",
-    "oni-vim": "./cli/oni"
-  },
-  "build": {
-    "asar": false,
-    "productName": "Oni",
-    "appId": "com.extropy.oni",
-    "files": [
-      "**/*",
-      "!**/*.oni",
-      "!**/*.vscode",
-      "!app",
-      "!assets",
-      "!browser",
-      "!bin",
-      "!build",
-      "!examples",
-      "!lib_test",
-      "!test",
-      "!node_modules/typescript"
-    ],
-    "extraResources": [
-      {
-        "from": "node_modules/typescript",
-        "to": "app/node_modules/typescript"
-      }
-    ],
-    "mac": {
-      "artifactName": "${productName}-${version}-osx.${ext}",
-      "category": "public.app-category.developer-tools",
-      "target": [
-        "dmg"
-      ],
-      "files": [
-        "bin/osx/**/*"
-      ]
+    "name": "oni",
+    "author": "",
+    "email": "bryphe@outlook.com",
+    "homepage": "https://www.onivim.io",
+    "version": "0.2.22",
+    "description": "NeoVim front-end with IDE-style extensibility",
+    "keywords": ["vim", "neovim", "text", "editor", "ide", "vim"],
+    "main": "./lib/main/src/main.js",
+    "bin": {
+        "oni": "./cli/oni",
+        "oni-vim": "./cli/oni"
     },
-    "linux": {
-      "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
-      "maintainer": "bryphe@outlook.com",
-      "target": [
-        "tar.gz",
-        "deb",
-        "rpm"
-      ]
+    "build": {
+        "asar": false,
+        "productName": "Oni",
+        "appId": "com.extropy.oni",
+        "files": [
+            "**/*",
+            "!**/*.oni",
+            "!**/*.vscode",
+            "!app",
+            "!assets",
+            "!browser",
+            "!bin",
+            "!build",
+            "!examples",
+            "!lib_test",
+            "!test",
+            "!node_modules/typescript"
+        ],
+        "extraResources": [
+            {
+                "from": "node_modules/typescript",
+                "to": "app/node_modules/typescript"
+            }
+        ],
+        "mac": {
+            "artifactName": "${productName}-${version}-osx.${ext}",
+            "category": "public.app-category.developer-tools",
+            "target": ["dmg"],
+            "files": ["bin/osx/**/*"]
+        },
+        "linux": {
+            "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
+            "maintainer": "bryphe@outlook.com",
+            "target": ["tar.gz", "deb", "rpm"]
+        },
+        "win": {
+            "target": ["zip", "dir"],
+            "files": ["bin/x86/**/*"]
+        },
+        "fileAssociations": [
+            {
+                "ext": "js",
+                "name": "javascript",
+                "role": "Editor",
+                "isPackage": true
+            },
+            {
+                "ext": "json",
+                "name": "JSON",
+                "role": "Editor",
+                "isPackage": true
+            },
+            {
+                "ext": "jsx",
+                "name": "JSX",
+                "role": "Editor",
+                "isPackage": true
+            },
+            {
+                "ext": "py",
+                "name": "Python",
+                "role": "Editor",
+                "isPackage": true
+            },
+            {
+                "ext": "go",
+                "name": "Go Lang",
+                "role": "Editor",
+                "isPackage": true
+            },
+            {
+                "ext": "re",
+                "name": "Reason",
+                "role": "Editor",
+                "isPackage": true
+            },
+            {
+                "ext": "vim",
+                "name": "VimL",
+                "role": "Editor",
+                "isPackage": true
+            },
+            {
+                "ext": "ts",
+                "name": "Typescript",
+                "role": "Editor",
+                "isPackage": true
+            },
+            {
+                "ext": "tsx",
+                "name": "Typescript",
+                "role": "Editor",
+                "isPackage": true
+            },
+            {
+                "ext": "css",
+                "name": "CSS",
+                "role": "Editor",
+                "isPackage": true
+            }
+        ]
     },
-    "win": {
-      "target": [
-        "zip",
-        "dir"
-      ],
-      "files": [
-        "bin/x86/**/*"
-      ]
+    "scripts": {
+        "precommit": "pretty-quick --staged",
+        "prepush": "npm run build && npm run lint",
+        "build": "npm run build:browser && npm run build:main && npm run build:plugins",
+        "build-debug": "npm run build:browser-debug && npm run build:plugins",
+        "build:browser": "webpack --config browser/webpack.production.config.js",
+        "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
+        "build:main": "cd main && tsc -p tsconfig.json",
+        "build:plugins":
+            "npm run build:plugin:oni-layer-browser && npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-markdown-preview",
+        "build:plugin:oni-layer-browser": "cd extensions/oni-layer-browser && npm run build",
+        "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && npm run build",
+        "build:plugin:oni-plugin-markdown-preview":
+            "cd extensions/oni-plugin-markdown-preview && npm run build",
+        "build:test": "npm run build:test:unit && npm run build:test:integration",
+        "build:test:integration": "cd test && tsc -p tsconfig.json",
+        "build:test:unit": "cd browser && tsc -p tsconfig.test.json",
+        "copy-icons": "node build/CopyIcons.js",
+        "debug:test:unit:browser":
+            "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+        "demo": "npm run build:test && mocha -t 30000 lib_test/test/Demo.js",
+        "dist:win":
+            "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
+        "pack:win":
+            "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
+        "test": "npm run test:unit && npm run test:integration",
+        "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js",
+        "test:unit": "npm run test:unit:browser",
+        "test:unit:browser":
+            "npm run build:test:unit && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+        "fix-lint":
+            "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test && npm run fix-lint:plugins",
+        "fix-lint:browser":
+            "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+        "fix-lint:plugins": "npm run fix-lint:plugins:oni-layer-browser",
+        "fix-lint:plugins:oni-layer-browser":
+            "tslint --fix --project extensions/oni-layer-browser/tsconfig.json --config tslint.json",
+        "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
+        "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
+        "lint":
+            "npm run lint:browser && npm run lint:main && npm run lint:test && npm run lint:plugins",
+        "lint:plugins": "npm run lint:plugin:oni-layer-browser",
+        "lint:plugin:oni-layer-browser":
+            "tslint --project extensions/oni-layer-browser/tsconfig.json --config tslint.json",
+        "lint:browser":
+            "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+        "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
+        "lint:test":
+            "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
+        "pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --publish never",
+        "ccov:instrument":
+            "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
+        "ccov:test:browser":
+            "cd browser && cross-env ONI_CCOV=1 electron-mocha --renderer --require testHelpers.js -R testCoverageReporter --recursive ../lib_test/browser/test",
+        "ccov:report": "nyc report && nyc report --reporter=html && nyc report --reporter=lcov",
+        "start":
+            "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
+        "start-hot":
+            "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
+        "start-not-dev": "cross-env electron main.js",
+        "watch:browser":
+            "webpack-dev-server --config browser/webpack.debug.config.js --host localhost --port 8191",
+        "watch:plugins":
+            "npm run watch:plugins:oni-layer-browser && npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
+        "watch:plugins:oni-layer-browser": "cd extensions/oni-layer-browser && tsc --watch",
+        "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
+        "watch:plugins:oni-plugin-markdown-preview":
+            "cd extensions/oni-plugin-markdown-preview && tsc --watch",
+        "uninstall-global": "npm rm -g oni-vim",
+        "install-global": "npm install -g oni-vim",
+        "install:plugins": "npm run install:plugins:oni-plugin-markdown-preview",
+        "install:plugins:oni-plugin-markdown-preview":
+            "cd extensions/oni-plugin-markdown-preview && npm install --prod",
+        "postinstall": "npm run install:plugins && electron-rebuild && opencollective postinstall",
+        "profile:webpack":
+            "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
     },
-    "fileAssociations": [
-      {
-        "ext": "js",
-        "name": "javascript",
-        "role": "Editor",
-        "isPackage": true
-      },
-      {
-        "ext": "json",
-        "name": "JSON",
-        "role": "Editor",
-        "isPackage": true
-      },
-      {
-        "ext": "jsx",
-        "name": "JSX",
-        "role": "Editor",
-        "isPackage": true
-      },
-      {
-        "ext": "py",
-        "name": "Python",
-        "role": "Editor",
-        "isPackage": true
-      },
-      {
-        "ext": "go",
-        "name": "Go Lang",
-        "role": "Editor",
-        "isPackage": true
-      },
-      {
-        "ext": "re",
-        "name": "Reason",
-        "role": "Editor",
-        "isPackage": true
-      },
-      {
-        "ext": "vim",
-        "name": "VimL",
-        "role": "Editor",
-        "isPackage": true
-      },
-      {
-        "ext": "ts",
-        "name": "Typescript",
-        "role": "Editor",
-        "isPackage": true
-      },
-      {
-        "ext": "tsx",
-        "name": "Typescript",
-        "role": "Editor",
-        "isPackage": true
-      },
-      {
-        "ext": "css",
-        "name": "CSS",
-        "role": "Editor",
-        "isPackage": true
-      }
-    ]
-  },
-  "scripts": {
-    "build": "npm run build:browser && npm run build:main && npm run build:plugins",
-    "build-debug": "npm run build:browser-debug && npm run build:plugins",
-    "build:browser": "webpack --config browser/webpack.production.config.js",
-    "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
-    "build:main": "cd main && tsc -p tsconfig.json",
-    "build:plugins": "npm run build:plugin:oni-layer-browser && npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-markdown-preview",
-    "build:plugin:oni-layer-browser": "cd extensions/oni-layer-browser && npm run build",
-    "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && npm run build",
-    "build:plugin:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm run build",
-    "build:test": "npm run build:test:unit && npm run build:test:integration",
-    "build:test:integration": "cd test && tsc -p tsconfig.json",
-    "build:test:unit": "cd browser && tsc -p tsconfig.test.json",
-    "copy-icons": "node build/CopyIcons.js",
-    "debug:test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
-    "demo": "npm run build:test && mocha -t 30000 lib_test/test/Demo.js",
-    "dist:win": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
-    "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
-    "test": "npm run test:unit && npm run test:integration",
-    "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js",
-    "test:unit": "npm run test:unit:browser",
-    "test:unit:browser": "npm run build:test:unit && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
-    "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test && npm run fix-lint:plugins",
-    "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
-    "fix-lint:plugins": "npm run fix-lint:plugins:oni-layer-browser",
-    "fix-lint:plugins:oni-layer-browser": "tslint --fix --project extensions/oni-layer-browser/tsconfig.json --config tslint.json",
-    "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
-    "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
-    "lint": "npm run lint:browser && npm run lint:main && npm run lint:test && npm run lint:plugins",
-    "lint:plugins": "npm run lint:plugin:oni-layer-browser",
-    "lint:plugin:oni-layer-browser": "tslint --project extensions/oni-layer-browser/tsconfig.json --config tslint.json",
-    "lint:browser": "tslint --project browser/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
-    "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
-    "lint:test": "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
-    "pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --publish never",
-    "ccov:instrument": "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
-    "ccov:test:browser": "cd browser && cross-env ONI_CCOV=1 electron-mocha --renderer --require testHelpers.js -R testCoverageReporter --recursive ../lib_test/browser/test",
-    "ccov:report": "nyc report && nyc report --reporter=html && nyc report --reporter=lcov",
-    "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
-    "start-hot": "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
-    "start-not-dev": "cross-env electron main.js",
-    "watch:browser": "webpack-dev-server --config browser/webpack.debug.config.js --host localhost --port 8191",
-    "watch:plugins": "npm run watch:plugins:oni-layer-browser && npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
-    "watch:plugins:oni-layer-browser": "cd extensions/oni-layer-browser && tsc --watch",
-    "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
-    "watch:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && tsc --watch",
-    "uninstall-global": "npm rm -g oni-vim",
-    "install-global": "npm install -g oni-vim",
-    "install:plugins": "npm run install:plugins:oni-plugin-markdown-preview",
-    "install:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm install --prod",
-    "postinstall": "npm run install:plugins && electron-rebuild && opencollective postinstall",
-    "profile:webpack": "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/bryphe/oni"
-  },
-  "license": "MIT",
-  "dependencies": {
-    "@types/marked": "^0.3.0",
-    "@types/redux-batched-subscribe": "^0.1.2",
-    "dompurify": "1.0.2",
-    "electron-settings": "^3.1.4",
-    "find-up": "2.1.0",
-    "keyboard-layout": "2.0.13",
-    "marked": "^0.3.6",
-    "minimist": "1.2.0",
-    "msgpack-lite": "0.1.26",
-    "ocaml-language-server": "1.0.12",
-    "oni-api": "0.0.24",
-    "oni-neovim-binaries": "0.1.0",
-    "oni-ripgrep": "0.0.3",
-    "oni-types": "0.0.4",
-    "react": "16.0.0",
-    "react-dom": "16.0.0",
-    "react-electron-web-view": "^2.0.1",
-    "redux-batched-subscribe": "^0.1.6",
-    "shell-env": "^0.3.0",
-    "shelljs": "0.7.7",
-    "styled-components": "^2.3.0",
-    "typescript": "2.6.1",
-    "vscode-css-languageserver-bin": "^1.2.1",
-    "vscode-html-languageserver-bin": "^1.1.0",
-    "vscode-jsonrpc": "3.5.0",
-    "vscode-languageserver": "3.5.0",
-    "vscode-languageserver-types": "3.5.0",
-    "vscode-textmate": "3.2.0"
-  },
-  "devDependencies": {
-    "@types/classnames": "0.0.32",
-    "@types/color": "2.0.0",
-    "@types/electron-settings": "^3.1.1",
-    "@types/jsdom": "11.0.0",
-    "@types/lodash": "4.14.38",
-    "@types/lolex": "2.1.0",
-    "@types/memory-fs": "^0.3.0",
-    "@types/minimatch": "3.0.1",
-    "@types/minimist": "1.1.29",
-    "@types/mkdirp": "0.3.29",
-    "@types/mocha": "2.2.33",
-    "@types/msgpack-lite": "0.1.4",
-    "@types/node": "8.0.53",
-    "@types/react-dom": "16.0.3",
-    "@types/react-motion": "0.0.23",
-    "@types/react-redux": "5.0.12",
-    "@types/react-transition-group": "2.0.6",
-    "@types/react-virtualized": "^9.7.10",
-    "@types/shelljs": "^0.7.7",
-    "@types/sinon": "1.16.32",
-    "autoprefixer": "6.4.0",
-    "babili-webpack-plugin": "0.1.2",
-    "bs-platform": "1.8.0",
-    "classnames": "2.2.5",
-    "color": "2.0.0",
-    "concurrently": "3.1.0",
-    "coveralls": "^3.0.0",
-    "cross-env": "3.1.3",
-    "css-loader": "0.28.4",
-    "electron": "1.8.1",
-    "electron-builder": "19.46.4",
-    "electron-devtools-installer": "2.2.1",
-    "electron-mocha": "5.0.0",
-    "electron-rebuild": "1.6.0",
-    "extract-zip": "1.6.0",
-    "fs-extra": "4.0.2",
-    "fuse.js": "2.6.2",
-    "github-releases": "^0.4.1",
-    "innosetup-compiler": "5.5.9",
-    "jsdom": "11.0.0",
-    "less": "2.7.1",
-    "less-loader": "4.0.5",
-    "less-plugin-autoprefix": "1.5.1",
-    "lodash": "4.17.0",
-    "lolex": "2.3.1",
-    "memory-fs": "^0.4.1",
-    "minimatch": "3.0.4",
-    "mkdirp": "0.5.1",
-    "mocha": "3.1.2",
-    "nyc": "^11.4.1",
-    "oni-release-downloader": "0.0.8",
-    "opencollective": "1.0.3",
-    "optimize-js-plugin": "0.0.4",
-    "react-hot-loader": "1.3.1",
-    "react-motion": "0.5.2",
-    "react-redux": "5.0.6",
-    "react-transition-group": "2.2.1",
-    "react-virtualized": "^9.18.0",
-    "redux": "3.7.2",
-    "redux-observable": "0.17.0",
-    "redux-thunk": "2.2.0",
-    "reselect": "3.0.1",
-    "rxjs": "5.5.0",
-    "sinon": "1.17.6",
-    "spectron": "3.6.2",
-    "style-loader": "0.18.2",
-    "sudo-prompt": "7.1.1",
-    "ts-loader": "2.3.2",
-    "tslint": "5.7.0",
-    "vscode-snippet-parser": "0.0.5",
-    "wcwidth": "1.0.1",
-    "webdriverio": "4.8.0",
-    "webpack": "3.5.3",
-    "webpack-bundle-analyzer": "^2.9.1",
-    "webpack-dev-server": "2.7.1"
-  },
-  "collective": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/oni",
-    "logo": "https://opencollective.com/opencollective/logo.txt"
-  }
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bryphe/oni"
+    },
+    "license": "MIT",
+    "dependencies": {
+        "@types/marked": "^0.3.0",
+        "@types/redux-batched-subscribe": "^0.1.2",
+        "dompurify": "1.0.2",
+        "electron-settings": "^3.1.4",
+        "find-up": "2.1.0",
+        "keyboard-layout": "2.0.13",
+        "marked": "^0.3.6",
+        "minimist": "1.2.0",
+        "msgpack-lite": "0.1.26",
+        "ocaml-language-server": "1.0.12",
+        "oni-api": "^0.0.26",
+        "oni-neovim-binaries": "0.1.0",
+        "oni-ripgrep": "0.0.3",
+        "oni-types": "0.0.4",
+        "react": "16.0.0",
+        "react-dom": "16.0.0",
+        "react-electron-web-view": "^2.0.1",
+        "redux-batched-subscribe": "^0.1.6",
+        "shell-env": "^0.3.0",
+        "shelljs": "0.7.7",
+        "styled-components": "^2.3.0",
+        "typescript": "2.6.1",
+        "vscode-css-languageserver-bin": "^1.2.1",
+        "vscode-html-languageserver-bin": "^1.1.0",
+        "vscode-jsonrpc": "3.5.0",
+        "vscode-languageserver": "3.5.0",
+        "vscode-languageserver-types": "3.5.0",
+        "vscode-textmate": "3.2.0"
+    },
+    "devDependencies": {
+        "@types/classnames": "0.0.32",
+        "@types/color": "2.0.0",
+        "@types/electron-settings": "^3.1.1",
+        "@types/jsdom": "11.0.0",
+        "@types/lodash": "4.14.38",
+        "@types/lolex": "2.1.0",
+        "@types/memory-fs": "^0.3.0",
+        "@types/minimatch": "3.0.1",
+        "@types/minimist": "1.1.29",
+        "@types/mkdirp": "0.3.29",
+        "@types/mocha": "2.2.33",
+        "@types/msgpack-lite": "0.1.4",
+        "@types/node": "8.0.53",
+        "@types/react-dom": "16.0.3",
+        "@types/react-motion": "0.0.23",
+        "@types/react-redux": "5.0.12",
+        "@types/react-transition-group": "2.0.6",
+        "@types/react-virtualized": "^9.7.10",
+        "@types/shelljs": "^0.7.7",
+        "@types/sinon": "1.16.32",
+        "autoprefixer": "6.4.0",
+        "babili-webpack-plugin": "0.1.2",
+        "bs-platform": "1.8.0",
+        "classnames": "2.2.5",
+        "color": "2.0.0",
+        "concurrently": "3.1.0",
+        "coveralls": "^3.0.0",
+        "cross-env": "3.1.3",
+        "css-loader": "0.28.4",
+        "electron": "1.8.1",
+        "electron-builder": "19.46.4",
+        "electron-devtools-installer": "2.2.1",
+        "electron-mocha": "5.0.0",
+        "electron-rebuild": "1.6.0",
+        "extract-zip": "1.6.0",
+        "fs-extra": "4.0.2",
+        "fuse.js": "2.6.2",
+        "github-releases": "^0.4.1",
+        "husky": "^0.14.3",
+        "innosetup-compiler": "5.5.9",
+        "jsdom": "11.0.0",
+        "less": "2.7.1",
+        "less-loader": "4.0.5",
+        "less-plugin-autoprefix": "1.5.1",
+        "lodash": "4.17.0",
+        "lolex": "2.3.1",
+        "memory-fs": "^0.4.1",
+        "minimatch": "3.0.4",
+        "mkdirp": "0.5.1",
+        "mocha": "3.1.2",
+        "nyc": "^11.4.1",
+        "oni-release-downloader": "0.0.8",
+        "opencollective": "1.0.3",
+        "optimize-js-plugin": "0.0.4",
+        "prettier": "^1.10.2",
+        "pretty-quick": "^1.2.2",
+        "react-hot-loader": "1.3.1",
+        "react-motion": "0.5.2",
+        "react-virtualized": "^9.18.0",
+        "react-redux": "5.0.6",
+        "react-transition-group": "2.2.1",
+        "redux": "3.7.2",
+        "redux-observable": "0.17.0",
+        "redux-thunk": "2.2.0",
+        "reselect": "3.0.1",
+        "rxjs": "5.5.0",
+        "sinon": "1.17.6",
+        "spectron": "3.6.2",
+        "style-loader": "0.18.2",
+        "sudo-prompt": "7.1.1",
+        "ts-loader": "2.3.2",
+        "tslint": "5.9.1",
+        "vscode-snippet-parser": "0.0.5",
+        "wcwidth": "1.0.1",
+        "webdriverio": "4.8.0",
+        "webpack": "3.5.3",
+        "webpack-bundle-analyzer": "^2.9.1",
+        "webpack-dev-server": "2.7.1"
+    },
+    "collective": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/oni",
+        "logo": "https://opencollective.com/opencollective/logo.txt"
+    }
 }

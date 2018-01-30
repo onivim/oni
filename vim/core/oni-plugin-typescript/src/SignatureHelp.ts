@@ -17,12 +17,21 @@ import { TypeScriptServerHost } from "./TypeScriptServerHost"
 import { ITextDocumentPositionParams } from "./Types"
 import * as Utility from "./Utility"
 
-export const getSignatureHelp = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (message: string, payload: any): Promise<types.SignatureHelp> => {
+export const getSignatureHelp = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (
+    message: string,
+    payload: any,
+): Promise<types.SignatureHelp> => {
     const textDocument: types.TextDocumentIdentifier = payload.textDocument
     const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-    const oneBasedPosition: types.Position = Utility.zeroBasedPositionToOneBasedPosition(payload.position)
+    const oneBasedPosition: types.Position = Utility.zeroBasedPositionToOneBasedPosition(
+        payload.position,
+    )
 
-    const result = await host.getSignatureHelp(filePath, oneBasedPosition.line, oneBasedPosition.character)
+    const result = await host.getSignatureHelp(
+        filePath,
+        oneBasedPosition.line,
+        oneBasedPosition.character,
+    )
 
     const items = result.items || []
 
@@ -31,12 +40,12 @@ export const getSignatureHelp = (oni: Oni.Plugin.Api, host: TypeScriptServerHost
         const suffix = Utility.convertToDisplayString(item.suffixDisplayParts)
         const separator = Utility.convertToDisplayString(item.separatorDisplayParts)
 
-        const parameters = item.parameters.map((p) => ({
+        const parameters = item.parameters.map(p => ({
             label: Utility.convertToDisplayString(p.displayParts),
             documentation: Utility.convertToDisplayString(p.documentation),
         }))
 
-        const parameterLabels = parameters.map((p) => p.label)
+        const parameterLabels = parameters.map(p => p.label)
 
         const label = prefix + parameterLabels.join(separator) + suffix
 

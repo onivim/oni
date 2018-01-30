@@ -13,7 +13,7 @@ export const getCommand = () => {
     const executableName = Platform.isWindows() ? "rg.exe" : "rg"
 
     // Wrap in quotes in case there are spaces in the path
-    return "\"" + path.join(rootPath, executableName) + "\""
+    return '"' + path.join(rootPath, executableName) + '"'
 }
 
 export const getArguments = (excludePaths: string[]) => {

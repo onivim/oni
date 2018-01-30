@@ -24,44 +24,44 @@ const transparentBorder = (props: IArrowProps) => `${props.size * 0.8}px solid t
 const solidBorder = (props: IArrowProps) => `${props.size}px solid ${props.color}`
 
 function arrowCSS(props: IArrowProps): string {
-  switch (props.direction) {
-  case ArrowDirection.Up:
-      return `
+    switch (props.direction) {
+        case ArrowDirection.Up:
+            return `
         width: 0px;
         height: 0px;
         border-left: ${transparentBorder(props)};
         border-right: ${transparentBorder(props)};
         border-bottom: ${solidBorder(props)};
         `
-  case ArrowDirection.Down:
-      return `
+        case ArrowDirection.Down:
+            return `
         width: 0px;
         height: 0px;
         border-left: ${transparentBorder(props)};
         border-right: ${transparentBorder(props)};
         border-top: ${solidBorder(props)};
         `
-  case ArrowDirection.Left:
-      return `
+        case ArrowDirection.Left:
+            return `
         width: 0px;
         height: 0px;
         border-top: ${transparentBorder(props)};
         border-right: ${solidBorder(props)};
         border-bottom: ${transparentBorder(props)};
         `
-  case ArrowDirection.Right:
-      return `
+        case ArrowDirection.Right:
+            return `
         width: 0px;
         height: 0px;
         border-top: ${transparentBorder(props)};
         border-left: ${solidBorder(props)};
         border-bottom: ${transparentBorder(props)};
         `
-  default:
-      return ``
-  }
+        default:
+            return ``
+    }
 }
 
 export const Arrow = withProps<IArrowProps>(styled.div)`
-    ${ props => arrowCSS(props) }
+    ${props => arrowCSS(props)}
     `

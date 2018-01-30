@@ -8,7 +8,7 @@
  * - Enabling Neovim keybindings in text input elements
  */
 
-import { Event,  IDisposable, IEvent } from "oni-types"
+import { Event, IDisposable, IEvent } from "oni-types"
 
 import { NeovimInstance } from "./NeovimInstance"
 import { INeovimStartOptions } from "./NeovimProcessSpawner"
@@ -44,9 +44,7 @@ export class Binding implements IBinding {
         return this._neovimInstance
     }
 
-    constructor(
-        private _neovimInstance: NeovimInstance,
-    ) { }
+    constructor(private _neovimInstance: NeovimInstance) {}
 
     public input(key: string): Promise<void> {
         return this._neovimInstance.input(key)
@@ -55,7 +53,7 @@ export class Binding implements IBinding {
     public release(): void {
         this._neovimInstance = null
 
-        this._subscriptions.forEach((sub) => sub.dispose())
+        this._subscriptions.forEach(sub => sub.dispose())
 
         this._onReleasedEvent.dispatch()
     }
@@ -66,7 +64,6 @@ export class Binding implements IBinding {
 }
 
 export class MenuBinding extends Binding implements IMenuBinding {
-
     private _currentOptions: string[] = []
     private _currentId: string = null
     private _onCursorMovedEvent: Event<string> = new Event<string>()
@@ -81,8 +78,7 @@ export class MenuBinding extends Binding implements IMenuBinding {
     constructor(neovimInstance: NeovimInstance) {
         super(neovimInstance)
 
-        const subscription = this.neovimInstance.autoCommands.onCursorMoved.subscribe((evt) => {
-
+        const subscription = this.neovimInstance.autoCommands.onCursorMoved.subscribe(evt => {
             if (this._isUpdating) {
                 return
             }
@@ -97,7 +93,6 @@ export class MenuBinding extends Binding implements IMenuBinding {
     }
 
     public async setItems(items: string[], activeId?: string): Promise<void> {
-
         this._promiseQueue.enqueuePromise(async () => {
             if (items === this._currentOptions && activeId === this._currentId) {
                 return
@@ -123,7 +118,13 @@ export class MenuBinding extends Binding implements IMenuBinding {
                 idx = this._currentOptions.indexOf(activeId) + 1
             }
 
-            await this.neovimInstance.request("nvim_buf_set_lines", [currentBufId, 0, bufferLength, false, elems])
+            await this.neovimInstance.request("nvim_buf_set_lines", [
+                currentBufId,
+                0,
+                bufferLength,
+                false,
+                elems,
+            ])
             await this.neovimInstance.request("nvim_win_set_cursor", [currentWinId, [idx, 1]])
             this._isUpdating = false
         })
@@ -131,7 +132,6 @@ export class MenuBinding extends Binding implements IMenuBinding {
 }
 
 class SharedNeovimInstance implements SharedNeovimInstance {
-
     private _initPromise: Promise<void>
     private _neovimInstance: NeovimInstance
 
@@ -139,10 +139,7 @@ class SharedNeovimInstance implements SharedNeovimInstance {
         return this._neovimInstance.isInitialized
     }
 
-    constructor(
-        private _configuration: Configuration,
-        private _pluginManager: PluginManager,
-    ) {
+    constructor(private _configuration: Configuration, private _pluginManager: PluginManager) {
         this._neovimInstance = new NeovimInstance(5, 5, this._configuration)
 
         this._neovimInstance.onOniCommand.subscribe((command: string) => {
@@ -168,7 +165,10 @@ class SharedNeovimInstance implements SharedNeovimInstance {
 }
 
 let _sharedInstance: SharedNeovimInstance = null
-export const activate = async (configuration: Configuration, pluginManager: PluginManager): Promise<void> => {
+export const activate = async (
+    configuration: Configuration,
+    pluginManager: PluginManager,
+): Promise<void> => {
     if (_sharedInstance) {
         return
     }
