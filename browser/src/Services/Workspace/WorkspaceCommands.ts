@@ -97,7 +97,6 @@ export const activateCommands = (
             "Workspace: Open Folder",
             "Set a folder as the working directory for Oni",
             () => openFolder(),
-            () => !!!workspace.activeWorkspace,
         ),
         new CallbackCommand(
             "workspace.openTestFile",
