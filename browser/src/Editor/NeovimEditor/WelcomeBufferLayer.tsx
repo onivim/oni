@@ -11,6 +11,7 @@ import styled, { keyframes } from "styled-components"
 import * as Oni from "oni-api"
 
 import { withProps } from "./../../UI/components/common"
+import { VimNavigator } from "./../../UI/components/VimNavigator"
 
 const WelcomeWrapper = withProps<{}>(styled.div)`
     background-color: ${p => p.theme["editor.background"]};
@@ -95,12 +96,24 @@ const WelcomeButtonHoverStyled = `
 
 // box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
 
-const WelcomeButtonWrapper = withProps<{}>(styled.div)`
+export interface WelcomeButtonWrapperProps {
+    selected: boolean
+}
+
+const WelcomeButtonWrapper = withProps<WelcomeButtonWrapperProps>(styled.div)`
     border: 0px solid ${props => props.theme.foreground};
+    border-left: ${props =>
+        props.selected
+            ? "4px solid " + props.theme["highlight.mode.normal.background"]
+            : "4px solid transparent"};
+    border-right: 4px solid transparent;
     color: ${props => props.theme.foreground};
     background-color: ${props => props.theme.background};
 
     cursor: pointer;
+
+    transition: transform 0.25s;
+    transform: ${props => (props.selected ? "translateX(-4px)" : "translateX(0px)")};
 
     width: 100%;
     margin: 8px 0px;
@@ -135,12 +148,13 @@ export interface WelcomeButtonProps {
     title: string
     description: string
     command: string
+    selected: boolean
 }
 
 export class WelcomeButton extends React.PureComponent<WelcomeButtonProps, {}> {
     public render(): JSX.Element {
         return (
-            <WelcomeButtonWrapper>
+            <WelcomeButtonWrapper selected={this.props.selected}>
                 <WelcomeButtonTitle>{this.props.title}</WelcomeButtonTitle>
                 <WelcomeButtonDescription>{this.props.description}</WelcomeButtonDescription>
             </WelcomeButtonWrapper>
@@ -178,6 +192,17 @@ export interface WelcomeViewState {
 }
 
 import { getMetadata } from "./../../Services/Metadata"
+
+export const ButtonIds = [
+    "oni.tutor.open",
+    "oni.docs.open",
+    "oni.configuration.open",
+    "oni.themes.open",
+    "workspace.newFile",
+    "workspace.openFolder",
+    "tasks.show",
+    "editor.openExCommands",
+]
 
 export class WelcomeView extends React.PureComponent<{}, WelcomeViewState> {
     constructor(props: any) {
@@ -226,74 +251,104 @@ export class WelcomeView extends React.PureComponent<{}, WelcomeViewState> {
                 </Row>
                 <Row style={{ width: "100%", marginTop: "64px", opacity: 1 }}>
                     <Column />
-                    <Column>
-                        <div
-                            style={{
-                                width: "100%",
-                                animation: `${entranceFull} 0.25s ease-in 0.5s both`,
-                            }}
-                        >
-                            <SectionHeader>Learn</SectionHeader>
-                            <WelcomeButton
-                                title="Tutor"
-                                description="Learn VIM with an interactive tutorial."
-                                command="oni.tutor.open"
-                            />
-                            <WelcomeButton
-                                title="Documentation"
-                                description="Discover what Oni can do for you."
-                                command="oni.docs.open"
-                            />
-                        </div>
-                        <div
-                            style={{
-                                width: "100%",
-                                animation: `${entranceFull} 0.25s ease-in 0.75s both`,
-                            }}
-                        >
-                            <SectionHeader>Customize</SectionHeader>
-                            <WelcomeButton
-                                title="Configure"
-                                description="Make Oni work the way you want."
-                                command="oni.configuration.open"
-                            />
-                            <WelcomeButton
-                                title="Themes"
-                                description="Choose a theme that works for you."
-                                command="oni.themes.open"
-                            />
-                        </div>
-                        <div
-                            style={{
-                                width: "100%",
-                                animation: `${entranceFull} 0.25s ease-in 1s both`,
-                            }}
-                        >
-                            <SectionHeader>Quick Commands</SectionHeader>
-                            <WelcomeButton
-                                title="New File"
-                                description="Control + N"
-                                command="oni.configuration.open"
-                            />
-                            <WelcomeButton
-                                title="Open File / Folder"
-                                description="Control + O"
-                                command="oni.configuration.open"
-                            />
-                            <WelcomeButton
-                                title="Command Palette"
-                                description="Control + Shift + P"
-                                command="oni.configuration.open"
-                            />
-                            <WelcomeButton
-                                title="Vim Ex Commands"
-                                description=":"
-                                command="oni.openEx"
-                            />
-                        </div>
-                    </Column>
+                    <VimNavigator
+                        style={{ width: "100%" }}
+                        active={true}
+                        ids={ButtonIds}
+                        render={(selectedId: string) => (
+                            <WelcomeBufferLayerCommandsView selectedId={selectedId} />
+                        )}
+                    />
                     <Column />
                 </Row>
+            </Column>
+        )
+    }
+}
+
+export interface IWelcomeBufferLayerCommandsViewProps {
+    selectedId: string
+}
+
+export class WelcomeBufferLayerCommandsView extends React.PureComponent<
+    IWelcomeBufferLayerCommandsViewProps,
+    {}
+> {
+    public render(): JSX.Element {
+        return (
+            <Column style={{ width: "100%" }}>
+                <div
+                    style={{
+                        width: "100%",
+                        animation: `${entranceFull} 0.25s ease-in 0.5s both`,
+                    }}
+                >
+                    <SectionHeader>Learn</SectionHeader>
+                    <WelcomeButton
+                        title="Tutor"
+                        description="Learn modal editing with an interactive tutorial."
+                        command="oni.tutor.open"
+                        selected={this.props.selectedId === "oni.tutor.open"}
+                    />
+                    <WelcomeButton
+                        title="Documentation"
+                        description="Discover what Oni can do for you."
+                        command="oni.docs.open"
+                        selected={this.props.selectedId === "oni.docs.open"}
+                    />
+                </div>
+                <div
+                    style={{
+                        width: "100%",
+                        animation: `${entranceFull} 0.25s ease-in 0.75s both`,
+                    }}
+                >
+                    <SectionHeader>Customize</SectionHeader>
+                    <WelcomeButton
+                        title="Configure"
+                        description="Make Oni work the way you want."
+                        command="oni.configuration.open"
+                        selected={this.props.selectedId === "oni.configuration.open"}
+                    />
+                    <WelcomeButton
+                        title="Themes"
+                        description="Choose a theme that works for you."
+                        command="oni.themes.open"
+                        selected={this.props.selectedId === "oni.themes.open"}
+                    />
+                </div>
+                <div
+                    style={{
+                        width: "100%",
+                        animation: `${entranceFull} 0.25s ease-in 1s both`,
+                    }}
+                >
+                    <SectionHeader>Quick Commands</SectionHeader>
+                    <WelcomeButton
+                        title="New File"
+                        description="Control + N"
+                        command="workspace.newFile"
+                        selected={this.props.selectedId === "workspace.newFile"}
+                    />
+                    <WelcomeButton
+                        title="Open File / Folder"
+                        description="Control + O"
+                        command="workspace.openFolder"
+                        selected={this.props.selectedId === "workspace.openFolder"}
+                    />
+                    <WelcomeButton
+                        title="Command Palette"
+                        description="Control + Shift + P"
+                        command="tasks.show"
+                        selected={this.props.selectedId === "tasks.show"}
+                    />
+                    <WelcomeButton
+                        title="Vim Ex Commands"
+                        description=":"
+                        command="editor.openExCommands"
+                        selected={this.props.selectedId === "editor.openExCommands"}
+                    />
+                </div>
             </Column>
         )
     }

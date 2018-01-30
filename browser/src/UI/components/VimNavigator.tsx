@@ -31,6 +31,8 @@ export interface IVimNavigatorProps {
     onSelectionChanged?: (selectedId: string) => void
 
     render: (selectedId: string) => JSX.Element
+
+    style?: React.CSSProperties
 }
 
 export interface IVimNavigatorState {
@@ -79,7 +81,7 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
         )
 
         return (
-            <div>
+            <div style={this.props.style}>
                 <div className="items">{this.props.render(this.state.selectedId)}</div>
                 {this.props.active ? inputElement : null}
             </div>

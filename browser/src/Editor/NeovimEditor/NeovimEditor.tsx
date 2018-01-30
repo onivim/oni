@@ -714,14 +714,14 @@ export class NeovimEditor extends Editor implements IEditor {
             )
         }
 
-        if (filesToOpen && filesToOpen.length > 0) {
-            await this._openFiles(filesToOpen, ":tabnew")
-        } else {
-            if (this._configuration.getValue("experimental.welcome.enabled")) {
-                const buf = await this.openFile("WELCOME")
-                buf.addLayer(new WelcomeBufferLayer())
-            }
+        // if (filesToOpen && filesToOpen.length > 0) {
+        //     await this._openFiles(filesToOpen, ":tabnew")
+        // } else {
+        if (this._configuration.getValue("experimental.welcome.enabled")) {
+            const buf = await this.openFile("WELCOME")
+            buf.addLayer(new WelcomeBufferLayer())
         }
+        // }
 
         this._actions.setLoadingComplete()
 
