@@ -5,7 +5,6 @@
  */
 
 import styled from "styled-components"
-import { withProps } from "./common"
 
 import * as React from "react"
 
@@ -15,8 +14,9 @@ export interface IKeyBindingInfoProps {
     command: string
 }
 
-const KeyWrapper = styled.div`
+const KeyWrapper = styled.span`
     color: ${props => props.theme["highlight.mode.normal.background"]};
+    font-size: 0.9em;
 `
 
 export class KeyBindingInfo extends React.PureComponent<IKeyBindingInfoProps, {}> {
@@ -42,22 +42,22 @@ export class KeyBindingInfo extends React.PureComponent<IKeyBindingInfoProps, {}
         const elems: JSX.Element[] = []
 
         if (firstChord.meta) {
-            elems.push(<KeyWrapper>{"Meta"}</KeyWrapper>)
+            elems.push(<KeyWrapper>{"meta"}</KeyWrapper>)
             elems.push(<KeyWrapper>{"+"}</KeyWrapper>)
         }
 
         if (firstChord.control) {
-            elems.push(<KeyWrapper>{"Control"}</KeyWrapper>)
+            elems.push(<KeyWrapper>{"control"}</KeyWrapper>)
             elems.push(<KeyWrapper>{"+"}</KeyWrapper>)
         }
 
         if (firstChord.alt) {
-            elems.push(<KeyWrapper>{"Alt"}</KeyWrapper>)
+            elems.push(<KeyWrapper>{"alt"}</KeyWrapper>)
             elems.push(<KeyWrapper>{"+"}</KeyWrapper>)
         }
 
         if (firstChord.shift) {
-            elems.push(<KeyWrapper>{"Shift"}</KeyWrapper>)
+            elems.push(<KeyWrapper>{"shift"}</KeyWrapper>)
             elems.push(<KeyWrapper>{"+"}</KeyWrapper>)
         }
 

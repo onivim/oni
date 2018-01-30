@@ -17,7 +17,7 @@ import * as Oni from "oni-api"
 
 import { Menu, MenuManager } from "./../Services/Menu"
 
-import { inputManager } from "./../Services/InputManager"
+import { render as renderKeyBindingInfo } from "./../UI/components/KeyBindingInfo"
 
 export interface ITask {
     name: string
@@ -54,7 +54,7 @@ export class Tasks {
                     return {
                         label: f.name,
                         detail: f.detail,
-                        additionalComponent: inputManager.getBoundKeys(f.command),
+                        additionalComponent: renderKeyBindingInfo({ command: f.command }),
                     }
                 })
 
