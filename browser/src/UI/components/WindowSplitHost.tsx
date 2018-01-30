@@ -4,8 +4,9 @@
  * React component that hosts an IEditor implementation
  */
 
-import * as Oni from "oni-api"
 import * as React from "react"
+
+import * as Oni from "oni-api"
 
 export interface IWindowSplitHostProps {
     split: Oni.IWindowSplit
@@ -16,7 +17,7 @@ export interface IWindowSplitHostProps {
 /**
  * Component responsible for rendering an individual window split
  */
-class WindowSplitHost extends React.PureComponent<IWindowSplitHostProps, {}> {
+export class WindowSplitHost extends React.PureComponent<IWindowSplitHostProps, {}> {
     public render(): JSX.Element {
         const className =
             this.props.containerClassName + (this.props.isFocused ? " focus" : " not-focused")
@@ -27,5 +28,3 @@ class WindowSplitHost extends React.PureComponent<IWindowSplitHostProps, {}> {
         )
     }
 }
-
-export default WindowSplitHost

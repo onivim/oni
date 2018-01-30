@@ -72,10 +72,15 @@ export class CursorPositionerView extends React.PureComponent<
     ICursorPositionerViewProps,
     ICursorPositionerViewState
 > {
-    public state = InitialState
     private _element: HTMLElement
     private _resizeObserver: any
     private _timeout: any
+
+    constructor(props: ICursorPositionerViewProps) {
+        super(props)
+
+        this.state = InitialState
+    }
 
     public componentDidMount(): void {
         if (this._element) {
