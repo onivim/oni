@@ -119,7 +119,7 @@ export const TestSneaks = [
     },
 ]
 
-import { OverlayWrapper } from "./../UI/components/common"
+import { boxShadow, OverlayWrapper } from "./../UI/components/common"
 
 export interface ISneakViewState {
     filterText: string
@@ -172,7 +172,6 @@ export interface ISneakItemViewProps {
 }
 
 import styled from "styled-components"
-import { boxShadow } from "./../UI/components/common"
 
 const SneakItemWrapper = styled.div`
     ${boxShadow} background-color: ${props => props.theme["highlight.mode.visual.background"]};
