@@ -9,9 +9,9 @@ import * as path from "path"
 import { remote } from "electron"
 
 export const test = async (oni: any) => {
-    const shortDelay = async () => await oni.automation.sleep(500)
+    const shortDelay = async () => oni.automation.sleep(500)
 
-    const longDelay = async () => await oni.automation.sleep(1000)
+    const longDelay = async () => oni.automation.sleep(1000)
 
     const simulateTyping = async (keys: string) => {
         for (const key of keys) {

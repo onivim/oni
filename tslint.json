@@ -1,10 +1,14 @@
 {
     "extends": "tslint:latest",
+    "cliOptions": {
+        "exclude": ["test/ci/*.js"]
+    },
     "rules": {
         "align": false,
         "arrow-parens": [false],
         "max-classes-per-file": [false],
         "max-line-length": [false],
+        "no-implicit-dependencies": false,
         "no-object-literal-type-assertion": false,
         "no-submodule-imports": false,
         "no-reference": false,

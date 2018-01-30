@@ -152,8 +152,8 @@ export class OniEditor implements IEditor {
         this._neovimEditor.leave()
     }
 
-    public async openFile(file: string): Promise<Oni.Buffer> {
-        return this._neovimEditor.openFile(file)
+    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
+        return this._neovimEditor.openFile(file, method)
     }
 
     public async newFile(filePath: string): Promise<Oni.Buffer> {
@@ -166,6 +166,14 @@ export class OniEditor implements IEditor {
 
     public executeCommand(command: string): void {
         this._neovimEditor.executeCommand(command)
+    }
+
+    public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
+        return this._neovimEditor.getBuffers()
+    }
+
+    public async bufferDelete(bufferId: string = this.activeBuffer.id): Promise<void> {
+        this._neovimEditor.bufferDelete(bufferId)
     }
 
     public async init(filesToOpen: string[]): Promise<void> {
