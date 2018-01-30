@@ -20,17 +20,11 @@ export interface ISneakInfo {
     callback: () => void
 }
 
-// TODO: Add way to explicitly add 'overlay' in Shell
-
 export interface IAugmentedSneakInfo extends ISneakInfo {
     triggerKeys: string
 }
 
 export type SneakProvider = () => ISneakInfo[]
-
-// TODO:
-// - Add shell overlay method
-// - Refactor MenuContainer to use new ShellOverlay method
 
 export class Sneak {
     private _activeOverlay: Overlay
@@ -46,7 +40,6 @@ export class Sneak {
 
     public show(): void {
         const rects = this._collectSneakRectangles()
-        console.dir(rects)
 
         const augmentedRects = this._augmentSneakRectangles(rects)
 
@@ -61,12 +54,6 @@ export class Sneak {
             <SneakView sneaks={augmentedRects} onComplete={info => this._onComplete(info)} />,
         )
         this._activeOverlay.show()
-
-        // Just add overlay show / hide actions
-        // const overlay = Shell.createOverlay()
-
-        // Build up augmented sneak rectangles
-        // Send to UI
     }
 
     private _onComplete(sneakInfo: ISneakInfo): void {

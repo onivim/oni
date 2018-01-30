@@ -14,8 +14,8 @@ import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
 
-import { Icon } from "./../../UI/Icon"
 import { Sneakable } from "./../../UI/components/Sneakable"
+import { Icon } from "./../../UI/Icon"
 
 import { FileIcon } from "./../../Services/FileIcon"
 
