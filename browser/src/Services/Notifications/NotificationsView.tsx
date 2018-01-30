@@ -21,14 +21,11 @@ export interface NotificationsViewProps {
 }
 
 const Transition = (props: { children: any }) => {
-     return <CSSTransition
-    {...props}
-    timeout={1000}
-    classNames="notification"
-  >
-    {props.children}
-  </CSSTransition>
-
+    return (
+        <CSSTransition {...props} timeout={1000} classNames="notification">
+            {props.children}
+        </CSSTransition>
+    )
 }
 
 const NotificationsWrapper = styled.div`
@@ -39,15 +36,19 @@ const NotificationsWrapper = styled.div`
 
 export class NotificationsView extends React.PureComponent<NotificationsViewProps, {}> {
     public render(): JSX.Element {
-        return  <NotificationsWrapper>
-            <TransitionGroup>
-            {this.props.notifications.map((notification) => {
-                return <Transition>
-                    <NotificationView {...notification} key={notification.id} />
-                        </Transition>
-            })}
+        return (
+            <NotificationsWrapper>
+                <TransitionGroup>
+                    {this.props.notifications.map(notification => {
+                        return (
+                            <Transition>
+                                <NotificationView {...notification} key={notification.id} />
+                            </Transition>
+                        )
+                    })}
                 </TransitionGroup>
             </NotificationsWrapper>
+        )
     }
 }
 
@@ -77,6 +78,10 @@ const NotificationWrapper = styled.div`
 
     &.notification-enter {
         animation: ${frames} 0.25s ease-in;
+    }
+
+    &.notification-exit {
+        animation: ${frames} 0.25s ease-in both reverse;
     }
 
     &:hover {
@@ -121,7 +126,8 @@ const NotificationDescription = styled.div`
 
 export class NotificationView extends React.PureComponent<INotification, {}> {
     public render(): JSX.Element {
-        return <NotificationWrapper key={this.props.id}>
+        return (
+            <NotificationWrapper key={this.props.id} onClick={this.props.onClick}>
                 <NotificationIconWrapper>
                     <Icon size={IconSize.Large} name="exclamation-triangle" />
                 </NotificationIconWrapper>
@@ -129,15 +135,16 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
                     <NotificationTitle>{this.props.title}</NotificationTitle>
                     <NotificationDescription>{this.props.detail}</NotificationDescription>
                 </NotificationContents>
-                <NotificationIconWrapper>
+                <NotificationIconWrapper onClick={() => this.props.onClose}>
                     <Icon size={IconSize.Large} name="times" />
                 </NotificationIconWrapper>
             </NotificationWrapper>
+        )
     }
 }
 
 export const mapStateToProps = (state: INotificationsState): NotificationsViewProps => {
-    const objs = Object.keys(state.notifications).map((key) => state.notifications[key])
+    const objs = Object.keys(state.notifications).map(key => state.notifications[key])
 
     const activeNotifications = objs.filter(o => o !== null)
 
@@ -148,4 +155,8 @@ export const mapStateToProps = (state: INotificationsState): NotificationsViewPr
 
 const NotificationsContainer = connect(mapStateToProps)(NotificationsView)
 
-export const getView = (store: any) => <Provider store={store}><NotificationsContainer /></Provider>
+export const getView = (store: any) => (
+    <Provider store={store}>
+        <NotificationsContainer />
+    </Provider>
+)

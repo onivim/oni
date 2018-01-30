@@ -6,6 +6,8 @@
 
 import { Store } from "redux"
 
+import { Event, IEvent } from "oni-types"
+
 import { INotificationsState, NotificationLevel } from "./NotificationStore"
 
 export class Notification {
@@ -13,10 +15,18 @@ export class Notification {
     private _detail: string = ""
     private _level: NotificationLevel = "info"
 
-    constructor(
-        private _id: string,
-        private _store: Store<INotificationsState>,
-    ) { }
+    private _onClickEvent = new Event<void>()
+    private _onCloseEvent = new Event<void>()
+
+    public get onClick(): IEvent<void> {
+        return this._onClickEvent
+    }
+
+    public get onClose(): IEvent<void> {
+        return this._onCloseEvent
+    }
+
+    constructor(private _id: string, private _store: Store<INotificationsState>) {}
 
     public setContents(title: string, detail: string): void {
         this._title = title
@@ -34,6 +44,14 @@ export class Notification {
             title: this._title,
             detail: this._detail,
             level: this._level,
+            onClick: () => {
+                this._onClickEvent.dispatch()
+                this.hide()
+            },
+            onClose: () => {
+                this._onCloseEvent.dispatch()
+                this.hide()
+            },
         })
     }
 
