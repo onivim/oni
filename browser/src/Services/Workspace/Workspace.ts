@@ -6,7 +6,9 @@
  */
 
 import { remote } from "electron"
+import * as findup from "find-up"
 import { stat } from "fs"
+import * as path from "path"
 import { promisify } from "util"
 
 import "rxjs/add/observable/defer"
@@ -59,6 +61,11 @@ export class Workspace implements IWorkspace {
             this._lastActiveBuffer = this._editorManager.activeEditor.activeBuffer
             this._onFocusLostEvent.dispatch(this._lastActiveBuffer)
         })
+
+        console.log(" _editorManager: ", _editorManager)
+        _editorManager.allEditors.onBufferEnter.subscribe(buffer =>
+            this.navigateToProjectRoot(buffer.filePath),
+        )
     }
 
     public get onDirectoryChanged(): IEvent<string> {
@@ -126,6 +133,17 @@ export class Workspace implements IWorkspace {
         } catch (error) {
             Log.info(error)
             return false
+        }
+    }
+
+    public navigateToProjectRoot = async (bufferPath: string) => {
+        const projectMarkers = [".git", ".svn", "package.json", ".hg", ".bzr", "build.xml"]
+        const filePath = await findup(projectMarkers, bufferPath)
+        // FIXME: Find up searches all the way up to the home directory
+        if (filePath) {
+            const dir = path.dirname(filePath)
+            // console.log('dir ============================: ', dir);
+            process.chdir(dir)
         }
     }
 }
