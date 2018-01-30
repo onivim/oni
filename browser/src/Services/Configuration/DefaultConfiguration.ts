@@ -248,7 +248,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "menu.caseSensitive": "smart",
     "menu.rowHeight": 40,
-    "menu.maxItemsToShow": 6,
+    "menu.maxItemsToShow": 8,
 
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
