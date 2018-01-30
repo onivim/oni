@@ -714,6 +714,7 @@ export class NeovimEditor extends Editor implements IEditor {
             )
         }
 
+        this._workspace.autoDetectWorkspace()
         if (filesToOpen && filesToOpen.length > 0) {
             await this._openFiles(filesToOpen, ":tabnew")
         } else {

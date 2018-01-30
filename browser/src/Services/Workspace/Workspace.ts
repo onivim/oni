@@ -52,7 +52,7 @@ export class Workspace implements IWorkspace {
         return this._activeWorkspace
     }
 
-    constructor(private _editorManager: EditorManager) {
+    constructor(private _editorManager: EditorManager, private _configuration: Configuration) {
         this._mainWindow.on("focus", () => {
             this._onFocusGainedEvent.dispatch(this._lastActiveBuffer)
         })
@@ -61,11 +61,6 @@ export class Workspace implements IWorkspace {
             this._lastActiveBuffer = this._editorManager.activeEditor.activeBuffer
             this._onFocusLostEvent.dispatch(this._lastActiveBuffer)
         })
-
-        console.log(" _editorManager: ", _editorManager)
-        _editorManager.allEditors.onBufferEnter.subscribe(buffer =>
-            this.navigateToProjectRoot(buffer.filePath),
-        )
     }
 
     public get onDirectoryChanged(): IEvent<string> {
@@ -137,13 +132,30 @@ export class Workspace implements IWorkspace {
     }
 
     public navigateToProjectRoot = async (bufferPath: string) => {
-        const projectMarkers = [".git", ".svn", "package.json", ".hg", ".bzr", "build.xml"]
-        const filePath = await findup(projectMarkers, bufferPath)
-        // FIXME: Find up searches all the way up to the home directory
+        const projectMarkers = this._configuration.getValue("workspace.autoDetectRootFiles")
+        const cwd = path.dirname(bufferPath)
+        const filePath = await findup(projectMarkers, { cwd })
         if (filePath) {
             const dir = path.dirname(filePath)
-            // console.log('dir ============================: ', dir);
             process.chdir(dir)
+            this._activeWorkspace = dir
+            this._onDirectoryChangedEvent.dispatch(dir)
+        }
+    }
+
+    public autoDetectWorkspace() {
+        const { filePath } = this._editorManager.activeEditor.activeBuffer
+        const settings = this._configuration.getValue("workspace.autoDetectWorkspace")
+        switch (settings) {
+            case "never":
+                return null
+            case "always":
+                return this._editorManager.activeEditor.onBufferEnter.subscribe(buffer =>
+                    this.navigateToProjectRoot(buffer.filePath),
+                )
+            case "noworkspace":
+            default:
+                return !this._activeWorkspace ? this.navigateToProjectRoot(filePath) : null
         }
     }
 }
@@ -152,7 +164,7 @@ let _workspace: Workspace = null
 let _workspaceConfiguration: WorkspaceConfiguration = null
 
 export const activate = (configuration: Configuration, editorManager: EditorManager): void => {
-    _workspace = new Workspace(editorManager)
+    _workspace = new Workspace(editorManager, configuration)
 
     _workspaceConfiguration = new WorkspaceConfiguration(configuration, _workspace)
 

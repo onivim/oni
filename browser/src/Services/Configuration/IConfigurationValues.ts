@@ -16,6 +16,7 @@ export interface ITokenColorsSetting {
 }
 
 export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiased" | "none"
+export type DetectionSettings = "always" | "noworkspace" | "never"
 
 export interface IConfigurationValues {
     activate: (oni: Oni.Plugin.Api) => void
@@ -247,6 +248,8 @@ export interface IConfigurationValues {
     // Path to the default workspace. The default workspace
     // will be opened if no workspace is specified in configuration.
     "workspace.defaultWorkspace": string
+    "workspace.autoDetectWorkspace": DetectionSettings
+    "workspace.autoDetectRootFiles": string[]
 
     // Handle other, non-predefined configuration keys
     [configurationKey: string]: any

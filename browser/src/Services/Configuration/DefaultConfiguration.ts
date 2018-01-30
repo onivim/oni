@@ -282,6 +282,16 @@ const BaseConfiguration: IConfigurationValues = {
     "ui.fontSmoothing": "auto",
 
     "workspace.defaultWorkspace": null,
+    "workspace.autoDetectWorkspace": "noworkspace",
+    "workspace.autoDetectRootFiles": [
+        ".git",
+        "node_modules",
+        ".svn",
+        "package.json",
+        ".hg",
+        ".bzr",
+        "build.xml",
+    ],
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {
