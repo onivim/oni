@@ -1,6 +1,8 @@
 import * as React from "react"
 import { connect, Provider } from "react-redux"
 
+import styled from "styled-components"
+
 import { AutoSizer, List } from "react-virtualized"
 
 import * as Oni from "oni-api"
@@ -14,6 +16,8 @@ import { focusManager } from "./../FocusManager"
 import { IMenuOptionWithHighlights, menuStore } from "./Menu"
 import * as ActionCreators from "./MenuActionCreators"
 import * as State from "./MenuState"
+
+import { withProps } from "./../../UI/components/common"
 
 import { TextInputView } from "./../../UI/components/LightweightText"
 
@@ -187,6 +191,35 @@ export interface IMenuItemProps {
     height: number
 }
 
+export interface IMenuItemWrapperProps {
+    isSelected: boolean
+}
+
+const MenuItemWrapper = withProps<IMenuItemWrapperProps>(styled.div)`
+    position: absolute;
+    top: 4px;
+    left: 0px;
+    right: 4px;
+    bottom: 4px;
+
+    border-left: ${props =>
+        props.isSelected
+            ? "4px solid " + props.theme["highlight.mode.normal.background"]
+            : "4px solid transparent"};
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    user-select: none;
+    -webkit-user-drag:none;
+    cursor: pointer;
+    font-size: 1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`
+
 export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
     public render(): JSX.Element {
         let className = "item"
@@ -203,7 +236,8 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
             )
 
         return (
-            <div
+            <MenuItemWrapper
+                isSelected={this.props.isSelected}
                 className={className}
                 onClick={() => this.props.onClick()}
                 style={{ height: this.props.height + "px" }}
@@ -224,7 +258,7 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
                 <Visible visible={this.props.pinned}>
                     <Icon name="clock-o" />
                 </Visible>
-            </div>
+            </MenuItemWrapper>
         )
     }
 }
