@@ -17,6 +17,7 @@ import * as State from "./MenuState"
 
 import { MenuContainer } from "./MenuComponent"
 
+import { Configuration } from "./../Configuration"
 import { Overlay, OverlayManager } from "./../Overlay"
 
 export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
@@ -43,10 +44,14 @@ export class MenuManager {
     private _id: number = 0
     private _overlay: Overlay
 
-    constructor(private _overlayManager: OverlayManager) {
+    constructor(private _configuration: Configuration, private _overlayManager: OverlayManager) {
         this._overlay = this._overlayManager.createItem()
         this._overlay.setContents(MenuContainer())
         this._overlay.show()
+
+        this._configuration.onConfigurationChanged.subscribe(() => {
+            console.log("changed")
+        })
     }
 
     public create(): Menu {

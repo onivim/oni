@@ -47,21 +47,6 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
             return null
         }
 
-        // TODO: sync max display items (10) with value in Reducer.popupMenuReducer() (Reducer.ts)
-        // const initialItems = take(this.props.items, 10)
-
-        // const initialItems = this.props.items
-        // const pinnedItems = initialItems.filter(f => f.pinned)
-        // const unpinnedItems = initialItems.filter(f => !f.pinned)
-        // const items = initialItems.map((menuItem, index) =>
-        //     // FIXME: undefined
-        //     <MenuItem {...menuItem as any}
-        //         key={index}
-        //         filterText={this.props.filterText}
-        //         isSelected={index === this.props.selectedIndex}
-        //         onClick={() => this.props.onSelect(index)}
-        //     />)
-
         const rowRenderer = (props: { key: string; index: number; style: React.CSSProperties }) => {
             const item = this.props.items[props.index]
             return (
@@ -163,8 +148,8 @@ const mapStateToProps = (
             foregroundColor: popupMenu.foregroundColor,
             onSelect: popupMenu.onSelectItem,
             isLoading: popupMenu.isLoading,
-            rowHeight: 50,
-            maxItemsToShow: 6,
+            rowHeight: state.configuration.rowHeight,
+            maxItemsToShow: state.configuration.maxItemsToShow,
         }
     }
 }
