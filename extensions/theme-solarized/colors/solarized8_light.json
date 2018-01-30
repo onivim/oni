@@ -1,45 +1,45 @@
 {
-  "name": "solarized8_light",
-  "baseVimTheme": "solarized8_light",
-  "colors": {
-    "background": "#073642",
-    "foreground": "#839496",
+    "name": "solarized8_light",
+    "baseVimTheme": "solarized8_light",
+    "colors": {
+        "background": "#073642",
+        "foreground": "#839496",
 
-    "title.background": "#002b36",
-    "title.foreground": "#839496",
+        "title.background": "#002b36",
+        "title.foreground": "#839496",
 
-    "editor.background": "#002b36",
-    "editor.foreground": "#586e75",
+        "editor.background": "#002b36",
+        "editor.foreground": "#586e75",
 
-    "tabs.background": "#002b36",
-    "tabs.foreground": "#839496",
+        "tabs.background": "#002b36",
+        "tabs.foreground": "#839496",
 
-    "toolTip.background": "#002b36",
-    "toolTip.foreground": "#839496",
-    "toolTip.border": "#505050",
+        "toolTip.background": "#002b36",
+        "toolTip.foreground": "#839496",
+        "toolTip.border": "#505050",
 
-    "menu.background": "#002b36",
-    "menu.foreground": "#839496",
-    "menu.border": "#505050",
+        "menu.background": "#002b36",
+        "menu.foreground": "#839496",
+        "menu.border": "#505050",
 
-    "contextMenu.background": "#002b36",
-    "contextMenu.foreground": "#839496",
-    "contextMenu.border": "#505050",
-    "contextMenu.highlight": "#3F4652",
+        "contextMenu.background": "#002b36",
+        "contextMenu.foreground": "#839496",
+        "contextMenu.border": "#505050",
+        "contextMenu.highlight": "#3F4652",
 
-    "statusBar.background": "#839496",
-    "statusBar.foreground": "#073642",
+        "statusBar.background": "#839496",
+        "statusBar.foreground": "#073642",
 
-    "highlight.mode.insert.background": "#2aa198",
-    "highlight.mode.insert.foreground": "#fdf6e3",
+        "highlight.mode.insert.background": "#2aa198",
+        "highlight.mode.insert.foreground": "#fdf6e3",
 
-    "highlight.mode.normal.background": "#839496",
-    "highlight.mode.normal.foreground": "#fdf6e3",
+        "highlight.mode.normal.background": "#839496",
+        "highlight.mode.normal.foreground": "#fdf6e3",
 
-    "highlight.mode.operator.background": "#d19a66",
-    "highlight.mode.operator.foreground": "#fdf6e3",
+        "highlight.mode.operator.background": "#d19a66",
+        "highlight.mode.operator.foreground": "#fdf6e3",
 
-    "highlight.mode.visual.background": "#d33682",
-    "highlight.mode.visual.foreground": "#fdf6e3"
-  }
+        "highlight.mode.visual.background": "#d33682",
+        "highlight.mode.visual.foreground": "#fdf6e3"
+    }
 }
