@@ -6,7 +6,7 @@ import * as React from "react"
 import { connect, Provider } from "react-redux"
 import styled from "styled-components"
 
-import { IEvent, Event, IDisposable } from "oni-types"
+import { Event, IDisposable, IEvent } from "oni-types"
 
 import { enableMouse, withProps } from "./../../UI/components/common"
 
