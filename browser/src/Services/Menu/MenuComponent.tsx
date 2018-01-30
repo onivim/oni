@@ -26,6 +26,9 @@ export interface IMenuProps {
     items: IMenuOptionWithHighlights[]
     isLoading: boolean
 
+    rowHeight: number
+    maxItemsToShow: number
+
     backgroundColor: string
     foregroundColor: string
 }
@@ -81,6 +84,9 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
 
         const footerClassName = "footer " + (this.props.isLoading ? "loading" : "loaded")
 
+        const height =
+            Math.min(this.props.items.length, this.props.maxItemsToShow) * this.props.rowHeight
+
         return (
             <div className="menu-background enable-mouse">
                 <div className="menu" style={menuStyle}>
@@ -97,9 +103,9 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
                                     <List
                                         scrollToIndex={this.props.selectedIndex}
                                         width={width}
-                                        height={300}
+                                        height={height}
                                         rowCount={this.props.items.length}
-                                        rowHeight={50}
+                                        rowHeight={this.props.rowHeight}
                                         rowRenderer={rowRenderer}
                                     />
                                 )}
@@ -128,19 +134,24 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
 
 const EmptyArray: any[] = []
 const noop = () => {} // tslint:disable-line
+const NullProps: any = {
+    visible: false,
+    selectedIndex: 0,
+    filterText: "",
+    items: EmptyArray,
+    backgroundColor: "black",
+    foregroundColor: "white",
+    onSelect: noop,
+    isLoading: true,
+    rowHeight: 0,
+    maxItemsToShow: 0,
+}
 
-const mapStateToProps = (state: State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlights>) => {
+const mapStateToProps = (
+    state: State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlights>,
+): any => {
     if (!state.menu) {
-        return {
-            visible: false,
-            selectedIndex: 0,
-            filterText: "",
-            items: EmptyArray,
-            backgroundColor: "black",
-            foregroundColor: "white",
-            onSelect: noop,
-            isLoading: true,
-        }
+        return NullProps
     } else {
         const popupMenu = state.menu
         return {
@@ -152,11 +163,13 @@ const mapStateToProps = (state: State.IMenus<Oni.Menu.MenuOption, IMenuOptionWit
             foregroundColor: popupMenu.foregroundColor,
             onSelect: popupMenu.onSelectItem,
             isLoading: popupMenu.isLoading,
+            rowHeight: 50,
+            maxItemsToShow: 6,
         }
     }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: any): any => {
     const dispatchFilterText = (text: string) => {
         dispatch(ActionCreators.filterMenu(text))
     }
@@ -166,7 +179,7 @@ const mapDispatchToProps = (dispatch: any) => {
     }
 }
 
-export const ConnectedMenu = connect(mapStateToProps, mapDispatchToProps)(MenuView)
+export const ConnectedMenu: any = connect(mapStateToProps, mapDispatchToProps)(MenuView)
 
 export const MenuContainer = () => {
     return (
