@@ -8,6 +8,8 @@ import * as React from "react"
 
 import styled, { keyframes } from "styled-components"
 
+import { inputManager, InputManager } from "./../../Services/InputManager"
+
 import * as Oni from "oni-api"
 
 import { withProps } from "./../../UI/components/common"
@@ -167,10 +169,14 @@ export class WelcomeBufferLayer implements Oni.EditorLayer {
                 className="enable-mouse"
                 style={{ animation: `${entranceFull} 0.25s ease-in 0.1s forwards` }}
             >
-                <WelcomeView />
+                <WelcomeView inputManager={inputManager} />
             </WelcomeWrapper>
         )
     }
+}
+
+export interface WelcomeViewProps {
+    inputManager: InputManager
 }
 
 export interface WelcomeViewState {
@@ -179,8 +185,8 @@ export interface WelcomeViewState {
 
 import { getMetadata } from "./../../Services/Metadata"
 
-export class WelcomeView extends React.PureComponent<{}, WelcomeViewState> {
-    constructor(props: any) {
+export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeViewState> {
+    constructor(props: WelcomeViewProps) {
         super(props)
 
         this.state = {
@@ -282,7 +288,9 @@ export class WelcomeView extends React.PureComponent<{}, WelcomeViewState> {
                             />
                             <WelcomeButton
                                 title="Command Palette"
-                                description="Control + Shift + P"
+                                description={
+                                    this.props.inputManager.getBoundKeys("commands.show")[0]
+                                }
                                 command="oni.configuration.open"
                             />
                             <WelcomeButton
