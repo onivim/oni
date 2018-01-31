@@ -189,6 +189,8 @@ export interface IConfigurationValues {
     // - if `'smart'`, is case sensitive if the query string
     //   contains uppercase characters
     "menu.caseSensitive": string | boolean
+    "menu.rowHeight": number
+    "menu.maxItemsToShow": number
 
     // Output path to save screenshots and recordings
     "recorder.outputPath": string
