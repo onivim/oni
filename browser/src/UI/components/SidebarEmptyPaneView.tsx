@@ -59,6 +59,7 @@ const ButtonContainer = withProps<ButtonContainerProps>(styled.div)`
 `
 
 import { VimNavigator } from "./VimNavigator"
+import { Sneakable } from "./Sneakable"
 
 export interface IOniButtonProps {
     text: string
@@ -68,9 +69,11 @@ export interface IOniButtonProps {
 export class OniButton extends React.PureComponent<IOniButtonProps, {}> {
     public render(): JSX.Element {
         return (
-            <ButtonWrapper onClick={this.props.onClick}>
-                <span>{this.props.text}</span>
-            </ButtonWrapper>
+            <Sneakable callback={this.props.onClick}>
+                <ButtonWrapper onClick={this.props.onClick}>
+                    <span>{this.props.text}</span>
+                </ButtonWrapper>
+            </Sneakable>
         )
     }
 }
