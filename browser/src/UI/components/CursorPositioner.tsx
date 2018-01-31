@@ -251,8 +251,8 @@ const mapStateToProps = (
         fontPixelWidth: state.fontPixelWidth,
         x: x - state.fontPixelWidth / 2,
         y: y - state.fontPixelHeight,
-        containerWidth: state.viewport.focusedEditor.width,
-        containerHeight: state.viewport.focusedEditor.height,
+        containerWidth: state.viewport.width,
+        containerHeight: state.viewport.height,
         lineHeight,
         backgroundColor,
     }

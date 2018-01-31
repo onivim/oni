@@ -54,20 +54,14 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
     public componentDidMount(): void {
         // tslint:disable-next-line
         this.observer = new window["ResizeObserver"](([entry]: any) => {
-            const editorDimensions = {
-                width: entry.contentRect.width,
-                height: entry.contentRect.height,
-            }
-            this.setDimensions(editorDimensions)
+            this.setDimensions(entry.contentRect.width, entry.contentRect.height)
         })
 
         this.observer.observe(this._editor)
     }
 
-    public setDimensions = (editorDimensions: any) => {
-        const height = document.body.clientHeight
-        const width = document.body.clientWidth
-        this.props.setViewport(width, height, editorDimensions)
+    public setDimensions = (width: number, height: number) => {
+        this.props.setViewport(width, height)
     }
 
     public render(): JSX.Element {
