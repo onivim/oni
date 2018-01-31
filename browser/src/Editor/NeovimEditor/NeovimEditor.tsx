@@ -66,7 +66,7 @@ import { Workspace } from "./../../Services/Workspace"
 
 import { Editor, IEditor } from "./../Editor"
 
-import { BufferManager } from "./../BufferManager"
+import { BufferManager, IBuffer } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
@@ -180,7 +180,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
         this._neovimInstance = new NeovimInstance(100, 100, this._configuration)
-        this._bufferManager = new BufferManager(this._neovimInstance, this._actions)
+        this._bufferManager = new BufferManager(this._neovimInstance, this._actions, this._store)
         this._screen = new NeovimScreen()
 
         this._hoverRenderer = new HoverRenderer(
@@ -793,6 +793,14 @@ export class NeovimEditor extends Editor implements IEditor {
     public async input(key: string): Promise<void> {
         if (this._configuration.getValue("debug.fakeLag.neovimInput")) {
             await sleep(this._configuration.getValue("debug.fakeLag.neovimInput"))
+        }
+
+        // Check if any of the buffer layers can handle the input...
+        const buf: IBuffer = this.activeBuffer as IBuffer
+        const result = buf.handleInput(key)
+
+        if (result) {
+            return
         }
 
         await this._neovimInstance.input(key)
