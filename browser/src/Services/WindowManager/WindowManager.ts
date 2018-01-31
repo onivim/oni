@@ -17,6 +17,17 @@ import { RelationalSplitNavigator } from "./RelationalSplitNavigator"
 import { WindowDock } from "./WindowDock"
 import { ISplitInfo } from "./WindowState"
 
+const invertDirection = (direction: SplitDirection): SplitDirection => {
+    switch (direction) {
+        case "horizontal":
+            return "vertical"
+        case "vertical":
+            return "horizontal"
+        default:
+            return null
+    }
+}
+
 export class WindowManager {
     private _activeSplit: any
 
@@ -72,7 +83,10 @@ export class WindowManager {
         newSplit: Oni.IWindowSplit,
         referenceSplit?: Oni.IWindowSplit,
     ) {
-        this._primarySplit.split(newSplit, direction, referenceSplit)
+        // The directions of the 'splits' are reverse from the vim directions
+        const invertedDirection = invertDirection(direction)
+
+        this._primarySplit.split(newSplit, invertedDirection, referenceSplit)
         const newState = this._primarySplit.getState() as ISplitInfo<Oni.IWindowSplit>
 
         this._onSplitChanged.dispatch(newState)
