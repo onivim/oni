@@ -3,7 +3,7 @@
     "author": "",
     "email": "bryphe@outlook.com",
     "homepage": "https://www.onivim.io",
-    "version": "0.2.21",
+    "version": "0.2.22",
     "description": "NeoVim front-end with IDE-style extensibility",
     "keywords": ["vim", "neovim", "text", "editor", "ide", "vim"],
     "main": "./lib/main/src/main.js",
@@ -158,7 +158,7 @@
         "lint:plugin:oni-layer-browser":
             "tslint --project extensions/oni-layer-browser/tsconfig.json --config tslint.json",
         "lint:browser":
-            "tslint --project browser/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+            "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
         "lint:test":
             "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
@@ -205,8 +205,8 @@
         "marked": "^0.3.6",
         "minimist": "1.2.0",
         "msgpack-lite": "0.1.26",
-        "ocaml-language-server": "1.0.12",
-        "oni-api": "0.0.24",
+        "ocaml-language-server": "^1.0.21",
+        "oni-api": "^0.0.26",
         "oni-neovim-binaries": "0.1.0",
         "oni-ripgrep": "0.0.3",
         "oni-types": "0.0.4",
@@ -295,7 +295,7 @@
         "style-loader": "0.18.2",
         "sudo-prompt": "7.1.1",
         "ts-loader": "2.3.2",
-        "tslint": "5.7.0",
+        "tslint": "5.9.1",
         "vscode-snippet-parser": "0.0.5",
         "wcwidth": "1.0.1",
         "webdriverio": "4.8.0",

@@ -8,18 +8,9 @@
         "allowJs": true,
         "outDir": "../lib_test",
         "jsx": "react",
-        "lib": [
-            "dom",
-            "es2017"
-        ],
+        "lib": ["dom", "es2017"],
         "skipLibCheck": true
     },
-    "include": [
-        "**/*.tsx",
-        "**/*.ts",
-        "**/*.js"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+    "include": ["**/*.tsx", "**/*.ts", "**/*.js"],
+    "exclude": ["node_modules"]
 }

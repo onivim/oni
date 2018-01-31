@@ -170,7 +170,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Open Folder…",
                 click(item, focusedWindow) {
-                    executeOniCommand(focusedWindow, "oni.openFolder")
+                    executeOniCommand(focusedWindow, "workspace.openFolder")
                 },
             },
             reopenWithEncoding,

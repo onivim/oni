@@ -30,13 +30,13 @@ export const activateCommands = (
         remote.dialog.showOpenDialog(
             remote.getCurrentWindow(),
             dialogOptions,
-            (folder: string[]) => {
+            async (folder: string[]) => {
                 if (!folder || !folder[0]) {
                     return
                 }
 
                 const folderToOpen = folder[0]
-                workspace.changeDirectory(folderToOpen)
+                await workspace.changeDirectory(folderToOpen)
             },
         )
     }
@@ -97,7 +97,6 @@ export const activateCommands = (
             "Workspace: Open Folder",
             "Set a folder as the working directory for Oni",
             () => openFolder(),
-            () => !!!workspace.activeWorkspace,
         ),
         new CallbackCommand(
             "workspace.openTestFile",
@@ -117,7 +116,7 @@ export const activateCommands = (
             "workspace.closeFolder",
             "Workspace: Close Folder",
             "Close the current folder",
-            () => workspace.changeDirectory(null),
+            async () => workspace.changeDirectory(null),
             () => !!workspace.activeWorkspace,
         ),
     ]

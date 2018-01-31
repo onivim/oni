@@ -6,6 +6,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
+import styled from "styled-components"
 // import { IEvent } from "oni-types"
 
 // import { KeyboardInputView } from "./../../Input/KeyboardInput"
@@ -50,10 +51,36 @@ export class FileView extends React.PureComponent<IFileViewProps, {}> {
 export interface INodeViewProps {
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
+    onClick: () => void
+}
+
+const NodeWrapper = styled.div`
+    &:hover {
+        text-decoration: underline;
+    }
+`
+
+// tslint:disable-next-line
+const noop = (elem: HTMLElement) => {}
+const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
+    // tslint:disable-next-line
+    elem && elem["scrollIntoViewIfNeeded"] && elem["scrollIntoViewIfNeeded"]()
 }
 
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     public render(): JSX.Element {
+        return (
+            <NodeWrapper
+                style={{ cursor: "pointer" }}
+                onClick={() => this.props.onClick()}
+                innerRef={this.props.isSelected ? scrollIntoViewIfNeeded : noop}
+            >
+                {this.getElement()}
+            </NodeWrapper>
+        )
+    }
+
+    public getElement(): JSX.Element {
         const node = this.props.node
 
         switch (node.type) {
@@ -129,6 +156,7 @@ export class ContainerView extends React.PureComponent<IContainerViewProps, {}> 
 
 export interface IExplorerViewContainerProps {
     onSelectionChanged: (id: string) => void
+    onClick: (id: string) => void
 }
 
 export interface IExplorerViewProps extends IExplorerViewContainerProps {
@@ -147,7 +175,11 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                 onSelectionChanged={this.props.onSelectionChanged}
                 render={(selectedId: string) => {
                     const nodes = this.props.nodes.map(node => (
-                        <NodeView node={node} isSelected={node.id === selectedId} />
+                        <NodeView
+                            node={node}
+                            isSelected={node.id === selectedId}
+                            onClick={() => this.props.onClick(node.id)}
+                        />
                     ))
 
                     return (

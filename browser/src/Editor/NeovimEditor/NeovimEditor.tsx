@@ -369,6 +369,14 @@ export class NeovimEditor extends Editor implements IEditor {
             this._bufferManager.updateBufferFromEvent(current)
         })
 
+        this._neovimInstance.autoCommands.onBufDelete.subscribe((evt: BufferEventContext) =>
+            this._onBufDelete(evt),
+        )
+
+        this._neovimInstance.autoCommands.onBufUnload.subscribe((evt: BufferEventContext) =>
+            this._onBufUnload(evt),
+        )
+
         this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: BufferEventContext) =>
             this._onBufEnter(evt),
         )
@@ -390,8 +398,8 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.setNeovimError(true)
         })
 
-        this._neovimInstance.onDirectoryChanged.subscribe(newDirectory => {
-            this._workspace.changeDirectory(newDirectory)
+        this._neovimInstance.onDirectoryChanged.subscribe(async newDirectory => {
+            await this._workspace.changeDirectory(newDirectory)
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -647,8 +655,21 @@ export class NeovimEditor extends Editor implements IEditor {
         await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
     }
 
-    public async openFile(file: string): Promise<Oni.Buffer> {
-        await this._neovimInstance.command(":e " + file)
+    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
+        const cmd = new Proxy(
+            {
+                tab: "taball!",
+                horizontal: "sp!",
+                vertical: "vsp!",
+                edit: "e!",
+            },
+            {
+                get: (target: { [cmd: string]: string }, name: string) =>
+                    name in target ? target[name] : "e!",
+            },
+        )
+
+        await this._neovimInstance.command(`:${cmd[method]} ${file}`)
         return this.activeBuffer
     }
 
@@ -709,6 +730,23 @@ export class NeovimEditor extends Editor implements IEditor {
         this._hasLoaded = true
         this._isFirstRender = true
         this._scheduleRender()
+    }
+
+    public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
+        return this._bufferManager.getBuffers()
+    }
+
+    public async bufferDelete(bufferId: string = this.activeBuffer.id): Promise<void> {
+        // FIXME: currently this command forces a bufEnter event by navigating away
+        // from the closed buffer which is currently the only means of updating Oni
+        // post a BufDelete event
+        await this._neovimInstance.command(`bd ${bufferId}`)
+        if (bufferId === "%" || bufferId === this.activeBuffer.id) {
+            await this._neovimInstance.command(`bnext`)
+        } else {
+            await this._neovimInstance.command(`bnext`)
+            await this._neovimInstance.command(`bprev`)
+        }
     }
 
     public render(): JSX.Element {
@@ -820,6 +858,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
+        this._bufferManager.populateBufferList(evt)
 
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
@@ -860,7 +899,18 @@ export class NeovimEditor extends Editor implements IEditor {
         })
     }
 
+    private async _onBufUnload(evt: BufferEventContext): Promise<void> {
+        this._bufferManager.populateBufferList(evt)
+        this._neovimInstance.getBufferIds().then(ids => this._actions.setCurrentBuffers(ids))
+    }
+
+    private async _onBufDelete(evt: BufferEventContext): Promise<void> {
+        this._bufferManager.populateBufferList(evt)
+        this._neovimInstance.getBufferIds().then(ids => this._actions.setCurrentBuffers(ids))
+    }
+
     private async _onBufWipeout(evt: BufferEventContext): Promise<void> {
+        this._bufferManager.populateBufferList(evt)
         this._neovimInstance.getBufferIds().then(ids => this._actions.setCurrentBuffers(ids))
     }
 

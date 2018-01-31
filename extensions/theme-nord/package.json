@@ -1,19 +1,21 @@
 {
-  "name": "theme-nord",
-  "version": "0.0.1",
-  "description": "Nord theme, customized for Oni",
-  "engines": {
-      "oni": "0.2.18"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "contributes": {
-      "themes": [{
-          "name": "nord",
-          "path": "colors/nord.json"
-      }]
-  },
-  "author": "",
-  "license": "MIT"
+    "name": "theme-nord",
+    "version": "0.0.1",
+    "description": "Nord theme, customized for Oni",
+    "engines": {
+        "oni": "0.2.18"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "contributes": {
+        "themes": [
+            {
+                "name": "nord",
+                "path": "colors/nord.json"
+            }
+        ]
+    },
+    "author": "",
+    "license": "MIT"
 }

@@ -40,6 +40,7 @@ const start = async (args: string[]): Promise<void> => {
     const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
     const taksPromise = import("./Services/Tasks")
     const workspacePromise = import("./Services/Workspace")
@@ -124,6 +125,9 @@ const start = async (args: string[]): Promise<void> => {
     Menu.activate(overlayManager)
     const menuManager = Menu.getInstance()
 
+    const Notifications = await notificationsPromise
+    Notifications.activate(overlayManager)
+
     const Tasks = await taksPromise
     Tasks.activate(menuManager)
     const tasks = Tasks.getInstance()
@@ -147,26 +151,26 @@ const start = async (args: string[]): Promise<void> => {
     const CompletionProviders = await completionProvidersPromise
     CompletionProviders.activate(languageManager)
 
-    await Promise.race([
-        Utility.delay(5000),
-        Promise.all([
-            SharedNeovimInstance.activate(configuration, pluginManager),
-            startEditors(
-                filesToOpen,
-                Colors.getInstance(),
-                CompletionProviders.getInstance(),
-                configuration,
-                diagnostics,
-                languageManager,
-                menuManager,
-                overlayManager,
-                pluginManager,
-                tasks,
-                Themes.getThemeManagerInstance(),
-                workspace,
-            ),
-        ]),
-    ])
+    const initializeAllEditors = async () => {
+        await startEditors(
+            filesToOpen,
+            Colors.getInstance(),
+            CompletionProviders.getInstance(),
+            configuration,
+            diagnostics,
+            languageManager,
+            menuManager,
+            overlayManager,
+            pluginManager,
+            tasks,
+            Themes.getThemeManagerInstance(),
+            workspace,
+        )
+
+        await SharedNeovimInstance.activate(configuration, pluginManager)
+    }
+
+    await Promise.race([Utility.delay(5000), initializeAllEditors()])
     Performance.endMeasure("Oni.Start.Editors")
 
     Performance.startMeasure("Oni.Start.Sidebar")

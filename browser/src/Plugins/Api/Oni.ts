@@ -24,6 +24,7 @@ import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
 import { getInstance as getMenuManagerInstance } from "./../../Services/Menu"
+import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
 import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
@@ -119,6 +120,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return getMenuManagerInstance()
     }
 
+    public get notifications(): any {
+        return getNotificationsInstance()
+    }
+
     public get overlays(): any /* TODO */ {
         return getOverlayInstance()
     }
@@ -195,7 +200,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
             "WARNING: `OniApi.execNodeScript` is deprecated. Please use `OniApi.process.execNodeScript` instead",
         )
 
-        return await Process.execNodeScript(scriptPath, args, options, callback)
+        return Process.execNodeScript(scriptPath, args, options, callback)
     }
 
     /**
@@ -210,6 +215,6 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
             "WARNING: `OniApi.spawnNodeScript` is deprecated. Please use `OniApi.process.spawnNodeScript` instead",
         )
 
-        return await Process.spawnNodeScript(scriptPath, args, options)
+        return Process.spawnNodeScript(scriptPath, args, options)
     }
 }

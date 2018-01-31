@@ -43,8 +43,6 @@ export interface IConfigurationValues {
     // - textMateHighlighting
     "experimental.editor.textMateHighlighting.enabled": boolean
 
-    "experimental.sidebar.enabled": boolean
-
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
@@ -202,6 +200,7 @@ export interface IConfigurationValues {
     // of saving to file
     "recorder.copyScreenshotToClipboard": boolean
 
+    "sidebar.enabled": boolean
     "sidebar.width": string
 
     "statusbar.enabled": boolean
