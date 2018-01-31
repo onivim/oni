@@ -122,7 +122,7 @@ const start = async (args: string[]): Promise<void> => {
     const overlayManager = Overlay.getInstance()
 
     const Menu = await menuPromise
-    Menu.activate(overlayManager)
+    Menu.activate(configuration, overlayManager)
     const menuManager = Menu.getInstance()
 
     const Notifications = await notificationsPromise
