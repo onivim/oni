@@ -5,13 +5,10 @@
     "engines": {
         "oni": "^0.2.3"
     },
-    "scripts": {
-    },
+    "scripts": {},
     "oni": {
         "supportedFileTypes": ["*"]
     },
-    "dependencies": {
-    },
-    "devDependencies": {
-    }
+    "dependencies": {},
+    "devDependencies": {}
 }

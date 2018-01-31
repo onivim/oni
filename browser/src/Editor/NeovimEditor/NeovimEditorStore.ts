@@ -16,8 +16,10 @@ import { DefaultThemeColors, IThemeColors } from "./../../Services/Themes"
 
 import { createStore as createReduxStore } from "./../../Redux"
 
+import { IBufferLayer } from "./../NeovimEditor/BufferLayerManager"
+
 export interface Layers {
-    [id: number]: Oni.EditorLayer[]
+    [id: number]: IBufferLayer[]
 }
 export interface Buffers {
     [filePath: string]: IBuffer

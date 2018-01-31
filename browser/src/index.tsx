@@ -32,7 +32,6 @@ const start = async (args: string[]): Promise<void> => {
     const menuPromise = import("./Services/Menu")
 
     const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
-    const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
     const browserWindowConfigurationSynchronizerPromise = import("./Services/BrowserWindowConfigurationSynchronizer")
     const colorsPromise = import("./Services/Colors")
     const diagnosticsPromise = import("./Services/Diagnostics")
@@ -40,6 +39,7 @@ const start = async (args: string[]): Promise<void> => {
     const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
     const taksPromise = import("./Services/Tasks")
     const workspacePromise = import("./Services/Workspace")
@@ -120,9 +120,17 @@ const start = async (args: string[]): Promise<void> => {
     Overlay.activate()
     const overlayManager = Overlay.getInstance()
 
+    const sneakPromise = import("./Services/Sneak")
+    const { commandManager } = await import("./Services/CommandManager")
+    const Sneak = await sneakPromise
+    Sneak.activate(commandManager, overlayManager)
+
     const Menu = await menuPromise
-    Menu.activate(overlayManager)
+    Menu.activate(configuration, overlayManager)
     const menuManager = Menu.getInstance()
+
+    const Notifications = await notificationsPromise
+    Notifications.activate(overlayManager)
 
     const Tasks = await taksPromise
     Tasks.activate(menuManager)
@@ -186,7 +194,8 @@ const start = async (args: string[]): Promise<void> => {
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     const { inputManager } = await inputManagerPromise
-    const { commandManager } = await import("./Services/CommandManager")
+
+    const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
