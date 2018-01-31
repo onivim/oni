@@ -14,14 +14,11 @@ import { createStore, INotificationsState } from "./NotificationStore"
 import { getView } from "./NotificationsView"
 
 export class Notifications {
-
     private _id: number = 0
     private _overlay: Overlay
     private _store: Store<INotificationsState>
 
-    constructor(
-        private _overlayManager: OverlayManager,
-    ) {
+    constructor(private _overlayManager: OverlayManager) {
         this._store = createStore()
 
         this._overlay = this._overlayManager.createItem()
