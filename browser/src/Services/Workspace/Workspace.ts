@@ -141,19 +141,19 @@ export class Workspace implements IWorkspace {
         }
     }
 
-    public autoDetectWorkspace() {
-        const { filePath } = this._editorManager.activeEditor.activeBuffer
+    public autoDetectWorkspace(filePath: string): void {
         const settings = this._configuration.getValue("workspace.autoDetectWorkspace")
         switch (settings) {
             case "never":
-                return null
+                break
             case "always":
-                return this._editorManager.activeEditor.onBufferEnter.subscribe(buffer =>
-                    this.navigateToProjectRoot(buffer.filePath),
-                )
+                this.navigateToProjectRoot(filePath)
+                break
             case "noworkspace":
             default:
-                return !this._activeWorkspace ? this.navigateToProjectRoot(filePath) : null
+                if (!this._activeWorkspace) {
+                    this.navigateToProjectRoot(filePath)
+                }
         }
     }
 }
