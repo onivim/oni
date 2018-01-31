@@ -205,7 +205,7 @@
         "marked": "^0.3.6",
         "minimist": "1.2.0",
         "msgpack-lite": "0.1.26",
-        "ocaml-language-server": "1.0.21",
+        "ocaml-language-server": "^1.0.21",
         "oni-api": "^0.0.26",
         "oni-neovim-binaries": "0.1.0",
         "oni-ripgrep": "0.0.3",

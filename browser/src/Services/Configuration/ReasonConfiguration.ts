@@ -33,7 +33,7 @@ export const ocamlAndReasonConfiguration = {
             linter: 500,
         },
         diagnostics: {
-            tools: ["merlin"],
+            tools: ["bsb", "merlin"],
         },
         path: {
             bsb: wrapCommand("bsb"),
