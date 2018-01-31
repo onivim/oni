@@ -52,12 +52,8 @@ export interface IAddBufferLayerAction {
 export interface ISetViewportAction {
     type: "SET_VIEWPORT"
     payload: {
-        width: number,
-        height: number,
-        focusedEditor?: {
-            width: number,
-            height: number,
-        },
+        width: number
+        height: number
     }
 }
 
@@ -396,16 +392,11 @@ export const setNeovimError = (neovimError: boolean) => ({
     },
 })
 
-export const setViewport = (
-    width: number,
-    height: number,
-    focusedEditor?: { width: number, height: number },
-) => ({
+export const setViewport = (width: number, height: number) => ({
     type: "SET_VIEWPORT",
     payload: {
         width,
         height,
-        focusedEditor,
     },
 })
 
