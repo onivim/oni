@@ -32,8 +32,8 @@ export const ocamlAndReasonConfiguration = {
         debounce: {
             linter: 500,
         },
-        diagnostic: {
-            tools: ["merlin"],
+        diagnostics: {
+            tools: ["bsb", "merlin"],
         },
         path: {
             bsb: wrapCommand("bsb"),
