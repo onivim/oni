@@ -13,7 +13,7 @@ export interface ISidebarEmptyPaneViewProps {
 }
 
 const Wrapper = styled.div`
-    border-top: 1px solid ${props => props.theme["background"]};
+    border-top: 1px solid ${props => props.theme.background};
 
     display: flex;
     flex-direction: column;
@@ -23,8 +23,8 @@ const Wrapper = styled.div`
 import { boxShadow, withProps } from "./common"
 
 const ButtonWrapper = styled.button`
-    background-color: ${props => props.theme["background"]};
-    color: ${props => props.theme["foreground"]};
+    background-color: ${props => props.theme.background};
+    color: ${props => props.theme.foreground};
     padding: 1em;
     border: 2px solid transparent;
     width: 100%;
@@ -58,8 +58,8 @@ const ButtonContainer = withProps<ButtonContainerProps>(styled.div)`
         props.selected ? props.theme["highlight.mode.normal.background"] : "transparent"};
 `
 
-import { VimNavigator } from "./VimNavigator"
 import { Sneakable } from "./Sneakable"
+import { VimNavigator } from "./VimNavigator"
 
 export interface IOniButtonProps {
     text: string
