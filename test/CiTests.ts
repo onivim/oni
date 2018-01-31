@@ -51,7 +51,7 @@ describe("ci tests", function() {
         ? [...CiTests, ...WindowsOnlyTests]
         : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
 
-    CiTests.forEach(test => {
+    tests.forEach(test => {
         runInProcTest(path.join(__dirname, "ci"), test)
     })
 })
