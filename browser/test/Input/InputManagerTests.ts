@@ -52,5 +52,32 @@ describe("InputManager", () => {
             assert.strictEqual(count, 0, "Handler should not have been called.")
             assert.strictEqual(handled, false)
         })
+
+        describe("getBoundKeys", () => {
+            it("returns empty array if no key bound to command", () => {
+                const im = new InputManager()
+
+                const boundKeys = im.getBoundKeys("test.command")
+                assert.deepEqual(boundKeys, [], "Validate no keys bound")
+            })
+
+            it("returns key bound to command", () => {
+                const im = new InputManager()
+                im.bind("<c-a>", "test.command")
+
+                const boundKeys = im.getBoundKeys("test.command")
+                assert.deepEqual(boundKeys, ["<c-a>"], "Validate the bound key is returned")
+            })
+
+            it("does not return key if bound and then unbind", () => {
+                const im = new InputManager()
+                const unbind = im.bind("<c-a>", "test.command")
+
+                unbind()
+
+                const boundKeys = im.getBoundKeys("test.command")
+                assert.deepEqual(boundKeys, [], "Validate no bound keys are returned")
+            })
+        })
     })
 })
