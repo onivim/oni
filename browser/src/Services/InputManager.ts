@@ -20,9 +20,9 @@ export interface KeyBindingMap {
 import { KeyboardResolver } from "./../Input/Keyboard/KeyboardResolver"
 
 import {
+    getMetaKeyResolver,
     ignoreMetaKeyResolver,
     remapResolver,
-    getMetaKeyResolver,
 } from "./../Input/Keyboard/Resolvers"
 
 export class InputManager implements Oni.InputManager {

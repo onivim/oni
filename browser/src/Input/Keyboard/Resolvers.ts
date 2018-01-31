@@ -1,4 +1,4 @@
-import { IKeyInfo, IKeyMap } from "./KeyboardLayout"
+import { IKeyInfo, IKeyMap, KeyboardLayoutManager } from "./KeyboardLayout"
 
 /**
  * Interface describing a 'key resolver' - a strategy
@@ -52,8 +52,6 @@ export const remapResolver = (
 ): string | null => {
     return keysToRemap[evt.key] ? keysToRemap[evt.key] : previousResolution
 }
-
-import { KeyboardLayoutManager } from "./KeyboardLayout"
 
 export const getMetaKeyResolver = () => {
     const keyboardLayout: KeyboardLayoutManager = new KeyboardLayoutManager()
