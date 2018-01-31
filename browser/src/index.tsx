@@ -40,6 +40,7 @@ const start = async (args: string[]): Promise<void> => {
     const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
     const taksPromise = import("./Services/Tasks")
@@ -124,6 +125,9 @@ const start = async (args: string[]): Promise<void> => {
     const Menu = await menuPromise
     Menu.activate(overlayManager)
     const menuManager = Menu.getInstance()
+
+    const Notifications = await notificationsPromise
+    Notifications.activate(overlayManager)
 
     const Tasks = await taksPromise
     Tasks.activate(menuManager)
