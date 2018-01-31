@@ -8,7 +8,7 @@ import { AutoSizer, List } from "react-virtualized"
 import * as Oni from "oni-api"
 
 import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
-import { Visible } from "./../../UI/components/Visible"
+// import { Visible } from "./../../UI/components/Visible"
 import { Icon, IconSize } from "./../../UI/Icon"
 
 import { focusManager } from "./../FocusManager"
@@ -187,6 +187,7 @@ export interface IMenuItemProps {
     detail: string
     detailHighlights: number[]
     pinned: boolean
+    additionalComponent?: JSX.Element
     onClick: () => void
     height: number
 }
@@ -234,7 +235,6 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
             ) : (
                 this.props.icon
             )
-
         return (
             <MenuItemWrapper
                 isSelected={this.props.isSelected}
@@ -255,9 +255,6 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
                     highlightIndices={this.props.detailHighlights}
                     highlightClassName={"highlight"}
                 />
-                <Visible visible={this.props.pinned}>
-                    <Icon name="clock-o" />
-                </Visible>
             </MenuItemWrapper>
         )
     }
