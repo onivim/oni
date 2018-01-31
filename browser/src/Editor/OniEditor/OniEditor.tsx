@@ -41,6 +41,8 @@ import { ErrorsContainer } from "./containers/ErrorsContainer"
 
 import { NeovimEditor } from "./../NeovimEditor"
 
+import { windowManager } from "./../../Services/WindowManager"
+
 // Helper method to wrap a react component into a layer
 const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.EditorLayer => {
     return {
@@ -98,30 +100,30 @@ export class OniEditor implements IEditor {
     }
 
     constructor(
-        colors: IColors,
-        completionProviders: CompletionProviders,
-        configuration: Configuration,
-        diagnostics: IDiagnosticsDataSource,
-        languageManager: LanguageManager,
-        menuManager: MenuManager,
-        overlayManager: OverlayManager,
-        pluginManager: PluginManager,
-        tasks: Tasks,
-        themeManager: ThemeManager,
-        workspace: Workspace,
+        private _colors: IColors,
+        private _completionProviders: CompletionProviders,
+        private _configuration: Configuration,
+        private _diagnostics: IDiagnosticsDataSource,
+        private _languageManager: LanguageManager,
+        private _menuManager: MenuManager,
+        private _overlayManager: OverlayManager,
+        private _pluginManager: PluginManager,
+        private _tasks: Tasks,
+        private _themeManager: ThemeManager,
+        private _workspace: Workspace,
     ) {
         this._neovimEditor = new NeovimEditor(
-            colors,
-            completionProviders,
-            configuration,
-            diagnostics,
-            languageManager,
-            menuManager,
-            overlayManager,
-            pluginManager,
-            tasks,
-            themeManager,
-            workspace,
+            this._colors,
+            this._completionProviders,
+            this._configuration,
+            this._diagnostics,
+            this._languageManager,
+            this._menuManager,
+            this._overlayManager,
+            this._pluginManager,
+            this._tasks,
+            this._themeManager,
+            this._workspace,
         )
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
@@ -153,6 +155,28 @@ export class OniEditor implements IEditor {
     }
 
     public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
+        if (this._configuration.getValue("editor.split.mode") === "oni") {
+            if (method === "horizontal") {
+                const newEditor = new OniEditor(
+                    this._colors,
+                    this._completionProviders,
+                    this._configuration,
+                    this._diagnostics,
+                    this._languageManager,
+                    this._menuManager,
+                    this._overlayManager,
+                    this._pluginManager,
+                    this._tasks,
+                    this._themeManager,
+                    this._workspace,
+                )
+
+                windowManager.split("horizontal", newEditor, this)
+                await newEditor.init([])
+                return newEditor.openFile(file, "edit")
+            }
+        }
+
         return this._neovimEditor.openFile(file, method)
     }
 
