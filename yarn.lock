@@ -4465,9 +4465,9 @@ obuf@^1.0.0, obuf@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.1.tgz#104124b6c602c6796881a042541d36db43a5264e"
 
-ocaml-language-server@1.0.12:
-  version "1.0.12"
-  resolved "https://registry.yarnpkg.com/ocaml-language-server/-/ocaml-language-server-1.0.12.tgz#5af38c8f6355b7074006586627472122ac24fd2e"
+ocaml-language-server@^1.0.21:
+  version "1.0.21"
+  resolved "https://registry.yarnpkg.com/ocaml-language-server/-/ocaml-language-server-1.0.21.tgz#baa4d732395910d942f696d35e10983efc43e6e8"
   dependencies:
     async "2.6.0"
     glob "7.1.2"
@@ -4477,7 +4477,7 @@ ocaml-language-server@1.0.12:
     vscode-jsonrpc "3.5.0"
     vscode-languageclient "3.5.0"
     vscode-languageserver "3.5.0"
-    vscode-languageserver-types "3.5.0"
+    vscode-languageserver-protocol "3.5.0"
     vscode-uri "1.0.1"
 
 on-finished@~2.3.0:
@@ -6771,7 +6771,7 @@ vscode-languageclient@3.5.0:
   dependencies:
     vscode-languageserver-protocol "^3.5.0"
 
-vscode-languageserver-protocol@^3.5.0:
+vscode-languageserver-protocol@3.5.0, vscode-languageserver-protocol@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/vscode-languageserver-protocol/-/vscode-languageserver-protocol-3.5.0.tgz#067c5cbe27709795398d119692c97ebba1452209"
   dependencies:
