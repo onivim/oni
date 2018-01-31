@@ -22,6 +22,7 @@ import { CompletionProviders } from "./../../Services/Completion"
 import { Configuration } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 
+import { editorManager } from "./../../Services/EditorManager"
 import { LanguageManager } from "./../../Services/Language"
 
 import { MenuManager } from "./../../Services/Menu"
@@ -147,6 +148,8 @@ export class OniEditor implements IEditor {
     public enter(): void {
         Log.info("[OniEditor::enter]")
         this._neovimEditor.enter()
+
+        editorManager.setActiveEditor(this)
     }
 
     public leave(): void {

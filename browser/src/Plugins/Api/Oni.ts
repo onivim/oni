@@ -30,14 +30,8 @@ import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
 import { getInstance as getSnippetsInstance } from "./../../Services/Snippets"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
-import { getInstance as getTasksInstance } from "./../../Services/Tasks"
-import { getThemeManagerInstance } from "./../../Services/Themes"
 import { windowManager } from "./../../Services/WindowManager"
 import { getInstance as getWorkspaceInstance } from "./../../Services/Workspace"
-
-import { OniEditor } from "./../../Editor/OniEditor"
-
-import { getInstance as getPluginManagerInstance } from "./../../Plugins/PluginManager"
 
 import * as Log from "./../../Log"
 
@@ -171,23 +165,6 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         this._dependencies = new Dependencies()
         this._ui = new Ui(react)
         this._services = new Services()
-    }
-
-    public createNeovimEditor(): OniEditor {
-        const editor = new OniEditor(
-            getColors(),
-            getCompletionProvidersInstance(),
-            configuration,
-            getDiagnosticsInstance(),
-            this.language,
-            getMenuManagerInstance(),
-            getOverlayInstance(),
-            getPluginManagerInstance(),
-            getTasksInstance(),
-            getThemeManagerInstance(),
-            getWorkspaceInstance(),
-        )
-        return editor
     }
 
     public async execNodeScript(
