@@ -8,8 +8,8 @@ import * as React from "react"
 
 import { IDisposable } from "oni-types"
 
-import { IBookmark, IBookmarksProvider } from "./index"
 import { SidebarPane } from "./../Sidebar"
+import { IBookmark, IBookmarksProvider } from "./index"
 
 import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
 
@@ -24,13 +24,9 @@ export class BookmarksPane implements SidebarPane {
         return "Bookmarks"
     }
 
-    public enter(): void {
-        console.log("entering pane")
-    }
+    public enter(): void {}
 
-    public leave(): void {
-        console.log("leaving pane")
-    }
+    public leave(): void {}
 
     public render(): JSX.Element {
         return <BookmarksPaneView bookmarksProvider={this._bookmarksProvider} />

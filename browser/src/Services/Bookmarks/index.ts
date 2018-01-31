@@ -11,21 +11,8 @@ export interface IBookmark {
     group: string
 }
 
-// export class Bookmarks {
-//     private _bookmarks: IBookmark[] = []
-//     private _onBookmarksUpdatedEvent = new Event<void>()
-
-//     public get onBookmarksUpdated(): IEvent<void> {
-//         return this._onBookmarksUpdatedEvent
-//     }
-
-//     public getBookmarks(): IBookmark[] {
-//         return this._bookmarks
-//     }
-// }
-
-import * as Log from "./../../Log"
 import * as fs from "fs"
+import * as Log from "./../../Log"
 
 export interface IBookmarksProvider {
     bookmarks: IBookmark[]
@@ -92,23 +79,10 @@ export class ConfigurationBookmarksProvider implements IBookmarksProvider {
     }
 }
 
-// Providers:
-// - Configuration bookmarks provider
-// - Persisted bookmarks provider
-// - Later: Browser bookmarks provider
-
-// NEXT:
-// - Extract out `SidebarExpander` component
-//  - render
-//  - getIds
-// - Load 'oni.bookmarks' from configuration
-//
-
 let _bookmarks: IBookmarksProvider
 
 export const activate = (configuration: Configuration, sidebarManager: SidebarManager) => {
     _bookmarks = new ConfigurationBookmarksProvider(configuration)
-    console.log("Bookmarks activated")
 
     sidebarManager.add("bookmark", new BookmarksPane(_bookmarks))
 }

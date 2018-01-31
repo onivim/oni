@@ -14,7 +14,7 @@ export interface ISidebarEmptyPaneViewProps {
 }
 
 const Wrapper = styled.div`
-    border-top: 1px solid ${props => props.theme["background"]};
+    border-top: 1px solid ${props => props.theme.background};
 `
 
 const Button = styled.button`
