@@ -103,7 +103,12 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind(["<up>", "<C-p>"], "menu.previous")
     input.bind(["<esc>", "<C-[>", "<C-C>"], "menu.close")
     input.bind("<enter>", "menu.select")
+    input.bind(["<enter>", "<space>"], "select")
 
-    input.bind("<enter>", "explorer.open")
     input.bind("<delete>", "explorer.delete")
+
+    // TODO: Scope 's' to just the local window
+    input.bind("s", "sneak.show", () => isNormalMode() && !menu.isMenuOpen())
+    input.bind("S", "sneak.show", () => isNormalMode() && !menu.isMenuOpen())
+    input.bind(["<esc>", "<c-c>"], "sneak.hide")
 }

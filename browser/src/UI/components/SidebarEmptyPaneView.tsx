@@ -9,6 +9,7 @@ export interface ISidebarEmptyPaneViewProps {
     active: boolean
     contentsText: string
     actionButtonText?: string
+    onClickButton?: () => void
 }
 
 const Wrapper = styled.div`
@@ -67,7 +68,7 @@ export interface IOniButtonProps {
 export class OniButton extends React.PureComponent<IOniButtonProps, {}> {
     public render(): JSX.Element {
         return (
-            <ButtonWrapper>
+            <ButtonWrapper onClick={this.props.onClick}>
                 <span>{this.props.text}</span>
             </ButtonWrapper>
         )
@@ -77,13 +78,17 @@ export class OniButton extends React.PureComponent<IOniButtonProps, {}> {
 export class SidebarEmptyPaneView extends React.PureComponent<ISidebarEmptyPaneViewProps, {}> {
     public render(): JSX.Element {
         const button = this.props.actionButtonText ? (
-            <OniButton text={this.props.actionButtonText} onClick={() => {}} />
+            <OniButton
+                text={this.props.actionButtonText}
+                onClick={() => this.props.onClickButton && this.props.onClickButton()}
+            />
         ) : null
 
         return (
             <VimNavigator
                 ids={["empty.button"]}
                 active={this.props.active}
+                onSelected={() => this.props.onClickButton && this.props.onClickButton()}
                 render={(selectedId: string) => {
                     return (
                         <Wrapper>

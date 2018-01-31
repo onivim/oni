@@ -14,6 +14,7 @@ import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
 
+import { Sneakable } from "./../../UI/components/Sneakable"
 import { Icon } from "./../../UI/Icon"
 
 import { FileIcon } from "./../../Services/FileIcon"
@@ -105,8 +106,8 @@ export class Tabs extends React.PureComponent<ITabsProps, {}> {
 }
 
 export interface ITabPropsWithClick extends ITabProps {
-    onClickName: React.EventHandler<React.MouseEvent<HTMLDivElement>>
-    onClickClose: React.EventHandler<React.MouseEvent<HTMLDivElement>>
+    onClickName: () => void
+    onClickClose: () => void
 
     backgroundColor: string
     foregroundColor: string
@@ -132,26 +133,28 @@ export const Tab = (props: ITabPropsWithClick) => {
     }
 
     return (
-        <div className={cssClasses} title={props.description} style={style}>
-            <div className="corner" onClick={props.onClickName}>
-                <FileIcon
-                    fileName={props.iconFileName}
-                    isLarge={true}
-                    additionalClassNames={"file-icon-appear-animation"}
-                />
-            </div>
-            <div className="name" onClick={props.onClickName}>
-                <span className="name-inner">{props.name}</span>
-            </div>
-            <div className="corner enable-hover" onClick={props.onClickClose}>
-                <div className="icon-container x-icon-container">
-                    <Icon name="times" />
+        <Sneakable callback={() => props.onClickName()}>
+            <div className={cssClasses} title={props.description} style={style}>
+                <div className="corner" onClick={props.onClickName}>
+                    <FileIcon
+                        fileName={props.iconFileName}
+                        isLarge={true}
+                        additionalClassNames={"file-icon-appear-animation"}
+                    />
                 </div>
-                <div className="icon-container circle-icon-container">
-                    <div className="circle" />
+                <div className="name" onClick={props.onClickName}>
+                    <span className="name-inner">{props.name}</span>
+                </div>
+                <div className="corner enable-hover" onClick={props.onClickClose}>
+                    <div className="icon-container x-icon-container">
+                        <Icon name="times" />
+                    </div>
+                    <div className="icon-container circle-icon-container">
+                        <div className="circle" />
+                    </div>
                 </div>
             </div>
-        </div>
+        </Sneakable>
     )
 }
 
