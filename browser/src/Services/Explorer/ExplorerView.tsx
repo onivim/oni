@@ -173,6 +173,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
         if (!this.props.nodes || !this.props.nodes.length) {
             return (
                 <SidebarEmptyPaneView
+                    active={this.props.isActive}
                     contentsText="Nothing to show here, yet!"
                     actionButtonText="Open a Folder"
                 />

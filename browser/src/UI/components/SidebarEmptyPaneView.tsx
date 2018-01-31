@@ -6,6 +6,7 @@ import * as React from "react"
 import styled from "styled-components"
 
 export interface ISidebarEmptyPaneViewProps {
+    active: boolean
     contentsText: string
     actionButtonText?: string
 }
@@ -18,7 +19,7 @@ const Wrapper = styled.div`
     justify-content: center;
 `
 
-import { boxShadow } from "./common"
+import { boxShadow, withProps } from "./common"
 
 const ButtonWrapper = styled.button`
     background-color: ${props => props.theme["background"]};
@@ -41,9 +42,19 @@ const Description = styled.div`
     text-align: center;
 `
 
-const ButtonContainer = styled.div`
-    padding: 32px;
-    padding: 32px;
+export interface ButtonContainerProps {
+    selected: boolean
+}
+
+const ButtonContainer = withProps<ButtonContainerProps>(styled.div)`
+    padding-left: 32px;
+    padding-right: 32px;
+
+    transition: all 0.1s ease-in;
+
+    background-color: ${props => (props.selected ? "rgba(0, 0, 0, 0.1)" : "transparent")};
+    border-left: 2px solid ${props =>
+        props.selected ? props.theme["highlight.mode.normal.background"] : "transparent"};
 `
 
 import { VimNavigator } from "./VimNavigator"
@@ -71,13 +82,13 @@ export class SidebarEmptyPaneView extends React.PureComponent<ISidebarEmptyPaneV
 
         return (
             <VimNavigator
-                ids={[]}
-                active={false}
-                render={() => {
+                ids={["empty.button"]}
+                active={this.props.active}
+                render={(selectedId: string) => {
                     return (
                         <Wrapper>
                             <Description>{this.props.contentsText}</Description>
-                            <ButtonContainer>{button}</ButtonContainer>
+                            <ButtonContainer selected={this.props.active}>{button}</ButtonContainer>
                         </Wrapper>
                     )
                 }}
