@@ -19,5 +19,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
 // Bring in custom config to turn off animations, in order to reduce noise.
 export const settings = {
-    configPath: "Editor.ExternalCommandLine.config.js",
+    config: {
+        "experimental.commandline.mode": true,
+    },
 }
