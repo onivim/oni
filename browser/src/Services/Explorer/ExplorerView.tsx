@@ -164,9 +164,20 @@ export interface IExplorerViewProps extends IExplorerViewContainerProps {
     isActive: boolean
 }
 
+import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
+
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
     public render(): JSX.Element {
         const ids = this.props.nodes.map(node => node.id)
+
+        if (!this.props.nodes || !this.props.nodes.length) {
+            return (
+                <SidebarEmptyPaneView
+                    contentsText="Nothing to show here, yet!"
+                    actionButtonText="Open a Folder"
+                />
+            )
+        }
 
         return (
             <VimNavigator
