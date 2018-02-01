@@ -106,14 +106,14 @@ export class BookmarksPaneView extends React.PureComponent<
                     ids={[]}
                     active={this.state.isActive}
                     render={selectedId => {
-                        const elems = this.state.bookmarks.map(bm => {
-                            ;<SidebarItemView
+                        const elems = this.state.bookmarks.map(bm => (
+                            <SidebarItemView
                                 text={bm.command}
                                 isFocused={false}
                                 isContainer={false}
                                 indentationLevel={0}
                             />
-                        })
+                        ))
                         return <div>{elems}</div>
                     }}
                 />
