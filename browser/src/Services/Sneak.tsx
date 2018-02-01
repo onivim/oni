@@ -156,8 +156,6 @@ export class SneakView extends React.PureComponent<ISneakViewProps, ISneakViewSt
                         onChange={evt => {
                             this.setState({ filterText: evt.currentTarget.value })
                         }}
-                        backgroundColor={"black"}
-                        foregroundColor={"white"}
                     />
                 </div>
                 {sneaks}
