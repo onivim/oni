@@ -305,7 +305,8 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._windowManager.onWindowStateChanged.subscribe(tabPageState => {
-            const inactiveIds = tabPageState.inactiveWindows.map(w => w.windowNumber)
+            const filteredTabState = tabPageState.inactiveWindows.filter(w => !!w)
+            const inactiveIds = filteredTabState.map(w => w.windowNumber)
 
             this._actions.setActiveVimTabPage(tabPageState.tabId, [
                 tabPageState.activeWindow.windowNumber,
@@ -327,10 +328,8 @@ export class NeovimEditor extends Editor implements IEditor {
                 )
             }
 
-            tabPageState.inactiveWindows.map(w => {
-                if (w) {
-                    this._actions.setInactiveWindowState(w.windowNumber, w.dimensions)
-                }
+            filteredTabState.map(w => {
+                this._actions.setInactiveWindowState(w.windowNumber, w.dimensions)
             })
         })
 
