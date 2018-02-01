@@ -13,6 +13,7 @@ import { TextInputView } from "./../../UI/components/LightweightText"
 export interface IRenameViewProps {
     tokenName: string
     onComplete: (val: string) => void
+    onCancel: () => void
 }
 
 const ToolTipWrapper = styled.div`
