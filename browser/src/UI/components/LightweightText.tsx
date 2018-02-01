@@ -46,7 +46,6 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
                     onFocus={evt => evt.currentTarget.select()}
                     ref={elem => {
                         this._element = elem
-                        window["derp"] = elem
                     }}
                 />
             </div>
@@ -71,7 +70,9 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
     }
 
     private _cancel(): void {
-        this.props.onCancel && this.props.onCancel()
+        if (this.props.onCancel) {
+            this.props.onCancel()
+        }
     }
 
     private _onKeyDown(keyboardEvent: React.KeyboardEvent<HTMLInputElement>): void {
