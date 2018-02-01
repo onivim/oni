@@ -207,7 +207,7 @@ const start = async (args: string[]): Promise<void> => {
     Snippets.activate()
 
     const Search = await import("./Services/Search")
-    Search.activate(Sidebar.getInstance())
+    Search.activate(Sidebar.getInstance(), workspace)
 
     const ThemePicker = await themePickerPromise
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())
