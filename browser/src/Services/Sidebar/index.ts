@@ -13,6 +13,8 @@ import { SidebarPane } from "./SidebarPane"
 
 let _sidebarManager: SidebarManager = null
 
+export * from "./SidebarStore"
+
 export const activate = (configuration: Configuration, workspace: Workspace) => {
     _sidebarManager = new SidebarManager()
 
@@ -25,9 +27,6 @@ export const activate = (configuration: Configuration, workspace: Workspace) => 
 
         const bookmarksPane = new SidebarPane("oni.sidebar.bookmarks", "Bookmarks")
         _sidebarManager.add("bookmark", bookmarksPane)
-
-        const searchPane = new SidebarPane("oni.sidebar.search", "Search")
-        _sidebarManager.add("search", searchPane)
     }
 }
 
