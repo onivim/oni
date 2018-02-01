@@ -49,6 +49,8 @@ import styled from "styled-components"
 import { TextInputView } from "./../../UI/components/LightweightText"
 import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
 
+import { withProps, boxShadow } from "./../../UI/components/common"
+
 const Label = styled.div`
     margin-left: 8px;
 `
@@ -126,14 +128,29 @@ export interface ISearchTextBoxProps {
     isActive: boolean
 }
 
+const SearchTextBoxWrapper = withProps<ISearchTextBoxProps>(styled.div)`
+    padding: 8px;
+    border: ${props =>
+        props.isActive
+            ? "2px solid " + props.theme["highlight.mode.normal.background"]
+            : "1px solid " + props.theme["editor.foreground"]};
+    margin: 8px;
+    background-color: ${props => props.theme["background"]};
+
+    ${props => (props.isActive ? boxShadow : "")};
+
+    transition: all 0.1s ease-in;
+
+    input {
+        background-color: transparent;
+        color: ${props => props.theme["editor.foreground"]}
+    }
+`
+
 export class SearchTextBox extends React.PureComponent<ISearchTextBoxProps, {}> {
     public render(): JSX.Element {
-        const inner = this.props.isActive ? (
-            <TextInputView backgroundColor="black" foregroundColor="white" />
-        ) : (
-            <div>text</div>
-        )
-        return <div>{inner}</div>
+        const inner = this.props.isActive ? <TextInputView /> : <div style={{ opacity: 0 }}>a</div>
+        return <SearchTextBoxWrapper {...this.props}>{inner}</SearchTextBoxWrapper>
     }
 }
 
