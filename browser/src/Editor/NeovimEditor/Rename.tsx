@@ -52,6 +52,7 @@ export class Rename {
         this._toolTipsProvider.showToolTip(
             _renameToolTipName,
             <RenameView
+                onCancel={() => this.cancelRename()}
                 onComplete={newValue => this._onRenameClosed(newValue)}
                 tokenName={activeToken.tokenName}
             />,

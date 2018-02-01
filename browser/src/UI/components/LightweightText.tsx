@@ -3,6 +3,7 @@ import * as React from "react"
 import { focusManager } from "./../../Services/FocusManager"
 
 export interface ITextInputViewProps {
+    onCancel?: () => void
     onComplete?: (result: string) => void
     onChange?: (evt: React.ChangeEvent<HTMLInputElement>) => void
 
@@ -35,7 +36,7 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         const defaultValue = this.props.defaultValue || ""
 
         return (
-            <div className="input-container">
+            <div className="input-container enable-mouse">
                 <input
                     type="text"
                     style={inputStyle}
@@ -43,7 +44,9 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
                     onKeyDown={evt => this._onKeyDown(evt)}
                     onChange={evt => this._onChange(evt)}
                     onFocus={evt => evt.currentTarget.select()}
-                    ref={elem => (this._element = elem)}
+                    ref={elem => {
+                        this._element = elem
+                    }}
                 />
             </div>
         )
@@ -66,9 +69,24 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         }
     }
 
+    private _cancel(): void {
+        if (this.props.onCancel) {
+            this.props.onCancel()
+        }
+    }
+
     private _onKeyDown(keyboardEvent: React.KeyboardEvent<HTMLInputElement>): void {
+        if (keyboardEvent.keyCode === 27) {
+            this._cancel()
+            return
+        }
+
         if (this._element && keyboardEvent.ctrlKey) {
             switch (keyboardEvent.key) {
+                case "[":
+                case "c":
+                    this._cancel()
+                    break
                 case "u": {
                     this._element.value = ""
                     break
