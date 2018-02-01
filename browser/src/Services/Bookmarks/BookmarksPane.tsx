@@ -13,6 +13,7 @@ import { IBookmark, IBookmarksProvider } from "./index"
 
 import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
 import { SidebarItemView } from "./../../UI/components/SidebarItemView"
+import { VimNavigator } from "./../../UI/components/VimNavigator"
 
 export class BookmarksPane implements SidebarPane {
     private _onEnter = new Event<void>()
@@ -28,9 +29,13 @@ export class BookmarksPane implements SidebarPane {
         return "Bookmarks"
     }
 
-    public enter(): void {}
+    public enter(): void {
+        this._onEnter.dispatch()
+    }
 
-    public leave(): void {}
+    public leave(): void {
+        this._onLeave.dispatch()
+    }
 
     public render(): JSX.Element {
         return (
@@ -101,16 +106,23 @@ export class BookmarksPaneView extends React.PureComponent<
                 />
             )
         } else {
-            const elems = this.state.bookmarks.map(bm => (
-                <SidebarItemView
-                    text={bm.command}
-                    isFocused={false}
-                    isContainer={false}
-                    indentationLevel={0}
+            return (
+                <VimNavigator
+                    ids={[]}
+                    active={this.state.isActive}
+                    render={selectedId => {
+                        const elems = this.state.bookmarks.map(bm => {
+                            ;<SidebarItemView
+                                text={bm.command}
+                                isFocused={false}
+                                isContainer={false}
+                                indentationLevel={0}
+                            />
+                        })
+                        return <div>{elems}</div>
+                    }}
                 />
-            ))
-
-            return <div>{elems}</div>
+            )
         }
     }
 }
