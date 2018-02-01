@@ -92,11 +92,6 @@ export class BookmarksPaneView extends React.PureComponent<
         this._clearExistingSubscriptions()
     }
 
-    private _clearExistingSubscriptions(): void {
-        this._subscriptions.forEach(sub => sub.dispose())
-        this._subscriptions = []
-    }
-
     public render(): JSX.Element {
         if (this.state.bookmarks.length === 0) {
             return (
@@ -124,5 +119,10 @@ export class BookmarksPaneView extends React.PureComponent<
                 />
             )
         }
+    }
+
+    private _clearExistingSubscriptions(): void {
+        this._subscriptions.forEach(sub => sub.dispose())
+        this._subscriptions = []
     }
 }
