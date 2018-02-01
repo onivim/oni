@@ -95,7 +95,7 @@ const SidebarWrapper = withProps<ISidebarWrapperProps>(styled.div)`
     border-top: ${props =>
         props.isActive
             ? "2px solid " + props.theme["highlight.mode.normal.background"]
-            : "2px solid transparent"};
+            : "2px solid " + props.theme["editor.background"]};
 
     color: ${props => props.theme["sidebar.foreground"]};
     width: ${props => props.width};
