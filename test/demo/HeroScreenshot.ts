@@ -33,6 +33,8 @@ export const test = async (oni: any) => {
 
     oni.configuration.setValues({ "recorder.outputPath": outputPath })
 
+    await oni.workspace.changeDirectory(getRootPath())
+
     const filePath = path.join(
         getRootPath(),
         "browser",
