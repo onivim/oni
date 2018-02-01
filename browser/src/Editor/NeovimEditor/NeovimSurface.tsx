@@ -46,6 +46,8 @@ export interface INeovimSurfaceProps {
 
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> {
     public componentDidCatch(e: Error) {
+        // TODO Add an Error Page to inform user of how to proceed e.g. file bug report
+        // also pass error detais so user can file those
         // tslint:disable-next-line
         console.warn(`Error mounting the Neovim editor because`, e)
     }
