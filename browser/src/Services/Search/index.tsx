@@ -84,8 +84,11 @@ export class SearchPaneView extends React.PureComponent<
 
         const s1 = this.props.onEnter.subscribe(() => this.setState({ isActive: true }))
         const s2 = this.props.onLeave.subscribe(() => this.setState({ isActive: false }))
+        const s3 = this.props.workspace.onDirectoryChanged.subscribe((wd: string) =>
+            this.setState({ activeWorkspace: wd }),
+        )
 
-        this._subscriptions = [s1, s2]
+        this._subscriptions = [s1, s2, s3]
     }
 
     public componentWillUnmount(): void {
