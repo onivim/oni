@@ -1,7 +1,4 @@
 import * as React from "react"
-import { connect } from "react-redux"
-
-import * as State from "./../Shell/ShellState"
 
 import { focusManager } from "./../../Services/FocusManager"
 
@@ -10,16 +7,10 @@ export interface ITextInputViewProps {
     onChange?: (evt: React.ChangeEvent<HTMLInputElement>) => void
 
     defaultValue?: string
-
-    backgroundColor: string
-    foregroundColor: string
-
-    overrideDefaultStyle?: boolean
 }
 
 // TODO: Is there a better value for this?
 const WordRegex = /[$_a-zA-Z0-9]/i
-const EmptyStyle: React.CSSProperties = {}
 
 /**
  * TextInputView is a lightweight input control, that implements some
@@ -35,17 +26,8 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
     }
 
     public render(): JSX.Element {
-        const containerStyle: React.CSSProperties = this.props.overrideDefaultStyle
-            ? EmptyStyle
-            : {
-                  padding: "4px",
-                  border: "1px solid " + this.props.foregroundColor,
-              }
-
         const inputStyle: React.CSSProperties = {
             outline: "none",
-            color: this.props.foregroundColor,
-            backgroundColor: this.props.backgroundColor,
             border: "0px",
             transform: "translateY(0px)",
         }
@@ -53,7 +35,7 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         const defaultValue = this.props.defaultValue || ""
 
         return (
-            <div style={containerStyle}>
+            <div className="input-container">
                 <input
                     type="text"
                     style={inputStyle}
@@ -121,11 +103,3 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         }
     }
 }
-
-const mapStateToProps = (state: State.IState, originalProps?: Partial<ITextInputViewProps>) => ({
-    ...originalProps,
-    backgroundColor: state.colors["editor.background"],
-    foregroundColor: state.colors["editor.foreground"],
-})
-
-export const TextInput = connect(mapStateToProps)(TextInputView)

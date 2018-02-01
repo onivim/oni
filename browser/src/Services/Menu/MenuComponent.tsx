@@ -32,10 +32,17 @@ export interface IMenuProps {
 
     rowHeight: number
     maxItemsToShow: number
-
-    backgroundColor: string
-    foregroundColor: string
 }
+
+const MenuStyleWrapper = styled.div`
+    background-color: ${props => props.theme["menu.background"]};
+    color: ${props => props.theme["menu.foreground"]};
+
+    & input {
+        color: ${props => props.theme["menu.foreground"]};
+        background-color: rgba(0, 0, 0.2);
+    }
+`
 
 export class MenuView extends React.PureComponent<IMenuProps, {}> {
     private _inputElement: HTMLInputElement = null
@@ -66,11 +73,6 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
             )
         }
 
-        const menuStyle = {
-            backgroundColor: this.props.backgroundColor,
-            color: this.props.foregroundColor,
-        }
-
         const footerClassName = "footer " + (this.props.isLoading ? "loading" : "loaded")
 
         const height =
@@ -78,13 +80,8 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
 
         return (
             <div className="menu-background enable-mouse">
-                <div className="menu" style={menuStyle}>
-                    <TextInputView
-                        overrideDefaultStyle={true}
-                        backgroundColor={null}
-                        foregroundColor={this.props.foregroundColor}
-                        onChange={evt => this._onChange(evt)}
-                    />
+                <MenuStyleWrapper className="menu">
+                    <TextInputView onChange={evt => this._onChange(evt)} />
                     <div className="items">
                         <div>
                             <AutoSizer disableHeight={true}>
@@ -101,7 +98,7 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
                             </AutoSizer>
                         </div>
                     </div>
-                    <div className={footerClassName} style={menuStyle}>
+                    <div className={footerClassName}>
                         <div className="loading-spinner">
                             <Icon
                                 name="circle-o-notch"
@@ -110,7 +107,7 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
                             />
                         </div>
                     </div>
-                </div>
+                </MenuStyleWrapper>
             </div>
         )
     }
@@ -128,8 +125,6 @@ const NullProps: any = {
     selectedIndex: 0,
     filterText: "",
     items: EmptyArray,
-    backgroundColor: "black",
-    foregroundColor: "white",
     onSelect: noop,
     isLoading: true,
     rowHeight: 0,
@@ -148,8 +143,6 @@ const mapStateToProps = (
             selectedIndex: popupMenu.selectedIndex,
             filterText: popupMenu.filter,
             items: popupMenu.filteredOptions,
-            backgroundColor: popupMenu.backgroundColor,
-            foregroundColor: popupMenu.foregroundColor,
             onSelect: popupMenu.onSelectItem,
             isLoading: popupMenu.isLoading,
             rowHeight: state.configuration.rowHeight,
