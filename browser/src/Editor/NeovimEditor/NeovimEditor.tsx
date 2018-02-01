@@ -93,6 +93,15 @@ import WildMenu from "./../../UI/components/WildMenu"
 
 import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
+interface UserMapping {
+    buffer: number
+    lhs: string
+    mode: "n" | "v" | "r"
+    unmapped: number
+}
+
+type UserMappings = UserMapping[]
+
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
@@ -134,6 +143,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _toolTipsProvider: IToolTipsProvider
     private _commands: NeovimEditorCommands
     private _externalMenuOverlay: Overlay
+    private _savedUserMappings: UserMappings
 
     private _bufferLayerManager: BufferLayerManager
 
@@ -671,6 +681,29 @@ export class NeovimEditor extends Editor implements IEditor {
         return this.activeBuffer
     }
 
+    public async unmapUserBinding(binding: string[]) {
+        this._savedUserMappings = await this._neovimInstance.callFunction("Save_mappings", [
+            binding,
+            "n",
+            1,
+        ])
+        Log.info(`Removing User Bindings ${JSON.stringify(this._savedUserMappings, null, 2)}`)
+        binding.forEach(async bd => {
+            await this._neovimInstance.command(`unmap ${bd}`)
+        })
+    }
+
+    public async restoreUserBindings() {
+        if (this._savedUserMappings) {
+            const bindings = Object.keys(this._savedUserMappings).reduce(
+                (acc, item) => acc + `, ${item}`,
+                "",
+            )
+            Log.info(`Restoring User Bindings ${bindings}`)
+            this._neovimInstance.callFunction("restore_mappings", [this._savedUserMappings])
+        }
+    }
+
     public async newFile(filePath: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":vsp " + filePath)
         const context = await this._neovimInstance.getContext()
@@ -731,6 +764,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
+        this.unmapUserBinding(["test"])
         return this._bufferManager.getBuffers()
     }
 

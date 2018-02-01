@@ -68,8 +68,10 @@ export class ExplorerSplit {
         })
     }
 
-    public enter(): void {
+    public async enter(): Promise<void> {
         this._store.dispatch({ type: "ENTER" })
+        const editor: any = this._editorManager.activeEditor
+        await editor.unmapUserBindings(["h", "j", "k", "l"])
         this._commandManager.registerCommand(
             new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
         )
@@ -77,7 +79,9 @@ export class ExplorerSplit {
         this._onEnterEvent.dispatch()
     }
 
-    public leave(): void {
+    public async leave(): Promise<void> {
+        const editor: any = this._editorManager.activeEditor
+        await editor.restoreUserBindings()
         this._store.dispatch({ type: "LEAVE" })
     }
 
