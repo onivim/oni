@@ -27,7 +27,7 @@ export const test = async (oni: any) => {
     window.alert = myText => (lastAlertText = myText)
 
     // Use the `Completion.ts` file as the screenshot source
-    remote.getCurrentWindow().setSize(800, 600)
+    remote.getCurrentWindow().setSize(1200, 800)
 
     const outputPath = getDistPath()
 
