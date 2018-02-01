@@ -10,7 +10,7 @@ class FocusManager {
     public pushFocus(element: HTMLElement) {
         this._focusElementStack = [element, ...this._focusElementStack]
 
-        element.focus()
+        window.setTimeout(() => this.enforceFocus(), 0)
     }
 
     public popFocus(element: HTMLElement) {
