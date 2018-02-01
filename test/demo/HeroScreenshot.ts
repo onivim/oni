@@ -10,6 +10,8 @@ import { remote } from "electron"
 
 import { getDistPath, getRootPath } from "./DemoCommon"
 
+// tslint:disable:no-console
+
 const getCompletionElement = () => {
     const elements = document.body.getElementsByClassName("autocompletion")
 
@@ -74,6 +76,8 @@ export const test = async (oni: any) => {
     await oni.automation.sleep(500)
 
     oni.recorder.takeScreenshot(`screenshot-${process.platform}.png`)
+
+    console.log("Alert text: " + lastAlertText)
 
     await oni.automation.waitFor(() => lastAlertText !== null, 20000)
 }
