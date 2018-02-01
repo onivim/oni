@@ -45,6 +45,11 @@ export interface INeovimSurfaceProps {
 }
 
 export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> {
+    public componentDidCatch(e: Error) {
+        // tslint:disable-next-line
+        console.warn(`Error mounting the Neovim editor because`, e)
+    }
+
     public render(): JSX.Element {
         return (
             <div className="container vertical full">
