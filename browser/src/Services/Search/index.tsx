@@ -47,7 +47,7 @@ export class SearchPane {
 import styled from "styled-components"
 
 import { TextInputView } from "./../../UI/components/LightweightText"
-import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
+import { OniButton, SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
 
 import { withProps, boxShadow } from "./../../UI/components/common"
 
@@ -119,8 +119,13 @@ export class SearchPaneView extends React.PureComponent<
                 <SearchTextBox isActive={true} />
                 <Label>Filter</Label>
                 <SearchTextBox isActive={false} />
+                <OniButton focused={false} text={"Search"} onClick={() => this._startSearch()} />
             </div>
         )
+    }
+
+    private _startSearch(): void {
+        alert("searching!")
     }
 }
 
