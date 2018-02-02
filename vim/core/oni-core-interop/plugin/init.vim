@@ -110,10 +110,6 @@ function OniCommand(oniCommand)
     call OniNotify(["oni_command", a:oniCommand])
 endfunction
 
-function OniCommandWithArgs(oniCommand, args)
-    call OniNotify(["oni_command", a:oniCommand, a:args])
-endfunction
-
 function OniOpenFile(strategy, file)
      if bufname('%') != ''
          exec a:strategy . a:file
@@ -218,8 +214,13 @@ function! OniNextWindow( direction )
   endif
 endfunction
 
+function! OniSetMarkAndReport(mark)
+     execute 'normal! m' . a:mark
+    call OniCommand("_internal.notifyMarksChanged")
+endfunction
+
 function! OniIntegrateMarks()
-    call OniCommandWithArgs("_internal.marks.notifyMarkSet", "a")
+    nnoremap <silent> ma :<C-u> call OniSetMarkAndReport('a')<CR>
 endfunction
 
 nnoremap <silent> gd :<C-u>call OniCommand("language.gotoDefinition")<CR>
