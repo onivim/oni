@@ -4,7 +4,6 @@ import * as path from "path"
 
 import * as Platform from "./../Platform"
 import { spawnProcess } from "./../Plugins/Api/Process"
-import { configuration } from "./../Services/Configuration"
 
 import { Session } from "./Session"
 
@@ -22,13 +21,24 @@ export type MsgPackTransport = "stdio" | "pipe"
 export interface INeovimStartOptions {
     runtimePaths?: string[]
     transport?: MsgPackTransport
-    disableInitVim?: boolean
+
+    // If `true`, load init.vim from default path
+    // If a string, override and load init.vim from the specified path
+    loadInitVim: boolean | string
+
+    // Whether or not to use Oni's default, opinionated plugins
+    useDefaultConfig: boolean
+
+    // Explicitly specify the path to Neovim. If not specified,
+    // the default path will be used.
+    neovimPath?: string
 }
 
 const DefaultStartOptions: INeovimStartOptions = {
     runtimePaths: [],
     transport: "stdio",
-    disableInitVim: false,
+    loadInitVim: true,
+    useDefaultConfig: true,
 }
 
 const getSessionFromProcess = async (
@@ -87,31 +97,22 @@ export const startNeovim = async (
 
     nvimProcessPath = remapPathToUnpackedAsar(nvimProcessPath)
 
-    const neovimPath = configuration.getValue("debug.neovimPath")
-
-    if (neovimPath) {
-        nvimProcessPath = neovimPath
+    if (options.neovimPath) {
+        nvimProcessPath = options.neovimPath
     }
 
     Log.info("[NeovimProcessSpawner::startNeovim] Neovim process path: " + nvimProcessPath)
 
     const joinedRuntimePaths = runtimePaths.map(p => remapPathToUnpackedAsar(p)).join(",")
 
-    const loadInitVimConfigOption = configuration.getValue("oni.loadInitVim")
-    const useDefaultConfig = configuration.getValue("oni.useDefaultConfig")
+    const loadInitVimConfigOption = options.loadInitVim
+    const useDefaultConfig = options.useDefaultConfig
 
     let initVimArg = []
     initVimArg = loadInitVimConfigOption || !useDefaultConfig ? [] : ["-u", noopInitVimPath]
 
     if (typeof loadInitVimConfigOption === "string") {
         initVimArg = ["-u", loadInitVimConfigOption]
-    }
-
-    if (options.disableInitVim) {
-        Log.info(
-            "[NeovimProcessSpawner::startNeovim] disableInitVim set to 'true', so not loading init.vim",
-        )
-        initVimArg = ["-u", noopInitVimPath]
     }
 
     const argsToPass = initVimArg.concat([
