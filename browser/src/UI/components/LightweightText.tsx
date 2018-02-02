@@ -54,10 +54,6 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
 
     public componentWillUnmount(): void {
         if (this._element) {
-            if (this.props.onComplete) {
-                this.props.onComplete(this._element.value)
-            }
-
             focusManager.popFocus(this._element)
             this._element = null
         }
@@ -78,6 +74,13 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
     private _onKeyDown(keyboardEvent: React.KeyboardEvent<HTMLInputElement>): void {
         if (keyboardEvent.keyCode === 27) {
             this._cancel()
+            return
+        }
+
+        if (keyboardEvent.keyCode === 13) {
+            if (this.props.onComplete) {
+                this.props.onComplete(this._element.value)
+            }
             return
         }
 
