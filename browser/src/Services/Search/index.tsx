@@ -48,6 +48,7 @@ import styled from "styled-components"
 
 import { TextInputView } from "./../../UI/components/LightweightText"
 import { OniButton, SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
+import { VimNavigator } from "./../../UI/components/VimNavigator"
 
 import { withProps, boxShadow } from "./../../UI/components/common"
 
@@ -76,7 +77,7 @@ export class SearchPaneView extends React.PureComponent<
         super(props)
 
         this.state = {
-            activeWorkspace: null,
+            activeWorkspace: this.props.workspace.activeWorkspace,
             isActive: false,
         }
     }
@@ -109,18 +110,31 @@ export class SearchPaneView extends React.PureComponent<
                     active={this.state.isActive}
                     contentsText="Nothing to search, yet!"
                     actionButtonText={"Open Folder"}
+                    onClickButton={() => this.props.workspace.openFolder()}
                 />
             )
         }
 
         return (
-            <div>
-                <Label>Query</Label>
-                <SearchTextBox isActive={true} />
-                <Label>Filter</Label>
-                <SearchTextBox isActive={false} />
-                <OniButton focused={false} text={"Search"} onClick={() => this._startSearch()} />
-            </div>
+            <VimNavigator
+                active={this.state.isActive}
+                ids={["textbox.query", "textbox.filter", "button.search"]}
+                render={() => {
+                    return (
+                        <div>
+                            <Label>Query</Label>
+                            <SearchTextBox isFocused={true} isActive={false} />
+                            <Label>Filter</Label>
+                            <SearchTextBox isFocused={true} isActive={false} />
+                            <OniButton
+                                focused={false}
+                                text={"Search"}
+                                onClick={() => this._startSearch()}
+                            />
+                        </div>
+                    )
+                }}
+            />
         )
     }
 
@@ -131,7 +145,16 @@ export class SearchPaneView extends React.PureComponent<
 
 export interface ISearchTextBoxProps {
     isActive: boolean
+    isFocused: boolean
 }
+
+const SearchBoxContainerWrapper = withProps<ISearchTextBoxProps>(styled.div)`
+    margin: 8px;
+
+    background-color: ${props => (props.isFocused ? "rgba(0, 0, 0, 0.1)" : "transparent")};
+    border-left: 2px solid ${props =>
+        props.isFocused ? props.theme["highlight.mode.normal.background"] : "transparent"};
+`
 
 const SearchTextBoxWrapper = withProps<ISearchTextBoxProps>(styled.div)`
     padding: 8px;
@@ -155,7 +178,11 @@ const SearchTextBoxWrapper = withProps<ISearchTextBoxProps>(styled.div)`
 export class SearchTextBox extends React.PureComponent<ISearchTextBoxProps, {}> {
     public render(): JSX.Element {
         const inner = this.props.isActive ? <TextInputView /> : <div style={{ opacity: 0 }}>a</div>
-        return <SearchTextBoxWrapper {...this.props}>{inner}</SearchTextBoxWrapper>
+        return (
+            <SearchBoxContainerWrapper {...this.props}>
+                <SearchTextBoxWrapper {...this.props}>{inner}</SearchTextBoxWrapper>
+            </SearchBoxContainerWrapper>
+        )
     }
 }
 
