@@ -7,6 +7,18 @@
 export interface IMenus<T, FilteredT> {
     // TOOD: In the future, could handle multiple menus here...
     menu: IMenu<T, FilteredT>
+
+    configuration: IMenuConfigurationSettings
+}
+
+export interface IMenuConfigurationSettings {
+    rowHeight: number
+    maxItemsToShow: number
+}
+
+export const DefaultMenuConfigurationSettings: IMenuConfigurationSettings = {
+    rowHeight: 40,
+    maxItemsToShow: 6,
 }
 
 export interface IMenu<T, FilteredT> {
@@ -33,5 +45,9 @@ export interface IMenu<T, FilteredT> {
 export function createDefaultState<T, FilteredT>(): IMenus<T, FilteredT> {
     return {
         menu: null,
+        configuration: {
+            rowHeight: 20,
+            maxItemsToShow: 10,
+        },
     }
 }

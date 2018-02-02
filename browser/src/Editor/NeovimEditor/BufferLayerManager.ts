@@ -9,6 +9,10 @@ import * as Oni from "oni-api"
 export type BufferLayerFactory = (buf: Oni.Buffer) => Oni.EditorLayer
 export type BufferFilter = (buf: Oni.Buffer) => boolean
 
+export interface IBufferLayer extends Oni.EditorLayer {
+    handleInput?: (key: string) => boolean
+}
+
 export const createBufferFilterFromLanguage = (language: string) => (buf: Oni.Buffer): boolean => {
     if (!language || language === "*") {
         return true

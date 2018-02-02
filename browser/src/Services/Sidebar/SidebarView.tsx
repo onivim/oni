@@ -14,6 +14,8 @@ import { ISidebarEntry, ISidebarState } from "./SidebarStore"
 import styled from "styled-components"
 import { withProps } from "./../../UI/components/common"
 
+import { Sneakable } from "./../../UI/components/Sneakable"
+
 export interface ISidebarIconProps {
     active: boolean
     focused: boolean
@@ -31,19 +33,19 @@ const SidebarIconWrapper = withProps<ISidebarIconProps>(styled.div)`
     outline: none;
     cursor: pointer;
     opacity: ${props => (props.active ? 0.9 : 0.75)};
-    border: 1px solid ${props =>
+    border-left: 2px solid ${props =>
         props.focused ? props.theme["sidebar.selection.border"] : "transparent"};
     background-color: ${props =>
         props.active ? props.theme["editor.background"] : props.theme.background};
     transition: transform 0.2s ease-in;
-    transform: ${props => (props.active || props.focused ? "translateX(2px)" : "translateX(0px)")};
+    transform: ${props => (props.active || props.focused ? "translateY(0px)" : "translateY(0px)")};
 
     &.active {
         opacity: 0.75;
     }
 
     &:hover {
-        transform: translateX(2px);
+        transform: translateY(0px);
         opacity: 0.9;
     }
     `
@@ -56,11 +58,13 @@ const SidebarIconInner = styled.div`
 export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
     public render(): JSX.Element {
         return (
-            <SidebarIconWrapper {...this.props} tabIndex={0}>
-                <SidebarIconInner>
-                    <Icon name={this.props.iconName} size={IconSize.Large} />
-                </SidebarIconInner>
-            </SidebarIconWrapper>
+            <Sneakable callback={this.props.onClick}>
+                <SidebarIconWrapper {...this.props} tabIndex={0}>
+                    <SidebarIconInner>
+                        <Icon name={this.props.iconName} size={IconSize.Large} />
+                    </SidebarIconInner>
+                </SidebarIconWrapper>
+            </Sneakable>
         )
     }
 }
@@ -79,6 +83,7 @@ export interface ISidebarContainerProps {
 
 export interface ISidebarWrapperProps {
     width: string
+    isActive: boolean
 }
 
 const SidebarWrapper = withProps<ISidebarWrapperProps>(styled.div)`
@@ -86,6 +91,11 @@ const SidebarWrapper = withProps<ISidebarWrapperProps>(styled.div)`
 
     display: flex;
     flex-direction: column;
+
+    border-top: ${props =>
+        props.isActive
+            ? "2px solid " + props.theme["highlight.mode.normal.background"]
+            : "2px solid " + props.theme["editor.background"]};
 
     color: ${props => props.theme["sidebar.foreground"]};
     width: ${props => props.width};
@@ -100,7 +110,7 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
         const ids = this.props.entries.map(e => e.id)
 
         return (
-            <SidebarWrapper width={this.props.width}>
+            <SidebarWrapper width={this.props.width} isActive={this.props.isActive}>
                 <VimNavigator
                     ids={ids}
                     active={this.props.isActive}
