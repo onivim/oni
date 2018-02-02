@@ -10,6 +10,9 @@ import { Event, IDisposable, IEvent } from "oni-types"
 
 import { SidebarManager, SidebarPane } from "./../Services/Sidebar"
 
+import { SidebarItemView } from "./../UI/components/SidebarItemView"
+import { VimNavigator } from "./../UI/components/VimNavigator"
+
 import { PluginManager } from "./../Plugins/PluginManager"
 
 export class PluginsSidebarPane implements SidebarPane {
@@ -61,6 +64,15 @@ export class PluginsSidebarPaneView extends React.PureComponent<
     IPluginsSidebarPaneViewState
 > {
     private _subscriptions: IDisposable[] = []
+
+    constructor(props: IPluginsSidebarPaneViewProps) {
+        super(props)
+
+        this.state = {
+            isActive: false,
+        }
+    }
+
     public componentDidMount(): void {
         this._clearExistingSubscriptions()
 
@@ -75,10 +87,28 @@ export class PluginsSidebarPaneView extends React.PureComponent<
     }
 
     public render(): JSX.Element {
+        const plugins = this.props.pluginManager.plugins
+
+        const ids = plugins.map(p => p.id)
+        const allIds = ["container", ...ids]
+
         return (
-            <div>
-                {this.state.isActive} + {this.props.pluginManager.plugins.toString()}
-            </div>
+            <VimNavigator
+                ids={allIds}
+                active={this.state.isActive}
+                render={(selectedId: string) => {
+                    const pluginItems = plugins.map(p => (
+                        <SidebarItemView
+                            indentationLevel={0}
+                            isFocused={p.id === selectedId}
+                            isContainer={false}
+                            text={p.id}
+                        />
+                    ))
+
+                    return <div>{pluginItems}</div>
+                }}
+            />
         )
     }
 
