@@ -219,8 +219,18 @@ function! OniSetMarkAndReport(mark)
     call OniCommand("_internal.notifyMarksChanged")
 endfunction
 
+let s:all_marks = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 function! OniListenForMarks()
-    nnoremap <silent> ma :<C-u> call OniSetMarkAndReport('a')<CR>
+
+    let n = 0
+    let s:maxmarks = strlen(s:all_marks)
+    while n < s:maxmarks
+        let c = strpart(s:all_marks, n, 1)
+        execute "nnoremap <silent> m" . c . " :<C-u> call OniSetMarkAndReport('" . c . "')<CR>"
+        let n = n + 1
+    endwhile
+    call OniCommand("_internal.notifyMarksChanged")
 endfunction
 
 nnoremap <silent> gd :<C-u>call OniCommand("language.gotoDefinition")<CR>
