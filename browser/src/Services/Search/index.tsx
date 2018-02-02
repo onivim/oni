@@ -11,9 +11,15 @@ import { Event, IDisposable, IEvent } from "oni-types"
 import { SidebarManager } from "./../Sidebar"
 import { Workspace } from "./../Workspace"
 
+export * from "./SearchProvider"
+
+import { ISearchProvider, ISearchOptions, RipGrepSearchProvider } from "./SearchProvider"
+
 export class SearchPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
+
+    private _searchProvider: ISearchProvider
 
     public get id(): string {
         return "oni.sidebar.search"
@@ -23,7 +29,9 @@ export class SearchPane {
         return "Search"
     }
 
-    constructor(private _workspace: Workspace) {}
+    constructor(private _workspace: Workspace) {
+        this._searchProvider = new RipGrepSearchProvider()
+    }
 
     public enter(): void {
         this._onEnter.dispatch()
@@ -39,8 +47,15 @@ export class SearchPane {
                 workspace={this._workspace}
                 onEnter={this._onEnter}
                 onLeave={this._onLeave}
+                onSearchOptionsChanged={opts => this._onSearchOptionsChanged(opts)}
             />
         )
+    }
+
+    private _onSearchOptionsChanged(searchOpts: ISearchOptions): void {
+        console.log("changed: " + searchOpts)
+
+        this._searchProvider.search(searchOpts)
     }
 }
 
@@ -60,12 +75,17 @@ export interface ISearchPaneViewProps {
     workspace: Workspace
     onEnter: IEvent<void>
     onLeave: IEvent<void>
+
+    onSearchOptionsChanged: (opts: ISearchOptions) => void
 }
 
 export interface ISearchPaneViewState {
     activeWorkspace: string
     isActive: boolean
     activeTextbox: string
+
+    searchQuery: string
+    fileFilter: string
 }
 
 export class SearchPaneView extends React.PureComponent<
@@ -81,6 +101,8 @@ export class SearchPaneView extends React.PureComponent<
             activeWorkspace: this.props.workspace.activeWorkspace,
             isActive: false,
             activeTextbox: null,
+            searchQuery: null,
+            fileFilter: "*.*",
         }
     }
 
@@ -175,16 +197,22 @@ export class SearchPaneView extends React.PureComponent<
     }
 
     private _startSearch(): void {
-        alert("searching!")
+        this.props.onSearchOptionsChanged({
+            searchQuery: this.state.searchQuery,
+            fileFilter: this.state.fileFilter,
+            workspace: this.props.workspace.activeWorkspace,
+        })
     }
 }
 
 export interface ISearchTextBoxProps {
     isActive: boolean
     isFocused: boolean
+    val: string
 
     onDismiss: () => void
     onCommit: (newValue: string) => void
+    onChange: (newValue: string) => void
 }
 
 const SearchBoxContainerWrapper = withProps<ISearchTextBoxProps>(styled.div)`
@@ -217,9 +245,14 @@ const SearchTextBoxWrapper = withProps<ISearchTextBoxProps>(styled.div)`
 export class SearchTextBox extends React.PureComponent<ISearchTextBoxProps, {}> {
     public render(): JSX.Element {
         const inner = this.props.isActive ? (
-            <TextInputView onCancel={this.props.onDismiss} onComplete={this.props.onCommit} />
+            <TextInputView
+                defaultValue={this.props.val}
+                onCancel={this.props.onDismiss}
+                onChange={this.props.onChange}
+                onComplete={this.props.onCommit}
+            />
         ) : (
-            <div style={{ opacity: 0 }}>a</div>
+            <div>{this.props.val}</div>
         )
         return (
             <SearchBoxContainerWrapper {...this.props}>
