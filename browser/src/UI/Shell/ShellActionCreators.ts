@@ -59,6 +59,10 @@ export const setViewport = (width: number, height: number) => ({
     },
 })
 
+export const toggleSplit = () => ({
+    type: "TOGGLE_SPLIT",
+})
+
 export const showStatusBarItem = (
     id: string,
     contents: JSX.Element,

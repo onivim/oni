@@ -55,6 +55,10 @@ export interface IStatusBarShowAction {
     }
 }
 
+export interface IToggleSplitAction {
+    type: "TOGGLE_SPLIT"
+}
+
 export interface IStatusBarHideAction {
     type: "STATUSBAR_HIDE"
     payload: {
@@ -98,5 +102,6 @@ export type SimpleAction =
     | ISetHasFocusAction
     | ISetLoadingCompleteAction
     | ISetWindowTitleAction
+    | IToggleSplitAction
 
 export type ActionWithGeneric<K extends keyof IConfigurationValues> = ISetConfigurationValue<K>
