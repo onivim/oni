@@ -61,7 +61,20 @@ export function reducer<K extends keyof IConfigurationValues>(
                 ...s,
                 overlays: overlaysReducer(s.overlays, a),
                 statusBar: statusBarReducer(s.statusBar, a),
+                splits: splitsReducer(s.splits, a),
             }
+    }
+}
+
+export const splitsReducer = (s: State.Splits, a: Actions.SimpleAction) => {
+    switch (a.type) {
+        case "TOGGLE_SPLIT":
+            return {
+                ...s,
+                isOpen: !s.isOpen,
+            }
+        default:
+            return s
     }
 }
 

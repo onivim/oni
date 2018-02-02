@@ -8,7 +8,7 @@ import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import { IConfigurationValues } from "./../../Services/Configuration"
+import { configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { DefaultThemeColors, IThemeColors } from "./../../Services/Themes"
 
 export interface Errors {
@@ -36,6 +36,10 @@ export interface Overlays {
     [key: string]: IOverlay
 }
 
+export interface Splits {
+    isOpen: boolean
+}
+
 export interface IState {
     // Editor
     hasFocus: boolean
@@ -49,6 +53,7 @@ export interface IState {
 
     statusBar: { [id: string]: IStatusBarItem }
     overlays: { [id: string]: IOverlay }
+    splits: Splits
 
     errors: Errors
 }
@@ -93,4 +98,7 @@ export const createDefaultState = (): IState => ({
     overlays: {},
     statusBar: {},
     windowTitle: "",
+    splits: {
+        isOpen: configuration.getValue("sidebar.defaultOpen"),
+    },
 })

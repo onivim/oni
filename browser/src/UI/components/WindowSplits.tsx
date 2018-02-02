@@ -8,7 +8,7 @@ import * as React from "react"
 
 import * as Oni from "oni-api"
 
-import { WindowSplitHost } from "./WindowSplitHost"
+import WindowSplitHost from "./WindowSplitHost"
 
 import { ISplitInfo, WindowManager } from "./../../Services/WindowManager"
 
