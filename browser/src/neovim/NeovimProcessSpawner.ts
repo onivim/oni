@@ -22,11 +22,13 @@ export type MsgPackTransport = "stdio" | "pipe"
 export interface INeovimStartOptions {
     runtimePaths?: string[]
     transport?: MsgPackTransport
+    disableInitVim?: boolean
 }
 
 const DefaultStartOptions: INeovimStartOptions = {
     runtimePaths: [],
     transport: "stdio",
+    disableInitVim: false,
 }
 
 const getSessionFromProcess = async (
@@ -91,7 +93,7 @@ export const startNeovim = async (
         nvimProcessPath = neovimPath
     }
 
-    Log.info("[NeovimProcessSpawnwer::startNeovim] Neovim process path: " + nvimProcessPath)
+    Log.info("[NeovimProcessSpawner::startNeovim] Neovim process path: " + nvimProcessPath)
 
     const joinedRuntimePaths = runtimePaths.map(p => remapPathToUnpackedAsar(p)).join(",")
 
@@ -103,6 +105,13 @@ export const startNeovim = async (
 
     if (typeof loadInitVimConfigOption === "string") {
         initVimArg = ["-u", loadInitVimConfigOption]
+    }
+
+    if (options.disableInitVim) {
+        Log.info(
+            "[NeovimProcessSpawner::startNeovim] disableInitVim set to 'true', so not loading init.vim",
+        )
+        initVimArg = ["-u", noopInitVimPath]
     }
 
     const argsToPass = initVimArg.concat([
