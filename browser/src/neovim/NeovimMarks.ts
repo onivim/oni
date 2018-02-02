@@ -26,18 +26,24 @@ export interface INeovimMarks {
     watchMarks(): void
 }
 
-// const parseMarks = (marks: string): INeovimMarkInfo[] => {
-//     if (!marks) {
-//         return []
-//     }
+const parseMarks = (marks: string): INeovimMarkInfo[] => {
+    if (!marks) {
+        return []
+    }
 
-//     const allLines = marks.split("\n")
+    const allLines = marks.split("\n")
 
-//     const [empty, header, ...markLines] = allLines
+    // First two lines are a new line and the headers -
+    // we don't care about those.
+    const [, , ...markLines] = allLines
 
-// }
+    const ret = markLines.map(ml => parseMarkLine(ml))
+
+    return ret
+}
 
 const isWhitespace = (character: string): boolean => /\s/.test(character)
+const isAlphaNumeric = (character: string): boolean => /^[a-z0-9]+$/i.test(character)
 
 const getNextNonWhitespaceCharacter = (str: string, start: number): number => {
     let idx = start
@@ -99,17 +105,34 @@ export class NeovimMarks {
         return this._onMarksUpdatedEvent
     }
 
-    constructor(private _neovimInstance: NeovimInstance) {}
+    constructor(private _neovimInstance: NeovimInstance) {
+        this._neovimInstance.onOniCommand.subscribe(val => {
+            if (val === "_internal.notifyMarksChanged") {
+                this._updateMarks()
+            }
+        })
+    }
 
     public watchMarks(): void {
-        this._readMarks()
+        this._neovimInstance.callFunction("OniListenForMarks", [])
+    }
+
+    private async _updateMarks(): Promise<void> {
+        const latestMarks = await this._readMarks()
+        this._onMarksUpdatedEvent.dispatch(latestMarks)
     }
 
     private async _readMarks(): Promise<INeovimMarkInfo[]> {
-        const markInfo = await this._neovimInstance.request("nvim_command_output", [":marks"])
+        const markInfo: string = await this._neovimInstance.request<string>("nvim_command_output", [
+            ":marks",
+        ])
 
-        alert(markInfo)
+        const allMarks = parseMarks(markInfo)
 
-        return []
+        // We'll only show the alpha-numeric marks, because those are
+        // the only ones we're tracking updates on.
+
+        const marks = allMarks.filter(am => isAlphaNumeric(am.mark))
+        return marks
     }
 }

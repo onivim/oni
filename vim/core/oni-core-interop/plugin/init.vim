@@ -219,7 +219,7 @@ function! OniSetMarkAndReport(mark)
     call OniCommand("_internal.notifyMarksChanged")
 endfunction
 
-function! OniIntegrateMarks()
+function! OniListenForMarks()
     nnoremap <silent> ma :<C-u> call OniSetMarkAndReport('a')<CR>
 endfunction
 
