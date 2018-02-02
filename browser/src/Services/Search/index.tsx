@@ -151,6 +151,7 @@ export class SearchPaneView extends React.PureComponent<
                         <div>
                             <Label>Query</Label>
                             <SearchTextBox
+                                onChange={val => this._onChangeSearchQuery(val)}
                                 onCommit={() => this._clearActiveTextbox()}
                                 onDismiss={() => this._clearActiveTextbox()}
                                 isFocused={selectedId === "textbox.query"}
@@ -158,6 +159,7 @@ export class SearchPaneView extends React.PureComponent<
                             />
                             <Label>Filter</Label>
                             <SearchTextBox
+                                onChange={val => this._onChangeFilesFilter(val)}
                                 onCommit={() => this._clearActiveTextbox()}
                                 onDismiss={() => this._clearActiveTextbox()}
                                 isFocused={selectedId === "textbox.filter"}
@@ -176,6 +178,18 @@ export class SearchPaneView extends React.PureComponent<
                 }}
             />
         )
+    }
+
+    private _onChangeFilesFilter(val: string): void {
+        this.setState({
+            filesFilter: val,
+        })
+    }
+
+    private _onChangeSearchQuery(val: string): void {
+        this.setState({
+            searchQuery: val,
+        })
     }
 
     // private _onCommit(): void {
