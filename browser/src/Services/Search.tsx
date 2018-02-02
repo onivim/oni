@@ -6,8 +6,8 @@
 
 import { Event, IEvent } from "oni-types"
 
-import * as RipGrep from "./QuickOpen/RipGrep"
 import { FinderProcess } from "./QuickOpen/FinderProcess"
+import * as RipGrep from "./QuickOpen/RipGrep"
 
 export interface ISearchResultItem {
     fileName: string
@@ -83,8 +83,8 @@ export const ripGrepLineToSearchResultItem = (ripGrepResult: string): ISearchRes
 
     const ret: ISearchResultItem = {
         fileName,
-        line: parseInt(line),
-        column: parseInt(column),
+        line: parseInt(line, 10),
+        column: parseInt(column, 10),
         text,
     }
     return ret
