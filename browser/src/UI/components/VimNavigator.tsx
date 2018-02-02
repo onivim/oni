@@ -117,7 +117,13 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
             this._activeBinding = getInstance().bindToMenu()
 
             commandManager.registerCommand(
-                new CallbackCommand("select", null, null, () => this._select()),
+                new CallbackCommand(
+                    "select",
+                    null,
+                    null,
+                    () => this._select(),
+                    () => this.props.active,
+                ),
             )
 
             this._activeBinding.onCursorMoved.subscribe(newValue => {
