@@ -8,8 +8,7 @@ import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import { IConfigurationValues } from "./../../Services/Configuration"
-import { configuration } from "./../../Services/Configuration"
+import { configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { DefaultThemeColors, IThemeColors } from "./../../Services/Themes"
 
 export interface Errors {
