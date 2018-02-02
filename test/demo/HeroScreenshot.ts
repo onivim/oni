@@ -33,8 +33,6 @@ export const test = async (oni: any) => {
 
     const outputPath = getDistPath()
 
-    oni.configuration.setValues({ "recorder.outputPath": outputPath })
-
     await oni.workspace.changeDirectory(getRootPath())
 
     const filePath = path.join(
@@ -74,6 +72,8 @@ export const test = async (oni: any) => {
     await oni.automation.waitFor(() => getCompletionElement() !== null, 20000)
 
     await oni.automation.sleep(500)
+
+    oni.configuration.setValues({ "recorder.outputPath": outputPath })
 
     oni.recorder.takeScreenshot(`screenshot-${process.platform}.png`)
 
