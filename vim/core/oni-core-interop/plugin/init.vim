@@ -110,6 +110,10 @@ function OniCommand(oniCommand)
     call OniNotify(["oni_command", a:oniCommand])
 endfunction
 
+function OniCommandWithArgs(oniCommand, args)
+    call OniNotify(["oni_command", a:oniCommand, a:args])
+endfunction
+
 function OniOpenFile(strategy, file)
      if bufname('%') != ''
          exec a:strategy . a:file
@@ -212,6 +216,10 @@ function! OniNextWindow( direction )
     endif
     execute 'wincmd' a:direction
   endif
+endfunction
+
+function! OniIntegrateMarks()
+    call OniCommandWithArgs("_internal.marks.notifyMarkSet", "a")
 endfunction
 
 nnoremap <silent> gd :<C-u>call OniCommand("language.gotoDefinition")<CR>
