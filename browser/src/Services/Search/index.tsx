@@ -15,6 +15,8 @@ export * from "./SearchProvider"
 
 import { ISearchProvider, ISearchOptions, RipGrepSearchProvider } from "./SearchProvider"
 
+import { SearchTextBox } from "./SearchTextBox"
+
 export class SearchPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
@@ -61,11 +63,8 @@ export class SearchPane {
 
 import styled from "styled-components"
 
-import { TextInputView } from "./../../UI/components/LightweightText"
-import { OniButton, SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
+import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
-
-import { withProps, boxShadow } from "./../../UI/components/common"
 
 const Label = styled.div`
     margin: 8px;
@@ -101,7 +100,7 @@ export class SearchPaneView extends React.PureComponent<
             activeWorkspace: this.props.workspace.activeWorkspace,
             isActive: false,
             activeTextbox: null,
-            searchQuery: null,
+            searchQuery: "Type to search...",
             fileFilter: "*.*",
         }
     }
@@ -142,7 +141,7 @@ export class SearchPaneView extends React.PureComponent<
         return (
             <VimNavigator
                 active={this.state.isActive}
-                ids={["textbox.query", "textbox.filter", "button.search"]}
+                ids={["textbox.query", "textbox.filter"]}
                 onSelected={(selectedId: string) => {
                     this._onSelected(selectedId)
                 }}
@@ -151,7 +150,8 @@ export class SearchPaneView extends React.PureComponent<
                         <div>
                             <Label>Query</Label>
                             <SearchTextBox
-                                onChange={val => this._onChangeSearchQuery(val)}
+                                val={this.state.searchQuery}
+                                onChangeText={val => this._onChangeSearchQuery(val)}
                                 onCommit={() => this._clearActiveTextbox()}
                                 onDismiss={() => this._clearActiveTextbox()}
                                 isFocused={selectedId === "textbox.query"}
@@ -159,20 +159,13 @@ export class SearchPaneView extends React.PureComponent<
                             />
                             <Label>Filter</Label>
                             <SearchTextBox
-                                onChange={val => this._onChangeFilesFilter(val)}
+                                val={this.state.fileFilter}
+                                onChangeText={val => this._onChangeFilesFilter(val)}
                                 onCommit={() => this._clearActiveTextbox()}
                                 onDismiss={() => this._clearActiveTextbox()}
                                 isFocused={selectedId === "textbox.filter"}
                                 isActive={this.state.activeTextbox === "textbox.filter"}
                             />
-
-                            <div style={{ marginTop: "8px" }}>
-                                <OniButton
-                                    focused={selectedId === "button.search"}
-                                    text={"Search"}
-                                    onClick={() => this._startSearch()}
-                                />
-                            </div>
                         </div>
                     )
                 }}
@@ -182,7 +175,7 @@ export class SearchPaneView extends React.PureComponent<
 
     private _onChangeFilesFilter(val: string): void {
         this.setState({
-            filesFilter: val,
+            fileFilter: val,
         })
     }
 
@@ -216,63 +209,6 @@ export class SearchPaneView extends React.PureComponent<
             fileFilter: this.state.fileFilter,
             workspace: this.props.workspace.activeWorkspace,
         })
-    }
-}
-
-export interface ISearchTextBoxProps {
-    isActive: boolean
-    isFocused: boolean
-    val: string
-
-    onDismiss: () => void
-    onCommit: (newValue: string) => void
-    onChange: (newValue: string) => void
-}
-
-const SearchBoxContainerWrapper = withProps<ISearchTextBoxProps>(styled.div)`
-    padding: 8px;
-
-    background-color: ${props => (props.isFocused ? "rgba(0, 0, 0, 0.1)" : "transparent")};
-    border-left: 2px solid ${props =>
-        props.isFocused ? props.theme["highlight.mode.normal.background"] : "transparent"};
-`
-
-const SearchTextBoxWrapper = withProps<ISearchTextBoxProps>(styled.div)`
-    padding: 8px;
-    border: ${props =>
-        props.isActive
-            ? "2px solid " + props.theme["highlight.mode.normal.background"]
-            : "1px solid " + props.theme["editor.foreground"]};
-    margin: 8px;
-    background-color: ${props => props.theme["background"]};
-
-    ${props => (props.isActive ? boxShadow : "")};
-
-    transition: all 0.1s ease-in;
-
-    input {
-        background-color: transparent;
-        color: ${props => props.theme["editor.foreground"]}
-    }
-`
-
-export class SearchTextBox extends React.PureComponent<ISearchTextBoxProps, {}> {
-    public render(): JSX.Element {
-        const inner = this.props.isActive ? (
-            <TextInputView
-                defaultValue={this.props.val}
-                onCancel={this.props.onDismiss}
-                onChange={this.props.onChange}
-                onComplete={this.props.onCommit}
-            />
-        ) : (
-            <div>{this.props.val}</div>
-        )
-        return (
-            <SearchBoxContainerWrapper {...this.props}>
-                <SearchTextBoxWrapper {...this.props}>{inner}</SearchTextBoxWrapper>
-            </SearchBoxContainerWrapper>
-        )
     }
 }
 

@@ -9,8 +9,6 @@ import { SidebarContentSplit } from "./SidebarContentSplit"
 import { SidebarSplit } from "./SidebarSplit"
 import { SidebarManager } from "./SidebarStore"
 
-import { SidebarPane } from "./SidebarPane"
-
 let _sidebarManager: SidebarManager = null
 
 export * from "./SidebarStore"

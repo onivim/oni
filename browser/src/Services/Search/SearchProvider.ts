@@ -6,8 +6,8 @@
 
 import { Event, IEvent } from "oni-types"
 
-import { FinderProcess } from "./QuickOpen/FinderProcess"
-import * as RipGrep from "./QuickOpen/RipGrep"
+import { FinderProcess } from "./../QuickOpen/FinderProcess"
+import * as RipGrep from "./../QuickOpen/RipGrep"
 
 export interface ISearchResultItem {
     fileName: string
@@ -136,7 +136,7 @@ export class RipGrepSearchQuery {
     }
 }
 
-import { EditorManager } from "./../Services/EditorManager"
+import { EditorManager } from "./../EditorManager"
 
 export interface ISearchResultsViewer {
     showResults(results: ISearchResult): void
