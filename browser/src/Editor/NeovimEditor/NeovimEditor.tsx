@@ -690,6 +690,9 @@ export class NeovimEditor extends Editor implements IEditor {
         const startOptions: INeovimStartOptions = {
             runtimePaths: this._pluginManager.getAllRuntimePaths(),
             transport: this._configuration.getValue("experimental.neovim.transport"),
+            neovimPath: this._configuration.getValue("debug.neovimPath"),
+            loadInitVim: this._configuration.getValue("oni.loadInitVim"),
+            useDefaultConfig: this._configuration.getValue("oni.useDefaultConfig"),
         }
 
         await this._neovimInstance.start(startOptions)

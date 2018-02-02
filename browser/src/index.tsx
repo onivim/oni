@@ -187,6 +187,9 @@ const start = async (args: string[]): Promise<void> => {
 
     diagnostics.start(languageManager)
 
+    const Search = await import("./Services/Search")
+    Search.activate()
+
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()
     configuration.activate(api)
@@ -211,6 +214,9 @@ const start = async (args: string[]): Promise<void> => {
 
     const ThemePicker = await themePickerPromise
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())
+
+    const Bookmarks = await import("./Services/Bookmarks")
+    Bookmarks.activate(configuration, Sidebar.getInstance())
 
     Performance.endMeasure("Oni.Start.Activate")
 

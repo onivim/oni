@@ -24,9 +24,6 @@ export const activate = (configuration: Configuration, workspace: Workspace) => 
         leftDock.addSplit(new SidebarContentSplit(_sidebarManager))
 
         _sidebarManager.add("files-o", new ExplorerSplit(workspace, commandManager, editorManager))
-
-        const bookmarksPane = new SidebarPane("oni.sidebar.bookmarks", "Bookmarks")
-        _sidebarManager.add("bookmark", bookmarksPane)
     }
 }
 
