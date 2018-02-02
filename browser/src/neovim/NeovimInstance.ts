@@ -17,6 +17,7 @@ import { Configuration } from "./../Services/Configuration"
 import * as Actions from "./actions"
 import { NeovimBufferReference } from "./MsgPack"
 import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
+import { INeovimMarks, NeovimMarks } from "./NeovimMarks"
 import { INeovimStartOptions, startNeovim } from "./NeovimProcessSpawner"
 import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { IPixelPosition, IPosition } from "./Screen"
@@ -125,6 +126,7 @@ export interface INeovimInstance {
     onCommandLineSetCursorPosition: IEvent<INeovimCommandLineSetCursorPosition>
 
     autoCommands: INeovimAutoCommands
+    marks: INeovimMarks
 
     screenToPixels(row: number, col: number): IPixelPosition
 
@@ -192,6 +194,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _cols: number
 
     private _quickFix: QuickFixList
+    private _marks: NeovimMarks
     private _initComplete: boolean
 
     private _onDirectoryChanged = new Event<string>()
@@ -311,6 +314,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._autoCommands
     }
 
+    public get marks(): INeovimMarks {
+        return this._marks
+    }
+
     constructor(widthInPixels: number, heightInPixels: number, configuration: Configuration) {
         super()
         this._configuration = configuration
@@ -322,6 +329,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._quickFix = new QuickFixList(this)
         this._autoCommands = new NeovimAutoCommands(this)
+        this._marks = new NeovimMarks(this)
 
         this._bufferUpdateManager = new NeovimBufferUpdateManager(this._configuration, this)
     }
