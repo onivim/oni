@@ -180,6 +180,7 @@ const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start.Sidebar")
     const Sidebar = await sidebarPromise
     Sidebar.activate(configuration, workspace)
+    const sidebarManager = Sidebar.getInstance()
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =
@@ -206,11 +207,17 @@ const start = async (args: string[]): Promise<void> => {
     const Snippets = await snippetPromise
     Snippets.activate()
 
+    const Search = await import("./Services/Search")
+    Search.activate(editorManager, Sidebar.getInstance(), workspace)
+
     const ThemePicker = await themePickerPromise
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())
 
     const Bookmarks = await import("./Services/Bookmarks")
     Bookmarks.activate(configuration, editorManager, Sidebar.getInstance())
+
+    const PluginsSidebarPane = await import("./Plugins/PluginSidebarPane")
+    PluginsSidebarPane.activate(pluginManager, sidebarManager)
 
     Performance.endMeasure("Oni.Start.Activate")
 

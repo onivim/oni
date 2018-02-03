@@ -9,8 +9,6 @@ import { SidebarContentSplit } from "./SidebarContentSplit"
 import { SidebarSplit } from "./SidebarSplit"
 import { SidebarManager } from "./SidebarStore"
 
-import { SidebarPane } from "./SidebarPane"
-
 let _sidebarManager: SidebarManager = null
 
 export * from "./SidebarStore"
@@ -24,9 +22,6 @@ export const activate = (configuration: Configuration, workspace: Workspace) => 
         leftDock.addSplit(new SidebarContentSplit(_sidebarManager))
 
         _sidebarManager.add("files-o", new ExplorerSplit(workspace, commandManager, editorManager))
-
-        const searchPane = new SidebarPane("oni.sidebar.search", "Search")
-        _sidebarManager.add("search", searchPane)
     }
 }
 

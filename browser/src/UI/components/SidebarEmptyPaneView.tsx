@@ -62,6 +62,7 @@ import { Sneakable } from "./Sneakable"
 import { VimNavigator } from "./VimNavigator"
 
 export interface IOniButtonProps {
+    focused: boolean
     text: string
     onClick: () => void
 }
@@ -69,11 +70,13 @@ export interface IOniButtonProps {
 export class OniButton extends React.PureComponent<IOniButtonProps, {}> {
     public render(): JSX.Element {
         return (
-            <Sneakable callback={this.props.onClick}>
-                <ButtonWrapper onClick={this.props.onClick}>
-                    <span>{this.props.text}</span>
-                </ButtonWrapper>
-            </Sneakable>
+            <ButtonContainer selected={this.props.focused}>
+                <Sneakable callback={this.props.onClick}>
+                    <ButtonWrapper onClick={this.props.onClick}>
+                        <span>{this.props.text}</span>
+                    </ButtonWrapper>
+                </Sneakable>
+            </ButtonContainer>
         )
     }
 }
@@ -82,6 +85,7 @@ export class SidebarEmptyPaneView extends React.PureComponent<ISidebarEmptyPaneV
     public render(): JSX.Element {
         const button = this.props.actionButtonText ? (
             <OniButton
+                focused={this.props.active}
                 text={this.props.actionButtonText}
                 onClick={() => this.props.onClickButton && this.props.onClickButton()}
             />
@@ -96,7 +100,7 @@ export class SidebarEmptyPaneView extends React.PureComponent<ISidebarEmptyPaneV
                     return (
                         <Wrapper>
                             <Description>{this.props.contentsText}</Description>
-                            <ButtonContainer selected={this.props.active}>{button}</ButtonContainer>
+                            {button}
                         </Wrapper>
                     )
                 }}

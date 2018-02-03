@@ -141,6 +141,26 @@ export class Workspace implements IWorkspace {
         }
     }
 
+    public openFolder(): void {
+        const dialogOptions: any = {
+            title: "Open Folder",
+            properties: ["openDirectory"],
+        }
+
+        remote.dialog.showOpenDialog(
+            remote.getCurrentWindow(),
+            dialogOptions,
+            async (folder: string[]) => {
+                if (!folder || !folder[0]) {
+                    return
+                }
+
+                const folderToOpen = folder[0]
+                await this.changeDirectory(folderToOpen)
+            },
+        )
+    }
+
     public autoDetectWorkspace(filePath: string): void {
         const settings = this._configuration.getValue("workspace.autoDetectWorkspace")
         switch (settings) {
