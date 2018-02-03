@@ -68,6 +68,14 @@ export class PluginManager {
         return pluginPaths.concat(this._rootPluginPaths)
     }
 
+    public getPlugin(name: string): any {
+        for (const plugin of this._plugins) {
+            if (plugin.metadata.name === name) {
+                return plugin.instance
+            }
+        }
+    }
+
     private _createPlugin(pluginRootDirectory: string, source: string): Plugin {
         return new Plugin(pluginRootDirectory, source)
     }

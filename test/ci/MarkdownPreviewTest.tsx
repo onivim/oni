@@ -5,19 +5,8 @@
 import * as assert from "assert"
 import * as Oni from "oni-api"
 
-interface IPlugin {
-    /**
-     * Gets the current value of a property.
-     * The return type is unknown.
-     *
-     * param: name  A name of a property
-     * returns      The current value of the specified property
-     */
-    getStatus(name: string): any
-}
-
 interface IPluginManager {
-    getPlugin(name: string): Promise<IPlugin | null>
+    getPlugin(name: string): any
 }
 
 interface IOniWithPluginApi {
@@ -28,11 +17,13 @@ export async function test(typedOni: Oni.Plugin.Api) {
     const typelessOni = typedOni as any
     const oni = typelessOni as IOniWithPluginApi
 
-    const markdownPlugin = await oni.plugins.getPlugin("oni-plugin-markdown-preview")
-    assert.notEqual(markdownPlugin, null)
-    if (markdownPlugin === null) {
-        return
-    }
+    const markdownPlugin = oni.plugins.getPlugin("oni-plugin-markdown-preview")
+    describe("plugin instance", () => {
+        it("exists", () => {
+            assert.notEqual(markdownPlugin, null)
+            assert.notEqual(markdownPlugin, undefined)
+        })
+    })
 
     describe("preview pane", async () => {
         it("is initially closed", () => {
