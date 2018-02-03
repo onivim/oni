@@ -20,25 +20,40 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     // Wait for the '{' binding to show up, so we get
     // a deterministic result.
-    await oni.automation.waitFor(() => oni.input.hasBinding("{"))
+    await oni.automation.waitFor(() => oni.input.hasBinding("("))
+    await oni.automation.waitFor(() => oni.input.hasBinding(")"))
 
     oni.automation.sendKeys("i")
     await oni.automation.waitFor(() => oni.editors.activeEditor.mode === "insert")
 
     oni.automation.sendKeys("const test = ")
+    await oni.automation.sleep(100)
     oni.automation.sendKeys("{")
+    await oni.automation.sleep(100)
     oni.automation.sendKeys("<enter>")
+    await oni.automation.sleep(100)
     oni.automation.sendKeys("window.setTimeout")
+    await oni.automation.sleep(100)
     oni.automation.sendKeys("(")
+    await oni.automation.sleep(100)
     oni.automation.sendKeys("(")
+    await oni.automation.sleep(100)
     oni.automation.sendKeys(")")
+    await oni.automation.sleep(100)
     oni.automation.sendKeys(" => ")
+    await oni.automation.sleep(100)
     oni.automation.sendKeys("{")
+    await oni.automation.sleep(100)
     oni.automation.sendKeys("<enter>")
+    await oni.automation.sleep(100)
     oni.automation.sendKeys("let testString = ")
+    await oni.automation.sleep(100)
     oni.automation.sendKeys('"')
+    await oni.automation.sleep(100)
     oni.automation.sendKeys("Oni")
+    await oni.automation.sleep(100)
     oni.automation.sendKeys('"')
+    await oni.automation.sleep(100)
 
     // Because the input is asynchronous, we need to use `waitFor` to wait
     // for them to complete.
