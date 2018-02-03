@@ -210,7 +210,7 @@ const start = async (args: string[]): Promise<void> => {
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())
 
     const Bookmarks = await import("./Services/Bookmarks")
-    Bookmarks.activate(configuration, Sidebar.getInstance())
+    Bookmarks.activate(configuration, editorManager, Sidebar.getInstance())
 
     Performance.endMeasure("Oni.Start.Activate")
 

@@ -26,7 +26,7 @@ export class BookmarksPane implements SidebarPane {
     }
 
     public get title(): string {
-        return "Bookmarks"
+        return "Marks"
     }
 
     public enter(): void {
@@ -101,15 +101,16 @@ export class BookmarksPaneView extends React.PureComponent<
                 />
             )
         } else {
+            const ids = this.state.bookmarks.map(bm => bm.id)
             return (
                 <VimNavigator
-                    ids={[]}
+                    ids={ids}
                     active={this.state.isActive}
                     render={selectedId => {
                         const elems = this.state.bookmarks.map(bm => (
                             <SidebarItemView
-                                text={bm.command}
-                                isFocused={false}
+                                text={bm.text}
+                                isFocused={selectedId === bm.id}
                                 isContainer={false}
                                 indentationLevel={0}
                             />

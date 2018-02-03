@@ -1,90 +1,69 @@
 import { Event, IEvent } from "oni-types"
 
 import { Configuration } from "./../Configuration"
+import { EditorManager } from "./../EditorManager"
 import { SidebarManager } from "./../Sidebar"
 
 import { BookmarksPane } from "./BookmarksPane"
 
-export interface IBookmark {
-    command: string
-    arguments: any[]
-    group: string
-}
+import { INeovimMarks, INeovimMarkInfo } from "./../../neovim"
 
-import * as fs from "fs"
-import * as Log from "./../../Log"
+export interface IBookmark {
+    group: string
+    text: string
+    id: string
+}
 
 export interface IBookmarksProvider {
     bookmarks: IBookmark[]
     onBookmarksUpdated: IEvent<void>
+    selectBookmark(bookmark: IBookmark): void
 }
 
-export class ConfigurationBookmarksProvider implements IBookmarksProvider {
-    private _bookmarks: IBookmark[] = []
-    private _onBookmarksUpdatedEvent = new Event<void>()
+const marksToBookmarks = (mark: INeovimMarkInfo): IBookmark => ({
+    id: mark.mark,
+    group: mark.global ? "Global Marks" : "Local Marks",
+    text: `[${mark.mark}] ${mark.text}`,
+})
+
+export class NeovimBookmarksProvider implements IBookmarksProvider {
+    private _lastBookmarks: IBookmark[] = []
+    private _onBookmarksUpdated = new Event<void>()
 
     public get bookmarks(): IBookmark[] {
-        return this._bookmarks
+        return this._lastBookmarks
     }
 
     public get onBookmarksUpdated(): IEvent<void> {
-        return this._onBookmarksUpdatedEvent
+        return this._onBookmarksUpdated
     }
 
-    constructor(private _configuration: Configuration) {
-        this._configuration.onConfigurationChanged.subscribe(newValues => {
-            if (newValues["oni.bookmarks"]) {
-                this._updateFromConfiguration(newValues["oni.bookmarks"])
-            }
+    constructor(private _neovimMarks: INeovimMarks) {
+        this._neovimMarks.onMarksUpdated.subscribe(marks => {
+            this._lastBookmarks = marks.map(marksToBookmarks)
+
+            this._onBookmarksUpdated.dispatch()
         })
-
-        const currentBookmarks = this._configuration.getValue("oni.bookmarks")
-        this._updateFromConfiguration(currentBookmarks)
     }
 
-    private _updateBookmarks(bookmarks: IBookmark[]): void {
-        this._bookmarks = bookmarks
-        this._onBookmarksUpdatedEvent.dispatch()
-    }
-
-    private _updateFromConfiguration(bookmarks: string[]): void {
-        if (!bookmarks || !bookmarks.length) {
-            this._updateBookmarks([])
-            return
-        }
-
-        try {
-            const newBookmarks = bookmarks.filter(bm => fs.existsSync(bm)).map(bm => {
-                const stat = fs.statSync(bm)
-
-                if (stat.isDirectory()) {
-                    return {
-                        command: "oni.openFolder",
-                        arguments: [bm],
-                        group: "Workspaces",
-                    }
-                } else {
-                    return {
-                        command: "oni.openFile",
-                        arguments: [bm],
-                        group: "Files",
-                    }
-                }
-            })
-
-            this._updateBookmarks(newBookmarks)
-        } catch (e) {
-            Log.warn("Error loading bookmarks: " + e)
-        }
+    public selectBookmark(bookmark: IBookmark): void {
+        alert("Selecting bookmark: " + bookmark.id)
     }
 }
 
 let _bookmarks: IBookmarksProvider
 
-export const activate = (configuration: Configuration, sidebarManager: SidebarManager) => {
-    _bookmarks = new ConfigurationBookmarksProvider(configuration)
-
-    sidebarManager.add("bookmark", new BookmarksPane(_bookmarks))
+export const activate = (
+    configuration: Configuration,
+    editorManager: EditorManager,
+    sidebarManager: SidebarManager,
+) => {
+    if (!configuration.getValue("derpderp")) {
+        // TODO: Push bookmarks provider to editor
+        const neovim: any = editorManager.activeEditor.neovim
+        _bookmarks = new NeovimBookmarksProvider(neovim.marks)
+        sidebarManager.add("bookmark", new BookmarksPane(_bookmarks))
+    }
 }
 
 export const getInstance = (): IBookmarksProvider => _bookmarks
