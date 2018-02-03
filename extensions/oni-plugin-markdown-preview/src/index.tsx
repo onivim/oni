@@ -5,6 +5,10 @@ import * as marked from "marked"
 import * as Oni from "oni-api"
 import * as React from "react"
 
+export interface IApi {
+    getStatus(name: string): any
+}
+
 /**
  * Props are like the constructor arguments
  * for the React component (immutable)
@@ -166,12 +170,16 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 }
 
-class MarkdownPreviewEditor implements Oni.IWindowSplit {
+class MarkdownPreviewEditor implements Oni.IWindowSplit, IApi {
     private _open: boolean = false
     private _split: Oni.WindowSplitHandle
 
     constructor(private _oni: Oni.Plugin.Api) {
         this._oni.editors.activeEditor.onBufferEnter.subscribe(args => this.onBufferEnter(args))
+    }
+
+    public getStatus(name: string): string {
+        return name + "'s value"
     }
 
     public toggle(): void {
@@ -208,16 +216,12 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
     }
 }
 
-let preview: MarkdownPreviewEditor = null
-
-export const activate = (oni: any) => {
+export function activate(oni: any): IApi {
     if (!oni.configuration.getValue("experimental.markdownPreview.enabled", false)) {
         return
     }
 
-    if (!preview) {
-        preview = new MarkdownPreviewEditor(oni)
-    }
+    const preview = new MarkdownPreviewEditor(oni)
 
     oni.commands.registerCommand(
         new Command(
@@ -251,6 +255,8 @@ export const activate = (oni: any) => {
             },
         ),
     )
+
+    return preview as any
 }
 
 class Command implements Oni.Commands.ICommand {
