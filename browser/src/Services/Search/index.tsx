@@ -8,12 +8,19 @@ import * as React from "react"
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { EditorManager } from "./../EditorManager"
 import { SidebarManager } from "./../Sidebar"
 import { Workspace } from "./../Workspace"
 
 export * from "./SearchProvider"
 
-import { ISearchProvider, ISearchOptions, RipGrepSearchProvider } from "./SearchProvider"
+import {
+    ISearchProvider,
+    ISearchOptions,
+    ISearchQuery,
+    RipGrepSearchProvider,
+    QuickFixSearchResultsViewer,
+} from "./SearchProvider"
 
 import { SearchTextBox } from "./SearchTextBox"
 
@@ -22,6 +29,7 @@ export class SearchPane {
     private _onLeave = new Event<void>()
 
     private _searchProvider: ISearchProvider
+    private _currentQuery: ISearchQuery
 
     public get id(): string {
         return "oni.sidebar.search"
@@ -31,7 +39,7 @@ export class SearchPane {
         return "Search"
     }
 
-    constructor(private _workspace: Workspace) {
+    constructor(private _editorManager: EditorManager, private _workspace: Workspace) {
         this._searchProvider = new RipGrepSearchProvider()
     }
 
@@ -57,7 +65,20 @@ export class SearchPane {
     private _onSearchOptionsChanged(searchOpts: ISearchOptions): void {
         console.log("changed: " + searchOpts)
 
-        this._searchProvider.search(searchOpts)
+        if (this._currentQuery) {
+            this._currentQuery.cancel()
+        }
+
+        const query = this._searchProvider.search(searchOpts)
+
+        query.start()
+
+        query.onSearchCompleted.subscribe(result => {
+            const visualizer = new QuickFixSearchResultsViewer(this._editorManager)
+            visualizer.showResult(result)
+        })
+
+        this._currentQuery = query
     }
 }
 
@@ -140,7 +161,7 @@ export class SearchPaneView extends React.PureComponent<
 
         return (
             <VimNavigator
-                active={this.state.isActive}
+                active={this.state.isActive && !this.state.activeTextbox}
                 ids={["textbox.query", "textbox.filter"]}
                 onSelected={(selectedId: string) => {
                     this._onSelected(selectedId)
@@ -177,12 +198,16 @@ export class SearchPaneView extends React.PureComponent<
         this.setState({
             fileFilter: val,
         })
+
+        this._startSearch()
     }
 
     private _onChangeSearchQuery(val: string): void {
         this.setState({
             searchQuery: val,
         })
+
+        this._startSearch()
     }
 
     // private _onCommit(): void {
@@ -212,6 +237,10 @@ export class SearchPaneView extends React.PureComponent<
     }
 }
 
-export const activate = (sidebarManager: SidebarManager, workspace: Workspace) => {
-    sidebarManager.add("search", new SearchPane(workspace))
+export const activate = (
+    editorManager: EditorManager,
+    sidebarManager: SidebarManager,
+    workspace: Workspace,
+) => {
+    sidebarManager.add("search", new SearchPane(editorManager, workspace))
 }
