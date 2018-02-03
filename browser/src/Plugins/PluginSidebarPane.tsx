@@ -10,7 +10,7 @@ import { Event, IDisposable, IEvent } from "oni-types"
 
 import { SidebarManager, SidebarPane } from "./../Services/Sidebar"
 
-import { SidebarItemView } from "./../UI/components/SidebarItemView"
+import { SidebarContainerView, SidebarItemView } from "./../UI/components/SidebarItemView"
 import { VimNavigator } from "./../UI/components/VimNavigator"
 
 import { PluginManager } from "./../Plugins/PluginManager"
@@ -57,6 +57,8 @@ export interface IPluginsSidebarPaneViewProps {
 
 export interface IPluginsSidebarPaneViewState {
     isActive: boolean
+    defaultPluginsExpanded: boolean
+    userPluginsExpanded: boolean
 }
 
 export class PluginsSidebarPaneView extends React.PureComponent<
@@ -70,6 +72,8 @@ export class PluginsSidebarPaneView extends React.PureComponent<
 
         this.state = {
             isActive: false,
+            defaultPluginsExpanded: false,
+            userPluginsExpanded: true,
         }
     }
 
@@ -89,15 +93,27 @@ export class PluginsSidebarPaneView extends React.PureComponent<
     public render(): JSX.Element {
         const plugins = this.props.pluginManager.plugins
 
-        const ids = plugins.map(p => p.id)
-        const allIds = ["container", ...ids]
+        const defaultPlugins = plugins.filter(p => p.source === "default")
+        const userPlugins = plugins.filter(p => p.source === "user")
+
+        const defaultPluginIds = this.state.defaultPluginsExpanded
+            ? defaultPlugins.map(p => p.id)
+            : []
+        const userPluginIds = this.state.userPluginsExpanded ? userPlugins.map(p => p.id) : []
+
+        const allIds = [
+            "container.default",
+            ...defaultPluginIds,
+            "container.user",
+            ...userPluginIds,
+        ]
 
         return (
             <VimNavigator
                 ids={allIds}
                 active={this.state.isActive}
                 render={(selectedId: string) => {
-                    const pluginItems = plugins.map(p => (
+                    const defaultPluginItems = defaultPlugins.map(p => (
                         <SidebarItemView
                             indentationLevel={0}
                             isFocused={p.id === selectedId}
@@ -106,7 +122,33 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                         />
                     ))
 
-                    return <div>{pluginItems}</div>
+                    const userPluginItems = userPlugins.map(p => (
+                        <SidebarItemView
+                            indentationLevel={0}
+                            isFocused={p.id === selectedId}
+                            isContainer={false}
+                            text={p.id}
+                        />
+                    ))
+
+                    return (
+                        <div>
+                            <SidebarContainerView
+                                text={"Default"}
+                                isExpanded={this.state.defaultPluginsExpanded}
+                                isFocused={selectedId === "container.default"}
+                            >
+                                {defaultPluginItems}
+                            </SidebarContainerView>
+                            <SidebarContainerView
+                                text={"User"}
+                                isExpanded={this.state.userPluginsExpanded}
+                                isFocused={selectedId === "container.user"}
+                            >
+                                {userPluginItems}
+                            </SidebarContainerView>
+                        </div>
+                    )
                 }}
             />
         )

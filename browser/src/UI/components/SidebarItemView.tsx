@@ -75,3 +75,31 @@ export class SidebarItemView extends React.PureComponent<ISidebarItemViewProps, 
         )
     }
 }
+
+export interface ISidebarContainerViewProps {
+    text: string
+    isExpanded: boolean
+    isFocused: boolean
+}
+
+export class SidebarContainerView extends React.PureComponent<ISidebarContainerViewProps, {}> {
+    public render(): JSX.Element {
+        const caretStyle = {
+            transform: this.props.isExpanded ? "rotateZ(45deg)" : "rotateZ(0deg)",
+        }
+        const icon = <i style={caretStyle} className="fa fa-caret-right" />
+
+        return (
+            <div>
+                <SidebarItemView
+                    indentationLevel={0}
+                    icon={icon}
+                    text={this.props.text}
+                    isFocused={this.props.isFocused}
+                    isContainer={true}
+                />
+                {this.props.isExpanded ? this.props.children : null}
+            </div>
+        )
+    }
+}
