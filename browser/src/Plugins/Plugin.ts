@@ -11,13 +11,24 @@ import * as PackageMetadataParser from "./PackageMetadataParser"
 export class Plugin {
     private _oniPluginMetadata: Capabilities.IPluginMetadata
     private _oni: Oni
+    private _id: string
+
+    public get id(): string {
+        return this._id
+    }
 
     public get metadata(): Capabilities.IPluginMetadata {
         return this._oniPluginMetadata
     }
 
-    constructor(private _pluginRootDirectory: string) {
+    public get source(): string {
+        return this._source
+    }
+
+    constructor(private _pluginRootDirectory: string, private _source: string) {
         const packageJsonPath = path.join(this._pluginRootDirectory, "package.json")
+
+        this._id = path.basename(this._pluginRootDirectory)
 
         if (fs.existsSync(packageJsonPath)) {
             this._oniPluginMetadata = PackageMetadataParser.readMetadata(packageJsonPath)

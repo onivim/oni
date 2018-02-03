@@ -1,4 +1,3 @@
-
 /**
  * LinearSplitProviderTests.ts
  */
@@ -8,7 +7,9 @@ import * as assert from "assert"
 import { LinearSplitProvider } from "./../../../src/Services/WindowManager"
 
 export class MockWindowSplit {
-    public render(): JSX.Element { return null }
+    public render(): JSX.Element {
+        return null
+    }
 }
 
 describe("LinearSplitProviderTests", () => {

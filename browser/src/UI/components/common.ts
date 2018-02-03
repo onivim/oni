@@ -41,6 +41,14 @@ const enableMouse = css`
     pointer-events: auto;
 `
 
+export const OverlayWrapper = styled.div`
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+`
+
 const fontSizeSmall = `font-size: 0.9em;`
 
 const fallBackFonts = `
