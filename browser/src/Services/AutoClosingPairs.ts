@@ -39,7 +39,7 @@ export const activate = (
     ) => () => {
         const neovim: NeovimInstance = editor.neovim as any
         neovim.blockInput(async (inputFunc: any) => {
-            checkOpenCharacter(inputFunc, pair, editor, openCharacterSameAsClosed)
+            await checkOpenCharacter(inputFunc, pair, editor, openCharacterSameAsClosed)
         })
 
         return true
