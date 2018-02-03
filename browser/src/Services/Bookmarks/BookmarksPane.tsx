@@ -101,21 +101,37 @@ export class BookmarksPaneView extends React.PureComponent<
                 />
             )
         } else {
-            const ids = this.state.bookmarks.map(bm => bm.id)
+            const globalMarks = this.state.bookmarks.filter(bm => bm.group === "Global Marks")
+            const localMarks = this.state.bookmarks.filter(bm => bm.group === "Local Marks")
+
+            const globalMarkIds = globalMarks.map(bm => bm.id)
+            const localMarkIds = localMarks.map(bm => bm.id)
+
+            const mapToItems = (selectedId: string) => (bm: IBookmark) => (
+                <SidebarItemView
+                    text={bm.text}
+                    isFocused={selectedId === bm.id}
+                    isContainer={false}
+                    indentationLevel={0}
+                />
+            )
+
+            const allIds = [...globalMarkIds, ...localMarkIds]
+
             return (
                 <VimNavigator
-                    ids={ids}
+                    ids={allIds}
                     active={this.state.isActive}
                     render={selectedId => {
-                        const elems = this.state.bookmarks.map(bm => (
-                            <SidebarItemView
-                                text={bm.text}
-                                isFocused={selectedId === bm.id}
-                                isContainer={false}
-                                indentationLevel={0}
-                            />
-                        ))
-                        return <div>{elems}</div>
+                        const mapFunc = mapToItems(selectedId)
+                        return (
+                            <div>
+                                <div>Global</div>
+                                {globalMarks.map(mapFunc)}
+                                <div>Local</div>
+                                {localMarks.map(mapFunc)}
+                            </div>
+                        )
                     }}
                 />
             )

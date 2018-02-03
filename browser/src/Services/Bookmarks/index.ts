@@ -58,12 +58,12 @@ export const activate = (
     editorManager: EditorManager,
     sidebarManager: SidebarManager,
 ) => {
-    if (!configuration.getValue("derpderp")) {
-        // TODO: Push bookmarks provider to editor
-        const neovim: any = editorManager.activeEditor.neovim
-        _bookmarks = new NeovimBookmarksProvider(neovim.marks)
-        sidebarManager.add("bookmark", new BookmarksPane(_bookmarks))
-    }
+    // TODO: Push bookmarks provider to editor
+    const neovim: any = editorManager.activeEditor.neovim
+    neovim.marks.watchMarks()
+    _bookmarks = new NeovimBookmarksProvider(neovim.marks)
+
+    sidebarManager.add("bookmark", new BookmarksPane(_bookmarks))
 }
 
 export const getInstance = (): IBookmarksProvider => _bookmarks
