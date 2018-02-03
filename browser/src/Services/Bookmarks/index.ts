@@ -6,7 +6,7 @@ import { SidebarManager } from "./../Sidebar"
 
 import { BookmarksPane } from "./BookmarksPane"
 
-import { INeovimMarks, INeovimMarkInfo } from "./../../neovim"
+import { INeovimMarkInfo, INeovimMarks } from "./../../neovim"
 
 export interface IBookmark {
     group: string

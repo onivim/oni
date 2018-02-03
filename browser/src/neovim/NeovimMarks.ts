@@ -84,16 +84,16 @@ export const parseMarkLine = (markLine: string): INeovimMarkInfo => {
     const textStartIndex = getNextNonWhitespaceCharacter(markLine, columnEndIndex + 1)
 
     const mark = markLine.substring(markStartIndex, markEndIndex)
-    const lineNumber = parseInt(markLine.substring(lineStartIndex, lineEndIndex))
-    const column = parseInt(markLine.substring(columnStartIndex, columnEndIndex))
+    const lineNumber = parseInt(markLine.substring(lineStartIndex, lineEndIndex), 10)
+    const column = parseInt(markLine.substring(columnStartIndex, columnEndIndex), 10)
     const text = markLine.substring(textStartIndex, markLine.length)
     const isGlobal = !isLowerCase(mark)
 
     return {
         mark,
         line: lineNumber,
-        column: column,
-        text: text,
+        column,
+        text,
         global: isGlobal,
     }
 }
