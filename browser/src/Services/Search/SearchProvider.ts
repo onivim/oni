@@ -6,8 +6,8 @@
 
 import { Event, IEvent } from "oni-types"
 
-import { FinderProcess } from "./QuickOpen/FinderProcess"
-import * as RipGrep from "./QuickOpen/RipGrep"
+import { FinderProcess } from "./../QuickOpen/FinderProcess"
+import * as RipGrep from "./../QuickOpen/RipGrep"
 
 export interface ISearchResultItem {
     fileName: string
@@ -107,7 +107,6 @@ export class RipGrepSearchQuery {
 
     constructor(opts: ISearchOptions) {
         const args = getArgumentsFromSearchOptions(opts)
-        const visualizer = new QuickFixSearchResultsViewer(editorManager)
 
         this._finderProcess = new FinderProcess(RipGrep.getCommand() + " " + args.join(" "), "\n")
 
@@ -117,20 +116,10 @@ export class RipGrepSearchQuery {
                 .filter(item => item !== null)
 
             this._items = [...this._items, ...searchResultItems]
-
-            visualizer.showResult({
-                items: this._items,
-                isComplete: false,
-            })
         })
 
         this._finderProcess.onComplete.subscribe(() => {
             this._onSearchCompletedEvent.dispatch({
-                items: this._items,
-                isComplete: true,
-            })
-
-            visualizer.showResult({
                 items: this._items,
                 isComplete: true,
             })
@@ -147,7 +136,7 @@ export class RipGrepSearchQuery {
     }
 }
 
-import { editorManager, EditorManager } from "./../Services/EditorManager"
+import { EditorManager } from "./../EditorManager"
 
 export interface ISearchResultsViewer {
     showResults(results: ISearchResult): void
@@ -171,11 +160,3 @@ export class QuickFixSearchResultsViewer {
         neovim.command(":copen")
     }
 }
-
-let _search: ISearchProvider = null
-
-export const activate = () => {
-    _search = new RipGrepSearchProvider()
-}
-
-export const getInstance = (): ISearchProvider => _search
