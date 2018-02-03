@@ -7,6 +7,7 @@ import * as os from "os"
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
+import getTokens, { getColorForToken } from "./../../Services/SyntaxHighlighting/tokenGenerator"
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
 import {
     QuickInfoContainer,
@@ -33,13 +34,13 @@ export class HoverRenderer {
         private _toolTipsProvider: IToolTipsProvider,
     ) {}
 
-    public showQuickInfo(
+    public async showQuickInfo(
         x: number,
         y: number,
         hover: types.Hover,
         errors: types.Diagnostic[],
-    ): void {
-        const elem = this._renderQuickInfoElement(hover, errors)
+    ): Promise<void> {
+        const elem = await this._renderQuickInfoElement(hover, errors)
 
         if (!elem) {
             return
@@ -56,8 +57,11 @@ export class HoverRenderer {
         this._toolTipsProvider.hideToolTip(HoverToolTipId)
     }
 
-    private _renderQuickInfoElement(hover: types.Hover, errors: types.Diagnostic[]): JSX.Element {
-        const quickInfoElement = getQuickInfoElementsFromHover(hover)
+    private async _renderQuickInfoElement(
+        hover: types.Hover,
+        errors: types.Diagnostic[],
+    ): Promise<JSX.Element> {
+        const quickInfoElement = await getQuickInfoElementsFromHover(hover)
 
         const borderColor = this._colors.getColor("toolTip.border")
 
@@ -127,13 +131,12 @@ const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[]
     }
 }
 
-const getTitleAndContents = (result: types.Hover) => {
+const getTitleAndContents = async (result: types.Hover) => {
     if (!result || !result.contents) {
         return null
     }
 
     const contents = Helpers.getTextFromContents(result.contents)
-
     if (contents.length === 0) {
         return null
     } else if (contents.length === 1 && contents[0]) {
@@ -144,7 +147,7 @@ const getTitleAndContents = (result: types.Hover) => {
         }
 
         return {
-            title: convertMarkdown(title),
+            title: convertMarkdown({ markdown: title }),
             description: null,
         }
     } else {
@@ -152,15 +155,34 @@ const getTitleAndContents = (result: types.Hover) => {
         description.shift()
         const descriptionContent = description.join(os.EOL)
 
+        const { tokens: titleTokens } = await getTokens({
+            language: "typescript",
+            ext: ".ts",
+            line: contents[0],
+            prevState: null,
+        })
+        const { tokens: descriptionTokens } = await getTokens({
+            language: "typescript",
+            ext: ".ts",
+            line: descriptionContent,
+            prevState: null,
+        })
+        const descriptionColors = getColorForToken(descriptionTokens)
+        const titleColors = getColorForToken(titleTokens)
+        console.log("colors: ", descriptionColors)
+
         return {
-            title: convertMarkdown(contents[0]),
-            description: convertMarkdown(descriptionContent),
+            title: convertMarkdown({ markdown: contents[0], colors: titleColors }),
+            description: convertMarkdown({
+                markdown: descriptionContent,
+                colors: descriptionColors,
+            }),
         }
     }
 }
 
-const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element => {
-    const titleAndContents = getTitleAndContents(hover)
+const getQuickInfoElementsFromHover = async (hover: types.Hover): Promise<JSX.Element> => {
+    const titleAndContents = await getTitleAndContents(hover)
     const hasDocs = !!(
         titleAndContents &&
         titleAndContents.description &&

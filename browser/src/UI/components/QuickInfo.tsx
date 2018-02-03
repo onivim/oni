@@ -3,6 +3,24 @@ import * as os from "os"
 import * as React from "react"
 import styled, { boxShadowInset, css, fontSizeSmall, withProps } from "./common"
 
+const markedCss = css`
+    .marked {
+        margin: 0;
+        display: inline-block;
+    }
+
+    .Identifier {
+        color: red;
+    }
+    .Function {
+        color: blue;
+    }
+
+    .Constant {
+        color: yellow;
+    }
+`
+
 const smallScrollbar = css`
     &::-webkit-scrollbar {
         height: 4px;
@@ -25,6 +43,8 @@ const childStyles = css`
         /* necessary to prevent overflow */
         margin: 0.2rem;
         max-width: 55vw;
+
+        ${markedCss};
 
         a {
             color: ${p => p.theme["highlight.mode.normal.background"]};
@@ -56,6 +76,11 @@ export const Documentation = styled.div`
     ${smallScrollbar};
     background-color: ${p => p.theme["editor.hover.contents.background"]};
     color: ${p => p.theme["editor.hover.contents.foreground"]};
+    ${markedCss};
+
+    .source_ts {
+        color: red;
+    }
 
     &:hover {
         overflow: overlay;
@@ -82,6 +107,11 @@ export const Title = withProps<{ padding?: string }>(styled.div)`
     ${smallScrollbar};
     background-color:${p => p.theme["editor.hover.title.background"]};
     color: ${p => p.theme["editor.hover.title.foreground"]};
+    ${markedCss};
+
+    .source_ts {
+        color: red;
+    }
 
     &:hover {
         overflow: overlay;
