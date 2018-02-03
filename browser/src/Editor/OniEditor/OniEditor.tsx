@@ -176,6 +176,10 @@ export class OniEditor implements IEditor {
         this._neovimEditor.bufferDelete(bufferId)
     }
 
+    public async getUserBindings(bindings: string[]) {
+        return this._neovimEditor.getUserBinding(bindings)
+    }
+
     public async unmapUserBindings(bindings: string[]) {
         return this._neovimEditor.unmapUserBinding(bindings)
     }

@@ -684,16 +684,22 @@ export class NeovimEditor extends Editor implements IEditor {
         return this.activeBuffer
     }
 
-    public async unmapUserBinding(binding: string[]) {
+    public async getUserBinding(binding: string[]) {
         this._savedUserMappings = await this._neovimInstance.callFunction("Save_mappings", [
             binding,
             "n",
             1,
         ])
+        Log.info(`Getting User Bindings ${JSON.stringify(this._savedUserMappings, null, 2)}`)
+    }
+
+    public async unmapUserBinding(binding: string[]) {
         Log.info(`Removing User Bindings ${JSON.stringify(this._savedUserMappings, null, 2)}`)
-        binding.forEach(async bd => {
-            await this._neovimInstance.command(`unmap ${bd}`)
-        })
+        if (this._savedUserMappings) {
+            binding.forEach(async bd => {
+                await this._neovimInstance.command(`unmap ${bd}`)
+            })
+        }
     }
 
     public async restoreUserBindings() {
