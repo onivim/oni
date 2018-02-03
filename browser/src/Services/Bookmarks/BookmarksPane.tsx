@@ -12,7 +12,7 @@ import { SidebarPane } from "./../Sidebar"
 import { IBookmark, IBookmarksProvider } from "./index"
 
 import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
-import { SidebarItemView } from "./../../UI/components/SidebarItemView"
+import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 
 export class BookmarksPane implements SidebarPane {
@@ -57,6 +57,9 @@ export interface IBookmarksPaneViewProps {
 export interface IBookmarksPaneViewState {
     bookmarks: IBookmark[]
     isActive: boolean
+
+    isGlobalSectionExpanded: boolean
+    isLocalSectionExpanded: boolean
 }
 
 export class BookmarksPaneView extends React.PureComponent<
@@ -70,6 +73,8 @@ export class BookmarksPaneView extends React.PureComponent<
         this.state = {
             bookmarks: this.props.bookmarksProvider.bookmarks,
             isActive: false,
+            isGlobalSectionExpanded: true,
+            isLocalSectionExpanded: true,
         }
     }
 
@@ -104,8 +109,12 @@ export class BookmarksPaneView extends React.PureComponent<
             const globalMarks = this.state.bookmarks.filter(bm => bm.group === "Global Marks")
             const localMarks = this.state.bookmarks.filter(bm => bm.group === "Local Marks")
 
-            const globalMarkIds = globalMarks.map(bm => bm.id)
-            const localMarkIds = localMarks.map(bm => bm.id)
+            const globalMarkIds = this.state.isGlobalSectionExpanded
+                ? globalMarks.map(bm => bm.id)
+                : []
+            const localMarkIds = this.state.isLocalSectionExpanded
+                ? localMarks.map(bm => bm.id)
+                : []
 
             const mapToItems = (selectedId: string) => (bm: IBookmark) => (
                 <SidebarItemView
@@ -116,25 +125,49 @@ export class BookmarksPaneView extends React.PureComponent<
                 />
             )
 
-            const allIds = [...globalMarkIds, ...localMarkIds]
+            const allIds = [
+                "container.global",
+                ...globalMarkIds,
+                "container.local",
+                ...localMarkIds,
+            ]
 
             return (
                 <VimNavigator
                     ids={allIds}
                     active={this.state.isActive}
+                    onSelected={id => this._onSelected(id)}
                     render={selectedId => {
                         const mapFunc = mapToItems(selectedId)
                         return (
                             <div>
-                                <div>Global</div>
-                                {globalMarks.map(mapFunc)}
-                                <div>Local</div>
-                                {localMarks.map(mapFunc)}
+                                <SidebarContainerView
+                                    text="Global Marks"
+                                    isExpanded={this.state.isGlobalSectionExpanded}
+                                    isFocused={selectedId === "container.global"}
+                                >
+                                    {globalMarks.map(mapFunc)}
+                                </SidebarContainerView>
+                                <SidebarContainerView
+                                    text="Local Marks"
+                                    isExpanded={this.state.isLocalSectionExpanded}
+                                    isFocused={selectedId === "container.local"}
+                                >
+                                    {localMarks.map(mapFunc)}
+                                </SidebarContainerView>
                             </div>
                         )
                     }}
                 />
             )
+        }
+    }
+
+    private _onSelected(id: string): void {
+        if (id === "container.global") {
+            this.setState({ isGlobalSectionExpanded: !this.state.isGlobalSectionExpanded })
+        } else if (id === "container.local") {
+            this.setState({ isLocalSectionExpanded: !this.state.isLocalSectionExpanded })
         }
     }
 
