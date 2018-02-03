@@ -10,6 +10,8 @@ import { remote } from "electron"
 
 import { getDistPath, getRootPath } from "./DemoCommon"
 
+// tslint:disable:no-console
+
 const getCompletionElement = () => {
     const elements = document.body.getElementsByClassName("autocompletion")
 
@@ -31,7 +33,7 @@ export const test = async (oni: any) => {
 
     const outputPath = getDistPath()
 
-    oni.configuration.setValues({ "recorder.outputPath": outputPath })
+    await oni.workspace.changeDirectory(getRootPath())
 
     const filePath = path.join(
         getRootPath(),
@@ -71,7 +73,10 @@ export const test = async (oni: any) => {
 
     await oni.automation.sleep(500)
 
+    oni.configuration.setValues({ "recorder.outputPath": outputPath })
+
     oni.recorder.takeScreenshot(`screenshot-${process.platform}.png`)
 
     await oni.automation.waitFor(() => lastAlertText !== null, 20000)
+    console.log("Alert text (screenshot output path): " + lastAlertText)
 }
