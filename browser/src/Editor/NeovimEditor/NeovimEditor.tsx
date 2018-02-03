@@ -66,7 +66,7 @@ import { Workspace } from "./../../Services/Workspace"
 
 import { Editor, IEditor } from "./../Editor"
 
-import { BufferManager } from "./../BufferManager"
+import { BufferManager, IBuffer } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
@@ -180,7 +180,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
         this._neovimInstance = new NeovimInstance(100, 100, this._configuration)
-        this._bufferManager = new BufferManager(this._neovimInstance, this._actions)
+        this._bufferManager = new BufferManager(this._neovimInstance, this._actions, this._store)
         this._screen = new NeovimScreen()
 
         this._hoverRenderer = new HoverRenderer(
@@ -305,7 +305,8 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._windowManager.onWindowStateChanged.subscribe(tabPageState => {
-            const inactiveIds = tabPageState.inactiveWindows.map(w => w.windowNumber)
+            const filteredTabState = tabPageState.inactiveWindows.filter(w => !!w)
+            const inactiveIds = filteredTabState.map(w => w.windowNumber)
 
             this._actions.setActiveVimTabPage(tabPageState.tabId, [
                 tabPageState.activeWindow.windowNumber,
@@ -313,19 +314,21 @@ export class NeovimEditor extends Editor implements IEditor {
             ])
 
             const { activeWindow } = tabPageState
-            this._actions.setWindowState(
-                activeWindow.windowNumber,
-                activeWindow.bufferId,
-                activeWindow.bufferFullPath,
-                activeWindow.column,
-                activeWindow.line,
-                activeWindow.bottomBufferLine,
-                activeWindow.topBufferLine,
-                activeWindow.dimensions,
-                activeWindow.bufferToScreen,
-            )
+            if (activeWindow) {
+                this._actions.setWindowState(
+                    activeWindow.windowNumber,
+                    activeWindow.bufferId,
+                    activeWindow.bufferFullPath,
+                    activeWindow.column,
+                    activeWindow.line,
+                    activeWindow.bottomBufferLine,
+                    activeWindow.topBufferLine,
+                    activeWindow.dimensions,
+                    activeWindow.bufferToScreen,
+                )
+            }
 
-            tabPageState.inactiveWindows.map(w => {
+            filteredTabState.map(w => {
                 this._actions.setInactiveWindowState(w.windowNumber, w.dimensions)
             })
         })
@@ -397,8 +400,8 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.setNeovimError(true)
         })
 
-        this._neovimInstance.onDirectoryChanged.subscribe(newDirectory => {
-            this._workspace.changeDirectory(newDirectory)
+        this._neovimInstance.onDirectoryChanged.subscribe(async newDirectory => {
+            await this._workspace.changeDirectory(newDirectory)
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -687,6 +690,9 @@ export class NeovimEditor extends Editor implements IEditor {
         const startOptions: INeovimStartOptions = {
             runtimePaths: this._pluginManager.getAllRuntimePaths(),
             transport: this._configuration.getValue("experimental.neovim.transport"),
+            neovimPath: this._configuration.getValue("debug.neovimPath"),
+            loadInitVim: this._configuration.getValue("oni.loadInitVim"),
+            useDefaultConfig: this._configuration.getValue("oni.useDefaultConfig"),
         }
 
         await this._neovimInstance.start(startOptions)
@@ -795,6 +801,14 @@ export class NeovimEditor extends Editor implements IEditor {
             await sleep(this._configuration.getValue("debug.fakeLag.neovimInput"))
         }
 
+        // Check if any of the buffer layers can handle the input...
+        const buf: IBuffer = this.activeBuffer as IBuffer
+        const result = buf.handleInput(key)
+
+        if (result) {
+            return
+        }
+
         await this._neovimInstance.input(key)
     }
 
@@ -857,6 +871,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
         this._bufferManager.populateBufferList(evt)
+        this._workspace.autoDetectWorkspace(buf.filePath)
 
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {

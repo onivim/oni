@@ -62,9 +62,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<f5>", "browser.reload")
     }
 
-    input.bind("<f2>", "editor.rename", () => isNormalMode()),
-        input.bind("<esc>", "editor.rename.cancel")
-    input.bind("<enter>", "editor.rename.commit")
+    input.bind("<f2>", "editor.rename", () => isNormalMode())
 
     input.bind("<f3>", "language.format")
     input.bind(["<f12>"], "language.gotoDefinition", () => isNormalMode() && !menu.isMenuOpen())
@@ -103,7 +101,11 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind(["<up>", "<C-p>"], "menu.previous")
     input.bind(["<esc>", "<C-[>", "<C-C>"], "menu.close")
     input.bind("<enter>", "menu.select")
+    input.bind(["<enter>", "<space>"], "select")
 
-    input.bind("<enter>", "explorer.open")
     input.bind("<delete>", "explorer.delete")
+
+    // TODO: Scope 's' to just the local window
+    input.bind("<c-g>", "sneak.show", () => isNormalMode() && !menu.isMenuOpen())
+    input.bind(["<esc>", "<c-c>"], "sneak.hide")
 }

@@ -48,8 +48,7 @@ export class CommandManager implements ITaskProvider {
 
     public registerCommand(command: Oni.Commands.ICommand): void {
         if (this._commandDictionary[command.command]) {
-            Log.error(`Tried to register multiple commands for: ${command.name}`)
-            return
+            Log.verbose(`Overwriting existing command: ${command.command}`)
         }
 
         this._commandDictionary[command.command] = command

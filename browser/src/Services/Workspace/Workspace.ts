@@ -6,6 +6,11 @@
  */
 
 import { remote } from "electron"
+import * as findup from "find-up"
+import { stat } from "fs"
+import * as path from "path"
+import { promisify } from "util"
+
 import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
 import "rxjs/add/operator/concatMap"
@@ -26,6 +31,8 @@ import { convertTextDocumentEditsToFileMap } from "./../Language/Edits"
 import * as WorkspaceCommands from "./WorkspaceCommands"
 import { WorkspaceConfiguration } from "./WorkspaceConfiguration"
 
+const fsStat = promisify(stat)
+
 // Candidate interface to promote to Oni API
 export interface IWorkspace extends Oni.Workspace {
     activeWorkspace: string
@@ -45,7 +52,7 @@ export class Workspace implements IWorkspace {
         return this._activeWorkspace
     }
 
-    constructor(private _editorManager: EditorManager) {
+    constructor(private _editorManager: EditorManager, private _configuration: Configuration) {
         this._mainWindow.on("focus", () => {
             this._onFocusGainedEvent.dispatch(this._lastActiveBuffer)
         })
@@ -60,13 +67,15 @@ export class Workspace implements IWorkspace {
         return this._onDirectoryChangedEvent
     }
 
-    public changeDirectory(newDirectory: string) {
-        if (newDirectory) {
+    public async changeDirectory(newDirectory: string) {
+        const exists = await this.pathIsDir(newDirectory)
+        const dir = exists ? newDirectory : null
+        if (newDirectory && exists) {
             process.chdir(newDirectory)
         }
 
-        this._activeWorkspace = newDirectory
-        this._onDirectoryChangedEvent.dispatch(newDirectory)
+        this._activeWorkspace = dir
+        this._onDirectoryChangedEvent.dispatch(dir)
     }
 
     public async applyEdits(edits: types.WorkspaceEdit): Promise<void> {
@@ -111,13 +120,69 @@ export class Workspace implements IWorkspace {
     public get onFocusLost(): IEvent<Oni.Buffer> {
         return this._onFocusLostEvent
     }
+
+    public pathIsDir = async (p: string) => {
+        try {
+            const stats = await fsStat(p)
+            return stats.isDirectory()
+        } catch (error) {
+            Log.info(error)
+            return false
+        }
+    }
+
+    public navigateToProjectRoot = async (bufferPath: string) => {
+        const projectMarkers = this._configuration.getValue("workspace.autoDetectRootFiles")
+        const cwd = path.dirname(bufferPath)
+        const filePath = await findup(projectMarkers, { cwd })
+        if (filePath) {
+            const dir = path.dirname(filePath)
+            this.changeDirectory(dir)
+        }
+    }
+
+    public openFolder(): void {
+        const dialogOptions: any = {
+            title: "Open Folder",
+            properties: ["openDirectory"],
+        }
+
+        remote.dialog.showOpenDialog(
+            remote.getCurrentWindow(),
+            dialogOptions,
+            async (folder: string[]) => {
+                if (!folder || !folder[0]) {
+                    return
+                }
+
+                const folderToOpen = folder[0]
+                await this.changeDirectory(folderToOpen)
+            },
+        )
+    }
+
+    public autoDetectWorkspace(filePath: string): void {
+        const settings = this._configuration.getValue("workspace.autoDetectWorkspace")
+        switch (settings) {
+            case "never":
+                break
+            case "always":
+                this.navigateToProjectRoot(filePath)
+                break
+            case "noworkspace":
+            default:
+                if (!this._activeWorkspace) {
+                    this.navigateToProjectRoot(filePath)
+                }
+        }
+    }
 }
 
 let _workspace: Workspace = null
 let _workspaceConfiguration: WorkspaceConfiguration = null
 
 export const activate = (configuration: Configuration, editorManager: EditorManager): void => {
-    _workspace = new Workspace(editorManager)
+    _workspace = new Workspace(editorManager, configuration)
 
     _workspaceConfiguration = new WorkspaceConfiguration(configuration, _workspace)
 
