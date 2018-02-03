@@ -24,20 +24,32 @@ export class PluginManager {
     constructor(private _config: Configuration) {}
 
     public discoverPlugins(): void {
-        this._rootPluginPaths.push(corePluginsRoot)
-        this._rootPluginPaths.push(extensionsRoot)
+        const corePluginRootPaths: string[] = [corePluginsRoot, extensionsRoot]
+        const corePlugins: Plugin[] = this._getAllPluginPaths(corePluginRootPaths).map(p =>
+            this._createPlugin(p, "core"),
+        )
 
+        let defaultPluginRootPaths: string[] = []
+        let defaultPlugins: Plugin[] = []
         if (this._config.getValue("oni.useDefaultConfig")) {
-            this._rootPluginPaths.push(defaultPluginsRoot)
-            this._rootPluginPaths.push(path.join(defaultPluginsRoot, "bundle"))
+            defaultPluginRootPaths = [defaultPluginsRoot, path.join(defaultPluginsRoot, "bundle")]
+
+            defaultPlugins = this._getAllPluginPaths(defaultPluginRootPaths).map(p =>
+                this._createPlugin(p, "default"),
+            )
         }
 
-        this._rootPluginPaths.push(path.join(getUserConfigFolderPath(), "plugins"))
-
-        const allPluginPaths = this._getAllPluginPaths()
-        this._plugins = allPluginPaths.map(pluginRootDirectory =>
-            this._createPlugin(pluginRootDirectory),
+        const userPluginsRootPath = [path.join(getUserConfigFolderPath(), "plugins")]
+        const userPlugins = this._getAllPluginPaths(userPluginsRootPath).map(p =>
+            this._createPlugin(p, "user"),
         )
+
+        this._rootPluginPaths = [
+            ...corePluginRootPaths,
+            ...defaultPluginRootPaths,
+            ...userPluginsRootPath,
+        ]
+        this._plugins = [...corePlugins, ...defaultPlugins, ...userPlugins]
 
         this._anonymousPlugin = new AnonymousPlugin()
     }
@@ -51,18 +63,18 @@ export class PluginManager {
     }
 
     public getAllRuntimePaths(): string[] {
-        const pluginPaths = this._getAllPluginPaths()
+        const pluginPaths = this._getAllPluginPaths(this._rootPluginPaths)
 
         return pluginPaths.concat(this._rootPluginPaths)
     }
 
-    private _createPlugin(pluginRootDirectory: string): Plugin {
-        return new Plugin(pluginRootDirectory)
+    private _createPlugin(pluginRootDirectory: string, source: string): Plugin {
+        return new Plugin(pluginRootDirectory, source)
     }
 
-    private _getAllPluginPaths(): string[] {
+    private _getAllPluginPaths(rootPluginPaths: string[]): string[] {
         const paths: string[] = []
-        this._rootPluginPaths.forEach(rp => {
+        rootPluginPaths.forEach(rp => {
             const subPaths = getDirectories(rp)
             paths.push(...subPaths)
         })
