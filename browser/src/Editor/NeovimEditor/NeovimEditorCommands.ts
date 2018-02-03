@@ -126,8 +126,6 @@ export class NeovimEditorCommands {
             return !this._menuManager.isMenuOpen()
         }
 
-        const isRenameActive = () => this._rename.isRenameActive()
-
         const commands = [
             new CallbackCommand(
                 "contextMenu.select",
@@ -201,20 +199,6 @@ export class NeovimEditorCommands {
 
             new CallbackCommand("editor.rename", "Rename", "Rename an item", () =>
                 this._rename.startRename(),
-            ),
-            new CallbackCommand(
-                "editor.rename.commit",
-                null,
-                null,
-                () => this._rename.commitRename(),
-                isRenameActive,
-            ),
-            new CallbackCommand(
-                "editor.rename.cancel",
-                null,
-                null,
-                () => this._rename.cancelRename(),
-                isRenameActive,
             ),
 
             new CallbackCommand("editor.quickInfo.show", null, null, () =>
