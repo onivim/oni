@@ -776,7 +776,6 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
-        this.unmapUserBinding(["test"])
         return this._bufferManager.getBuffers()
     }
 
