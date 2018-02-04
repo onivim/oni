@@ -150,7 +150,9 @@ export interface IConfigurationValues {
     "editor.scrollBar.cursorTick.visible": boolean
 
     // Allow overriding token colors for specific textmate scopes
-    "editor.tokenColors": ITokenColorsSetting[]
+    "editor.tokenColors": {
+        [token: string]: ITokenColorsSetting
+    }
 
     // Additional paths to include when launching sub-process from Oni
     // (and available in terminal integration, later)

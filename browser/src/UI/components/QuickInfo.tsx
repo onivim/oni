@@ -9,15 +9,15 @@ const markedCss = css`
         display: inline-block;
     }
 
-    .Identifier {
-        color: red;
+    .marked-identifier {
+        color: ${p => p.theme["editor.tokenColors"].identifier.color};
     }
-    .Function {
-        color: blue;
+    .marked-function {
+        color: ${p => p.theme["editor.tokenColors"].function.color};
     }
 
-    .Constant {
-        color: yellow;
+    .marked-constant {
+        color: ${p => p.theme["editor.tokenColors"].constant.color};
     }
 `
 

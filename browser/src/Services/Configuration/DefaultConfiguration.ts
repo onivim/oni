@@ -115,40 +115,40 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumn": false,
     "editor.cursorColumnOpacity": 0.1,
 
-    "editor.tokenColors": [
-        {
+    "editor.tokenColors": {
+        "variable.object": {
             scope: "variable.object",
             settings: "Identifier",
         },
-        {
+        "variable.other.constant": {
             scope: "variable.other.constant",
             settings: "Constant",
         },
-        {
+        "variable.language": {
             scope: "variable.language",
             settings: "Identifier",
         },
-        {
+        "variable.parameter": {
             scope: "variable.parameter",
             settings: "Identifier",
         },
-        {
+        "variable.other": {
             scope: "variable.other",
             settings: "Identifier",
         },
-        {
+        "support.function": {
             scope: "support.function",
             settings: "Function",
         },
-        {
+        "entity.name": {
             scope: "entity.name",
             settings: "Function",
         },
-        {
+        "entity.other": {
             scope: "entity.other",
             settings: "Constant",
         },
-    ],
+    },
 
     "environment.additionalPaths": [],
 

@@ -116,7 +116,9 @@ export class SyntaxHighlightReconciler {
         const configurationColors = this._configuration.getValue("editor.tokenColors")
 
         for (const scope of scopes) {
-            const matchingRule = configurationColors.find((c: any) => scope.indexOf(c.scope) === 0)
+            const matchingRule = Object.values(configurationColors).find(
+                (c: any) => scope.indexOf(c.scope) === 0,
+            )
 
             if (matchingRule) {
                 // TODO: Convert to highlight group id

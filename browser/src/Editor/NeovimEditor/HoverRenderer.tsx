@@ -136,7 +136,7 @@ const getTitleAndContents = async (result: types.Hover) => {
         return null
     }
 
-    const contents = Helpers.getTextFromContents(result.contents)
+    const [{ value: contents, language }] = Helpers.getTextFromContents(result.contents)
     if (contents.length === 0) {
         return null
     } else if (contents.length === 1 && contents[0]) {
@@ -146,8 +146,16 @@ const getTitleAndContents = async (result: types.Hover) => {
             return null
         }
 
+        const { tokens: titleTokens } = await getTokens({
+            language,
+            line: contents[0],
+            prevState: null,
+        })
+
+        const titleColors = await getColorForToken(titleTokens)
+
         return {
-            title: convertMarkdown({ markdown: title }),
+            title: convertMarkdown({ markdown: title, colors: titleColors }),
             description: null,
         }
     } else {
@@ -156,26 +164,26 @@ const getTitleAndContents = async (result: types.Hover) => {
         const descriptionContent = description.join(os.EOL)
 
         const { tokens: titleTokens } = await getTokens({
-            language: "typescript",
-            ext: ".ts",
+            language,
             line: contents[0],
             prevState: null,
         })
+
+        const titleColors = await getColorForToken(titleTokens)
+
         const { tokens: descriptionTokens } = await getTokens({
-            language: "typescript",
-            ext: ".ts",
+            language,
             line: descriptionContent,
             prevState: null,
         })
-        const descriptionColors = getColorForToken(descriptionTokens)
-        const titleColors = getColorForToken(titleTokens)
-        console.log("colors: ", descriptionColors)
+        const descriptionColors = await getColorForToken(descriptionTokens)
 
         return {
             title: convertMarkdown({ markdown: contents[0], colors: titleColors }),
             description: convertMarkdown({
                 markdown: descriptionContent,
                 colors: descriptionColors,
+                type: "description",
             }),
         }
     }

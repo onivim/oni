@@ -14,6 +14,12 @@ import { Configuration, configuration, GenericConfigurationValues } from "./../C
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
 import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
 
+interface IToken {
+    scope: string
+    settings: string
+    color: string
+}
+
 export interface IThemeColors {
     background: string
     foreground: string
@@ -79,6 +85,10 @@ export interface IThemeColors {
     "fileExplorer.selection.foreground": string
     "fileExplorer.cursor.background": string
     "fileExplorer.cursor.foreground": string
+
+    "editor.tokenColors": {
+        [token: string]: IToken
+    }
 
     // LATER:
     //  - Notifications?
@@ -269,6 +279,56 @@ export const DefaultThemeColors: IThemeColors = {
     "fileExplorer.selection.foreground": HighlightForeground,
     "fileExplorer.cursor.background": NormalMode,
     "fileExplorer.cursor.foreground": NormalMode,
+
+    "editor.tokenColors": {
+        "variable.object": {
+            scope: "variable.object",
+            settings: "Identifier",
+            color: null,
+        },
+        "variable.other.constant": {
+            scope: "variable.other.constant",
+            settings: "Constant",
+            color: null,
+        },
+        "variable.language": {
+            scope: "variable.language",
+            settings: "Identifier",
+            color: null,
+        },
+        "variable.parameter": {
+            scope: "variable.parameter",
+            settings: "Identifier",
+            color: null,
+        },
+        "variable.other": {
+            scope: "variable.other",
+            settings: "Identifier",
+            color: null,
+        },
+        "support.function": {
+            scope: "support.function",
+            settings: "Function",
+            color: null,
+        },
+        "entity.name": {
+            scope: "entity.name",
+            settings: "Function",
+            color: null,
+        },
+        "entity.other": {
+            scope: "entity.other",
+            settings: "Constant",
+            color: null,
+        },
+    },
+}
+
+export interface IVimHighlight {
+    highlightGroup: string
+    highlight: {
+        foreground: number
+    }
 }
 
 // export interface ITokenTheme {
@@ -289,20 +349,25 @@ export interface IThemeMetadata {
     name: string
     baseVimTheme?: string
     colors: Partial<IThemeColors>
-    // tokenColors: ITokenTheme[]
+    tokenColors: {
+        [token: string]: IToken
+    }
 }
 
 export const DefaultTheme: IThemeMetadata = {
     name: "default",
     baseVimTheme: "default",
     colors: DefaultThemeColors,
-    // tokenColors: [],
+    tokenColors: {},
 }
 
 export class ThemeManager {
     private _onThemeChangedEvent: Event<void> = new Event<void>()
 
     private _activeTheme: IThemeMetadata = DefaultTheme
+    private _vimHighlights: {
+        [token: string]: IToken
+    } = {}
 
     private _isAnonymousTheme: boolean = false
 
@@ -317,6 +382,19 @@ export class ThemeManager {
 
     public async getAllThemes(): Promise<IThemeContribution[]> {
         return this._themeLoader.getAllThemes()
+    }
+
+    public async getVimHighlightColors(tokenColors: IVimHighlight[]) {
+        const tokens = tokenColors.reduce((acc, t) => {
+            acc[t.highlightGroup.toLowerCase()] = {
+                scope: t.highlightGroup,
+                settings: t.highlightGroup,
+                color: Color(t.highlight.foreground).hex(),
+            }
+            return acc
+        }, this._vimHighlights)
+        this._vimHighlights = tokens
+        this._updateTheme(this._activeTheme)
     }
 
     public async setTheme(name: string): Promise<void> {
@@ -337,6 +415,7 @@ export class ThemeManager {
                 name,
                 baseVimTheme: name,
                 colors: DefaultThemeColors,
+                tokenColors: this._vimHighlights,
             }
 
             this._updateTheme(temporaryVimTheme)
@@ -345,11 +424,11 @@ export class ThemeManager {
         }
     }
 
-    public notifyVimThemeChanged(
+    public async notifyVimThemeChanged(
         vimName: string,
         backgroundColor: string,
         foregroundColor: string,
-    ): void {
+    ): Promise<void> {
         // If the vim colorscheme changed, for example, via `:co <sometheme>`,
         // then we should update our theme to match
         if (
@@ -360,10 +439,12 @@ export class ThemeManager {
         ) {
             this._isAnonymousTheme = false
 
+            const tokenColors = this._vimHighlights
             const vimTheme: IThemeMetadata = {
                 name: vimName,
                 baseVimTheme: vimName,
                 colors: getColorsFromBackgroundAndForeground(backgroundColor, foregroundColor),
+                tokenColors,
             }
 
             this._updateTheme(vimTheme)
@@ -382,11 +463,16 @@ export class ThemeManager {
         this._activeTheme = theme
 
         const userColors = getColorsFromConfig(configuration, this.activeTheme.colors)
+        console.log(
+            "this._vimhighlights ===================================: ",
+            this._vimHighlights,
+        )
 
         this._colors = {
             ...DefaultThemeColors,
             ...this._activeTheme.colors,
             ...userColors,
+            "editor.tokenColors": this._vimHighlights,
         }
 
         this._onThemeChangedEvent.dispatch()

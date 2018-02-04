@@ -168,6 +168,10 @@ export class OniEditor implements IEditor {
         this._neovimEditor.executeCommand(command)
     }
 
+    public async getVimHighlights(): Promise<Array<{ highlightGroup: string; highlight: any }>> {
+        return this._neovimEditor.getVimHighlights()
+    }
+
     public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
         return this._neovimEditor.getBuffers()
     }

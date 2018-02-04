@@ -4,7 +4,6 @@
 
 import * as os from "os"
 
-import * as flatMap from "lodash/flatMap"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
@@ -44,11 +43,11 @@ export const unwrapFileUriPath = (uri: string) => decodeURIComponent(uri.split(g
 
 export const getTextFromContents = (
     contents: types.MarkedString | types.MarkedString[],
-): string[] => {
+): IMarkedStringResult[] => {
     if (contents instanceof Array) {
-        return flatMap(contents, markedString => getTextFromMarkedString(markedString))
+        return contents.map(markedString => getTextFromMarkedString(markedString))
     } else {
-        return getTextFromMarkedString(contents)
+        return [getTextFromMarkedString(contents)]
     }
 }
 
@@ -125,12 +124,23 @@ export const createDidChangeTextDocumentParams = (
     }
 }
 
-const getTextFromMarkedString = (markedString: types.MarkedString): string[] => {
+interface IMarkedStringResult {
+    value: string[]
+    language: string
+}
+
+const getTextFromMarkedString = (markedString: types.MarkedString): IMarkedStringResult => {
     if (typeof markedString === "string") {
-        return splitByNewlines(markedString)
+        return {
+            language: null,
+            value: splitByNewlines(markedString),
+        }
     } else {
-        // TODO: Properly apply syntax highlighting based on the `language` parameter
-        return splitByNewlines(markedString.value)
+        return {
+            // Split the language as it passed as e.g. "reason.hover.type"
+            language: markedString.language ? markedString.language.split(".")[0] : null,
+            value: splitByNewlines(markedString.value),
+        }
     }
 }
 
