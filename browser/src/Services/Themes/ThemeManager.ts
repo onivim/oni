@@ -463,10 +463,6 @@ export class ThemeManager {
         this._activeTheme = theme
 
         const userColors = getColorsFromConfig(configuration, this.activeTheme.colors)
-        console.log(
-            "this._vimhighlights ===================================: ",
-            this._vimHighlights,
-        )
 
         this._colors = {
             ...DefaultThemeColors,
