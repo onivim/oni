@@ -136,11 +136,13 @@ const getTitleAndContents = async (result: types.Hover) => {
         return null
     }
 
-    const [{ value: contents, language }] = Helpers.getTextFromContents(result.contents)
+    const contents = Helpers.getTextFromContents(result.contents)
+    const [{ value: titleContent, language }, ...remaining] = contents
+
     if (contents.length === 0) {
         return null
-    } else if (contents.length === 1 && contents[0]) {
-        const title = contents[0].trim()
+    } else if (contents.length === 1) {
+        const title = titleContent.trim()
 
         if (!title) {
             return null
@@ -148,42 +150,33 @@ const getTitleAndContents = async (result: types.Hover) => {
 
         const { tokens: titleTokens } = await getTokens({
             language,
-            line: contents[0],
+            line: titleContent,
             prevState: null,
         })
 
         const titleColors = await getColorForToken(titleTokens)
-
+        console.log("contents: ", contents)
         return {
-            title: convertMarkdown({ markdown: title, colors: titleColors }),
+            title: convertMarkdown({ markdown: titleContent, colors: titleColors }),
             description: null,
         }
     } else {
-        const description = [...contents]
-        description.shift()
-        const descriptionContent = description.join(os.EOL)
+        const remainingStrings = remaining.map(r => r.value)
+        const descriptionContent = remainingStrings.join(os.EOL)
 
         const { tokens: titleTokens } = await getTokens({
             language,
-            line: contents[0],
+            line: titleContent,
             prevState: null,
         })
 
         const titleColors = await getColorForToken(titleTokens)
 
-        const { tokens: descriptionTokens } = await getTokens({
-            language,
-            line: descriptionContent,
-            prevState: null,
-        })
-        const descriptionColors = await getColorForToken(descriptionTokens)
-
         return {
-            title: convertMarkdown({ markdown: contents[0], colors: titleColors }),
+            title: convertMarkdown({ markdown: titleContent, colors: titleColors }),
             description: convertMarkdown({
                 markdown: descriptionContent,
-                colors: descriptionColors,
-                type: "description",
+                type: "documentation",
             }),
         }
     }

@@ -6,6 +6,8 @@ import styled, { boxShadowInset, css, fontSizeSmall, withProps } from "./common"
 const markedCss = css`
     .marked {
         margin: 0;
+        padding-right: 0;
+        padding-left: 0;
         display: inline-block;
     }
 
@@ -42,7 +44,7 @@ const childStyles = css`
     > * {
         /* necessary to prevent overflow */
         margin: 0.2rem;
-        max-width: 55vw;
+        max-width: 45vw;
 
         ${markedCss};
 
@@ -78,10 +80,6 @@ export const Documentation = styled.div`
     color: ${p => p.theme["editor.hover.contents.foreground"]};
     ${markedCss};
 
-    .source_ts {
-        color: red;
-    }
-
     &:hover {
         overflow: overlay;
     }
@@ -89,7 +87,8 @@ export const Documentation = styled.div`
     ${childStyles};
 
     pre {
-        ${smallScrollbar} ${codeBlockStyle};
+        ${smallScrollbar};
+        ${codeBlockStyle};
     }
 `
 // NOTE: Currently with a max-width in CursorPositioner the text
@@ -108,10 +107,6 @@ export const Title = withProps<{ padding?: string }>(styled.div)`
     background-color:${p => p.theme["editor.hover.title.background"]};
     color: ${p => p.theme["editor.hover.title.foreground"]};
     ${markedCss};
-
-    .source_ts {
-        color: red;
-    }
 
     &:hover {
         overflow: overlay;

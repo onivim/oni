@@ -125,7 +125,7 @@ export const createDidChangeTextDocumentParams = (
 }
 
 interface IMarkedStringResult {
-    value: string[]
+    value: string
     language: string
 }
 
@@ -133,24 +133,23 @@ const getTextFromMarkedString = (markedString: types.MarkedString): IMarkedStrin
     if (typeof markedString === "string") {
         return {
             language: null,
-            value: splitByNewlines(markedString),
+            value: markedString,
         }
     } else {
         return {
             // Split the language as it passed as e.g. "reason.hover.type"
             language: markedString.language ? markedString.language.split(".")[0] : null,
-            value: splitByNewlines(markedString.value),
+            value: markedString.value,
         }
     }
 }
 
-const splitByNewlines = (str: string) => {
-    // Remove '/r'
-    return str
-        .split("\r")
-        .join("")
-        .split("\n")
-}
+// const splitByNewlines = (str: string) => {
+//     // Remove '/r'
+//     const replaced = str.replace("\/r", "")
+//     const twoParts = replaced.split(/[\r|\n](.+)/)
+//     return twoParts
+// }
 
 const getFilePrefix = () => {
     if (process.platform === "win32") {
