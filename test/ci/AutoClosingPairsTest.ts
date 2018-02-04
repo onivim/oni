@@ -40,10 +40,11 @@ export const test = async (oni: Oni.Plugin.Api) => {
     oni.automation.sendKeys('"')
     oni.automation.sendKeys("Oni")
     oni.automation.sendKeys('"')
+    oni.automation.sendKeys("<esc>")
 
     // Because the input is asynchronous, we need to use `waitFor` to wait
     // for them to complete.
-    await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.lineCount === 5)
+    await oni.automation.waitFor(() => oni.editors.activeEditor.mode === "normal")
 
     const lines: string[] = await oni.editors.activeEditor.activeBuffer.getLines(0, 5)
 
