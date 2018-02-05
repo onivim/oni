@@ -52,12 +52,10 @@ export function mapTokensToHighlights(tokens: ISyntaxHighlightTokenInfo[]): any[
 }
 
 export function getHighlightGroupFromScope(scopes: string[]): HighlightGroupId {
-    const configurationColors = configuration.getValue("editor.tokenColors")
+    const colors = configuration.getValue("editor.tokenColors")
 
     for (const scope of scopes) {
-        const matchingRule = Object.values(configurationColors).find(
-            (c: any) => scope.indexOf(c.scope) === 0,
-        )
+        const matchingRule = Object.values(colors).find(token => scope.includes(token.scope))
 
         if (matchingRule) {
             // TODO: Convert to highlight group id
