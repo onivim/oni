@@ -4,6 +4,7 @@
  * - Manages theming
  */
 
+import { merge } from "lodash"
 import { Event, IEvent } from "oni-types"
 
 import { IThemeContribution } from "./../../Plugins/Api/Capabilities"
@@ -15,9 +16,23 @@ import * as PersistentSettings from "./../Configuration/PersistentSettings"
 import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
 
 interface IToken {
-    scope: string
-    settings: string
+    settings?: string
+    scope?: string
     color: string
+}
+
+interface IEditorTokens {
+    "variable.object": IToken
+    "variable.other.constant": IToken
+    "variable.language": IToken
+    "variable.parameter": IToken
+    "variable.other": IToken
+    "support.function": IToken
+    "entity.name": IToken
+    "entity.other": IToken
+    identifier: IToken
+    function: IToken
+    constant: IToken
 }
 
 export interface IThemeColors {
@@ -86,9 +101,7 @@ export interface IThemeColors {
     "fileExplorer.cursor.background": string
     "fileExplorer.cursor.foreground": string
 
-    "editor.tokenColors": {
-        [token: string]: IToken
-    }
+    "editor.tokenColors": IEditorTokens
 
     // LATER:
     //  - Notifications?
@@ -151,11 +164,53 @@ export const getHoverColors = (
     return userHoverColors
 }
 
-export const getColorsFromConfig = (config: Configuration, colors: Partial<IThemeColors>) => {
-    const userConfig = config.getValues()
-    const hoverColors = getHoverColors(userConfig, colors)
+const getTokenColors = ({
+    config,
+    defaultTokens,
+    themeColors,
+    vimColors,
+}: {
+    config: Configuration
+    defaultTokens: IEditorTokens
+    themeColors: IEditorTokens
+    vimColors: IVimTokens
+}) => {
+    const userTokens = config.getValue("editor.tokenColors")
+    // N.B: These functions mutate the source objects so careful when debugging
+    const defaultsWithVim = merge(defaultTokens, vimColors, themeColors)
+    const userCombined = merge(defaultsWithVim, userTokens)
+    for (const token in userCombined) {
+        if (userCombined.hasOwnProperty(token)) {
+            const tokenObject = userCombined[token]
+            if (!tokenObject.color && tokenObject.settings) {
+                tokenObject.color = userCombined[tokenObject.settings.toLowerCase()].color
+            }
+        }
+    }
+    return userCombined
+}
 
-    return hoverColors
+export const getColorsFromConfig = ({
+    config,
+    vimColors,
+    defaultTheme,
+    themeColors,
+}: {
+    config: Configuration
+    themeColors: Partial<IThemeColors>
+    vimColors: IVimTokens
+    defaultTheme: IThemeColors
+}) => {
+    const userConfig = config.getValues()
+    const hoverColors = getHoverColors(userConfig, themeColors)
+    const editorTokenColors = getTokenColors({
+        config,
+        defaultTokens: defaultTheme["editor.tokenColors"],
+        themeColors: themeColors["editor.tokenColors"],
+        vimColors,
+    })
+
+    return { ...hoverColors, "editor.tokenColors": editorTokenColors }
 }
 
 export const getColorsFromBackgroundAndForeground = (background: string, foreground: string) => {
@@ -282,43 +337,52 @@ export const DefaultThemeColors: IThemeColors = {
 
     "editor.tokenColors": {
         "variable.object": {
+            settings: "identifier",
             scope: "variable.object",
-            settings: "Identifier",
             color: null,
         },
         "variable.other.constant": {
+            settings: "constant",
             scope: "variable.other.constant",
-            settings: "Constant",
             color: null,
         },
         "variable.language": {
+            settings: "identifier",
             scope: "variable.language",
-            settings: "Identifier",
             color: null,
         },
         "variable.parameter": {
+            settings: "identifier",
             scope: "variable.parameter",
-            settings: "Identifier",
             color: null,
         },
         "variable.other": {
+            settings: "identifier",
             scope: "variable.other",
-            settings: "Identifier",
             color: null,
         },
         "support.function": {
+            settings: "function",
             scope: "support.function",
-            settings: "Function",
             color: null,
         },
         "entity.name": {
+            settings: "function",
             scope: "entity.name",
-            settings: "Function",
             color: null,
         },
         "entity.other": {
+            settings: "constant",
             scope: "entity.other",
-            settings: "Constant",
+            color: null,
+        },
+        identifier: {
+            color: null,
+        },
+        function: {
+            color: null,
+        },
+        constant: {
             color: null,
         },
     },
@@ -331,9 +395,15 @@ export interface IVimHighlight {
     }
 }
 
+export interface IVimTokens {
+    [token: string]: {
+        settings?: string
+        color: string
+    }
+}
+
 // export interface ITokenTheme {
 //     name: string
-//     scope: string[]
 //     settings: ITokenColorSettings
 // }
 
@@ -349,25 +419,19 @@ export interface IThemeMetadata {
     name: string
     baseVimTheme?: string
     colors: Partial<IThemeColors>
-    tokenColors: {
-        [token: string]: IToken
-    }
 }
 
 export const DefaultTheme: IThemeMetadata = {
     name: "default",
     baseVimTheme: "default",
     colors: DefaultThemeColors,
-    tokenColors: {},
 }
 
 export class ThemeManager {
     private _onThemeChangedEvent: Event<void> = new Event<void>()
 
     private _activeTheme: IThemeMetadata = DefaultTheme
-    private _vimHighlights: {
-        [token: string]: IToken
-    } = {}
+    private _vimHighlights: IVimTokens = {}
 
     private _isAnonymousTheme: boolean = false
 
@@ -387,7 +451,6 @@ export class ThemeManager {
     public async getVimHighlightColors(tokenColors: IVimHighlight[]) {
         const tokens = tokenColors.reduce((acc, t) => {
             acc[t.highlightGroup.toLowerCase()] = {
-                scope: t.highlightGroup,
                 settings: t.highlightGroup,
                 color: Color(t.highlight.foreground).hex(),
             }
@@ -439,12 +502,10 @@ export class ThemeManager {
         ) {
             this._isAnonymousTheme = false
 
-            const tokenColors = this._vimHighlights
             const vimTheme: IThemeMetadata = {
                 name: vimName,
                 baseVimTheme: vimName,
                 colors: getColorsFromBackgroundAndForeground(backgroundColor, foregroundColor),
-                tokenColors,
             }
 
             this._updateTheme(vimTheme)
@@ -462,13 +523,17 @@ export class ThemeManager {
     private _updateTheme(theme: IThemeMetadata): void {
         this._activeTheme = theme
 
-        const userColors = getColorsFromConfig(configuration, this.activeTheme.colors)
+        const userColors = getColorsFromConfig({
+            config: configuration,
+            defaultTheme: DefaultThemeColors,
+            themeColors: this.activeTheme.colors,
+            vimColors: this._vimHighlights,
+        })
 
         this._colors = {
             ...DefaultThemeColors,
             ...this._activeTheme.colors,
             ...userColors,
-            "editor.tokenColors": this._vimHighlights,
         }
 
         this._onThemeChangedEvent.dispatch()

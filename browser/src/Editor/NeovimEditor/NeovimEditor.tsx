@@ -756,7 +756,8 @@ export class NeovimEditor extends Editor implements IEditor {
             scope: string
         }> = this._configuration.getValue("editor.tokenColors")
 
-        const tokens = Object.values(configurationColors).map(c => c.settings)
+        // FIXME: Specify Highlights to check by differentiating vim highlights as no having "."
+        const tokens = Object.keys(configurationColors).filter(c => !c.includes("."))
         const uniqueTokens = [...new Set(tokens)]
         const colorValues = await Promise.all(
             uniqueTokens.map(async token => {
