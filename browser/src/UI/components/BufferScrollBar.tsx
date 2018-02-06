@@ -1,7 +1,7 @@
 import * as React from "react"
 
-import styled from "styled-components"
 import * as uniqBy from "lodash/uniqBy"
+import styled from "styled-components"
 
 import { bufferScrollBarSize } from "./common"
 
