@@ -70,7 +70,7 @@ import { BufferManager, IBuffer } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
-import { NeovimSurface } from "./NeovimSurface"
+import NeovimSurface from "./NeovimSurface"
 
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 
@@ -244,15 +244,6 @@ export class NeovimEditor extends Editor implements IEditor {
             this._rename,
             this._symbols,
         )
-
-        const updateViewport = () => {
-            const width = document.body.offsetWidth
-            const height = document.body.offsetHeight
-
-            this._actions.setViewport(width, height)
-        }
-        window.addEventListener("resize", updateViewport)
-        updateViewport()
 
         this._tasks.registerTaskProvider(commandManager)
         this._tasks.registerTaskProvider(errorService)
