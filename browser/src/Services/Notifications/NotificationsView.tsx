@@ -117,7 +117,7 @@ const NotificationTitle = styled.div`
 const NotificationDescription = styled.div`
     flex: 1 1 auto;
     overflow-y: auto;
-    overflow-x: none;
+    overflow-x: hidden;
 
     font-size: 0.9em;
 `

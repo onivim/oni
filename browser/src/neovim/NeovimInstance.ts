@@ -362,7 +362,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public start(startOptions?: INeovimStartOptions): Promise<void> {
         Performance.startMeasure("NeovimInstance.Start")
-        this._initPromise = startNeovim(startOptions).then(nv => {
+        this._initPromise = startNeovim(startOptions).then(async nv => {
             Log.info("NeovimInstance: Neovim started")
 
             // Workaround for issue where UI
