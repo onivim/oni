@@ -15,7 +15,7 @@ export * from "./RelationalSplitNavigator"
 export * from "./SingleSplitProvider"
 export * from "./WindowDock"
 export * from "./WindowManager"
-export * from "./WindowState"
+export * from "./WindowManagerStore"
 
 // TODO: Possible API types?
 export type Direction = "up" | "down" | "left" | "right"
@@ -36,9 +36,8 @@ export const getInverseDirection = (direction: Direction): Direction => {
     }
 }
 
-import { SplitOrLeaf } from "./WindowState"
-
 import { WindowManager } from "./WindowManager"
+import { SplitOrLeaf } from "./WindowManagerStore"
 
 /**
  * Interface for something that can navigate between window splits

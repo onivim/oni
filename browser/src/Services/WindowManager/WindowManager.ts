@@ -8,6 +8,8 @@
  * to the active editor, and managing transitions between editors.
  */
 
+import { Store } from "redux"
+
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
@@ -15,76 +17,8 @@ import { Direction, SplitDirection } from "./index"
 import { LinearSplitProvider } from "./LinearSplitProvider"
 import { RelationalSplitNavigator } from "./RelationalSplitNavigator"
 import { WindowDock } from "./WindowDock"
-import { ISplitInfo } from "./WindowState"
 
-import { Store, Reducer } from "redux"
-import { createStore as createReduxStore } from "./../../Redux"
-
-export interface IAugmentedSplitInfo extends Oni.IWindowSplit {
-    // Potential API methods
-    enter?(): void
-    leave?(): void
-
-    // Internal bookkeeping
-    id: string
-}
-
-type WindowActions =
-    | {
-          type: "SET_DOCK_SPLITS"
-          dock: Direction
-          splits: IAugmentedSplitInfo[]
-      }
-    | {
-          type: "SET_PRIMARY_SPLITS"
-          splits: ISplitInfo<IAugmentedSplitInfo>
-      }
-    | {
-          type: "SET_FOCUSED_SPLIT"
-          splitId: string
-      }
-    | {
-          type: "SHOW_SPLIT"
-          splitId: string
-      }
-    | {
-          type: "HIDE_SPLIT"
-          splitId: string
-      }
-
-export type DockWindows = { [key: string]: IAugmentedSplitInfo[] }
-
-export interface WindowState {
-    docks: DockWindows
-
-    primarySplit: ISplitInfo<IAugmentedSplitInfo>
-
-    focusedSplitId: string
-    hiddenSplits: string[]
-}
-
-export const DefaultWindowState: WindowState = {
-    docks: {
-        left: [],
-        right: [],
-        up: [],
-        down: [],
-    },
-    primarySplit: null,
-    focusedSplitId: null,
-    hiddenSplits: [],
-}
-
-export const reducer: Reducer<WindowState> = (
-    state: WindowState = DefaultWindowState,
-    action: WindowActions,
-) => {
-    return state
-}
-
-export const createStore = (): Store<WindowState> => {
-    return createReduxStore("WindowManager", reducer, DefaultWindowState, [])
-}
+import { createStore, ISplitInfo, WindowState } from "./WindowManagerStore"
 
 export class WindowManager {
     private _activeSplit: any
@@ -96,6 +30,8 @@ export class WindowManager {
     private _leftDock: WindowDock = null
     private _primarySplit: LinearSplitProvider
     private _rootNavigator: RelationalSplitNavigator
+
+    private _store: Store<WindowState>
 
     public get onActiveSplitChanged(): IEvent<Oni.IWindowSplit> {
         return this._onActiveSplitChangedEvent
@@ -127,13 +63,18 @@ export class WindowManager {
         this._focusNewSplit(split)
     }
 
+    public get store(): Store<WindowState> {
+        return this._store
+    }
+
     constructor() {
         this._rootNavigator = new RelationalSplitNavigator()
 
         this._leftDock = new WindowDock()
         this._primarySplit = new LinearSplitProvider("horizontal")
-
         this._rootNavigator.setRelationship(this._leftDock, this._primarySplit, "right")
+
+        this._store = createStore()
     }
 
     public split(
