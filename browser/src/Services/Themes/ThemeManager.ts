@@ -4,7 +4,7 @@
  * - Manages theming
  */
 
-import { merge } from "lodash"
+import { mergeWith } from "lodash"
 import { Event, IEvent } from "oni-types"
 
 import { IThemeContribution } from "./../../Plugins/Api/Capabilities"
@@ -19,6 +19,7 @@ interface IToken {
     settings?: string
     scope?: string
     color: string
+    bold?: boolean
 }
 
 interface IEditorTokens {
@@ -176,9 +177,22 @@ const getTokenColors = ({
     vimColors: IVimTokens
 }) => {
     const userTokens = config.getValue("editor.tokenColors")
-    // N.B: These functions mutate the source objects so careful when debugging
-    const defaultsWithVim = merge(defaultTokens, vimColors, themeColors)
-    const userCombined = merge(defaultsWithVim, userTokens)
+    // Merge defaults, with vim sourced tokens, theme tokens and user selected
+    // make sure never to override a truthy value with a falsy one
+    const userCombined = mergeWith(
+        defaultTokens,
+        vimColors,
+        themeColors,
+        userTokens,
+        (objValue, srcValue) => {
+            if (objValue && !srcValue) {
+                return objValue
+            } else if (srcValue && !objValue) {
+                return srcValue
+            }
+        },
+    )
+
     for (const token in userCombined) {
         if (userCombined.hasOwnProperty(token)) {
             const tokenObject = userCombined[token]
@@ -392,6 +406,7 @@ export interface IVimHighlight {
     highlightGroup: string
     highlight: {
         foreground: number
+        bold?: boolean
     }
 }
 
@@ -399,6 +414,7 @@ export interface IVimTokens {
     [token: string]: {
         settings?: string
         color: string
+        bold?: boolean
     }
 }
 
@@ -453,6 +469,7 @@ export class ThemeManager {
             acc[t.highlightGroup.toLowerCase()] = {
                 settings: t.highlightGroup,
                 color: Color(t.highlight.foreground).hex(),
+                bold: t.highlight.bold,
             }
             return acc
         }, this._vimHighlights)

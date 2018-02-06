@@ -21,6 +21,12 @@ const markedCss = css`
     .marked-constant {
         color: ${p => p.theme["editor.tokenColors"].constant.color};
     }
+    .variable-other {
+        color: ${p => p.theme["editor.tokenColors"]["variable.other"].color};
+    }
+    .meta-brace-round {
+        color: rgba(0, 0, 0, 0.7);
+    }
 `
 
 const smallScrollbar = css`

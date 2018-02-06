@@ -119,34 +119,57 @@ const BaseConfiguration: IConfigurationValues = {
         "variable.object": {
             scope: "variable.object",
             settings: "Identifier",
+            color: null,
         },
         "variable.other.constant": {
             scope: "variable.other.constant",
             settings: "Constant",
+            color: null,
         },
         "variable.language": {
             scope: "variable.language",
             settings: "Identifier",
+            color: null,
         },
         "variable.parameter": {
             scope: "variable.parameter",
             settings: "Identifier",
+            color: null,
         },
         "variable.other": {
             scope: "variable.other",
             settings: "Identifier",
+            color: null,
         },
         "support.function": {
             scope: "support.function",
             settings: "Function",
+            color: null,
         },
         "entity.name": {
             scope: "entity.name",
             settings: "Function",
+            color: null,
         },
         "entity.other": {
             scope: "entity.other",
             settings: "Constant",
+            color: null,
+        },
+        identifier: {
+            color: null,
+            scope: null,
+            settings: null,
+        },
+        function: {
+            color: null,
+            scope: null,
+            settings: null,
+        },
+        constant: {
+            color: null,
+            scope: null,
+            settings: null,
         },
     },
 

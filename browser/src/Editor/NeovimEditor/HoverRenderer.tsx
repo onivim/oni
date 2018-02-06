@@ -7,7 +7,7 @@ import * as os from "os"
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
-import getTokens, { getColorForToken } from "./../../Services/SyntaxHighlighting/tokenGenerator"
+import getTokens from "./../../Services/SyntaxHighlighting/tokenGenerator"
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
 import {
     QuickInfoContainer,
@@ -154,10 +154,8 @@ const getTitleAndContents = async (result: types.Hover) => {
             prevState: null,
         })
 
-        const titleColors = await getColorForToken(titleTokens)
-        console.log("contents: ", contents)
         return {
-            title: convertMarkdown({ markdown: titleContent, colors: titleColors }),
+            title: convertMarkdown({ markdown: titleContent, tokens: titleTokens }),
             description: null,
         }
     } else {
@@ -170,10 +168,8 @@ const getTitleAndContents = async (result: types.Hover) => {
             prevState: null,
         })
 
-        const titleColors = await getColorForToken(titleTokens)
-
         return {
-            title: convertMarkdown({ markdown: titleContent, colors: titleColors }),
+            title: convertMarkdown({ markdown: titleContent, tokens: titleTokens }),
             description: convertMarkdown({
                 markdown: descriptionContent,
                 type: "documentation",

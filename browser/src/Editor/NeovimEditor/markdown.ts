@@ -23,20 +23,28 @@ interface IRendererArgs {
     container?: string
 }
 
-// const scopesToString = (scope: object) =>
-//     Object.values(scope)
-//         .map(s => s.replace(/\./g, "_"))
-//         .join(" ")
+const scopesToString = (scope: object) =>
+    Object.values(scope)
+        .map((s: string) => {
+            const lastStop = s.lastIndexOf(".")
+            const remainder = s.substring(0, lastStop)
+            return remainder.replace(/\./g, "-")
+        })
+        .join(" ")
+
+function escapeRegExp(str: string) {
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$]/g, "\\$&")
+}
 
 const createContainer = (type: string, content: string) => {
     switch (type) {
         case "code":
-            // <pre class="marked-pre">
-            //  </pre>
             return `
+                <pre class="marked-pre">
                     <code>
                         ${content}
                     <code>
+                 </pre>
             `
         case "paragraph":
         default:
@@ -54,23 +62,21 @@ const renderWithClasses = ({
     // This is critical because marked's renderer refuses to leave html untouched so it converts
     // special chars to html entities which are rendered correctly in react
     const unescapedText = unescape(text)
-    // `<${element} class="marked ${scopesToString(scopes)}">${symbol}</${element}>`
-    if (colors) {
-        const symbols = colors.reduce((acc, color) => {
+    if (tokens) {
+        const symbols = tokens.reduce((acc, token) => {
             const symbol = unescapedText.substring(
-                color.range.start.character,
-                color.range.end.character,
+                token.range.start.character,
+                token.range.end.character,
             )
-            acc[symbol] = color.highlightGroup
+            acc[symbol] = token.scopes
             return acc
         }, {})
 
         const symbolNames = [...new Set(Object.keys(symbols))]
-        const symbolRegex = new RegExp("(" + symbolNames.join("|") + ")", "g")
+        const symbolRegex = new RegExp("(" + escapeRegExp(symbolNames.join("|")) + ")", "g")
         const html = unescapedText.replace(symbolRegex, (match, ...args) => {
-            return `<${element} class="marked marked-${symbols[
-                match
-            ].toLowerCase()}">${match}</${element}>`
+            const className = scopesToString(symbols[match])
+            return `<${element} class="marked ${className}">${match}</${element}>`
         })
         return createContainer(container, html)
     }

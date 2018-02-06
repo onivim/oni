@@ -13,6 +13,7 @@ import { IHighlight } from "./../SyntaxHighlighting"
 export interface ITokenColorsSetting {
     scope: string
     settings: IHighlight | string
+    color: string
 }
 
 export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiased" | "none"
