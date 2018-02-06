@@ -222,12 +222,15 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
             className += " selected"
         }
 
-        const icon =
-            this.props.icon && typeof this.props.icon === "string" ? (
-                <Icon name={this.props.icon} />
-            ) : (
-                this.props.icon
-            )
+        let iconToUse: any = <Icon name={"default"} />
+
+        if (this.props.icon) {
+            if (typeof this.props.icon === "string") {
+                iconToUse = <Icon name={this.props.icon} />
+            } else {
+                iconToUse = this.props.icon
+            }
+        }
         return (
             <MenuItemWrapper
                 isSelected={this.props.isSelected}
@@ -235,7 +238,7 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
                 onClick={() => this.props.onClick()}
                 style={{ height: this.props.height + "px" }}
             >
-                {icon}
+                {iconToUse}
                 <HighlightTextByIndex
                     className="label"
                     text={this.props.label}

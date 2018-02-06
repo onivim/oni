@@ -213,14 +213,14 @@ export class NeovimEditorCommands {
             ),
             new CallbackCommand(
                 "oni.config.openConfigJs",
-                "Edit Oni Config",
+                "Configuration: Edit Oni Config",
                 "Edit configuration file ('config.js') for Oni",
                 () => openDefaultConfig(),
             ),
 
             new CallbackCommand(
                 "oni.config.openInitVim",
-                "Edit Neovim Config",
+                "Configuration: Edit Neovim Config",
                 "Edit configuration file ('init.vim') for Neovim",
                 () => this._neovimInstance.openInitVim(),
             ),
