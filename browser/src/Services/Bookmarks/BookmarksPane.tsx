@@ -6,6 +6,10 @@
 
 import * as React from "react"
 
+import styled from "styled-components"
+
+import * as path from "path"
+
 import { Event, IDisposable, IEvent } from "oni-types"
 
 import { SidebarPane } from "./../Sidebar"
@@ -60,6 +64,56 @@ export interface IBookmarksPaneViewState {
 
     isGlobalSectionExpanded: boolean
     isLocalSectionExpanded: boolean
+}
+
+const BookmarkItemWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+
+    justify-content: center;
+    align-items; center;
+    margin-left: 8px;
+`
+
+const BookmarkIconWrapper = styled.div`
+    padding: 8px;
+    margin: 4px;
+    background-color: rgba(0, 0, 0, 0.2);
+    flex: 0 0 auto;
+`
+
+const BookmarkDescriptionWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    margin-left: 8px;
+    flex: 1 1 auto;
+    overflow: hidden;
+`
+
+const BookmarkTitleWrapper = styled.div`
+    text-overflow: ellipsis;
+    white-space: nowrap;
+`
+
+const BookmarkLocationWrapper = styled.div`
+    font-size: 0.8em;
+    text-overflow: ellipsis;
+`
+
+const BookmarkItemView = (props: { bookmark: IBookmark }) => {
+    return (
+        <BookmarkItemWrapper>
+            <BookmarkIconWrapper>{props.bookmark.id}</BookmarkIconWrapper>
+            <BookmarkDescriptionWrapper>
+                <BookmarkTitleWrapper>{path.basename(props.bookmark.text)}</BookmarkTitleWrapper>
+                <BookmarkLocationWrapper>
+                    {props.bookmark.line + ", " + props.bookmark.column}
+                </BookmarkLocationWrapper>
+            </BookmarkDescriptionWrapper>
+        </BookmarkItemWrapper>
+    )
 }
 
 export class BookmarksPaneView extends React.PureComponent<
@@ -118,7 +172,7 @@ export class BookmarksPaneView extends React.PureComponent<
 
             const mapToItems = (selectedId: string) => (bm: IBookmark) => (
                 <SidebarItemView
-                    text={bm.text}
+                    text={<BookmarkItemView bookmark={bm} />}
                     isFocused={selectedId === bm.id}
                     isContainer={false}
                     indentationLevel={0}

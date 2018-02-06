@@ -11,6 +11,8 @@ import { INeovimMarkInfo, INeovimMarks } from "./../../neovim"
 export interface IBookmark {
     group: string
     text: string
+    line: number
+    column: number
     id: string
 }
 
@@ -23,7 +25,9 @@ export interface IBookmarksProvider {
 const marksToBookmarks = (mark: INeovimMarkInfo): IBookmark => ({
     id: mark.mark,
     group: mark.global ? "Global Marks" : "Local Marks",
-    text: `[${mark.mark}] ${mark.text}`,
+    text: mark.text,
+    line: mark.line,
+    column: mark.column,
 })
 
 export class NeovimBookmarksProvider implements IBookmarksProvider {
