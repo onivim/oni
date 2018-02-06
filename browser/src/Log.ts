@@ -29,11 +29,11 @@ export const verbose = (message: string): void => {
     }
 }
 
-export const info = (message: string): void  => {
+export const info = (message: string): void => {
     console.log(message) // tslint:disable-line no-console
 }
 
-export const warn = (message: string): void  => {
+export const warn = (message: string): void => {
     console.warn(message) // tslint:disable-line no-console
 }
 

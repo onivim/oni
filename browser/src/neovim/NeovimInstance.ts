@@ -17,6 +17,7 @@ import { Configuration } from "./../Services/Configuration"
 import * as Actions from "./actions"
 import { NeovimBufferReference } from "./MsgPack"
 import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
+import { INeovimMarks, NeovimMarks } from "./NeovimMarks"
 import { INeovimStartOptions, startNeovim } from "./NeovimProcessSpawner"
 import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { IPixelPosition, IPosition } from "./Screen"
@@ -133,6 +134,7 @@ export interface INeovimInstance {
     onMessage: IEvent<IMessageInfo>
 
     autoCommands: INeovimAutoCommands
+    marks: INeovimMarks
 
     screenToPixels(row: number, col: number): IPixelPosition
 
@@ -200,6 +202,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _cols: number
 
     private _quickFix: QuickFixList
+    private _marks: NeovimMarks
     private _initComplete: boolean
 
     private _onDirectoryChanged = new Event<string>()
@@ -324,6 +327,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._autoCommands
     }
 
+    public get marks(): INeovimMarks {
+        return this._marks
+    }
+
     constructor(widthInPixels: number, heightInPixels: number, configuration: Configuration) {
         super()
         this._configuration = configuration
@@ -335,6 +342,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._quickFix = new QuickFixList(this)
         this._autoCommands = new NeovimAutoCommands(this)
+        this._marks = new NeovimMarks(this)
 
         this._bufferUpdateManager = new NeovimBufferUpdateManager(this._configuration, this)
     }
@@ -354,61 +362,66 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public start(startOptions?: INeovimStartOptions): Promise<void> {
         Performance.startMeasure("NeovimInstance.Start")
-        this._initPromise = startNeovim(startOptions)
-            .then(async (nv) => {
-                Log.info("NeovimInstance: Neovim started")
+        this._initPromise = startNeovim(startOptions).then(nv => {
+            Log.info("NeovimInstance: Neovim started")
 
-                // Workaround for issue where UI
-                // can fail to attach if there is a UI-blocking error
-                // nv.input("<ESC>")
-                this._neovim = nv
+            // Workaround for issue where UI
+            // can fail to attach if there is a UI-blocking error
+            // nv.input("<ESC>")
 
-                await this._checkAndFixIfBlocked()
+            this._neovim = nv
 
-                this._neovim.on("error", (err: Error) => {
-                    this._onError(err)
-                })
+            await this._checkAndFixIfBlocked()
 
-                this._neovim.on("notification", (method: any, args: any) => this._onNotification(method, args))
-
-                this._neovim.on("request", (method: any, _args: any, _resp: any) => {
-                    Log.warn("Unhandled request: " + method)
-                })
-
-                this._neovim.on("disconnect", () => {
-                    if (!this._isLeaving) {
-                        this._onError("Neovim disconnected. This likely means that the Neovim process crashed.")
-                    }
-                })
-
-                const size = this._getSize()
-                this._rows = size.rows
-                this._cols = size.cols
-
-                // Workaround for bug in neovim/node-client
-                // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
-                Performance.startMeasure("NeovimInstance.Start.Attach")
-                return this._attachUI(size.cols, size.rows)
-                    .then(async () => {
-                        Log.info("Attach success")
-                        Performance.endMeasure("NeovimInstance.Start.Attach")
-
-                        // TODO: #702 - Batch these calls via `nvim_call_atomic`
-                        // Override completeopt so Oni works correctly with external popupmenu
-                        // await this.command("set completeopt=longest,menu")
-
-                        // set title after attaching listeners so we can get the initial title
-                        await this.command("set title")
-
-                        Performance.endMeasure("NeovimInstance.Start")
-
-                        this._initComplete = true
-                    },
-                    (err: any) => {
-                        this._onError(err)
-                        this._initComplete = true
-                    })
+            this._neovim.on("error", (err: Error) => {
+                this._onError(err)
             })
+
+            this._neovim.on("notification", (method: any, args: any) =>
+                this._onNotification(method, args),
+            )
+
+            this._neovim.on("request", (method: any, _args: any, _resp: any) => {
+                Log.warn("Unhandled request: " + method)
+            })
+
+            this._neovim.on("disconnect", () => {
+                if (!this._isLeaving) {
+                    this._onError(
+                        "Neovim disconnected. This likely means that the Neovim process crashed.",
+                    )
+                }
+            })
+
+            const size = this._getSize()
+            this._rows = size.rows
+            this._cols = size.cols
+
+            // Workaround for bug in neovim/node-client
+            // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
+            Performance.startMeasure("NeovimInstance.Start.Attach")
+            return this._attachUI(size.cols, size.rows).then(
+                async () => {
+                    Log.info("Attach success")
+                    Performance.endMeasure("NeovimInstance.Start.Attach")
+
+                    // TODO: #702 - Batch these calls via `nvim_call_atomic`
+                    // Override completeopt so Oni works correctly with external popupmenu
+                    // await this.command("set completeopt=longest,menu")
+
+                    // set title after attaching listeners so we can get the initial title
+                    await this.command("set title")
+
+                    Performance.endMeasure("NeovimInstance.Start")
+
+                    this._initComplete = true
+                },
+                (err: any) => {
+                    this._onError(err)
+                    this._initComplete = true
+                },
+            )
+        })
 
         return this._initPromise
     }
@@ -417,20 +430,25 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._fontFamily = fontFamily
         this._fontSize = fontSize
 
-        const { width, height, isBoldAvailable, isItalicAvailable } = measureFont(this._fontFamily, this._fontSize)
+        const { width, height, isBoldAvailable, isItalicAvailable } = measureFont(
+            this._fontFamily,
+            this._fontSize,
+        )
 
         this._fontWidthInPixels = width
         this._fontHeightInPixels = height + linePadding
 
-        this.emit("action", Actions.setFont({
-            fontFamily,
-            fontSize,
-            fontWidthInPixels: width,
-            fontHeightInPixels: height + linePadding,
-            linePaddingInPixels: linePadding,
-            isItalicAvailable,
-            isBoldAvailable,
-        }),
+        this.emit(
+            "action",
+            Actions.setFont({
+                fontFamily,
+                fontSize,
+                fontWidthInPixels: width,
+                fontHeightInPixels: height + linePadding,
+                linePaddingInPixels: linePadding,
+                isItalicAvailable,
+                isBoldAvailable,
+            }),
         )
 
         this.resize(this._lastWidthInPixels, this._lastHeightInPixels)
@@ -443,7 +461,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public openInitVim(): Promise<void> {
         const loadInitVim = this._configuration.getValue("oni.loadInitVim")
 
-        if (typeof (loadInitVim) === "string") {
+        if (typeof loadInitVim === "string") {
             return this.open(loadInitVim)
         } else {
             // Use path from: https://github.com/neovim/neovim/wiki/FAQ
@@ -475,7 +493,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public async getBufferIds(): Promise<number[]> {
         const buffers = await this._neovim.request<NeovimBufferReference[]>("nvim_list_bufs", [])
 
-        return buffers.map((b) => b.id as any)
+        return buffers.map(b => b.id as any)
     }
 
     public async getCurrentWorkingDirectory(): Promise<string> {
@@ -557,7 +575,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     private _resizeInternal(rows: number, columns: number): void {
-
         if (this._configuration.hasValue("debug.fixedSize")) {
             const fixedSize = this._configuration.getValue("debug.fixedSize")
             rows = fixedSize.rows
@@ -599,12 +616,15 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     this.emit("action", Actions.createCursorGotoAction(a[0][0], a[0][1]))
                     break
                 case "put":
-                    const charactersToPut = a.map((v) => v[0])
+                    const charactersToPut = a.map(v => v[0])
                     this.emit("action", Actions.put(charactersToPut))
                     break
                 case "set_scroll_region":
                     const param = a[0]
-                    this.emit("action", Actions.setScrollRegion(param[0], param[1], param[2], param[3]))
+                    this.emit(
+                        "action",
+                        Actions.setScrollRegion(param[0], param[1], param[2], param[3]),
+                    )
                     break
                 case "scroll":
                     this.emit("action", Actions.scroll(a[0][0]))
@@ -612,15 +632,18 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 case "highlight_set":
                     const highlightInfo = a[a.length - 1][0]
 
-                    this.emit("action", Actions.setHighlight(
-                        !!highlightInfo.bold,
-                        !!highlightInfo.italic,
-                        !!highlightInfo.reverse,
-                        !!highlightInfo.underline,
-                        !!highlightInfo.undercurl,
-                        highlightInfo.foreground,
-                        highlightInfo.background,
-                    ))
+                    this.emit(
+                        "action",
+                        Actions.setHighlight(
+                            !!highlightInfo.bold,
+                            !!highlightInfo.italic,
+                            !!highlightInfo.reverse,
+                            !!highlightInfo.underline,
+                            !!highlightInfo.undercurl,
+                            highlightInfo.foreground,
+                            highlightInfo.background,
+                        ),
+                    )
                     break
                 case "resize":
                     this.emit("action", Actions.resize(a[0][0], a[0][1]))
@@ -696,7 +719,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     break
                 case "cmdline_show":
                     {
-
                         const [content, pos, firstc, prompt, indent, level] = a[0]
                         const commandLineShowInfo: INeovimCommandLineShowEvent = {
                             content,
@@ -752,6 +774,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             const pluginArgs = args[0]
             const pluginMethod = pluginArgs.shift()
 
+            // TODO: Update pluginManager to subscribe from event here, instead of dupliating this
+
             if (pluginMethod === "buffer_update") {
                 const eventContext: EventContext = args[0][0]
 
@@ -776,13 +800,16 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 this._autoCommands.notifyAutocommand(eventName, eventContext)
 
                 this.emit("event", eventName, eventContext)
-
             } else if (pluginMethod === "incremental_buffer_update") {
                 const eventContext = args[0][0]
                 const lineContents = args[0][1]
                 const lineNumber = args[0][2]
 
-                this._bufferUpdateManager.notifyIncrementalBufferUpdate(eventContext, lineNumber, lineContents)
+                this._bufferUpdateManager.notifyIncrementalBufferUpdate(
+                    eventContext,
+                    lineNumber,
+                    lineContents,
+                )
             } else {
                 Log.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
             }
@@ -800,27 +827,32 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         const version = await this.getApiVersion()
 
         const useNativeTabs = this._configuration.getValue("tabs.mode") === "native"
-        const useNativePopupWindows = this._configuration.getValue("editor.completions.mode") === "native"
+        const useNativePopupWindows =
+            this._configuration.getValue("editor.completions.mode") === "native"
 
         const externaliseTabline = !useNativeTabs
         const externalisePopupWindows = !useNativePopupWindows
 
         console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`) // tslint:disable-line no-console
 
-        const startupOptions = this._getStartupOptionsForVersion(version.major,
+        const startupOptions = this._getStartupOptionsForVersion(
+            version.major,
             version.minor,
             version.patch,
             externaliseTabline,
-            externalisePopupWindows)
+            externalisePopupWindows,
+        )
 
         await this._neovim.request("nvim_ui_attach", [columns, rows, startupOptions])
     }
 
-    private _getStartupOptionsForVersion(major: number,
-                                         minor: number,
-                                         patch: number,
-                                         shouldExtTabs: boolean,
-                                         shouldExtPopups: boolean) {
+    private _getStartupOptionsForVersion(
+        major: number,
+        minor: number,
+        patch: number,
+        shouldExtTabs: boolean,
+        shouldExtPopups: boolean,
+    ) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
             const useExtCmdLine = this._configuration.getValue("experimental.commandline.mode")
             const useExtWildMenu = this._configuration.getValue("experimental.wildmenu.mode")

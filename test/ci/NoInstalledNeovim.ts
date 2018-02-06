@@ -11,7 +11,6 @@ import * as path from "path"
 import * as Oni from "oni-api"
 
 const getInstallHelpElement = () => {
-
     const elements = document.body.getElementsByClassName("install-help")
 
     if (!elements || !elements.length) {

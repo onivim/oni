@@ -16,7 +16,6 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 // - Factor out event context to something simpler
 // - Remove plugin manager
 export const findAllReferences = async () => {
-
     const activeEditor = editorManager.activeEditor
 
     if (!activeEditor) {
@@ -31,20 +30,30 @@ export const findAllReferences = async () => {
 
     const languageManager = LanguageManager.getInstance()
     if (languageManager.isLanguageServerAvailable(activeBuffer.language)) {
-        const args = { ...Helpers.bufferToTextDocumentPositionParams(activeBuffer),
-                       context: {
+        const args = {
+            ...Helpers.bufferToTextDocumentPositionParams(activeBuffer),
+            context: {
                 includeDeclaration: true,
             },
         }
 
         const { line, column } = activeBuffer.cursor
         const token = await activeBuffer.getTokenAt(line, column)
-        const result: types.Location[] = await languageManager.sendLanguageServerRequest(activeBuffer.language, activeBuffer.filePath, "textDocument/references", args)
+        const result: types.Location[] = await languageManager.sendLanguageServerRequest(
+            activeBuffer.language,
+            activeBuffer.filePath,
+            "textDocument/references",
+            args,
+        )
         showReferencesInQuickFix(token.tokenName, result, activeEditor.neovim as any)
     }
 }
 
-export const showReferencesInQuickFix = async (token: string, locations: types.Location[], neovimInstance: INeovimInstance) => {
+export const showReferencesInQuickFix = async (
+    token: string,
+    locations: types.Location[],
+    neovimInstance: INeovimInstance,
+) => {
     const convertToOneIndexedForQuickFix = (location: types.Location) => ({
         filename: Helpers.unwrapFileUriPath(location.uri),
         lnum: location.range.start.line + 1,
@@ -52,7 +61,7 @@ export const showReferencesInQuickFix = async (token: string, locations: types.L
         text: token,
     })
 
-    const quickFixItems = locations.map((item) => convertToOneIndexedForQuickFix(item))
+    const quickFixItems = locations.map(item => convertToOneIndexedForQuickFix(item))
 
     neovimInstance.quickFix.setqflist(quickFixItems, ` Find All References: ${token}`)
     neovimInstance.command("copen")

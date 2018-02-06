@@ -1,7 +1,5 @@
 /**
- * Test script to verify the scenario where no neovim is installed
- *
- * We should be showing a descriptive error message...
+ * Test script for the Oni Layers API, tests the adding of new files and splits.
  */
 
 import * as React from "react"

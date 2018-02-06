@@ -61,8 +61,16 @@ export const test = async (oni: Oni.Plugin.Api) => {
     const endHeadCount = document.head.querySelectorAll("*").length
     const endBodyCount = document.body.querySelectorAll("*").length
 
-    assert.strictEqual(startHeadCount, endHeadCount, "There should be no items added to the head over the course of typing.")
-    assert.strictEqual(startBodyCount, endBodyCount, "There should be no items added to the body over the course of typing.")
+    assert.strictEqual(
+        startHeadCount,
+        endHeadCount,
+        "There should be no items added to the head over the course of typing.",
+    )
+    assert.strictEqual(
+        startBodyCount,
+        endBodyCount,
+        "There should be no items added to the body over the course of typing.",
+    )
 
     // TODO: Unfortunately, the `beginFrameSubscription` events don't seem to come through
     // on the OSX TravisCI machine. It would be great to unblock this, but for now,
@@ -79,7 +87,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     // We'll still test for it, as it can still catch cases where we'd have larger repaint errors.
     const maxHeight = gpuCompositingEnabled ? 20 : 256
 
-    paintRectangles.forEach((pr) => {
+    paintRectangles.forEach(pr => {
         // TODO: #1129 - Validate width as well!
 
         assert.ok(pr.height <= maxHeight, "Validate rectangle height is less than the max height")

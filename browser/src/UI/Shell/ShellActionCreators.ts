@@ -34,7 +34,6 @@ export const setLoadingComplete = () => {
 }
 
 export const setWindowTitle = (title: string) => {
-
     document.title = title
 
     return {
@@ -60,8 +59,12 @@ export const setViewport = (width: number, height: number) => ({
     },
 })
 
-export const showStatusBarItem = (id: string, contents: JSX.Element, alignment?: State.StatusBarAlignment, priority?: number) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-
+export const showStatusBarItem = (
+    id: string,
+    contents: JSX.Element,
+    alignment?: State.StatusBarAlignment,
+    priority?: number,
+) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const currentStatusBarItem = getState().statusBar[id]
 
     if (currentStatusBarItem) {
@@ -102,7 +105,10 @@ export const hideOverlay = (id: string): Actions.IOverlayHideAction => ({
     },
 })
 
-export function setConfigValue<K extends keyof IConfigurationValues>(k: K, v: IConfigurationValues[K]): Actions.ISetConfigurationValue<K> {
+export function setConfigValue<K extends keyof IConfigurationValues>(
+    k: K,
+    v: IConfigurationValues[K],
+): Actions.ISetConfigurationValue<K> {
     return {
         type: "SET_CONFIGURATION_VALUE",
         payload: {

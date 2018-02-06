@@ -1,7 +1,12 @@
 import * as Log from "./../../Log"
 
 import { KeyboardLayoutManager } from "./KeyboardLayout"
-import { createMetaKeyResolver, ignoreMetaKeyResolver, KeyResolver, remapResolver  } from "./Resolvers"
+import {
+    createMetaKeyResolver,
+    ignoreMetaKeyResolver,
+    KeyResolver,
+    remapResolver,
+} from "./Resolvers"
 
 let _keyEventToVimKey: (evt: KeyboardEvent) => string | null = null
 
@@ -35,7 +40,11 @@ export const getKeyEventToVimKey = () => {
         }, evt.key)
 
         if (Log.isDebugLoggingEnabled()) {
-            Log.debug(`[Key event] Code: ${evt.code} Key: ${evt.key} CtrlKey: ${evt.ctrlKey} ShiftKey: ${evt.shiftKey} AltKey: ${evt.altKey} | Resolution: ${mappedKey}`)
+            Log.debug(
+                `[Key event] Code: ${evt.code} Key: ${evt.key} CtrlKey: ${evt.ctrlKey} ShiftKey: ${
+                    evt.shiftKey
+                } AltKey: ${evt.altKey} | Resolution: ${mappedKey}`,
+            )
         }
 
         return mappedKey
