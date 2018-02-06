@@ -13,13 +13,15 @@ export interface ISidebarPaneState {
     widgets: ISidebarWidget[]
 }
 
-export type SidebarPaneActions = {
-    type: "SET_WIDGETS",
-    widgets: ISidebarWidget[],
-} | {
-    type: "SET_SELECTED_ID",
-    selectedId: string,
-}
+export type SidebarPaneActions =
+    | {
+          type: "SET_WIDGETS"
+          widgets: ISidebarWidget[]
+      }
+    | {
+          type: "SET_SELECTED_ID"
+          selectedId: string
+      }
 
 export const DefaultSidebarPaneState: ISidebarPaneState = {
     widgets: [],

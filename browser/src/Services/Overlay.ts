@@ -10,9 +10,7 @@ export class Overlay {
     private _contents: JSX.Element
     private _visible: boolean = false
 
-    constructor(
-        private _id: string,
-    ) { }
+    constructor(private _id: string) {}
 
     public show(): void {
         this._visible = true

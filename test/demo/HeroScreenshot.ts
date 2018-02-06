@@ -10,8 +10,9 @@ import { remote } from "electron"
 
 import { getDistPath, getRootPath } from "./DemoCommon"
 
-const getCompletionElement = () => {
+// tslint:disable:no-console
 
+const getCompletionElement = () => {
     const elements = document.body.getElementsByClassName("autocompletion")
 
     if (!elements || !elements.length) {
@@ -25,16 +26,23 @@ export const test = async (oni: any) => {
     await oni.automation.waitForEditors()
 
     let lastAlertText = null
-    window.alert = (myText) => lastAlertText = myText
+    window.alert = myText => (lastAlertText = myText)
 
     // Use the `Completion.ts` file as the screenshot source
-    remote.getCurrentWindow().setSize(800, 600)
+    remote.getCurrentWindow().setSize(1200, 800)
 
     const outputPath = getDistPath()
 
-    oni.configuration.setValues({"recorder.outputPath": outputPath})
+    await oni.workspace.changeDirectory(getRootPath())
 
-    const filePath = path.join(getRootPath(), "browser", "src", "Services", "Language", "LanguageStore.ts")
+    const filePath = path.join(
+        getRootPath(),
+        "browser",
+        "src",
+        "Services",
+        "Language",
+        "LanguageStore.ts",
+    )
 
     oni.automation.sendKeys(":e WELCOME.md<CR>")
 
@@ -65,7 +73,10 @@ export const test = async (oni: any) => {
 
     await oni.automation.sleep(500)
 
+    oni.configuration.setValues({ "recorder.outputPath": outputPath })
+
     oni.recorder.takeScreenshot(`screenshot-${process.platform}.png`)
 
     await oni.automation.waitFor(() => lastAlertText !== null, 20000)
+    console.log("Alert text (screenshot output path): " + lastAlertText)
 }

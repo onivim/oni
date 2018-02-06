@@ -10,13 +10,14 @@
  */
 
 import { remote } from "electron"
-import {EventEmitter} from "events"
 import * as find from "lodash/find"
 import * as flatten from "lodash/flatten"
 
 import * as Oni from "oni-api"
 
-import { Menu, menuManager } from "./../Services/Menu"
+import { Menu, MenuManager } from "./../Services/Menu"
+
+import { render as renderKeyBindingInfo } from "./../UI/components/KeyBindingInfo"
 
 export interface ITask {
     name: string
@@ -31,12 +32,12 @@ export interface ITaskProvider {
     getTasks(): Promise<ITask[]>
 }
 
-export class Tasks extends EventEmitter {
+export class Tasks {
     private _lastTasks: ITask[] = []
-
     private _menu: Menu
-
     private _providers: ITaskProvider[] = []
+
+    constructor(private _menuManager: MenuManager) {}
 
     // TODO: This should be refactored, as it is simply
     // a timing dependency on when the object is created versus when
@@ -48,16 +49,16 @@ export class Tasks extends EventEmitter {
     public show(): void {
         this._refreshTasks().then(() => {
             const options: Oni.Menu.MenuOption[] = this._lastTasks
-                        .filter((t) => t.name || t.detail)
-                        .map((f) => {
-                            return {
-                                icon: "tasks",
-                                label: f.name,
-                                detail: f.detail,
-                            }
-                        })
+                .filter(t => t.name || t.detail)
+                .map(f => {
+                    return {
+                        label: f.name,
+                        detail: f.detail,
+                        additionalComponent: renderKeyBindingInfo({ command: f.command }),
+                    }
+                })
 
-            this._menu = menuManager.create()
+            this._menu = this._menuManager.create()
             this._menu.onItemSelected.subscribe((selection: any) => this._onItemSelected(selection))
             this._menu.show()
             this._menu.setItems(options)
@@ -65,16 +66,20 @@ export class Tasks extends EventEmitter {
     }
 
     private async _onItemSelected(selectedOption: Oni.Menu.MenuOption): Promise<void> {
-        const {label, detail} = selectedOption
+        const { label, detail } = selectedOption
 
-        const selectedTask = find(this._lastTasks, (t) => t.name === label && t.detail === detail)
+        const selectedTask = find(this._lastTasks, t => t.name === label && t.detail === detail)
 
         if (selectedTask) {
             await selectedTask.callback()
 
             // TODO: we should make the callback return a bool so we can display either success/fail messages
             if (selectedTask.messageSuccess != null) {
-              remote.dialog.showMessageBox({type: "info", title: "Success", message: selectedTask.messageSuccess})
+                remote.dialog.showMessageBox({
+                    type: "info",
+                    title: "Success",
+                    message: selectedTask.messageSuccess,
+                })
             }
         }
     }
@@ -84,9 +89,19 @@ export class Tasks extends EventEmitter {
 
         const initialProviders: ITaskProvider[] = []
         const taskProviders = initialProviders.concat(this._providers)
-        const allTasks = await Promise.all(taskProviders.map(async (t: ITaskProvider) => await t.getTasks() || []))
+        const allTasks = await Promise.all(
+            taskProviders.map(async (t: ITaskProvider) => (await t.getTasks()) || []),
+        )
         this._lastTasks = flatten(allTasks)
     }
 }
 
-export const tasks = new Tasks()
+let _tasks: Tasks = null
+
+export const activate = (menuManager: MenuManager) => {
+    _tasks = new Tasks(menuManager)
+}
+
+export const getInstance = (): Tasks => {
+    return _tasks
+}

@@ -29,7 +29,6 @@ export class Grid<T> {
     }
 
     public setCell(x: number, y: number, val: T | null) {
-
         let row = this._cells[y]
         row = row || {}
         row[x] = val
@@ -67,7 +66,6 @@ export class Grid<T> {
         let current = start
 
         while (current >= 0 && current < this._height) {
-
             const srcRow = current + rowsToShift
 
             for (let x = 0; x < this._width; x++) {
@@ -88,7 +86,13 @@ export class Grid<T> {
         }
     }
 
-    public setRegion(startX: number, startY: number, width: number, height: number, val?: T | null): void {
+    public setRegion(
+        startX: number,
+        startY: number,
+        width: number,
+        height: number,
+        val?: T | null,
+    ): void {
         const valToSet = typeof val === "undefined" ? null : val
         for (let x = startX; x < startX + width; x++) {
             for (let y = startY; y < startY + height; y++) {

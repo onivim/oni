@@ -12,7 +12,7 @@ export interface ITestCase {
     configPath: string
 }
 
-const normalizePath = (p) => p.split("\\").join("/")
+const normalizePath = p => p.split("\\").join("/")
 
 const loadTest = (rootPath: string, testName: string): ITestCase => {
     const testPath = path.join(rootPath, testName + ".js")
@@ -23,10 +23,43 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
     const normalizedMeta: ITestCase = {
         name: testDescription.name || testName,
         testPath: normalizePath(testPath),
-        configPath: testDescription.configPath ? normalizePath(path.join(rootPath, testDescription.configPath)) : "",
+        configPath: getConfigPath(testMeta.settings, rootPath),
     }
 
     return normalizedMeta
+}
+
+import * as os from "os"
+
+const getConfigPath = (settings: any, rootPath: string) => {
+    if (!settings) {
+        return ""
+    } else if (settings.configPath) {
+        return normalizePath(path.join(rootPath, settings.configPath))
+    } else if (settings.config) {
+        return normalizePath(serializeConfig(settings.config))
+    } else {
+        return ""
+    }
+}
+
+// Helper method to write a config to a temporary folder
+// Returns the path to the serialized config
+const serializeConfig = (configValues: { [key: string]: any }): string => {
+    const stringifiedConfig = Object.keys(configValues).map(
+        key => `"${key}": ${configValues[key]},`,
+    )
+
+    const outputConfig = `module.exports = {${stringifiedConfig.join(os.EOL)}}`
+
+    const folder = os.tmpdir()
+    const fileName = "config_" + new Date().getTime().toString() + ".js"
+
+    const fullFilepath = path.join(folder, fileName)
+    console.log("Writing config to: " + fullFilepath)
+    console.log("Config contents: " + outputConfig)
+    fs.writeFileSync(fullFilepath, outputConfig)
+    return fullFilepath
 }
 
 const startTime = new Date().getTime()
@@ -41,7 +74,6 @@ const logWithTimeStamp = (message: string) => {
 
 export const runInProcTest = (rootPath: string, testName: string, timeout: number = 5000) => {
     describe(testName, () => {
-
         const testCase = loadTest(rootPath, testName)
 
         let oni: Oni
@@ -83,7 +115,7 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
 
             console.log("Retrieving logs...")
             const writeLogs = (logs: any[]): void => {
-                logs.forEach((log) => {
+                logs.forEach(log => {
                     console.log(`[${log.level}] ${log.message}`)
                 })
             }

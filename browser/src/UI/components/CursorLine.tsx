@@ -19,8 +19,7 @@ export interface ICursorLineProps {
 }
 
 class CursorLineRenderer extends React.PureComponent<ICursorLineRendererProps, {}> {
-
-    public render(): null |  JSX.Element {
+    public render(): null | JSX.Element {
         if (!this.props.visible) {
             return null
         }
@@ -38,7 +37,7 @@ class CursorLineRenderer extends React.PureComponent<ICursorLineRendererProps, {
             opacity: this.props.opacity,
         }
 
-        return <div style={cursorStyle} className="cursorLine"></div>
+        return <div style={cursorStyle} className="cursorLine" />
     }
 }
 
@@ -53,13 +52,15 @@ const emptyProps: ICursorLineRendererProps = {
 }
 
 const mapStateToProps = (state: State.IState, props: ICursorLineProps) => {
-    const opacitySetting = props.lineType === "line" ? "editor.cursorLineOpacity" : "editor.cursorColumnOpacity"
+    const opacitySetting =
+        props.lineType === "line" ? "editor.cursorLineOpacity" : "editor.cursorColumnOpacity"
     const opacity = state.configuration[opacitySetting]
 
     const enabledSetting = props.lineType === "line" ? "editor.cursorLine" : "editor.cursorColumn"
     const enabled = state.configuration[enabledSetting]
 
-    const isNormalInsertOrVisualMode = state.mode === "normal" || state.mode === "insert" || state.mode === "visual"
+    const isNormalInsertOrVisualMode =
+        state.mode === "normal" || state.mode === "insert" || state.mode === "visual"
     const visible = enabled && isNormalInsertOrVisualMode
 
     if (!visible) {

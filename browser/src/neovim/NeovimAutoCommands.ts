@@ -15,6 +15,8 @@ export interface INeovimAutoCommands {
     onBufEnter: IEvent<BufferEventContext>
     onBufWipeout: IEvent<BufferEventContext>
     onBufWinEnter: IEvent<EventContext>
+    onBufDelete: IEvent<BufferEventContext>
+    onBufUnload: IEvent<BufferEventContext>
     onBufWritePost: IEvent<EventContext>
     onWinEnter: IEvent<EventContext>
     onCursorMoved: IEvent<EventContext>
@@ -30,6 +32,8 @@ export class NeovimAutoCommands {
     private _onBufEnterEvent = new Event<BufferEventContext>()
     private _onBufWritePostEvent = new Event<EventContext>()
     private _onBufWipeoutEvent = new Event<BufferEventContext>()
+    private _onBufDeleteEvent = new Event<BufferEventContext>()
+    private _onBufUnloadEvent = new Event<BufferEventContext>()
     private _onBufWinEnterEvent = new Event<EventContext>()
     private _onFileTypeChangedEvent = new Event<EventContext>()
     private _onWinEnterEvent = new Event<EventContext>()
@@ -39,6 +43,14 @@ export class NeovimAutoCommands {
 
     public get onBufEnter(): IEvent<BufferEventContext> {
         return this._onBufEnterEvent
+    }
+
+    public get onBufDelete(): IEvent<BufferEventContext> {
+        return this._onBufDeleteEvent
+    }
+
+    public get onBufUnload(): IEvent<BufferEventContext> {
+        return this._onBufUnloadEvent
     }
 
     public get onBufWritePost(): IEvent<EventContext> {
@@ -75,20 +87,21 @@ export class NeovimAutoCommands {
 
     constructor(private _neovimInstance: NeovimInstance) {
         this._nameToEvent = {
-            "BufEnter": this._onBufEnterEvent,
-            "BufWritePost": this._onBufWritePostEvent,
-            "BufWinEnter": this._onBufWinEnterEvent,
-            "BufWipeout": this._onBufWipeoutEvent,
-            "CursorMoved": this._onCursorMovedEvent,
-            "CursorMovedI": this._onCursorMovedIEvent,
-            "FileType": this._onFileTypeChangedEvent,
-            "WinEnter": this._onWinEnterEvent,
-            "VimResized": this._onVimResizedEvent,
+            BufEnter: this._onBufEnterEvent,
+            BufWritePost: this._onBufWritePostEvent,
+            BufWinEnter: this._onBufWinEnterEvent,
+            BufWipeout: this._onBufWipeoutEvent,
+            BufUnload: this._onBufUnloadEvent,
+            BufDelete: this._onBufDeleteEvent,
+            CursorMoved: this._onCursorMovedEvent,
+            CursorMovedI: this._onCursorMovedIEvent,
+            FileType: this._onFileTypeChangedEvent,
+            WinEnter: this._onWinEnterEvent,
+            VimResized: this._onVimResizedEvent,
         }
     }
 
     public notifyAutocommand(autoCommandName: string, context: EventContext): void {
-
         const evt = this._nameToEvent[autoCommandName]
 
         if (!evt) {

@@ -17,6 +17,8 @@ import { Event } from "oni-types"
 import { KeyboardInputView } from "./../../Input/KeyboardInput"
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
+import { CallbackCommand, commandManager } from "./../../Services/CommandManager"
+
 import * as Log from "./../../Log"
 
 export interface IVimNavigatorProps {
@@ -29,8 +31,11 @@ export interface IVimNavigatorProps {
     // onLeave: IEvent<void>
 
     onSelectionChanged?: (selectedId: string) => void
+    onSelected?: (selectedId: string) => void
 
     render: (selectedId: string) => JSX.Element
+
+    style?: React.CSSProperties
 }
 
 export interface IVimNavigatorState {
@@ -45,7 +50,7 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
         super(props)
 
         this.state = {
-            selectedId: null,
+            selectedId: props.ids && props.ids.length > 0 ? props.ids[0] : null,
         }
     }
 
@@ -62,27 +67,28 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
     }
 
     public render() {
-
-        const inputElement = <div className="input">
-                    <KeyboardInputView
-                        top={0}
-                        left={0}
-                        height={12}
-                        onActivate={this._activateEvent}
-                        onKeyDown={(key) => this._onKeyDown(key)}
-                        foregroundColor={"white"}
-                        fontFamily={"Segoe UI"}
-                        fontSize={"12px"}
-                        fontCharacterWidthInPixels={12}
-                        />
-                </div>
-
-        return <div>
-                <div className="items">
-                    {this.props.render(this.state.selectedId)}
-                </div>
-                { this.props.active ? inputElement : null}
+        const inputElement = (
+            <div className="input">
+                <KeyboardInputView
+                    top={0}
+                    left={0}
+                    height={12}
+                    onActivate={this._activateEvent}
+                    onKeyDown={key => this._onKeyDown(key)}
+                    foregroundColor={"white"}
+                    fontFamily={"Segoe UI"}
+                    fontSize={"12px"}
+                    fontCharacterWidthInPixels={12}
+                />
             </div>
+        )
+
+        return (
+            <div style={this.props.style}>
+                <div className="items">{this.props.render(this.state.selectedId)}</div>
+                {this.props.active ? inputElement : null}
+            </div>
+        )
     }
 
     private _onKeyDown(key: string): void {
@@ -98,14 +104,29 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
         }
     }
 
-    private _updateBasedOnProps(props: IVimNavigatorProps) {
+    private _select(): void {
+        if (this.state.selectedId && this.props.active && this.props.onSelected) {
+            this.props.onSelected(this.state.selectedId)
+        }
+    }
 
+    private _updateBasedOnProps(props: IVimNavigatorProps) {
         if (props.active && !this._activeBinding) {
             Log.info("[VimNavigator::activating]")
             this._releaseBinding()
             this._activeBinding = getInstance().bindToMenu()
 
-            this._activeBinding.onCursorMoved.subscribe((newValue) => {
+            commandManager.registerCommand(
+                new CallbackCommand(
+                    "select",
+                    null,
+                    null,
+                    () => this._select(),
+                    () => this.props.active,
+                ),
+            )
+
+            this._activeBinding.onCursorMoved.subscribe(newValue => {
                 Log.info("[VimNavigator::onCursorMoved] - " + newValue)
 
                 if (newValue !== this.state.selectedId) {
@@ -127,5 +148,4 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
             this._releaseBinding()
         }
     }
-
 }

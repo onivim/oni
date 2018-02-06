@@ -1,5 +1,5 @@
 /**
- * Test scripts for QuickOpen
+ * Common functions used across the CI tests.
  */
 
 import * as Oni from "oni-api"
@@ -13,7 +13,6 @@ export const getCompletionElement = () => {
 }
 
 export const getElementByClassName = (className: string) => {
-
     const elements = document.body.getElementsByClassName(className)
 
     if (!elements || !elements.length) {
@@ -23,8 +22,11 @@ export const getElementByClassName = (className: string) => {
     }
 }
 
-export const createNewFile = async (fileExtension: string, oni: Oni.Plugin.Api, contents?: string): Promise<void> => {
-
+export const createNewFile = async (
+    fileExtension: string,
+    oni: Oni.Plugin.Api,
+    contents?: string,
+): Promise<void> => {
     const tempFilePath = getTemporaryFilePath(fileExtension)
 
     if (contents) {
@@ -51,5 +53,8 @@ export const navigateToFile = async (filePath: string, oni: Oni.Plugin.Api): Pro
     oni.automation.sendKeys(":e " + filePath)
     oni.automation.sendKeys("<cr>")
 
-    await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.filePath === filePath, 10000)
+    await oni.automation.waitFor(
+        () => oni.editors.activeEditor.activeBuffer.filePath === filePath,
+        10000,
+    )
 }

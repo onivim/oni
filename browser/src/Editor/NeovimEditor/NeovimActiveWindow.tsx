@@ -16,7 +16,6 @@ export interface IActiveWindowProps {
 
 export class NeovimActiveWindow extends React.PureComponent<IActiveWindowProps, {}> {
     public render(): JSX.Element {
-
         const px = (str: number): string => `${str}px`
 
         const style: React.CSSProperties = {
@@ -25,10 +24,10 @@ export class NeovimActiveWindow extends React.PureComponent<IActiveWindowProps, 
             top: px(this.props.pixelY),
             width: px(this.props.pixelWidth),
             height: px(this.props.pixelHeight),
+            overflowY: "hidden",
+            overflowX: "hidden",
         }
 
-        return <div style={style}>
-            {this.props.children}
-        </div>
+        return <div style={style}>{this.props.children}</div>
     }
 }

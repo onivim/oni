@@ -14,6 +14,7 @@ import { Event } from "oni-types"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 // import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
+import { windowManager } from "./../../Services/WindowManager"
 import { IWorkspace } from "./../../Services/Workspace"
 
 import { createStore, IExplorerState } from "./ExplorerStore"
@@ -24,7 +25,6 @@ import { Explorer } from "./ExplorerView"
 import { rm } from "shelljs"
 
 export class ExplorerSplit {
-
     private _onEnterEvent: Event<void> = new Event<void>()
     private _selectedId: string = null
 
@@ -46,7 +46,7 @@ export class ExplorerSplit {
     ) {
         this._store = createStore()
 
-        this._workspace.onDirectoryChanged.subscribe((newDirectory) => {
+        this._workspace.onDirectoryChanged.subscribe(newDirectory => {
             this._store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
                 rootPath: newDirectory,
@@ -60,7 +60,7 @@ export class ExplorerSplit {
             })
         }
 
-        this._editorManager.allEditors.onBufferEnter.subscribe((args) => {
+        this._editorManager.allEditors.onBufferEnter.subscribe(args => {
             this._store.dispatch({
                 type: "BUFFER_OPENED",
                 filePath: args.filePath,
@@ -69,34 +69,35 @@ export class ExplorerSplit {
     }
 
     public enter(): void {
-
-        this._store.dispatch({type: "ENTER"})
-        this._commandManager.registerCommand(new CallbackCommand("explorer.open", null, null, () => this._onOpenItem()))
-        this._commandManager.registerCommand(new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()))
+        this._store.dispatch({ type: "ENTER" })
+        this._commandManager.registerCommand(
+            new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
+        )
 
         this._onEnterEvent.dispatch()
     }
 
     public leave(): void {
-        this._store.dispatch({type: "LEAVE"})
-
-        this._commandManager.unregisterCommand("explorer.open")
-        this._commandManager.unregisterCommand("explorer.delete")
+        this._store.dispatch({ type: "LEAVE" })
     }
 
     public render(): JSX.Element {
-
-        return <Provider store={this._store}>
-                <Explorer onSelectionChanged={(id) => this._onSelectionChanged(id)} />
+        return (
+            <Provider store={this._store}>
+                <Explorer
+                    onSelectionChanged={id => this._onSelectionChanged(id)}
+                    onClick={id => this._onOpenItem(id)}
+                />
             </Provider>
+        )
     }
 
     private _onSelectionChanged(id: string): void {
         this._selectedId = id
     }
 
-    private _onOpenItem(): void {
-        const selectedItem = this._getSelectedItem()
+    private _onOpenItem(id?: string): void {
+        const selectedItem = this._getSelectedItem(id)
 
         if (!selectedItem) {
             return
@@ -107,9 +108,13 @@ export class ExplorerSplit {
         switch (selectedItem.type) {
             case "file":
                 this._editorManager.activeEditor.openFile(selectedItem.filePath)
+                windowManager.focusSplit(this._editorManager.activeEditor as any)
                 return
             case "folder":
-                const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(state, selectedItem.folderPath)
+                const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(
+                    state,
+                    selectedItem.folderPath,
+                )
                 this._store.dispatch({
                     type: isDirectoryExpanded ? "COLLAPSE_DIRECTORY" : "EXPAND_DIRECTORY",
                     directoryPath: selectedItem.folderPath,
@@ -120,12 +125,14 @@ export class ExplorerSplit {
         }
     }
 
-    private _getSelectedItem(): ExplorerSelectors.ExplorerNode {
+    private _getSelectedItem(id?: string): ExplorerSelectors.ExplorerNode {
         const state = this._store.getState()
 
         const nodes = ExplorerSelectors.mapStateToNodeList(state)
 
-        const items = nodes.filter((item) => item.id === this._selectedId)
+        const idToUse = id || this._selectedId
+
+        const items = nodes.filter(item => item.id === idToUse)
 
         if (!items || !items.length) {
             return null

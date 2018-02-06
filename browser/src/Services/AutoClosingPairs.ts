@@ -6,6 +6,7 @@
 
 import * as Oni from "oni-api"
 
+import { IBuffer } from "./../Editor/BufferManager"
 import { Configuration } from "./Configuration"
 import { EditorManager } from "./EditorManager"
 import { InputManager } from "./InputManager"
@@ -21,21 +22,24 @@ export interface IAutoClosingPair {
     // TODO: Support `notIn` equivalent
 }
 
-export const activate = (configuration: Configuration, editorManager: EditorManager, inputManager: InputManager, languageManager: LanguageManager) => {
-
+export const activate = (
+    configuration: Configuration,
+    editorManager: EditorManager,
+    inputManager: InputManager,
+    languageManager: LanguageManager,
+) => {
     const insertModeFilter = () => editorManager.activeEditor.mode === "insert"
 
     let subscriptions: Oni.DisposeFunction[] = []
 
-    const handleOpenCharacter = (pair: IAutoClosingPair, editor: Oni.Editor) => () => {
+    const handleOpenCharacter = (
+        pair: IAutoClosingPair,
+        editor: Oni.Editor,
+        openCharacterSameAsClosed: boolean,
+    ) => () => {
         const neovim: NeovimInstance = editor.neovim as any
         neovim.blockInput(async (inputFunc: any) => {
-            // TODO: PERFORMANCE: Look at how to collapse this instead of needed multiple asynchronous calls.
-            await inputFunc(pair.open + pair.close)
-
-            const pos = await neovim.callFunction("getpos", ["."])
-            const [, oneBasedLine, oneBasedColumn] = pos
-            await editor.activeBuffer.setCursorPosition(oneBasedLine - 1, oneBasedColumn - 2)
+            await checkOpenCharacter(inputFunc, pair, editor, openCharacterSameAsClosed)
         })
 
         return true
@@ -45,15 +49,16 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         const neovim: NeovimInstance = editor.neovim as any
         neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
-            const lines = await activeBuffer.getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1)
+            const lines = await activeBuffer.getLines(
+                activeBuffer.cursor.line,
+                activeBuffer.cursor.line + 1,
+            )
             const line = lines[0]
 
             const { column } = activeBuffer.cursor
 
-            const matchingPair = pairs.find((p) => {
-                return column >= 1
-                    && line[column] === p.close
-                    && line[column - 1] === p.open
+            const matchingPair = pairs.find(p => {
+                return column >= 1 && line[column] === p.close && line[column - 1] === p.open
             })
 
             if (matchingPair) {
@@ -65,7 +70,11 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
                 const [, oneBasedLine, oneBasedColumn] = pos
                 await editor.activeBuffer.setCursorPosition(oneBasedLine - 1, oneBasedColumn - 2)
 
-                await activeBuffer.setLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, [beforePair + afterPair])
+                await activeBuffer.setLines(
+                    activeBuffer.cursor.line,
+                    activeBuffer.cursor.line + 1,
+                    [beforePair + afterPair],
+                )
             } else {
                 await inputFunc("<bs>")
             }
@@ -79,15 +88,17 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
 
-            const lines = await (activeBuffer as any).getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, false)
+            const lines = await (activeBuffer as any).getLines(
+                activeBuffer.cursor.line,
+                activeBuffer.cursor.line + 1,
+                false,
+            )
             const line = lines[0]
 
             const { column } = activeBuffer.cursor
 
-            const matchingPair = pairs.find((p) => {
-                return column >= 1
-                    && line[column] === p.close
-                    && line[column - 1] === p.open
+            const matchingPair = pairs.find(p => {
+                return column >= 1 && line[column] === p.close && line[column - 1] === p.open
             })
 
             if (matchingPair) {
@@ -96,11 +107,14 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
                 const afterPair = line.substring(column, line.length)
 
                 const pos = await neovim.callFunction("getpos", ["."])
-                const [, oneBasedLine ] = pos
-                await activeBuffer.setLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, [beforePair, whiteSpacePrefix, whiteSpacePrefix + afterPair])
+                const [, oneBasedLine] = pos
+                await activeBuffer.setLines(
+                    activeBuffer.cursor.line,
+                    activeBuffer.cursor.line + 1,
+                    [beforePair, whiteSpacePrefix, whiteSpacePrefix + afterPair],
+                )
                 await activeBuffer.setCursorPosition(oneBasedLine, whiteSpacePrefix.length)
                 await inputFunc("<tab>")
-
             } else {
                 await inputFunc("<enter>")
             }
@@ -113,10 +127,17 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         const neovim: any = editor.neovim
         neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
-            const lines = await (activeBuffer as any).getLines(activeBuffer.cursor.line, activeBuffer.cursor.line + 1, false)
+            const lines = await (activeBuffer as any).getLines(
+                activeBuffer.cursor.line,
+                activeBuffer.cursor.line + 1,
+                false,
+            )
             const line = lines[0]
             if (line[activeBuffer.cursor.column] === pair.close) {
-                await activeBuffer.setCursorPosition(activeBuffer.cursor.line, activeBuffer.cursor.column + 1)
+                await activeBuffer.setCursorPosition(
+                    activeBuffer.cursor.line,
+                    activeBuffer.cursor.column + 1,
+                )
             } else {
                 await inputFunc(pair.close)
             }
@@ -126,28 +147,60 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
     }
 
     const onBufferEnter = (newBuffer: Oni.Buffer) => {
-
         if (!configuration.getValue("autoClosingPairs.enabled")) {
             Log.verbose("[Auto Closing Pairs] Not enabled.")
             return
         }
 
         if (subscriptions && subscriptions.length) {
-            subscriptions.forEach((df) => df())
+            subscriptions.forEach(df => df())
         }
 
         subscriptions = []
 
         const autoClosingPairs = getAutoClosingPairs(configuration, newBuffer.language)
 
-        autoClosingPairs.forEach((pair) => {
-            subscriptions.push(inputManager.bind(pair.open, handleOpenCharacter(pair, editorManager.activeEditor), insertModeFilter))
-            subscriptions.push(inputManager.bind(pair.close, handleCloseCharacter(pair, editorManager.activeEditor), insertModeFilter))
+        autoClosingPairs.forEach(pair => {
+            if (pair.open === pair.close) {
+                subscriptions.push(
+                    inputManager.bind(
+                        pair.open,
+                        handleOpenCharacter(pair, editorManager.activeEditor, true),
+                        insertModeFilter,
+                    ),
+                )
+            }
+
+            subscriptions.push(
+                inputManager.bind(
+                    pair.open,
+                    handleOpenCharacter(pair, editorManager.activeEditor, false),
+                    insertModeFilter,
+                ),
+            )
+            subscriptions.push(
+                inputManager.bind(
+                    pair.close,
+                    handleCloseCharacter(pair, editorManager.activeEditor),
+                    insertModeFilter,
+                ),
+            )
         })
 
-        subscriptions.push(inputManager.bind("<bs>", handleBackspaceCharacter(autoClosingPairs, editorManager.activeEditor), insertModeFilter))
-        subscriptions.push(inputManager.bind("<enter>", handleEnterCharacter(autoClosingPairs, editorManager.activeEditor), insertModeFilter))
-
+        subscriptions.push(
+            inputManager.bind(
+                "<bs>",
+                handleBackspaceCharacter(autoClosingPairs, editorManager.activeEditor),
+                insertModeFilter,
+            ),
+        )
+        subscriptions.push(
+            inputManager.bind(
+                "<enter>",
+                handleEnterCharacter(autoClosingPairs, editorManager.activeEditor),
+                insertModeFilter,
+            ),
+        )
     }
 
     editorManager.activeEditor.onBufferEnter.subscribe(onBufferEnter)
@@ -170,7 +223,44 @@ export const getWhiteSpacePrefix = (str: string): string => {
     }
 }
 
-const getAutoClosingPairs = (configuration: Configuration, language: string): IAutoClosingPair[] => {
+export const checkOpenCharacter = async (
+    inputFunc: any,
+    pair: IAutoClosingPair,
+    editor: Oni.Editor,
+    openCharacterSameAsClosed: boolean,
+): Promise<void> => {
+    // TODO: PERFORMANCE: Look at how to collapse this instead of needed multiple asynchronous calls.
+
+    const activeBuffer = editor.activeBuffer as IBuffer
+
+    if (openCharacterSameAsClosed) {
+        const lines = await (activeBuffer as any).getLines(
+            activeBuffer.cursor.line,
+            activeBuffer.cursor.line + 1,
+            false,
+        )
+        const currentLine = lines[0]
+
+        if (currentLine[activeBuffer.cursor.column] === pair.open) {
+            await activeBuffer.setCursorPosition(
+                activeBuffer.cursor.line,
+                activeBuffer.cursor.column + 1,
+            )
+
+            return
+        }
+    }
+
+    await inputFunc(pair.open + pair.close)
+
+    const pos = await activeBuffer.getCursorPosition()
+    await editor.activeBuffer.setCursorPosition(pos.line, pos.character - 1)
+}
+
+const getAutoClosingPairs = (
+    configuration: Configuration,
+    language: string,
+): IAutoClosingPair[] => {
     const languagePairs = configuration.getValue(`language.${language}.autoClosingPairs`)
 
     if (languagePairs) {

@@ -14,8 +14,6 @@ const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
     padding: 0.4em 0.4em 0.4em 0.4em;
     margin: 0.4em 0.4em 0.4em 0.4em;
-    /* necessary to prevent overflow */
-    max-width: 55vw;
 
     > code {
         background-color: inherit;
@@ -24,9 +22,11 @@ const codeBlockStyle = css`
 
 const childStyles = css`
     > * {
+        /* necessary to prevent overflow */
         margin: 0.2rem;
+        max-width: 55vw;
 
-       a {
+        a {
             color: ${p => p.theme["highlight.mode.normal.background"]};
         }
 
@@ -34,8 +34,10 @@ const childStyles = css`
             ${codeBlockStyle};
         }
 
-    /* All code blocks are set to black but
-    this overriden for code block INSIDE a Pre element */
+        /*
+            All code blocks are set to black but
+            this is overriden for code blocks INSIDE a Pre element
+        */
 
         code {
             background-color: ${p => p.theme["editor.hover.contents.codeblock.background"]};
@@ -53,7 +55,7 @@ export const Documentation = styled.div`
     padding: 0.5rem;
     line-height: 1.5;
     ${smallScrollbar};
-    background-color:${p => p.theme["editor.hover.contents.background"]};
+    background-color: ${p => p.theme["editor.hover.contents.background"]};
     color: ${p => p.theme["editor.hover.contents.foreground"]};
 
     &:hover {
@@ -63,7 +65,7 @@ export const Documentation = styled.div`
     ${childStyles};
 
     pre {
-        ${smallScrollbar}
+        ${smallScrollbar};
         ${codeBlockStyle};
     }
 `
@@ -98,15 +100,15 @@ export const QuickInfoContainer = withProps<{ hasDocs: boolean }>(styled.div)`
   max-height: fit-content;
   overflow: hidden;
   width: 100%;
-  padding-bottom: ${p => p.hasDocs ? "0.5rem" : "0"};
+  padding-bottom: ${p => (p.hasDocs ? "0.5rem" : "0")};
   background-color: ${p => p.theme["editor.hover.contents.background"]};
 `
 
 export interface ITextProps {
-    padding?: string,
-    text?: string,
+    padding?: string
+    text?: string
     html?: {
-        __html: string,
+        __html: string
     }
 }
 
@@ -117,7 +119,11 @@ export class QuickInfoTitle extends React.PureComponent<ITextProps> {
             return null
         }
 
-        return <Title padding={padding} dangerouslySetInnerHTML={html}>{text}</Title>
+        return (
+            <Title padding={padding} dangerouslySetInnerHTML={html}>
+                {text}
+            </Title>
+        )
     }
 }
 
@@ -131,7 +137,6 @@ export class QuickInfoDocumentation extends React.PureComponent<ITextProps> {
 
                 return <Documentation>{divs}</Documentation>
             case Boolean(html && html.__html.length):
-
                 return <Documentation dangerouslySetInnerHTML={this.props.html} />
             default:
                 return null
