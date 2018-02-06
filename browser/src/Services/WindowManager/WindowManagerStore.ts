@@ -35,9 +35,9 @@ export interface ISplitLeaf<T> {
 
 type WindowActions =
     | {
-          type: "SET_DOCK_SPLITS"
+          type: "ADD_DOCK_SPLIT"
           dock: Direction
-          splits: IAugmentedSplitInfo[]
+          split: IAugmentedSplitInfo
       }
     | {
           type: "SET_PRIMARY_SPLITS"
@@ -58,6 +58,13 @@ type WindowActions =
 
 export type DockWindows = { [key: string]: IAugmentedSplitInfo[] }
 
+export const DefaultDocksState: DockWindows = {
+    left: [],
+    right: [],
+    up: [],
+    down: [],
+}
+
 export interface WindowState {
     docks: DockWindows
 
@@ -68,12 +75,7 @@ export interface WindowState {
 }
 
 export const DefaultWindowState: WindowState = {
-    docks: {
-        left: [],
-        right: [],
-        up: [],
-        down: [],
-    },
+    docks: DefaultDocksState,
     primarySplit: null,
     focusedSplitId: null,
     hiddenSplits: [],
@@ -88,6 +90,24 @@ export const reducer: Reducer<WindowState> = (
             return {
                 ...state,
                 primarySplit: action.splits,
+            }
+        default:
+            return {
+                ...state,
+                docks: docksReducer(state.docks, action),
+            }
+    }
+}
+
+export const docksReducer: Reducer<DockWindows> = (
+    state: DockWindows = DefaultDocksState,
+    action: WindowActions,
+) => {
+    switch (action.type) {
+        case "ADD_DOCK_SPLIT":
+            return {
+                ...state,
+                [action.dock]: [...state[action.dock], action.split],
             }
         default:
             return state

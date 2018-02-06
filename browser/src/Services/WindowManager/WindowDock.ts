@@ -2,25 +2,24 @@
  * WindowDock.ts
  */
 
-import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
-import { Direction, SplitDirection } from "./index"
+import { Direction, IAugmentedSplitInfo, SplitDirection } from "./index"
 
 export interface IWindowDock {
-    splits: Oni.IWindowSplit[]
+    splits: IAugmentedSplitInfo[]
 
     onSplitsChanged: IEvent<void>
 
-    addSplit(split: Oni.IWindowSplit): void
-    removeSplit(split: Oni.IWindowSplit): void
+    addSplit(split: IAugmentedSplitInfo): void
+    removeSplit(split: IAugmentedSplitInfo): void
 }
 
 export class WindowDock implements IWindowDock {
-    private _splits: Oni.IWindowSplit[] = []
+    private _splits: IAugmentedSplitInfo[] = []
     private _onSplitsChangedEvent: Event<void> = new Event<void>()
 
-    public get splits(): Oni.IWindowSplit[] {
+    public get splits(): IAugmentedSplitInfo[] {
         return this._splits
     }
 
@@ -28,16 +27,16 @@ export class WindowDock implements IWindowDock {
         return this._onSplitsChangedEvent
     }
 
-    public contains(split: Oni.IWindowSplit): boolean {
+    public contains(split: IAugmentedSplitInfo): boolean {
         return this._splits.indexOf(split) >= 0
     }
 
-    public split(startSplit: Oni.IWindowSplit, splitDirection: SplitDirection): boolean {
+    public split(startSplit: IAugmentedSplitInfo, splitDirection: SplitDirection): boolean {
         this.addSplit(startSplit)
         return true
     }
 
-    public move(startSplit: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit {
+    public move(startSplit: IAugmentedSplitInfo, direction: Direction): IAugmentedSplitInfo {
         const currentIndex = this._splits.indexOf(startSplit)
 
         if (currentIndex === -1) {
@@ -60,17 +59,17 @@ export class WindowDock implements IWindowDock {
         }
     }
 
-    public addSplit(split: Oni.IWindowSplit): void {
+    public addSplit(split: IAugmentedSplitInfo): void {
         this._splits = [...this._splits, split]
         this._onSplitsChangedEvent.dispatch()
     }
 
-    public close(split: Oni.IWindowSplit): boolean {
+    public close(split: IAugmentedSplitInfo): boolean {
         this.removeSplit(split)
         return true
     }
 
-    public removeSplit(split: Oni.IWindowSplit): void {
+    public removeSplit(split: IAugmentedSplitInfo): void {
         this._splits = this._splits.filter(s => s !== split)
         this._onSplitsChangedEvent.dispatch()
     }

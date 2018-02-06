@@ -17,9 +17,8 @@ export const activate = (configuration: Configuration, workspace: Workspace) => 
     _sidebarManager = new SidebarManager()
 
     if (configuration.getValue("sidebar.enabled")) {
-        const leftDock = windowManager.getDock("left")
-        leftDock.addSplit(new SidebarSplit(_sidebarManager))
-        leftDock.addSplit(new SidebarContentSplit(_sidebarManager))
+        windowManager.createSplit("left", new SidebarSplit(_sidebarManager))
+        windowManager.createSplit("left", new SidebarContentSplit(_sidebarManager))
 
         _sidebarManager.add("files-o", new ExplorerSplit(workspace, commandManager, editorManager))
     }
