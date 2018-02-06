@@ -8,6 +8,8 @@ import * as React from "react"
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { Subject } from "rxjs/Subject"
+
 import { EditorManager } from "./../EditorManager"
 import { SidebarManager } from "./../Sidebar"
 import { Workspace } from "./../Workspace"
@@ -31,6 +33,8 @@ export class SearchPane {
     private _searchProvider: ISearchProvider
     private _currentQuery: ISearchQuery
 
+    private _searchOptionsObservable = new Subject<ISearchOptions>()
+
     public get id(): string {
         return "oni.sidebar.search"
     }
@@ -41,6 +45,10 @@ export class SearchPane {
 
     constructor(private _editorManager: EditorManager, private _workspace: Workspace) {
         this._searchProvider = new RipGrepSearchProvider()
+
+        this._searchOptionsObservable.debounceTime(100).subscribe((opts: ISearchOptions) => {
+            this._startNewSearch(opts)
+        })
     }
 
     public enter(): void {
@@ -63,6 +71,10 @@ export class SearchPane {
     }
 
     private _onSearchOptionsChanged(searchOpts: ISearchOptions): void {
+        this._searchOptionsObservable.next(searchOpts)
+    }
+
+    private _startNewSearch(searchOpts: ISearchOptions): void {
         console.log("changed: " + searchOpts)
 
         if (this._currentQuery) {
