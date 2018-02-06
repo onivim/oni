@@ -114,6 +114,7 @@ export const convertMarkdown = ({
                 renderer.paragraph = text => renderWithClasses({ text, tokens })
             } else if (colors) {
                 renderer.code = text => {
+                    // tslint:disable-next-line
                     console.log("creating code block text: ", text)
                     return renderWithClasses({
                         container: "code",
