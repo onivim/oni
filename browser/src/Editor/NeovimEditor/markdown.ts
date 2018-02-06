@@ -19,7 +19,6 @@ interface IRendererArgs {
     colors?: IColors[]
     text: string
     element?: string
-    spaces?: boolean
     container?: string
 }
 
@@ -115,13 +114,12 @@ export const convertMarkdown = ({
                 renderer.paragraph = text => renderWithClasses({ text, tokens })
             } else if (colors) {
                 renderer.code = text => {
-                    // console.log("creating code block text: ", text)
-                    // renderWithClasses({
-                    //     container: "code",
-                    //     colors,
-                    //     text,
-                    // })
-                    return createContainer("code", text)
+                    console.log("creating code block text: ", text)
+                    return renderWithClasses({
+                        container: "code",
+                        colors,
+                        text,
+                    })
                 }
                 renderer.paragraph = text => renderWithClasses({ text, colors })
             } else {
