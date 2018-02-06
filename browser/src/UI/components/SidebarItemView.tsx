@@ -10,7 +10,7 @@ import styled from "styled-components"
 import { withProps } from "./common"
 
 export interface ISidebarItemViewProps {
-    text: string
+    text: string | JSX.Element
     isFocused: boolean
     isContainer: boolean
     indentationLevel: number
@@ -42,6 +42,7 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
 
     .name {
         flex: 1 1 auto;
+        overflow: hidden;
     }
 `
 
@@ -66,10 +67,11 @@ const INDENT_AMOUNT = 6
 
 export class SidebarItemView extends React.PureComponent<ISidebarItemViewProps, {}> {
     public render(): JSX.Element {
+        const icon = this.props.icon ? <div className="icon">{this.props.icon}</div> : null
         return (
             <SidebarItemStyleWrapper {...this.props} className="item">
                 <SidebarItemBackground {...this.props} />
-                <div className="icon">{this.props.icon}</div>
+                {icon}
                 <div className="name">{this.props.text}</div>
             </SidebarItemStyleWrapper>
         )
