@@ -21,11 +21,33 @@ const markedCss = css`
     .marked-constant {
         color: ${p => p.theme["editor.tokenColors"].constant.color};
     }
+
     .variable-other {
         color: ${p => p.theme["editor.tokenColors"]["variable.other"].color};
     }
+
+    .variable-other-readwrite {
+        color: ${p => p.theme["editor.tokenColors"]["variable.other.readwrite"].color};
+    }
+
+    .variable-other-property {
+        color: ${p => p.theme["editor.tokenColors"]["variable.other.readwrite"].color};
+    }
+
+    .variable-other-object {
+        color: ${p => p.theme["editor.tokenColors"]["variable.other.readwrite"].color};
+    }
+
+    .meta-object-type {
+        color: ${p => p.theme["editor.tokenColors"]["meta.object.type"].color};
+    }
+
     .meta-brace-round {
-        color: rgba(0, 0, 0, 0.7);
+        color: ${p => p.theme["editor.tokenColors"]["meta.brace.round"].color};
+    }
+
+    .meta-function-call {
+        color: ${p => p.theme["editor.tokenColors"]["meta.function.call"].color};
     }
 `
 
@@ -112,6 +134,7 @@ export const Title = withProps<{ padding?: string }>(styled.div)`
     ${smallScrollbar};
     background-color:${p => p.theme["editor.hover.title.background"]};
     color: ${p => p.theme["editor.hover.title.foreground"]};
+    white-space: pre-wrap;
     ${markedCss};
 
     &:hover {

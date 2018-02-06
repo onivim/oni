@@ -116,6 +116,31 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumnOpacity": 0.1,
 
     "editor.tokenColors": {
+        "meta-import": {
+            scope: "meta-import",
+            settings: "Define",
+            color: null,
+        },
+        "meta.namespace.declaration": {
+            scope: "meta.namespace.declaration",
+            settings: "Type",
+            color: null,
+        },
+        "meta.object.type": {
+            scope: "meta.object.type",
+            settings: "Identifier",
+            color: null,
+        },
+        "meta.brace.round": {
+            scope: "meta.brace.round",
+            settings: "FoldBraces",
+            color: null,
+        },
+        "meta.function.call": {
+            scope: "meta.function.call",
+            settings: "Function",
+            color: null,
+        },
         "variable.object": {
             scope: "variable.object",
             settings: "Identifier",
@@ -123,6 +148,21 @@ const BaseConfiguration: IConfigurationValues = {
         },
         "variable.other.constant": {
             scope: "variable.other.constant",
+            settings: "Constant",
+            color: null,
+        },
+        "variable.other.object": {
+            scope: "variable.other.object",
+            settings: "Constant",
+            color: null,
+        },
+        "variable.other.readwrite": {
+            scope: "variable.other.constant",
+            settings: "PreProc",
+            color: null,
+        },
+        "variable.other.property": {
+            scope: "variable.other.property",
             settings: "Constant",
             color: null,
         },
@@ -167,6 +207,26 @@ const BaseConfiguration: IConfigurationValues = {
             settings: null,
         },
         constant: {
+            color: null,
+            scope: null,
+            settings: null,
+        },
+        preproc: {
+            color: null,
+            scope: null,
+            settings: null,
+        },
+        type: {
+            color: null,
+            scope: null,
+            settings: null,
+        },
+        foldbraces: {
+            color: null,
+            scope: null,
+            settings: null,
+        },
+        define: {
             color: null,
             scope: null,
             settings: null,
