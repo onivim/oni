@@ -214,7 +214,7 @@ const start = async (args: string[]): Promise<void> => {
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())
 
     const Bookmarks = await import("./Services/Bookmarks")
-    Bookmarks.activate(configuration, sidebarManager)
+    Bookmarks.activate(configuration, editorManager, Sidebar.getInstance())
 
     const PluginsSidebarPane = await import("./Plugins/PluginSidebarPane")
     PluginsSidebarPane.activate(pluginManager, sidebarManager)

@@ -6,6 +6,7 @@
 
 import * as Oni from "oni-api"
 
+import { IBuffer } from "./../Editor/BufferManager"
 import { Configuration } from "./Configuration"
 import { EditorManager } from "./EditorManager"
 import { InputManager } from "./InputManager"
@@ -31,15 +32,14 @@ export const activate = (
 
     let subscriptions: Oni.DisposeFunction[] = []
 
-    const handleOpenCharacter = (pair: IAutoClosingPair, editor: Oni.Editor) => () => {
+    const handleOpenCharacter = (
+        pair: IAutoClosingPair,
+        editor: Oni.Editor,
+        openCharacterSameAsClosed: boolean,
+    ) => () => {
         const neovim: NeovimInstance = editor.neovim as any
         neovim.blockInput(async (inputFunc: any) => {
-            // TODO: PERFORMANCE: Look at how to collapse this instead of needed multiple asynchronous calls.
-            await inputFunc(pair.open + pair.close)
-
-            const pos = await neovim.callFunction("getpos", ["."])
-            const [, oneBasedLine, oneBasedColumn] = pos
-            await editor.activeBuffer.setCursorPosition(oneBasedLine - 1, oneBasedColumn - 2)
+            await checkOpenCharacter(inputFunc, pair, editor, openCharacterSameAsClosed)
         })
 
         return true
@@ -161,10 +161,20 @@ export const activate = (
         const autoClosingPairs = getAutoClosingPairs(configuration, newBuffer.language)
 
         autoClosingPairs.forEach(pair => {
+            if (pair.open === pair.close) {
+                subscriptions.push(
+                    inputManager.bind(
+                        pair.open,
+                        handleOpenCharacter(pair, editorManager.activeEditor, true),
+                        insertModeFilter,
+                    ),
+                )
+            }
+
             subscriptions.push(
                 inputManager.bind(
                     pair.open,
-                    handleOpenCharacter(pair, editorManager.activeEditor),
+                    handleOpenCharacter(pair, editorManager.activeEditor, false),
                     insertModeFilter,
                 ),
             )
@@ -211,6 +221,40 @@ export const getWhiteSpacePrefix = (str: string): string => {
     } else {
         return str.substring(0, firstIndex)
     }
+}
+
+export const checkOpenCharacter = async (
+    inputFunc: any,
+    pair: IAutoClosingPair,
+    editor: Oni.Editor,
+    openCharacterSameAsClosed: boolean,
+): Promise<void> => {
+    // TODO: PERFORMANCE: Look at how to collapse this instead of needed multiple asynchronous calls.
+
+    const activeBuffer = editor.activeBuffer as IBuffer
+
+    if (openCharacterSameAsClosed) {
+        const lines = await (activeBuffer as any).getLines(
+            activeBuffer.cursor.line,
+            activeBuffer.cursor.line + 1,
+            false,
+        )
+        const currentLine = lines[0]
+
+        if (currentLine[activeBuffer.cursor.column] === pair.open) {
+            await activeBuffer.setCursorPosition(
+                activeBuffer.cursor.line,
+                activeBuffer.cursor.column + 1,
+            )
+
+            return
+        }
+    }
+
+    await inputFunc(pair.open + pair.close)
+
+    const pos = await activeBuffer.getCursorPosition()
+    await editor.activeBuffer.setCursorPosition(pos.line, pos.character - 1)
 }
 
 const getAutoClosingPairs = (

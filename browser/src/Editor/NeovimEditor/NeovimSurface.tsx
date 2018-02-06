@@ -5,6 +5,7 @@
  */
 
 import * as React from "react"
+import { connect } from "react-redux"
 
 import { IEvent } from "oni-types"
 
@@ -20,6 +21,7 @@ import { TypingPrediction } from "./../../UI/components/TypingPredictions"
 
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
+import { setViewport } from "./../NeovimEditor/NeovimEditorActions"
 import { NeovimBufferLayers } from "./NeovimBufferLayersView"
 import { NeovimEditorLoadingOverlay } from "./NeovimEditorLoadingOverlay"
 import { NeovimInput } from "./NeovimInput"
@@ -42,9 +44,26 @@ export interface INeovimSurfaceProps {
     onBounceEnd: () => void
     onTabClose?: (tabId: number) => void
     onTabSelect?: (tabId: number) => void
+    setViewport: any
 }
 
-export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> {
+class NeovimSurface extends React.Component<INeovimSurfaceProps> {
+    private observer: any
+    private _editor: HTMLDivElement
+
+    public componentDidMount(): void {
+        // tslint:disable-next-line
+        this.observer = new window["ResizeObserver"](([entry]: any) => {
+            this.setDimensions(entry.contentRect.width, entry.contentRect.height)
+        })
+
+        this.observer.observe(this._editor)
+    }
+
+    public setDimensions = (width: number, height: number) => {
+        this.props.setViewport(width, height)
+    }
+
     public componentDidCatch(e: Error) {
         // TODO Add an Error Page to inform user of how to proceed e.g. file bug report
         // also pass error detais so user can file those
@@ -64,7 +83,7 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
                     />
                 </div>
                 <div className="container full">
-                    <div className="stack">
+                    <div className="stack" ref={(e: HTMLDivElement) => (this._editor = e)}>
                         <NeovimRenderer
                             renderer={this.props.renderer}
                             neovimInstance={this.props.neovimInstance}
@@ -99,3 +118,4 @@ export class NeovimSurface extends React.PureComponent<INeovimSurfaceProps, {}> 
         )
     }
 }
+export default connect(null, { setViewport })(NeovimSurface)

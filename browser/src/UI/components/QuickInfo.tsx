@@ -84,8 +84,10 @@ const childStyles = css`
             ${codeBlockStyle};
         }
 
-        /* All code blocks are set to black but
-    this is overriden for code blocks INSIDE a Pre element */
+        /*
+            All code blocks are set to black but
+            this is overriden for code blocks INSIDE a Pre element
+        */
 
         code {
             background-color: ${p => p.theme["editor.hover.contents.codeblock.background"]};

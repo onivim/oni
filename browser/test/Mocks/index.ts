@@ -149,7 +149,7 @@ export class MockEditor extends Editor {
 
 export class MockBuffer {
     private _mockHighlights = new MockBufferHighlightsUpdater()
-    private _cursorPosition = types.Position.create(0, 0)
+    private _cursor = { line: 0, column: 0 }
 
     public get id(): string {
         return "1"
@@ -171,6 +171,10 @@ export class MockBuffer {
         return this._mockHighlights
     }
 
+    public get cursor(): Oni.Cursor {
+        return this._cursor
+    }
+
     public constructor(
         private _language: string = "test_language",
         private _filePath: string = "test_filepath",
@@ -178,11 +182,12 @@ export class MockBuffer {
     ) {}
 
     public async getCursorPosition(): Promise<types.Position> {
-        return this._cursorPosition
+        return types.Position.create(this._cursor.line, this._cursor.column)
     }
 
-    public setCursorPosition(position: types.Position) {
-        this._cursorPosition = position
+    public setCursorPosition(line: number, column: number) {
+        this._cursor.column = column
+        this._cursor.line = line
     }
 
     public setLinesSync(lines: string[]): void {
