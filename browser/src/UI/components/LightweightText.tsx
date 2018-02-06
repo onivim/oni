@@ -1,25 +1,17 @@
 import * as React from "react"
-import { connect } from "react-redux"
-
-import * as State from "./../Shell/ShellState"
 
 import { focusManager } from "./../../Services/FocusManager"
 
 export interface ITextInputViewProps {
+    onCancel?: () => void
     onComplete?: (result: string) => void
     onChange?: (evt: React.ChangeEvent<HTMLInputElement>) => void
 
     defaultValue?: string
-
-    backgroundColor: string
-    foregroundColor: string
-
-    overrideDefaultStyle?: boolean
 }
 
 // TODO: Is there a better value for this?
 const WordRegex = /[$_a-zA-Z0-9]/i
-const EmptyStyle: React.CSSProperties = {}
 
 /**
  * TextInputView is a lightweight input control, that implements some
@@ -35,17 +27,8 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
     }
 
     public render(): JSX.Element {
-        const containerStyle: React.CSSProperties = this.props.overrideDefaultStyle
-            ? EmptyStyle
-            : {
-                  padding: "4px",
-                  border: "1px solid " + this.props.foregroundColor,
-              }
-
         const inputStyle: React.CSSProperties = {
             outline: "none",
-            color: this.props.foregroundColor,
-            backgroundColor: this.props.backgroundColor,
             border: "0px",
             transform: "translateY(0px)",
         }
@@ -53,7 +36,7 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         const defaultValue = this.props.defaultValue || ""
 
         return (
-            <div style={containerStyle}>
+            <div className="input-container enable-mouse">
                 <input
                     type="text"
                     style={inputStyle}
@@ -61,7 +44,9 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
                     onKeyDown={evt => this._onKeyDown(evt)}
                     onChange={evt => this._onChange(evt)}
                     onFocus={evt => evt.currentTarget.select()}
-                    ref={elem => (this._element = elem)}
+                    ref={elem => {
+                        this._element = elem
+                    }}
                 />
             </div>
         )
@@ -69,10 +54,6 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
 
     public componentWillUnmount(): void {
         if (this._element) {
-            if (this.props.onComplete) {
-                this.props.onComplete(this._element.value)
-            }
-
             focusManager.popFocus(this._element)
             this._element = null
         }
@@ -84,9 +65,31 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         }
     }
 
+    private _cancel(): void {
+        if (this.props.onCancel) {
+            this.props.onCancel()
+        }
+    }
+
     private _onKeyDown(keyboardEvent: React.KeyboardEvent<HTMLInputElement>): void {
+        if (keyboardEvent.keyCode === 27) {
+            this._cancel()
+            return
+        }
+
+        if (keyboardEvent.keyCode === 13) {
+            if (this.props.onComplete) {
+                this.props.onComplete(this._element.value)
+            }
+            return
+        }
+
         if (this._element && keyboardEvent.ctrlKey) {
             switch (keyboardEvent.key) {
+                case "[":
+                case "c":
+                    this._cancel()
+                    break
                 case "u": {
                     this._element.value = ""
                     break
@@ -121,11 +124,3 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         }
     }
 }
-
-const mapStateToProps = (state: State.IState, originalProps?: Partial<ITextInputViewProps>) => ({
-    ...originalProps,
-    backgroundColor: state.colors["editor.background"],
-    foregroundColor: state.colors["editor.foreground"],
-})
-
-export const TextInput = connect(mapStateToProps)(TextInputView)

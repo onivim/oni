@@ -249,12 +249,16 @@ const BaseConfiguration: IConfigurationValues = {
     },
 
     "menu.caseSensitive": "smart",
+    "menu.rowHeight": 40,
+    "menu.maxItemsToShow": 8,
 
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
 
     "sidebar.enabled": true,
     "sidebar.width": "50px",
+
+    "sidebar.marks.enabled": true,
 
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
@@ -284,6 +288,16 @@ const BaseConfiguration: IConfigurationValues = {
     "ui.fontSmoothing": "auto",
 
     "workspace.defaultWorkspace": null,
+    "workspace.autoDetectWorkspace": "noworkspace",
+    "workspace.autoDetectRootFiles": [
+        ".git",
+        "node_modules",
+        ".svn",
+        "package.json",
+        ".hg",
+        ".bzr",
+        "build.xml",
+    ],
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {

@@ -18,7 +18,6 @@ import { IToolTipsProvider } from "./ToolTipsProvider"
 const _renameToolTipName = "rename-tool-tip"
 export class Rename {
     private _isRenameActive: boolean
-    private _isRenameCommitted: boolean
 
     constructor(
         private _editor: Oni.Editor,
@@ -26,10 +25,6 @@ export class Rename {
         private _toolTipsProvider: IToolTipsProvider,
         private _workspace: Workspace,
     ) {}
-
-    public isRenameActive(): boolean {
-        return this._isRenameActive
-    }
 
     public async startRename(): Promise<void> {
         if (this._isRenameActive) {
@@ -52,7 +47,8 @@ export class Rename {
         this._toolTipsProvider.showToolTip(
             _renameToolTipName,
             <RenameView
-                onComplete={newValue => this._onRenameClosed(newValue)}
+                onCancel={() => this.cancelRename()}
+                onComplete={newValue => this.commitRename(newValue)}
                 tokenName={activeToken.tokenName}
             />,
             {
@@ -63,25 +59,14 @@ export class Rename {
         )
     }
 
-    public commitRename(): void {
+    public commitRename(newValue: string): void {
         Log.verbose("[RENAME] Committing rename")
-        this._isRenameCommitted = true
-        this._isRenameActive = false
+        this.doRename(newValue)
         this.closeToolTip()
     }
 
     public cancelRename(): void {
         Log.verbose("[RENAME] Cancelling")
-        this._isRenameCommitted = false
-        this.closeToolTip()
-    }
-
-    public _onRenameClosed(newValue: string): void {
-        Log.verbose("[RENAME] _onRenameClosed")
-        if (this._isRenameCommitted) {
-            this._isRenameCommitted = false
-            this.doRename(newValue)
-        }
         this.closeToolTip()
     }
 

@@ -164,22 +164,41 @@ export interface IExplorerViewProps extends IExplorerViewContainerProps {
     isActive: boolean
 }
 
+import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
+import { Sneakable } from "./../../UI/components/Sneakable"
+
+import { commandManager } from "./../CommandManager"
+
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
     public render(): JSX.Element {
         const ids = this.props.nodes.map(node => node.id)
+
+        if (!this.props.nodes || !this.props.nodes.length) {
+            return (
+                <SidebarEmptyPaneView
+                    active={this.props.isActive}
+                    contentsText="Nothing to show here, yet!"
+                    actionButtonText="Open a Folder"
+                    onClickButton={() => commandManager.executeCommand("workspace.openFolder")}
+                />
+            )
+        }
 
         return (
             <VimNavigator
                 ids={ids}
                 active={this.props.isActive}
                 onSelectionChanged={this.props.onSelectionChanged}
+                onSelected={id => this.props.onClick(id)}
                 render={(selectedId: string) => {
                     const nodes = this.props.nodes.map(node => (
-                        <NodeView
-                            node={node}
-                            isSelected={node.id === selectedId}
-                            onClick={() => this.props.onClick(node.id)}
-                        />
+                        <Sneakable callback={() => this.props.onClick(node.id)}>
+                            <NodeView
+                                node={node}
+                                isSelected={node.id === selectedId}
+                                onClick={() => this.props.onClick(node.id)}
+                            />
+                        </Sneakable>
                     ))
 
                     return (
