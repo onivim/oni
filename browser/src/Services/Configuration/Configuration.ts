@@ -2,8 +2,8 @@
  * Configuration.ts
  */
 
-import * as Oni from "oni-api"
 import { merge } from "lodash"
+import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
 import * as Log from "./../../Log"
