@@ -83,7 +83,15 @@ export const reducer: Reducer<WindowState> = (
     state: WindowState = DefaultWindowState,
     action: WindowActions,
 ) => {
-    return state
+    switch (action.type) {
+        case "SET_PRIMARY_SPLITS":
+            return {
+                ...state,
+                primarySplit: action.splits,
+            }
+        default:
+            return state
+    }
 }
 
 export const createStore = (): Store<WindowState> => {

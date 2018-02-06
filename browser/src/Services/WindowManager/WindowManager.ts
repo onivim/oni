@@ -23,8 +23,6 @@ import { createStore, ISplitInfo, WindowState } from "./WindowManagerStore"
 export class WindowManager {
     private _activeSplit: any
 
-    private _onActiveSplitChangedEvent = new Event<Oni.IWindowSplit>()
-    private _onSplitChanged = new Event<ISplitInfo<Oni.IWindowSplit>>()
     private _onUnhandledMoveEvent = new Event<Direction>()
 
     private _leftDock: WindowDock = null
@@ -32,14 +30,6 @@ export class WindowManager {
     private _rootNavigator: RelationalSplitNavigator
 
     private _store: Store<WindowState>
-
-    public get onActiveSplitChanged(): IEvent<Oni.IWindowSplit> {
-        return this._onActiveSplitChangedEvent
-    }
-
-    public get onSplitChanged(): IEvent<ISplitInfo<Oni.IWindowSplit>> {
-        return this._onSplitChanged
-    }
 
     public get onUnhandledMove(): IEvent<Direction> {
         return this._onUnhandledMoveEvent
@@ -85,7 +75,11 @@ export class WindowManager {
         this._primarySplit.split(newSplit, direction, referenceSplit)
         const newState = this._primarySplit.getState() as ISplitInfo<Oni.IWindowSplit>
 
-        this._onSplitChanged.dispatch(newState)
+        this._store.dispatch({
+            type: "SET_PRIMARY_SPLITS",
+            splits: newState,
+        })
+
         this._focusNewSplit(newSplit)
     }
 
@@ -131,7 +125,12 @@ export class WindowManager {
 
     public close(split: Oni.IWindowSplit) {
         this._primarySplit.close(split)
-        this._onSplitChanged.dispatch(this.splitRoot)
+
+        const state = this._primarySplit.getState()
+        this._store.dispatch({
+            type: "SET_PRIMARY_SPLITS",
+            splits: state,
+        })
     }
 
     public focusSplit(split: Oni.IWindowSplit): void {
@@ -149,6 +148,6 @@ export class WindowManager {
             newSplit.enter()
         }
 
-        this._onActiveSplitChangedEvent.dispatch(this._activeSplit)
+        // this._onActiveSplitChangedEvent.dispatch(this._activeSplit)
     }
 }
