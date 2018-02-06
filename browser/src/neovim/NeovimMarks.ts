@@ -100,21 +100,30 @@ export const parseMarkLine = (markLine: string): INeovimMarkInfo => {
 
 export class NeovimMarks {
     private _onMarksUpdatedEvent = new Event<INeovimMarkInfo[]>()
+    private _isWatching: boolean = false
 
     public get onMarksUpdated(): IEvent<INeovimMarkInfo[]> {
         return this._onMarksUpdatedEvent
     }
 
-    constructor(private _neovimInstance: NeovimInstance) {
+    constructor(private _neovimInstance: NeovimInstance) {}
+
+    public watchMarks(): void {
+        if (this._isWatching) {
+            return
+        }
+        this._isWatching = true
+        this._neovimInstance.callFunction("OniListenForMarks", [])
+
         this._neovimInstance.onOniCommand.subscribe(val => {
             if (val === "_internal.notifyMarksChanged") {
                 this._updateMarks()
             }
         })
-    }
 
-    public watchMarks(): void {
-        this._neovimInstance.callFunction("OniListenForMarks", [])
+        this._neovimInstance.autoCommands.onBufEnter.subscribe(val => {
+            this._updateMarks()
+        })
     }
 
     private async _updateMarks(): Promise<void> {

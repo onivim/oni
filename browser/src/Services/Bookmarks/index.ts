@@ -58,6 +58,13 @@ export const activate = (
     editorManager: EditorManager,
     sidebarManager: SidebarManager,
 ) => {
+    const marksEnabled =
+        configuration.getValue("sidebar.enabled") && configuration.getValue("sidebar.marks.enabled")
+
+    if (!marksEnabled) {
+        return
+    }
+
     // TODO: Push bookmarks provider to editor
     const neovim: any = editorManager.activeEditor.neovim
     neovim.marks.watchMarks()

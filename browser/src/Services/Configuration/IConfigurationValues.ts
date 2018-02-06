@@ -204,6 +204,8 @@ export interface IConfigurationValues {
     "sidebar.enabled": boolean
     "sidebar.width": string
 
+    "sidebar.marks.enabled": boolean
+
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
 
