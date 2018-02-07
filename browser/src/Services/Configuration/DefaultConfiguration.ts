@@ -117,9 +117,9 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.tokenColors": {
         "variable.object": {
-            scope: "variable.object",
+            scope: [],
             settings: {
-                fallback: "Identifier",
+                fallback: "identifier",
                 foreground: null,
                 background: null,
                 bold: null,
@@ -127,9 +127,9 @@ const BaseConfiguration: IConfigurationValues = {
             },
         },
         "variable.other.constant": {
-            scope: "variable.other.constant",
+            scope: [],
             settings: {
-                fallback: "Constant",
+                fallback: "constant",
                 foreground: null,
                 background: null,
                 bold: null,
@@ -137,9 +137,9 @@ const BaseConfiguration: IConfigurationValues = {
             },
         },
         "variable.language": {
-            scope: "variable.language",
+            scope: [],
             settings: {
-                fallback: "Identifier",
+                fallback: "identifier",
                 foreground: null,
                 background: null,
                 bold: null,
@@ -147,9 +147,9 @@ const BaseConfiguration: IConfigurationValues = {
             },
         },
         "variable.parameter": {
-            scope: "variable.parameter",
+            scope: [],
             settings: {
-                fallback: "Identifier",
+                fallback: "identifier",
                 foreground: null,
                 background: null,
                 bold: null,
@@ -157,9 +157,9 @@ const BaseConfiguration: IConfigurationValues = {
             },
         },
         "variable.other": {
-            scope: "variable.other",
+            scope: [],
             settings: {
-                fallback: "Identifier",
+                fallback: "identifier",
                 foreground: null,
                 background: null,
                 bold: null,
@@ -167,9 +167,9 @@ const BaseConfiguration: IConfigurationValues = {
             },
         },
         "support.function": {
-            scope: "support.function",
+            scope: [],
             settings: {
-                fallback: "Function",
+                fallback: "function",
                 foreground: null,
                 background: null,
                 bold: null,
@@ -177,9 +177,9 @@ const BaseConfiguration: IConfigurationValues = {
             },
         },
         "entity.name": {
-            scope: "entity.name",
+            scope: [],
             settings: {
-                fallback: "Function",
+                fallback: "function",
                 foreground: null,
                 background: null,
                 bold: null,
@@ -187,9 +187,9 @@ const BaseConfiguration: IConfigurationValues = {
             },
         },
         "entity.other": {
-            scope: "entity.other",
+            scope: [],
             settings: {
-                fallback: "Constant",
+                fallback: "constant",
                 foreground: null,
                 background: null,
                 bold: null,

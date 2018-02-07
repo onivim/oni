@@ -732,10 +732,6 @@ export class NeovimEditor extends Editor implements IEditor {
         this._scheduleRender()
     }
 
-    public async getVimHighlights() {
-        return this._neovimInstance.getVimHighlights()
-    }
-
     public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
         return this._bufferManager.getBuffers()
     }
@@ -956,7 +952,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._currentColorScheme = newColorScheme
         const backgroundColor = this._screen.backgroundColor
         const foregroundColor = this._screen.foregroundColor
-        const vimHighlights = await this.getVimHighlights()
+        const vimHighlights = await this._neovimInstance.getVimHighlights()
         this._themeManager.setVimHighlightColors(vimHighlights)
 
         Log.info(

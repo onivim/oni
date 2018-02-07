@@ -77,6 +77,10 @@ const markedCss = css`
         color: ${p =>
             p.theme["editor.tokenColors"]["variable.other.readwrite"].settings.foreground};
     }
+
+    .keyword-control-import {
+        color: ${p => p.theme["editor.tokenColors"]["keyword.control.import"].settings.foreground};
+    }
 `
 
 const smallScrollbar = css`

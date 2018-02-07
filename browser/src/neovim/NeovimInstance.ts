@@ -13,8 +13,7 @@ import { EventContext } from "./EventContext"
 
 import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
 import * as Platform from "./../Platform"
-import { Configuration } from "./../Services/Configuration"
-import { ITokenColorsSetting } from "./../Services/Configuration"
+import { Configuration, ITokenColorsSetting } from "./../Services/Configuration"
 
 import * as Actions from "./actions"
 import { NeovimBufferReference } from "./MsgPack"
@@ -569,7 +568,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 const { bold, foreground, background, italic } = highlight
 
                 return {
-                    scope: token,
+                    scope: [token],
                     settings: {
                         fallback: token,
                         italic,

@@ -11,7 +11,7 @@ import * as Oni from "oni-api"
 import { IHighlight } from "./../SyntaxHighlighting"
 
 export interface ITokenColorsSetting {
-    scope: string
+    scope: string[]
     settings: IHighlight
 }
 

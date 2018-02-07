@@ -9,6 +9,21 @@ interface IQuickInfoProps {
     titleAndContents: ITitleAndContents
 }
 
+interface IToken {
+    scope: string[]
+    settings: {
+        fallback?: string
+        foreground?: string
+        background?: string
+        bold?: boolean
+        italic?: boolean
+    }
+}
+
+interface ITokens {
+    [token: string]: IToken
+}
+
 interface ITitleAndContents {
     title: {
         __html: string
@@ -18,134 +33,117 @@ interface ITitleAndContents {
     }
 }
 
-const quickInfoTokens = {
+const quickInfoTokens: { "editor.tokenColors": ITokens } = {
     "editor.tokenColors": {
         "meta.import": {
-            scope: "meta-import",
+            scope: [],
             settings: {
                 fallback: "Define",
             },
         },
-        "storage.type": {
-            scope: "storage.type",
-            settings: {
-                fallback: "Statement",
-            },
-        },
-        "meta.namespace.declaration": {
-            scope: "meta.namespace.declaration",
+        "meta.namespace": {
+            scope: ["meta.namespace.declaration"],
             settings: {
                 fallback: "Type",
             },
         },
-        "meta.type.annotation": {
-            scope: "meta.type.annotation",
+        "meta.type": {
+            scope: ["meta.type.annotation", "meta.type.declaration"],
             settings: {
                 fallback: "Type",
             },
         },
-        "meta.type.declaration": {
-            scope: "meta.type.declaration",
-            settings: {
-                fallback: "Keyword",
-            },
-        },
-        "meta.brace.round": {
-            scope: "meta.brace.round",
+        "meta.brace": {
+            scope: ["meta.brace.round"],
             settings: {
                 fallback: "Normal",
             },
         },
-        "meta.function.call": {
-            scope: "meta.function.call",
+        "meta.function": {
+            scope: ["meta.function.call"],
             settings: {
                 fallback: "Function",
             },
         },
-        "variable.other.constant": {
-            scope: "variable.other.constant",
+        "variable.other": {
+            scope: [
+                "variable.other.constant",
+                "variable.other.object",
+                "variable.other.readwrite",
+                "variable.other.property",
+            ],
             settings: {
                 fallback: "Constant",
             },
         },
-        "variable.other.object": {
-            scope: "variable.other.object",
-            settings: {
-                fallback: "Identifier",
-            },
-        },
-        "variable.other.readwrite": {
-            scope: "variable.other.constant",
-            settings: {
-                fallback: "PreProc",
-            },
-        },
-        "variable.other.property": {
-            scope: "variable.other.property",
-            settings: {
-                fallback: "Statement",
-            },
-        },
-        "support.class.builtin": {
-            scope: "support.class.builtin",
+        "support.class": {
+            scope: ["support.class.builtin", "support.type.primitive"],
             settings: {
                 fallback: "Type",
             },
         },
-        "support.type.primitive": {
-            scope: "support.class.builtin",
-            settings: {
-                fallback: "Keyword",
-            },
-        },
-        "meta.object.type": {
-            scope: "meta.object.type",
+        "meta.object": {
+            scope: ["meta.object.type"],
             settings: {
                 fallback: "Identifier",
             },
         },
         "meta.class": {
-            scope: "meta.class",
+            scope: [],
             settings: {
                 fallback: "Type",
             },
         },
         "variable.object": {
-            scope: "variable.object",
+            scope: [],
             settings: {
                 fallback: "Identifier",
             },
         },
         "variable.language": {
-            scope: "variable.language",
+            scope: [],
             settings: {
                 fallback: "Identifier",
             },
         },
         "variable.parameter": {
-            scope: "variable.parameter",
-            settings: {
-                fallback: "Identifier",
-            },
-        },
-        "variable.other": {
-            scope: "variable.other",
+            scope: [],
             settings: {
                 fallback: "Identifier",
             },
         },
         "support.function": {
-            scope: "support.function",
-            settings: "Function",
+            scope: [],
+            settings: {
+                fallback: "Function",
+            },
         },
         "entity.name": {
-            scope: "entity.name",
+            scope: [],
             settings: {
                 fallback: "Function",
             },
         },
         "entity.other": {
-            scope: "entity.other",
+            scope: [],
+            settings: {
+                fallback: "Constant",
+            },
+        },
+        "keyword.control": {
+            scope: ["keyword.control.import"],
+            settings: {
+                fallback: "Constant",
+            },
+        },
+        "meta.interface": {
+            scope: [],
+            settings: {
+                fallback: "Type",
+            },
+        },
+        "storage.type": {
+            scope: ["storage.type.interface"],
             settings: {
                 fallback: "Constant",
             },
@@ -153,7 +151,28 @@ const quickInfoTokens = {
     },
 }
 
-class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
+interface IState {
+    theme: IThemeColors
+}
+
+class QuickInfoHoverContainer extends React.Component<IQuickInfoProps, IState> {
+    public state: IState = {
+        theme: null,
+    }
+
+    public componentWillMount() {
+        this.setTheme()
+    }
+
+    public setTheme() {
+        const shallowTheme = { ...this.props.theme }
+        const preUpdateTheme = merge(shallowTheme, quickInfoTokens)
+        const quickInfoTheme = this.updateThemeWithDefaults(preUpdateTheme)
+        const populatedScopes = this.populateScopes(quickInfoTheme["editor.tokenColors"])
+        const composedTheme = { ...quickInfoTheme, ...populatedScopes }
+        this.setState({ theme: composedTheme })
+    }
+
     public updateThemeWithDefaults(theme: IThemeColors) {
         const tokenColors = theme["editor.tokenColors"]
         const updatedTheme = Object.keys(tokenColors).reduce((acc, t) => {
@@ -176,10 +195,38 @@ class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
         }
     }
 
+    public populateScopes(tokens: ITokens) {
+        const scopes = Object.keys(tokens)
+        const newScopes = scopes.reduce((result, scopeName) => {
+            const parent = tokens[scopeName]
+            if (parent && parent.scope && parent.scope[0]) {
+                const children = parent.scope.reduce((acc, name) => {
+                    if (name) {
+                        const newScope = this.createChildFromScopeName(name, parent)
+                        const [newScopeName] = newScope.scope
+                        acc[newScopeName] = newScope
+                    }
+                    return acc
+                }, {})
+                const isEmpty = !Object.keys(children).length
+                if (!isEmpty) {
+                    const tokensCopy = { ...tokens }
+                    merge(result, tokensCopy, children)
+                }
+            }
+            return result
+        }, {})
+        return { "editor.tokenColors": newScopes }
+    }
+
+    public createChildFromScopeName(scopeName: string, parent: IToken) {
+        return {
+            ...parent,
+            scope: [scopeName],
+        }
+    }
+
     public render() {
-        const shallowTheme = { ...this.props.theme }
-        const preUpdateTheme = merge(shallowTheme, quickInfoTokens)
-        const quickInfoTheme = this.updateThemeWithDefaults(preUpdateTheme)
         const { titleAndContents } = this.props
         const hasTitle = !!(titleAndContents && titleAndContents.title.__html)
         const hasDocs =
@@ -190,21 +237,19 @@ class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
                     titleAndContents.description.__html,
             )
 
-        return (
-            !!titleAndContents && (
-                <ThemeProvider theme={quickInfoTheme}>
-                    <QuickInfoContainer hasDocs={hasDocs}>
-                        <QuickInfoTitle
-                            padding={hasDocs ? "0.5rem" : null}
-                            html={titleAndContents.title}
-                        />
-                        {titleAndContents.description && (
-                            <QuickInfoDocumentation html={titleAndContents.description} />
-                        )}
-                    </QuickInfoContainer>
-                </ThemeProvider>
-            )
-        )
+        return !!titleAndContents ? (
+            <ThemeProvider theme={this.state.theme}>
+                <QuickInfoContainer hasDocs={hasDocs}>
+                    <QuickInfoTitle
+                        padding={hasDocs ? "0.5rem" : null}
+                        html={titleAndContents.title}
+                    />
+                    {titleAndContents.description && (
+                        <QuickInfoDocumentation html={titleAndContents.description} />
+                    )}
+                </QuickInfoContainer>
+            </ThemeProvider>
+        ) : null
     }
 }
 

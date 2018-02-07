@@ -48,7 +48,9 @@
         "highlight.mode.visual.foreground": "#282c34",
         "editor.tokenColors": {
             "variable.parameter": {
-                "color": "#d19a66"
+                "settings": {
+                    "foreground": "#d19a66"
+                }
             }
         }
     }

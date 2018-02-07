@@ -20,7 +20,7 @@ import {
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
 import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
 
-interface IEditorTokens {
+export interface IEditorTokens {
     [token: string]: ITokenColorsSetting
 }
 
@@ -358,7 +358,7 @@ export const DefaultThemeColors: IThemeColors = {
                 background: null,
                 italic: null,
             },
-            scope: "variable.object",
+            scope: [],
         },
         "variable.other.constant": {
             settings: {
@@ -368,7 +368,7 @@ export const DefaultThemeColors: IThemeColors = {
                 background: null,
                 italic: null,
             },
-            scope: "variable.other.constant",
+            scope: [],
         },
         "variable.language": {
             settings: {
@@ -378,7 +378,7 @@ export const DefaultThemeColors: IThemeColors = {
                 background: null,
                 italic: null,
             },
-            scope: "variable.language",
+            scope: [],
         },
         "variable.parameter": {
             settings: {
@@ -388,7 +388,7 @@ export const DefaultThemeColors: IThemeColors = {
                 background: null,
                 italic: null,
             },
-            scope: "variable.parameter",
+            scope: [],
         },
         "variable.other": {
             settings: {
@@ -398,10 +398,10 @@ export const DefaultThemeColors: IThemeColors = {
                 background: null,
                 italic: null,
             },
-            scope: "variable.other",
+            scope: [],
         },
         "support.function": {
-            scope: "support.function",
+            scope: [],
             settings: {
                 fallback: "function",
                 bold: null,
@@ -411,7 +411,7 @@ export const DefaultThemeColors: IThemeColors = {
             },
         },
         "entity.name": {
-            scope: "entity.name",
+            scope: [],
             settings: {
                 fallback: "function",
                 bold: null,
@@ -421,7 +421,7 @@ export const DefaultThemeColors: IThemeColors = {
             },
         },
         "entity.other": {
-            scope: "entity.other",
+            scope: [],
             settings: {
                 fallback: "constant",
                 bold: null,
@@ -432,11 +432,6 @@ export const DefaultThemeColors: IThemeColors = {
         },
     },
 }
-
-// export interface ITokenTheme {
-//     name: string
-//     settings: ITokenColorSettings
-// }
 
 export interface IThemeMetadata {
     name: string
@@ -473,7 +468,8 @@ export class ThemeManager {
 
     public async setVimHighlightColors(tokenColors: ITokenColorsSetting[]) {
         const tokens = tokenColors.reduce((acc, t) => {
-            acc[t.scope.toLowerCase()] = t
+            const [name] = t.scope
+            acc[name.toLowerCase()] = t
             return acc
         }, this._vimHighlights)
         this._vimHighlights = tokens
