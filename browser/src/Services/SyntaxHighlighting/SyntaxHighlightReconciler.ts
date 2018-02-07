@@ -115,7 +115,7 @@ export class SyntaxHighlightReconciler {
 
     private _getHighlightGroupFromScope(scopes: string[]): HighlightGroupId {
         const configurationColors = this._configuration.getValue("editor.tokenColors")
-        const tokenNames = Object.keys(configurationColors)
+        const tokenNames = Object.keys(configurationColors).filter(key => key.includes("."))
 
         for (const scope of scopes) {
             const match = tokenNames.find(c => scope.indexOf(c) === 0)
