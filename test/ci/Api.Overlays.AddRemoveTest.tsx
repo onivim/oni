@@ -1,7 +1,5 @@
 /**
- * Test script to verify the scenario where no neovim is installed
- *
- * We should be showing a descriptive error message...
+ * Test script for the Oni Overlays API, tests the Show / Hide functions.
  */
 
 import * as React from "react"

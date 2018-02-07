@@ -71,9 +71,6 @@ export class ExplorerSplit {
     public enter(): void {
         this._store.dispatch({ type: "ENTER" })
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.open", null, null, () => this._onOpenItem()),
-        )
-        this._commandManager.registerCommand(
             new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
         )
 
@@ -82,9 +79,6 @@ export class ExplorerSplit {
 
     public leave(): void {
         this._store.dispatch({ type: "LEAVE" })
-
-        this._commandManager.unregisterCommand("explorer.open")
-        this._commandManager.unregisterCommand("explorer.delete")
     }
 
     public render(): JSX.Element {
