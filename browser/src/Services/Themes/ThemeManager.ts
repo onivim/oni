@@ -165,6 +165,26 @@ export const getHoverColors = (
     return userHoverColors
 }
 
+// FIXME: Convert this fn to use below
+// const updateThemeWithDefaults = (theme: IThemeColors) => {
+//     const tokenColors = theme["editor.tokenColors"]
+//     const updatedTheme = Object.keys(tokenColors).reduce((acc, t) => {
+//         const item = tokenColors[t]
+//         if (item && !item.color && item.settings) {
+//             acc[t] = {
+//                 ...item,
+//                 color: tokenColors[item.settings.toLowerCase()].color,
+//             }
+//             return acc
+//         }
+//         return acc
+//     }, tokenColors)
+//     return {
+//         ...theme,
+//         "editor.tokenColors": updatedTheme,
+//     }
+// }
+
 const getTokenColors = ({
     config,
     defaultTokens,

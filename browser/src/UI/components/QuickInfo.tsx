@@ -8,12 +8,13 @@ const markedCss = css`
         margin: 0;
         padding-right: 0;
         padding-left: 0;
-        display: inline-block;
+        white-space: pre-wrap;
     }
 
     .marked-identifier {
         color: ${p => p.theme["editor.tokenColors"].identifier.color};
     }
+
     .marked-function {
         color: ${p => p.theme["editor.tokenColors"].function.color};
     }
@@ -22,20 +23,16 @@ const markedCss = css`
         color: ${p => p.theme["editor.tokenColors"].constant.color};
     }
 
+    .meta-import {
+        color: ${p => p.theme["editor.tokenColors"]["meta.import"].color};
+    }
+
+    .meta-class {
+        color: ${p => p.theme["editor.tokenColors"]["meta.class"].color};
+    }
+
     .variable-other {
         color: ${p => p.theme["editor.tokenColors"]["variable.other"].color};
-    }
-
-    .variable-other-readwrite {
-        color: ${p => p.theme["editor.tokenColors"]["variable.other.readwrite"].color};
-    }
-
-    .variable-other-property {
-        color: ${p => p.theme["editor.tokenColors"]["variable.other.readwrite"].color};
-    }
-
-    .variable-other-object {
-        color: ${p => p.theme["editor.tokenColors"]["variable.other.readwrite"].color};
     }
 
     .meta-object-type {
@@ -48,6 +45,34 @@ const markedCss = css`
 
     .meta-function-call {
         color: ${p => p.theme["editor.tokenColors"]["meta.function.call"].color};
+    }
+
+    .meta-type-declaration {
+        color: ${p => p.theme["editor.tokenColors"]["meta.type.declaration"].color};
+    }
+
+    .meta-type-annotation {
+        color: ${p => p.theme["editor.tokenColors"]["meta.type.annotation"].color};
+    }
+
+    .support-class-builtin {
+        color: ${p => p.theme["editor.tokenColors"]["support.class.builtin"].color};
+    }
+
+    .support-type-primitive {
+        color: ${p => p.theme["editor.tokenColors"]["support.type.primitive"].color};
+    }
+
+    .variable-other-readwrite {
+        color: ${p => p.theme["editor.tokenColors"]["variable.other.readwrite"].color};
+    }
+
+    .variable-other-property {
+        color: ${p => p.theme["editor.tokenColors"]["variable.other.readwrite"].color};
+    }
+
+    .variable-other-object {
+        color: ${p => p.theme["editor.tokenColors"]["variable.other.readwrite"].color};
     }
 `
 
@@ -128,9 +153,9 @@ export const Documentation = styled.div`
 // 1. word-break: break all in the title component (causes breaks between words)
 // - the above seems to be vscode's solution
 export const Title = withProps<{ padding?: string }>(styled.div)`
-    padding: ${p => p.padding || "0.5rem"};
+    padding: ${p => p.padding || "0.7rem"};
     overflow: hidden;
-    max-height: 25vh;
+    max-height: 22vh;
     max-width: 45vw;
     word-break: break-all;
     ${smallScrollbar};

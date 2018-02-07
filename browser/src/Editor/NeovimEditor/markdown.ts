@@ -22,14 +22,18 @@ interface IRendererArgs {
     container?: string
 }
 
-const scopesToString = (scope: object) =>
-    Object.values(scope)
-        .map((s: string) => {
-            const lastStop = s.lastIndexOf(".")
-            const remainder = s.substring(0, lastStop)
-            return remainder.replace(/\./g, "-")
-        })
-        .join(" ")
+const scopesToString = (scope: object) => {
+    if (scope) {
+        return Object.values(scope)
+            .map((s: string) => {
+                const lastStop = s.lastIndexOf(".")
+                const remainder = s.substring(0, lastStop)
+                return remainder.replace(/\./g, "-")
+            })
+            .join(" ")
+    }
+    return null
+}
 
 function escapeRegExp(str: string) {
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$]/g, "\\$&")
@@ -114,8 +118,6 @@ export const convertMarkdown = ({
                 renderer.paragraph = text => renderWithClasses({ text, tokens })
             } else if (colors) {
                 renderer.code = text => {
-                    // tslint:disable-next-line
-                    console.log("creating code block text: ", text)
                     return renderWithClasses({
                         container: "code",
                         colors,

@@ -9,11 +9,8 @@ import * as types from "vscode-languageserver-types"
 
 import getTokens from "./../../Services/SyntaxHighlighting/tokenGenerator"
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
-import {
-    QuickInfoContainer,
-    QuickInfoDocumentation,
-    QuickInfoTitle,
-} from "./../../UI/components/QuickInfo"
+import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
+import QuickInfoWithTheme from "./../../UI/components/QuickInfoContainer"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -61,7 +58,8 @@ export class HoverRenderer {
         hover: types.Hover,
         errors: types.Diagnostic[],
     ): Promise<JSX.Element> {
-        const quickInfoElement = await getQuickInfoElementsFromHover(hover)
+        const titleAndContents = await getTitleAndContents(hover)
+        const quickInfoElement = <QuickInfoWithTheme titleAndContents={titleAndContents} />
 
         const borderColor = this._colors.getColor("toolTip.border")
 
@@ -139,6 +137,8 @@ const getTitleAndContents = async (result: types.Hover) => {
     const contents = Helpers.getTextFromContents(result.contents)
     const [{ value: titleContent, language }, ...remaining] = contents
 
+    // FIXME contents almost always inclues a second empty object so this
+    // conditional fails
     if (contents.length === 0) {
         return null
     } else if (contents.length === 1) {
@@ -176,24 +176,4 @@ const getTitleAndContents = async (result: types.Hover) => {
             }),
         }
     }
-}
-
-const getQuickInfoElementsFromHover = async (hover: types.Hover): Promise<JSX.Element> => {
-    const titleAndContents = await getTitleAndContents(hover)
-    const hasDocs = !!(
-        titleAndContents &&
-        titleAndContents.description &&
-        titleAndContents.description.__html
-    )
-
-    return (
-        titleAndContents && (
-            <QuickInfoContainer hasDocs={hasDocs}>
-                <QuickInfoTitle padding={hasDocs ? "0.5rem" : null} html={titleAndContents.title} />
-                {titleAndContents.description && (
-                    <QuickInfoDocumentation html={titleAndContents.description} />
-                )}
-            </QuickInfoContainer>
-        )
-    )
 }
