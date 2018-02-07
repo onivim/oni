@@ -133,7 +133,7 @@ export class SearchPaneView extends React.PureComponent<
             activeWorkspace: this.props.workspace.activeWorkspace,
             isActive: false,
             activeTextbox: null,
-            searchQuery: "Type to search...",
+            searchQuery: "Search...",
             fileFilter: null,
         }
     }
@@ -189,6 +189,7 @@ export class SearchPaneView extends React.PureComponent<
                                 onDismiss={() => this._clearActiveTextbox()}
                                 isFocused={selectedId === "textbox.query"}
                                 isActive={this.state.activeTextbox === "textbox.query"}
+                                onClick={() => this._onSelected("textbox.query")}
                             />
                             {/*<Label>Filter</Label>
                             <SearchTextBox
