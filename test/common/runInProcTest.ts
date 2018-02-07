@@ -32,14 +32,17 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
 import * as os from "os"
 
 const getConfigPath = (settings: any, rootPath: string) => {
-    if (!settings) {
-        return ""
-    } else if (settings.configPath) {
+    settings = settings || {}
+
+    if (settings.configPath) {
         return normalizePath(path.join(rootPath, settings.configPath))
     } else if (settings.config) {
         return normalizePath(serializeConfig(settings.config))
     } else {
-        return ""
+        // Fix #1436 - if no config is specified, we'll just use
+        // the empty config, so that the user's config doesn't
+        // impact the test results.
+        return normalizePath(serializeConfig({}))
     }
 }
 
