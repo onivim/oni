@@ -93,15 +93,6 @@ import WildMenu from "./../../UI/components/WildMenu"
 
 import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
-interface IVimHighlight {
-    highlightGroup: string
-    highlight: IHighlight
-}
-
-interface IHighlight {
-    foreground: number
-}
-
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
@@ -741,29 +732,8 @@ export class NeovimEditor extends Editor implements IEditor {
         this._scheduleRender()
     }
 
-    public async getVimHighlights(): Promise<IVimHighlight[]> {
-        const configurationColors: Array<{
-            settings: string
-            scope: string
-        }> = this._configuration.getValue("editor.tokenColors")
-
-        // FIXME: Specify Highlights to check by differentiating vim highlights as no having "."
-        const tokens = Object.keys(configurationColors).filter(c => !c.includes("."))
-        const uniqueTokens = [...new Set(tokens)]
-        const colorValues = await Promise.all(
-            uniqueTokens.map(async token => {
-                const highlight = (await this._neovimInstance.request("nvim_get_hl_by_name", [
-                    token,
-                    true,
-                ])) as IHighlight
-
-                return {
-                    highlight,
-                    highlightGroup: token,
-                }
-            }),
-        )
-        return colorValues
+    public async getVimHighlights() {
+        return this._neovimInstance.getVimHighlights()
     }
 
     public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
@@ -903,7 +873,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._bufferManager.populateBufferList(evt)
         this._workspace.autoDetectWorkspace(buf.filePath)
         const vimHighlights = await this.getVimHighlights()
-        this._themeManager.getVimHighlightColors(vimHighlights)
+        this._themeManager.setVimHighlightColors(vimHighlights)
 
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
@@ -987,7 +957,7 @@ export class NeovimEditor extends Editor implements IEditor {
         const backgroundColor = this._screen.backgroundColor
         const foregroundColor = this._screen.foregroundColor
         const vimHighlights = await this.getVimHighlights()
-        this._themeManager.getVimHighlightColors(vimHighlights)
+        this._themeManager.setVimHighlightColors(vimHighlights)
 
         Log.info(
             `[NeovimEditor] Colors changed: ${newColorScheme} - background: ${backgroundColor} foreground: ${foregroundColor}`,

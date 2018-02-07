@@ -12,67 +12,70 @@ const markedCss = css`
     }
 
     .marked-identifier {
-        color: ${p => p.theme["editor.tokenColors"].identifier.color};
+        color: ${p => p.theme["editor.tokenColors"].identifier.settings.foreground};
     }
 
     .marked-function {
-        color: ${p => p.theme["editor.tokenColors"].function.color};
+        color: ${p => p.theme["editor.tokenColors"].function.settings.foreground};
     }
 
     .marked-constant {
-        color: ${p => p.theme["editor.tokenColors"].constant.color};
+        color: ${p => p.theme["editor.tokenColors"].constant.settings.foreground};
     }
 
     .meta-import {
-        color: ${p => p.theme["editor.tokenColors"]["meta.import"].color};
+        color: ${p => p.theme["editor.tokenColors"]["meta.import"].settings.foreground};
     }
 
     .meta-class {
-        color: ${p => p.theme["editor.tokenColors"]["meta.class"].color};
+        color: ${p => p.theme["editor.tokenColors"]["meta.class"].settings.foreground};
     }
 
     .variable-other {
-        color: ${p => p.theme["editor.tokenColors"]["variable.other"].color};
+        color: ${p => p.theme["editor.tokenColors"]["variable.other"].settings.foreground};
     }
 
     .meta-object-type {
-        color: ${p => p.theme["editor.tokenColors"]["meta.object.type"].color};
+        color: ${p => p.theme["editor.tokenColors"]["meta.object.type"].settings.foreground};
     }
 
     .meta-brace-round {
-        color: ${p => p.theme["editor.tokenColors"]["meta.brace.round"].color};
+        color: ${p => p.theme["editor.tokenColors"]["meta.brace.round"].settings.foreground};
     }
 
     .meta-function-call {
-        color: ${p => p.theme["editor.tokenColors"]["meta.function.call"].color};
+        color: ${p => p.theme["editor.tokenColors"]["meta.function.call"].settings.foreground};
     }
 
     .meta-type-declaration {
-        color: ${p => p.theme["editor.tokenColors"]["meta.type.declaration"].color};
+        color: ${p => p.theme["editor.tokenColors"]["meta.type.declaration"].settings.foreground};
     }
 
     .meta-type-annotation {
-        color: ${p => p.theme["editor.tokenColors"]["meta.type.annotation"].color};
+        color: ${p => p.theme["editor.tokenColors"]["meta.type.annotation"].settings.foreground};
     }
 
     .support-class-builtin {
-        color: ${p => p.theme["editor.tokenColors"]["support.class.builtin"].color};
+        color: ${p => p.theme["editor.tokenColors"]["support.class.builtin"].settings.foreground};
     }
 
     .support-type-primitive {
-        color: ${p => p.theme["editor.tokenColors"]["support.type.primitive"].color};
+        color: ${p => p.theme["editor.tokenColors"]["support.type.primitive"].settings.foreground};
     }
 
     .variable-other-readwrite {
-        color: ${p => p.theme["editor.tokenColors"]["variable.other.readwrite"].color};
+        color: ${p =>
+            p.theme["editor.tokenColors"]["variable.other.readwrite"].settings.foreground};
     }
 
     .variable-other-property {
-        color: ${p => p.theme["editor.tokenColors"]["variable.other.readwrite"].color};
+        color: ${p =>
+            p.theme["editor.tokenColors"]["variable.other.readwrite"].settings.foreground};
     }
 
     .variable-other-object {
-        color: ${p => p.theme["editor.tokenColors"]["variable.other.readwrite"].color};
+        color: ${p =>
+            p.theme["editor.tokenColors"]["variable.other.readwrite"].settings.foreground};
     }
 `
 

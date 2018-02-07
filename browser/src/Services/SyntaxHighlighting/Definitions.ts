@@ -1,11 +1,11 @@
 import * as types from "vscode-languageserver-types"
 
 export interface IHighlight {
-    foregroundColor: string
-    backgroundColor: string
-
+    foreground: string
+    background: string
     bold: boolean
     italic: boolean
+    fallback?: string
 }
 
 export type HighlightGroupId = string

@@ -168,7 +168,7 @@ export class OniEditor implements IEditor {
         this._neovimEditor.executeCommand(command)
     }
 
-    public async getVimHighlights(): Promise<Array<{ highlightGroup: string; highlight: any }>> {
+    public async getVimHighlights() {
         return this._neovimEditor.getVimHighlights()
     }
 

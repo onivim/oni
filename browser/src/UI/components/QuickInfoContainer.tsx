@@ -22,79 +22,117 @@ const quickInfoTokens = {
     "editor.tokenColors": {
         "meta.import": {
             scope: "meta-import",
-            settings: "Define",
+            settings: {
+                fallback: "Define",
+            },
         },
         "storage.type": {
             scope: "storage.type",
-            settings: "Statement",
+            settings: {
+                fallback: "Statement",
+            },
         },
         "meta.namespace.declaration": {
             scope: "meta.namespace.declaration",
-            settings: "Type",
+            settings: {
+                fallback: "Type",
+            },
         },
         "meta.type.annotation": {
             scope: "meta.type.annotation",
-            settings: "Type",
+            settings: {
+                fallback: "Type",
+            },
         },
         "meta.type.declaration": {
             scope: "meta.type.declaration",
-            settings: "Keyword",
+            settings: {
+                fallback: "Keyword",
+            },
         },
         "meta.brace.round": {
             scope: "meta.brace.round",
-            settings: "Normal",
+            settings: {
+                fallback: "Normal",
+            },
         },
         "meta.function.call": {
             scope: "meta.function.call",
-            settings: "Function",
+            settings: {
+                fallback: "Function",
+            },
         },
         "variable.other.constant": {
             scope: "variable.other.constant",
-            settings: "Constant",
+            settings: {
+                fallback: "Constant",
+            },
         },
         "variable.other.object": {
             scope: "variable.other.object",
-            settings: "Identifier",
+            settings: {
+                fallback: "Identifier",
+            },
         },
         "variable.other.readwrite": {
             scope: "variable.other.constant",
-            settings: "PreProc",
+            settings: {
+                fallback: "PreProc",
+            },
         },
         "variable.other.property": {
             scope: "variable.other.property",
-            settings: "Statement",
+            settings: {
+                fallback: "Statement",
+            },
         },
         "support.class.builtin": {
             scope: "support.class.builtin",
-            settings: "Type",
+            settings: {
+                fallback: "Type",
+            },
         },
         "support.type.primitive": {
             scope: "support.class.builtin",
-            settings: "Keyword",
+            settings: {
+                fallback: "Keyword",
+            },
         },
         "meta.object.type": {
             scope: "meta.object.type",
-            settings: "Identifier",
+            settings: {
+                fallback: "Identifier",
+            },
         },
         "meta.class": {
             scope: "meta.class",
-            settings: "Type",
+            settings: {
+                fallback: "Type",
+            },
         },
         "variable.object": {
             scope: "variable.object",
-            settings: "Identifier",
+            settings: {
+                fallback: "Identifier",
+            },
         },
         "variable.language": {
             scope: "variable.language",
-            settings: "Identifier",
+            settings: {
+                fallback: "Identifier",
+            },
         },
         "variable.parameter": {
             scope: "variable.parameter",
-            settings: "Identifier",
+            settings: {
+                fallback: "Identifier",
+            },
         },
         "variable.other": {
             scope: "variable.other",
-            settings: "Identifier",
+            settings: {
+                fallback: "Identifier",
+            },
         },
         "support.function": {
             scope: "support.function",
@@ -102,11 +140,15 @@ const quickInfoTokens = {
         },
         "entity.name": {
             scope: "entity.name",
-            settings: "Function",
+            settings: {
+                fallback: "Function",
+            },
         },
         "entity.other": {
             scope: "entity.other",
-            settings: "Constant",
+            settings: {
+                fallback: "Constant",
+            },
         },
     },
 }
@@ -116,10 +158,13 @@ class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
         const tokenColors = theme["editor.tokenColors"]
         const updatedTheme = Object.keys(tokenColors).reduce((acc, t) => {
             const item = tokenColors[t]
-            if (item && !item.color && item.settings) {
+            if (item && item.settings && !item.settings.foreground && item.settings.fallback) {
                 acc[t] = {
                     ...item,
-                    color: tokenColors[item.settings.toLowerCase()].color,
+                    settings: {
+                        ...item.settings,
+                        ...tokenColors[item.settings.fallback.toLowerCase()].settings,
+                    },
                 }
                 return acc
             }

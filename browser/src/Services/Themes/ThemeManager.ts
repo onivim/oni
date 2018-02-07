@@ -10,30 +10,18 @@ import { Event, IEvent } from "oni-types"
 import { IThemeContribution } from "./../../Plugins/Api/Capabilities"
 import { PluginManager } from "./../../Plugins/PluginManager"
 
-import { Configuration, configuration, GenericConfigurationValues } from "./../Configuration"
+import {
+    Configuration,
+    configuration,
+    GenericConfigurationValues,
+    ITokenColorsSetting,
+} from "./../Configuration"
 
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
 import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
 
-interface IToken {
-    settings?: string
-    scope?: string
-    color: string
-    bold?: boolean
-}
-
 interface IEditorTokens {
-    "variable.object": IToken
-    "variable.other.constant": IToken
-    "variable.language": IToken
-    "variable.parameter": IToken
-    "variable.other": IToken
-    "support.function": IToken
-    "entity.name": IToken
-    "entity.other": IToken
-    identifier: IToken
-    function: IToken
-    constant: IToken
+    [token: string]: ITokenColorsSetting
 }
 
 export interface IThemeColors {
@@ -166,24 +154,23 @@ export const getHoverColors = (
 }
 
 // FIXME: Convert this fn to use below
-// const updateThemeWithDefaults = (theme: IThemeColors) => {
-//     const tokenColors = theme["editor.tokenColors"]
-//     const updatedTheme = Object.keys(tokenColors).reduce((acc, t) => {
-//         const item = tokenColors[t]
-//         if (item && !item.color && item.settings) {
-//             acc[t] = {
-//                 ...item,
-//                 color: tokenColors[item.settings.toLowerCase()].color,
-//             }
-//             return acc
-//         }
-//         return acc
-//     }, tokenColors)
-//     return {
-//         ...theme,
-//         "editor.tokenColors": updatedTheme,
-//     }
-// }
+const updateThemeWithDefaults = (tokenColors: Partial<IThemeColors>) => {
+    const updatedTheme = Object.keys(tokenColors).reduce((acc, t) => {
+        const item = tokenColors[t]
+        if (item && !item.settings.foreground && item.settings.fallback) {
+            acc[t] = {
+                ...item,
+                settings: {
+                    ...item.settings,
+                    ...tokenColors[item.settings.fallback.toLowerCase()].settings,
+                },
+            }
+            return acc
+        }
+        return acc
+    }, tokenColors)
+    return { "editor.tokenColors": updatedTheme }
+}
 
 const getTokenColors = ({
     config,
@@ -194,7 +181,7 @@ const getTokenColors = ({
     config: Configuration
     defaultTokens: IEditorTokens
     themeColors: IEditorTokens
-    vimColors: IVimTokens
+    vimColors: { [token: string]: ITokenColorsSetting }
 }) => {
     const userTokens = config.getValue("editor.tokenColors")
     // Merge defaults, with vim sourced tokens, theme tokens and user selected
@@ -213,15 +200,17 @@ const getTokenColors = ({
         },
     )
 
-    for (const token in userCombined) {
-        if (userCombined.hasOwnProperty(token)) {
-            const tokenObject = userCombined[token]
-            if (!tokenObject.color && tokenObject.settings) {
-                tokenObject.color = userCombined[tokenObject.settings.toLowerCase()].color
-            }
-        }
-    }
-    return userCombined
+    // for (const token in userCombined) {
+    //     if (userCombined.hasOwnProperty(token)) {
+    //         const tokenObject = userCombined[token]
+    //         if (!tokenObject.color && tokenObject.settings) {
+    //             tokenObject.color = userCombined[tokenObject.settings.toLowerCase()].color
+    //         }
+    //     }
+    // }
+    const tokens = updateThemeWithDefaults(userTokens)
+    const updatedTokens = { ...userCombined, ...tokens }
+    return updatedTokens
 }
 
 export const getColorsFromConfig = ({
@@ -232,7 +221,7 @@ export const getColorsFromConfig = ({
 }: {
     config: Configuration
     themeColors: Partial<IThemeColors>
-    vimColors: IVimTokens
+    vimColors: { [token: string]: ITokenColorsSetting }
     defaultTheme: IThemeColors
 }) => {
     const userConfig = config.getValues()
@@ -371,84 +360,91 @@ export const DefaultThemeColors: IThemeColors = {
 
     "editor.tokenColors": {
         "variable.object": {
-            settings: "identifier",
+            settings: {
+                fallback: "identifier",
+                bold: null,
+                foreground: null,
+                background: null,
+                italic: null,
+            },
             scope: "variable.object",
-            color: null,
         },
         "variable.other.constant": {
-            settings: "constant",
+            settings: {
+                fallback: "constant",
+                bold: null,
+                foreground: null,
+                background: null,
+                italic: null,
+            },
             scope: "variable.other.constant",
-            color: null,
         },
         "variable.language": {
-            settings: "identifier",
+            settings: {
+                fallback: "identifier",
+                bold: null,
+                foreground: null,
+                background: null,
+                italic: null,
+            },
             scope: "variable.language",
-            color: null,
         },
         "variable.parameter": {
-            settings: "identifier",
+            settings: {
+                fallback: "identifier",
+                bold: null,
+                foreground: null,
+                background: null,
+                italic: null,
+            },
             scope: "variable.parameter",
-            color: null,
         },
         "variable.other": {
-            settings: "identifier",
+            settings: {
+                fallback: "identifier",
+                bold: null,
+                foreground: null,
+                background: null,
+                italic: null,
+            },
             scope: "variable.other",
-            color: null,
         },
         "support.function": {
-            settings: "function",
             scope: "support.function",
-            color: null,
+            settings: {
+                fallback: "function",
+                bold: null,
+                foreground: null,
+                background: null,
+                italic: null,
+            },
         },
         "entity.name": {
-            settings: "function",
             scope: "entity.name",
-            color: null,
+            settings: {
+                fallback: "function",
+                bold: null,
+                foreground: null,
+                background: null,
+                italic: null,
+            },
         },
         "entity.other": {
-            settings: "constant",
             scope: "entity.other",
-            color: null,
-        },
-        identifier: {
-            color: null,
-        },
-        function: {
-            color: null,
-        },
-        constant: {
-            color: null,
+            settings: {
+                fallback: "constant",
+                bold: null,
+                foreground: null,
+                background: null,
+                italic: null,
+            },
         },
     },
-}
-
-export interface IVimHighlight {
-    highlightGroup: string
-    highlight: {
-        foreground: number
-        bold?: boolean
-    }
-}
-
-export interface IVimTokens {
-    [token: string]: {
-        settings?: string
-        color: string
-        bold?: boolean
-    }
 }
 
 // export interface ITokenTheme {
 //     name: string
 //     settings: ITokenColorSettings
-// }
-
-// export interface ITokenColorSettings {
-//     background?: string
-//     foreground?: string
-
-//     bold: boolean
-//     italic: boolean
 // }
 
 export interface IThemeMetadata {
@@ -467,7 +463,7 @@ export class ThemeManager {
     private _onThemeChangedEvent: Event<void> = new Event<void>()
 
     private _activeTheme: IThemeMetadata = DefaultTheme
-    private _vimHighlights: IVimTokens = {}
+    private _vimHighlights: { [token: string]: ITokenColorsSetting } = {}
 
     private _isAnonymousTheme: boolean = false
 
@@ -484,13 +480,9 @@ export class ThemeManager {
         return this._themeLoader.getAllThemes()
     }
 
-    public async getVimHighlightColors(tokenColors: IVimHighlight[]) {
+    public async setVimHighlightColors(tokenColors: ITokenColorsSetting[]) {
         const tokens = tokenColors.reduce((acc, t) => {
-            acc[t.highlightGroup.toLowerCase()] = {
-                settings: t.highlightGroup,
-                color: Color(t.highlight.foreground).hex(),
-                bold: t.highlight.bold,
-            }
+            acc[t.scope.toLowerCase()] = t
             return acc
         }, this._vimHighlights)
         this._vimHighlights = tokens

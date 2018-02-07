@@ -146,8 +146,7 @@ const getTextFromMarkedString = (markedString: types.MarkedString): IMarkedStrin
 
 const splitByNewlines = (str: string) => {
     // Remove '/r'
-    const replaced = str.replace("\r", "\n")
-    return replaced
+    return str.replace("\r", "\n")
 }
 
 const getFilePrefix = () => {
