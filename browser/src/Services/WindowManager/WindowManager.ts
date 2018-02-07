@@ -23,11 +23,43 @@ import { createStore, IAugmentedSplitInfo, ISplitInfo, WindowState } from "./Win
 export interface IWindowSplitHandle {
     id: string
 
+    close(): void
+
     // Later:
     // show()
     // hide()
     // focus()
     // setSize()
+}
+
+class WindowSplitHandle implements IWindowSplitHandle {
+    public get id(): string {
+        return this._id
+    }
+
+    constructor(
+        private _store: Store<WindowState>,
+        private _windowManager: WindowManager,
+        private _id: string,
+    ) {}
+
+    public hide(): void {
+        this._store.dispatch({
+            type: "HIDE_SPLIT",
+            splitId: this._id,
+        })
+    }
+
+    public show(): void {
+        this._store.dispatch({
+            type: "SHOW_SPLIT",
+            splitId: this._id,
+        })
+    }
+
+    public close(): void {
+        this._windowManager.close(this._id)
+    }
 }
 
 export class AugmentedWindow implements IAugmentedSplitInfo {
@@ -58,6 +90,7 @@ export class WindowManager {
     private _activeSplit: any
 
     private _lastId: number = 0
+    private _idToSplit: { [key: string]: IAugmentedSplitInfo } = {}
 
     private _onUnhandledMoveEvent = new Event<Direction>()
 
@@ -129,6 +162,8 @@ export class WindowManager {
 
         const augmentedWindow = new AugmentedWindow(windowId, newSplit)
 
+        this._idToSplit[windowId] = augmentedWindow
+
         switch (splitLocation) {
             case "right":
             case "up":
@@ -154,9 +189,7 @@ export class WindowManager {
                 this._focusNewSplit(augmentedWindow)
         }
 
-        return {
-            id: windowId,
-        }
+        return new WindowSplitHandle(this._store, this, windowId)
     }
 
     public move(direction: Direction): void {
@@ -185,7 +218,8 @@ export class WindowManager {
         this.move("down")
     }
 
-    public close(split: any) {
+    public close(splitId: any) {
+        const split = this._idToSplit[splitId]
         this._primarySplit.close(split)
 
         const state = this._primarySplit.getState()
@@ -193,6 +227,8 @@ export class WindowManager {
             type: "SET_PRIMARY_SPLITS",
             splits: state,
         })
+
+        this._idToSplit[splitId] = null
     }
 
     public focusSplit(split: Oni.IWindowSplit): void {
