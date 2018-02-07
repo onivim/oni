@@ -16,6 +16,7 @@ export class PluginManager {
     private _rootPluginPaths: string[] = []
     private _plugins: Plugin[] = []
     private _anonymousPlugin: AnonymousPlugin
+    private _pluginsActivated: boolean = false
 
     public get plugins(): Plugin[] {
         return this._plugins
@@ -59,6 +60,8 @@ export class PluginManager {
             plugin.activate()
         })
 
+        this._pluginsActivated = true
+
         return this._anonymousPlugin.oni
     }
 
@@ -68,12 +71,17 @@ export class PluginManager {
         return pluginPaths.concat(this._rootPluginPaths)
     }
 
+    public get loaded(): boolean {
+        return this._pluginsActivated
+    }
+
     public getPlugin(name: string): any {
         for (const plugin of this._plugins) {
-            if (plugin.metadata.name === name) {
+            if (plugin.name === name) {
                 return plugin.instance
             }
         }
+        return null
     }
 
     private _createPlugin(pluginRootDirectory: string, source: string): Plugin {

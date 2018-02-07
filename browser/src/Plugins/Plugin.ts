@@ -30,6 +30,11 @@ export class Plugin {
         return this._source
     }
 
+    public get name(): string | null {
+        const metadata = this.metadata
+        return metadata === null || metadata === undefined ? null : metadata.name
+    }
+
     constructor(private _pluginRootDirectory: string, private _source: string) {
         const packageJsonPath = path.join(this._pluginRootDirectory, "package.json")
 

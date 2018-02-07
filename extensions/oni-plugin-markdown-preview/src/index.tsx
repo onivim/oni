@@ -5,16 +5,13 @@ import * as marked from "marked"
 import * as Oni from "oni-api"
 import * as React from "react"
 
-export interface IApi {
-    getStatus(name: string): any
-}
-
 /**
  * Props are like the constructor arguments
  * for the React component (immutable)
  */
 interface IMarkdownPreviewProps {
     oni: Oni.Plugin.Api
+    instance: MarkdownPreviewEditor
 }
 
 interface IColors {
@@ -69,7 +66,9 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 
     public render(): JSX.Element {
-        const html = this.generateMarkdown() + this.generateContainerStyle()
+        const renderedMarkdown = this.generateMarkdown()
+        this.props.instance.updateContent(this.state.source, renderedMarkdown)
+        const html = renderedMarkdown + this.generateContainerStyle()
         const classes = "stack enable-mouse oniPluginMarkdownPreviewContainerStyle"
         return <div className={classes} dangerouslySetInnerHTML={{ __html: html }} />
     }
@@ -170,16 +169,31 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 }
 
-class MarkdownPreviewEditor implements Oni.IWindowSplit, IApi {
+class MarkdownPreviewEditor implements Oni.IWindowSplit {
     private _open: boolean = false
+    private _unrenderedContent: string = ""
+    private _renderedContent: string = ""
     private _split: Oni.WindowSplitHandle
 
     constructor(private _oni: Oni.Plugin.Api) {
         this._oni.editors.activeEditor.onBufferEnter.subscribe(args => this.onBufferEnter(args))
     }
 
-    public getStatus(name: string): string {
-        return name + "'s value"
+    public isPaneOpen(): boolean {
+        return this._open
+    }
+
+    public getUnrenderContent(): string {
+        return this._unrenderedContent
+    }
+
+    public getRenderedContent(): string {
+        return this._renderedContent
+    }
+
+    public updateContent(unrendered: string, rendered: string): void {
+        this._unrenderedContent = unrendered
+        this._renderedContent = rendered
     }
 
     public toggle(): void {
@@ -206,7 +220,7 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit, IApi {
     }
 
     public render(): JSX.Element {
-        return <MarkdownPreview oni={this._oni} />
+        return <MarkdownPreview oni={this._oni} instance={this} />
     }
 
     private onBufferEnter(bufferInfo: Oni.EditorBufferEventArgs): void {
@@ -216,7 +230,7 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit, IApi {
     }
 }
 
-export function activate(oni: any): IApi {
+export function activate(oni: any): any {
     if (!oni.configuration.getValue("experimental.markdownPreview.enabled", false)) {
         return
     }
