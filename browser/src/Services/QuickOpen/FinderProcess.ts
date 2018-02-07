@@ -8,6 +8,8 @@ import { ChildProcess, spawn } from "child_process"
 
 import { Event, IEvent } from "oni-types"
 
+import * as Log from "./../../Log"
+
 export class FinderProcess {
     private _process: ChildProcess
 
@@ -30,6 +32,13 @@ export class FinderProcess {
     public start(): void {
         if (this._process) {
             return
+        }
+
+        if (Log.isDebugLoggingEnabled()) {
+            Log.debug(
+                "[FinderProcess::start] Starting finder process with this command: " +
+                    this._command,
+            )
         }
 
         this._process = spawn(this._command, [], { shell: true })

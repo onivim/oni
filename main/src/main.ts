@@ -11,7 +11,7 @@ import { makeSingleInstance } from "./ProcessLifecycle"
 
 global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 
-const isDevelopment = process.env.NODE_ENV === "development"
+const isDevelopment = process.env.NODE_ENV === "development" || process.env.ONI_WEBPACK_LOAD === "1"
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
 
 interface IWindowState {

@@ -40,15 +40,26 @@ artifacts:
       name: DemoScreenshot
 
 deploy:
-    provider: GitHub
-    repository: onivim/oni
-    auth_token:
-        secure: 7+dYCBtYLMoaH4xvTno1mAw8mb4CPFYAcosPI8kRTmcqYKehzmhpChU825uGdaB6
-    draft: false
-    prerelease: false
-    force_update: true
-    on:
-        appveyor_repo_tag: true
+    - provider: GitHub
+      repository: onivim/oni
+      auth_token:
+          secure: 7+dYCBtYLMoaH4xvTno1mAw8mb4CPFYAcosPI8kRTmcqYKehzmhpChU825uGdaB6
+      draft: false
+      prerelease: false
+      force_update: true
+      on:
+          appveyor_repo_tag: true
+
+    - provider: S3
+      access_key_id: AKIAIYMATI2CEFTHPBOQ
+      secret_access_key:
+          secure: brqAO0yA6DSxwRbf7IbbmhvyEoQqSeetdrq4mutR2aaeLJBQu6by4u1Td+wq5Msc
+      bucket: oni-builds
+      region: us-west-2
+      unzip: false
+      set_public: true
+      folder: windows_builds
+      artifact: SetupExe, ProductZip
 
 # Post-install test scripts.
 test_script:
