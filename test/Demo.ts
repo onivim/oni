@@ -4,8 +4,8 @@ import * as path from "path"
 import { runInProcTest } from "./common"
 
 const DemoTests = [
-    // "HeroDemo"
-    "HeroScreenshot",
+    "HeroDemo",
+    // "HeroScreenshot",
 ]
 
 // tslint:disable:no-console

@@ -18,6 +18,8 @@ import { inputManager } from "./InputManager"
 import * as Log from "./../Log"
 import * as Shell from "./../UI/Shell"
 
+import { parseKeysFromVimString, IKey } from "./../Input/KeyParser"
+
 export interface ITestResult {
     passed: boolean
     exception?: any
@@ -34,6 +36,39 @@ export class Automation implements OniApi.Automation.Api {
             const anyEditor: any = editorManager.activeEditor as any
             anyEditor.input(keys)
         }
+    }
+
+    public sendKeysV2(keys: string): void {
+        const parsedKeys = parseKeysFromVimString(keys)
+
+        const contents = remote.getCurrentWebContents()
+
+        const convertModifiers = (key: IKey): string[] => {
+            let ret: string[] = []
+
+            if (key.control) {
+                ret.push("control")
+            }
+            if (key.alt) {
+                ret.push("alt")
+            }
+            if (key.meta) {
+                ret.push("meta")
+            }
+            if (key.shift) {
+                ret.push("shift")
+            }
+
+            return ret
+        }
+
+        parsedKeys.chord.forEach(key => {
+            const character = key.character
+            const modifiers = convertModifiers(key)
+            contents.sendInputEvent(<any>{ keyCode: character, modifiers, type: "keyDown" })
+            contents.sendInputEvent(<any>{ keyCode: character, modifiers, type: "char" })
+            contents.sendInputEvent(<any>{ keyCode: character, type: "keyUp" })
+        })
     }
 
     public async sleep(time: number = 1000): Promise<void> {

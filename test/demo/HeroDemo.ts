@@ -15,7 +15,7 @@ export const test = async (oni: any) => {
 
     const simulateTyping = async (keys: string) => {
         for (const key of keys) {
-            oni.automation.sendKeys(key)
+            oni.automation.sendKeysV2(key)
             await oni.automation.sleep(75 + Math.random() * 25)
         }
     }
@@ -24,41 +24,8 @@ export const test = async (oni: any) => {
     // remote.getCurrentWindow().setSize(640, 480)
     oni.recorder.startRecording()
 
-    await simulateTyping(":e HelloWorld.ts")
+    await simulateTyping("iWelcome to Oni")
     oni.automation.sendKeys("<CR>")
 
     await shortDelay()
-
-    oni.automation.sendKeys("i")
-    await simulateTyping('const greeting = "Hello World";')
-
-    oni.automation.sendKeys("<CR>")
-
-    await simulateTyping('greeting = "Hello again";')
-
-    await shortDelay()
-
-    oni.automation.sendKeys("<ESC>")
-
-    await shortDelay()
-
-    oni.automation.sendKeys("_")
-
-    await longDelay()
-
-    oni.automation.sendKeys("I")
-    await simulateTyping("const ")
-    oni.automation.sendKeys("<esc>")
-    oni.automation.sendKeys("e")
-    await simulateTyping("a2")
-    oni.automation.sendKeys("<esc>")
-    oni.automation.sendKeys("<esc>")
-
-    await longDelay()
-
-    oni.automation.sendKeys("o")
-    await simulateTyping("window.a")
-    await longDelay()
-
-    await simulateTyping("lert(greeting)")
 }
