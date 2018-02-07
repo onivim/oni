@@ -8,12 +8,13 @@ const log = (msg: string) => {
 }
 
 const isCiBuild = () => {
-    const isCiBuild =
-        process.env["ONI_AUTOMATION_USE_DIST_BUILD"] ||
-        process.env["CONTINUOUS_INTEGRATION"] /* set by travis */ ||
-        process.env["APPVEYOR"] /* set by appveyor */
-    log("isCiBuild: " + isCiBuild)
-    return isCiBuild
+    const ciBuild = !!(
+        process.env.ONI_AUTOMATION_USE_DIST_BUILD ||
+        process.env.CONTINUOUS_INTEGRATION /* set by travis */ ||
+        process.env.APPVEYOR
+    ) /* set by appveyor */
+    log("isCiBuild: " + ciBuild)
+    return ciBuild
 }
 
 const getExecutablePathOnCiMachine = () => {
@@ -57,8 +58,9 @@ const getExecutablePathLocally = () => {
 }
 
 const getArgsForCiMachine = () => []
-const getArgsForLocalExecution = () =>
-    path.join(__dirname, "..", "..", "..", "lib", "main", "src", "main.js")
+const getArgsForLocalExecution = () => [
+    path.join(__dirname, "..", "..", "..", "lib", "main", "src", "main.js"),
+]
 
 export interface OniStartOptions {
     configurationPath?: string
