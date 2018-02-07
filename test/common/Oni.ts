@@ -7,7 +7,16 @@ const log = (msg: string) => {
     console.log(msg) // tslint:disable-line no-console
 }
 
-const getExecutablePath = () => {
+const isCiBuild = () => {
+    const isCiBuild =
+        process.env["ONI_AUTOMATION_USE_DIST_BUILD"] ||
+        process.env["CONTINUOUS_INTEGRATION"] /* set by travis */ ||
+        process.env["APPVEYOR"] /* set by appveyor */
+    log("isCiBuild: " + isCiBuild)
+    return isCiBuild
+}
+
+const getExecutablePathOnCiMachine = () => {
     switch (process.platform) {
         case "win32":
             return path.join(__dirname, "..", "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
@@ -40,6 +49,17 @@ const getExecutablePath = () => {
     }
 }
 
+const getExecutablePathLocally = () => {
+    const nodeModulesBinPath = path.join(__dirname, "..", "..", "..", "node_modules", ".bin")
+    return process.platform === "win32"
+        ? path.join(nodeModulesBinPath, "electron.cmd")
+        : path.join(nodeModulesBinPath, "electron")
+}
+
+const getArgsForCiMachine = () => []
+const getArgsForLocalExecution = () =>
+    path.join(__dirname, "..", "..", "..", "lib", "main", "src", "main.js")
+
 export interface OniStartOptions {
     configurationPath?: string
 }
@@ -52,13 +72,17 @@ export class Oni {
     }
 
     public async start(options: OniStartOptions = {}): Promise<void> {
-        const executablePath = getExecutablePath()
+        const ciBuild = isCiBuild()
+        const executablePath = ciBuild ? getExecutablePathOnCiMachine() : getExecutablePathLocally()
+        const executableArgs = ciBuild ? getArgsForCiMachine() : getArgsForLocalExecution()
         log("Using executable path: " + executablePath)
+        log("Using executable args: " + executableArgs)
 
         log("Start options: " + JSON.stringify(options))
 
         this._app = new Application({
             path: executablePath,
+            args: executableArgs,
             env: options.configurationPath ? { ONI_CONFIG_FILE: options.configurationPath } : {},
         })
 
