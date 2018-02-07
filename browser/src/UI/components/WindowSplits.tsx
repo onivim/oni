@@ -12,6 +12,8 @@ import { WindowSplitHost } from "./WindowSplitHost"
 
 import { ISplitInfo, WindowManager } from "./../../Services/WindowManager"
 
+import { noop } from "./../../Utility"
+
 export interface IWindowSplitsProps {
     windowManager: WindowManager
 }
@@ -37,7 +39,7 @@ export class Dock extends React.PureComponent<IDockProps, {}> {
                         containerClassName="split"
                         split={s}
                         isFocused={this.props.activeSplit === s}
-                        onClick={() => {}}
+                        onClick={noop}
                     />
                     <div className="split-spacer vertical" />
                 </div>
