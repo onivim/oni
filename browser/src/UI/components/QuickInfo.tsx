@@ -1,7 +1,59 @@
 import * as os from "os"
 
 import * as React from "react"
-import styled, { boxShadowInset, css, fontSizeSmall, withProps } from "./common"
+import styled, { boxShadowInset, css, fontSizeSmall, IThemeColors, withProps } from "./common"
+
+const cssToken = (p: { theme: IThemeColors }, token: string) => {
+    try {
+        const details = p.theme["editor.tokenColors"][token]
+        return details.settings.foreground
+    } catch (e) {
+        return p.theme["toolTip.foreground"]
+    }
+}
+const constructClass = (token: string) => (p: { theme: IThemeColors }) => {
+    const tokenAsClass = token.replace(/[.]/g, "-")
+    const cssClass = `
+        .${tokenAsClass} {
+            color: ${cssToken(p, token)};
+        }
+    `
+    return cssClass
+}
+
+const symbols = [
+    "marked.identifier",
+    "marked.function",
+    "marked.constant",
+    "meta.import",
+    "meta.class",
+    "variable.other",
+    "meta.object.type",
+    "meta.brace.round",
+    "meta.function.call",
+    "meta.type.declaration",
+    "meta.type.annotation",
+    "support.class.builtin",
+    "support.type.primitive",
+    "variable.other.readwrite",
+    "variable.other.property",
+    "variable.other.object",
+    "keyword.control.import",
+    "keyword.operator.relational",
+    "punctuation.terminator",
+    "punctuation.accessor",
+    "punctuation.definition.block",
+    "punctuation.separator.comma",
+    "punctuation.separator.continuation",
+    "punctuation.definition.parameters.begin",
+    "punctuation.definition.parameters.end",
+    "punctuation.separator.continuation",
+].map(constructClass)
+
+type TokenFunc = (p: { theme: IThemeColors }) => string
+
+const flattenedSymbols = (p: { theme: IThemeColors }, fns: TokenFunc[]) =>
+    fns.map(fn => fn(p)).join("\n")
 
 const markedCss = css`
     .marked {
@@ -11,76 +63,11 @@ const markedCss = css`
         white-space: pre-wrap;
     }
 
-    .marked-identifier {
-        color: ${p => p.theme["editor.tokenColors"].identifier.settings.foreground};
+    .source {
+        color: ${p => cssToken(p, "statement")};
     }
 
-    .marked-function {
-        color: ${p => p.theme["editor.tokenColors"].function.settings.foreground};
-    }
-
-    .marked-constant {
-        color: ${p => p.theme["editor.tokenColors"].constant.settings.foreground};
-    }
-
-    .meta-import {
-        color: ${p => p.theme["editor.tokenColors"]["meta.import"].settings.foreground};
-    }
-
-    .meta-class {
-        color: ${p => p.theme["editor.tokenColors"]["meta.class"].settings.foreground};
-    }
-
-    .variable-other {
-        color: ${p => p.theme["editor.tokenColors"]["variable.other"].settings.foreground};
-    }
-
-    .meta-object-type {
-        color: ${p => p.theme["editor.tokenColors"]["meta.object.type"].settings.foreground};
-    }
-
-    .meta-brace-round {
-        color: ${p => p.theme["editor.tokenColors"]["meta.brace.round"].settings.foreground};
-    }
-
-    .meta-function-call {
-        color: ${p => p.theme["editor.tokenColors"]["meta.function.call"].settings.foreground};
-    }
-
-    .meta-type-declaration {
-        color: ${p => p.theme["editor.tokenColors"]["meta.type.declaration"].settings.foreground};
-    }
-
-    .meta-type-annotation {
-        color: ${p => p.theme["editor.tokenColors"]["meta.type.annotation"].settings.foreground};
-    }
-
-    .support-class-builtin {
-        color: ${p => p.theme["editor.tokenColors"]["support.class.builtin"].settings.foreground};
-    }
-
-    .support-type-primitive {
-        color: ${p => p.theme["editor.tokenColors"]["support.type.primitive"].settings.foreground};
-    }
-
-    .variable-other-readwrite {
-        color: ${p =>
-            p.theme["editor.tokenColors"]["variable.other.readwrite"].settings.foreground};
-    }
-
-    .variable-other-property {
-        color: ${p =>
-            p.theme["editor.tokenColors"]["variable.other.readwrite"].settings.foreground};
-    }
-
-    .variable-other-object {
-        color: ${p =>
-            p.theme["editor.tokenColors"]["variable.other.readwrite"].settings.foreground};
-    }
-
-    .keyword-control-import {
-        color: ${p => p.theme["editor.tokenColors"]["keyword.control.import"].settings.foreground};
-    }
+    ${props => flattenedSymbols(props, symbols)};
 `
 
 const smallScrollbar = css`
@@ -153,12 +140,6 @@ export const Documentation = styled.div`
         ${codeBlockStyle};
     }
 `
-// NOTE: Currently with a max-width in CursorPositioner the text
-// in the hover element can occasionally appear to have too much padding
-// this is due to a browser quirk where it renders the maxWidth but does
-// not resize once truncated the solution is
-// 1. word-break: break all in the title component (causes breaks between words)
-// - the above seems to be vscode's solution
 export const Title = withProps<{ padding?: string }>(styled.div)`
     padding: ${p => p.padding || "0.7rem"};
     overflow: hidden;

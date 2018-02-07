@@ -41,6 +41,23 @@ const quickInfoTokens: { "editor.tokenColors": ITokens } = {
                 fallback: "Define",
             },
         },
+        punctuation: {
+            scope: [
+                "punctuation.separator.continuation",
+                "punctuation.separator.comma",
+                "punctuation.terminator",
+                "punctuation.terminator",
+            ],
+            settings: {
+                fallback: "Function",
+            },
+        },
+        "punctuation.accessor": {
+            scope: [],
+            settings: {
+                fallback: "Constant",
+            },
+        },
         "meta.namespace": {
             scope: ["meta.namespace.declaration"],
             settings: {
@@ -66,14 +83,15 @@ const quickInfoTokens: { "editor.tokenColors": ITokens } = {
             },
         },
         "variable.other": {
-            scope: [
-                "variable.other.constant",
-                "variable.other.object",
-                "variable.other.readwrite",
-                "variable.other.property",
-            ],
+            scope: ["variable.other.constant", "variable.other.object", "variable.other.property"],
             settings: {
                 fallback: "Constant",
+            },
+        },
+        "variable.other.readwrite": {
+            scope: [],
+            settings: {
+                fallback: "Type",
             },
         },
         "support.class": {
