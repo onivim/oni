@@ -256,7 +256,7 @@ const BaseConfiguration: IConfigurationValues = {
     "sidebar.enabled": true,
     "sidebar.width": "50px",
 
-    "sidebar.marks.enabled": true,
+    "sidebar.marks.enabled": false,
     "sidebar.plugins.enabled": false,
 
     "statusbar.enabled": true,
