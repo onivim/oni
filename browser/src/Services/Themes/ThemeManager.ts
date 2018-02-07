@@ -153,7 +153,6 @@ export const getHoverColors = (
     return userHoverColors
 }
 
-// FIXME: Convert this fn to use below
 const updateThemeWithDefaults = (tokenColors: Partial<IThemeColors>) => {
     const updatedTheme = Object.keys(tokenColors).reduce((acc, t) => {
         const item = tokenColors[t]
@@ -200,14 +199,6 @@ const getTokenColors = ({
         },
     )
 
-    // for (const token in userCombined) {
-    //     if (userCombined.hasOwnProperty(token)) {
-    //         const tokenObject = userCombined[token]
-    //         if (!tokenObject.color && tokenObject.settings) {
-    //             tokenObject.color = userCombined[tokenObject.settings.toLowerCase()].color
-    //         }
-    //     }
-    // }
     const tokens = updateThemeWithDefaults(userTokens)
     const updatedTokens = { ...userCombined, ...tokens }
     return updatedTokens

@@ -191,7 +191,7 @@ class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
             )
 
         return (
-            hasTitle && (
+            !!titleAndContents && (
                 <ThemeProvider theme={quickInfoTheme}>
                     <QuickInfoContainer hasDocs={hasDocs}>
                         <QuickInfoTitle

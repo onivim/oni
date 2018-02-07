@@ -126,6 +126,16 @@ const BaseConfiguration: IConfigurationValues = {
                 italic: null,
             },
         },
+        "variable.other.constant": {
+            scope: "variable.other.constant",
+            settings: {
+                fallback: "Constant",
+                foreground: null,
+                background: null,
+                bold: null,
+                italic: null,
+            },
+        },
         "variable.language": {
             scope: "variable.language",
             settings: {
