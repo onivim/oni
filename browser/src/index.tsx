@@ -217,7 +217,7 @@ const start = async (args: string[]): Promise<void> => {
     Bookmarks.activate(configuration, editorManager, Sidebar.getInstance())
 
     const PluginsSidebarPane = await import("./Plugins/PluginSidebarPane")
-    PluginsSidebarPane.activate(pluginManager, sidebarManager)
+    PluginsSidebarPane.activate(configuration, pluginManager, sidebarManager)
 
     Performance.endMeasure("Oni.Start.Activate")
 

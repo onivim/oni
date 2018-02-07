@@ -8,6 +8,7 @@ import * as React from "react"
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { Configuration } from "./../Services/Configuration"
 import { SidebarManager, SidebarPane } from "./../Services/Sidebar"
 
 import { SidebarContainerView, SidebarItemView } from "./../UI/components/SidebarItemView"
@@ -160,7 +161,13 @@ export class PluginsSidebarPaneView extends React.PureComponent<
     }
 }
 
-export const activate = (pluginManager: PluginManager, sidebarManager: SidebarManager) => {
-    const pane = new PluginsSidebarPane(pluginManager)
-    sidebarManager.add("plug", pane)
+export const activate = (
+    configuration: Configuration,
+    pluginManager: PluginManager,
+    sidebarManager: SidebarManager,
+) => {
+    if (configuration.getValue("sidebar.plugins.enabled")) {
+        const pane = new PluginsSidebarPane(pluginManager)
+        sidebarManager.add("plug", pane)
+    }
 }

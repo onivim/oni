@@ -4,7 +4,7 @@
 
 import * as React from "react"
 import { connect, Provider } from "react-redux"
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
@@ -75,6 +75,11 @@ export interface ISidebarContentViewState {
     active: boolean
 }
 
+const EntranceKeyframes = keyframes`
+    0% { opacity: 0.5; transform: translateX(-5px); }
+    100%% { opacity: 1; transform: translateX(0px); }
+`
+
 export const SidebarContentWrapper = withProps<{}>(styled.div)`
     ${enableMouse}
     width: 200px;
@@ -83,6 +88,8 @@ export const SidebarContentWrapper = withProps<{}>(styled.div)`
     height: 100%;
     user-select: none;
     cursor: default;
+
+    animation: ${EntranceKeyframes} 0.25s ease-in forwards;
 
     display: flex;
     flex-direction: column;
