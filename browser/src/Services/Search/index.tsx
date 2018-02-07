@@ -8,6 +8,8 @@ import * as React from "react"
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { Subject } from "rxjs/Subject"
+
 import { EditorManager } from "./../EditorManager"
 import { SidebarManager } from "./../Sidebar"
 import { Workspace } from "./../Workspace"
@@ -31,6 +33,8 @@ export class SearchPane {
     private _searchProvider: ISearchProvider
     private _currentQuery: ISearchQuery
 
+    private _searchOptionsObservable = new Subject<ISearchOptions>()
+
     public get id(): string {
         return "oni.sidebar.search"
     }
@@ -41,6 +45,10 @@ export class SearchPane {
 
     constructor(private _editorManager: EditorManager, private _workspace: Workspace) {
         this._searchProvider = new RipGrepSearchProvider()
+
+        this._searchOptionsObservable.debounceTime(100).subscribe((opts: ISearchOptions) => {
+            this._startNewSearch(opts)
+        })
     }
 
     public enter(): void {
@@ -63,6 +71,10 @@ export class SearchPane {
     }
 
     private _onSearchOptionsChanged(searchOpts: ISearchOptions): void {
+        this._searchOptionsObservable.next(searchOpts)
+    }
+
+    private _startNewSearch(searchOpts: ISearchOptions): void {
         console.log("changed: " + searchOpts)
 
         if (this._currentQuery) {
@@ -122,7 +134,7 @@ export class SearchPaneView extends React.PureComponent<
             isActive: false,
             activeTextbox: null,
             searchQuery: "Type to search...",
-            fileFilter: "*.*",
+            fileFilter: null,
         }
     }
 
@@ -162,7 +174,7 @@ export class SearchPaneView extends React.PureComponent<
         return (
             <VimNavigator
                 active={this.state.isActive && !this.state.activeTextbox}
-                ids={["textbox.query", "textbox.filter"]}
+                ids={["textbox.query" /*, "textbox.filter"*/]}
                 onSelected={(selectedId: string) => {
                     this._onSelected(selectedId)
                 }}
@@ -178,7 +190,7 @@ export class SearchPaneView extends React.PureComponent<
                                 isFocused={selectedId === "textbox.query"}
                                 isActive={this.state.activeTextbox === "textbox.query"}
                             />
-                            <Label>Filter</Label>
+                            {/*<Label>Filter</Label>
                             <SearchTextBox
                                 val={this.state.fileFilter}
                                 onChangeText={val => this._onChangeFilesFilter(val)}
@@ -186,7 +198,7 @@ export class SearchPaneView extends React.PureComponent<
                                 onDismiss={() => this._clearActiveTextbox()}
                                 isFocused={selectedId === "textbox.filter"}
                                 isActive={this.state.activeTextbox === "textbox.filter"}
-                            />
+                            />*/}
                         </div>
                     )
                 }}
@@ -194,13 +206,13 @@ export class SearchPaneView extends React.PureComponent<
         )
     }
 
-    private _onChangeFilesFilter(val: string): void {
-        this.setState({
-            fileFilter: val,
-        })
+    // private _onChangeFilesFilter(val: string): void {
+    //     this.setState({
+    //         fileFilter: val,
+    //     })
 
-        this._startSearch()
-    }
+    //     this._startSearch()
+    // }
 
     private _onChangeSearchQuery(val: string): void {
         this.setState({
