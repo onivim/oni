@@ -16,7 +16,7 @@ import { Event, IEvent } from "oni-types"
 import { Direction, SplitDirection } from "./index"
 import { LinearSplitProvider } from "./LinearSplitProvider"
 import { RelationalSplitNavigator } from "./RelationalSplitNavigator"
-import { WindowDock } from "./WindowDock"
+import { WindowDockNavigator } from "./WindowDock"
 
 import { createStore, IAugmentedSplitInfo, ISplitInfo, WindowState } from "./WindowManagerStore"
 
@@ -61,7 +61,7 @@ export class WindowManager {
 
     private _onUnhandledMoveEvent = new Event<Direction>()
 
-    private _leftDock: WindowDock = null
+    private _leftDock: WindowDockNavigator = null
     private _primarySplit: LinearSplitProvider
     private _rootNavigator: RelationalSplitNavigator
 
@@ -96,11 +96,10 @@ export class WindowManager {
     constructor() {
         this._rootNavigator = new RelationalSplitNavigator()
 
-        this._leftDock = new WindowDock()
+        this._store = createStore()
+        this._leftDock = new WindowDockNavigator(() => this._store.getState().docks["left"])
         this._primarySplit = new LinearSplitProvider("horizontal")
         this._rootNavigator.setRelationship(this._leftDock, this._primarySplit, "right")
-
-        this._store = createStore()
     }
 
     // public split(
@@ -184,20 +183,6 @@ export class WindowManager {
 
     public moveDown(): void {
         this.move("down")
-    }
-
-    public getDock(direction: Direction): WindowDock {
-        if (direction === "left") {
-            return this._leftDock
-        } else {
-            // TODO
-            return null
-        }
-    }
-
-    // TODO: Deprecate
-    public showDock(direction: SplitDirection, split: Oni.IWindowSplit) {
-        // TODO
     }
 
     public close(split: any) {

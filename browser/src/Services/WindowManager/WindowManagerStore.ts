@@ -91,6 +91,11 @@ export const reducer: Reducer<WindowState> = (
                 ...state,
                 primarySplit: action.splits,
             }
+        case "SET_FOCUSED_SPLIT":
+            return {
+                ...state,
+                focusedSplitId: action.splitId,
+            }
         default:
             return {
                 ...state,
