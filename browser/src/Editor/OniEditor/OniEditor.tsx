@@ -176,6 +176,18 @@ export class OniEditor implements IEditor {
         this._neovimEditor.bufferDelete(bufferId)
     }
 
+    public async getUserBindings(bindings: string[]) {
+        return this._neovimEditor.getUserBinding(bindings)
+    }
+
+    public async unmapUserBindings(bindings: string[]) {
+        return this._neovimEditor.unmapUserBinding(bindings)
+    }
+
+    public async restoreUserBindings() {
+        this._neovimEditor.restoreUserBindings()
+    }
+
     public async init(filesToOpen: string[]): Promise<void> {
         Log.info("[OniEditor::init] Called with filesToOpen: " + filesToOpen)
 
