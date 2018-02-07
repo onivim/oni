@@ -21,6 +21,10 @@ interface IMarkdownPreviewPlugin {
     getRenderedContent(): string
 }
 
+export const settings = {
+    configPath: "MarkdownPreviewTest.config.js",
+}
+
 export async function test(typedOni: Oni.Plugin.Api) {
     const assert = new Assertor("Markdown-preview")
 
