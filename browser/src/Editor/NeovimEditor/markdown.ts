@@ -30,13 +30,16 @@ const scopesToString = (scope: object) => {
                 const remainder = s.substring(0, lastStop)
                 return remainder.replace(/\./g, "-")
             })
+            .filter(value => !!value)
             .join(" ")
     }
     return null
 }
 
 function escapeRegExp(str: string) {
-    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$]/g, "\\$&")
+    // NOTE This does NOT escape the "|" operator as it's needed for the Reg Exp
+    // Also does not escape "\-" as hypenated tokes can be found
+    return str.replace(/[\[\]\/\{\}\(\)\*\+\?\.\\\^\$]/g, "\\$&")
 }
 
 const createContainer = (type: string, content: string) => {
@@ -78,8 +81,11 @@ const renderWithClasses = ({
         const symbolNames = [...new Set(Object.keys(symbols))]
         const symbolRegex = new RegExp("(" + escapeRegExp(symbolNames.join("|")) + ")", "g")
         const html = unescapedText.replace(symbolRegex, (match, ...args) => {
-            const className = scopesToString(symbols[match])
-            return `<${element} class="marked ${className}">${match}</${element}>`
+            if (match) {
+                const className = scopesToString(symbols[match])
+                return `<${element} class="marked ${className}">${match}</${element}>`
+            }
+            return ""
         })
         return createContainer(container, html)
     }
@@ -117,13 +123,6 @@ export const convertMarkdown = ({
             if (tokens) {
                 renderer.paragraph = text => renderWithClasses({ text, tokens })
             } else if (colors) {
-                renderer.code = text => {
-                    return renderWithClasses({
-                        container: "code",
-                        colors,
-                        text,
-                    })
-                }
                 renderer.paragraph = text => renderWithClasses({ text, colors })
             } else {
                 renderer.paragraph = text => `<p>${text}</p>`

@@ -35,6 +35,12 @@ interface ITitleAndContents {
 
 const quickInfoTokens: { "editor.tokenColors": ITokens } = {
     "editor.tokenColors": {
+        source: {
+            scope: [],
+            settings: {
+                fallback: "Statement",
+            },
+        },
         "meta.import": {
             scope: [],
             settings: {
@@ -94,6 +100,12 @@ const quickInfoTokens: { "editor.tokenColors": ITokens } = {
                 fallback: "Type",
             },
         },
+        "support.variable": {
+            scope: ["support.variable.property.dom"],
+            settings: {
+                fallback: "Identifier",
+            },
+        },
         "support.class": {
             scope: ["support.class.builtin", "support.type.primitive"],
             settings: {
@@ -137,7 +149,7 @@ const quickInfoTokens: { "editor.tokenColors": ITokens } = {
             },
         },
         "entity.name": {
-            scope: [],
+            scope: ["entity.name.type.enum", "entity.name.type.interface"],
             settings: {
                 fallback: "Function",
             },
@@ -161,7 +173,7 @@ const quickInfoTokens: { "editor.tokenColors": ITokens } = {
             },
         },
         "storage.type": {
-            scope: ["storage.type.interface"],
+            scope: ["storage.type.interface", "storage.type.enum", "storage.type.interface"],
             settings: {
                 fallback: "Constant",
             },

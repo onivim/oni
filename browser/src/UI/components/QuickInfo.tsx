@@ -3,25 +3,31 @@ import * as os from "os"
 import * as React from "react"
 import styled, { boxShadowInset, css, fontSizeSmall, IThemeColors, withProps } from "./common"
 
-const cssToken = (p: { theme: IThemeColors }, token: string) => {
+const cssToken = (p: { theme: IThemeColors }, token: string) => (property: string) => {
     try {
         const details = p.theme["editor.tokenColors"][token]
-        return details.settings.foreground
+        return details.settings[property]
     } catch (e) {
-        return p.theme["toolTip.foreground"]
+        if (property === "foreground") {
+            return p.theme["toolTip.foreground"]
+        }
     }
 }
-const constructClass = (token: string) => (p: { theme: IThemeColors }) => {
+const constructClassName = (token: string) => (p: { theme: IThemeColors }) => {
     const tokenAsClass = token.replace(/[.]/g, "-")
+    const tokenStyle = cssToken(p, token)
     const cssClass = `
         .${tokenAsClass} {
-            color: ${cssToken(p, token)};
+            color: ${tokenStyle("foreground")};
+            font-weight: ${tokenStyle("bold") && "bold"};
+            font-style: ${tokenStyle("italic") && "italic"};
         }
     `
     return cssClass
 }
 
 const symbols = [
+    "source",
     "marked.identifier",
     "marked.function",
     "marked.constant",
@@ -38,6 +44,10 @@ const symbols = [
     "variable.other.readwrite",
     "variable.other.property",
     "variable.other.object",
+    "storage.type.enum",
+    "storage.type.interface",
+    "entity.name.type.enum",
+    "entity.name.type.interface",
     "keyword.control.import",
     "keyword.operator.relational",
     "punctuation.terminator",
@@ -48,7 +58,7 @@ const symbols = [
     "punctuation.definition.parameters.begin",
     "punctuation.definition.parameters.end",
     "punctuation.separator.continuation",
-].map(constructClass)
+].map(constructClassName)
 
 type TokenFunc = (p: { theme: IThemeColors }) => string
 
@@ -61,10 +71,6 @@ const markedCss = css`
         padding-right: 0;
         padding-left: 0;
         white-space: pre-wrap;
-    }
-
-    .source {
-        color: ${p => cssToken(p, "statement")};
     }
 
     ${props => flattenedSymbols(props, symbols)};
