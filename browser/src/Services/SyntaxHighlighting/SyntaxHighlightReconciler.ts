@@ -116,20 +116,11 @@ export class SyntaxHighlightReconciler {
     private _getHighlightGroupFromScope(scopes: string[]): HighlightGroupId {
         const configurationColors = this._configuration.getValue("editor.tokenColors")
         const tokenNames = Object.keys(configurationColors)
-        // console.log('configurationColors: ', configurationColors);
-        // console.log('tokenNames: ', tokenNames);
 
         for (const scope of scopes) {
-            // console.log('scope: ', scope);
-            // console.log('scopes: ', scopes);
-            const match = tokenNames.find(c => {
-                // console.log('token scope: ', c);
-                return scope.includes(c)
-            })
+            const match = tokenNames.find(c => scope.indexOf(c) === 0)
 
             const matchingRule = configurationColors[match]
-            // console.log('match: ', match);
-            // console.log('matchingRule: ', matchingRule);
 
             if (matchingRule) {
                 // TODO: Convert to highlight group id

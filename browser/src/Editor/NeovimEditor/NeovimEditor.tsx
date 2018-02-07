@@ -868,7 +868,7 @@ export class NeovimEditor extends Editor implements IEditor {
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
         this._bufferManager.populateBufferList(evt)
         this._workspace.autoDetectWorkspace(buf.filePath)
-        const vimHighlights = await this.getVimHighlights()
+        const vimHighlights = await this._neovimInstance.getVimHighlights()
         this._themeManager.setVimHighlightColors(vimHighlights)
 
         const lastBuffer = this.activeBuffer
