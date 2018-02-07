@@ -4,11 +4,11 @@ language: node_js
 branches:
   only:
   - master
-  - "/^release.*/"
+  - /^release.*/
 cache:
-  yarn: true
-  directories:
-  - node_modules
+    yarn: true
+    directories:
+        - node_modules
 matrix:
   include:
   - os: linux
@@ -31,16 +31,44 @@ install:
 - npm install -g yarn
 - yarn install
 script:
-- "./build/script/travis-build.sh"
+- ./build/script/travis-build.sh
 after_success:
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then node_modules/.bin/coveralls < .nyc_output/lcov.info;
-  fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then node_modules/.bin/coveralls < .nyc_output/lcov.info; fi
 deploy:
-  provider: s3
-  access_key_id: AKIAIYMATI2CEFTHPBOQ
-  secret_access_key:
-    secure: S4f/aczEABGAMKk2tmVSkoGx+T2TLPmz5z6x6RKaM+eDmAaVSAELlIj1eAz6Tu2lv3jz+cpyAIISZNC/phORsJWwzbSZHVycLrMG0N3fDTqKFxu1fl6L3b3exRe9SiKXug73ZvHfktzd/XfRcgZKop4qgrwGiM57m0ZuZb/j1LkgjytTuvNAUxXbA84I8LZs/NhY17XuXq+KPlGElIHy3UFoGqQ8pBnTypkIU5rQTsoeAxXLBE8JAFfz+nBGZ7dx6OMbQcKX5jKh/gR3vk+4aTgV8gNE2Zp24ErjSqF2zly/gP9nE2DpfR7jqpZVHnb/v+OEjRDS80tLhPo8Dbibzwt2ZZNADpYBjSGtphwAmq4DCvJ7ORExOB5+O3wmXKQGdItyBTS7sW44n6BTyv87WxWuCaSDQ9QaO9PrbJdN5YGEYeRxSTM7Mn0t72IILkfFCUeSg6fl6tFs9iWIj5zltbxH1GQsRpA8j1Idg4O+894KnQABtw/YKh6rrdeYS9y/100qAjtV6qYyiP2IdPqMWGuasOiz87q3CQ8Ejd7uhiTjAaINVqos+0k04Yf5+rT4MqkeXnYFzjXuXcqDlpq6yJIZv3aD+PMSlZi2WmTYnPJXQFndHo/x9FhEh90UF9WdO5S27ySRSo8XQT4DyL3ToPkqz8y0slNmaNqiqMouQAU=
-  bucket: oni-media
-  acl: public_read
-  on:
-    repo: onivim/oni
+    - provider: s3
+      access_key_id: AKIAIYMATI2CEFTHPBOQ
+      secret_access_key:
+        secure: S4f/aczEABGAMKk2tmVSkoGx+T2TLPmz5z6x6RKaM+eDmAaVSAELlIj1eAz6Tu2lv3jz+cpyAIISZNC/phORsJWwzbSZHVycLrMG0N3fDTqKFxu1fl6L3b3exRe9SiKXug73ZvHfktzd/XfRcgZKop4qgrwGiM57m0ZuZb/j1LkgjytTuvNAUxXbA84I8LZs/NhY17XuXq+KPlGElIHy3UFoGqQ8pBnTypkIU5rQTsoeAxXLBE8JAFfz+nBGZ7dx6OMbQcKX5jKh/gR3vk+4aTgV8gNE2Zp24ErjSqF2zly/gP9nE2DpfR7jqpZVHnb/v+OEjRDS80tLhPo8Dbibzwt2ZZNADpYBjSGtphwAmq4DCvJ7ORExOB5+O3wmXKQGdItyBTS7sW44n6BTyv87WxWuCaSDQ9QaO9PrbJdN5YGEYeRxSTM7Mn0t72IILkfFCUeSg6fl6tFs9iWIj5zltbxH1GQsRpA8j1Idg4O+894KnQABtw/YKh6rrdeYS9y/100qAjtV6qYyiP2IdPqMWGuasOiz87q3CQ8Ejd7uhiTjAaINVqos+0k04Yf5+rT4MqkeXnYFzjXuXcqDlpq6yJIZv3aD+PMSlZi2WmTYnPJXQFndHo/x9FhEh90UF9WdO5S27ySRSo8XQT4DyL3ToPkqz8y0slNmaNqiqMouQAU=
+      bucket: oni-media
+      local-dir: dist/media
+      acl: public_read
+      region: us-west-2
+      skip_cleanup: true
+      on:
+        condition: $TRAVIS_OS_NAME = osx
+        repo: onivim/oni
+    - provider: releases
+      api_key:
+        secure: AjQUeQNockqkBrVQCOQGyKq+sZ9C4SabSqp/bmXayKTB+7AmM8oohenxC09Sc4/dmIW1PQnDYL/4fjclJSRaywV5oiPqUnfhTveALkKFErmYnhA8oFi3VJYg4Tbszb2lYGITLOluuuAZGw67JZIuuiXzw/yOUfdWTmRCAVGzTmqkPsusYg56L4iRBWDwYQ3mhHsuNKFO7SIx1nJatj5hK9AkDJlcVilpA5IuWLWOHLY7nplFPUPUwMkRd99nifB7ITycbaAX4zLwp2U2wCb2uSTOzsFNfXykksf8AlreH0615Jb+T39/dDwQurDAQE3h+KUH5QhEvRJ1uphkGvx/x6Vn0LkJuSqS5DLeSATmVOVRK2f6AXcymvn/64qxizjlBR7bBoUxM55311qWJNKKk2FYFTAIW5fMzN0MRbaulpnpBwmhnBvd03rOMIghnvClHv2m8Eh5A6ppPnLcl2Vn7jsrqTmMm+PM1ppIWhCpvC7xn4digx1GGHXlYzfHkDxtnHwHcbj+WOkc+j4ha8Os+1ctdT3OJXz5rwW4viorSIhWryK+G36beguXe5YaoeMcK9Vzmb+S0lHdA7RuCWiJ31i/9ZMbzBhLkdcf/wfj9n3mkqmzvc4Uc1NM8FHQ23URsodSHpTdDi7q25Eqge/JP82AqJ2zAWA+QKVg54xCQQc=
+      file_glob: true
+      file:
+        - dist/*.dmg
+        - dist/*.zip
+      skip_cleanup: true
+      on:
+        condition: $TRAVIS_OS_NAME = osx
+        tags: true
+        repo: onivim/oni
+    - provider: releases
+      api_key:
+        secure: AjQUeQNockqkBrVQCOQGyKq+sZ9C4SabSqp/bmXayKTB+7AmM8oohenxC09Sc4/dmIW1PQnDYL/4fjclJSRaywV5oiPqUnfhTveALkKFErmYnhA8oFi3VJYg4Tbszb2lYGITLOluuuAZGw67JZIuuiXzw/yOUfdWTmRCAVGzTmqkPsusYg56L4iRBWDwYQ3mhHsuNKFO7SIx1nJatj5hK9AkDJlcVilpA5IuWLWOHLY7nplFPUPUwMkRd99nifB7ITycbaAX4zLwp2U2wCb2uSTOzsFNfXykksf8AlreH0615Jb+T39/dDwQurDAQE3h+KUH5QhEvRJ1uphkGvx/x6Vn0LkJuSqS5DLeSATmVOVRK2f6AXcymvn/64qxizjlBR7bBoUxM55311qWJNKKk2FYFTAIW5fMzN0MRbaulpnpBwmhnBvd03rOMIghnvClHv2m8Eh5A6ppPnLcl2Vn7jsrqTmMm+PM1ppIWhCpvC7xn4digx1GGHXlYzfHkDxtnHwHcbj+WOkc+j4ha8Os+1ctdT3OJXz5rwW4viorSIhWryK+G36beguXe5YaoeMcK9Vzmb+S0lHdA7RuCWiJ31i/9ZMbzBhLkdcf/wfj9n3mkqmzvc4Uc1NM8FHQ23URsodSHpTdDi7q25Eqge/JP82AqJ2zAWA+QKVg54xCQQc=
+      file_glob: true
+      file:
+          - dist/*.deb
+          - dist/*.rpm
+          - dist/*.tar.gz
+      skip_cleanup: true
+      on:
+        condition: $TRAVIS_OS_NAME = linux
+        tags: true
+        repo: onivim/oni
