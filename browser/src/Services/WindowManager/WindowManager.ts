@@ -219,17 +219,16 @@ export class WindowManager {
             this._activeSplit.leave()
         }
 
-        this._store.dispatch({
-            type: "SET_FOCUSED_SPLIT",
-            splitId: newSplit.id,
-        })
-
         this._activeSplit = newSplit
 
         if (newSplit && newSplit.enter) {
             newSplit.enter()
         }
 
+        this._store.dispatch({
+            type: "SET_FOCUSED_SPLIT",
+            splitId: newSplit.id,
+        })
         // this._onActiveSplitChangedEvent.dispatch(this._activeSplit)
     }
 }
