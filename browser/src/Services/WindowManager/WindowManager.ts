@@ -221,7 +221,7 @@ export class WindowManager {
 
         this._store.dispatch({
             type: "SET_FOCUSED_SPLIT",
-            splitId: null,
+            splitId: newSplit.id,
         })
 
         this._activeSplit = newSplit
