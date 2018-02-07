@@ -37,6 +37,7 @@ export class Dock extends React.PureComponent<IDockProps, {}> {
                         containerClassName="split"
                         split={s}
                         isFocused={this.props.activeSplit === s}
+                        onClick={() => {}}
                     />
                     <div className="split-spacer vertical" />
                 </div>
@@ -109,6 +110,9 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
                             key={i}
                             split={split}
                             isFocused={split === this.state.activeSplit}
+                            onClick={() => {
+                                this.props.windowManager.focusSplit(split)
+                            }}
                         />
                     )
                 }
