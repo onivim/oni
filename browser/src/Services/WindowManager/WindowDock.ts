@@ -9,12 +9,12 @@ export type DockStateGetter = () => IAugmentedSplitInfo[]
 export class WindowDockNavigator implements IWindowSplitNavigator {
     constructor(private _stateGetter: DockStateGetter) {}
 
-    contains(split: IAugmentedSplitInfo): boolean {
+    public contains(split: IAugmentedSplitInfo): boolean {
         const splits = this._stateGetter()
         return splits.indexOf(split) >= 0
     }
 
-    move(startSplit: IAugmentedSplitInfo, direction: Direction): IAugmentedSplitInfo {
+    public move(startSplit: IAugmentedSplitInfo, direction: Direction): IAugmentedSplitInfo {
         const splits = this._stateGetter()
 
         const currentIndex = splits.indexOf(startSplit)

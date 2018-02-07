@@ -35,6 +35,8 @@ export class AugmentedWindow implements IAugmentedSplitInfo {
         return this._id
     }
 
+    constructor(private _id: string, private _innerSplit: Oni.IWindowSplit | any) {}
+
     public render(): JSX.Element {
         return this._innerSplit.render()
     }
@@ -50,8 +52,6 @@ export class AugmentedWindow implements IAugmentedSplitInfo {
             this._innerSplit.leave()
         }
     }
-
-    constructor(private _id: string, private _innerSplit: Oni.IWindowSplit | any) {}
 }
 
 export class WindowManager {
@@ -97,7 +97,7 @@ export class WindowManager {
         this._rootNavigator = new RelationalSplitNavigator()
 
         this._store = createStore()
-        this._leftDock = new WindowDockNavigator(() => this._store.getState().docks["left"])
+        this._leftDock = new WindowDockNavigator(() => this._store.getState().docks.left)
         this._primarySplit = new LinearSplitProvider("horizontal")
         this._rootNavigator.setRelationship(this._leftDock, this._primarySplit, "right")
     }

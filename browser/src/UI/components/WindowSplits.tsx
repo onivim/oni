@@ -10,7 +10,7 @@ import { connect } from "react-redux"
 
 import { WindowSplitHost } from "./WindowSplitHost"
 
-import { ISplitInfo, IAugmentedSplitInfo, WindowState } from "./../../Services/WindowManager"
+import { IAugmentedSplitInfo, ISplitInfo, WindowState } from "./../../Services/WindowManager"
 
 export interface IWindowSplitsProps {
     activeSplitId: string
@@ -96,7 +96,7 @@ export class WindowSplitsView extends React.PureComponent<IWindowSplitsProps, {}
 const mapStateToProps = (state: WindowState): IWindowSplitsProps => {
     return {
         activeSplitId: state.focusedSplitId,
-        leftDock: state.docks["left"],
+        leftDock: state.docks.left,
         splitRoot: state.primarySplit,
     }
 }

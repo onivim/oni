@@ -6,18 +6,18 @@
 
 import * as Oni from "oni-api"
 
-import { Store, Reducer } from "redux"
+import { Reducer, Store } from "redux"
 import { createStore as createReduxStore } from "./../../Redux"
 
 import { Direction, ISplitInfo, SplitDirection } from "./index"
 
 export interface IAugmentedSplitInfo extends Oni.IWindowSplit {
+    // Internal bookkeeping
+    id: string
+
     // Potential API methods
     enter?(): void
     leave?(): void
-
-    // Internal bookkeeping
-    id: string
 }
 
 export type SplitOrLeaf<T> = ISplitInfo<T> | ISplitLeaf<T>
@@ -56,7 +56,9 @@ type WindowActions =
           splitId: string
       }
 
-export type DockWindows = { [key: string]: IAugmentedSplitInfo[] }
+export interface DockWindows {
+    [key: string]: IAugmentedSplitInfo[]
+}
 
 export const DefaultDocksState: DockWindows = {
     left: [],
