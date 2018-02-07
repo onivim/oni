@@ -49,6 +49,8 @@ const getConfigPath = (settings: any, rootPath: string) => {
 // Helper method to write a config to a temporary folder
 // Returns the path to the serialized config
 const serializeConfig = (configValues: { [key: string]: any }): string => {
+    log("Config: " + JSON.stringify(configValues))
+
     const stringifiedConfig = Object.keys(configValues).map(
         key => `"${key}": ${configValues[key]},`,
     )
@@ -77,13 +79,13 @@ const logWithTimeStamp = (message: string) => {
 
 export const runInProcTest = (rootPath: string, testName: string, timeout: number = 5000) => {
     describe(testName, () => {
-        const testCase = loadTest(rootPath, testName)
-
+        let testCase: ITestCase
         let oni: Oni
 
         beforeEach(async () => {
             logWithTimeStamp("BEFORE EACH: " + testName)
 
+            testCase = loadTest(rootPath, testName)
             const startOptions = {
                 configurationPath: testCase.configPath,
             }
