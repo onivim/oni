@@ -36,11 +36,26 @@ after_success:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then node_modules/.bin/coveralls < .nyc_output/lcov.info; fi
 deploy:
     - provider: s3
-      access_key_id: AKIAIPVCKNWKWB2XULQQ
+      access_key_id: AKIAIYMATI2CEFTHPBOQ
       secret_access_key:
-        secure: IKLeZsM1R8pq/eBqBCnsFe6iSF+ZHaokY6yBf6FtxaqHw7qJR3RQ9XI9N7mooKXOAsp7prDBNW6sdciGmzXpDW7myDz5eEfmVOIZxb6zq0XUwsikkgrzgS22bMkj32CZuRzR8agzF7US+G6OfVo+MIhChOPKBfqkbUbQdWm0tYX0NJsNyt8Ax8GdyzAj98cazw5tV2HWT7M11EKQCssc1CiFWqR51Zqmy34d/jEWJEe+P3avRDpNCJf6uuzfrtpn1swCb0EY7aZGDischXwRJDyZ6GXrjECxazN2T7JwcwKw/Y+XOeiwp5H+ell+1C/tZMXcn8OyOZurVQdG7MNGHil0Jt/t4QL6XpNXXF8I1k1LQDty7SPnZRKaAYo8rNyDFqGt5oVLvTm8GD9KjI4rGPt7VvzUQS5SITRnI1m6wq0YDdVqcR9/Z2cLmXHmzhOmB3FLCTKQXXCMaG1dAzlYQDOspo9RKr+nuDpherNMSiqSeVUM97UrfRQ2pC/JfoL/f6j2jt88Y7XfF9x48h+6Pm8ny5rlSaU4otnVpgAeoMEMED5s93zZrVxF7ydyZ0ZvBLKfK13mJwleCq3R1DbYStp1bor0MFwVoVRRRLcxIo6bhlmJsd0qhIFXL8BcE1wLzDITnXVxAxg9izRPYPcSgRLyjJ1SqaxoT89cO0YlNEU=
+        secure: S4f/aczEABGAMKk2tmVSkoGx+T2TLPmz5z6x6RKaM+eDmAaVSAELlIj1eAz6Tu2lv3jz+cpyAIISZNC/phORsJWwzbSZHVycLrMG0N3fDTqKFxu1fl6L3b3exRe9SiKXug73ZvHfktzd/XfRcgZKop4qgrwGiM57m0ZuZb/j1LkgjytTuvNAUxXbA84I8LZs/NhY17XuXq+KPlGElIHy3UFoGqQ8pBnTypkIU5rQTsoeAxXLBE8JAFfz+nBGZ7dx6OMbQcKX5jKh/gR3vk+4aTgV8gNE2Zp24ErjSqF2zly/gP9nE2DpfR7jqpZVHnb/v+OEjRDS80tLhPo8Dbibzwt2ZZNADpYBjSGtphwAmq4DCvJ7ORExOB5+O3wmXKQGdItyBTS7sW44n6BTyv87WxWuCaSDQ9QaO9PrbJdN5YGEYeRxSTM7Mn0t72IILkfFCUeSg6fl6tFs9iWIj5zltbxH1GQsRpA8j1Idg4O+894KnQABtw/YKh6rrdeYS9y/100qAjtV6qYyiP2IdPqMWGuasOiz87q3CQ8Ejd7uhiTjAaINVqos+0k04Yf5+rT4MqkeXnYFzjXuXcqDlpq6yJIZv3aD+PMSlZi2WmTYnPJXQFndHo/x9FhEh90UF9WdO5S27ySRSo8XQT4DyL3ToPkqz8y0slNmaNqiqMouQAU=
       bucket: oni-media
       local-dir: dist/media
+      acl: public_read
+      region: us-west-2
+      skip_cleanup: true
+      on:
+        condition: $TRAVIS_OS_NAME = osx
+        repo: onivim/oni
+    - provider: s3
+      access_key_id: AKIAIYMATI2CEFTHPBOQ
+      secret_access_key:
+        secure: S4f/aczEABGAMKk2tmVSkoGx+T2TLPmz5z6x6RKaM+eDmAaVSAELlIj1eAz6Tu2lv3jz+cpyAIISZNC/phORsJWwzbSZHVycLrMG0N3fDTqKFxu1fl6L3b3exRe9SiKXug73ZvHfktzd/XfRcgZKop4qgrwGiM57m0ZuZb/j1LkgjytTuvNAUxXbA84I8LZs/NhY17XuXq+KPlGElIHy3UFoGqQ8pBnTypkIU5rQTsoeAxXLBE8JAFfz+nBGZ7dx6OMbQcKX5jKh/gR3vk+4aTgV8gNE2Zp24ErjSqF2zly/gP9nE2DpfR7jqpZVHnb/v+OEjRDS80tLhPo8Dbibzwt2ZZNADpYBjSGtphwAmq4DCvJ7ORExOB5+O3wmXKQGdItyBTS7sW44n6BTyv87WxWuCaSDQ9QaO9PrbJdN5YGEYeRxSTM7Mn0t72IILkfFCUeSg6fl6tFs9iWIj5zltbxH1GQsRpA8j1Idg4O+894KnQABtw/YKh6rrdeYS9y/100qAjtV6qYyiP2IdPqMWGuasOiz87q3CQ8Ejd7uhiTjAaINVqos+0k04Yf5+rT4MqkeXnYFzjXuXcqDlpq6yJIZv3aD+PMSlZi2WmTYnPJXQFndHo/x9FhEh90UF9WdO5S27ySRSo8XQT4DyL3ToPkqz8y0slNmaNqiqMouQAU=
+      bucket: oni-builds
+      file:
+        - dist/*.dmg
+        - dist/*.zip
+      upload-dir: osx_builds
       acl: public_read
       region: us-west-2
       skip_cleanup: true
