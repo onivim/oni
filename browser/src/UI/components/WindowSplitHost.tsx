@@ -12,6 +12,7 @@ export interface IWindowSplitHostProps {
     split: Oni.IWindowSplit
     containerClassName: string
     isFocused: boolean
+    onClick: (evt: React.MouseEvent<HTMLElement>) => void
 }
 
 /**
@@ -22,7 +23,10 @@ export class WindowSplitHost extends React.PureComponent<IWindowSplitHostProps, 
         const className =
             this.props.containerClassName + (this.props.isFocused ? " focus" : " not-focused")
         return (
-            <div className="container vertical full">
+            <div
+                className="container vertical full"
+                onClick={evt => (!this.props.isFocused ? this.props.onClick(evt) : null)}
+            >
                 <div className={className}>{this.props.split.render()}</div>
             </div>
         )
