@@ -30,7 +30,8 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
     position: relative;
 
     .icon {
@@ -43,15 +44,19 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
     .name {
         flex: 1 1 auto;
         overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 `
 
 const SidebarItemBackground = withProps<ISidebarItemViewProps>(styled.div)`
     background-color: ${props => {
-        if (props.isFocused) {
+        if (props.isFocused && !props.isContainer) {
             return props.theme["highlight.mode.normal.background"]
-        } else {
+        } else if (props.isContainer) {
             return "rgb(0, 0, 0)"
+        } else {
+            return "transparent"
         }
     }};
     opacity: ${props => (props.isContainer || props.isFocused ? "0.2" : "0")};
@@ -82,23 +87,27 @@ export interface ISidebarContainerViewProps {
     text: string
     isExpanded: boolean
     isFocused: boolean
+    indentationLevel?: number
+    isContainer?: boolean
 }
 
 export class SidebarContainerView extends React.PureComponent<ISidebarContainerViewProps, {}> {
     public render(): JSX.Element {
         const caretStyle = {
             transform: this.props.isExpanded ? "rotateZ(45deg)" : "rotateZ(0deg)",
+            transition: "transform 0.1s ease-in",
         }
         const icon = <i style={caretStyle} className="fa fa-caret-right" />
+        const indentationlevel = this.props.indentationLevel || 0
 
         return (
             <div>
                 <SidebarItemView
-                    indentationLevel={0}
+                    indentationLevel={indentationlevel}
                     icon={icon}
                     text={this.props.text}
                     isFocused={this.props.isFocused}
-                    isContainer={true}
+                    isContainer={this.props.isContainer}
                 />
                 {this.props.isExpanded ? this.props.children : null}
             </div>
