@@ -558,6 +558,21 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             "normal",
         ]
 
+        // FIXME: Idea for assigning vim highlights to scopes
+        // const highlights = {
+        //     "identifier": [],
+        //     "function": [],
+        //     "constant": [],
+        //     "preproc": [],
+        //     "type": [],
+        //     "foldbraces": [],
+        //     "define": [],
+        //     "keyword": [],
+        //     "statement": [],
+        //     "comment": [],
+        //     "normal": [],
+        // }
+
         const colorValues = await Promise.all(
             highlights.map(async token => {
                 const highlight = (await this._neovim.request("nvim_get_hl_by_name", [
