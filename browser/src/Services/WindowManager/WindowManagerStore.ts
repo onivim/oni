@@ -98,6 +98,19 @@ export const reducer: Reducer<WindowState> = (
                 ...state,
                 focusedSplitId: action.splitId,
             }
+        case "SHOW_SPLIT":
+            return {
+                ...state,
+                hiddenSplits: state.hiddenSplits.filter(s => s !== action.splitId),
+            }
+        case "HIDE_SPLIT":
+            return {
+                ...state,
+                hiddenSplits: [
+                    ...state.hiddenSplits.filter(s => s !== action.splitId),
+                    action.splitId,
+                ],
+            }
         default:
             return {
                 ...state,
@@ -119,6 +132,10 @@ export const docksReducer: Reducer<DockWindows> = (
         default:
             return state
     }
+}
+
+export const leftDockSelector = (state: WindowState) => {
+    return state.docks.left.filter(s => state.hiddenSplits.indexOf(s.id) === -1)
 }
 
 export const createStore = (): Store<WindowState> => {
