@@ -3,6 +3,16 @@ import * as os from "os"
 import * as React from "react"
 import styled, { boxShadowInset, css, fontSizeSmall, IThemeColors, withProps } from "./common"
 
+const codeBlockStyle = css`
+    color: ${p => p.theme.foreground};
+    padding: 0.4em 0.4em 0.4em 0.4em;
+    margin: 0.4em 0.4em 0.4em 0.4em;
+
+    > code {
+        background-color: inherit;
+    }
+`
+
 const cssToken = (p: { theme: IThemeColors }, token: string) => (property: string) => {
     try {
         const details = p.theme["editor.tokenColors"][token]
@@ -73,6 +83,10 @@ const markedCss = css`
         white-space: pre-wrap;
     }
 
+    .marked-pre {
+        ${codeBlockStyle};
+    }
+
     ${props => flattenedSymbols(props, symbols)};
 `
 
@@ -80,16 +94,6 @@ const smallScrollbar = css`
     &::-webkit-scrollbar {
         height: 4px;
         width: 4px;
-    }
-`
-
-const codeBlockStyle = css`
-    color: ${p => p.theme.foreground};
-    padding: 0.4em 0.4em 0.4em 0.4em;
-    margin: 0.4em 0.4em 0.4em 0.4em;
-
-    > code {
-        background-color: inherit;
     }
 `
 

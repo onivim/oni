@@ -39,7 +39,7 @@ const scopesToString = (scope: object) => {
 function escapeRegExp(str: string) {
     // NOTE This does NOT escape the "|" operator as it's needed for the Reg Exp
     // Also does not escape "\-" as hypenated tokes can be found
-    return str.replace(/[\[\]\/\{\}\(\)\*\+\?\.\\\^\$]/g, "\\$&")
+    return str.replace(/[\[\]\/\{\}\(\)\*\+\?\.\\\^\$\n\r]/g, "\\$&")
 }
 
 const createContainer = (type: string, content: string) => {
@@ -79,7 +79,11 @@ const renderWithClasses = ({
         }, {})
 
         const symbolNames = [...new Set(Object.keys(symbols))]
-        const symbolRegex = new RegExp("(" + escapeRegExp(symbolNames.join("|")) + ")", "g")
+        const banned = ["\n", "\r", " ", "|"]
+        const filteredNames = symbolNames.filter(str => !banned.includes(str))
+        // "\b" tell the regex to use word boundaries to match not partial matches
+        // FIXME: RegExp is breaking on certain chars
+        const symbolRegex = new RegExp("(\b" + escapeRegExp(filteredNames.join("|")) + "\b)", "g")
         const html = unescapedText.replace(symbolRegex, (match, ...args) => {
             if (match) {
                 const className = scopesToString(symbols[match])
