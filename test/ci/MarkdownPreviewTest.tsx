@@ -3,7 +3,7 @@
  */
 
 import { Assertor } from "./Assert"
-import * as Debug from "./Debug"
+import { getTemporaryFilePath, navigateToFile } from "./Common"
 
 import * as Oni from "oni-api"
 
@@ -17,7 +17,7 @@ interface IOniWithPluginApi {
 
 interface IMarkdownPreviewPlugin {
     isPaneOpen(): boolean
-    getUnrenderContent(): string
+    getUnrenderedContent(): string
     getRenderedContent(): string
 }
 
@@ -43,10 +43,10 @@ export async function test(typedOni: Oni.Plugin.Api) {
 
     assert.assert(!markdownPlugin.isPaneOpen(), "Preview pane is not initially closed")
 
-    await openFile(typedOni, "markdown-preview-test.md")
+    await navigateToFile(getTemporaryFilePath("md"), typedOni)
     await typedOni.automation.waitFor(() => markdownPlugin.isPaneOpen())
     assert.isEmpty(
-        markdownPlugin.getUnrenderContent().trim(),
+        markdownPlugin.getUnrenderedContent().trim(),
         "Preview pane for empty Markdown buffer",
     )
 
@@ -63,13 +63,6 @@ async function awaitEditorMode(oni: Oni.Plugin.Api, mode: string): Promise<void>
         return oni.editors.activeEditor.mode === mode
     }
     await oni.automation.waitFor(condition)
-}
-
-async function openFile(oni: Oni.Plugin.Api, path: string): Promise<void> {
-    oni.automation.sendKeys(`:e ${path}<CR>`)
-    await oni.automation.waitFor(() =>
-        oni.editors.activeEditor.activeBuffer.filePath.trim().endsWith(path),
-    )
 }
 
 async function insertText(oni: Oni.Plugin.Api, text: string): Promise<void> {

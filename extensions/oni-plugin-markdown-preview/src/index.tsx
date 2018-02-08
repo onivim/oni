@@ -183,7 +183,7 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
         return this._open
     }
 
-    public getUnrenderContent(): string {
+    public getUnrenderedContent(): string {
         return this._unrenderedContent
     }
 
