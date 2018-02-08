@@ -33,7 +33,7 @@ export class SidebarContentSplit {
         return entry && entry.pane ? entry.pane : null
     }
 
-    constructor(private _sidebarManager: SidebarManager = new SidebarManager()) {}
+    constructor(private _sidebarManager: SidebarManager) {}
 
     public enter(): void {
         const pane: any = this.activePane

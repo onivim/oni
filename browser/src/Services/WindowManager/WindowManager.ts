@@ -18,23 +18,25 @@ import { LinearSplitProvider } from "./LinearSplitProvider"
 import { RelationalSplitNavigator } from "./RelationalSplitNavigator"
 import { WindowDockNavigator } from "./WindowDock"
 
-import { createStore, IAugmentedSplitInfo, ISplitInfo, WindowState } from "./WindowManagerStore"
+import {
+    createStore,
+    IAugmentedSplitInfo,
+    ISplitInfo,
+    leftDockSelector,
+    WindowState,
+} from "./WindowManagerStore"
 
-export interface IWindowSplitHandle {
-    id: string
-
-    close(): void
-
-    // Later:
-    // show()
-    // hide()
-    // focus()
-    // setSize()
-}
-
-class WindowSplitHandle implements IWindowSplitHandle {
+export class WindowSplitHandle implements Oni.WindowSplitHandle {
     public get id(): string {
         return this._id
+    }
+
+    public get isVisible(): boolean {
+        return this._store.getState().hiddenSplits.indexOf(this._id) === -1
+    }
+
+    public get isFocused(): boolean {
+        return this._store.getState().focusedSplitId === this._id
     }
 
     constructor(
@@ -55,6 +57,15 @@ class WindowSplitHandle implements IWindowSplitHandle {
             type: "SHOW_SPLIT",
             splitId: this._id,
         })
+    }
+
+    public focus(): void {
+        // TODO:
+        this._windowManager.focusSplit(this._id)
+    }
+
+    public setSize(size: number): void {
+        // TODO
     }
 
     public close(): void {
@@ -130,7 +141,7 @@ export class WindowManager {
         this._rootNavigator = new RelationalSplitNavigator()
 
         this._store = createStore()
-        this._leftDock = new WindowDockNavigator(() => this._store.getState().docks.left)
+        this._leftDock = new WindowDockNavigator(() => leftDockSelector(this._store.getState()))
         this._primarySplit = new LinearSplitProvider("horizontal")
         this._rootNavigator.setRelationship(this._leftDock, this._primarySplit, "right")
     }
@@ -156,7 +167,7 @@ export class WindowManager {
         splitLocation: Direction | SplitDirection,
         newSplit: Oni.IWindowSplit,
         referenceSplit?: any,
-    ): IWindowSplitHandle {
+    ): WindowSplitHandle {
         const nextId = this._lastId++
         const windowId = "oni.window." + nextId.toString()
 

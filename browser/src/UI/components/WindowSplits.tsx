@@ -13,6 +13,7 @@ import { WindowSplitHost } from "./WindowSplitHost"
 import {
     IAugmentedSplitInfo,
     ISplitInfo,
+    leftDockSelector,
     WindowManager,
     WindowState,
 } from "./../../Services/WindowManager"
@@ -114,7 +115,7 @@ const mapStateToProps = (
     return {
         ...containerProps,
         activeSplitId: state.focusedSplitId,
-        leftDock: state.docks.left,
+        leftDock: leftDockSelector(state),
         splitRoot: state.primarySplit,
     }
 }
