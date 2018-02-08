@@ -71,6 +71,10 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     public redrawAll(screenInfo: IScreen): void {
+        if (!this._editorElement) {
+            return
+        }
+
         const cellsToUpdate: IPosition[] = []
 
         this._setContext()
@@ -96,6 +100,10 @@ export class CanvasRenderer implements INeovimRenderer {
     }
 
     public draw(screenInfo: IScreen): void {
+        if (!this._editorElement) {
+            return
+        }
+
         const cellsToUpdate: IPosition[] = []
         for (let x = 0; x < screenInfo.width; x++) {
             for (let y = 0; y < screenInfo.height; y++) {
