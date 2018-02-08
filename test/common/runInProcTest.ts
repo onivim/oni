@@ -12,6 +12,13 @@ export interface ITestCase {
     configPath: string
 }
 
+export interface IFailedTest {
+    test: string
+    path: string
+    expected: any
+    actual: any
+}
+
 const normalizePath = p => p.split("\\").join("/")
 
 const loadTest = (rootPath: string, testName: string): ITestCase => {
@@ -75,7 +82,12 @@ const logWithTimeStamp = (message: string) => {
     console.log(`[${deltaInSeconds}] ${message}`)
 }
 
-export const runInProcTest = (rootPath: string, testName: string, timeout: number = 5000) => {
+export const runInProcTest = (
+    rootPath: string,
+    testName: string,
+    timeout: number = 5000,
+    failures: IFailedTest[] = null,
+) => {
     describe(testName, () => {
         let testCase: ITestCase
         let oni: Oni
@@ -139,6 +151,16 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
             console.log("")
 
             const result = JSON.parse(resultText)
+            if (failures && !result.passed) {
+                const failedTest: IFailedTest = {
+                    test: testName,
+                    path: testCase.testPath,
+                    expected: result.exception.expected,
+                    actual: result.exception.actual,
+                }
+                failures.push(failedTest)
+            }
+
             assert.ok(result.passed)
         })
     })
