@@ -18,20 +18,28 @@ export const test = async (oni: Oni.Plugin.Api) => {
     await createNewFile("ts", oni, "window")
 
     // Grab the internal syntax highlight API, and check the token scopes
-
     const currentBuffer = oni.editors.activeEditor.activeBuffer
     const editorAsAny: any = oni.editors.activeEditor
-    const syntaxHighlighter = editorAsAny._syntaxHighlighter
+    const syntaxHighlighter = editorAsAny.syntaxHighlighter
 
     let tokens = null
     await oni.automation.waitFor(() => {
-        tokens = syntaxHighlighter.getHighlightTokenAt(currentBuffer.id, types.Position.create(0, 0))
+        tokens = syntaxHighlighter.getHighlightTokenAt(
+            currentBuffer.id,
+            types.Position.create(0, 0),
+        )
         return tokens && tokens.scopes && tokens.scopes.length > 0
-    })
+    }, 10000)
 
-    assert.deepEqual(tokens.scopes, ["source.ts", "support.variable.dom.ts"], "Validate the scopes are correct")
+    assert.deepEqual(
+        tokens.scopes,
+        ["source.ts", "support.variable.dom.ts"],
+        "Validate the scopes are correct",
+    )
 }
 
 export const settings = {
-    configPath: "TextmateHighlighting.ScopesOnEnterTest.config.js",
+    config: {
+        "experimental.editor.textMateHighlighting.enabled": true,
+    },
 }
