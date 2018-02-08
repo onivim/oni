@@ -1,12 +1,24 @@
 import * as path from "path"
+import * as Color from "color"
 import * as types from "vscode-languageserver-types"
 import { StackElement } from "vscode-textmate"
 
 import { editorManager } from "../../Services/EditorManager"
 import { GrammarLoader } from "../../Services/SyntaxHighlighting/GrammarLoader"
-import { configuration } from "../Configuration"
+import { configuration, ITokenColorsSetting } from "../Configuration"
 import { HighlightGroupId } from "./Definitions"
 import { ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
+
+export interface ITokens {
+    [token: string]: ITokenColorsSetting
+}
+
+export interface IHighlight {
+    foreground: number
+    background?: number
+    bold?: boolean
+    italic?: boolean
+}
 
 interface IGetTokens {
     line: string
@@ -37,8 +49,7 @@ export default async function getTokens({ language, ext, line, prevState }: IGet
 }
 
 export async function getColorForToken(tokens: ISyntaxHighlightTokenInfo[]) {
-    const colorMap = await mapTokensToHighlights(tokens)
-    return colorMap
+    return mapTokensToHighlights(tokens)
 }
 
 export function mapTokensToHighlights(tokens: ISyntaxHighlightTokenInfo[]): any[] {
@@ -67,4 +78,75 @@ export function getHighlightGroupFromScope(scopes: string[]): HighlightGroupId {
     }
 
     return null
+}
+
+const highlightOrDefault = (color: number) => (color ? Color(color).hex() : null)
+export const createChildFromScopeName = (
+    result: ITokens,
+    scopeName: string,
+    { italic, bold, foreground, background }: IHighlight,
+) => {
+    return {
+        ...result,
+        [scopeName]: {
+            scope: [scopeName],
+            settings: {
+                italic,
+                bold,
+                foreground: highlightOrDefault(foreground),
+                background: highlightOrDefault(background),
+            },
+        },
+    }
+}
+
+export const vimHighlightScopes = {
+    identifier: [
+        "variable.object",
+        "variable.language",
+        "variable.parameter",
+        "support.variable",
+        "meta.interface",
+        "variable.other.readwrite",
+        "meta.object.type",
+    ],
+    function: [
+        "punctuation.definition.string.beginning",
+        "punctuation.definition.string.end",
+        "punctuation.separator.continuation",
+        "punctuation.separator.comma",
+        "punctuation.terminator",
+        "punctuation.terminator",
+        "entity.name",
+        "entity.name.type.enum",
+        "entity.name.type.interface",
+        "support.function",
+    ],
+    constant: [
+        "entity.other",
+        "keyword.control",
+        "keyword.control.import",
+        "storage.type",
+        "storage.type.interface",
+        "storage.type.enum",
+        "storage.type.interface",
+        "variable.other.constant",
+        "variable.other.object",
+        "variable.other.property",
+    ],
+    type: [
+        "support.class.builtin",
+        "support.type.primitive",
+        "support.class",
+        "meta.namespace",
+        "meta.type",
+        "support.variable.property.dom",
+    ],
+    define: ["meta.import"],
+    statement: ["source"],
+    normal: ["meta.brace"],
+    // keyword: [],
+    // comment: [],
+    // foldbraces: [],
+    // preproc: [],
 }

@@ -197,6 +197,7 @@
     "license": "MIT",
     "dependencies": {
         "@types/marked": "^0.3.0",
+        "@types/ramda": "^0.25.17",
         "@types/redux-batched-subscribe": "^0.1.2",
         "dompurify": "1.0.2",
         "electron-settings": "^3.1.4",
@@ -210,6 +211,7 @@
         "oni-neovim-binaries": "0.1.0",
         "oni-ripgrep": "0.0.3",
         "oni-types": "0.0.4",
+        "ramda": "^0.25.0",
         "react": "16.0.0",
         "react-dom": "16.0.0",
         "react-electron-web-view": "^2.0.1",

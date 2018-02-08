@@ -119,17 +119,65 @@ const BaseConfiguration: IConfigurationValues = {
         "variable.object": {
             scope: [],
             settings: {
-                fallback: "identifier",
                 foreground: null,
                 background: null,
                 bold: null,
                 italic: null,
             },
         },
-        "variable.other.constant": {
-            scope: [],
+        "support.class": {
+            scope: ["support.class.builtin", "support.type.primitive"],
             settings: {
-                fallback: "constant",
+                foreground: null,
+                background: null,
+                bold: null,
+                italic: null,
+            },
+        },
+        "support.variable": {
+            scope: ["support.variable.property.dom"],
+            settings: {
+                foreground: null,
+                background: null,
+                bold: null,
+                italic: null,
+            },
+        },
+        "meta.object": {
+            scope: ["meta.object.type"],
+            settings: {
+                foreground: null,
+                background: null,
+                bold: null,
+                italic: null,
+            },
+        },
+        "meta.class": {
+            scope: ["meta.class"],
+            settings: {
+                foreground: null,
+                background: null,
+                bold: null,
+                italic: null,
+            },
+        },
+        "storage.type": {
+            scope: [
+                "storage.type",
+                "storage.type.interface",
+                "storage.type.enum",
+                "storage.type.interface",
+            ],
+            settings: {
+                foreground: null,
+                background: null,
+                bold: null,
+                italic: null,
+            },
+        },
+        "entity.name": {
+            scope: ["entity.name.type.enum", "entity.name.type.interface"],
+            settings: {
                 foreground: null,
                 background: null,
                 bold: null,
@@ -139,7 +187,6 @@ const BaseConfiguration: IConfigurationValues = {
         "variable.language": {
             scope: [],
             settings: {
-                fallback: "identifier",
                 foreground: null,
                 background: null,
                 bold: null,
@@ -149,7 +196,6 @@ const BaseConfiguration: IConfigurationValues = {
         "variable.parameter": {
             scope: [],
             settings: {
-                fallback: "identifier",
                 foreground: null,
                 background: null,
                 bold: null,
@@ -157,9 +203,13 @@ const BaseConfiguration: IConfigurationValues = {
             },
         },
         "variable.other": {
-            scope: [],
+            scope: [
+                "variable.other.constant",
+                "variable.other.object",
+                "variable.other.property",
+                "variable.other.constant",
+            ],
             settings: {
-                fallback: "identifier",
                 foreground: null,
                 background: null,
                 bold: null,
@@ -169,17 +219,6 @@ const BaseConfiguration: IConfigurationValues = {
         "support.function": {
             scope: [],
             settings: {
-                fallback: "function",
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        "entity.name": {
-            scope: [],
-            settings: {
-                fallback: "function",
                 foreground: null,
                 background: null,
                 bold: null,
@@ -188,106 +227,6 @@ const BaseConfiguration: IConfigurationValues = {
         },
         "entity.other": {
             scope: [],
-            settings: {
-                fallback: "constant",
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        identifier: {
-            scope: null,
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        function: {
-            scope: null,
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        constant: {
-            scope: null,
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        preproc: {
-            scope: null,
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        type: {
-            scope: null,
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        foldbraces: {
-            scope: null,
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        define: {
-            scope: null,
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        keyword: {
-            scope: null,
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        statement: {
-            scope: null,
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        comment: {
-            scope: null,
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        normal: {
-            scope: null,
             settings: {
                 foreground: null,
                 background: null,

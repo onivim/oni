@@ -14,6 +14,7 @@ import {
     ISyntaxHighlightState,
     ISyntaxHighlightTokenInfo,
 } from "./SyntaxHighlightingStore"
+import { vimHighlightScopes } from "./tokenGenerator"
 
 import * as Selectors from "./SyntaxHighlightSelectors"
 
@@ -115,16 +116,20 @@ export class SyntaxHighlightReconciler {
 
     private _getHighlightGroupFromScope(scopes: string[]): HighlightGroupId {
         const configurationColors = this._configuration.getValue("editor.tokenColors")
-        const tokenNames = Object.keys(configurationColors).filter(key => key.includes("."))
+        const tokens = Object.keys(configurationColors)
 
         for (const scope of scopes) {
-            const match = tokenNames.find(c => scope.indexOf(c) === 0)
+            const match = tokens.find(token => {
+                return scope.includes(token)
+            })
 
-            const matchingRule = configurationColors[match]
-
-            if (matchingRule) {
-                // TODO: Convert to highlight group id
-                return matchingRule.settings.fallback
+            for (const token in vimHighlightScopes) {
+                if (vimHighlightScopes.hasOwnProperty(token)) {
+                    const found = vimHighlightScopes[token].some((t: string) => t.includes(match))
+                    if (found) {
+                        return token
+                    }
+                }
             }
         }
 

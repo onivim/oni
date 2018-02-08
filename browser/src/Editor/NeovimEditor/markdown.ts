@@ -83,13 +83,14 @@ const renderWithClasses = ({
         const filteredNames = symbolNames.filter(str => !banned.includes(str))
         // "\b" tell the regex to use word boundaries to match not partial matches
         // FIXME: RegExp is breaking on certain chars
+        // console.log('filteredNames: ', filteredNames);
         const symbolRegex = new RegExp("(\b" + escapeRegExp(filteredNames.join("|")) + "\b)", "g")
+        // console.log('symbolRegex: ', symbolRegex);
+        // console.log('unescapedText: ', unescapedText);
         const html = unescapedText.replace(symbolRegex, (match, ...args) => {
-            if (match) {
-                const className = scopesToString(symbols[match])
-                return `<${element} class="marked ${className}">${match}</${element}>`
-            }
-            return ""
+            // console.log('match in replacer: ', match);
+            const className = scopesToString(symbols[match])
+            return `<${element} class="marked ${className}">${match}</${element}>`
         })
         return createContainer(container, html)
     }

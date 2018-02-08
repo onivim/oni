@@ -1,7 +1,6 @@
 import { EventEmitter } from "events"
 import * as path from "path"
 
-import * as Color from "color"
 import * as mkdirp from "mkdirp"
 
 import * as Oni from "oni-api"
@@ -13,7 +12,13 @@ import { EventContext } from "./EventContext"
 
 import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
 import * as Platform from "./../Platform"
-import { Configuration, ITokenColorsSetting } from "./../Services/Configuration"
+import { Configuration } from "./../Services/Configuration"
+import {
+    createChildFromScopeName,
+    IHighlight,
+    ITokens,
+    vimHighlightScopes,
+} from "./../Services/SyntaxHighlighting/tokenGenerator"
 
 import * as Actions from "./actions"
 import { NeovimBufferReference } from "./MsgPack"
@@ -88,14 +93,6 @@ export interface IWildMenuSelectEvent {
 export interface INeovimCommandLineSetCursorPosition {
     pos: number
     level: number
-}
-
-interface IHighlight {
-    fallback?: string
-    foreground: number
-    background?: number
-    bold?: boolean
-    italic?: boolean
 }
 
 // Limit for the number of lines to handle buffer updates
@@ -543,58 +540,28 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return path.normalize(currentWorkingDirectory)
     }
 
-    public async getVimHighlights(): Promise<ITokenColorsSetting[]> {
-        const highlights = [
-            "identifier",
-            "function",
-            "constant",
-            "preproc",
-            "type",
-            "foldbraces",
-            "define",
-            "keyword",
-            "statement",
-            "comment",
-            "normal",
-        ]
-
-        // FIXME: Idea for assigning vim highlights to scopes
-        // const highlights = {
-        //     "identifier": [],
-        //     "function": [],
-        //     "constant": [],
-        //     "preproc": [],
-        //     "type": [],
-        //     "foldbraces": [],
-        //     "define": [],
-        //     "keyword": [],
-        //     "statement": [],
-        //     "comment": [],
-        //     "normal": [],
-        // }
-
+    public async getVimHighlights(): Promise<ITokens> {
         const colorValues = await Promise.all(
-            highlights.map(async token => {
+            Object.keys(vimHighlightScopes).map(async token => {
                 const highlight = (await this._neovim.request("nvim_get_hl_by_name", [
                     token,
                     true,
                 ])) as IHighlight
-                const highlightOrDefault = (color: number) => (color ? Color(color).hex() : null)
-                const { bold, foreground, background, italic } = highlight
 
-                return {
-                    scope: [token],
-                    settings: {
-                        fallback: token,
-                        italic,
-                        bold,
-                        foreground: highlightOrDefault(foreground),
-                        background: highlightOrDefault(background),
-                    },
-                }
+                const scopes = vimHighlightScopes[token]
+                const generatedTokens = scopes.reduce(
+                    (result: ITokens, scope: string) =>
+                        createChildFromScopeName(result, scope, highlight),
+                    {},
+                )
+                return generatedTokens
             }),
         )
-        return colorValues
+        const defaultTokens = colorValues.reduce(
+            (acc, tokenObject) => ({ ...acc, ...tokenObject }),
+            {},
+        )
+        return defaultTokens
     }
 
     public get cursorPosition(): IPosition {
