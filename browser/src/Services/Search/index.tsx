@@ -10,6 +10,7 @@ import { Event, IDisposable, IEvent } from "oni-types"
 
 import { Subject } from "rxjs/Subject"
 
+import { CommandManager } from "./../CommandManager"
 import { EditorManager } from "./../EditorManager"
 import { SidebarManager } from "./../Sidebar"
 import { Workspace } from "./../Workspace"
@@ -250,9 +251,26 @@ export class SearchPaneView extends React.PureComponent<
 }
 
 export const activate = (
+    commandManager: CommandManager,
     editorManager: EditorManager,
     sidebarManager: SidebarManager,
     workspace: Workspace,
 ) => {
     sidebarManager.add("search", new SearchPane(editorManager, workspace))
+
+    const searchAllFiles = () => {
+        sidebarManager.setActiveEntry("oni.sidebar.search")
+
+        window.setTimeout(() => {
+            sidebarManager.focusContents()
+        }, 50)
+    }
+
+    commandManager.registerCommand({
+        command: "search.searchAllFiles",
+        name: "Search: All files",
+        detail: "Search across files in the active workspace",
+        execute: searchAllFiles,
+        enabled: () => !!workspace.activeWorkspace,
+    })
 }
