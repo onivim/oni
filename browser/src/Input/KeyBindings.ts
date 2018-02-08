@@ -32,7 +32,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-m>", "oni.editor.minimize")
         input.bind("<m-h>", "oni.editor.hide")
         input.bind("<c-tab>", "buffer.toggle")
-        input.bind("<s-m-f>", "search.searchAllFiles")
+        input.bind("<m-s-f>", "search.searchAllFiles")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
