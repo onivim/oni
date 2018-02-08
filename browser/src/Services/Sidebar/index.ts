@@ -12,20 +12,16 @@ let _sidebarManager: SidebarManager = null
 export * from "./SidebarStore"
 
 export const activate = (configuration: Configuration, workspace: Workspace) => {
-    _sidebarManager = new SidebarManager(windowManager)
-    _sidebarManager.add("files-o", new ExplorerSplit(workspace, commandManager, editorManager))
-
-    commandManager.registerCommand({
-        command: "sidebar.toggle",
-        name: "Sidebar: Toggle",
-        detail: "Show / hide the contents of the sidebar pane.",
-        execute: () => _sidebarManager.toggleSidebarVisibility(),
-    })
-
-    // TODO: Bring this back
     if (configuration.getValue("sidebar.enabled")) {
-        // windowManager.createSplit("left", new SidebarSplit(_sidebarManager))
-        // windowManager.createSplit("left", new SidebarContentSplit(_sidebarManager))
+        _sidebarManager = new SidebarManager(windowManager)
+        _sidebarManager.add("files-o", new ExplorerSplit(workspace, commandManager, editorManager))
+
+        commandManager.registerCommand({
+            command: "sidebar.toggle",
+            name: "Sidebar: Toggle",
+            detail: "Show / hide the contents of the sidebar pane.",
+            execute: () => _sidebarManager.toggleSidebarVisibility(),
+        })
     }
 }
 
