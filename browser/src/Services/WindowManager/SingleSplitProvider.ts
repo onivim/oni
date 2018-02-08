@@ -4,18 +4,22 @@
  * Split provider for a leaf node
  */
 
-import * as Oni from "oni-api"
-
-import { Direction, IWindowSplitProvider, SplitDirection, SplitOrLeaf } from "./index"
+import {
+    Direction,
+    IAugmentedSplitInfo,
+    IWindowSplitProvider,
+    SplitDirection,
+    SplitOrLeaf,
+} from "./index"
 
 export class SingleSplitProvider implements IWindowSplitProvider {
-    constructor(private _split: Oni.IWindowSplit) {}
+    constructor(private _split: IAugmentedSplitInfo) {}
 
-    public contains(split: Oni.IWindowSplit): boolean {
+    public contains(split: IAugmentedSplitInfo): boolean {
         return this._split === split
     }
 
-    public move(split: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit {
+    public move(split: IAugmentedSplitInfo, direction: Direction): IAugmentedSplitInfo {
         if (split === null) {
             return this._split
         } else {
@@ -23,15 +27,15 @@ export class SingleSplitProvider implements IWindowSplitProvider {
         }
     }
 
-    public split(split: Oni.IWindowSplit, direction: SplitDirection): boolean {
+    public split(split: IAugmentedSplitInfo, direction: SplitDirection): boolean {
         return false
     }
 
-    public close(split: Oni.IWindowSplit): boolean {
+    public close(split: IAugmentedSplitInfo): boolean {
         return false
     }
 
-    public getState(): SplitOrLeaf<Oni.IWindowSplit> {
+    public getState(): SplitOrLeaf<IAugmentedSplitInfo> {
         return {
             type: "Leaf",
             contents: this._split,

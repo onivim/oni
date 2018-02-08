@@ -108,4 +108,6 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     // TODO: Scope 's' to just the local window
     input.bind("<c-g>", "sneak.show", () => isNormalMode() && !menu.isMenuOpen())
     input.bind(["<esc>", "<c-c>"], "sneak.hide")
+
+    input.bind("<s-c-b>", "sidebar.toggle", isNormalMode)
 }

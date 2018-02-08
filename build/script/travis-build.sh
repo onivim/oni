@@ -38,3 +38,5 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     # npm run ccov:test:browser
     # npm run ccov:report
 fi
+
+npm run copy-dist-to-s3
