@@ -168,7 +168,7 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
 
 class MarkdownPreviewEditor implements Oni.IWindowSplit {
     private _open: boolean = false
-    private _split: any
+    private _split: Oni.WindowSplitHandle
 
     constructor(private _oni: Oni.Plugin.Api) {
         this._oni.editors.activeEditor.onBufferEnter.subscribe(args => this.onBufferEnter(args))
@@ -186,7 +186,7 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
         if (!this._open) {
             this._open = true
             // TODO: Update API
-            this._split = (this._oni.windows as any).createSplit("vertical", this)
+            this._split = this._oni.windows.createSplit("vertical", this)
         }
     }
 
