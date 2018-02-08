@@ -66,37 +66,6 @@ interface ITitleAndContents {
 // }
 
 class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
-    // public populateScopes(tokens: IScopes) {
-    //     const scopes = Object.keys(tokens)
-    //     const newScopes = scopes.reduce((result, scopeName) => {
-    //         const parent = tokens[scopeName]
-    //         if (parent && parent.scope && parent.scope[0]) {
-    //             const children = parent.scope.reduce((acc, name) => {
-    //                 if (name) {
-    //                     const newScope = this.createChildFromScopeName(name, parent)
-    //                     const [newScopeName] = newScope.scope
-    //                     acc[newScopeName] = newScope
-    //                 }
-    //                 return acc
-    //             }, {})
-    //             const isEmpty = !Object.keys(children).length
-    //             if (!isEmpty) {
-    //                 const tokensCopy = { ...tokens }
-    //                 mergeAll([result, tokensCopy, children])
-    //             }
-    //         }
-    //         return result
-    //     }, {})
-    //     return { "editor.tokenColors": newScopes }
-    // }
-    //
-    // public createChildFromScopeName(scopeName: string, parent: IToken) {
-    //     return {
-    //         ...parent,
-    //         scope: [scopeName],
-    //     }
-    // }
-
     public render() {
         const { titleAndContents } = this.props
         const hasTitle = !!(titleAndContents && titleAndContents.title.__html)

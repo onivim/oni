@@ -119,9 +119,7 @@ export class SyntaxHighlightReconciler {
         const tokens = Object.keys(configurationColors)
 
         for (const scope of scopes) {
-            const match = tokens.find(token => {
-                return scope.includes(token)
-            })
+            const match = tokens.find(token => scope.includes(token))
 
             for (const token in vimHighlightScopes) {
                 if (vimHighlightScopes.hasOwnProperty(token)) {
