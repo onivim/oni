@@ -8,8 +8,8 @@ import { connect } from "react-redux"
 
 import styled from "styled-components"
 
+import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
-import { SidebarItemView, SidebarContainerView } from "./../../UI/components/SidebarItemView"
 
 import { FileIcon } from "./../FileIcon"
 
