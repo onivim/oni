@@ -58,7 +58,7 @@ deploy:
       region: us-west-2
       unzip: false
       set_public: true
-      folder: windows_builds
+      folder: $(APPVEYOR_REPO_BRANCH)
       artifact: SetupExe, ProductZip
 
 # Post-install test scripts.
