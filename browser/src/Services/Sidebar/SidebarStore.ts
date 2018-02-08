@@ -77,6 +77,12 @@ export class SidebarManager {
         }
     }
 
+    public focusContents(): void {
+        if (this._contentSplit.isVisible) {
+            this._contentSplit.focus()
+        }
+    }
+
     public toggleSidebarVisibility(): void {
         if (this._contentSplit.isVisible) {
             this._contentSplit.hide()
