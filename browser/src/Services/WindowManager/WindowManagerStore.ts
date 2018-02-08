@@ -135,7 +135,7 @@ export const docksReducer: Reducer<DockWindows> = (
 }
 
 export const leftDockSelector = (state: WindowState) => {
-    return state.docks["left"].filter(s => state.hiddenSplits.indexOf(s.id) === -1)
+    return state.docks.left.filter(s => state.hiddenSplits.indexOf(s.id) === -1)
 }
 
 export const createStore = (): Store<WindowState> => {
