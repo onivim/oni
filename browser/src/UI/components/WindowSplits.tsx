@@ -10,14 +10,23 @@ import { connect } from "react-redux"
 
 import { WindowSplitHost } from "./WindowSplitHost"
 
-import { IAugmentedSplitInfo, ISplitInfo, WindowState } from "./../../Services/WindowManager"
+import {
+    IAugmentedSplitInfo,
+    ISplitInfo,
+    WindowManager,
+    WindowState,
+} from "./../../Services/WindowManager"
 
 import { noop } from "./../../Utility"
 
-export interface IWindowSplitsProps {
+export interface IWindowSplitsProps extends IWindowSplitsContainerProps {
     activeSplitId: string
     splitRoot: ISplitInfo<IAugmentedSplitInfo>
     leftDock: IAugmentedSplitInfo[]
+}
+
+export interface IWindowSplitsContainerProps {
+    windowManager: WindowManager
 }
 
 export interface IDockProps {
@@ -79,7 +88,7 @@ export class WindowSplitsView extends React.PureComponent<IWindowSplitsProps, {}
                             split={split}
                             isFocused={split.id === this.props.activeSplitId}
                             onClick={() => {
-                                this.props.windowManager.focusSplit(split)
+                                this.props.windowManager.focusSplit(split.id)
                             }}
                         />
                     )
@@ -87,7 +96,6 @@ export class WindowSplitsView extends React.PureComponent<IWindowSplitsProps, {}
             }
         })
 
-        // const spacer = this.state.leftDock.length > 0 ? <div className="split-spacer vertical" /> : null
         return (
             <div style={containerStyle}>
                 <div className="container horizontal full">
@@ -99,8 +107,12 @@ export class WindowSplitsView extends React.PureComponent<IWindowSplitsProps, {}
     }
 }
 
-const mapStateToProps = (state: WindowState): IWindowSplitsProps => {
+const mapStateToProps = (
+    state: WindowState,
+    containerProps: IWindowSplitsContainerProps,
+): IWindowSplitsProps => {
     return {
+        ...containerProps,
         activeSplitId: state.focusedSplitId,
         leftDock: state.docks.left,
         splitRoot: state.primarySplit,

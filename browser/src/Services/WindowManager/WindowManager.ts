@@ -87,8 +87,6 @@ export class AugmentedWindow implements IAugmentedSplitInfo {
 }
 
 export class WindowManager {
-    private _activeSplit: any
-
     private _lastId: number = 0
     private _idToSplit: { [key: string]: IAugmentedSplitInfo } = {}
 
@@ -114,16 +112,18 @@ export class WindowManager {
         return this._primarySplit.getState() as ISplitInfo<Oni.IWindowSplit>
     }
 
-    public get activeSplit(): Oni.IWindowSplit {
-        return this._activeSplit
-    }
-
-    public set activeSplit(split: Oni.IWindowSplit) {
-        this._focusNewSplit(split)
-    }
-
     public get store(): Store<WindowState> {
         return this._store
+    }
+
+    public get activeSplit(): IAugmentedSplitInfo {
+        const focusedSplit = this._store.getState().focusedSplitId
+
+        if (!focusedSplit) {
+            return null
+        }
+
+        return this._idToSplit[focusedSplit]
     }
 
     constructor() {
@@ -193,7 +193,19 @@ export class WindowManager {
     }
 
     public move(direction: Direction): void {
-        const newSplit = this._rootNavigator.move(this._activeSplit, direction)
+        const focusedSplit = this._store.getState().focusedSplitId
+
+        if (!focusedSplit) {
+            return
+        }
+
+        const activeSplit = this._idToSplit[focusedSplit]
+
+        if (!activeSplit) {
+            return
+        }
+
+        const newSplit = this._rootNavigator.move(activeSplit, direction)
 
         if (newSplit) {
             this._focusNewSplit(newSplit)
@@ -231,25 +243,23 @@ export class WindowManager {
         this._idToSplit[splitId] = null
     }
 
-    public focusSplit(split: Oni.IWindowSplit): void {
+    public focusSplit(splitId: string): void {
+        const split = this._idToSplit[splitId]
         this._focusNewSplit(split)
     }
 
     private _focusNewSplit(newSplit: any): void {
-        if (this._activeSplit && this._activeSplit.leave) {
-            this._activeSplit.leave()
-        }
-
-        this._activeSplit = newSplit
-
-        if (newSplit && newSplit.enter) {
-            newSplit.enter()
+        if (this.activeSplit && this.activeSplit.leave) {
+            this.activeSplit.leave()
         }
 
         this._store.dispatch({
             type: "SET_FOCUSED_SPLIT",
             splitId: newSplit.id,
         })
-        // this._onActiveSplitChangedEvent.dispatch(this._activeSplit)
+
+        if (newSplit && newSplit.enter) {
+            newSplit.enter()
+        }
     }
 }

@@ -50,7 +50,7 @@ export class ShellView extends React.PureComponent<IShellViewComponentProps, {}>
                             <div className="container full">
                                 <div className="stack">
                                     <Provider store={this.props.windowManager.store}>
-                                        <WindowSplits />
+                                        <WindowSplits windowManager={this.props.windowManager} />
                                     </Provider>
                                 </div>
                                 <Overlays />
