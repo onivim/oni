@@ -4,7 +4,6 @@
  * - Manages theming
  */
 
-import { mergeWith } from "lodash"
 import { Event, IEvent } from "oni-types"
 
 import { IThemeContribution } from "./../../Plugins/Api/Capabilities"
@@ -18,6 +17,7 @@ import {
 } from "./../Configuration"
 
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
+import { TokenColor } from "./../TokenColors"
 import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
 
 export interface IEditorTokens {
@@ -153,55 +153,19 @@ export const getHoverColors = (
     return userHoverColors
 }
 
-const getTokenColors = ({
-    config,
-    themeColors,
-    defaultTokens,
-}: {
-    config: Configuration
-    defaultTokens: IEditorTokens
-    themeColors: IEditorTokens
-}) => {
-    const userTokens = config.getValue("editor.tokenColors")
-    // Merge defaults, with vim sourced tokens, theme tokens and user selected
-    // make sure never to override a truthy value with a falsy one
-    const defaultTokensCopy = { ...defaultTokens }
-    const combinedTokens = mergeWith(
-        defaultTokensCopy,
-        themeColors,
-        userTokens,
-        (objValue, srcValue) => {
-            if (objValue && !srcValue) {
-                return objValue
-            } else if (srcValue && !objValue) {
-                return srcValue
-            }
-        },
-    )
-
-    return combinedTokens
-}
-
 export const getColorsFromConfig = ({
     config,
-    defaultTokens,
     defaultTheme,
     themeColors,
 }: {
     config: Configuration
     themeColors: Partial<IThemeColors>
-    defaultTokens: { [token: string]: ITokenColorsSetting }
     defaultTheme: IThemeColors
 }) => {
     const userConfig = config.getValues()
     const hoverColors = getHoverColors(userConfig, themeColors)
-    const editorTokenColors = getTokenColors({
-        config,
-        themeColors: themeColors["editor.tokenColors"],
-        defaultTokens,
-    })
 
-    return { ...hoverColors, "editor.tokenColors": editorTokenColors }
+    return hoverColors
 }
 
 export const getColorsFromBackgroundAndForeground = (background: string, foreground: string) => {
@@ -406,19 +370,20 @@ export interface IThemeMetadata {
     name: string
     baseVimTheme?: string
     colors: Partial<IThemeColors>
+    tokenColors: TokenColor[]
 }
 
 export const DefaultTheme: IThemeMetadata = {
     name: "default",
     baseVimTheme: "default",
     colors: DefaultThemeColors,
+    tokenColors: [],
 }
 
 export class ThemeManager {
     private _onThemeChangedEvent: Event<void> = new Event<void>()
 
     private _activeTheme: IThemeMetadata = DefaultTheme
-    private _defaultTokens: { [token: string]: ITokenColorsSetting } = {}
 
     private _isAnonymousTheme: boolean = false
 
@@ -435,11 +400,6 @@ export class ThemeManager {
         return this._themeLoader.getAllThemes()
     }
 
-    public async setVimHighlightColors(tokenColors: IEditorTokens) {
-        this._defaultTokens = tokenColors
-        this._updateTheme(this._activeTheme)
-    }
-
     public async setTheme(name: string): Promise<void> {
         // TODO: Load theme...
         if (!name || name === this._activeTheme.name) {
@@ -454,11 +414,11 @@ export class ThemeManager {
             // that.
             this._isAnonymousTheme = true
 
-            const temporaryVimTheme = {
+            const temporaryVimTheme: IThemeMetadata = {
                 name,
                 baseVimTheme: name,
                 colors: DefaultThemeColors,
-                tokenColors: this._defaultTokens,
+                tokenColors: [],
             }
 
             this._updateTheme(temporaryVimTheme)
@@ -486,6 +446,7 @@ export class ThemeManager {
                 name: vimName,
                 baseVimTheme: vimName,
                 colors: getColorsFromBackgroundAndForeground(backgroundColor, foregroundColor),
+                tokenColors: [],
             }
 
             this._updateTheme(vimTheme)
@@ -507,7 +468,6 @@ export class ThemeManager {
             config: configuration,
             defaultTheme: DefaultThemeColors,
             themeColors: this.activeTheme.colors,
-            defaultTokens: this._defaultTokens,
         })
 
         this._colors = {

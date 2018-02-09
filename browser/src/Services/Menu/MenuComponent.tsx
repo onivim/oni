@@ -251,6 +251,7 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
                     highlightIndices={this.props.detailHighlights}
                     highlightClassName={"highlight"}
                 />
+                {this.props.additionalComponent}
             </MenuItemWrapper>
         )
     }
