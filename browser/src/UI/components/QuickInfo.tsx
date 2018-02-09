@@ -42,6 +42,7 @@ const symbols = [
     "marked.function",
     "marked.constant",
     "meta.class",
+    "entity.name",
     "support.function",
     "variable.other",
     "variable.object",

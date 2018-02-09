@@ -124,7 +124,6 @@ class TokenTheme extends React.Component<IProps, IState> {
 
     public render() {
         const { theme } = this.state
-        console.log("theme: ", theme)
         return theme && <ThemeProvider theme={theme}>{this.props.render({ theme })}</ThemeProvider>
     }
 }
