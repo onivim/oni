@@ -17,8 +17,6 @@ import { EditorManager } from "./../EditorManager"
 
 import { Icon, IconSize } from "./../../UI/Icon"
 
-const WebView = require("react-electron-web-view") // tslint:disable-line
-
 const Column = styled.div`
     pointer-events: auto;
 
@@ -162,9 +160,8 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
                     </BrowserButton>
                 </BrowserControlsWrapper>
                 <BrowserViewWrapper>
-                    <WebView
-                        ref={(elem: HTMLElement) => this._initializeElement(elem)}
-                        src={this.props.url}
+                    <div
+                        ref={elem => this._initializeElement(elem)}
                         style={{
                             position: "absolute",
                             top: "0px",
@@ -197,8 +194,13 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
         }
     }
 
-    private _initializeElement(elem: any) {
-        this._webviewElement = elem
+    private _initializeElement(elem: HTMLElement) {
+        if (elem && !this._webviewElement) {
+            const webviewElement = document.createElement("webview")
+            elem.appendChild(webviewElement)
+            this._webviewElement = webviewElement
+            this._webviewElement.src = this.props.url
+        }
     }
 }
 
