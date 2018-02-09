@@ -24,8 +24,14 @@ import { IPixelPosition, IPosition } from "./Screen"
 import { Session } from "./Session"
 
 import { INeovimBufferUpdate, NeovimBufferUpdateManager } from "./NeovimBufferUpdateManager"
-
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
+import { TokenColor } from "./../Services/TokenColors"
+
+import {
+    vimHighlightToTokenColorStyle,
+    VimHighlightToDefaultScope,
+    IVimHighlight,
+} from "./VimHighlights"
 
 export interface INeovimYankInfo {
     operator: string
@@ -457,6 +463,35 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         })
 
         return this._initPromise
+    }
+
+    public async getTokenColors(): Promise<TokenColor[]> {
+        const vimHighlights = Object.keys(VimHighlightToDefaultScope)
+        const atomicCalls = vimHighlights.map(highlight => {
+            return ["nvim_get_hl_by_name", [highlight, 1]]
+        })
+
+        const [highlightInfo] = await this._neovim.request<[IVimHighlight[]]>("nvim_call_atomic", [
+            atomicCalls,
+        ])
+
+        const ret = highlightInfo.reduce(
+            (prev: TokenColor[], currentValue: IVimHighlight, currentIndex: number) => {
+                const highlightGroupName = vimHighlights[currentIndex]
+
+                const newScopeNames: string[] = VimHighlightToDefaultScope[highlightGroupName] || []
+
+                const newScopes = newScopeNames.map((scope): TokenColor => ({
+                    scope,
+                    settings: vimHighlightToTokenColorStyle(currentValue),
+                }))
+
+                return [...prev, ...newScopes]
+            },
+            [] as TokenColor[],
+        )
+
+        return ret
     }
 
     public setFont(fontFamily: string, fontSize: string, linePadding: number): void {

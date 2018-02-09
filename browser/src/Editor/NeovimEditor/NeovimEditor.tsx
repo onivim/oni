@@ -952,6 +952,9 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._themeManager.notifyVimThemeChanged(newColorScheme, backgroundColor, foregroundColor)
 
+        const tokenColors = await this._neovimInstance.getTokenColors()
+        this._themeManager.setDefaultTokenColors(tokenColors)
+
         // Flip first render to force a full redraw
         this._isFirstRender = true
         this._scheduleRender()
