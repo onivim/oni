@@ -74,7 +74,7 @@ export class RedErrorScreenView extends React.PureComponent<RedErrorScreenViewPr
                 : "None"
 
         return (
-            <RedScreenWrapper>
+            <RedScreenWrapper className="red-error-screen">
                 <RedScreenContentsWrapper>
                     <HeaderTitleWrapper>Oh no!</HeaderTitleWrapper>
                     <HeaderSubtitleWrapper>We encountered an error...</HeaderSubtitleWrapper>
