@@ -188,6 +188,9 @@ const start = async (args: string[]): Promise<void> => {
 
     diagnostics.start(languageManager)
 
+    const Browser = await import("./Services/Browser")
+    Browser.activate(commandManager, configuration, editorManager)
+
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()
     configuration.activate(api)
