@@ -1,7 +1,7 @@
 import * as os from "os"
 
 import * as React from "react"
-import styled, { boxShadowInset, css, fontSizeSmall, IThemeColors, withProps } from "./common"
+import styled, { boxShadowInset, css, fontSizeSmall, withProps } from "./common"
 
 const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
@@ -13,93 +13,26 @@ const codeBlockStyle = css`
     }
 `
 
-const cssToken = (p: { theme: IThemeColors }, token: string) => (property: string) => {
-    try {
-        const details = p.theme["editor.tokenColors.hoverTokens"][token]
-        return details[property]
-    } catch (e) {
-        if (property === "foregroundColor") {
-            return p.theme["toolTip.foreground"]
-        }
-    }
-}
-const constructClassName = (token: string) => (p: { theme: IThemeColors }) => {
-    const tokenAsClass = token.replace(/[.]/g, "-")
-    const tokenStyle = cssToken(p, token)
-    const cssClass = `
-        .${tokenAsClass} {
-            color: ${tokenStyle("foregroundColor")};
-            ${tokenStyle("bold") && "font-weight: bold"};
-            ${tokenStyle("italic") && "font-style: italic"};
-        }
-    `
-    return cssClass
-}
-
-const symbols = [
-    "source",
-    "marked.identifier",
-    "marked.function",
-    "marked.constant",
-    "meta.class",
-    "entity.name",
-    "support.function",
-    "variable.other",
-    "variable.object",
-    "variable.language",
-    "variable.parameter",
-    "variable.object.property",
-    "keyword.operator",
-    "keyword.operator-expression",
-    "keyword.operator-void",
-    "support.class",
-    "support.class.dom",
-    "support.class.builtin",
-    "support.type.primitive",
-    "variable.other.readwrite",
-    "variable.other.property",
-    "variable.other.object",
-    "variable.other.constant.object",
-    "variable.other.object.property",
-    "storage.type",
-    "storage.type.enum",
-    "storage.type.interface",
-    "entity.name.type",
-    "entity.name.function",
-    "entity.name.type.enum",
-    "entity.name.type.interface",
-    "entity.name.type.module",
-    "keyword.control.import",
-    "keyword.operator.relational",
-    "punctuation.terminator",
-    "punctuation.accessor",
-    "punctuation.definition.block",
-    "punctuation.separator.comma",
-    "support.variable.property.dom",
-    "punctuation.separator.continuation",
-    "punctuation.definition.parameters.begin",
-    "punctuation.definition.parameters.end",
-    "punctuation.separator.continuation",
-].map(constructClassName)
-
-type TokenFunc = (p: { theme: IThemeColors }) => string
-
-const flattenedSymbols = (p: { theme: IThemeColors }, fns: TokenFunc[]) =>
-    fns.map(fn => fn(p)).join("\n")
-
 const markedCss = css`
     .marked {
         margin: 0;
         padding-right: 0;
         padding-left: 0;
+    }
+
+    .marked-paragraph {
         white-space: pre-wrap;
     }
 
     .marked-pre {
         ${codeBlockStyle};
+        word-wrap: break-word;
+        white-space: pre-wrap;
     }
 
-    ${props => flattenedSymbols(props, symbols)};
+    .marked-code {
+        white-space: pre;
+    }
 `
 
 const smallScrollbar = css`
@@ -120,25 +53,13 @@ const childStyles = css`
         a {
             color: ${p => p.theme["highlight.mode.normal.background"]};
         }
-
-        pre {
-            ${codeBlockStyle};
-        }
-
-        /*
-            All code blocks are set to black but
-            this is overriden for code blocks INSIDE a Pre element
-        */
-
-        code {
-            background-color: ${p => p.theme["editor.hover.contents.codeblock.background"]};
-            color: ${p => p.theme["editor.hover.contents.codeblock.foreground"]};
-            padding: 0 0.2rem;
-        }
     }
 `
 
-export const Documentation = styled.div`
+interface DocProps {
+    tokenStyles?: any
+}
+export const Documentation = withProps<DocProps>(styled.div)`
     ${fontSizeSmall};
     ${boxShadowInset};
     overflow: hidden;
@@ -150,6 +71,7 @@ export const Documentation = styled.div`
     background-color: ${p => p.theme["editor.hover.contents.background"]};
     color: ${p => p.theme["editor.hover.contents.foreground"]};
     ${markedCss};
+    ${p => p.tokenStyles};
 
     &:hover {
         overflow: overlay;
@@ -162,7 +84,12 @@ export const Documentation = styled.div`
         ${codeBlockStyle};
     }
 `
-export const Title = withProps<{ padding?: string }>(styled.div)`
+
+interface TitleProps {
+    padding?: string
+    tokenStyles?: any
+}
+export const Title = withProps<TitleProps>(styled.div)`
     padding: ${p => p.padding || "0.7rem"};
     overflow: hidden;
     max-height: 22vh;
@@ -173,6 +100,7 @@ export const Title = withProps<{ padding?: string }>(styled.div)`
     color: ${p => p.theme["editor.hover.title.foreground"]};
     white-space: pre-wrap;
     ${markedCss};
+    ${p => p.tokenStyles};
 
     &:hover {
         overflow: overlay;
@@ -195,6 +123,7 @@ export const QuickInfoContainer = withProps<{ hasDocs: boolean }>(styled.div)`
 `
 
 export interface ITextProps {
+    tokenStyles?: any
     padding?: string
     text?: string
     html?: {
@@ -204,13 +133,13 @@ export interface ITextProps {
 
 export class QuickInfoTitle extends React.PureComponent<ITextProps> {
     public render(): JSX.Element {
-        const { html, text, padding } = this.props
+        const { html, text, padding, tokenStyles } = this.props
         if (!html && !text) {
             return null
         }
 
         return (
-            <Title padding={padding} dangerouslySetInnerHTML={html}>
+            <Title padding={padding} dangerouslySetInnerHTML={html} tokenStyles={tokenStyles}>
                 {text}
             </Title>
         )
@@ -219,7 +148,7 @@ export class QuickInfoTitle extends React.PureComponent<ITextProps> {
 
 export class QuickInfoDocumentation extends React.PureComponent<ITextProps> {
     public render(): JSX.Element {
-        const { text, html } = this.props
+        const { text, html, tokenStyles } = this.props
         switch (true) {
             case Boolean(text):
                 const lines = this.props.text.split(os.EOL)
@@ -227,7 +156,12 @@ export class QuickInfoDocumentation extends React.PureComponent<ITextProps> {
 
                 return <Documentation>{divs}</Documentation>
             case Boolean(html && html.__html.length):
-                return <Documentation dangerouslySetInnerHTML={this.props.html} />
+                return (
+                    <Documentation
+                        dangerouslySetInnerHTML={this.props.html}
+                        tokenStyles={tokenStyles}
+                    />
+                )
             default:
                 return null
         }

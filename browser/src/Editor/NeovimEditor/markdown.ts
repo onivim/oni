@@ -39,15 +39,16 @@ function escapeRegExp(str: string) {
 const createContainer = (type: string, content: string) => {
     switch (type) {
         case "code":
+        case "pre":
             return `
                 <pre class="marked-pre">
-                    <code>
+                    <code class="marked-code">
                         ${content}
                     <code>
                  </pre>
             `
         case "paragraph":
-            return `<${type}>${content}<${type}>`
+            return `<${type} class="marked-paragraph">${content}<${type}>`
         default:
             return content
     }
@@ -78,10 +79,12 @@ const renderWithClasses = ({
         // "\b" tell the regex to use word boundaries to match not partial matches
         // FIXME: RegExp is breaking on certain chars
         const symbolRegex = new RegExp("(" + escapeRegExp(filteredNames.join("|")) + ")", "g")
-        console.group("Regex")
+        // tslint:disable
+        console.group("Regex ====================")
         console.log("filteredNames: ", filteredNames)
+        console.log("symbolNames: ", symbolNames)
         console.log("symbolRegex: ", symbolRegex)
-        console.group()
+        console.group("matches..............")
         const html = unescapedText.replace(symbolRegex, (match, ...args) => {
             console.log("match in replacer: ", match)
             const className = scopesToString(symbols[match])
@@ -89,9 +92,10 @@ const renderWithClasses = ({
         })
         console.groupEnd()
         console.groupEnd()
+        // tslint:enable
         return createContainer(container, html)
     }
-    return `<p>${text}</p>`
+    return text
 }
 
 interface IConversionArgs {
@@ -118,8 +122,8 @@ export const convertMarkdown = ({
             break
         case "title":
         default:
-            renderer.paragraph = text => renderWithClasses({ text, tokens })
             renderer.code = text => renderWithClasses({ text, tokens, container: "pre" })
+            renderer.paragraph = text => renderWithClasses({ text, tokens })
     }
 
     const html = marked(markdown)

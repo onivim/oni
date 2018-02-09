@@ -13,12 +13,6 @@ import { EventContext } from "./EventContext"
 import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
 import * as Platform from "./../Platform"
 import { Configuration } from "./../Services/Configuration"
-import {
-    createChildFromScopeName,
-    IHighlight,
-    ITokens,
-    vimHighlightScopes,
-} from "./../Services/SyntaxHighlighting/tokenGenerator"
 
 import * as Actions from "./actions"
 import { NeovimBufferReference } from "./MsgPack"
@@ -580,30 +574,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public async getCurrentWorkingDirectory(): Promise<string> {
         const currentWorkingDirectory = await this.eval<string>("getcwd()")
         return path.normalize(currentWorkingDirectory)
-    }
-
-    public async getVimHighlights(): Promise<ITokens> {
-        const colorValues = await Promise.all(
-            Object.keys(vimHighlightScopes).map(async token => {
-                const highlight = (await this._neovim.request("nvim_get_hl_by_name", [
-                    token,
-                    true,
-                ])) as IHighlight
-
-                const scopes = vimHighlightScopes[token]
-                const generatedTokens = scopes.reduce(
-                    (result: ITokens, scope: string) =>
-                        createChildFromScopeName(result, scope, highlight),
-                    {},
-                )
-                return generatedTokens
-            }),
-        )
-        const defaultTokens = colorValues.reduce(
-            (acc, tokenObject) => ({ ...acc, ...tokenObject }),
-            {},
-        )
-        return defaultTokens
     }
 
     public get cursorPosition(): IPosition {

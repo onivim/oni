@@ -1,4 +1,3 @@
-// import { mergeAll, mergeDeepRight } from "ramda"
 import * as React from "react"
 
 import { QuickInfoContainer, QuickInfoDocumentation, QuickInfoTitle } from "./QuickInfo"
@@ -32,15 +31,19 @@ class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
 
         return (
             <TokenThemeProvider
-                render={theme =>
+                render={({ theme, styles }) =>
                     !!titleAndContents ? (
                         <QuickInfoContainer hasDocs={hasDocs}>
                             <QuickInfoTitle
                                 padding={hasDocs ? "0.5rem" : null}
                                 html={titleAndContents.title}
+                                tokenStyles={styles}
                             />
                             {titleAndContents.description && (
-                                <QuickInfoDocumentation html={titleAndContents.description} />
+                                <QuickInfoDocumentation
+                                    html={titleAndContents.description}
+                                    tokenStyles={styles}
+                                />
                             )}
                         </QuickInfoContainer>
                     ) : null
