@@ -53,8 +53,9 @@ const createContainer = (type: string, content: string) => {
                  </pre>
             `
         case "paragraph":
-        default:
             return `<${type}>${content}<${type}>`
+        default:
+            return content
     }
 }
 
@@ -78,17 +79,17 @@ const renderWithClasses = ({
             return acc
         }, {})
 
-        const symbolNames = [...new Set(Object.keys(symbols))]
+        const symbolNames = Object.keys(symbols)
         const banned = ["\n", "\r", " ", "|"]
         const filteredNames = symbolNames.filter(str => !banned.includes(str))
         // "\b" tell the regex to use word boundaries to match not partial matches
         // FIXME: RegExp is breaking on certain chars
-        // console.log('filteredNames: ', filteredNames);
         const symbolRegex = new RegExp("(\b" + escapeRegExp(filteredNames.join("|")) + "\b)", "g")
+        // console.group("Regex")
+        // console.log('filteredNames: ', filteredNames);
         // console.log('symbolRegex: ', symbolRegex);
-        // console.log('unescapedText: ', unescapedText);
+        // console.log('match in replacer: ', match);
         const html = unescapedText.replace(symbolRegex, (match, ...args) => {
-            // console.log('match in replacer: ', match);
             const className = scopesToString(symbols[match])
             return `<${element} class="marked ${className}">${match}</${element}>`
         })
@@ -118,9 +119,7 @@ export const convertMarkdown = ({
 
     switch (type) {
         case "documentation":
-            renderer.code = text => {
-                return createContainer("code", text)
-            }
+            renderer.code = text => renderWithClasses({ text, tokens, container: "pre" })
             renderer.paragraph = text => `<p>${text}</p>`
             break
         case "title":
@@ -129,8 +128,6 @@ export const convertMarkdown = ({
                 renderer.paragraph = text => renderWithClasses({ text, tokens })
             } else if (colors) {
                 renderer.paragraph = text => renderWithClasses({ text, colors })
-            } else {
-                renderer.paragraph = text => `<p>${text}</p>`
             }
     }
 

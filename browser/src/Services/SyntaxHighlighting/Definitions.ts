@@ -5,7 +5,6 @@ export interface IHighlight {
     background: string
     bold: boolean
     italic: boolean
-    fallback?: string
 }
 
 export type HighlightGroupId = string

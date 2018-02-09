@@ -116,6 +116,30 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumnOpacity": 0.1,
 
     "editor.tokenColors": {
+        comment: {
+            scope: ["comment.line", "comment.block", "comment.block.documentation"],
+            settings: {
+                foreground: null,
+                background: null,
+                bold: null,
+                italic: null,
+            },
+        },
+        constant: {
+            scope: [
+                "constant.numeric",
+                "constant.numeric.integer",
+                "constant.numeric.float",
+                "constant.numeric.hex",
+                "constant.numeric.octal",
+            ],
+            settings: {
+                foreground: null,
+                background: null,
+                bold: null,
+                italic: null,
+            },
+        },
         "variable.object": {
             scope: [],
             settings: {
@@ -143,24 +167,6 @@ const BaseConfiguration: IConfigurationValues = {
                 italic: null,
             },
         },
-        "meta.object": {
-            scope: ["meta.object.type"],
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        "meta.class": {
-            scope: ["meta.class"],
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
         "storage.type": {
             scope: [
                 "storage.type",
@@ -176,7 +182,18 @@ const BaseConfiguration: IConfigurationValues = {
             },
         },
         "entity.name": {
-            scope: ["entity.name.type.enum", "entity.name.type.interface"],
+            scope: [
+                "entity.name.class",
+                "entity.name.struct",
+                "entity.name.enum",
+                "entity.name.union",
+                "entity.name.trait",
+                "entity.name.interface",
+                "entity.name.type",
+                "entity.name.function",
+                "entity.name.function.constructor",
+                "entity.name.function.destructor",
+            ],
             settings: {
                 foreground: null,
                 background: null,

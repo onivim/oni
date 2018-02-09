@@ -29,8 +29,8 @@ const constructClassName = (token: string) => (p: { theme: IThemeColors }) => {
     const cssClass = `
         .${tokenAsClass} {
             color: ${tokenStyle("foreground")};
-            font-weight: ${tokenStyle("bold") && "bold"};
-            font-style: ${tokenStyle("italic") && "italic"};
+            ${tokenStyle("bold") && "font-weight: bold"};
+            ${tokenStyle("italic") && "font-style: italic"};
         }
     `
     return cssClass
@@ -41,14 +41,8 @@ const symbols = [
     "marked.identifier",
     "marked.function",
     "marked.constant",
-    "meta.import",
     "meta.class",
     "variable.other",
-    "meta.object.type",
-    "meta.brace.round",
-    "meta.function.call",
-    "meta.type.declaration",
-    "meta.type.annotation",
     "support.class.builtin",
     "support.type.primitive",
     "variable.other.readwrite",
