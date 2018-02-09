@@ -87,4 +87,5 @@ deploy:
     - provider: script
       script: build/aur/deploy.sh
       on:
-          tags: true
+        condition: $TRAVIS_OS_NAME = linux
+        tags: true
