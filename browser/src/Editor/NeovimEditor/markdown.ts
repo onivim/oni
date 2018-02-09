@@ -9,14 +9,8 @@ interface ITokens {
     range: types.Range
 }
 
-interface IColors {
-    highlightGroup: string
-    range: types.Range
-}
-
 interface IRendererArgs {
     tokens?: ITokens[]
-    colors?: IColors[]
     text: string
     element?: string
     container?: string
@@ -61,7 +55,6 @@ const createContainer = (type: string, content: string) => {
 
 const renderWithClasses = ({
     tokens,
-    colors,
     text,
     element = "span",
     container = "paragraph",
@@ -84,15 +77,18 @@ const renderWithClasses = ({
         const filteredNames = symbolNames.filter(str => !banned.includes(str))
         // "\b" tell the regex to use word boundaries to match not partial matches
         // FIXME: RegExp is breaking on certain chars
-        const symbolRegex = new RegExp("(\b" + escapeRegExp(filteredNames.join("|")) + "\b)", "g")
-        // console.group("Regex")
-        // console.log('filteredNames: ', filteredNames);
-        // console.log('symbolRegex: ', symbolRegex);
-        // console.log('match in replacer: ', match);
+        const symbolRegex = new RegExp("(" + escapeRegExp(filteredNames.join("|")) + ")", "g")
+        console.group("Regex")
+        console.log("filteredNames: ", filteredNames)
+        console.log("symbolRegex: ", symbolRegex)
+        console.group()
         const html = unescapedText.replace(symbolRegex, (match, ...args) => {
+            console.log("match in replacer: ", match)
             const className = scopesToString(symbols[match])
             return `<${element} class="marked ${className}">${match}</${element}>`
         })
+        console.groupEnd()
+        console.groupEnd()
         return createContainer(container, html)
     }
     return `<p>${text}</p>`
@@ -101,14 +97,12 @@ const renderWithClasses = ({
 interface IConversionArgs {
     markdown: string
     tokens?: ITokens[]
-    colors?: IColors[]
     type?: string
 }
 
 export const convertMarkdown = ({
     markdown,
     tokens,
-    colors,
     type = "title",
 }: IConversionArgs): { __html: string } => {
     marked.setOptions({
@@ -124,11 +118,8 @@ export const convertMarkdown = ({
             break
         case "title":
         default:
-            if (tokens) {
-                renderer.paragraph = text => renderWithClasses({ text, tokens })
-            } else if (colors) {
-                renderer.paragraph = text => renderWithClasses({ text, colors })
-            }
+            renderer.paragraph = text => renderWithClasses({ text, tokens })
+            renderer.code = text => renderWithClasses({ text, tokens, container: "pre" })
     }
 
     const html = marked(markdown)
