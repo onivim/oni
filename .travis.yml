@@ -80,6 +80,8 @@ deploy:
           - dist/*.rpm
           - dist/*.tar.gz
       skip_cleanup: true
+      provider: script
+      script: build/aur/deploy.sh
       on:
         condition: $TRAVIS_OS_NAME = linux
         tags: true
