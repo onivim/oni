@@ -82,23 +82,26 @@ export class SyntaxHighlightReconciler {
                 Log.verbose(
                     "[SyntaxHighlightReconciler] Applying changes to " + tokens.length + " lines.",
                 )
-                activeBuffer.updateHighlights((highlightUpdater: any) => {
-                    tokens.forEach(token => {
-                        const line = token.line
-                        const highlights = token.highlights
+                activeBuffer.updateHighlights(
+                    this._tokenColors.tokenColors,
+                    (highlightUpdater: any) => {
+                        tokens.forEach(token => {
+                            const line = token.line
+                            const highlights = token.highlights
 
-                        if (Log.isDebugLoggingEnabled()) {
-                            Log.debug(
-                                "[SyntaxHighlightingReconciler] Updating tokens for line: " +
-                                    token.line +
-                                    " | " +
-                                    JSON.stringify(highlights),
-                            )
-                        }
+                            if (Log.isDebugLoggingEnabled()) {
+                                Log.debug(
+                                    "[SyntaxHighlightingReconciler] Updating tokens for line: " +
+                                        token.line +
+                                        " | " +
+                                        JSON.stringify(highlights),
+                                )
+                            }
 
-                        highlightUpdater.setHighlightsForLine(line, highlights)
-                    })
-                })
+                            highlightUpdater.setHighlightsForLine(line, highlights)
+                        })
+                    },
+                )
             }
         }
     }

@@ -9,6 +9,8 @@ import { TokenColorStyle } from "./../Services/TokenColors"
 
 import { NeovimInstance } from "./NeovimInstance"
 
+import * as Log from "./../Log"
+
 export class NeovimTokenColorSynchronizer {
     private _currentIndex: number = 0
     // private _tokenColorKeyToHighlightGroupName: { [key: string]: string } = { }
@@ -26,9 +28,14 @@ export class NeovimTokenColorSynchronizer {
             } else {
                 this._currentIndex++
                 const newHighlightGroupName = "oni_highlight_" + this._currentIndex.toString()
+                Log.verbose(
+                    "[NeovimTokenColorSynchronizer::synchronizeTokenColors] Creating new highlight group - " +
+                        newHighlightGroupName,
+                )
                 await this._neovimInstance.command(
                     ":hi " +
                         newHighlightGroupName +
+                        " " +
                         this._convertTokenStyleToHighlightInfo(tokenColor),
                 )
                 this._setHighlightGroupForTokenColor(tokenColor, newHighlightGroupName)
@@ -48,8 +55,8 @@ export class NeovimTokenColorSynchronizer {
     }
 
     private _convertTokenStyleToHighlightInfo(tokenColorStyle: TokenColorStyle): string {
-        // TODO
-        return null
+        // TODO: Set real colors!
+        return "guifg=White guibg=Red"
     }
 
     private _setHighlightGroupForTokenColor(
