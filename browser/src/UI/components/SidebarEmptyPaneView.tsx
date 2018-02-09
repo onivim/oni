@@ -32,6 +32,8 @@ const ButtonWrapper = styled.button`
     cursor: pointer;
     transition: all 0.1s ease-in;
 
+    pointer-events: all;
+
     &:hover {
         ${boxShadow} transform: translateY(-1px);
     }
