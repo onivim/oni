@@ -18,14 +18,16 @@ Working on your first Pull Request? You can learn how from this _free_ series, [
 
 ## Submitting code
 
-Any code change should be submitted as a pull request. The description should explain what the code does and give steps to execute it. The pull request should also contain tests.
+Any code change should be submitted as a pull request. The description should explain what the code does and give steps to execute it. The pull request should also contain tests. We welcome and appreciate pull requests!
 
-## Code review process
+## Code review guidelines
 
-The bigger the pull request, the longer it will take to review and merge. Try to break down large pull requests in smaller chunks that are easier to review and merge.
-It is also always helpful to have some context for your pull request. What was the purpose? Why does it matter to you?
+* Keep PRs **small and scoped**. The bigger the pull request, the longer it will take to review and merge. Break down large pull requests into smaller incremental chunks - this will help catch issues earlier and be easier on both you and the maintainer.
+* Following from the previous bullet point, **do not include unrelated changes in a PR**. It can be tempting to include extra styling changes or additional functionality, but these should be added as separate PRs.
+* Think of each PR has **improving the quality of the codebase**. Codebases tend towards entropy and disorder unless actively managed - make sure that your change moves the quality needle in the right direction. This can take a variety of forms, including adding test coverage, reducing coupling, etc. _As we are a small team moving fast, we cannot afford to accumulate technical debt._
+* If there is ambiguity in terms of design, architecture, or implementation, it's best to get feedback before implementing, to save both you and the maintainer time. If you're not sure, feel free to ask!
 
-A PR requires approval for either the maintainer, or a collaborator.
+PRs require approval from one other person, either a maintainer or a contributor. Keep in mind that when you approve code, you are accountable for it, too! Reviewers are the gatekeepers of quality and ensuring we adhere to the guidelines abvoe.
 
 ## Financial contributions
 
