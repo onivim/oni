@@ -7,7 +7,7 @@ import * as os from "os"
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
-import getTokens from "./../../Services/SyntaxHighlighting/tokenGenerator"
+import getTokens from "./../../Services/SyntaxHighlighting/TokenGenerator"
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
 import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
 import QuickInfoWithTheme from "./../../UI/components/QuickInfoContainer"

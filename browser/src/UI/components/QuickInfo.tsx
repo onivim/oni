@@ -25,13 +25,13 @@ const markedCss = css`
     }
 
     .marked-pre {
-        ${codeBlockStyle};
         word-wrap: break-word;
         white-space: pre-wrap;
+        margin: 0;
     }
 
     .marked-code {
-        white-space: pre;
+        white-space: nowrap;
     }
 `
 
