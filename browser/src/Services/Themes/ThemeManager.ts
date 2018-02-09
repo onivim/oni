@@ -309,7 +309,6 @@ export class ThemeManager {
 
     // _colors stores the current theme colors mixed with configuration
     private _colors: IThemeColors = DefaultThemeColors
-    private _defaultTokens: TokenColor[] = []
 
     public get activeTheme(): IThemeMetadata {
         return this._activeTheme
@@ -348,11 +347,6 @@ export class ThemeManager {
         }
     }
 
-    public setDefaultTokenColors(tokenColors: TokenColor[]) {
-        this._defaultTokens = tokenColors
-        this._updateTheme(this._activeTheme)
-    }
-
     public notifyVimThemeChanged(
         vimName: string,
         backgroundColor: string,
@@ -388,11 +382,7 @@ export class ThemeManager {
     }
 
     private _updateTheme(theme: IThemeMetadata): void {
-        const tokenColors = this._defaultTokens
-        this._activeTheme = {
-            ...theme,
-            tokenColors, // TODO: MERGE tokenColors with theme
-        }
+        this._activeTheme = theme
 
         const userColors = getColorsFromConfig(configuration, this.activeTheme.colors)
 

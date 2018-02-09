@@ -29,12 +29,18 @@ export class TokenColors implements IDisposable {
     private _tokenColors: TokenColor[] = []
     private _onTokenColorsChangedEvent: Event<void> = new Event<void>()
 
+    private _defaultTokenColors: TokenColor[] = []
+
     public get tokenColors(): TokenColor[] {
         return this._tokenColors
     }
 
     public get onTokenColorsChanged(): IEvent<void> {
         return this._onTokenColorsChangedEvent
+    }
+
+    public setDefaultTokenColors(tokenColors: TokenColor[]): void {
+        this._defaultTokenColors = tokenColors
     }
 
     constructor(private _configuration: Configuration, private _themeManager: ThemeManager) {
@@ -53,12 +59,21 @@ export class TokenColors implements IDisposable {
         this._subscriptions = [sub1, sub2]
     }
 
-    public _updateTokenColors(): void {
+    public dispose(): void {
+        this._subscriptions.forEach(s => s.dispose())
+        this._subscriptions = []
+    }
+
+    private _updateTokenColors(): void {
         const tokenColorsFromTheme = this._themeManager.activeTheme
             ? this._themeManager.activeTheme.tokenColors
             : []
         const userColors = this._configuration.getValue("editor.tokenColors")
-        this._tokenColors = [...(userColors || []), ...tokenColorsFromTheme]
+        this._tokenColors = [
+            ...(userColors || []),
+            ...tokenColorsFromTheme,
+            ...this._defaultTokenColors,
+        ]
     }
 }
 
@@ -69,54 +84,4 @@ export const activate = (configuration: Configuration, themeManager: ThemeManage
 
 export const getInstance = () => {
     return _tokenColors
-}
-
-export const VimHighlightToDefaultScope: { [key: string]: string[] } = {
-    define: ["meta.import"],
-    identifier: [
-        "support.variable",
-        "support.variable.property.dom",
-        "variable.language",
-        "variable.parameter",
-        "variable.object",
-        "meta.object.type",
-        "meta.object",
-    ],
-    function: [
-        "support.function",
-        "entity.name",
-        "entity.name.type.enum",
-        "entity.name.type.interface",
-        "meta.function.call",
-        "meta.function",
-        "punctuation.accessor",
-        "punctuation.separator.continuation",
-        "punctuation.separator.comma",
-        "punctuation.terminator",
-        "punctuation.terminator",
-    ],
-    constant: [
-        "storage.type.interface",
-        "storage.type.enum",
-        "storage.type.interface",
-        "entity.other",
-        "keyword.control.import",
-        "keyword.control",
-        "variable.other.constant",
-        "variable.other.object",
-        "variable.other.property",
-    ],
-    type: [
-        "meta.type.annotation",
-        "meta.type.declaration",
-        "meta.interface",
-        "meta.class",
-        "support.class.builtin",
-        "support.type.primitive",
-        "support.class",
-        "variable.other.readwrite",
-        "meta.namespace.declaration",
-        "meta.namespace",
-    ],
-    normal: ["meta.brace.round"],
 }

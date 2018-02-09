@@ -172,6 +172,7 @@ const start = async (args: string[]): Promise<void> => {
             pluginManager,
             tasks,
             Themes.getThemeManagerInstance(),
+            TokenColors.getInstance(),
             workspace,
         )
 
