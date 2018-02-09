@@ -484,7 +484,7 @@ export class NeovimEditor extends Editor implements IEditor {
             "experimental.editor.textMateHighlighting.enabled",
         )
         this._syntaxHighlighter = textMateHighlightingEnabled
-            ? new SyntaxHighlighter(this._configuration, this)
+            ? new SyntaxHighlighter(this, this._tokenColors)
             : new NullSyntaxHighlighter()
 
         this._completion = new Completion(

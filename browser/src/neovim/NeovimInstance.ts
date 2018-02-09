@@ -26,6 +26,7 @@ import { Session } from "./Session"
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 import { TokenColor } from "./../Services/TokenColors"
 import { INeovimBufferUpdate, NeovimBufferUpdateManager } from "./NeovimBufferUpdateManager"
+import { NeovimTokenColorSynchronizer } from "./NeovimTokenColorSynchronizer"
 
 import {
     IVimHighlight,
@@ -225,6 +226,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onWildMenuSelectEvent = new Event<IWildMenuSelectEvent>()
     private _onWildMenuShowEvent = new Event<IWildMenuShowEvent>()
     private _bufferUpdateManager: NeovimBufferUpdateManager
+    private _tokenColorSynchronizer: NeovimTokenColorSynchronizer
 
     private _pendingScrollTimeout: number | null = null
 
@@ -324,6 +326,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._marks
     }
 
+    public get tokenColorSynchronizer(): NeovimTokenColorSynchronizer {
+        return this._tokenColorSynchronizer
+    }
+
     constructor(widthInPixels: number, heightInPixels: number, configuration: Configuration) {
         super()
         this._configuration = configuration
@@ -336,6 +342,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._quickFix = new QuickFixList(this)
         this._autoCommands = new NeovimAutoCommands(this)
         this._marks = new NeovimMarks(this)
+        this._tokenColorSynchronizer = new NeovimTokenColorSynchronizer(this)
 
         this._bufferUpdateManager = new NeovimBufferUpdateManager(this._configuration, this)
     }

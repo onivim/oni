@@ -4,11 +4,11 @@
  * Handles enhanced syntax highlighting
  */
 
-import { Configuration } from "./../Configuration"
+import { TokenColor, TokenColors } from "./../TokenColors"
 
 import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
-import { HighlightGroupId, HighlightInfo } from "./Definitions"
+import { HighlightInfo } from "./Definitions"
 import {
     ISyntaxHighlightLineInfo,
     ISyntaxHighlightState,
@@ -27,7 +27,7 @@ import * as Log from "./../../Log"
 export class SyntaxHighlightReconciler {
     private _previousState: { [line: number]: ISyntaxHighlightLineInfo } = {}
 
-    constructor(private _configuration: Configuration, private _editor: NeovimEditor) {}
+    constructor(private _editor: NeovimEditor, private _tokenColors: TokenColors) {}
 
     public update(state: ISyntaxHighlightState) {
         const activeBuffer: any = this._editor.activeBuffer
@@ -105,22 +105,22 @@ export class SyntaxHighlightReconciler {
 
     private _mapTokensToHighlights(tokens: ISyntaxHighlightTokenInfo[]): HighlightInfo[] {
         const mapTokenToHighlight = (token: ISyntaxHighlightTokenInfo) => ({
-            highlightGroup: this._getHighlightGroupFromScope(token.scopes),
+            tokenColor: this._getHighlightGroupFromScope(token.scopes),
             range: token.range,
         })
 
-        return tokens.map(mapTokenToHighlight).filter(t => !!t.highlightGroup)
+        return tokens.map(mapTokenToHighlight).filter(t => !!t.tokenColor)
     }
 
-    private _getHighlightGroupFromScope(scopes: string[]): HighlightGroupId {
-        const configurationColors = this._configuration.getValue("editor.tokenColors")
+    private _getHighlightGroupFromScope(scopes: string[]): TokenColor {
+        const configurationColors = this._tokenColors.tokenColors
 
         for (const scope of scopes) {
             const matchingRule = configurationColors.find((c: any) => scope.indexOf(c.scope) === 0)
 
             if (matchingRule) {
                 // TODO: Convert to highlight group id
-                return matchingRule.settings
+                return matchingRule
             }
         }
 
