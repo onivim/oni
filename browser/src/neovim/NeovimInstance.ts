@@ -478,12 +478,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         const ret = highlightInfo.reduce(
             (prev: TokenColor[], currentValue: IVimHighlight, currentIndex: number) => {
                 const highlightGroupName = vimHighlights[currentIndex]
-
+                const settings = vimHighlightToTokenColorStyle(currentValue)
                 const newScopeNames: string[] = VimHighlightToDefaultScope[highlightGroupName] || []
 
                 const newScopes = newScopeNames.map((scope): TokenColor => ({
                     scope,
-                    settings: vimHighlightToTokenColorStyle(currentValue),
+                    settings,
                 }))
 
                 return [...prev, ...newScopes]

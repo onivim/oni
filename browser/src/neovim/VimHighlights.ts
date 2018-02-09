@@ -4,6 +4,8 @@
  * Mapping of Vim highlight groups to default scopes
  */
 
+import * as Color from "color"
+
 import { TokenColorStyle } from "./../Services/TokenColors"
 
 export interface IVimHighlight {
@@ -13,8 +15,8 @@ export interface IVimHighlight {
 
 export const vimHighlightToTokenColorStyle = (highlight: IVimHighlight): TokenColorStyle => {
     return {
-        foregroundColor: highlight.foreground,
-        backgroundColor: highlight.background,
+        foregroundColor: Color(highlight.foreground).hex(),
+        backgroundColor: Color(highlight.background).hex(),
         // TODO: Do we get these from `nvim_get_hl_by_name`?
         bold: false,
         italic: false,
