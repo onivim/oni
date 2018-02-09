@@ -42,3 +42,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     const content = errorElement.textContent
     assert.ok(content.indexOf("Bad layer") >= 0)
 }
+
+export const settings = {
+    allowLogFailures: true,
+}
