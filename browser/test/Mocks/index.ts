@@ -17,7 +17,16 @@ import * as Language from "./../../src/Services/Language"
 import { createCompletablePromise, ICompletablePromise } from "./../../src/Utility"
 
 import { HighlightInfo } from "./../../src/Services/SyntaxHighlighting"
+import { TokenColor } from "./../../src/Services/TokenColors"
 import { IWorkspace } from "./../../src/Services/Workspace"
+
+export class MockTokenColors {
+    constructor(private _tokenColors: TokenColor[] = []) {}
+
+    public get tokenColors(): TokenColor[] {
+        return this._tokenColors
+    }
+}
 
 export class MockConfiguration {
     private _currentConfigurationFiles: string[] = []
@@ -220,7 +229,10 @@ export class MockBuffer {
         return Promise.resolve(this._lines.slice(start, end))
     }
 
-    public updateHighlights(updateFunction: (highlightUpdater: IBufferHighlightsUpdater) => void) {
+    public updateHighlights(
+        tokenColors: any[],
+        updateFunction: (highlightUpdater: IBufferHighlightsUpdater) => void,
+    ) {
         updateFunction(this._mockHighlights)
     }
 }

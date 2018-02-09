@@ -484,7 +484,7 @@ export class NeovimEditor extends Editor implements IEditor {
             "experimental.editor.textMateHighlighting.enabled",
         )
         this._syntaxHighlighter = textMateHighlightingEnabled
-            ? new SyntaxHighlighter(this._configuration, this)
+            ? new SyntaxHighlighter(this, this._tokenColors)
             : new NullSyntaxHighlighter()
 
         this._completion = new Completion(
@@ -871,8 +871,6 @@ export class NeovimEditor extends Editor implements IEditor {
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
         this._bufferManager.populateBufferList(evt)
         this._workspace.autoDetectWorkspace(buf.filePath)
-        const vimHighlights = await this._neovimInstance.getVimHighlights()
-        this._themeManager.setVimHighlightColors(vimHighlights)
 
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
@@ -955,8 +953,6 @@ export class NeovimEditor extends Editor implements IEditor {
         this._currentColorScheme = newColorScheme
         const backgroundColor = this._screen.backgroundColor
         const foregroundColor = this._screen.foregroundColor
-        const vimHighlights = await this._neovimInstance.getVimHighlights()
-        this._themeManager.setVimHighlightColors(vimHighlights)
 
         Log.info(
             `[NeovimEditor] Colors changed: ${newColorScheme} - background: ${backgroundColor} foreground: ${foregroundColor}`,

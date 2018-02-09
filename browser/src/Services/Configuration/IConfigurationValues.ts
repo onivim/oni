@@ -8,12 +8,7 @@
 
 import * as Oni from "oni-api"
 
-import { IHighlight } from "./../SyntaxHighlighting"
-
-export interface ITokenColorsSetting {
-    scope: string[]
-    settings: IHighlight
-}
+import { TokenColor } from "./../TokenColors"
 
 export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiased" | "none"
 export type DetectionSettings = "always" | "noworkspace" | "never"
@@ -150,9 +145,7 @@ export interface IConfigurationValues {
     "editor.scrollBar.cursorTick.visible": boolean
 
     // Allow overriding token colors for specific textmate scopes
-    "editor.tokenColors": {
-        [token: string]: ITokenColorsSetting
-    }
+    "editor.tokenColors": TokenColor[]
 
     // Additional paths to include when launching sub-process from Oni
     // (and available in terminal integration, later)

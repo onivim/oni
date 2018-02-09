@@ -1,17 +1,15 @@
 import * as Color from "color"
 import * as path from "path"
-import { mergeAll } from "ramda"
+// import { mergeAll } from "ramda"
 import * as types from "vscode-languageserver-types"
 import { StackElement } from "vscode-textmate"
 
 import { editorManager } from "../../Services/EditorManager"
 import { GrammarLoader } from "../../Services/SyntaxHighlighting/GrammarLoader"
-import { configuration, ITokenColorsSetting } from "../Configuration"
-import { HighlightGroupId } from "./Definitions"
-import { ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
+import { TokenColor } from "../../Services/TokenColors"
 
 export interface ITokens {
-    [token: string]: ITokenColorsSetting
+    [token: string]: TokenColor
 }
 
 export interface IHighlight {
@@ -67,10 +65,6 @@ export const vimHighlightScopes = {
         "support.variable.property.dom",
     ],
     statement: ["source"],
-    // keyword: [],
-    // comment: [],
-    // foldbraces: [],
-    // preproc: [],
 }
 
 export default async function getTokens({ language, ext, line, prevState }: IGetTokens) {
@@ -92,40 +86,6 @@ export default async function getTokens({ language, ext, line, prevState }: IGet
         ruleStack = tokenizeResult.ruleStack
     }
     return { ruleStack, tokens }
-}
-
-export async function getColorForToken(tokens: ISyntaxHighlightTokenInfo[]) {
-    return mapTokensToHighlights(tokens)
-}
-
-export function mapTokensToHighlights(tokens: ISyntaxHighlightTokenInfo[]): any[] {
-    const mapTokenToHighlight = (token: ISyntaxHighlightTokenInfo) => ({
-        highlightGroup: getHighlightGroupFromScope(token.scopes),
-        range: token.range,
-    })
-
-    const highlights = tokens.map(mapTokenToHighlight).filter(t => !!t.highlightGroup)
-    return highlights
-}
-
-export function getHighlightGroupFromScope(scopes: string[]): HighlightGroupId {
-    const configurationColors = configuration.getValue("editor.tokenColors")
-    const tokens = Object.keys(configurationColors)
-
-    for (const scope of scopes) {
-        const match = tokens.find(token => scope.includes(token))
-
-        for (const token in vimHighlightScopes) {
-            if (vimHighlightScopes.hasOwnProperty(token)) {
-                const found = vimHighlightScopes[token].some((t: string) => t.includes(match))
-                if (found) {
-                    return token
-                }
-            }
-        }
-    }
-
-    return null
 }
 
 const highlightOrDefault = (color: number) => (color ? Color(color).hex() : null)
@@ -155,30 +115,30 @@ export function createChildFromScopeName(
  * @param {ITokens} tokens
  * @returns {IEditorTokens}
  */
-export function populateScopes(tokens: ITokens) {
-    const emptyHighlight: IHighlight = {
-        foreground: null,
-        background: null,
-        italic: null,
-        bold: null,
-    }
-    const scopes = Object.keys(tokens)
-    const newScopes = scopes.reduce((result, scopeName) => {
-        const parent = tokens[scopeName]
-        if (parent && parent.scope && parent.scope[0]) {
-            const children = parent.scope.reduce((acc, name) => {
-                if (name) {
-                    const newScope = createChildFromScopeName(result, name, emptyHighlight)
-                    acc[name] = newScope
-                }
-                return acc
-            }, {})
-            const isEmpty = !Object.keys(children).length
-            if (!isEmpty) {
-                mergeAll([result, tokens, children])
-            }
-        }
-        return result
-    }, {})
-    return { "editor.tokenColors": newScopes }
-}
+// export function populateScopes(tokens: ITokens) {
+//     const emptyHighlight: IHighlight = {
+//         foreground: null,
+//         background: null,
+//         italic: null,
+//         bold: null,
+//     }
+//     const scopes = Object.keys(tokens)
+//     const newScopes = scopes.reduce((result, scopeName) => {
+//         const parent = tokens[scopeName]
+//         if (parent && parent.scope && parent.scope[0]) {
+//             const children = parent.scope.reduce((acc, name) => {
+//                 if (name) {
+//                     const newScope = createChildFromScopeName(result, name, emptyHighlight)
+//                     acc[name] = newScope
+//                 }
+//                 return acc
+//             }, {})
+//             const isEmpty = !Object.keys(children).length
+//             if (!isEmpty) {
+//                 mergeAll([result, tokens, children])
+//             }
+//         }
+//         return result
+//     }, {})
+//     return { "editor.tokenColors": newScopes }
+// }

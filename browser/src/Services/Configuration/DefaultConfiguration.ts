@@ -115,143 +115,80 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumn": false,
     "editor.cursorColumnOpacity": 0.1,
 
-    "editor.tokenColors": {
-        comment: {
-            scope: ["comment.line", "comment.block", "comment.block.documentation"],
+    "editor.tokenColors": [
+        {
             settings: {
-                foreground: null,
-                background: null,
                 bold: null,
+                foregroundColor: null,
+                backgroundColor: null,
+                italic: null,
+            },
+            scope: "variable.object",
+        },
+        {
+            settings: {
+                bold: null,
+                foregroundColor: null,
+                backgroundColor: null,
+                italic: null,
+            },
+            scope: "variable.other.constant",
+        },
+        {
+            settings: {
+                bold: null,
+                foregroundColor: null,
+                backgroundColor: null,
+                italic: null,
+            },
+            scope: "variable.language",
+        },
+        {
+            settings: {
+                bold: null,
+                foregroundColor: null,
+                backgroundColor: null,
+                italic: null,
+            },
+            scope: "variable.parameter",
+        },
+        {
+            settings: {
+                bold: null,
+                foregroundColor: null,
+                backgroundColor: null,
+                italic: null,
+            },
+            scope: "variable.other",
+        },
+        {
+            scope: "support.function",
+            settings: {
+                bold: null,
+                foregroundColor: null,
+                backgroundColor: null,
                 italic: null,
             },
         },
-        constant: {
-            scope: [
-                "constant.numeric",
-                "constant.numeric.integer",
-                "constant.numeric.float",
-                "constant.numeric.hex",
-                "constant.numeric.octal",
-            ],
+        {
+            scope: "entity.name",
             settings: {
-                foreground: null,
-                background: null,
                 bold: null,
+                foregroundColor: null,
+                backgroundColor: null,
                 italic: null,
             },
         },
-        "variable.object": {
-            scope: [],
+        {
+            scope: "entity.other",
             settings: {
-                foreground: null,
-                background: null,
                 bold: null,
+                foregroundColor: null,
+                backgroundColor: null,
                 italic: null,
             },
         },
-        "support.class": {
-            scope: ["support.class.builtin", "support.type.primitive"],
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        "support.variable": {
-            scope: ["support.variable.property.dom"],
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        "storage.type": {
-            scope: [
-                "storage.type",
-                "storage.type.interface",
-                "storage.type.enum",
-                "storage.type.interface",
-            ],
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        "entity.name": {
-            scope: [
-                "entity.name.class",
-                "entity.name.struct",
-                "entity.name.enum",
-                "entity.name.union",
-                "entity.name.trait",
-                "entity.name.interface",
-                "entity.name.type",
-                "entity.name.function",
-                "entity.name.function.constructor",
-                "entity.name.function.destructor",
-            ],
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        "variable.language": {
-            scope: [],
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        "variable.parameter": {
-            scope: [],
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        "variable.other": {
-            scope: [
-                "variable.other.constant",
-                "variable.other.object",
-                "variable.other.property",
-                "variable.other.constant",
-            ],
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        "support.function": {
-            scope: [],
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-        "entity.other": {
-            scope: [],
-            settings: {
-                foreground: null,
-                background: null,
-                bold: null,
-                italic: null,
-            },
-        },
-    },
+    ],
 
     "environment.additionalPaths": [],
 

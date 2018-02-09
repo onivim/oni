@@ -9,20 +9,11 @@ import { Event, IEvent } from "oni-types"
 import { IThemeContribution } from "./../../Plugins/Api/Capabilities"
 import { PluginManager } from "./../../Plugins/PluginManager"
 
-import {
-    Configuration,
-    configuration,
-    GenericConfigurationValues,
-    ITokenColorsSetting,
-} from "./../Configuration"
+import { Configuration, configuration, GenericConfigurationValues } from "./../Configuration"
 
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
 import { TokenColor } from "./../TokenColors"
 import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
-
-export interface IEditorTokens {
-    [token: string]: ITokenColorsSetting
-}
 
 export interface IThemeColors {
     background: string
@@ -90,7 +81,7 @@ export interface IThemeColors {
     "fileExplorer.cursor.background": string
     "fileExplorer.cursor.foreground": string
 
-    "editor.tokenColors": IEditorTokens
+    "editor.tokenColors": TokenColor[]
 
     // LATER:
     //  - Notifications?
@@ -290,80 +281,7 @@ export const DefaultThemeColors: IThemeColors = {
     "fileExplorer.cursor.background": NormalMode,
     "fileExplorer.cursor.foreground": NormalMode,
 
-    "editor.tokenColors": {
-        "variable.object": {
-            settings: {
-                bold: null,
-                foreground: null,
-                background: null,
-                italic: null,
-            },
-            scope: [],
-        },
-        "variable.other.constant": {
-            settings: {
-                bold: null,
-                foreground: null,
-                background: null,
-                italic: null,
-            },
-            scope: [],
-        },
-        "variable.language": {
-            settings: {
-                bold: null,
-                foreground: null,
-                background: null,
-                italic: null,
-            },
-            scope: [],
-        },
-        "variable.parameter": {
-            settings: {
-                bold: null,
-                foreground: null,
-                background: null,
-                italic: null,
-            },
-            scope: [],
-        },
-        "variable.other": {
-            settings: {
-                bold: null,
-                foreground: null,
-                background: null,
-                italic: null,
-            },
-            scope: [],
-        },
-        "support.function": {
-            scope: [],
-            settings: {
-                bold: null,
-                foreground: null,
-                background: null,
-                italic: null,
-            },
-        },
-        "entity.name": {
-            scope: [],
-            settings: {
-                bold: null,
-                foreground: null,
-                background: null,
-                italic: null,
-            },
-        },
-        "entity.other": {
-            scope: [],
-            settings: {
-                bold: null,
-                foreground: null,
-                background: null,
-                italic: null,
-            },
-        },
-    },
+    "editor.tokenColors": [],
 }
 
 export interface IThemeMetadata {

@@ -15,10 +15,10 @@ const codeBlockStyle = css`
 
 const cssToken = (p: { theme: IThemeColors }, token: string) => (property: string) => {
     try {
-        const details = p.theme["editor.tokenColors"][token]
-        return details.settings[property]
+        const details = p.theme["editor.tokenColors.hoverTokens"][token]
+        return details[property]
     } catch (e) {
-        if (property === "foreground") {
+        if (property === "foregroundColor") {
             return p.theme["toolTip.foreground"]
         }
     }
@@ -28,7 +28,7 @@ const constructClassName = (token: string) => (p: { theme: IThemeColors }) => {
     const tokenStyle = cssToken(p, token)
     const cssClass = `
         .${tokenAsClass} {
-            color: ${tokenStyle("foreground")};
+            color: ${tokenStyle("foregroundColor")};
             ${tokenStyle("bold") && "font-weight: bold"};
             ${tokenStyle("italic") && "font-style: italic"};
         }
@@ -42,22 +42,34 @@ const symbols = [
     "marked.function",
     "marked.constant",
     "meta.class",
+    "support.function",
     "variable.other",
+    "variable.object",
+    "variable.language",
+    "variable.parameter",
+    "variable.object.property",
+    "support.class.dom",
     "support.class.builtin",
     "support.type.primitive",
     "variable.other.readwrite",
     "variable.other.property",
     "variable.other.object",
+    "variable.other.constant.object",
+    "variable.other.object.property",
     "storage.type.enum",
     "storage.type.interface",
+    "entity.name.type",
+    "entity.name.function",
     "entity.name.type.enum",
     "entity.name.type.interface",
+    "entity.name.type.module",
     "keyword.control.import",
     "keyword.operator.relational",
     "punctuation.terminator",
     "punctuation.accessor",
     "punctuation.definition.block",
     "punctuation.separator.comma",
+    "support.variable.property.dom",
     "punctuation.separator.continuation",
     "punctuation.definition.parameters.begin",
     "punctuation.definition.parameters.end",

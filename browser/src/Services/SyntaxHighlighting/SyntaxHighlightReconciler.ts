@@ -4,17 +4,16 @@
  * Handles enhanced syntax highlighting
  */
 
-import { Configuration } from "./../Configuration"
+import { TokenColor, TokenColors } from "./../TokenColors"
 
 import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
-import { HighlightGroupId, HighlightInfo } from "./Definitions"
+import { HighlightInfo } from "./Definitions"
 import {
     ISyntaxHighlightLineInfo,
     ISyntaxHighlightState,
     ISyntaxHighlightTokenInfo,
 } from "./SyntaxHighlightingStore"
-import { vimHighlightScopes } from "./tokenGenerator"
 
 import * as Selectors from "./SyntaxHighlightSelectors"
 
@@ -28,7 +27,7 @@ import * as Log from "./../../Log"
 export class SyntaxHighlightReconciler {
     private _previousState: { [line: number]: ISyntaxHighlightLineInfo } = {}
 
-    constructor(private _configuration: Configuration, private _editor: NeovimEditor) {}
+    constructor(private _editor: NeovimEditor, private _tokenColors: TokenColors) {}
 
     public update(state: ISyntaxHighlightState) {
         const activeBuffer: any = this._editor.activeBuffer
@@ -83,51 +82,48 @@ export class SyntaxHighlightReconciler {
                 Log.verbose(
                     "[SyntaxHighlightReconciler] Applying changes to " + tokens.length + " lines.",
                 )
-                activeBuffer.updateHighlights((highlightUpdater: any) => {
-                    tokens.forEach(token => {
-                        const line = token.line
-                        const highlights = token.highlights
+                activeBuffer.updateHighlights(
+                    this._tokenColors.tokenColors,
+                    (highlightUpdater: any) => {
+                        tokens.forEach(token => {
+                            const line = token.line
+                            const highlights = token.highlights
 
-                        if (Log.isDebugLoggingEnabled()) {
-                            Log.debug(
-                                "[SyntaxHighlightingReconciler] Updating tokens for line: " +
-                                    token.line +
-                                    " | " +
-                                    JSON.stringify(highlights),
-                            )
-                        }
+                            if (Log.isDebugLoggingEnabled()) {
+                                Log.debug(
+                                    "[SyntaxHighlightingReconciler] Updating tokens for line: " +
+                                        token.line +
+                                        " | " +
+                                        JSON.stringify(highlights),
+                                )
+                            }
 
-                        highlightUpdater.setHighlightsForLine(line, highlights)
-                    })
-                })
+                            highlightUpdater.setHighlightsForLine(line, highlights)
+                        })
+                    },
+                )
             }
         }
     }
 
     private _mapTokensToHighlights(tokens: ISyntaxHighlightTokenInfo[]): HighlightInfo[] {
         const mapTokenToHighlight = (token: ISyntaxHighlightTokenInfo) => ({
-            highlightGroup: this._getHighlightGroupFromScope(token.scopes),
+            tokenColor: this._getHighlightGroupFromScope(token.scopes),
             range: token.range,
         })
 
-        const highlights = tokens.map(mapTokenToHighlight).filter(t => !!t.highlightGroup)
-        return highlights
+        return tokens.map(mapTokenToHighlight).filter(t => !!t.tokenColor)
     }
 
-    private _getHighlightGroupFromScope(scopes: string[]): HighlightGroupId {
-        const configurationColors = this._configuration.getValue("editor.tokenColors")
-        const tokens = Object.keys(configurationColors)
+    private _getHighlightGroupFromScope(scopes: string[]): TokenColor {
+        const configurationColors = this._tokenColors.tokenColors
 
         for (const scope of scopes) {
-            const match = tokens.find(token => scope.includes(token))
+            const matchingRule = configurationColors.find((c: any) => scope.indexOf(c.scope) === 0)
 
-            for (const token in vimHighlightScopes) {
-                if (vimHighlightScopes.hasOwnProperty(token)) {
-                    const found = vimHighlightScopes[token].some((t: string) => t.includes(match))
-                    if (found) {
-                        return token
-                    }
-                }
+            if (matchingRule) {
+                // TODO: Convert to highlight group id
+                return matchingRule
             }
         }
 
