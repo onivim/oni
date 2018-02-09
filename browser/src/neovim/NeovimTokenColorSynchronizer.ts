@@ -5,6 +5,7 @@
  * as custom highlight groups.
  */
 
+import * as Color from "color"
 import { TokenColorStyle } from "./../Services/TokenColors"
 
 import { NeovimInstance } from "./NeovimInstance"
@@ -55,8 +56,9 @@ export class NeovimTokenColorSynchronizer {
     }
 
     private _convertTokenStyleToHighlightInfo(tokenColorStyle: TokenColorStyle): string {
-        // TODO: Set real colors!
-        return "guifg=White guibg=Red"
+        const foregroundColor = Color(tokenColorStyle.foregroundColor).rgbNumber()
+        const backgroundColor = Color(tokenColorStyle.backgroundColor).rgbNumber
+        return `guifg=${foregroundColor} guibg=${backgroundColor}`
     }
 
     private _setHighlightGroupForTokenColor(
