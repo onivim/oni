@@ -23,6 +23,7 @@ const CiTests = [
     "QuickOpenTest",
     "StatusBar-Mode",
     "NoInstalledNeovim",
+    "WindowManager.ErrorBoundary",
     "Workspace.ConfigurationTest",
 
     // Regression Tests
