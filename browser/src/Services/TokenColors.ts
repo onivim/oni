@@ -6,7 +6,7 @@
  * - Also will handle 'fallback logic' for tokenColors
  */
 
-import { IDisposable, IEvent } from "oni-types"
+import { Event, IDisposable, IEvent } from "oni-types"
 
 export interface TokenColor {
     scope: string
@@ -40,7 +40,8 @@ export class TokenColors implements IDisposable {
     }
 
     public setDefaultTokenColors(tokenColors: TokenColor[]): void {
-        this._defaultTokenColors = tokenColors
+        this._defaultTokenColors = tokenColors || []
+        this._updateTokenColors()
     }
 
     constructor(private _configuration: Configuration, private _themeManager: ThemeManager) {
@@ -71,9 +72,11 @@ export class TokenColors implements IDisposable {
         const userColors = this._configuration.getValue("editor.tokenColors")
         this._tokenColors = [
             ...(userColors || []),
-            ...tokenColorsFromTheme,
+            ...(tokenColorsFromTheme || []),
             ...this._defaultTokenColors,
         ]
+
+        this._onTokenColorsChangedEvent.dispatch()
     }
 }
 
