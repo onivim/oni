@@ -20,6 +20,8 @@ const RedScreenWrapper = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+    pointer-events: all;
 `
 
 const RedScreenContentsWrapper = styled.div`
@@ -38,18 +40,27 @@ const HeaderSubtitleWrapper = styled.div`
 
 const ErrorSectionWrapper = styled.div`
     font-weight: bold;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin-top: 3em;
+    margin-bottom: 1em;
+`
+
+const ErrorTextWrapper = styled.div`
+    -webkit-user-select: text;
 `
 
 const ButtonsWrapper = styled.div`
     display: flex;
     flex-direction: row;
 
-    margin-top: 16px;
+    margin-top: 4em;
 `
 
 import { OniButton } from "./SidebarEmptyPaneView"
+
+import { remote } from "electron"
+
+const openDebugger = () => remote.getCurrentWebContents().openDevTools()
+const createIssue = () => remote.shell.openExternal("https://github.com/onivim/oni/issues/new")
 
 export class RedErrorScreenView extends React.PureComponent<RedErrorScreenViewProps> {
     public render(): JSX.Element {
@@ -68,13 +79,13 @@ export class RedErrorScreenView extends React.PureComponent<RedErrorScreenViewPr
                     <HeaderTitleWrapper>Oh no!</HeaderTitleWrapper>
                     <HeaderSubtitleWrapper>We encountered an error...</HeaderSubtitleWrapper>
                     <ErrorSectionWrapper>Error:</ErrorSectionWrapper>
-                    <div>{errorMessage}</div>
+                    <ErrorTextWrapper>{errorMessage}</ErrorTextWrapper>
                     <ErrorSectionWrapper>Additional Info:</ErrorSectionWrapper>
-                    <div>{additionalStack}</div>
+                    <ErrorTextWrapper>{additionalStack}</ErrorTextWrapper>
                 </RedScreenContentsWrapper>
                 <ButtonsWrapper>
-                    <OniButton focused={false} text="Open Debugger" onClick={() => {}} />
-                    <OniButton focused={false} text="Create an Issue" onClick={() => {}} />
+                    <OniButton focused={false} text="Open Debugger" onClick={openDebugger} />
+                    <OniButton focused={false} text="Create an Issue" onClick={createIssue} />
                 </ButtonsWrapper>
             </RedScreenWrapper>
         )
