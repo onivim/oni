@@ -39,11 +39,6 @@ export class TokenColors implements IDisposable {
         return this._onTokenColorsChangedEvent
     }
 
-    public setDefaultTokenColors(tokenColors: TokenColor[]): void {
-        this._defaultTokenColors = tokenColors || []
-        this._updateTokenColors()
-    }
-
     constructor(private _configuration: Configuration, private _themeManager: ThemeManager) {
         const sub1 = this._themeManager.onThemeChanged.subscribe(() => {
             this._updateTokenColors()
@@ -58,6 +53,11 @@ export class TokenColors implements IDisposable {
         )
 
         this._subscriptions = [sub1, sub2]
+    }
+
+    public setDefaultTokenColors(tokenColors: TokenColor[]): void {
+        this._defaultTokenColors = tokenColors || []
+        this._updateTokenColors()
     }
 
     public dispose(): void {

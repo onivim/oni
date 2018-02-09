@@ -23,14 +23,14 @@ import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { IPixelPosition, IPosition } from "./Screen"
 import { Session } from "./Session"
 
-import { INeovimBufferUpdate, NeovimBufferUpdateManager } from "./NeovimBufferUpdateManager"
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 import { TokenColor } from "./../Services/TokenColors"
+import { INeovimBufferUpdate, NeovimBufferUpdateManager } from "./NeovimBufferUpdateManager"
 
 import {
-    vimHighlightToTokenColorStyle,
-    VimHighlightToDefaultScope,
     IVimHighlight,
+    VimHighlightToDefaultScope,
+    vimHighlightToTokenColorStyle,
 } from "./VimHighlights"
 
 export interface INeovimYankInfo {

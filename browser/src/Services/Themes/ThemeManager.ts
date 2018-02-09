@@ -12,8 +12,8 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 import { Configuration, configuration, GenericConfigurationValues } from "./../Configuration"
 
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
-import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
 import { TokenColor } from "./../TokenColors"
+import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
 
 export interface IThemeColors {
     background: string
