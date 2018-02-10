@@ -189,7 +189,10 @@
     },
     "license": "MIT",
     "dependencies": {
+        "@types/chai": "^4.1.2",
+        "@types/enzyme": "^3.1.8",
         "@types/marked": "^0.3.0",
+        "@types/react-test-renderer": "^16.0.0",
         "@types/redux-batched-subscribe": "^0.1.2",
         "dompurify": "1.0.2",
         "electron-settings": "^3.1.4",
