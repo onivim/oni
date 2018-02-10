@@ -2,9 +2,10 @@
  * Configuration.ts
  */
 
+import { merge } from "lodash"
 import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
-import { mergeAll } from "ramda"
+
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
 import * as Log from "./../../Log"
 import * as Performance from "./../../Performance"
@@ -176,11 +177,11 @@ export class Configuration implements Oni.Configuration {
     private _updateConfig(): void {
         const previousConfig = this._config
         // Need a deep merge here to recursizely update the config
-        let currentConfig = mergeAll([
+        let currentConfig = merge(
             this._defaultConfiguration,
             this._persistedConfiguration.getPersistedValues(),
             this._setValues,
-        ])
+        )
 
         this._configurationProviders.forEach(configProvider => {
             const configurationValues = configProvider.getValues()

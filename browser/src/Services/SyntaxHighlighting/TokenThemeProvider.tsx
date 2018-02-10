@@ -26,12 +26,13 @@ const cssToken = (theme: INewTheme, token: string) => (property: string) => {
  * @returns {fn(theme) => string}
  */
 const constructClassName = (token: string) => (theme: INewTheme) => {
+    const notPunctuation = !token.includes("punctuation")
     const tokenAsClass = token.replace(/[.]/g, "-")
     const tokenStyle = cssToken(theme, token)
     const cssClass = `
         .${tokenAsClass} {
             color: ${tokenStyle("foregroundColor")};
-            ${tokenStyle("bold") && "font-weight: bold"};
+            ${tokenStyle("bold") && notPunctuation && "font-weight: bold"};
             ${tokenStyle("italic") && "font-style: italic"};
         }
     `
@@ -43,7 +44,7 @@ const constructClassName = (token: string) => (theme: INewTheme) => {
  * A string of classes based on these types is produced
  * TokenFunc
  */
-const symbols = [
+const SymbolsList = [
     "keyword.package",
     "keyword.var",
     "keyword.struct",
@@ -107,10 +108,11 @@ const symbols = [
     "punctuation.definition.parameters.begin",
     "punctuation.definition.parameters.end",
     "punctuation.separator.continuation",
-].map(constructClassName)
+]
+
+const symbols = SymbolsList.map(constructClassName)
 
 type TokenFunc = (theme: INewTheme) => string
-
 const flattenedSymbols = (theme: INewTheme, fns: TokenFunc[]) => fns.map(fn => fn(theme)).join("\n")
 
 const styles = css`
@@ -146,8 +148,8 @@ interface IState {
  */
 class TokenThemeProvider extends React.Component<IProps, IState> {
     public state: IState = {
-        styles: "",
-        theme: {} as INewTheme,
+        styles: null,
+        theme: null,
     }
 
     public componentDidMount() {
