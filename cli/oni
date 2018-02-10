@@ -12,7 +12,17 @@ processOptions.env = Object.assign({}, process.env, { "LOCAL_ONI": 1 })
 
 var isWindows = os.platform() === "win32";
 
-var args = process.argv.slice(2);
+var argv = require("minimist")(process.argv.slice(2));
+var args = argv._;
+var version = require(path.join(__dirname, "..", "package.json")).version;
+
+if(argv.help || argv.h) {
+    process.stdout.write("ONI: Modern Modal Editing - powered by Neovim\n");
+    process.stdout.write(` version: ${version}\n`);
+    process.stdout.write("\nUsage:\n oni [FILE]\t\tEdit file\n");
+    process.stdout.write("\nhttps://github.com/onivim/oni\n")
+    process.exit(0);
+}
 args.unshift(path.resolve(path.join(__dirname, "..", "lib", "main", "src", "main.js")))
 
 // In Windows, directly call into the electron executable - otherwise we"ll end up with a floating node console
