@@ -12,8 +12,8 @@ interface ITokens {
 interface IRendererArgs {
     tokens?: ITokens[]
     text: string
-    element?: string
-    container?: string
+    element?: TextElement
+    container?: TextElement
 }
 
 const scopesToString = (scope: object) => {
@@ -30,21 +30,30 @@ const scopesToString = (scope: object) => {
     return null
 }
 
+/**
+ * escapeRegExp
+ * Escapes a string intended for use as a regexp
+ * @param {string} str
+ * @returns {string}
+ */
 function escapeRegExp(str: string) {
     // NOTE This does NOT escape the "|" operator as it's needed for the Reg Exp
     // Also does not escape "\-" as hypenated tokes can be found
     return str.replace(/[\[\]\/\{\}\(\)\*\+\?\.\\\^\$\n\r]/g, "\\$&")
 }
 
-const createContainer = (type: string, content: string) => {
+type TextElement = "code" | "pre" | "paragraph" | "span"
+const createContainer = (type: TextElement, content: string) => {
     switch (type) {
         case "code":
+            return `<code class="marked-code">
+                        ${content}
+                     <code>
+            `
         case "pre":
             return `
                 <pre class="marked-pre">
-                    <code class="marked-code">
-                        ${content}
-                    <code>
+                    ${content}
                  </pre>
             `
         case "paragraph":
@@ -54,12 +63,18 @@ const createContainer = (type: string, content: string) => {
     }
 }
 
-const renderWithClasses = ({
+/**
+ * Takes a list of tokens which contain ranges, the text from marked (3rd party lib)
+ * uses a reg exp to replace all matching tokens with an element with a class that is styled
+ * else where
+ * @returns {string}
+ */
+function renderWithClasses({
     tokens,
     text,
     element = "span",
     container = "paragraph",
-}: IRendererArgs) => {
+}: IRendererArgs) {
     // This is critical because marked's renderer refuses to leave html untouched so it converts
     // special chars to html entities which are rendered correctly in react
     const unescapedText = unescape(text)
@@ -76,24 +91,16 @@ const renderWithClasses = ({
         const symbolNames = Object.keys(symbols)
         const banned = ["\n", "\r", " ", "|"]
         const filteredNames = symbolNames.filter(str => !banned.includes(str))
-        // "\b" tell the regex to use word boundaries to match not partial matches
-        // FIXME: RegExp is breaking on certain chars
+        // FIXME: RegExp does not respect word boundaries
         const symbolRegex = new RegExp("(" + escapeRegExp(filteredNames.join("|")) + ")", "g")
-        // tslint:disable
-        console.group("Regex ====================")
-        console.log("filteredNames: ", filteredNames)
-        console.log("symbolNames: ", symbolNames)
-        console.log("symbolRegex: ", symbolRegex)
-        console.group("matches..............")
         const html = unescapedText.replace(symbolRegex, (match, ...args) => {
-            console.log("match in replacer: ", match)
             const className = scopesToString(symbols[match])
             return `<${element} class="marked ${className}">${match}</${element}>`
         })
-        console.groupEnd()
-        console.groupEnd()
-        // tslint:enable
-        return createContainer(container, html)
+        if (container) {
+            return createContainer(container, html)
+        }
+        return html
     }
     return text
 }
@@ -113,19 +120,19 @@ export const convertMarkdown = ({
         sanitize: true,
         gfm: true,
         renderer,
+        // highlight: (code, lang) =>  renderWithClasses({ text: code, tokens, container: "code" }),
     })
+
+    // renderer.blockquote = text => renderWithClasses({ text, tokens, container: "pre" })
 
     switch (type) {
         case "documentation":
-            renderer.code = text => renderWithClasses({ text, tokens, container: "pre" })
-            renderer.paragraph = text => `<p>${text}</p>`
+            renderer.paragraph = text => createContainer("paragraph", text)
             break
         case "title":
         default:
-            renderer.code = text => renderWithClasses({ text, tokens, container: "pre" })
             renderer.paragraph = text => renderWithClasses({ text, tokens })
     }
-
     const html = marked(markdown)
     return { __html: html }
 }

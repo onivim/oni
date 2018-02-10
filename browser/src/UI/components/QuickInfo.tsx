@@ -31,7 +31,8 @@ const markedCss = css`
     }
 
     .marked-code {
-        white-space: nowrap;
+        white-space: pre-wrap;
+        display: table;
     }
 `
 
