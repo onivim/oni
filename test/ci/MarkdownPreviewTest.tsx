@@ -22,7 +22,9 @@ interface IMarkdownPreviewPlugin {
 }
 
 export const settings = {
-    configPath: "MarkdownPreviewTest.config.js",
+    config: {
+        "experimental.markdownPreview.enabled": true,
+    },
 }
 
 export async function test(typedOni: Oni.Plugin.Api) {
