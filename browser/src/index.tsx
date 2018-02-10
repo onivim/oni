@@ -141,6 +141,8 @@ const start = async (args: string[]): Promise<void> => {
 
     UnhandledErrorMonitor.start(Notifications.getInstance())
 
+    UnhandledErrorMonitor.start(Notifications.getInstance())
+
     const Tasks = await taksPromise
     Tasks.activate(menuManager)
     const tasks = Tasks.getInstance()

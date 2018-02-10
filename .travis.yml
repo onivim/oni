@@ -84,3 +84,8 @@ deploy:
         condition: $TRAVIS_OS_NAME = linux
         tags: true
         repo: onivim/oni
+    - provider: script
+      script: build/aur/deploy.sh
+      on:
+        condition: $TRAVIS_OS_NAME = linux
+        tags: true
