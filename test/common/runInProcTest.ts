@@ -58,9 +58,14 @@ const getConfigPath = (settings: any, rootPath: string) => {
 // Helper method to write a config to a temporary folder
 // Returns the path to the serialized config
 const serializeConfig = (configValues: { [key: string]: any }): string => {
-    const stringifiedConfig = Object.keys(configValues).map(
-        key => `"${key}": ${configValues[key]},`,
-    )
+    const stringifiedConfig = Object.keys(configValues).map(key => {
+        let val = configValues[key]
+        // Wrap string values in quites
+        if (typeof val === "string") {
+            val = `"${val}"`
+        }
+        return `"${key}": ${val},`
+    })
 
     const outputConfig = `module.exports = {${stringifiedConfig.join(os.EOL)}}`
 

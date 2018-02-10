@@ -230,6 +230,9 @@ export class NeovimEditor extends Editor implements IEditor {
             const notification = notificationManager.createItem()
             notification.setLevel("error")
             notification.setContents(messageInfo.title, messageInfo.details)
+            notification.onClick.subscribe(() =>
+                commandManager.executeCommand("oni.config.openInitVim"),
+            )
             notification.show()
         })
 

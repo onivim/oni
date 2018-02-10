@@ -78,6 +78,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     }
 
     public notifyStartInsertMode(buffer: Oni.Buffer): void {
+        if (!buffer) {
+            return
+        }
+
         this._store.dispatch({
             type: "START_INSERT_MODE",
             bufferId: buffer.id,
@@ -85,6 +89,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     }
 
     public async notifyEndInsertMode(buffer: any): Promise<void> {
+        if (!buffer) {
+            return
+        }
+
         const lines = await buffer.getLines(0, buffer.lineCount, false)
 
         // const currentState = this._store.getState()

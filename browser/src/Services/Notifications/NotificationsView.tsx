@@ -129,7 +129,11 @@ const NotificationDescription = styled.div`
 export class NotificationView extends React.PureComponent<INotification, {}> {
     public render(): JSX.Element {
         return (
-            <NotificationWrapper key={this.props.id} onClick={this.props.onClick}>
+            <NotificationWrapper
+                key={this.props.id}
+                onClick={this.props.onClick}
+                className="notification"
+            >
                 <NotificationIconWrapper>
                     <Icon size={IconSize.Large} name="exclamation-triangle" />
                 </NotificationIconWrapper>
