@@ -347,7 +347,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.callFunction("OniGetContext", [])
     }
 
-    public start(startOptions?: INeovimStartOptions): Promise<void> {
+    public async start(startOptions?: INeovimStartOptions): Promise<void> {
         Performance.startMeasure("NeovimInstance.Start")
         this._initPromise = startNeovim(startOptions).then(nv => {
             Log.info("NeovimInstance: Neovim started")

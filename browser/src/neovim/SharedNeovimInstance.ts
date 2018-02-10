@@ -93,7 +93,7 @@ export class MenuBinding extends Binding implements IMenuBinding {
     }
 
     public async setItems(items: string[], activeId?: string): Promise<void> {
-        await this._promiseQueue.enqueuePromise(async () => {
+        this._promiseQueue.enqueuePromise(async () => {
             if (items === this._currentOptions && activeId === this._currentId) {
                 return
             }
@@ -103,6 +103,9 @@ export class MenuBinding extends Binding implements IMenuBinding {
             this._currentOptions = items
             this._currentId = activeId
 
+            if (!this.neovimInstance.isInitialized) {
+                return
+            }
             const currentWinId = await this.neovimInstance.request("nvim_get_current_win", [])
             const currentBufId = await this.neovimInstance.eval("bufnr('%')")
             const bufferLength = await this.neovimInstance.eval<number>("line('$')")
