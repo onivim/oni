@@ -16,6 +16,9 @@ import { IConfigurationValues } from "./Services/Configuration/IConfigurationVal
 const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
 
+    const UnhandledErrorMonitor = await import("./Services/UnhandledErrorMonitor")
+    UnhandledErrorMonitor.activate()
+
     const Shell = await import("./UI/Shell")
     Shell.activate()
 
@@ -131,6 +134,8 @@ const start = async (args: string[]): Promise<void> => {
 
     const Notifications = await notificationsPromise
     Notifications.activate(overlayManager)
+
+    UnhandledErrorMonitor.start(Notifications.getInstance())
 
     const Tasks = await taksPromise
     Tasks.activate(menuManager)

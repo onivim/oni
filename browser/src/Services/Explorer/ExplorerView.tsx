@@ -125,7 +125,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                 onSelected={id => this.props.onClick(id)}
                 render={(selectedId: string) => {
                     const nodes = this.props.nodes.map(node => (
-                        <Sneakable callback={() => this.props.onClick(node.id)}>
+                        <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
                             <NodeView
                                 node={node}
                                 isSelected={node.id === selectedId}
