@@ -29,4 +29,5 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
 export const settings = {
     configPath: "NoInstalledNeovim.config.js",
+    allowLogFailures: true,
 }
