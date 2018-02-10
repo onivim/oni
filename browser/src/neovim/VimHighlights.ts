@@ -19,7 +19,6 @@ export const vimHighlightToTokenColorStyle = (highlight: IVimHighlight): TokenCo
     return {
         foregroundColor: Color(highlight.foreground).hex(),
         backgroundColor: Color(highlight.background).hex(),
-        // TODO: Do we get these from `nvim_get_hl_by_name`?
         bold: highlight.bold,
         italic: highlight.italic,
     }
