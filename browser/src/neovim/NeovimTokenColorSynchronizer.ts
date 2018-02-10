@@ -6,7 +6,7 @@
  */
 
 import * as Color from "color"
-import { TokenColorStyle } from "./../Services/TokenColors"
+import { TokenColor } from "./../Services/TokenColors"
 
 import { NeovimInstance } from "./NeovimInstance"
 
@@ -14,32 +14,24 @@ import * as Log from "./../Log"
 
 export class NeovimTokenColorSynchronizer {
     private _currentIndex: number = 0
-    // private _tokenColorKeyToHighlightGroupName: { [key: string]: string } = { }
-    private _tokenColorKeyToHighlightGroupName = {}
+    private _tokenScopeSelectorToHighlightName: { [key: string]: string } = {}
+    private _highlightNameToHighlightValue: { [key: string]: string } = {}
 
     constructor(private _neovimInstance: NeovimInstance) {}
 
     // This method creates highlight groups for any token colors that haven't been set yet
-    public async synchronizeTokenColors(tokenColors: TokenColorStyle[]): Promise<void> {
+    public async synchronizeTokenColors(tokenColors: TokenColor[]): Promise<void> {
         const promises = tokenColors.map(async tokenColor => {
-            const currentHighlight = this.getHighlightGroupForTokenColorStyle(tokenColor)
+            const highlightName = this._getOrCreateHighlightGroup(tokenColor)
+            const highlightFromScope = this._convertTokenStyleToHighlightInfo(tokenColor)
 
-            if (currentHighlight) {
+            const currentHighlight = this._highlightNameToHighlightValue[highlightName]
+
+            if (currentHighlight === highlightFromScope) {
                 return
             } else {
-                this._currentIndex++
-                const newHighlightGroupName = "oni_highlight_" + this._currentIndex.toString()
-                Log.verbose(
-                    "[NeovimTokenColorSynchronizer::synchronizeTokenColors] Creating new highlight group - " +
-                        newHighlightGroupName,
-                )
-                await this._neovimInstance.command(
-                    ":hi " +
-                        newHighlightGroupName +
-                        " " +
-                        this._convertTokenStyleToHighlightInfo(tokenColor),
-                )
-                this._setHighlightGroupForTokenColor(tokenColor, newHighlightGroupName)
+                await this._neovimInstance.command(highlightFromScope)
+                this._highlightNameToHighlightValue[highlightName] = highlightFromScope
             }
         })
 
@@ -50,28 +42,30 @@ export class NeovimTokenColorSynchronizer {
      * Gets the highlight group for the particular token color. Requires that `synchronizeTokenColors` has been called
      * previously.
      */
-    public getHighlightGroupForTokenColorStyle(tokenColorStyle: TokenColorStyle): string {
-        const key = this._getCacheKeyForTokenColorStyle(tokenColorStyle)
-        return this._tokenColorKeyToHighlightGroupName[key]
+    public getHighlightGroupForTokenColor(tokenColor: TokenColor): string {
+        return this._getOrCreateHighlightGroup(tokenColor)
     }
 
-    private _convertTokenStyleToHighlightInfo(tokenColorStyle: TokenColorStyle): string {
-        const foregroundColor = Color(tokenColorStyle.foregroundColor).rgbNumber()
-        const backgroundColor = Color(tokenColorStyle.backgroundColor).rgbNumber
-        return `guifg=${foregroundColor} guibg=${backgroundColor}`
+    private _convertTokenStyleToHighlightInfo(tokenColor: TokenColor): string {
+        const name = this._getOrCreateHighlightGroup(tokenColor)
+        const foregroundColor = Color(tokenColor.settings.foregroundColor).rgbNumber()
+        const backgroundColor = Color(tokenColor.settings.backgroundColor).rgbNumber
+        return `:hi ${name} guifg=${foregroundColor} guibg=${backgroundColor}`
     }
 
-    private _setHighlightGroupForTokenColor(
-        tokenColor: TokenColorStyle,
-        highlightName: string,
-    ): void {
-        const key = this._getCacheKeyForTokenColorStyle(tokenColor)
-        this._tokenColorKeyToHighlightGroupName[key] = highlightName
-    }
-
-    private _getCacheKeyForTokenColorStyle(tokenColor: TokenColorStyle): string {
-        return `${tokenColor.backgroundColor}_${tokenColor.foregroundColor}_${tokenColor.bold}_${
-            tokenColor.italic
-        }`
+    private _getOrCreateHighlightGroup(tokenColor: TokenColor): string {
+        const existingGroup = this._tokenScopeSelectorToHighlightName[tokenColor.scope]
+        if (existingGroup) {
+            return existingGroup
+        } else {
+            this._currentIndex++
+            const newHighlightGroupName = "oni_highlight_" + this._currentIndex.toString()
+            Log.verbose(
+                "[NeovimTokenColorSynchronizer::_getOrCreateHighlightGroup] Creating new highlight group - " +
+                    newHighlightGroupName,
+            )
+            this._tokenScopeSelectorToHighlightName[tokenColor.scope] = newHighlightGroupName
+            return newHighlightGroupName
+        }
     }
 }
