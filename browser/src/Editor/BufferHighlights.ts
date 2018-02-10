@@ -47,8 +47,8 @@ export class BufferHighlightsUpdater implements IBufferHighlightsUpdater {
         }
 
         const addHighlightCalls = highlights.map(hl => {
-            const highlightGroup = this._neovimInstance.tokenColorSynchronizer.getHighlightGroupForTokenColorStyle(
-                hl.tokenColor.settings,
+            const highlightGroup = this._neovimInstance.tokenColorSynchronizer.getHighlightGroupForTokenColor(
+                hl.tokenColor,
             )
 
             return [

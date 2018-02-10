@@ -261,6 +261,16 @@ export class NeovimEditor extends Editor implements IEditor {
         this._colors.onColorsChanged.subscribe(() => onColorsChanged())
         onColorsChanged()
 
+        const onTokenColorschanged = () => {
+            if (this._neovimInstance.isInitialized) {
+                this._neovimInstance.tokenColorSynchronizer.synchronizeTokenColors(
+                    this._tokenColors.tokenColors,
+                )
+            }
+        }
+
+        this._tokenColors.onTokenColorsChanged.subscribe(() => onTokenColorschanged())
+
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362

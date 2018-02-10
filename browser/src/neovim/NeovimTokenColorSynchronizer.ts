@@ -48,8 +48,8 @@ export class NeovimTokenColorSynchronizer {
 
     private _convertTokenStyleToHighlightInfo(tokenColor: TokenColor): string {
         const name = this._getOrCreateHighlightGroup(tokenColor)
-        const foregroundColor = Color(tokenColor.settings.foregroundColor).rgbNumber()
-        const backgroundColor = Color(tokenColor.settings.backgroundColor).rgbNumber
+        const foregroundColor = Color(tokenColor.settings.foregroundColor).hex()
+        const backgroundColor = Color(tokenColor.settings.backgroundColor).hex()
         return `:hi ${name} guifg=${foregroundColor} guibg=${backgroundColor}`
     }
 
