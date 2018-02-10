@@ -122,8 +122,7 @@
         "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
         "build:main": "cd main && tsc -p tsconfig.json",
         "build:plugins":
-            "npm run build:plugin:oni-layer-browser && npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-markdown-preview",
-        "build:plugin:oni-layer-browser": "cd extensions/oni-layer-browser && npm run build",
+            "npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-markdown-preview",
         "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && npm run build",
         "build:plugin:oni-plugin-markdown-preview":
             "cd extensions/oni-plugin-markdown-preview && npm run build",
@@ -131,6 +130,7 @@
         "build:test:integration": "cd test && tsc -p tsconfig.json",
         "build:test:unit": "cd browser && tsc -p tsconfig.test.json",
         "copy-icons": "node build/CopyIcons.js",
+        "copy-dist-to-s3": "node build/script/CopyPackedFilesForS3Upload.js",
         "debug:test:unit:browser":
             "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
         "demo": "npm run build:test && mocha -t 30000 lib_test/test/Demo.js",
@@ -143,20 +143,12 @@
         "test:unit": "npm run test:unit:browser",
         "test:unit:browser":
             "npm run build:test:unit && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
-        "fix-lint":
-            "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test && npm run fix-lint:plugins",
+        "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
         "fix-lint:browser":
             "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
-        "fix-lint:plugins": "npm run fix-lint:plugins:oni-layer-browser",
-        "fix-lint:plugins:oni-layer-browser":
-            "tslint --fix --project extensions/oni-layer-browser/tsconfig.json --config tslint.json",
         "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
         "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
-        "lint":
-            "npm run lint:browser && npm run lint:main && npm run lint:test && npm run lint:plugins",
-        "lint:plugins": "npm run lint:plugin:oni-layer-browser",
-        "lint:plugin:oni-layer-browser":
-            "tslint --project extensions/oni-layer-browser/tsconfig.json --config tslint.json",
+        "lint": "npm run lint:browser && npm run lint:main && npm run lint:test",
         "lint:browser":
             "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
@@ -176,8 +168,7 @@
         "watch:browser":
             "webpack-dev-server --config browser/webpack.debug.config.js --host localhost --port 8191",
         "watch:plugins":
-            "npm run watch:plugins:oni-layer-browser && npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
-        "watch:plugins:oni-layer-browser": "cd extensions/oni-layer-browser && tsc --watch",
+            "npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
         "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
         "watch:plugins:oni-plugin-markdown-preview":
             "cd extensions/oni-plugin-markdown-preview && tsc --watch",
@@ -206,13 +197,12 @@
         "minimist": "1.2.0",
         "msgpack-lite": "0.1.26",
         "ocaml-language-server": "^1.0.21",
-        "oni-api": "^0.0.26",
+        "oni-api": "^0.0.30",
         "oni-neovim-binaries": "0.1.0",
         "oni-ripgrep": "0.0.3",
         "oni-types": "0.0.4",
         "react": "16.0.0",
         "react-dom": "16.0.0",
-        "react-electron-web-view": "^2.0.1",
         "redux-batched-subscribe": "^0.1.6",
         "shell-env": "^0.3.0",
         "shelljs": "0.7.7",
@@ -257,7 +247,7 @@
         "css-loader": "0.28.4",
         "electron": "^1.8.2-beta.5",
         "electron-builder": "19.46.4",
-        "electron-devtools-installer": "2.2.1",
+        "electron-devtools-installer": "^2.2.3",
         "electron-mocha": "5.0.0",
         "electron-rebuild": "1.6.0",
         "extract-zip": "1.6.0",

@@ -29,6 +29,7 @@ export function nodeRequire(moduleName: string): any {
 }
 
 export const EmptyArray: any[] = []
+export const noop = () => {} // tslint:disable-line
 
 export const normalizePath = (fileName: string) => fileName.split("\\").join("/")
 

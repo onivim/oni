@@ -11,7 +11,7 @@ import { Icon, IconSize } from "./../../UI/Icon"
 
 import { ISidebarEntry, ISidebarState } from "./SidebarStore"
 
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
 import { withProps } from "./../../UI/components/common"
 
 import { Sneakable } from "./../../UI/components/Sneakable"
@@ -24,6 +24,11 @@ export interface ISidebarIconProps {
 }
 
 import { VimNavigator } from "./../../UI/components/VimNavigator"
+
+const EntranceKeyframes = keyframes`
+    0% { opacity: 0.5; transform: scale(0.5) translateX(-10px); }
+    100%% { opacity: 1; transform: scale(1.0) translateX(0px); }
+`
 
 const SidebarIconWrapper = withProps<ISidebarIconProps>(styled.div)`
     display: flex;
@@ -39,6 +44,8 @@ const SidebarIconWrapper = withProps<ISidebarIconProps>(styled.div)`
         props.active ? props.theme["editor.background"] : props.theme.background};
     transition: transform 0.2s ease-in;
     transform: ${props => (props.active || props.focused ? "translateY(0px)" : "translateY(0px)")};
+
+    animation: ${EntranceKeyframes} 0.1s ease-in forwards;
 
     &.active {
         opacity: 0.75;

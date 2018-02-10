@@ -61,7 +61,6 @@ const NotificationWrapper = styled.div`
     background-color: red;
     color: white;
     width: 20em;
-    height: 4em;
 
     margin: 1em;
 
@@ -112,12 +111,15 @@ const NotificationTitle = styled.div`
 
     font-weight: bold;
     font-size: 1.1em;
+
+    margin-top: 0.5em;
 `
 
 const NotificationDescription = styled.div`
     flex: 1 1 auto;
     overflow-y: auto;
     overflow-x: hidden;
+    margin: 1em 0em;
 
     font-size: 0.9em;
 `

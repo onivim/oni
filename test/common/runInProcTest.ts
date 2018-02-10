@@ -10,6 +10,14 @@ export interface ITestCase {
     name: string
     testPath: string
     configPath: string
+    allowLogFailures: boolean
+}
+
+export interface IFailedTest {
+    test: string
+    path: string
+    expected: any
+    actual: any
 }
 
 const normalizePath = p => p.split("\\").join("/")
@@ -24,6 +32,7 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
         name: testDescription.name || testName,
         testPath: normalizePath(testPath),
         configPath: getConfigPath(testMeta.settings, rootPath),
+        allowLogFailures: testDescription.allowLogFailures,
     }
 
     return normalizedMeta
@@ -32,14 +41,17 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
 import * as os from "os"
 
 const getConfigPath = (settings: any, rootPath: string) => {
-    if (!settings) {
-        return ""
-    } else if (settings.configPath) {
+    settings = settings || {}
+
+    if (settings.configPath) {
         return normalizePath(path.join(rootPath, settings.configPath))
     } else if (settings.config) {
         return normalizePath(serializeConfig(settings.config))
     } else {
-        return ""
+        // Fix #1436 - if no config is specified, we'll just use
+        // the empty config, so that the user's config doesn't
+        // impact the test results.
+        return normalizePath(serializeConfig({}))
     }
 }
 
@@ -72,15 +84,20 @@ const logWithTimeStamp = (message: string) => {
     console.log(`[${deltaInSeconds}] ${message}`)
 }
 
-export const runInProcTest = (rootPath: string, testName: string, timeout: number = 5000) => {
+export const runInProcTest = (
+    rootPath: string,
+    testName: string,
+    timeout: number = 5000,
+    failures: IFailedTest[] = null,
+) => {
     describe(testName, () => {
-        const testCase = loadTest(rootPath, testName)
-
+        let testCase: ITestCase
         let oni: Oni
 
         beforeEach(async () => {
             logWithTimeStamp("BEFORE EACH: " + testName)
 
+            testCase = loadTest(rootPath, testName)
             const startOptions = {
                 configurationPath: testCase.configPath,
             }
@@ -116,7 +133,12 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
             console.log("Retrieving logs...")
             const writeLogs = (logs: any[]): void => {
                 logs.forEach(log => {
-                    console.log(`[${log.level}] ${log.message}`)
+                    const logMessage = `[${log.level}] ${log.message}`
+                    console.log(logMessage)
+
+                    if (log.level === "SEVERE" && !testCase.allowLogFailures) {
+                        assert.ok(false, logMessage)
+                    }
                 })
             }
 
@@ -136,6 +158,16 @@ export const runInProcTest = (rootPath: string, testName: string, timeout: numbe
             console.log("")
 
             const result = JSON.parse(resultText)
+            if (failures && !result.passed) {
+                const failedTest: IFailedTest = {
+                    test: testName,
+                    path: testCase.testPath,
+                    expected: result.exception.expected,
+                    actual: result.exception.actual,
+                }
+                failures.push(failedTest)
+            }
+
             assert.ok(result.passed)
         })
     })

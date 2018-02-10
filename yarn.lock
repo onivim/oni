@@ -2100,9 +2100,9 @@ electron-chromedriver@~1.6.0:
     electron-download "^3.1.0"
     extract-zip "^1.6.0"
 
-electron-devtools-installer@2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/electron-devtools-installer/-/electron-devtools-installer-2.2.1.tgz#0beb73ccbf65cbc4d09e706cebda638f839b8c55"
+electron-devtools-installer@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/electron-devtools-installer/-/electron-devtools-installer-2.2.3.tgz#58b9a4ec507377bc46e091cd43714188e0c369be"
   dependencies:
     "7zip" "0.0.6"
     cross-unzip "0.0.2"
@@ -4502,9 +4502,9 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@^0.0.26:
-  version "0.0.26"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.26.tgz#07a23e6d12a61eed9bfecab0d0514ad9d785a210"
+oni-api@^0.0.30:
+  version "0.0.30"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.30.tgz#8bf54d15131f8f1cb5a72552d0383248a4622508"
 
 oni-neovim-binaries@0.1.0:
   version "0.1.0"
@@ -5306,12 +5306,6 @@ react-dom@16.0.0:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     prop-types "^15.6.0"
-
-react-electron-web-view@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/react-electron-web-view/-/react-electron-web-view-2.0.1.tgz#984b7bbbeb77e35bcca921dc50120fc8f2b0f27d"
-  dependencies:
-    lodash.camelcase "^4.3.0"
 
 react-hot-api@^0.4.5:
   version "0.4.7"
