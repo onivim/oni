@@ -10,6 +10,7 @@ export interface ITestCase {
     name: string
     testPath: string
     configPath: string
+    allowLogFailures: boolean
 }
 
 export interface IFailedTest {
@@ -31,6 +32,7 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
         name: testDescription.name || testName,
         testPath: normalizePath(testPath),
         configPath: getConfigPath(testMeta.settings, rootPath),
+        allowLogFailures: testDescription.allowLogFailures,
     }
 
     return normalizedMeta
@@ -131,7 +133,12 @@ export const runInProcTest = (
             console.log("Retrieving logs...")
             const writeLogs = (logs: any[]): void => {
                 logs.forEach(log => {
-                    console.log(`[${log.level}] ${log.message}`)
+                    const logMessage = `[${log.level}] ${log.message}`
+                    console.log(logMessage)
+
+                    if (log.level === "SEVERE" && !testCase.allowLogFailures) {
+                        assert.ok(false, logMessage)
+                    }
                 })
             }
 

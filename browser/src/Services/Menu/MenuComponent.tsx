@@ -61,7 +61,7 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
         const rowRenderer = (props: { key: string; index: number; style: React.CSSProperties }) => {
             const item = this.props.items[props.index]
             return (
-                <div style={props.style}>
+                <div style={props.style} key={props.key}>
                     <MenuItem
                         {...item as any}
                         key={props.key}
