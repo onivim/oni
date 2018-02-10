@@ -12,6 +12,8 @@ import * as path from "path"
 import * as Oni from "oni-api"
 
 import { getTemporaryFilePath } from "./Common"
+//
+// tslint:disable:no-console
 
 const createInitVim = (): string => {
     const tempInitVim = getTemporaryFilePath("vim")
