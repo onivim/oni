@@ -93,7 +93,7 @@ export class MenuBinding extends Binding implements IMenuBinding {
     }
 
     public async setItems(items: string[], activeId?: string): Promise<void> {
-        this._promiseQueue.enqueuePromise(async () => {
+        await this._promiseQueue.enqueuePromise(async () => {
             if (items === this._currentOptions && activeId === this._currentId) {
                 return
             }
