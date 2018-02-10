@@ -215,15 +215,9 @@ export const shouldShowFileIcon = (state: State.IState): boolean => {
 }
 
 export const checkTabBuffers = (buffersInTabs: number[], buffers: State.IBuffer[]): boolean => {
-    for (const bufferIndex of buffersInTabs) {
-        for (const buffer of buffers) {
-            if (buffer.id === bufferIndex && buffer.modified) {
-                return true
-            }
-        }
-    }
+    const tabBufs = buffers.filter(buf => buffersInTabs.find(tabBuf => tabBuf === buf.id))
 
-    return false
+    return tabBufs.some(buf => buf.modified)
 }
 
 const getTabsFromBuffers = createSelector(
