@@ -144,11 +144,6 @@ const getTextFromMarkedString = (markedString: types.MarkedString): IMarkedStrin
     }
 }
 
-// const splitByNewlines = (str: string) => {
-//     // Remove '/r'
-//     return str.replace("\r", "\n")
-// }
-
 const getFilePrefix = () => {
     if (process.platform === "win32") {
         return "file:///"
