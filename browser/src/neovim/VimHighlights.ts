@@ -70,6 +70,7 @@ export const VimHighlightToDefaultScope = {
         "keyword.operator",
         "keyword.operator.expression",
         "keyword.operator.expression.void",
+        "keyword.control.import",
         "storage.type",
         "storage.type.type",
         "storage.type.class",
