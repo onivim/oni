@@ -32,6 +32,7 @@ import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
 import { getInstance as getSnippetsInstance } from "./../../Services/Snippets"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
+import { getInstance as getTokenColorsInstance } from "./../../Services/TokenColors"
 import { windowManager } from "./../../Services/WindowManager"
 import { getInstance as getWorkspaceInstance } from "./../../Services/Workspace"
 
@@ -142,6 +143,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     public get statusBar(): OniApi.StatusBar {
         return getStatusBarInstance()
+    }
+
+    public get tokenColors(): any {
+        return getTokenColorsInstance()
     }
 
     public get ui(): Ui {

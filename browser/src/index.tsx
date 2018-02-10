@@ -37,6 +37,7 @@ const start = async (args: string[]): Promise<void> => {
     const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
     const browserWindowConfigurationSynchronizerPromise = import("./Services/BrowserWindowConfigurationSynchronizer")
     const colorsPromise = import("./Services/Colors")
+    const tokenColorsPromise = import("./Services/TokenColors")
     const diagnosticsPromise = import("./Services/Diagnostics")
     const editorManagerPromise = import("./Services/EditorManager")
     const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
@@ -106,6 +107,9 @@ const start = async (args: string[]): Promise<void> => {
     Shell.initializeColors(Colors.getInstance())
     Performance.endMeasure("Oni.Start.Themes")
 
+    const TokenColors = await tokenColorsPromise
+    TokenColors.activate(configuration, Themes.getThemeManagerInstance())
+
     const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
     BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
 
@@ -173,6 +177,7 @@ const start = async (args: string[]): Promise<void> => {
             pluginManager,
             tasks,
             Themes.getThemeManagerInstance(),
+            TokenColors.getInstance(),
             workspace,
         )
 
