@@ -21,6 +21,11 @@ import { IWorkspace } from "./../../src/Services/Workspace"
 
 export class MockConfiguration {
     private _currentConfigurationFiles: string[] = []
+    private _onConfigurationChanged = new Event<any>()
+
+    public get onConfigurationChanged(): IEvent<any> {
+        return this._onConfigurationChanged
+    }
 
     public get currentConfigurationFiles(): string[] {
         return this._currentConfigurationFiles
@@ -44,6 +49,10 @@ export class MockConfiguration {
         this._currentConfigurationFiles = this._currentConfigurationFiles.filter(
             fp => fp !== filePath,
         )
+    }
+
+    public simulateConfigurationChangedEvent(changedConfigurationValues: any): void {
+        this._onConfigurationChanged.dispatch(changedConfigurationValues)
     }
 }
 
