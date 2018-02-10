@@ -419,19 +419,15 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.on("tabline-update", async (currentTabId: number, tabs: any[]) => {
-            const atomicCalls: any[] = []
-
-            for (const tab of tabs) {
-                atomicCalls.push(["nvim_call_function", ["tabpagebuflist", [tab.id]]])
-            }
+            const atomicCalls = tabs.map(function(tab: any) {
+                return ["nvim_call_function", ["tabpagebuflist", [tab.id]]]
+            })
 
             const response = await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
 
-            let i = 0
-            for (const tab of tabs) {
-                tab.buffersInTab = response[0][i]
-                i++
-            }
+            tabs.map(function(tab: any, index: number) {
+                tab.buffersInTab = response[0][index]
+            })
 
             this._actions.setTabs(currentTabId, tabs)
         })
