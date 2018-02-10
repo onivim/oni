@@ -11,6 +11,8 @@ import { TokenColorStyle } from "./../Services/TokenColors"
 export interface IVimHighlight {
     foreground: string
     background: string
+    bold: boolean
+    italic: boolean
 }
 
 export const vimHighlightToTokenColorStyle = (highlight: IVimHighlight): TokenColorStyle => {
@@ -18,8 +20,8 @@ export const vimHighlightToTokenColorStyle = (highlight: IVimHighlight): TokenCo
         foregroundColor: Color(highlight.foreground).hex(),
         backgroundColor: Color(highlight.background).hex(),
         // TODO: Do we get these from `nvim_get_hl_by_name`?
-        bold: false,
-        italic: false,
+        bold: highlight.bold,
+        italic: highlight.italic,
     }
 }
 
