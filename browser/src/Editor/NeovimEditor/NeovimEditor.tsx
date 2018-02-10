@@ -794,7 +794,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         // Check if any of the buffer layers can handle the input...
         const buf: IBuffer = this.activeBuffer as IBuffer
-        const result = buf.handleInput(key)
+        const result = buf && buf.handleInput(key)
 
         if (result) {
             return
