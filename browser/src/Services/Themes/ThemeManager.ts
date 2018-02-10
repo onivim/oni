@@ -272,20 +272,6 @@ export const DefaultThemeColors: IThemeColors = {
     "fileExplorer.cursor.foreground": NormalMode,
 }
 
-// export interface ITokenTheme {
-//     name: string
-//     scope: string[]
-//     settings: ITokenColorSettings
-// }
-
-// export interface ITokenColorSettings {
-//     background?: string
-//     foreground?: string
-
-//     bold: boolean
-//     italic: boolean
-// }
-
 export interface IThemeMetadata {
     name: string
     baseVimTheme?: string

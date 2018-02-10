@@ -19,10 +19,12 @@ const CiTests = [
     "AutoCompletionTest-TypeScript",
     "Editor.ExternalCommandLineTest",
     "LargeFileTest",
+    "MarkdownPreviewTest",
     "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
     "NoInstalledNeovim",
+    "WindowManager.ErrorBoundary",
     "Workspace.ConfigurationTest",
 
     // Regression Tests

@@ -16,6 +16,9 @@ import { IConfigurationValues } from "./Services/Configuration/IConfigurationVal
 const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
 
+    const UnhandledErrorMonitor = await import("./Services/UnhandledErrorMonitor")
+    UnhandledErrorMonitor.activate()
+
     const Shell = await import("./UI/Shell")
     Shell.activate()
 
@@ -136,6 +139,8 @@ const start = async (args: string[]): Promise<void> => {
     const Notifications = await notificationsPromise
     Notifications.activate(overlayManager)
 
+    UnhandledErrorMonitor.start(Notifications.getInstance())
+
     const Tasks = await taksPromise
     Tasks.activate(menuManager)
     const tasks = Tasks.getInstance()
@@ -192,6 +197,9 @@ const start = async (args: string[]): Promise<void> => {
         LanguageManager.createLanguageClientsFromConfiguration
 
     diagnostics.start(languageManager)
+
+    const Browser = await import("./Services/Browser")
+    Browser.activate(commandManager, configuration, editorManager)
 
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()
