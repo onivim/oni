@@ -4,6 +4,8 @@ import * as path from "path"
 
 import { Oni } from "./Oni"
 
+const findProcess = require("find-process") // tslint:disable-line
+
 // tslint:disable:no-console
 
 export interface ITestCase {
@@ -89,6 +91,18 @@ const logWithTimeStamp = (message: string) => {
     console.log(`[${deltaInSeconds}] ${message}`)
 }
 
+const reportRunningProcess = async () => {
+    const electronProcesses = await findProcess("name", "electron")
+    const oniProcesses = await findProcess("name", "oni")
+
+    const allProcesses = [...electronProcesses, ...oniProcesses]
+
+    console.log("Active Processes:")
+    allProcesses.forEach(processInfo => {
+        console.log(` - Name: ${processInfo.name} PID: ${processInfo.pid}`)
+    })
+}
+
 export const runInProcTest = (
     rootPath: string,
     testName: string,
@@ -101,6 +115,8 @@ export const runInProcTest = (
 
         beforeEach(async () => {
             logWithTimeStamp("BEFORE EACH: " + testName)
+
+            await reportRunningProcess()
 
             testCase = loadTest(rootPath, testName)
             const startOptions = {
