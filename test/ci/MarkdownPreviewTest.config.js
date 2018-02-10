@@ -4,4 +4,4 @@
 
 module.exports = {
     "experimental.markdownPreview.enabled": true,
-}
+};

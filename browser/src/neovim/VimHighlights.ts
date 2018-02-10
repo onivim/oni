@@ -87,5 +87,5 @@ export const VimHighlightToDefaultScope = {
         "variable.other.object.property",
         "variable.other.property",
     ],
-    String: ["string.double.quoted"],
+    String: ["string.quoted.double", "string.quoted.single", "string.quoted.triple"],
 }
