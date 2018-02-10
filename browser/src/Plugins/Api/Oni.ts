@@ -14,6 +14,8 @@ import * as Process from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
+import { getInstance as getPluginsManagerInstance } from "./../PluginManager"
+
 import { automation } from "./../../Services/Automation"
 import { Colors, getInstance as getColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
@@ -77,6 +79,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     public get log(): OniApi.Log {
         return Log
+    }
+
+    public get plugins(): any {
+        return getPluginsManagerInstance()
     }
 
     public get recorder(): any {

@@ -280,7 +280,6 @@ export const DefaultThemeColors: IThemeColors = {
     "fileExplorer.selection.foreground": HighlightForeground,
     "fileExplorer.cursor.background": NormalMode,
     "fileExplorer.cursor.foreground": NormalMode,
-
     "editor.tokenColors": [],
 }
 

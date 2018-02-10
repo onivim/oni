@@ -127,7 +127,7 @@ const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[]
     if (!errors || !errors.length) {
         return Selectors.EmptyArray
     } else {
-        return [<ErrorInfo errors={errors} style={style} />]
+        return [<ErrorInfo errors={errors} style={style} key="quickInfo.errorInfo" />]
     }
 }
 

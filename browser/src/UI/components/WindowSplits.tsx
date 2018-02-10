@@ -39,7 +39,7 @@ export class Dock extends React.PureComponent<IDockProps, {}> {
     public render(): JSX.Element {
         const docks = this.props.splits.map((s, i) => {
             return (
-                <div style={{ display: "flex", flexDirection: "row" }}>
+                <div style={{ display: "flex", flexDirection: "row" }} key={s.id}>
                     <WindowSplitHost
                         key={i}
                         containerClassName="split"

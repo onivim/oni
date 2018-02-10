@@ -11,14 +11,16 @@ import { TokenColorStyle } from "./../Services/TokenColors"
 export interface IVimHighlight {
     foreground: string
     background: string
+    bold: boolean
+    italic: boolean
 }
 
 export const vimHighlightToTokenColorStyle = (highlight: IVimHighlight): TokenColorStyle => {
     return {
         foregroundColor: Color(highlight.foreground).hex(),
         backgroundColor: Color(highlight.background).hex(),
-        bold: false,
-        italic: false,
+        bold: highlight.bold,
+        italic: highlight.italic,
     }
 }
 
