@@ -5,6 +5,8 @@
  * to exercise boundaries of class implementations
  */
 
+export * from "./MockThemeLoader"
+
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
