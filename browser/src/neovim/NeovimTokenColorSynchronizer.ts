@@ -21,21 +21,39 @@ export class NeovimTokenColorSynchronizer {
 
     // This method creates highlight groups for any token colors that haven't been set yet
     public async synchronizeTokenColors(tokenColors: TokenColor[]): Promise<void> {
-        const promises = tokenColors.map(async tokenColor => {
+        const highlightsToAdd = tokenColors.map(tokenColor => {
             const highlightName = this._getOrCreateHighlightGroup(tokenColor)
             const highlightFromScope = this._convertTokenStyleToHighlightInfo(tokenColor)
 
             const currentHighlight = this._highlightNameToHighlightValue[highlightName]
 
             if (currentHighlight === highlightFromScope) {
-                return
+                return null
             } else {
-                await this._neovimInstance.command(highlightFromScope)
                 this._highlightNameToHighlightValue[highlightName] = highlightFromScope
+                return highlightFromScope
             }
         })
 
-        await Promise.all(promises)
+        const filteredHighlights = highlightsToAdd.filter(hl => !!hl)
+
+        const atomicCalls = filteredHighlights.map(hlCommand => {
+            return ["nvim_command", [hlCommand]]
+        })
+
+        if (atomicCalls.length === 0) {
+            return
+        }
+
+        Log.info(
+            "[NeovimTokenColorSynchronizer::synchronizeTokenColors] Setting " +
+                atomicCalls.length +
+                " highlights",
+        )
+        await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
+        Log.info(
+            "[NeovimTokenColorSynchronizer::synchronizeTokenColors] Highlights set successfully",
+        )
     }
 
     /**
