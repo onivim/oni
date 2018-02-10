@@ -80,3 +80,9 @@ export const test = async (oni: any) => {
     await oni.automation.waitFor(() => lastAlertText !== null, 20000)
     console.log("Alert text (screenshot output path): " + lastAlertText)
 }
+
+export const settings = {
+    config: {
+        "notifications.enabled": false,
+    },
+}

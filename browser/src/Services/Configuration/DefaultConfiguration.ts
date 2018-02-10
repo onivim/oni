@@ -217,6 +217,8 @@ const BaseConfiguration: IConfigurationValues = {
     "menu.rowHeight": 40,
     "menu.maxItemsToShow": 8,
 
+    "notifications.enabled": true,
+
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
 
