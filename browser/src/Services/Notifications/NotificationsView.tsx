@@ -15,6 +15,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group"
 import { INotification, INotificationsState } from "./NotificationStore"
 
 import { Icon, IconSize } from "./../../UI/Icon"
+import { boxShadow } from "./../../UI/components/common"
 
 export interface NotificationsViewProps {
     notifications: INotification[]
@@ -74,6 +75,7 @@ const NotificationWrapper = styled.div`
     cursor: pointer;
 
     overflow: hidden;
+    transition: all 0.1s ease-in;
 
     &.notification-enter {
         animation: ${frames} 0.25s ease-in;
@@ -84,6 +86,7 @@ const NotificationWrapper = styled.div`
     }
 
     &:hover {
+        ${boxShadow};
         transform: translateY(-1px);
     }
 `
@@ -91,7 +94,12 @@ const NotificationWrapper = styled.div`
 const NotificationIconWrapper = styled.div`
     flex: 0 0 auto;
 
-    margin: 8px;
+    padding: 16px;
+
+    &:hover {
+        ${boxShadow};
+        transform: translateY(-1px);
+    }
 `
 
 const NotificationContents = styled.div`
@@ -100,6 +108,8 @@ const NotificationContents = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
+
+    padding: 8px;
 
     overflow-y: auto;
     overflow-x: hidden;
@@ -138,11 +148,17 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
                     <NotificationTitle>{this.props.title}</NotificationTitle>
                     <NotificationDescription>{this.props.detail}</NotificationDescription>
                 </NotificationContents>
-                <NotificationIconWrapper onClick={() => this.props.onClose}>
+                <NotificationIconWrapper onClick={evt => this._onClickClose(evt)}>
                     <Icon size={IconSize.Large} name="times" />
                 </NotificationIconWrapper>
             </NotificationWrapper>
         )
+    }
+
+    private _onClickClose(evt: React.MouseEvent<HTMLElement>): void {
+        this.props.onClose()
+        evt.stopPropagation()
+        evt.preventDefault()
     }
 }
 
