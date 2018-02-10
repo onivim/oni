@@ -188,6 +188,8 @@ export interface IConfigurationValues {
     "menu.rowHeight": number
     "menu.maxItemsToShow": number
 
+    "notifications.enabled": boolean
+
     // Output path to save screenshots and recordings
     "recorder.outputPath": string
 

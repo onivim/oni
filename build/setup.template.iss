@@ -33,7 +33,7 @@ Name: "addToRightClickMenu"; Description: "Add {{AppName}} to the right click me
 Name: "{group}\{{AppName}}"; Filename: "{app}\{{AppExecutableName}}"
 
 [Run]
-Filename: "{app}\{{AppName}}"; Flags: postinstall skipifsilent
+Filename: "{app}\{{AppName}}"; Flags: postinstall skipifsilent nowait
 
 [Code]
 function NeedsAddPath(Param: string): boolean;
