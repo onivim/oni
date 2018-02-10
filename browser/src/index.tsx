@@ -133,7 +133,7 @@ const start = async (args: string[]): Promise<void> => {
     const menuManager = Menu.getInstance()
 
     const Notifications = await notificationsPromise
-    Notifications.activate(overlayManager)
+    Notifications.activate(configuration, overlayManager)
 
     UnhandledErrorMonitor.start(Notifications.getInstance())
 
