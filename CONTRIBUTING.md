@@ -28,7 +28,7 @@ Any code change should be submitted as a pull request. The description should ex
 * If there is ambiguity in terms of design, architecture, or implementation, it's best to get **feedback before implementing**, to save both you and the maintainer time. If you're not sure, feel free to ask!
 * For your first few PRs, **don't try and change the world** - pick some small issues and get familiar with the codebase. Then, work your way up to bigger issues - this will set you up for success.
 
-PRs require approval from one other person, either a maintainer or a contributor. Keep in mind that when you approve code, you are accountable for it, too! Reviewers are the gatekeepers of quality and ensuring we adhere to the guidelines abvoe.
+PRs require approval from one other person, either a maintainer or a contributor. Keep in mind that when you approve code, you are accountable for it, too! Reviewers are the gatekeepers of quality and ensuring adherence to the guidelines above.
 
 ## Financial contributions
 
