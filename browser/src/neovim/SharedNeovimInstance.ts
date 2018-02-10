@@ -132,7 +132,6 @@ export class MenuBinding extends Binding implements IMenuBinding {
 }
 
 class SharedNeovimInstance implements SharedNeovimInstance {
-    private _initPromise: Promise<void>
     private _neovimInstance: NeovimInstance
 
     public get isInitialized(): boolean {
@@ -158,10 +157,8 @@ class SharedNeovimInstance implements SharedNeovimInstance {
             useDefaultConfig: true,
         }
 
-        this._initPromise = this._neovimInstance.start(startOptions)
-
         Log.info("[SharedNeovimInstance::start] Starting...")
-        await this._initPromise
+        await this._neovimInstance.start(startOptions)
         Log.info("[SharedNeovimInstance::start] Started successfully!")
     }
 }
