@@ -14,8 +14,8 @@ import { CSSTransition, TransitionGroup } from "react-transition-group"
 
 import { INotification, INotificationsState } from "./NotificationStore"
 
-import { Icon, IconSize } from "./../../UI/Icon"
 import { boxShadow } from "./../../UI/components/common"
+import { Icon, IconSize } from "./../../UI/Icon"
 
 export interface NotificationsViewProps {
     notifications: INotification[]
