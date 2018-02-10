@@ -64,13 +64,6 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
         this.props.setViewport(width, height)
     }
 
-    public componentDidCatch(e: Error) {
-        // TODO Add an Error Page to inform user of how to proceed e.g. file bug report
-        // also pass error detais so user can file those
-        // tslint:disable-next-line
-        console.warn(`Error mounting the Neovim editor because`, e)
-    }
-
     public render(): JSX.Element {
         return (
             <div className="container vertical full">
@@ -97,6 +90,7 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
                         <CursorLine lineType={"column"} />
                     </div>
                     <NeovimInput
+                        startActive={true}
                         onActivate={this.props.onActivate}
                         typingPrediction={this.props.typingPrediction}
                         neovimInstance={this.props.neovimInstance}

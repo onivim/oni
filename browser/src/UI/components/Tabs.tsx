@@ -16,6 +16,7 @@ import { addDefaultUnitIfNeeded } from "./../../Font"
 
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { Icon } from "./../../UI/Icon"
+import { styled, withProps } from "./../components/common"
 
 import { FileIcon } from "./../../Services/FileIcon"
 
@@ -54,6 +55,13 @@ export interface ITabsProps {
     fontFamily: string
     fontSize: string
 }
+
+const InnerName = withProps<{ isLong?: boolean }>(styled.span)`
+    ${p => p.isLong && `width: 250px;`};
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+`
 
 export class Tabs extends React.PureComponent<ITabsProps, {}> {
     public render(): JSX.Element {
@@ -155,7 +163,9 @@ export class Tab extends React.Component<ITabPropsWithClick> {
                         />
                     </div>
                     <div className="name" onClick={this.props.onClickName}>
-                        <span className="name-inner">{this.props.name}</span>
+                        <InnerName isLong={this.props.name.length > 50}>
+                            {this.props.name}
+                        </InnerName>
                     </div>
                     <div className="corner enable-hover" onClick={this.props.onClickClose}>
                         <div className="icon-container x-icon-container">
