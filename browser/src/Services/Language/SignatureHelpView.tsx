@@ -29,6 +29,7 @@ export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Ele
 
     let remainingSignatureString = label
 
+    let keyIndex = 0
     for (let i = 0; i < parameters.length; i++) {
         const parameterLabel = parameters[i].label
         const parameterIndex = remainingSignatureString.indexOf(parameterLabel)
@@ -37,18 +38,20 @@ export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Ele
             continue
         }
 
+        keyIndex++
         const nonArgumentText = remainingSignatureString.substring(0, parameterIndex)
-        elements.push(<Text text={nonArgumentText} />)
+        elements.push(<Text text={nonArgumentText} key={keyIndex.toString()} />)
 
         const argumentText = remainingSignatureString.substring(
             parameterIndex,
             parameterIndex + parameterLabel.length,
         )
 
+        keyIndex++
         if (i === signatureHelp.activeParameter) {
-            elements.push(<SelectedText text={argumentText} />)
+            elements.push(<SelectedText text={argumentText} key={keyIndex.toString()} />)
         } else {
-            elements.push(<Text text={argumentText} />)
+            elements.push(<Text text={argumentText} key={keyIndex.toString()} />)
         }
 
         remainingSignatureString = remainingSignatureString.substring(
@@ -59,7 +62,11 @@ export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Ele
 
     elements.push(<Text key={remainingSignatureString} text={remainingSignatureString} />)
 
-    const titleContents = [<Title padding="0.5rem">{elements}</Title>]
+    const titleContents = [
+        <Title padding="0.5rem" key={"signatureHelp.title"}>
+            {elements}
+        </Title>,
+    ]
 
     const selectedIndex = Math.min(currentItem.parameters.length, signatureHelp.activeParameter)
     const selectedArgument = currentItem.parameters[selectedIndex]

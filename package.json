@@ -203,7 +203,6 @@
         "oni-types": "0.0.4",
         "react": "16.0.0",
         "react-dom": "16.0.0",
-        "react-electron-web-view": "^2.0.1",
         "redux-batched-subscribe": "^0.1.6",
         "shell-env": "^0.3.0",
         "shelljs": "0.7.7",
