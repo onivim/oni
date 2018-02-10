@@ -140,8 +140,9 @@
             "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
         "test": "npm run test:unit && npm run test:integration",
         "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js",
-        "test:unit": "npm run test:unit:browser && npm run test:unit:react",
-        "test:unit:react": "jest",
+        "test:unit": "npm run test:unit:browser",
+        "test:react":
+            "npm run build:test:unit && electron-mocha --renderer ./lib_test/browser/src/UI/components/tests/",
         "test:unit:browser":
             "npm run build:test:unit && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
         "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
@@ -241,6 +242,7 @@
         "babel-jest": "^22.2.2",
         "babili-webpack-plugin": "0.1.2",
         "bs-platform": "1.8.0",
+        "chai": "^4.1.2",
         "classnames": "2.2.5",
         "color": "2.0.0",
         "concurrently": "3.1.0",
