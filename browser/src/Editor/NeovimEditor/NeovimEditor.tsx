@@ -830,6 +830,10 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private async _openFiles(files: string[], action: string): Promise<void> {
+        if (!files) {
+            return
+        }
+
         await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
 
         for (let i = 1; i < files.length; i++) {
