@@ -40,7 +40,7 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     ls -a .nyc_output
     ls -a .nyc_output/coverage
 
-    node_modules/.bin/coveralls < .nyc_output/coverage/lcov.inf
+    node_modules/.bin/coveralls < .nyc_output/coverage/lcov.info
 fi
 
 npm run copy-dist-to-s3
