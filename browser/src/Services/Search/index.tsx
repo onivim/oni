@@ -15,6 +15,8 @@ import { EditorManager } from "./../EditorManager"
 import { SidebarManager } from "./../Sidebar"
 import { Workspace } from "./../Workspace"
 
+import * as Log from "./../../Log"
+
 export * from "./SearchProvider"
 
 import {
@@ -25,11 +27,14 @@ import {
     RipGrepSearchProvider,
 } from "./SearchProvider"
 
+import { SearchResultSpinnerView } from "./SearchResultsSpinnerView"
 import { SearchPaneView } from "./SearchPaneView"
 
 export class SearchPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
+    private _onSearchStarted = new Event<void>()
+    private _onSearchCompleted = new Event<void>()
     private _shouldFocusAutomatically: boolean = false
 
     private _searchProvider: ISearchProvider
@@ -52,7 +57,7 @@ export class SearchPane {
     ) {
         this._searchProvider = new RipGrepSearchProvider()
 
-        this._searchOptionsObservable.debounceTime(100).subscribe((opts: ISearchOptions) => {
+        this._searchOptionsObservable.auditTime(100).subscribe((opts: ISearchOptions) => {
             this._startNewSearch(opts)
         })
 
@@ -73,14 +78,20 @@ export class SearchPane {
         const immedateFocus = this._shouldFocusAutomatically
         this._shouldFocusAutomatically = false
         return (
-            <SearchPaneView
-                workspace={this._workspace}
-                onEnter={this._onEnter}
-                onLeave={this._onLeave}
-                onFocus={this._onFocusEvent}
-                onSearchOptionsChanged={opts => this._onSearchOptionsChanged(opts)}
-                focusImmediately={immedateFocus}
-            />
+            <div>
+                <SearchPaneView
+                    workspace={this._workspace}
+                    onEnter={this._onEnter}
+                    onLeave={this._onLeave}
+                    onFocus={this._onFocusEvent}
+                    onSearchOptionsChanged={opts => this._onSearchOptionsChanged(opts)}
+                    focusImmediately={immedateFocus}
+                />
+                <SearchResultSpinnerView
+                    onSearchStarted={this._onSearchStarted}
+                    onSearchFinished={this._onSearchCompleted}
+                />
+            </div>
         )
     }
 
@@ -89,17 +100,24 @@ export class SearchPane {
     }
 
     private _startNewSearch(searchOpts: ISearchOptions): void {
-        console.log("changed: " + searchOpts)
-
         if (this._currentQuery) {
             this._currentQuery.cancel()
         }
+
+        if (!searchOpts.searchQuery || searchOpts.searchQuery.length < 1) {
+            return
+        }
+
+        Log.verbose("[SearchPane::_startNewSearch]: " + searchOpts.searchQuery)
+
+        this._onSearchStarted.dispatch()
 
         const query = this._searchProvider.search(searchOpts)
 
         query.start()
 
         query.onSearchCompleted.subscribe(result => {
+            this._onSearchCompleted.dispatch()
             const visualizer = new QuickFixSearchResultsViewer(this._editorManager)
             visualizer.showResult(result)
         })

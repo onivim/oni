@@ -153,7 +153,7 @@ export class SearchPaneView extends React.PureComponent<
             searchQuery: val,
         })
 
-        this._startSearch()
+        this._startSearch(val)
     }
 
     // private _onCommit(): void {
@@ -165,18 +165,16 @@ export class SearchPaneView extends React.PureComponent<
     }
 
     private _onSelected(selectedId: string): void {
-        if (selectedId === "button.search") {
-            this._startSearch()
-        } else if (selectedId === "textbox.query") {
+        if (selectedId === "textbox.query") {
             this.setState({ activeTextbox: "textbox.query" })
         } else if (selectedId === "textbox.filter") {
             this.setState({ activeTextbox: "textbox.filter" })
         }
     }
 
-    private _startSearch(): void {
+    private _startSearch(val: string): void {
         this.props.onSearchOptionsChanged({
-            searchQuery: this.state.searchQuery,
+            searchQuery: val,
             fileFilter: this.state.fileFilter,
             workspace: this.props.workspace.activeWorkspace,
         })
