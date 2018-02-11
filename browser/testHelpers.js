@@ -38,7 +38,7 @@ Module.prototype.require = function(moduleName, ...args) {
     // Idea adapted from:
     // https://github.com/MarshallOfSound/Google-Play-Music-Desktop-Player-UNOFFICIAL-/commit/1b2055b286f1f296c0d48dec714224c14acb3c34
     const ccovFile = shouldUseCodeCoverage
-        ? moduleName.replace("browser/src/", "browser/src_ccov/")
+        ? moduleName.replace("../src/", "../src_ccov/")
         : moduleName
     return originalRequire.call(this, ccovFile, ...args)
 }
