@@ -73,12 +73,8 @@ export function wrapTokens({ tokens, element, text }: WrapTokenArgs): string {
     const banned = ["\n", "\r", " ", "|"]
     const filteredNames = symbolNames.filter(str => !banned.includes(str))
     // FIXME: RegExp does not respect word boundaries
-    console.group("Regex symbols")
-    console.log("symbols: ", symbols)
     const symbolRegex = new RegExp("(" + escapeRegExp(filteredNames.join("|")) + ")", "g")
     const html = text.replace(symbolRegex, (match, ...args) => {
-        console.log("match: ", match)
-        console.groupEnd()
         const className = scopesToString(symbols[match])
         return `<${element} class="marked ${className}">${match}</${element}>`
     })
