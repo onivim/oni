@@ -81,7 +81,12 @@ export class TypeScriptServerHost extends events.EventEmitter {
 
         this._rl.on("line", msg => {
             if (msg.indexOf("{") === 0) {
-                this._parseResponse(msg)
+                try {
+                    this._parseResponse(msg)
+                } catch (e) {
+                    // tslint:disable-next-line
+                    console.warn(`Error parsing TSS response: ${e}`)
+                }
             }
         })
     }
