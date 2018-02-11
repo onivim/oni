@@ -113,7 +113,14 @@ const ensureOniNotRunning = async () => {
 
         filteredProcesses.forEach(processInfo => {
             console.log("Attemping to kill pid: " + processInfo.pid)
-            process.kill(processInfo.pid)
+            // Sometimes, there can be a race condition here. For example,
+            // the process may have closed between when we queried above
+            // and when we try to kill it. So we'll wrap it in a try/catch.
+            try {
+                process.kill(processInfo.pid)
+            } catch (ex) {
+                console.warn(ex)
+            }
         })
         attempts++
     }
