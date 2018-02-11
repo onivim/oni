@@ -5,7 +5,14 @@
     "homepage": "https://www.onivim.io",
     "version": "0.2.22",
     "description": "NeoVim front-end with IDE-style extensibility",
-    "keywords": ["vim", "neovim", "text", "editor", "ide", "vim"],
+    "keywords": [
+        "vim",
+        "neovim",
+        "text",
+        "editor",
+        "ide",
+        "vim"
+    ],
     "main": "./lib/main/src/main.js",
     "bin": {
         "oni": "./cli/oni",
@@ -38,17 +45,30 @@
         "mac": {
             "artifactName": "${productName}-${version}-osx.${ext}",
             "category": "public.app-category.developer-tools",
-            "target": ["dmg"],
-            "files": ["bin/osx/**/*"]
+            "target": [
+                "dmg"
+            ],
+            "files": [
+                "bin/osx/**/*"
+            ]
         },
         "linux": {
             "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
             "maintainer": "bryphe@outlook.com",
-            "target": ["tar.gz", "deb", "rpm"]
+            "target": [
+                "tar.gz",
+                "deb",
+                "rpm"
+            ]
         },
         "win": {
-            "target": ["zip", "dir"],
-            "files": ["bin/x86/**/*"]
+            "target": [
+                "zip",
+                "dir"
+            ],
+            "files": [
+                "bin/x86/**/*"
+            ]
         },
         "fileAssociations": [
             {
@@ -121,67 +141,50 @@
         "build:browser": "webpack --config browser/webpack.production.config.js",
         "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
         "build:main": "cd main && tsc -p tsconfig.json",
-        "build:plugins":
-            "npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-markdown-preview",
+        "build:plugins": "npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-markdown-preview",
         "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && npm run build",
-        "build:plugin:oni-plugin-markdown-preview":
-            "cd extensions/oni-plugin-markdown-preview && npm run build",
+        "build:plugin:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm run build",
         "build:test": "npm run build:test:unit && npm run build:test:integration",
         "build:test:integration": "cd test && tsc -p tsconfig.json",
         "build:test:unit": "cd browser && tsc -p tsconfig.test.json",
         "copy-icons": "node build/CopyIcons.js",
         "copy-dist-to-s3": "node build/script/CopyPackedFilesForS3Upload.js",
-        "debug:test:unit:browser":
-            "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+        "debug:test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
         "demo": "npm run build:test && mocha -t 30000 lib_test/test/Demo.js",
-        "dist:win":
-            "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
-        "pack:win":
-            "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
+        "dist:win": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
+        "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
         "test": "npm run test:unit && npm run test:integration",
         "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js",
         "test:unit": "npm run test:unit:browser",
         "test:react":
-            "npm run build:test:unit && mocha --recursive ../lib_test/browser/src/UI/components/tests",
+            "npm run build:test:unit && mocha --recursive ../lib_test/browser/test/components",
         "test:unit:browser":
             "npm run build:test:unit && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
         "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
-        "fix-lint:browser":
-            "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+        "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
         "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
         "lint": "npm run lint:browser && npm run lint:main && npm run lint:test",
-        "lint:browser":
-            "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+        "lint:browser": "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
-        "lint:test":
-            "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
+        "lint:test": "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
         "pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --publish never",
-        "ccov:instrument":
-            "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
-        "ccov:test:browser":
-            "cd browser && cross-env ONI_CCOV=1 electron-mocha --renderer --require testHelpers.js -R testCoverageReporter --recursive ../lib_test/browser/test",
+        "ccov:instrument": "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
+        "ccov:test:browser": "cd browser && cross-env ONI_CCOV=1 electron-mocha --renderer --require testHelpers.js -R testCoverageReporter --recursive ../lib_test/browser/test",
         "ccov:report": "nyc report && nyc report --reporter=html && nyc report --reporter=lcov",
-        "start":
-            "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
-        "start-hot":
-            "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
+        "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
+        "start-hot": "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
         "start-not-dev": "cross-env electron main.js",
-        "watch:browser":
-            "webpack-dev-server --config browser/webpack.debug.config.js --host localhost --port 8191",
-        "watch:plugins":
-            "npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
+        "watch:browser": "webpack-dev-server --config browser/webpack.debug.config.js --host localhost --port 8191",
+        "watch:plugins": "npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
         "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
-        "watch:plugins:oni-plugin-markdown-preview":
-            "cd extensions/oni-plugin-markdown-preview && tsc --watch",
+        "watch:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && tsc --watch",
         "uninstall-global": "npm rm -g oni-vim",
         "install-global": "npm install -g oni-vim",
         "install:plugins": "npm run install:plugins:oni-plugin-markdown-preview",
-        "install:plugins:oni-plugin-markdown-preview":
-            "cd extensions/oni-plugin-markdown-preview && npm install --prod",
+        "install:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm install --prod",
         "postinstall": "npm run install:plugins && electron-rebuild && opencollective postinstall",
-        "profile:webpack":
-            "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
+        "profile:webpack": "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
     },
     "repository": {
         "type": "git",
@@ -259,6 +262,7 @@
         "electron-rebuild": "1.6.0",
         "enzyme": "^3.3.0",
         "extract-zip": "1.6.0",
+        "find-process": "^1.1.0",
         "fs-extra": "4.0.2",
         "fuse.js": "2.6.2",
         "github-releases": "^0.4.1",

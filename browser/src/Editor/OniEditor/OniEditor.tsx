@@ -31,6 +31,7 @@ import { ISyntaxHighlighter } from "./../../Services/SyntaxHighlighting"
 
 import { Tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
+import { TokenColors } from "./../../Services/TokenColors"
 import { Workspace } from "./../../Services/Workspace"
 
 import { IEditor } from "./../Editor"
@@ -108,6 +109,7 @@ export class OniEditor implements IEditor {
         pluginManager: PluginManager,
         tasks: Tasks,
         themeManager: ThemeManager,
+        tokenColors: TokenColors,
         workspace: Workspace,
     ) {
         this._neovimEditor = new NeovimEditor(
@@ -121,6 +123,7 @@ export class OniEditor implements IEditor {
             pluginManager,
             tasks,
             themeManager,
+            tokenColors,
             workspace,
         )
 
