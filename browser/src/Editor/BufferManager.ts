@@ -219,10 +219,7 @@ export class Buffer implements IBuffer {
                 this._neovimInstance,
                 this._bufferHighlightId,
             )
-            const tokenColorStyles = tokenColors.map(tc => tc.settings)
-            await this._neovimInstance.tokenColorSynchronizer.synchronizeTokenColors(
-                tokenColorStyles,
-            )
+            await this._neovimInstance.tokenColorSynchronizer.synchronizeTokenColors(tokenColors)
             await bufferUpdater.start()
 
             updateFunction(bufferUpdater)

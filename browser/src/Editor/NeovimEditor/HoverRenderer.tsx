@@ -115,7 +115,7 @@ export class HoverRenderer {
         }
         const items = scopeInfo.scopes.map((si: string) => <li>{si}</li>)
         return (
-            <QuickInfoDocumentation>
+            <QuickInfoDocumentation key="quickInfo.debugScopes">
                 <div>DEBUG: TextMate Scopes:</div>
                 <ul>{items}</ul>
             </QuickInfoDocumentation>
@@ -153,11 +153,7 @@ const getTitleAndContents = async (result: types.Hover) => {
             return null
         }
 
-        const tokensPerLine = await getTokens({
-            language,
-            line: titleContent,
-            prevState: null,
-        })
+        const tokensPerLine = await getTokens({ language, line: titleContent })
 
         return {
             title: html(convertMarkdown({ markdown: titleContent, tokens: tokensPerLine })),
@@ -166,11 +162,7 @@ const getTitleAndContents = async (result: types.Hover) => {
     } else {
         const descriptionContent = remainder.join(os.EOL)
 
-        const tokensPerLine = await getTokens({
-            language,
-            line: titleContent,
-            prevState: null,
-        })
+        const tokensPerLine = await getTokens({ language, line: titleContent })
 
         return {
             title: html(convertMarkdown({ markdown: titleContent, tokens: tokensPerLine })),

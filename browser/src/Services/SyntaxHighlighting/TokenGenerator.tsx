@@ -1,15 +1,9 @@
-import * as Color from "color"
 import * as path from "path"
 import * as types from "vscode-languageserver-types"
 import { StackElement } from "vscode-textmate"
 
 import { editorManager } from "../../Services/EditorManager"
 import { GrammarLoader } from "../../Services/SyntaxHighlighting/GrammarLoader"
-import { TokenColor } from "../../Services/TokenColors"
-
-export interface ITokens {
-    [token: string]: TokenColor
-}
 
 export interface IGrammarToken {
     scopes: any
@@ -25,7 +19,6 @@ export interface IHighlight {
 
 interface IGetTokens {
     line: string
-    prevState: StackElement
     language: string
     ext?: string
 }
@@ -40,11 +33,16 @@ export interface IGrammarTokens {
     line: string
 }
 
+/**
+ * This function Takes a language, its extension, and a line/lines
+ * and it return an object with keys representing each line as a number
+ * each key has a value of the line, the line's associated tokens and the rulestack
+ * @returns {IGrammarPerLine}
+ */
 export default async function getTokens({
     language,
     ext,
     line,
-    prevState,
 }: IGetTokens): Promise<IGrammarPerLine> {
     const { activeBuffer: b } = editorManager.activeEditor
     const lang = language || b.language
@@ -71,25 +69,4 @@ export default async function getTokens({
         return tokensPerLine
     }
     return { 0: { tokens: [], ruleStack: null, line: null } }
-}
-
-const highlightOrDefault = (color: number) => (color ? Color(color).hex() : null)
-
-export function createChildFromScopeName(
-    result: ITokens,
-    scopeName: string,
-    { italic, bold, foreground, background }: IHighlight,
-) {
-    return {
-        ...result,
-        [scopeName]: {
-            scope: [scopeName],
-            settings: {
-                italic,
-                bold,
-                foreground: highlightOrDefault(foreground),
-                background: highlightOrDefault(background),
-            },
-        },
-    }
 }

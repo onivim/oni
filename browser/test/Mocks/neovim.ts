@@ -7,6 +7,8 @@
 
 import * as Neovim from "./../../src/neovim"
 
+export * from "./neovim/MockNeovimInstance"
+
 export class MockScreen implements Neovim.IScreen {
     public backgroundColor: string
     public foregroundColor: string
