@@ -59,9 +59,9 @@ export class HoverRenderer {
         errors: types.Diagnostic[],
     ): Promise<JSX.Element> {
         const titleAndContents = await getTitleAndContents(hover)
-        const quickInfoElement = (
+        const quickInfoElement = !!titleAndContents ? (
             <QuickInfoWithTheme titleAndContents={titleAndContents} key="quick-info-element" />
-        )
+        ) : null
 
         const borderColor = this._colors.getColor("toolTip.border")
 

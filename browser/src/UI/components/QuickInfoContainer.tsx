@@ -23,31 +23,29 @@ class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
         const hasTitle = !!(titleAndContents && titleAndContents.title.__html)
         const hasDocs =
             hasTitle &&
-            Boolean(
+            !!(
                 titleAndContents &&
-                    titleAndContents.description &&
-                    titleAndContents.description.__html,
+                titleAndContents.description &&
+                titleAndContents.description.__html
             )
 
         return (
             <TokenThemeProvider
-                render={({ theme, styles }) =>
-                    !!titleAndContents ? (
-                        <QuickInfoContainer hasDocs={hasDocs}>
-                            <QuickInfoTitle
-                                padding={hasDocs ? "0.5rem" : null}
-                                html={titleAndContents.title}
+                render={({ theme, styles }) => (
+                    <QuickInfoContainer hasDocs={hasDocs}>
+                        <QuickInfoTitle
+                            padding={hasDocs ? "0.5rem" : null}
+                            html={titleAndContents.title}
+                            tokenStyles={styles}
+                        />
+                        {titleAndContents.description && (
+                            <QuickInfoDocumentation
+                                html={titleAndContents.description}
                                 tokenStyles={styles}
                             />
-                            {titleAndContents.description && (
-                                <QuickInfoDocumentation
-                                    html={titleAndContents.description}
-                                    tokenStyles={styles}
-                                />
-                            )}
-                        </QuickInfoContainer>
-                    ) : null
-                }
+                        )}
+                    </QuickInfoContainer>
+                )}
             />
         )
     }
