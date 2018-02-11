@@ -172,7 +172,7 @@
         "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
         "start-hot": "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
         "start-not-dev": "cross-env electron main.js",
-        "watch:browser": "webpack-dev-server --config browser/webpack.debug.config.js --host localhost --port 8191",
+        "watch:browser": "webpack-dev-server --config browser/webpack.development.config.js --host localhost --port 8191",
         "watch:plugins": "npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
         "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
         "watch:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && tsc --watch",
