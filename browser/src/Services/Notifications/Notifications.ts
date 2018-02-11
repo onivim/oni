@@ -23,7 +23,14 @@ export class Notifications {
 
         this._overlay = this._overlayManager.createItem()
         this._overlay.setContents(getView(this._store))
+    }
+
+    public enable(): void {
         this._overlay.show()
+    }
+
+    public disable(): void {
+        this._overlay.hide()
     }
 
     public createItem(): Notification {

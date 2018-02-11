@@ -44,6 +44,8 @@ import { Configuration, IConfigurationValues } from "./../../Services/Configurat
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
+import { TokenColors } from "./../../Services/TokenColors"
+
 import * as Shell from "./../../UI/Shell"
 
 import {
@@ -165,6 +167,7 @@ export class NeovimEditor extends Editor implements IEditor {
         private _pluginManager: PluginManager,
         private _tasks: Tasks,
         private _themeManager: ThemeManager,
+        private _tokenColors: TokenColors,
         private _workspace: Workspace,
     ) {
         super()
@@ -794,7 +797,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         // Check if any of the buffer layers can handle the input...
         const buf: IBuffer = this.activeBuffer as IBuffer
-        const result = buf.handleInput(key)
+        const result = buf && buf.handleInput(key)
 
         if (result) {
             return
@@ -951,6 +954,9 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         this._themeManager.notifyVimThemeChanged(newColorScheme, backgroundColor, foregroundColor)
+
+        const tokenColors = await this._neovimInstance.getTokenColors()
+        this._tokenColors.setDefaultTokenColors(tokenColors)
 
         // Flip first render to force a full redraw
         this._isFirstRender = true

@@ -12,6 +12,7 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 import { Configuration, configuration, GenericConfigurationValues } from "./../Configuration"
 
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
+import { TokenColor } from "./../TokenColors"
 import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
 
 export interface IThemeColors {
@@ -271,32 +272,18 @@ export const DefaultThemeColors: IThemeColors = {
     "fileExplorer.cursor.foreground": NormalMode,
 }
 
-// export interface ITokenTheme {
-//     name: string
-//     scope: string[]
-//     settings: ITokenColorSettings
-// }
-
-// export interface ITokenColorSettings {
-//     background?: string
-//     foreground?: string
-
-//     bold: boolean
-//     italic: boolean
-// }
-
 export interface IThemeMetadata {
     name: string
     baseVimTheme?: string
     colors: Partial<IThemeColors>
-    // tokenColors: ITokenTheme[]
+    tokenColors: TokenColor[]
 }
 
 export const DefaultTheme: IThemeMetadata = {
     name: "default",
     baseVimTheme: "default",
     colors: DefaultThemeColors,
-    // tokenColors: [],
+    tokenColors: [],
 }
 
 export class ThemeManager {
@@ -333,10 +320,11 @@ export class ThemeManager {
             // that.
             this._isAnonymousTheme = true
 
-            const temporaryVimTheme = {
+            const temporaryVimTheme: IThemeMetadata = {
                 name,
                 baseVimTheme: name,
                 colors: DefaultThemeColors,
+                tokenColors: [],
             }
 
             this._updateTheme(temporaryVimTheme)
@@ -364,6 +352,7 @@ export class ThemeManager {
                 name: vimName,
                 baseVimTheme: vimName,
                 colors: getColorsFromBackgroundAndForeground(backgroundColor, foregroundColor),
+                tokenColors: [],
             }
 
             this._updateTheme(vimTheme)

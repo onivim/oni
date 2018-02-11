@@ -24,6 +24,7 @@ const CiTests = [
     "QuickOpenTest",
     "StatusBar-Mode",
     "NoInstalledNeovim",
+    "Sidebar.ToggleSplitTest",
     "WindowManager.ErrorBoundary",
     "Workspace.ConfigurationTest",
 
