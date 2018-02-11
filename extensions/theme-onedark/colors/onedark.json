@@ -46,13 +46,6 @@
 
         "highlight.mode.visual.background": "#56b6c2",
         "highlight.mode.visual.foreground": "#282c34",
-        "editor.tokenColors": [
-            {
-                "scope": ["variable.parameter"],
-                "settings": {
-                    "foreground": "red"
-                }
-            }
-        ]
+        "editor.tokenColors": []
     }
 }

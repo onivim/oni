@@ -123,6 +123,8 @@ export class HoverRenderer {
     }
 }
 
+const html = (str: string) => ({ __html: str })
+
 const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[] => {
     if (!errors || !errors.length) {
         return Selectors.EmptyArray
@@ -139,43 +141,45 @@ const getTitleAndContents = async (result: types.Hover) => {
     const contents = Helpers.getTextFromContents(result.contents)
     const [{ value: titleContent, language }, ...remaining] = contents
 
-    // FIXME contents almost always inclues a second empty object so this
-    // conditional fails
+    const remainder = remaining.map(r => r.value)
+    const [hasRemainder] = remainder
+
     if (contents.length === 0) {
         return null
-    } else if (contents.length === 1) {
+    } else if (!hasRemainder) {
         const title = titleContent.trim()
 
         if (!title) {
             return null
         }
 
-        const { tokens: titleTokens } = await getTokens({
+        const tokensPerLine = await getTokens({
             language,
             line: titleContent,
             prevState: null,
         })
 
         return {
-            title: convertMarkdown({ markdown: titleContent, tokens: titleTokens }),
+            title: html(convertMarkdown({ markdown: titleContent, tokens: tokensPerLine })),
             description: null,
         }
     } else {
-        const remainingStrings = remaining.map(r => r.value)
-        const descriptionContent = remainingStrings.join(os.EOL)
+        const descriptionContent = remainder.join(os.EOL)
 
-        const { tokens: titleTokens } = await getTokens({
+        const tokensPerLine = await getTokens({
             language,
             line: titleContent,
             prevState: null,
         })
 
         return {
-            title: convertMarkdown({ markdown: titleContent, tokens: titleTokens }),
-            description: convertMarkdown({
-                markdown: descriptionContent,
-                type: "documentation",
-            }),
+            title: html(convertMarkdown({ markdown: titleContent, tokens: tokensPerLine })),
+            description: html(
+                convertMarkdown({
+                    markdown: descriptionContent,
+                    type: "documentation",
+                }),
+            ),
         }
     }
 }

@@ -1,16 +1,12 @@
 import { unescape } from "lodash"
 import * as marked from "marked"
-import * as types from "vscode-languageserver-types"
+
+import { IGrammarPerLine, IGrammarToken } from "./../../Services/SyntaxHighlighting/TokenGenerator"
 
 const renderer = new marked.Renderer()
 
-interface ITokens {
-    scopes: any
-    range: types.Range
-}
-
 interface IRendererArgs {
-    tokens?: ITokens[]
+    tokens?: IGrammarPerLine
     text: string
     element?: TextElement
     container?: TextElement
@@ -38,7 +34,7 @@ const scopesToString = (scope: object) => {
  */
 function escapeRegExp(str: string) {
     // NOTE This does NOT escape the "|" operator as it's needed for the Reg Exp
-    // Also does not escape "\-" as hypenated tokes can be found
+    // Also does not escape "\-" as hypenated tokens can be found
     return str.replace(/[\[\]\/\{\}\(\)\*\+\?\.\\\^\$\n\r]/g, "\\$&")
 }
 
@@ -63,6 +59,30 @@ const createContainer = (type: TextElement, content: string) => {
     }
 }
 
+interface WrapTokenArgs {
+    tokens: IGrammarToken[]
+    element: string
+    text: string
+}
+function wrapTokens({ tokens, element, text }: WrapTokenArgs): string {
+    const symbols = tokens.reduce((acc, token) => {
+        const symbol = text.substring(token.range.start.character, token.range.end.character)
+        acc[symbol] = token.scopes
+        return acc
+    }, {})
+
+    const symbolNames = Object.keys(symbols)
+    const banned = ["\n", "\r", " ", "|"]
+    const filteredNames = symbolNames.filter(str => !banned.includes(str))
+    // FIXME: RegExp does not respect word boundaries
+    const symbolRegex = new RegExp("(" + escapeRegExp(filteredNames.join("|")) + ")", "g")
+    const html = text.replace(symbolRegex, (match, ...args) => {
+        const className = scopesToString(symbols[match])
+        return `<${element} class="marked ${className}">${match}</${element}>`
+    })
+    return html
+}
+
 /**
  * Takes a list of tokens which contain ranges, the text from marked (3rd party lib)
  * uses a reg exp to replace all matching tokens with an element with a class that is styled
@@ -78,52 +98,55 @@ function renderWithClasses({
     // This is critical because marked's renderer refuses to leave html untouched so it converts
     // special chars to html entities which are rendered correctly in react
     const unescapedText = unescape(text)
+
     if (tokens) {
-        const symbols = tokens.reduce((acc, token) => {
-            const symbol = unescapedText.substring(
-                token.range.start.character,
-                token.range.end.character,
-            )
-            acc[symbol] = token.scopes
+        const tokenValues = Object.values(tokens)
+        const tokenLines = new Set(tokenValues.map(l => l.line))
+        const parts = new Set(unescapedText.split("\n"))
+        // Find common lines in lines to render and lines in tokenisation map
+        const intersection = new Set([...tokenLines].filter(x => parts.has(x)))
+        // console.group("Code block")
+        // console.log("parts: ", parts)
+        // console.log("tokenLines: ", tokenLines)
+        // console.log("intersection: ", intersection)
+        // console.log("unescapedText: ", unescapedText)
+        // console.groupEnd()
+        const lineToToken = tokenValues.reduce((acc, t) => {
+            acc[t.line] = t
             return acc
         }, {})
-
-        const symbolNames = Object.keys(symbols)
-        const banned = ["\n", "\r", " ", "|"]
-        const filteredNames = symbolNames.filter(str => !banned.includes(str))
-        // FIXME: RegExp does not respect word boundaries
-        const symbolRegex = new RegExp("(" + escapeRegExp(filteredNames.join("|")) + ")", "g")
-        const html = unescapedText.replace(symbolRegex, (match, ...args) => {
-            const className = scopesToString(symbols[match])
-            return `<${element} class="marked ${className}">${match}</${element}>`
-        })
-        if (container) {
-            return createContainer(container, html)
+        if (intersection.size) {
+            const html = [...intersection].reduce((acc, match) => {
+                return `${(acc += wrapTokens({
+                    tokens: lineToToken[match].tokens,
+                    element,
+                    text: lineToToken[match].line,
+                }))}\n`
+            }, "")
+            if (container) {
+                return createContainer(container, html)
+            }
+            return html
         }
-        return html
     }
     return text
 }
 
 interface IConversionArgs {
     markdown: string
-    tokens?: ITokens[]
+    tokens?: IGrammarPerLine
     type?: string
 }
 
-export const convertMarkdown = ({
-    markdown,
-    tokens,
-    type = "title",
-}: IConversionArgs): { __html: string } => {
+export const convertMarkdown = ({ markdown, tokens, type = "title" }: IConversionArgs): string => {
     marked.setOptions({
         sanitize: true,
         gfm: true,
         renderer,
-        // highlight: (code, lang) =>  renderWithClasses({ text: code, tokens, container: "code" }),
+        highlight: (code, lang) => {
+            return renderWithClasses({ text: code, tokens, container: "code" })
+        },
     })
-
-    // renderer.blockquote = text => renderWithClasses({ text, tokens, container: "pre" })
 
     switch (type) {
         case "documentation":
@@ -132,7 +155,8 @@ export const convertMarkdown = ({
         case "title":
         default:
             renderer.paragraph = text => renderWithClasses({ text, tokens })
+            renderer.blockquote = text => renderWithClasses({ text, tokens, container: "pre" })
     }
     const html = marked(markdown)
-    return { __html: html }
+    return html
 }

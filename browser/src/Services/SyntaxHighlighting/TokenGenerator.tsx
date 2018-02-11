@@ -11,6 +11,11 @@ export interface ITokens {
     [token: string]: TokenColor
 }
 
+export interface IGrammarToken {
+    scopes: any
+    range: types.Range
+}
+
 export interface IHighlight {
     foreground: number
     background?: number
@@ -25,25 +30,47 @@ interface IGetTokens {
     ext?: string
 }
 
-export default async function getTokens({ language, ext, line, prevState }: IGetTokens) {
+export interface IGrammarPerLine {
+    [line: number]: IGrammarTokens
+}
+
+export interface IGrammarTokens {
+    tokens: IGrammarToken[]
+    ruleStack: StackElement
+    line: string
+}
+
+export default async function getTokens({
+    language,
+    ext,
+    line,
+    prevState,
+}: IGetTokens): Promise<IGrammarPerLine> {
     const { activeBuffer: b } = editorManager.activeEditor
     const lang = language || b.language
     const extension = ext || path.extname(b.filePath)
-    let tokens = null
-    let ruleStack = null
 
     const Grammar = new GrammarLoader()
     const grammar = await Grammar.getGrammarForLanguage(lang, extension)
 
+    let tokens = null
+    let ruleStack = null
+
     if (grammar) {
-        const tokenizeResult = grammar.tokenizeLine(line, prevState)
-        tokens = tokenizeResult.tokens.map((t: any) => ({
-            range: types.Range.create(0, t.startIndex, 0, t.endIndex),
-            scopes: t.scopes,
-        }))
-        ruleStack = tokenizeResult.ruleStack
+        const lines = line.split(/\n/)
+        const tokensPerLine = {}
+        for (let index = 0; index < lines.length; index++) {
+            const tokenizeResult = grammar.tokenizeLine(lines[index], ruleStack)
+            tokens = tokenizeResult.tokens.map((t: any) => ({
+                range: types.Range.create(index, t.startIndex, index, t.endIndex),
+                scopes: t.scopes,
+            }))
+            ruleStack = tokenizeResult.ruleStack
+            tokensPerLine[index] = { tokens, ruleStack, line: lines[index] }
+        }
+        return tokensPerLine
     }
-    return { ruleStack, tokens }
+    return { 0: { tokens: [], ruleStack: null, line: null } }
 }
 
 const highlightOrDefault = (color: number) => (color ? Color(color).hex() : null)
