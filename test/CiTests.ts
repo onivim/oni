@@ -18,6 +18,8 @@ const CiTests = [
     "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
     "Editor.ExternalCommandLineTest",
+    "Editor.BufferModifiedState",
+    "Editor.TabModifiedState",
     "LargeFileTest",
     "MarkdownPreviewTest",
     "PaintPerformanceTest",

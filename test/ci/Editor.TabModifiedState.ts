@@ -1,5 +1,5 @@
 /**
- * Test script to validate the modified status for buffers.
+ * Test script to validate the modified status for tabs.
  */
 
 import * as assert from "assert"
@@ -15,7 +15,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     // Check the buffer did not have a modified state by default
     let tabState = getElementByClassName("tab selected not-dirty")
 
-    assert.ok(tabState, "Check buffer has no modified icon")
+    assert.ok(tabState, "Check tab has no modified icon")
 
     // Next, edit the buffer and check that shows up
     oni.automation.sendKeys("i")
@@ -28,14 +28,25 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     tabState = getElementByClassName("tab selected is-dirty")
 
-    assert.ok(tabState, "Check buffer now has a modified icon")
+    assert.ok(tabState, "Check tab now has a modified icon")
 
-    // Finally, swap buffer and swap back to ensure the modified status remains.
+    // Next, open a split in the current tab, and check the tab still remains dirty
     oni.automation.sendKeys(":")
-    oni.automation.sendKeys("e buffer2")
+    oni.automation.sendKeys("vsplit buffer2")
     oni.automation.sendKeys("<enter>")
 
     await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.id === "2")
+
+    tabState = getElementByClassName("tab selected is-dirty")
+
+    assert.ok(tabState, "Check tab has modified icon after opening split")
+
+    // Finally, swap tab and swap back to ensure the modified status remains.
+    oni.automation.sendKeys(":")
+    oni.automation.sendKeys("tabe buffer3")
+    oni.automation.sendKeys("<enter>")
+
+    await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.id === "3")
 
     oni.automation.sendKeys(":")
     oni.automation.sendKeys("buf 1")
@@ -45,5 +56,12 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     tabState = getElementByClassName("tab selected is-dirty")
 
-    assert.ok(tabState, "Check buffer still has modified icon after swapping")
+    assert.ok(tabState, "Check tab still has modified icon after swapping")
+}
+
+// Bring in custom config.
+export const settings = {
+    config: {
+        "tabs.mode": "tabs",
+    },
 }
