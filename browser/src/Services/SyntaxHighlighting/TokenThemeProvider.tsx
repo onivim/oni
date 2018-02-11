@@ -205,7 +205,7 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
             }
             return acc
         }, [])
-        return [...newTokens, this.tokenColors]
+        return [...newTokens, ...this.tokenColors]
     }
 
     public generateSingleToken(name: string, { settings }: TokenColor) {
