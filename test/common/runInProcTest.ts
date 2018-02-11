@@ -4,12 +4,15 @@ import * as path from "path"
 
 import { Oni } from "./Oni"
 
+const findProcess = require("find-process") // tslint:disable-line
+
 // tslint:disable:no-console
 
 export interface ITestCase {
     name: string
     testPath: string
     configPath: string
+    allowLogFailures: boolean
 }
 
 export interface IFailedTest {
@@ -31,6 +34,7 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
         name: testDescription.name || testName,
         testPath: normalizePath(testPath),
         configPath: getConfigPath(testMeta.settings, rootPath),
+        allowLogFailures: testDescription.allowLogFailures,
     }
 
     return normalizedMeta
@@ -82,6 +86,34 @@ const logWithTimeStamp = (message: string) => {
     console.log(`[${deltaInSeconds}] ${message}`)
 }
 
+// Sometimes, on the automation machines, Oni will still be running
+// when starting the test. It will fail if there is an existing instance
+// running, so we need to make sure to finish it.
+const ensureOniNotRunning = async () => {
+    let attempts = 0
+    const maxAttempts = 5
+
+    while (attempts < maxAttempts) {
+        const oniProcesses = await findProcess("name", "oni")
+        console.log(`${attempts}/${maxAttempts} Active Processes:`)
+        oniProcesses.forEach(processInfo => {
+            console.log(` - Name: ${processInfo.name} PID: ${processInfo.pid}`)
+        })
+        const isOniProcess = processInfo => processInfo.name.indexOf("oni") >= 0
+        const filteredProcesses = oniProcesses.filter(isOniProcess)
+
+        if (filteredProcesses.length === 0) {
+            return
+        }
+
+        filteredProcesses.forEach(processInfo => {
+            console.log("Attemping to kill pid: " + processInfo.pid)
+            process.kill(processInfo.pid)
+        })
+        attempts++
+    }
+}
+
 export const runInProcTest = (
     rootPath: string,
     testName: string,
@@ -94,6 +126,10 @@ export const runInProcTest = (
 
         beforeEach(async () => {
             logWithTimeStamp("BEFORE EACH: " + testName)
+
+            logWithTimeStamp(" - Closing existing instances...")
+            await ensureOniNotRunning()
+            logWithTimeStamp(" - Finished closing")
 
             testCase = loadTest(rootPath, testName)
             const startOptions = {
@@ -131,7 +167,12 @@ export const runInProcTest = (
             console.log("Retrieving logs...")
             const writeLogs = (logs: any[]): void => {
                 logs.forEach(log => {
-                    console.log(`[${log.level}] ${log.message}`)
+                    const logMessage = `[${log.level}] ${log.message}`
+                    console.log(logMessage)
+
+                    if (log.level === "SEVERE" && !testCase.allowLogFailures) {
+                        assert.ok(false, logMessage)
+                    }
                 })
             }
 

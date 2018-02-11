@@ -1,3 +1,4 @@
+export * from "./ThemeLoader"
 export * from "./ThemeManager"
 
 import { PluginManager } from "./../../Plugins/PluginManager"

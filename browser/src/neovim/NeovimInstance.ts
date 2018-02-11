@@ -23,9 +23,16 @@ import { IQuickFixList, QuickFixList } from "./QuickFix"
 import { IPixelPosition, IPosition } from "./Screen"
 import { Session } from "./Session"
 
-import { INeovimBufferUpdate, NeovimBufferUpdateManager } from "./NeovimBufferUpdateManager"
-
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
+import { TokenColor } from "./../Services/TokenColors"
+import { INeovimBufferUpdate, NeovimBufferUpdateManager } from "./NeovimBufferUpdateManager"
+import { NeovimTokenColorSynchronizer } from "./NeovimTokenColorSynchronizer"
+
+import {
+    IVimHighlight,
+    VimHighlightToDefaultScope,
+    vimHighlightToTokenColorStyle,
+} from "./VimHighlights"
 
 export interface INeovimYankInfo {
     operator: string
@@ -219,6 +226,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onWildMenuSelectEvent = new Event<IWildMenuSelectEvent>()
     private _onWildMenuShowEvent = new Event<IWildMenuShowEvent>()
     private _bufferUpdateManager: NeovimBufferUpdateManager
+    private _tokenColorSynchronizer: NeovimTokenColorSynchronizer
 
     private _pendingScrollTimeout: number | null = null
 
@@ -318,6 +326,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._marks
     }
 
+    public get tokenColorSynchronizer(): NeovimTokenColorSynchronizer {
+        return this._tokenColorSynchronizer
+    }
+
     constructor(widthInPixels: number, heightInPixels: number, configuration: Configuration) {
         super()
         this._configuration = configuration
@@ -330,6 +342,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._quickFix = new QuickFixList(this)
         this._autoCommands = new NeovimAutoCommands(this)
         this._marks = new NeovimMarks(this)
+        this._tokenColorSynchronizer = new NeovimTokenColorSynchronizer(this)
 
         this._bufferUpdateManager = new NeovimBufferUpdateManager(this._configuration, this)
     }
@@ -347,7 +360,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.callFunction("OniGetContext", [])
     }
 
-    public start(startOptions?: INeovimStartOptions): Promise<void> {
+    public async start(startOptions?: INeovimStartOptions): Promise<void> {
         Performance.startMeasure("NeovimInstance.Start")
         this._initPromise = startNeovim(startOptions).then(nv => {
             Log.info("NeovimInstance: Neovim started")
@@ -457,6 +470,35 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         })
 
         return this._initPromise
+    }
+
+    public async getTokenColors(): Promise<TokenColor[]> {
+        const vimHighlights = Object.keys(VimHighlightToDefaultScope)
+        const atomicCalls = vimHighlights.map(highlight => {
+            return ["nvim_get_hl_by_name", [highlight, 1]]
+        })
+
+        const [highlightInfo] = await this._neovim.request<[IVimHighlight[]]>("nvim_call_atomic", [
+            atomicCalls,
+        ])
+
+        const ret = highlightInfo.reduce(
+            (prev: TokenColor[], currentValue: IVimHighlight, currentIndex: number) => {
+                const highlightGroupName = vimHighlights[currentIndex]
+                const settings = vimHighlightToTokenColorStyle(currentValue)
+                const newScopeNames: string[] = VimHighlightToDefaultScope[highlightGroupName] || []
+
+                const newScopes = newScopeNames.map((scope): TokenColor => ({
+                    scope,
+                    settings,
+                }))
+
+                return [...prev, ...newScopes]
+            },
+            [] as TokenColor[],
+        )
+
+        return ret
     }
 
     public setFont(fontFamily: string, fontSize: string, linePadding: number): void {

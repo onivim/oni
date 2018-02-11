@@ -111,7 +111,7 @@ export class HoverRenderer {
         }
         const items = scopeInfo.scopes.map((si: string) => <li>{si}</li>)
         return (
-            <QuickInfoDocumentation>
+            <QuickInfoDocumentation key="quickInfo.debugScopes">
                 <div>DEBUG: TextMate Scopes:</div>
                 <ul>{items}</ul>
             </QuickInfoDocumentation>
@@ -123,7 +123,7 @@ const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[]
     if (!errors || !errors.length) {
         return Selectors.EmptyArray
     } else {
-        return [<ErrorInfo errors={errors} style={style} />]
+        return [<ErrorInfo errors={errors} style={style} key="quickInfo.errorInfo" />]
     }
 }
 
@@ -169,7 +169,7 @@ const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element => {
 
     return (
         titleAndContents && (
-            <QuickInfoContainer hasDocs={hasDocs}>
+            <QuickInfoContainer hasDocs={hasDocs} key="quickInfo.titleAndDocumentation">
                 <QuickInfoTitle padding={hasDocs ? "0.5rem" : null} html={titleAndContents.title} />
                 {titleAndContents.description && (
                     <QuickInfoDocumentation html={titleAndContents.description} />

@@ -44,6 +44,8 @@ import { Configuration, IConfigurationValues } from "./../../Services/Configurat
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
+import { TokenColors } from "./../../Services/TokenColors"
+
 import * as Shell from "./../../UI/Shell"
 
 import {
@@ -165,6 +167,7 @@ export class NeovimEditor extends Editor implements IEditor {
         private _pluginManager: PluginManager,
         private _tasks: Tasks,
         private _themeManager: ThemeManager,
+        private _tokenColors: TokenColors,
         private _workspace: Workspace,
     ) {
         super()
@@ -257,6 +260,16 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._colors.onColorsChanged.subscribe(() => onColorsChanged())
         onColorsChanged()
+
+        const onTokenColorschanged = () => {
+            if (this._neovimInstance.isInitialized) {
+                this._neovimInstance.tokenColorSynchronizer.synchronizeTokenColors(
+                    this._tokenColors.tokenColors,
+                )
+            }
+        }
+
+        this._tokenColors.onTokenColorsChanged.subscribe(() => onTokenColorschanged())
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
@@ -491,7 +504,7 @@ export class NeovimEditor extends Editor implements IEditor {
             "experimental.editor.textMateHighlighting.enabled",
         )
         this._syntaxHighlighter = textMateHighlightingEnabled
-            ? new SyntaxHighlighter(this._configuration, this)
+            ? new SyntaxHighlighter(this, this._tokenColors)
             : new NullSyntaxHighlighter()
 
         this._completion = new Completion(
@@ -804,7 +817,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         // Check if any of the buffer layers can handle the input...
         const buf: IBuffer = this.activeBuffer as IBuffer
-        const result = buf.handleInput(key)
+        const result = buf && buf.handleInput(key)
 
         if (result) {
             return
@@ -822,6 +835,10 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private async _openFiles(files: string[], action: string): Promise<void> {
+        if (!files) {
+            return
+        }
+
         await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
 
         for (let i = 1; i < files.length; i++) {
@@ -961,6 +978,9 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         this._themeManager.notifyVimThemeChanged(newColorScheme, backgroundColor, foregroundColor)
+
+        const tokenColors = await this._neovimInstance.getTokenColors()
+        this._tokenColors.setDefaultTokenColors(tokenColors)
 
         // Flip first render to force a full redraw
         this._isFirstRender = true
