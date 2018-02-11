@@ -176,7 +176,7 @@ export class Configuration implements Oni.Configuration {
 
     private _updateConfig(): void {
         const previousConfig = this._config
-        // Need a deep merge here to recursizely update the config
+        // Need a deep merge here to recursively update the config
         let currentConfig = merge(
             this._defaultConfiguration,
             this._persistedConfiguration.getPersistedValues(),

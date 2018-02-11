@@ -111,7 +111,11 @@ const defaultsToMap = {
         "variable.other.object.property",
         "variable.other.property",
     ],
-    String: ["string.quoted.double", "string.quoted.single", "string.quoted.triple"],
+    "string.quoted.double": [
+        "string.quoted.double",
+        "string.quoted.single",
+        "string.quoted.triple",
+    ],
 }
 
 const symbols = Object.values(defaultsToMap)
