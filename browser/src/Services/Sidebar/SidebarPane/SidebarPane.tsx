@@ -35,13 +35,13 @@ export class SidebarPane {
         )
     }
 
-    public enter(): void {
+    public async enter(): Promise<void> {
         this._menuBinding = getInstance().bindToMenu()
 
         const widgets = this._store.getState().widgets
         const ids = flatMap(widgets, w => w.ids)
 
-        this._menuBinding.setItems(ids)
+        await this._menuBinding.setItems(ids)
 
         this._menuBinding.onCursorMoved.subscribe((id: string) => {
             this._store.dispatch({

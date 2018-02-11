@@ -10,6 +10,7 @@ import { Event, IDisposable, IEvent } from "oni-types"
 
 import { Subject } from "rxjs/Subject"
 
+import { CommandManager } from "./../CommandManager"
 import { EditorManager } from "./../EditorManager"
 import { SidebarManager } from "./../Sidebar"
 import { Workspace } from "./../Workspace"
@@ -29,6 +30,7 @@ import { SearchTextBox } from "./SearchTextBox"
 export class SearchPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
+    private _shouldFocusAutomatically: boolean = false
 
     private _searchProvider: ISearchProvider
     private _currentQuery: ISearchQuery
@@ -43,11 +45,19 @@ export class SearchPane {
         return "Search"
     }
 
-    constructor(private _editorManager: EditorManager, private _workspace: Workspace) {
+    constructor(
+        private _editorManager: EditorManager,
+        private _workspace: Workspace,
+        private _onFocusEvent: IEvent<void>,
+    ) {
         this._searchProvider = new RipGrepSearchProvider()
 
         this._searchOptionsObservable.debounceTime(100).subscribe((opts: ISearchOptions) => {
             this._startNewSearch(opts)
+        })
+
+        this._onFocusEvent.subscribe(() => {
+            this._shouldFocusAutomatically = true
         })
     }
 
@@ -60,12 +70,16 @@ export class SearchPane {
     }
 
     public render(): JSX.Element {
+        const immedateFocus = this._shouldFocusAutomatically
+        this._shouldFocusAutomatically = false
         return (
             <SearchPaneView
                 workspace={this._workspace}
                 onEnter={this._onEnter}
                 onLeave={this._onLeave}
+                onFocus={this._onFocusEvent}
                 onSearchOptionsChanged={opts => this._onSearchOptionsChanged(opts)}
+                focusImmediately={immedateFocus}
             />
         )
     }
@@ -107,6 +121,8 @@ export interface ISearchPaneViewProps {
     workspace: Workspace
     onEnter: IEvent<void>
     onLeave: IEvent<void>
+    onFocus: IEvent<void>
+    focusImmediately?: boolean
 
     onSearchOptionsChanged: (opts: ISearchOptions) => void
 }
@@ -133,7 +149,7 @@ export class SearchPaneView extends React.PureComponent<
             activeWorkspace: this.props.workspace.activeWorkspace,
             isActive: false,
             activeTextbox: null,
-            searchQuery: "Type to search...",
+            searchQuery: "Search...",
             fileFilter: null,
         }
     }
@@ -147,7 +163,17 @@ export class SearchPaneView extends React.PureComponent<
             this.setState({ activeWorkspace: wd }),
         )
 
-        this._subscriptions = [s1, s2, s3]
+        const s4 = this.props.onFocus.subscribe(() =>
+            this.setState({ activeTextbox: "textbox.query" }),
+        )
+
+        this._subscriptions = [s1, s2, s3, s4]
+
+        if (this.props.focusImmediately) {
+            this.setState({
+                activeTextbox: "textbox.query",
+            })
+        }
     }
 
     public componentWillUnmount(): void {
@@ -189,6 +215,7 @@ export class SearchPaneView extends React.PureComponent<
                                 onDismiss={() => this._clearActiveTextbox()}
                                 isFocused={selectedId === "textbox.query"}
                                 isActive={this.state.activeTextbox === "textbox.query"}
+                                onClick={() => this._onSelected("textbox.query")}
                             />
                             {/*<Label>Filter</Label>
                             <SearchTextBox
@@ -250,9 +277,25 @@ export class SearchPaneView extends React.PureComponent<
 }
 
 export const activate = (
+    commandManager: CommandManager,
     editorManager: EditorManager,
     sidebarManager: SidebarManager,
     workspace: Workspace,
 ) => {
-    sidebarManager.add("search", new SearchPane(editorManager, workspace))
+    const onFocusEvent = new Event<void>()
+    sidebarManager.add("search", new SearchPane(editorManager, workspace, onFocusEvent))
+
+    const searchAllFiles = () => {
+        sidebarManager.setActiveEntry("oni.sidebar.search")
+
+        onFocusEvent.dispatch()
+    }
+
+    commandManager.registerCommand({
+        command: "search.searchAllFiles",
+        name: "Search: All files",
+        detail: "Search across files in the active workspace",
+        execute: searchAllFiles,
+        enabled: () => !!workspace.activeWorkspace,
+    })
 }

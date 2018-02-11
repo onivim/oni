@@ -11,7 +11,11 @@ import styled from "styled-components"
 import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 
-const WebView = require("react-electron-web-view") // tslint:disable-line
+import { CommandManager } from "./../CommandManager"
+import { Configuration } from "./../Configuration"
+import { EditorManager } from "./../EditorManager"
+
+import { Icon, IconSize } from "./../../UI/Icon"
 
 const Column = styled.div`
     pointer-events: auto;
@@ -74,20 +78,12 @@ const AddressBar = styled.div`
     text-align: left;
 `
 
-export interface Icons {
-    backIcon: any
-    forwardIcon: any
-    reloadIcon: any
-    cancelIcon: any
-    debugIcon: any
-}
-
 export class BrowserLayer implements Oni.EditorLayer {
     private _goBackEvent = new Event<void>()
     private _goForwardEvent = new Event<void>()
     private _reloadEvent = new Event<void>()
 
-    constructor(private _url: string, private _icons: Icons) {}
+    constructor(private _url: string) {}
 
     public get id(): string {
         return "oni.browser"
@@ -97,7 +93,6 @@ export class BrowserLayer implements Oni.EditorLayer {
         return (
             <BrowserView
                 url={this._url}
-                icons={this._icons}
                 goBack={this._goBackEvent}
                 goForward={this._goForwardEvent}
                 reload={this._reloadEvent}
@@ -120,7 +115,6 @@ export class BrowserLayer implements Oni.EditorLayer {
 
 export interface IBrowserViewProps {
     url: string
-    icons: Icons
 
     goBack: IEvent<void>
     goForward: IEvent<void>
@@ -150,23 +144,24 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
             <Column key={"test2"}>
                 <BrowserControlsWrapper>
                     <BrowserButton onClick={() => this._goBack()}>
-                        {this.props.icons.backIcon}
+                        <Icon name="chevron-left" size={IconSize.Large} />
                     </BrowserButton>
                     <BrowserButton onClick={() => this._goForward()}>
-                        {this.props.icons.forwardIcon}
+                        <Icon name="chevron-right" size={IconSize.Large} />
                     </BrowserButton>
                     <BrowserButton onClick={() => this._reload()}>
-                        {this.props.icons.reloadIcon}
+                        <Icon name="undo" size={IconSize.Large} />
                     </BrowserButton>
                     <AddressBar>
                         <span>{this.props.url}</span>
                     </AddressBar>
-                    <BrowserButton>{this.props.icons.debugIcon}</BrowserButton>
+                    <BrowserButton>
+                        <Icon name="bug" size={IconSize.Large} />
+                    </BrowserButton>
                 </BrowserControlsWrapper>
                 <BrowserViewWrapper>
-                    <WebView
+                    <div
                         ref={elem => this._initializeElement(elem)}
-                        src={this.props.url}
                         style={{
                             position: "absolute",
                             top: "0px",
@@ -199,45 +194,33 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
         }
     }
 
-    private _initializeElement(elem: any) {
-        this._webviewElement = elem
+    private _initializeElement(elem: HTMLElement) {
+        if (elem && !this._webviewElement) {
+            const webviewElement = document.createElement("webview")
+            elem.appendChild(webviewElement)
+            this._webviewElement = webviewElement
+            this._webviewElement.src = this.props.url
+        }
     }
 }
 
-export const activate = (oni: Oni.Plugin.Api) => {
+export const activate = (
+    commandManager: CommandManager,
+    configuration: Configuration,
+    editorManager: EditorManager,
+) => {
     let count = 0
 
     const activeLayers: { [bufferId: string]: BrowserLayer } = {}
 
     const openUrl = async (url: string) => {
-        if (oni.configuration.getValue("experimental.browser.enabled")) {
+        if (configuration.getValue("experimental.browser.enabled")) {
             count++
-            const buffer: Oni.Buffer = await (oni.editors.activeEditor as any).newFile(
+            const buffer: Oni.Buffer = await (editorManager.activeEditor as any).newFile(
                 "Browser" + count.toString(),
             )
 
-            const oni2: any = oni
-            const backIcon = oni2.ui.createIcon({
-                name: "chevron-left",
-                size: oni2.ui.iconSize.Large,
-            })
-            const forwardIcon = oni2.ui.createIcon({
-                name: "chevron-right",
-                size: oni2.ui.iconSize.Large,
-            })
-            const reloadIcon = oni2.ui.createIcon({ name: "undo", size: oni2.ui.iconSize.Large })
-            const cancelIcon = oni2.ui.createIcon({ name: "times", size: oni2.ui.iconSize.Large })
-            const debugIcon = oni2.ui.createIcon({ name: "bug", size: oni2.ui.iconSize.Large })
-
-            const icons: Icons = {
-                backIcon,
-                forwardIcon,
-                reloadIcon,
-                cancelIcon,
-                debugIcon,
-            }
-
-            const layer = new BrowserLayer(url, icons)
+            const layer = new BrowserLayer(url)
             buffer.addLayer(layer)
             activeLayers[buffer.id] = layer
         } else {
@@ -245,7 +228,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
         }
     }
 
-    oni.commands.registerCommand({
+    commandManager.registerCommand({
         command: "browser.openUrl",
         execute: openUrl,
         name: null,
@@ -253,7 +236,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
     })
 
     const executeCommandForLayer = (callback: (browserLayer: BrowserLayer) => void) => () => {
-        const activeBuffer = oni.editors.activeEditor.activeBuffer
+        const activeBuffer = editorManager.activeEditor.activeBuffer
 
         const browserLayer = activeLayers[activeBuffer.id]
         if (browserLayer) {
@@ -262,11 +245,11 @@ export const activate = (oni: Oni.Plugin.Api) => {
     }
 
     const isBrowserLayerActive = () =>
-        !!activeLayers[oni.editors.activeEditor.activeBuffer.id] &&
-        !!oni.configuration.getValue("experimental.browser.enabled")
+        !!activeLayers[editorManager.activeEditor.activeBuffer.id] &&
+        !!configuration.getValue("experimental.browser.enabled")
 
     // Per-layer commands
-    oni.commands.registerCommand({
+    commandManager.registerCommand({
         command: "browser.goBack",
         execute: executeCommandForLayer(browser => browser.goBack()),
         name: "Browser: Go back",
@@ -274,7 +257,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
         enabled: isBrowserLayerActive,
     })
 
-    oni.commands.registerCommand({
+    commandManager.registerCommand({
         command: "browser.goForward",
         execute: executeCommandForLayer(browser => browser.goForward()),
         name: "Browser: Go forward",
@@ -282,7 +265,7 @@ export const activate = (oni: Oni.Plugin.Api) => {
         enabled: isBrowserLayerActive,
     })
 
-    oni.commands.registerCommand({
+    commandManager.registerCommand({
         command: "browser.reload",
         execute: executeCommandForLayer(browser => browser.reload()),
         name: "Browser: Reload",
