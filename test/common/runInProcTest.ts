@@ -108,7 +108,14 @@ const ensureOniNotRunning = async () => {
 
         filteredProcesses.forEach(processInfo => {
             console.log("Attemping to kill pid: " + processInfo.pid)
-            process.kill(processInfo.pid)
+            // Sometimes, there can be a race condition here. For example,
+            // the process may have closed between when we queried above
+            // and when we try to kill it. So we'll wrap it in a try/catch.
+            try {
+                process.kill(processInfo.pid)
+            } catch (ex) {
+                console.warn(ex)
+            }
         })
         attempts++
     }
@@ -176,14 +183,19 @@ export const runInProcTest = (
                 })
             }
 
-            const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
-            console.log("")
-            console.log("---LOGS (Renderer): " + testName)
-            writeLogs(rendererLogs)
-            console.log("--- " + testName + " ---")
-
             console.log("Getting result...")
             const resultText = await oni.client.getText(".automated-test-result")
+            const result = JSON.parse(resultText)
+
+            if (!result || !result.passed) {
+                const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
+                console.log("")
+                console.log("---LOGS (Renderer): " + testName)
+                writeLogs(rendererLogs)
+                console.log("--- " + testName + " ---")
+            } else {
+                console.log("-- LOGS: Skipped writing logs because the test passed.")
+            }
 
             console.log("")
             logWithTimeStamp("---RESULT: " + testName)
@@ -191,7 +203,6 @@ export const runInProcTest = (
             console.log("--- " + testName + " ---")
             console.log("")
 
-            const result = JSON.parse(resultText)
             if (failures && !result.passed) {
                 const failedTest: IFailedTest = {
                     test: testName,
