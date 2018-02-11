@@ -14,7 +14,7 @@ export interface NeovimRequest {
 
 export class MockNeovimInstance {
     private _requests: NeovimRequest[] = []
-    private _pendingPromises: Utility.ICompletablePromise<any>[] = []
+    private _pendingPromises: Array<Utility.ICompletablePromise<any>> = []
 
     public request(requestName: string, args: any[]) {
         this._requests.push({ requestName, args })
