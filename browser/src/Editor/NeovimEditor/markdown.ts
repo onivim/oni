@@ -12,10 +12,14 @@ interface IRendererArgs {
     container?: TextElement
 }
 
-const scopesToString = (scope: object) => {
+interface Symbols {
+    [symbol: string]: string[]
+}
+
+export const scopesToString = (scope: string[]) => {
     if (scope) {
-        return Object.values(scope)
-            .map((s: string) => {
+        return scope
+            .map(s => {
                 const lastStop = s.lastIndexOf(".")
                 const remainder = s.substring(0, lastStop)
                 return remainder.replace(/\./g, "-")
@@ -32,28 +36,22 @@ const scopesToString = (scope: object) => {
  * @param {string} str
  * @returns {string}
  */
-function escapeRegExp(str: string) {
+export function escapeRegExp(str: string) {
     // NOTE This does NOT escape the "|" operator as it's needed for the Reg Exp
     // Also does not escape "\-" as hypenated tokens can be found
     return str.replace(/[\[\]\/\{\}\(\)\*\+\?\.\\\^\$\n\r]/g, "\\$&")
 }
 
-type TextElement = "code" | "pre" | "paragraph" | "span"
-const createContainer = (type: TextElement, content: string) => {
+type TextElement = "code" | "pre" | "p" | "span"
+export const createContainer = (type: TextElement, content: string) => {
     switch (type) {
         case "code":
-            return `<code class="marked-code">
-                        ${content}
-                     <code>
+            return `<code class="marked-code">${content}</code>
             `
         case "pre":
-            return `
-                <pre class="marked-pre">
-                    ${content}
-                 </pre>
-            `
-        case "paragraph":
-            return `<${type} class="marked-paragraph">${content}<${type}>`
+            return `<pre class="marked-pre">${content}</pre>`
+        case "p":
+            return `<${type} class="marked-paragraph">${content}</${type}>`
         default:
             return content
     }
@@ -64,8 +62,8 @@ interface WrapTokenArgs {
     element: string
     text: string
 }
-function wrapTokens({ tokens, element, text }: WrapTokenArgs): string {
-    const symbols = tokens.reduce((acc, token) => {
+export function wrapTokens({ tokens, element, text }: WrapTokenArgs): string {
+    const symbols: Symbols = tokens.reduce((acc, token) => {
         const symbol = text.substring(token.range.start.character, token.range.end.character)
         acc[symbol] = token.scopes
         return acc
@@ -75,8 +73,12 @@ function wrapTokens({ tokens, element, text }: WrapTokenArgs): string {
     const banned = ["\n", "\r", " ", "|"]
     const filteredNames = symbolNames.filter(str => !banned.includes(str))
     // FIXME: RegExp does not respect word boundaries
+    console.group("Regex symbols")
+    console.log("symbols: ", symbols)
     const symbolRegex = new RegExp("(" + escapeRegExp(filteredNames.join("|")) + ")", "g")
     const html = text.replace(symbolRegex, (match, ...args) => {
+        console.log("match: ", match)
+        console.groupEnd()
         const className = scopesToString(symbols[match])
         return `<${element} class="marked ${className}">${match}</${element}>`
     })
@@ -89,11 +91,11 @@ function wrapTokens({ tokens, element, text }: WrapTokenArgs): string {
  * else where
  * @returns {string}
  */
-function renderWithClasses({
+export function renderWithClasses({
     tokens,
     text,
     element = "span",
-    container = "paragraph",
+    container = "p",
 }: IRendererArgs) {
     // This is critical because marked's renderer refuses to leave html untouched so it converts
     // special chars to html entities which are rendered correctly in react
@@ -105,12 +107,6 @@ function renderWithClasses({
         const parts = new Set(unescapedText.split("\n"))
         // Find common lines in lines to render and lines in tokenisation map
         const intersection = new Set([...tokenLines].filter(x => parts.has(x)))
-        // console.group("Code block")
-        // console.log("parts: ", parts)
-        // console.log("tokenLines: ", tokenLines)
-        // console.log("intersection: ", intersection)
-        // console.log("unescapedText: ", unescapedText)
-        // console.groupEnd()
         const lineToToken = tokenValues.reduce((acc, t) => {
             acc[t.line] = t
             return acc
@@ -150,7 +146,7 @@ export const convertMarkdown = ({ markdown, tokens, type = "title" }: IConversio
 
     switch (type) {
         case "documentation":
-            renderer.paragraph = text => createContainer("paragraph", text)
+            renderer.paragraph = text => createContainer("p", text)
             break
         case "title":
         default:
