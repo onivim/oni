@@ -139,14 +139,17 @@ const getTitleAndContents = async (result: types.Hover) => {
     }
 
     const contents = Helpers.getTextFromContents(result.contents)
+
+    if (!contents.length) {
+        return null
+    }
+
     const [{ value: titleContent, language }, ...remaining] = contents
 
     const remainder = remaining.map(r => r.value)
     const [hasRemainder] = remainder
 
-    if (contents.length === 0) {
-        return null
-    } else if (!hasRemainder) {
+    if (!hasRemainder) {
         const title = titleContent.trim()
 
         if (!title) {
