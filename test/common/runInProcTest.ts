@@ -91,16 +91,32 @@ const logWithTimeStamp = (message: string) => {
     console.log(`[${deltaInSeconds}] ${message}`)
 }
 
-const reportRunningProcess = async () => {
-    const electronProcesses = await findProcess("name", "electron")
-    const oniProcesses = await findProcess("name", "oni")
+// Sometimes, on the automation machines, Oni will still be running
+// when starting the test. It will fail if there is an existing instance
+// running, so we need to make sure to finish it.
+const ensureOniNotRunning = async () => {
+    let attempts = 0
+    const maxAttempts = 5
 
-    const allProcesses = [...electronProcesses, ...oniProcesses]
+    while (attempts < maxAttempts) {
+        const oniProcesses = await findProcess("name", "oni")
+        console.log(`${attempts}/${maxAttempts} Active Processes:`)
+        oniProcesses.forEach(processInfo => {
+            console.log(` - Name: ${processInfo.name} PID: ${processInfo.pid}`)
+        })
+        const isOniProcess = processInfo => processInfo.name.indexOf("oni") >= 0
+        const filteredProcesses = oniProcesses.filter(isOniProcess)
 
-    console.log("Active Processes:")
-    allProcesses.forEach(processInfo => {
-        console.log(` - Name: ${processInfo.name} PID: ${processInfo.pid}`)
-    })
+        if (filteredProcesses.length === 0) {
+            return
+        }
+
+        filteredProcesses.forEach(processInfo => {
+            console.log("Attemping to kill pid: " + processInfo.pid)
+            process.kill(processInfo.pid)
+        })
+        attempts++
+    }
 }
 
 export const runInProcTest = (
@@ -116,7 +132,9 @@ export const runInProcTest = (
         beforeEach(async () => {
             logWithTimeStamp("BEFORE EACH: " + testName)
 
-            await reportRunningProcess()
+            logWithTimeStamp(" - Closing existing instances...")
+            await ensureOniNotRunning()
+            logWithTimeStamp(" - Finished closing")
 
             testCase = loadTest(rootPath, testName)
             const startOptions = {
