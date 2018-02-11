@@ -59,6 +59,7 @@ const defaultsToMap = {
         "meta.object",
         "variable.other.readwrite",
         "variable.other.readwrite.alias",
+        "constant.numeric.integer",
     ],
     "support.function": [
         "support.function",
@@ -82,6 +83,7 @@ const defaultsToMap = {
         "entity.other",
         "keyword.package",
         "keyword.var",
+        "keyword.const",
         "keyword.struct",
         "keyword.control",
         "keyword.function",
@@ -101,6 +103,7 @@ const defaultsToMap = {
         "variable.other.constant",
         "variable.other.object",
         "variable.other.assignment",
+        "variable.other.declaration",
         "variable.other.constant.object",
         "variable.other.object.property",
         "variable.other.property",
