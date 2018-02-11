@@ -12,6 +12,18 @@ import { NeovimInstance } from "./NeovimInstance"
 
 import * as Log from "./../Log"
 
+const getGuiStringFromTokenColor = (color: TokenColor): string => {
+    if (color.settings.bold && color.settings.italic) {
+        return "gui=bold,italic"
+    } else if (color.settings.bold) {
+        return "gui=bold"
+    } else if (color.settings.italic) {
+        return "gui=italic"
+    } else {
+        return "gui=none"
+    }
+}
+
 export class NeovimTokenColorSynchronizer {
     private _currentIndex: number = 0
     private _tokenScopeSelectorToHighlightName: { [key: string]: string } = {}
@@ -68,7 +80,8 @@ export class NeovimTokenColorSynchronizer {
         const name = this._getOrCreateHighlightGroup(tokenColor)
         const foregroundColor = Color(tokenColor.settings.foregroundColor).hex()
         const backgroundColor = Color(tokenColor.settings.backgroundColor).hex()
-        return `:hi ${name} guifg=${foregroundColor} guibg=${backgroundColor}`
+        const gui = getGuiStringFromTokenColor(tokenColor)
+        return `:hi ${name} guifg=${foregroundColor} guibg=${backgroundColor} ${gui}`
     }
 
     private _getOrCreateHighlightGroup(tokenColor: TokenColor): string {
