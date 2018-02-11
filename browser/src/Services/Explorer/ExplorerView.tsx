@@ -4,7 +4,10 @@
  */
 
 import * as React from "react"
+import { DragDropContext, DragSource, DragSourceConnector, DragSourceMonitor } from "react-dnd"
+import HTML5Backend from "react-dnd-html5-backend"
 import { connect } from "react-redux"
+import { compose } from "redux"
 
 import styled from "styled-components"
 
@@ -35,6 +38,39 @@ const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
     elem && elem["scrollIntoViewIfNeeded"] && elem["scrollIntoViewIfNeeded"]()
 }
 
+const FileSource = {
+    beginDrag(props: any) {
+        return {
+            fileId: props.filename,
+        }
+    },
+}
+
+function fileCollect(fileConnect: DragSourceConnector, monitor: DragSourceMonitor) {
+    return {
+        connectDragSource: fileConnect.dragSource(),
+        isDragging: monitor.isDragging(),
+    }
+}
+
+const Types = {
+    file: "FILE",
+}
+
+interface IDraggeable {
+    isDragging?: boolean
+    connectDragSource?: any
+    render: (p: { isDragging?: boolean; connectDragSource?: any }) => React.ReactNode
+}
+
+@DragSource<IDraggeable>(Types.file, FileSource, fileCollect)
+class DraggeableComponent extends React.Component<IDraggeable> {
+    public render() {
+        const { isDragging, connectDragSource } = this.props
+        return connectDragSource(<div>{this.props.render({ isDragging })}</div>)
+    }
+}
+
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     public render(): JSX.Element {
         return (
@@ -49,17 +85,23 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     }
 
     public getElement(): JSX.Element {
-        const node = this.props.node
+        const { node } = this.props
 
         switch (node.type) {
             case "file":
                 return (
-                    <SidebarItemView
-                        text={node.name}
-                        isFocused={this.props.isSelected}
-                        isContainer={false}
-                        indentationLevel={node.indentationLevel}
-                        icon={<FileIcon fileName={node.name} isLarge={true} />}
+                    <DraggeableComponent
+                        render={({ isDragging }) => {
+                            return (
+                                <SidebarItemView
+                                    text={node.name}
+                                    isFocused={this.props.isSelected}
+                                    isContainer={false}
+                                    indentationLevel={node.indentationLevel}
+                                    icon={<FileIcon fileName={node.name} isLarge={true} />}
+                                />
+                            )
+                        }}
                     />
                 )
             case "container":
@@ -156,4 +198,6 @@ const mapStateToProps = (
     }
 }
 
-export const Explorer = connect(mapStateToProps)(ExplorerView)
+export const Explorer = compose(connect(mapStateToProps), DragDropContext(HTML5Backend))(
+    ExplorerView,
+)

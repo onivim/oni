@@ -583,12 +583,14 @@ export class NeovimEditor extends Editor implements IEditor {
 
             const files = ev.dataTransfer.files
             // open first file in current editor
-            this._neovimInstance.open(normalizePath(files[0].path))
-            // open any subsequent files in new tabs
-            for (let i = 1; i < files.length; i++) {
-                this._neovimInstance.command(
-                    'exec ":tabe ' + normalizePath(files.item(i).path) + '"',
-                )
+            if (files.length) {
+                this._neovimInstance.open(normalizePath(files[0].path))
+                // open any subsequent files in new tabs
+                for (let i = 1; i < files.length; i++) {
+                    this._neovimInstance.command(
+                        'exec ":tabe ' + normalizePath(files.item(i).path) + '"',
+                    )
+                }
             }
         }
     }
