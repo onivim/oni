@@ -15,7 +15,7 @@ describe("BufferStateTests", () => {
             mockEditor = new Mocks.MockEditor()
             mockBuffer1 = new Mocks.MockBuffer("typescript", "test.ts", [""])
             mockBuffer2 = new Mocks.MockBuffer("typescript", "test2.ts", [""], 2)
-            mockBuffer3 = new Mocks.MockBuffer("typescript", "test2.ts", [""], 3)
+            mockBuffer3 = new Mocks.MockBuffer("typescript", "test3.ts", [""], 3)
 
             mockEditor.simulateBufferEnter(mockBuffer1)
             mockBuffer1.setLinesSync(["Buffer 1 has been altered."])
@@ -30,7 +30,7 @@ describe("BufferStateTests", () => {
             assert(result, "Modified buffer correctly linked")
         })
 
-        it("Unmodified buffer is not linked to tab", () => {
+        it("Unmodified buffer is correctly linked to tab", () => {
             const buffers = [mockBuffer1, mockBuffer2, mockBuffer3] as any
             const buffersInTabs = [3]
 
