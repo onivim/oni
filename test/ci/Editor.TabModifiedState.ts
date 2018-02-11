@@ -49,10 +49,12 @@ export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.id === "3")
 
     oni.automation.sendKeys(":")
-    oni.automation.sendKeys("buf 1")
+    oni.automation.sendKeys("tabn 1")
     oni.automation.sendKeys("<enter>")
 
-    await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.id === "1")
+    // This should be buf 2, since that was the last buffer we were in before swapping to
+    // the second tab.
+    await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.id === "2")
 
     tabState = getElementByClassName("tab selected is-dirty")
 
