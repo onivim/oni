@@ -1,4 +1,4 @@
-import { Event, EventCallback, IDisposable, IEvent } from "oni-types"
+import { EventCallback, IDisposable, IEvent } from "oni-types"
 
 import * as dompurify from "dompurify"
 import * as marked from "marked"
@@ -11,6 +11,7 @@ import * as React from "react"
  */
 interface IMarkdownPreviewProps {
     oni: Oni.Plugin.Api
+    instance: MarkdownPreviewEditor
 }
 
 interface IColors {
@@ -65,7 +66,9 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 
     public render(): JSX.Element {
-        const html = this.generateMarkdown() + this.generateContainerStyle()
+        const renderedMarkdown = this.generateMarkdown()
+        this.props.instance.updateContent(this.state.source, renderedMarkdown)
+        const html = renderedMarkdown + this.generateContainerStyle()
         const classes = "stack enable-mouse oniPluginMarkdownPreviewContainerStyle"
         return <div className={classes} dangerouslySetInnerHTML={{ __html: html }} />
     }
@@ -168,9 +171,29 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
 
 class MarkdownPreviewEditor implements Oni.IWindowSplit {
     private _open: boolean = false
+    private _unrenderedContent: string = ""
+    private _renderedContent: string = ""
+    private _split: Oni.WindowSplitHandle
 
     constructor(private _oni: Oni.Plugin.Api) {
         this._oni.editors.activeEditor.onBufferEnter.subscribe(args => this.onBufferEnter(args))
+    }
+
+    public isPaneOpen(): boolean {
+        return this._open
+    }
+
+    public getUnrenderedContent(): string {
+        return this._unrenderedContent
+    }
+
+    public getRenderedContent(): string {
+        return this._renderedContent
+    }
+
+    public updateContent(unrendered: string, rendered: string): void {
+        this._unrenderedContent = unrendered
+        this._renderedContent = rendered
     }
 
     public toggle(): void {
@@ -184,19 +207,20 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
     public open(): void {
         if (!this._open) {
             this._open = true
-            this._oni.windows.split(1, this)
+            // TODO: Update API
+            this._split = this._oni.windows.createSplit("vertical", this)
         }
     }
 
     public close(): void {
         if (this._open) {
             this._open = false
-            this._oni.windows.close(this)
+            this._split.close()
         }
     }
 
     public render(): JSX.Element {
-        return <MarkdownPreview oni={this._oni} />
+        return <MarkdownPreview oni={this._oni} instance={this} />
     }
 
     private onBufferEnter(bufferInfo: Oni.EditorBufferEventArgs): void {
@@ -206,16 +230,12 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
     }
 }
 
-let preview: MarkdownPreviewEditor = null
-
-export const activate = (oni: any) => {
+export function activate(oni: any): any {
     if (!oni.configuration.getValue("experimental.markdownPreview.enabled", false)) {
         return
     }
 
-    if (!preview) {
-        preview = new MarkdownPreviewEditor(oni)
-    }
+    const preview = new MarkdownPreviewEditor(oni)
 
     oni.commands.registerCommand(
         new Command(
@@ -249,6 +269,8 @@ export const activate = (oni: any) => {
             },
         ),
     )
+
+    return preview as any
 }
 
 class Command implements Oni.Commands.ICommand {

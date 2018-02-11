@@ -44,7 +44,9 @@ interface IKeyboardInputViewState {
 }
 
 export interface IKeyboardInputProps {
+    startActive?: boolean
     onActivate: IEvent<void>
+
     onKeyDown?: (key: string) => void
     onImeStart?: () => void
     onImeEnd?: () => void
@@ -88,6 +90,10 @@ export class KeyboardInputView extends React.PureComponent<
                 focusManager.setFocus(this._keyboardElement)
             })
             this._disposables.push(d1)
+        }
+
+        if (this.props.startActive && this._keyboardElement) {
+            focusManager.setFocus(this._keyboardElement)
         }
     }
 

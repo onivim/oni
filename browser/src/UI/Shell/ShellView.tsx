@@ -4,6 +4,8 @@
 
 import * as React from "react"
 
+import { Provider } from "react-redux"
+
 import * as Platform from "./../../Platform"
 
 import { focusManager } from "./../../Services/FocusManager"
@@ -46,7 +48,9 @@ export class ShellView extends React.PureComponent<IShellViewComponentProps, {}>
                             </div>
                             <div className="container full">
                                 <div className="stack">
-                                    <WindowSplits windowManager={this.props.windowManager} />
+                                    <Provider store={this.props.windowManager.store}>
+                                        <WindowSplits windowManager={this.props.windowManager} />
+                                    </Provider>
                                 </div>
                                 <Overlays />
                             </div>

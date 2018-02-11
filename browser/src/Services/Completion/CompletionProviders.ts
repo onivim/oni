@@ -64,7 +64,7 @@ export class CompletionProviders implements ICompletionsRequestor {
         filePath: string,
         completionItem: ICompletionInfoWithProvider,
     ): Promise<types.CompletionItem> {
-        if (completionItem.__provider) {
+        if (completionItem && completionItem.__provider) {
             const prov = this._getProviderById(completionItem.__provider)
 
             if (prov && prov.getCompletionDetails) {

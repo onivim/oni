@@ -33,8 +33,9 @@ fi
 
 # We'll run code coverage only on Linux, for now
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-    echo TODO: Code coverage...
-    # npm run ccov:instrument
-    # npm run ccov:test:browser
-    # npm run ccov:report
+    npm run ccov:instrument
+    npm run ccov:test:browser
+    npm run ccov:report
 fi
+
+npm run copy-dist-to-s3
