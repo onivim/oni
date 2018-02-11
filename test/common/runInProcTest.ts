@@ -99,14 +99,14 @@ const ensureOniNotRunning = async () => {
         oniProcesses.forEach(processInfo => {
             console.log(` - Name: ${processInfo.name} PID: ${processInfo.pid}`)
         })
-        const isOniProcess = processInfo => processInfo.name === "oni"
+        const isOniProcess = processInfo => processInfo.name.indexOf("oni") >= 0
         const filteredProcesses = oniProcesses.filter(isOniProcess)
 
-        if (oniProcesses.length === 0) {
+        if (filteredProcesses.length === 0) {
             return
         }
 
-        oniProcesses.forEach(processInfo => {
+        filteredProcesses.forEach(processInfo => {
             console.log("Attemping to kill pid: " + processInfo.pid)
             process.kill(processInfo.pid)
         })
