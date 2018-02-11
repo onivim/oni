@@ -172,7 +172,7 @@ export class SidebarContentView extends React.PureComponent<
         const header = activeEntry && activeEntry.pane ? activeEntry.pane.title : null
 
         return (
-            <SidebarContentWrapper>
+            <SidebarContentWrapper className="sidebar-content">
                 <SidebarHeaderView hasFocus={this.state.active} headerName={header} />
                 <SidebarInnerPaneWrapper key={activeEntry.id}>
                     {activeEntry.pane.render()}

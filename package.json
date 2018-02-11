@@ -254,6 +254,7 @@
         "electron-mocha": "5.0.0",
         "electron-rebuild": "1.6.0",
         "extract-zip": "1.6.0",
+        "find-process": "^1.1.0",
         "fs-extra": "4.0.2",
         "fuse.js": "2.6.2",
         "github-releases": "^0.4.1",
