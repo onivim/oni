@@ -220,6 +220,9 @@ const start = async (args: string[]): Promise<void> => {
     const Snippets = await snippetPromise
     Snippets.activate()
 
+    const Explorer = await import("./Services/Explorer")
+    Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
+
     const Search = await import("./Services/Search")
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
 
