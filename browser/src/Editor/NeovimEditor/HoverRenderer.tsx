@@ -111,7 +111,7 @@ export class HoverRenderer {
         }
         const items = scopeInfo.scopes.map((si: string) => <li>{si}</li>)
         return (
-            <QuickInfoDocumentation>
+            <QuickInfoDocumentation key="quickInfo.debugScopes">
                 <div>DEBUG: TextMate Scopes:</div>
                 <ul>{items}</ul>
             </QuickInfoDocumentation>
