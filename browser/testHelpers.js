@@ -1,9 +1,7 @@
-
-const  Module = require("module")
+const Module = require("module")
 const originalRequire = Module.prototype.require
 
 if (global.window) {
-
     const originalSetTimeout = global.setTimeout
 
     const lolex = require("lolex")
@@ -19,12 +17,10 @@ if (global.window) {
 
     global.clock = clock
 
-    global.waitForPromiseResolution = (promise) => {
-
-        return new Promise((res) => {
-                originalSetTimeout(() => res(), 1)
+    global.waitForPromiseResolution = promise => {
+        return new Promise(res => {
+            originalSetTimeout(() => res(), 1)
         })
-
     }
 }
 
@@ -41,6 +37,8 @@ Module.prototype.require = function(moduleName, ...args) {
     // If ccov is enabled, we should pull the file from the 'ccov' folder created by `npm run ccov:instrument`
     // Idea adapted from:
     // https://github.com/MarshallOfSound/Google-Play-Music-Desktop-Player-UNOFFICIAL-/commit/1b2055b286f1f296c0d48dec714224c14acb3c34
-    const ccovFile = shouldUseCodeCoverage ?  moduleName.replace("src/", "src_ccov/") : moduleName
+    const ccovFile = shouldUseCodeCoverage
+        ? moduleName.replace("browser/src/", "browser/src_ccov/")
+        : moduleName
     return originalRequire.call(this, ccovFile, ...args)
 }

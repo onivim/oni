@@ -110,7 +110,7 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
         }
     }
 
-    private _updateBasedOnProps(props: IVimNavigatorProps) {
+    private async _updateBasedOnProps(props: IVimNavigatorProps) {
         if (props.active && !this._activeBinding) {
             Log.info("[VimNavigator::activating]")
             this._releaseBinding()
@@ -140,10 +140,10 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
                 }
             })
 
-            this._activeBinding.setItems(this.props.ids, this.state.selectedId)
+            await this._activeBinding.setItems(this.props.ids, this.state.selectedId)
             this._activateEvent.dispatch()
         } else if (props.active && this._activeBinding) {
-            this._activeBinding.setItems(this.props.ids, this.state.selectedId)
+            await this._activeBinding.setItems(this.props.ids, this.state.selectedId)
         } else if (!props.active && this._activeBinding) {
             this._releaseBinding()
         }
