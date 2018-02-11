@@ -61,5 +61,13 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
 // Bring in custom config to include the "" pair, which isn't part of the default config.
 export const settings = {
-    configPath: "AutoClosingPairTest.config.js",
+    config: {
+        "autoClosingPairs.default": [
+            { open: "{", close: "}" },
+            { open: "[", close: "]" },
+            { open: "(", close: ")" },
+            { open: '"', close: '"' },
+        ],
+        "autoClosingPairs.enabled": true,
+    },
 }
