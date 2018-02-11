@@ -575,10 +575,11 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         // enable opening a file via drag-drop
+        // const focusedEditor = document.querySelector(".editor.focus") as HTMLElement
         document.ondragover = ev => {
             ev.preventDefault()
         }
-        document.body.ondrop = ev => {
+        document.ondrop = ev => {
             ev.preventDefault()
 
             const files = ev.dataTransfer.files

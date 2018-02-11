@@ -4,7 +4,7 @@
  */
 
 import * as React from "react"
-import { DragDropContext, DragSource, DragSourceConnector, DragSourceMonitor } from "react-dnd"
+import * as DND from "react-dnd"
 import HTML5Backend from "react-dnd-html5-backend"
 import { connect } from "react-redux"
 import { compose } from "redux"
@@ -38,15 +38,24 @@ const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
     elem && elem["scrollIntoViewIfNeeded"] && elem["scrollIntoViewIfNeeded"]()
 }
 
-const FileSource = {
-    beginDrag(props: any) {
-        return {
-            fileId: props.filename,
-        }
-    },
+// Drag Source ================================================================
+
+type Render<T> = (props: T) => React.ReactElement<T>
+
+interface IDraggeable {
+    isDragging?: boolean
+    connectDragSource?: any
+    filename?: string
+    render: Render<{ isDragging?: boolean; connectDragSource?: any }>
 }
 
-function fileCollect(fileConnect: DragSourceConnector, monitor: DragSourceMonitor) {
+interface IDroppeable {
+    isOver?: boolean
+    connectDropTarget?: any
+    render: Render<{ isOver?: boolean; connectDropTarget?: any }>
+}
+
+function fileCollect(fileConnect: DND.DragSourceConnector, monitor: DND.DragSourceMonitor) {
     return {
         connectDragSource: fileConnect.dragSource(),
         isDragging: monitor.isDragging(),
@@ -55,19 +64,47 @@ function fileCollect(fileConnect: DragSourceConnector, monitor: DragSourceMonito
 
 const Types = {
     file: "FILE",
+    folder: "FOLDER",
 }
 
-interface IDraggeable {
-    isDragging?: boolean
-    connectDragSource?: any
-    render: (p: { isDragging?: boolean; connectDragSource?: any }) => React.ReactNode
+const FileSource = {
+    beginDrag(props: { render: Render<{}>; filename: string }) {
+        console.log("props: ", props)
+        return {
+            filename: props.filename,
+        }
+    },
 }
 
-@DragSource<IDraggeable>(Types.file, FileSource, fileCollect)
+// Drop Target ================================================================
+
+@DND.DragSource<IDraggeable>(Types.file, FileSource, fileCollect)
 class DraggeableComponent extends React.Component<IDraggeable> {
     public render() {
         const { isDragging, connectDragSource } = this.props
         return connectDragSource(<div>{this.props.render({ isDragging })}</div>)
+    }
+}
+
+const FolderTarget = {
+    drop(props: object, monitor: DND.DropTargetMonitor) {
+        console.log("props: ", props)
+        return true
+    },
+}
+
+function folderCollect(folderConnect: any, monitor: any) {
+    return {
+        connectDropTarget: folderConnect.dropTarget(),
+        isOver: monitor.isOver(),
+    }
+}
+
+@DND.DropTarget<IDroppeable>(Types.folder, FolderTarget, folderCollect)
+class DroppeableComponent extends React.Component<IDroppeable> {
+    public render() {
+        const { isOver, connectDropTarget } = this.props
+        return connectDropTarget(<div>{this.props.render({ isOver })}</div>)
     }
 }
 
@@ -91,6 +128,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
             case "file":
                 return (
                     <DraggeableComponent
+                        filename={node.name}
                         render={({ isDragging }) => {
                             return (
                                 <SidebarItemView
@@ -106,21 +144,33 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                 )
             case "container":
                 return (
-                    <SidebarContainerView
-                        isContainer={true}
-                        isExpanded={node.expanded}
-                        text={node.name}
-                        isFocused={this.props.isSelected}
+                    <DroppeableComponent
+                        render={({ isOver }) => {
+                            return (
+                                <SidebarContainerView
+                                    isContainer={true}
+                                    isExpanded={node.expanded}
+                                    text={node.name}
+                                    isFocused={this.props.isSelected}
+                                />
+                            )
+                        }}
                     />
                 )
             case "folder":
                 return (
-                    <SidebarContainerView
-                        isContainer={false}
-                        isExpanded={node.expanded}
-                        text={node.name}
-                        isFocused={this.props.isSelected}
-                        indentationLevel={node.indentationLevel}
+                    <DroppeableComponent
+                        render={({ isOver }) => {
+                            return (
+                                <SidebarContainerView
+                                    isContainer={false}
+                                    isExpanded={node.expanded}
+                                    text={node.name}
+                                    isFocused={this.props.isSelected}
+                                    indentationLevel={node.indentationLevel}
+                                />
+                            )
+                        }}
                     />
                 )
             default:
@@ -198,6 +248,6 @@ const mapStateToProps = (
     }
 }
 
-export const Explorer = compose(connect(mapStateToProps), DragDropContext(HTML5Backend))(
+export const Explorer = compose(connect(mapStateToProps), DND.DragDropContext(HTML5Backend))(
     ExplorerView,
 )
