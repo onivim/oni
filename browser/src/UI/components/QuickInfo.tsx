@@ -65,7 +65,6 @@ export const Documentation = withProps<DocProps>(styled.div)`
     ${boxShadowInset};
     overflow: hidden;
     max-height: 25vh;
-    max-width: 45vw;
     padding: 0.5rem;
     line-height: 1.5;
     ${smallScrollbar};
