@@ -4,7 +4,7 @@
     "email": "bryphe@outlook.com",
     "homepage": "https://www.onivim.io",
     "version": "0.2.22",
-    "description": "NeoVim front-end with IDE-style extensibility",
+    "description": "Code editor with a modern twist on modal editing - powered by neovim.",
     "keywords": [
         "vim",
         "neovim",
