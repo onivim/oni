@@ -35,10 +35,8 @@ fi
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     npm run ccov:instrument
     npm run ccov:test:browser
-    npm run ccov:report
-
     ls -a .nyc_output
-    ls -a .nyc_output/coverage
+    npm run ccov:report
 fi
 
 npm run copy-dist-to-s3
