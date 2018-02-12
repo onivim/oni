@@ -126,8 +126,6 @@ export class NeovimEditorCommands {
             return !this._menuManager.isMenuOpen()
         }
 
-        const isRenameActive = () => this._rename.isRenameActive()
-
         const commands = [
             new CallbackCommand(
                 "contextMenu.select",
@@ -202,20 +200,6 @@ export class NeovimEditorCommands {
             new CallbackCommand("editor.rename", "Rename", "Rename an item", () =>
                 this._rename.startRename(),
             ),
-            new CallbackCommand(
-                "editor.rename.commit",
-                null,
-                null,
-                () => this._rename.commitRename(),
-                isRenameActive,
-            ),
-            new CallbackCommand(
-                "editor.rename.cancel",
-                null,
-                null,
-                () => this._rename.cancelRename(),
-                isRenameActive,
-            ),
 
             new CallbackCommand("editor.quickInfo.show", null, null, () =>
                 this._languageEditorIntegration.showHover(),
@@ -229,14 +213,14 @@ export class NeovimEditorCommands {
             ),
             new CallbackCommand(
                 "oni.config.openConfigJs",
-                "Edit Oni Config",
+                "Configuration: Edit Oni Config",
                 "Edit configuration file ('config.js') for Oni",
                 () => openDefaultConfig(),
             ),
 
             new CallbackCommand(
                 "oni.config.openInitVim",
-                "Edit Neovim Config",
+                "Configuration: Edit Neovim Config",
                 "Edit configuration file ('init.vim') for Neovim",
                 () => this._neovimInstance.openInitVim(),
             ),

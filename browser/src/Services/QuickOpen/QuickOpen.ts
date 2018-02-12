@@ -18,6 +18,7 @@ import { editorManager } from "./../EditorManager"
 import { fuseFilter, Menu, MenuManager } from "./../Menu"
 
 import { FinderProcess } from "./FinderProcess"
+import { render as renderPinnedIcon } from "./PinnedIconView"
 import { QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
 import { regexFilter } from "./RegExFilter"
 import * as RipGrep from "./RipGrep"
@@ -248,19 +249,20 @@ export class QuickOpen {
             process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"] === process.cwd()
         )
     }
-
     // Show menu based on items given
     private _setItemsFromQuickOpenItems(items: QuickOpenItem[]): void {
         const options = items.map(qitem => {
             const f = qitem.item.trim()
             const file = path.basename(f)
             const folder = path.dirname(f)
+            const pinned = this._seenItems.indexOf(f) >= 0
 
             return {
                 icon: getFileIcon(file) as any,
                 label: file,
                 detail: folder,
-                pinned: this._seenItems.indexOf(f) >= 0,
+                pinned,
+                additionalComponent: renderPinnedIcon({ pinned }),
             }
         })
 

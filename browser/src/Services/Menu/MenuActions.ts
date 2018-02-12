@@ -15,6 +15,14 @@ export interface IMenuOptions {
     onFilterTextChanged?: (newText: string) => void
 }
 
+export interface ISetConfigurationMenuAction {
+    type: "SET_MENU_CONFIGURATION"
+    payload: {
+        rowHeight: number
+        maxItemsToShow: number
+    }
+}
+
 export interface IShowMenuAction {
     type: "SHOW_MENU"
     payload: {
@@ -70,6 +78,7 @@ export interface IPreviousMenuAction {
 
 export type MenuAction =
     | IShowMenuAction
+    | ISetConfigurationMenuAction
     | ISetMenuLoading
     | ISetMenuItems<any>
     | IFilterMenuAction

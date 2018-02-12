@@ -13,6 +13,8 @@ import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
 import "rxjs/add/operator/concatMap"
 
+import { Store } from "redux"
+
 import * as Oni from "oni-api"
 
 import {
@@ -24,8 +26,6 @@ import {
 import * as LanguageManager from "./../Services/Language"
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
-import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
-
 import {
     BufferHighlightId,
     BufferHighlightsUpdater,
@@ -33,15 +33,20 @@ import {
 } from "./BufferHighlights"
 
 import * as Actions from "./NeovimEditor/NeovimEditorActions"
+import * as State from "./NeovimEditor/NeovimEditorStore"
 
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
+import { TokenColor } from "./../Services/TokenColors"
+
+import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 
 export interface IBuffer extends Oni.Buffer {
     getCursorPosition(): Promise<types.Position>
+    handleInput(key: string): boolean
 }
 
-export class Buffer implements Oni.Buffer {
+export class Buffer implements IBuffer {
     private _id: string
     private _filePath: string
     private _language: string
@@ -84,12 +89,13 @@ export class Buffer implements Oni.Buffer {
     constructor(
         private _neovimInstance: NeovimInstance,
         private _actions: typeof Actions,
+        private _store: Store<State.IState>,
         evt: EventContext,
     ) {
         this.updateFromEvent(evt)
     }
 
-    public addLayer(layer: Oni.EditorLayer): void {
+    public addLayer(layer: IBufferLayer): void {
         this._actions.addBufferLayer(parseInt(this._id, 10), layer)
     }
 
@@ -179,18 +185,31 @@ export class Buffer implements Oni.Buffer {
             .toPromise()
     }
 
-    public async getOrCreateHighlightGroup(
-        highlight: SyntaxHighlighting.IHighlight | string,
-    ): Promise<SyntaxHighlighting.HighlightGroupId> {
-        if (typeof highlight === "string") {
-            return highlight
-        } else {
-            // TODO: needed for theming integration!
-            return null
-        }
-    }
+    public handleInput(key: string): boolean {
+        const state = this._store.getState()
 
+        const layers: IBufferLayer[] = state.layers[this._id]
+
+        if (!layers || !layers.length) {
+            return false
+        }
+
+        const result = layers.reduce<boolean>((prev, curr) => {
+            if (prev) {
+                return true
+            }
+
+            if (!curr || !curr.handleInput) {
+                return false
+            } else {
+                return curr.handleInput(key)
+            }
+        }, false)
+
+        return result
+    }
     public async updateHighlights(
+        tokenColors: TokenColor[],
         updateFunction: (highlightsUpdater: IBufferHighlightsUpdater) => void,
     ): Promise<void> {
         this._promiseQueue.enqueuePromise(async () => {
@@ -200,6 +219,7 @@ export class Buffer implements Oni.Buffer {
                 this._neovimInstance,
                 this._bufferHighlightId,
             )
+            await this._neovimInstance.tokenColorSynchronizer.synchronizeTokenColors(tokenColors)
             await bufferUpdater.start()
 
             updateFunction(bufferUpdater)
@@ -300,7 +320,11 @@ export class BufferManager {
     private _filePathToId: { [filePath: string]: string } = {}
     private _bufferList: { [id: string]: InactiveBuffer } = {}
 
-    constructor(private _neovimInstance: NeovimInstance, private _actions: typeof Actions) {}
+    constructor(
+        private _neovimInstance: NeovimInstance,
+        private _actions: typeof Actions,
+        private _store: Store<State.IState>,
+    ) {}
 
     public updateBufferFromEvent(evt: EventContext): Buffer {
         const id = evt.bufferNumber.toString()
@@ -313,7 +337,7 @@ export class BufferManager {
         if (currentBuffer) {
             currentBuffer.updateFromEvent(evt)
         } else {
-            const buf = new Buffer(this._neovimInstance, this._actions, evt)
+            const buf = new Buffer(this._neovimInstance, this._actions, this._store, evt)
             this._idToBuffer[id] = buf
         }
 

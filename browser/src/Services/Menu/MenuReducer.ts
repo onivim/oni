@@ -15,7 +15,24 @@ export function createReducer<T, FilteredT extends T>() {
     ): State.IMenus<T, FilteredT> => {
         return {
             ...s,
+            configuration: configurationReducer(s.configuration, a),
             menu: popupMenuReducer(s.menu, a),
+        }
+    }
+
+    const configurationReducer = (
+        s: State.IMenuConfigurationSettings = State.DefaultMenuConfigurationSettings,
+        a: Actions.MenuAction,
+    ) => {
+        switch (a.type) {
+            case "SET_MENU_CONFIGURATION":
+                return {
+                    ...s,
+                    rowHeight: a.payload.rowHeight,
+                    maxItemsToShow: a.payload.maxItemsToShow,
+                }
+            default:
+                return s
         }
     }
 
@@ -24,7 +41,7 @@ export function createReducer<T, FilteredT extends T>() {
         a: any,
     ): State.IMenu<T, FilteredT> {
         // TODO: sync max display items (10) with value in Menu.render() (Menu.tsx)
-        const size = s ? Math.min(10, s.filteredOptions.length) : 0
+        const size = s && s.filteredOptions ? s.filteredOptions.length : 0
 
         switch (a.type) {
             case "SHOW_MENU": {

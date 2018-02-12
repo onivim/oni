@@ -44,6 +44,8 @@ import { Configuration, IConfigurationValues } from "./../../Services/Configurat
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
+import { TokenColors } from "./../../Services/TokenColors"
+
 import * as Shell from "./../../UI/Shell"
 
 import {
@@ -66,11 +68,11 @@ import { Workspace } from "./../../Services/Workspace"
 
 import { Editor, IEditor } from "./../Editor"
 
-import { BufferManager } from "./../BufferManager"
+import { BufferManager, IBuffer } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
-import { NeovimSurface } from "./NeovimSurface"
+import NeovimSurface from "./NeovimSurface"
 
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 
@@ -165,6 +167,7 @@ export class NeovimEditor extends Editor implements IEditor {
         private _pluginManager: PluginManager,
         private _tasks: Tasks,
         private _themeManager: ThemeManager,
+        private _tokenColors: TokenColors,
         private _workspace: Workspace,
     ) {
         super()
@@ -180,7 +183,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
         this._neovimInstance = new NeovimInstance(100, 100, this._configuration)
-        this._bufferManager = new BufferManager(this._neovimInstance, this._actions)
+        this._bufferManager = new BufferManager(this._neovimInstance, this._actions, this._store)
         this._screen = new NeovimScreen()
 
         this._hoverRenderer = new HoverRenderer(
@@ -245,15 +248,6 @@ export class NeovimEditor extends Editor implements IEditor {
             this._symbols,
         )
 
-        const updateViewport = () => {
-            const width = document.body.offsetWidth
-            const height = document.body.offsetHeight
-
-            this._actions.setViewport(width, height)
-        }
-        window.addEventListener("resize", updateViewport)
-        updateViewport()
-
         this._tasks.registerTaskProvider(commandManager)
         this._tasks.registerTaskProvider(errorService)
 
@@ -266,6 +260,16 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._colors.onColorsChanged.subscribe(() => onColorsChanged())
         onColorsChanged()
+
+        const onTokenColorschanged = () => {
+            if (this._neovimInstance.isInitialized) {
+                this._neovimInstance.tokenColorSynchronizer.synchronizeTokenColors(
+                    this._tokenColors.tokenColors,
+                )
+            }
+        }
+
+        this._tokenColors.onTokenColorsChanged.subscribe(() => onTokenColorschanged())
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
@@ -305,7 +309,8 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._windowManager.onWindowStateChanged.subscribe(tabPageState => {
-            const inactiveIds = tabPageState.inactiveWindows.map(w => w.windowNumber)
+            const filteredTabState = tabPageState.inactiveWindows.filter(w => !!w)
+            const inactiveIds = filteredTabState.map(w => w.windowNumber)
 
             this._actions.setActiveVimTabPage(tabPageState.tabId, [
                 tabPageState.activeWindow.windowNumber,
@@ -313,19 +318,21 @@ export class NeovimEditor extends Editor implements IEditor {
             ])
 
             const { activeWindow } = tabPageState
-            this._actions.setWindowState(
-                activeWindow.windowNumber,
-                activeWindow.bufferId,
-                activeWindow.bufferFullPath,
-                activeWindow.column,
-                activeWindow.line,
-                activeWindow.bottomBufferLine,
-                activeWindow.topBufferLine,
-                activeWindow.dimensions,
-                activeWindow.bufferToScreen,
-            )
+            if (activeWindow) {
+                this._actions.setWindowState(
+                    activeWindow.windowNumber,
+                    activeWindow.bufferId,
+                    activeWindow.bufferFullPath,
+                    activeWindow.column,
+                    activeWindow.line,
+                    activeWindow.bottomBufferLine,
+                    activeWindow.topBufferLine,
+                    activeWindow.dimensions,
+                    activeWindow.bufferToScreen,
+                )
+            }
 
-            tabPageState.inactiveWindows.map(w => {
+            filteredTabState.map(w => {
                 this._actions.setInactiveWindowState(w.windowNumber, w.dimensions)
             })
         })
@@ -487,7 +494,7 @@ export class NeovimEditor extends Editor implements IEditor {
             "experimental.editor.textMateHighlighting.enabled",
         )
         this._syntaxHighlighter = textMateHighlightingEnabled
-            ? new SyntaxHighlighter(this._configuration, this)
+            ? new SyntaxHighlighter(this, this._tokenColors)
             : new NullSyntaxHighlighter()
 
         this._completion = new Completion(
@@ -687,6 +694,9 @@ export class NeovimEditor extends Editor implements IEditor {
         const startOptions: INeovimStartOptions = {
             runtimePaths: this._pluginManager.getAllRuntimePaths(),
             transport: this._configuration.getValue("experimental.neovim.transport"),
+            neovimPath: this._configuration.getValue("debug.neovimPath"),
+            loadInitVim: this._configuration.getValue("oni.loadInitVim"),
+            useDefaultConfig: this._configuration.getValue("oni.useDefaultConfig"),
         }
 
         await this._neovimInstance.start(startOptions)
@@ -795,6 +805,14 @@ export class NeovimEditor extends Editor implements IEditor {
             await sleep(this._configuration.getValue("debug.fakeLag.neovimInput"))
         }
 
+        // Check if any of the buffer layers can handle the input...
+        const buf: IBuffer = this.activeBuffer as IBuffer
+        const result = buf && buf.handleInput(key)
+
+        if (result) {
+            return
+        }
+
         await this._neovimInstance.input(key)
     }
 
@@ -807,6 +825,10 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private async _openFiles(files: string[], action: string): Promise<void> {
+        if (!files) {
+            return
+        }
+
         await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
 
         for (let i = 1; i < files.length; i++) {
@@ -857,6 +879,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
         this._bufferManager.populateBufferList(evt)
+        this._workspace.autoDetectWorkspace(buf.filePath)
 
         const lastBuffer = this.activeBuffer
         if (lastBuffer && lastBuffer.filePath !== buf.filePath) {
@@ -945,6 +968,9 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         this._themeManager.notifyVimThemeChanged(newColorScheme, backgroundColor, foregroundColor)
+
+        const tokenColors = await this._neovimInstance.getTokenColors()
+        this._tokenColors.setDefaultTokenColors(tokenColors)
 
         // Flip first render to force a full redraw
         this._isFirstRender = true

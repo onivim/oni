@@ -3,9 +3,16 @@
     "author": "",
     "email": "bryphe@outlook.com",
     "homepage": "https://www.onivim.io",
-    "version": "0.2.21",
-    "description": "NeoVim front-end with IDE-style extensibility",
-    "keywords": ["vim", "neovim", "text", "editor", "ide", "vim"],
+    "version": "0.3.0",
+    "description": "Code editor with a modern twist on modal editing - powered by neovim.",
+    "keywords": [
+        "vim",
+        "neovim",
+        "text",
+        "editor",
+        "ide",
+        "vim"
+    ],
     "main": "./lib/main/src/main.js",
     "bin": {
         "oni": "./cli/oni",
@@ -38,17 +45,30 @@
         "mac": {
             "artifactName": "${productName}-${version}-osx.${ext}",
             "category": "public.app-category.developer-tools",
-            "target": ["dmg"],
-            "files": ["bin/osx/**/*"]
+            "target": [
+                "dmg"
+            ],
+            "files": [
+                "bin/osx/**/*"
+            ]
         },
         "linux": {
             "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
             "maintainer": "bryphe@outlook.com",
-            "target": ["tar.gz", "deb", "rpm"]
+            "target": [
+                "tar.gz",
+                "deb",
+                "rpm"
+            ]
         },
         "win": {
-            "target": ["zip", "dir"],
-            "files": ["bin/x86/**/*"]
+            "target": [
+                "zip",
+                "dir"
+            ],
+            "files": [
+                "bin/x86/**/*"
+            ]
         },
         "fileAssociations": [
             {
@@ -121,74 +141,48 @@
         "build:browser": "webpack --config browser/webpack.production.config.js",
         "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
         "build:main": "cd main && tsc -p tsconfig.json",
-        "build:plugins":
-            "npm run build:plugin:oni-layer-browser && npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-markdown-preview",
-        "build:plugin:oni-layer-browser": "cd extensions/oni-layer-browser && npm run build",
+        "build:plugins": "npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-markdown-preview",
         "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && npm run build",
-        "build:plugin:oni-plugin-markdown-preview":
-            "cd extensions/oni-plugin-markdown-preview && npm run build",
+        "build:plugin:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm run build",
         "build:test": "npm run build:test:unit && npm run build:test:integration",
         "build:test:integration": "cd test && tsc -p tsconfig.json",
         "build:test:unit": "cd browser && tsc -p tsconfig.test.json",
         "copy-icons": "node build/CopyIcons.js",
-        "debug:test:unit:browser":
-            "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+        "copy-dist-to-s3": "node build/script/CopyPackedFilesForS3Upload.js",
+        "debug:test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
         "demo": "npm run build:test && mocha -t 30000 lib_test/test/Demo.js",
-        "dist:win":
-            "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
-        "pack:win":
-            "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
+        "dist:win": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
+        "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
         "test": "npm run test:unit && npm run test:integration",
         "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js",
         "test:unit": "npm run test:unit:browser",
-        "test:unit:browser":
-            "npm run build:test:unit && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
-        "fix-lint":
-            "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test && npm run fix-lint:plugins",
-        "fix-lint:browser":
-            "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
-        "fix-lint:plugins": "npm run fix-lint:plugins:oni-layer-browser",
-        "fix-lint:plugins:oni-layer-browser":
-            "tslint --fix --project extensions/oni-layer-browser/tsconfig.json --config tslint.json",
+        "test:unit:browser": "npm run build:test:unit && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+        "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
+        "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
         "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
-        "lint":
-            "npm run lint:browser && npm run lint:main && npm run lint:test && npm run lint:plugins",
-        "lint:plugins": "npm run lint:plugin:oni-layer-browser",
-        "lint:plugin:oni-layer-browser":
-            "tslint --project extensions/oni-layer-browser/tsconfig.json --config tslint.json",
-        "lint:browser":
-            "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+        "lint": "npm run lint:browser && npm run lint:main && npm run lint:test",
+        "lint:browser": "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
-        "lint:test":
-            "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
+        "lint:test": "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
         "pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --publish never",
-        "ccov:instrument":
-            "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
-        "ccov:test:browser":
-            "cd browser && cross-env ONI_CCOV=1 electron-mocha --renderer --require testHelpers.js -R testCoverageReporter --recursive ../lib_test/browser/test",
-        "ccov:report": "nyc report && nyc report --reporter=html && nyc report --reporter=lcov",
-        "start":
-            "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
-        "start-hot":
-            "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
+        "ccov:instrument": "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
+        "ccov:test:browser": "cd browser && cross-env ONI_CCOV=1 electron-mocha --renderer --require testHelpers.js -R testCoverageReporter --recursive ../lib_test/browser/test",
+        "ccov:report": "nyc report && npm run ccov:report:lcov",
+        "ccov:report:lcov": "cd .nyc_output && nyc report --reporter=lcov out.json",
+        "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
+        "start-hot": "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
         "start-not-dev": "cross-env electron main.js",
-        "watch:browser":
-            "webpack-dev-server --config browser/webpack.debug.config.js --host localhost --port 8191",
-        "watch:plugins":
-            "npm run watch:plugins:oni-layer-browser && npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
-        "watch:plugins:oni-layer-browser": "cd extensions/oni-layer-browser && tsc --watch",
+        "watch:browser": "webpack-dev-server --config browser/webpack.development.config.js --host localhost --port 8191",
+        "watch:plugins": "npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
         "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
-        "watch:plugins:oni-plugin-markdown-preview":
-            "cd extensions/oni-plugin-markdown-preview && tsc --watch",
+        "watch:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && tsc --watch",
         "uninstall-global": "npm rm -g oni-vim",
         "install-global": "npm install -g oni-vim",
         "install:plugins": "npm run install:plugins:oni-plugin-markdown-preview",
-        "install:plugins:oni-plugin-markdown-preview":
-            "cd extensions/oni-plugin-markdown-preview && npm install --prod",
+        "install:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm install --prod",
         "postinstall": "npm run install:plugins && electron-rebuild && opencollective postinstall",
-        "profile:webpack":
-            "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
+        "profile:webpack": "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
     },
     "repository": {
         "type": "git",
@@ -205,14 +199,13 @@
         "marked": "^0.3.6",
         "minimist": "1.2.0",
         "msgpack-lite": "0.1.26",
-        "ocaml-language-server": "1.0.12",
-        "oni-api": "^0.0.26",
+        "ocaml-language-server": "^1.0.21",
+        "oni-api": "^0.0.30",
         "oni-neovim-binaries": "0.1.0",
         "oni-ripgrep": "0.0.3",
         "oni-types": "0.0.4",
         "react": "16.0.0",
         "react-dom": "16.0.0",
-        "react-electron-web-view": "^2.0.1",
         "redux-batched-subscribe": "^0.1.6",
         "shell-env": "^0.3.0",
         "shelljs": "0.7.7",
@@ -243,6 +236,7 @@
         "@types/react-motion": "0.0.23",
         "@types/react-redux": "5.0.12",
         "@types/react-transition-group": "2.0.6",
+        "@types/react-virtualized": "^9.7.10",
         "@types/shelljs": "^0.7.7",
         "@types/sinon": "1.16.32",
         "autoprefixer": "6.4.0",
@@ -254,12 +248,13 @@
         "coveralls": "^3.0.0",
         "cross-env": "3.1.3",
         "css-loader": "0.28.4",
-        "electron": "1.8.1",
+        "electron": "^1.8.2-beta.5",
         "electron-builder": "19.46.4",
-        "electron-devtools-installer": "2.2.1",
+        "electron-devtools-installer": "^2.2.3",
         "electron-mocha": "5.0.0",
         "electron-rebuild": "1.6.0",
         "extract-zip": "1.6.0",
+        "find-process": "^1.1.0",
         "fs-extra": "4.0.2",
         "fuse.js": "2.6.2",
         "github-releases": "^0.4.1",
@@ -285,6 +280,7 @@
         "react-motion": "0.5.2",
         "react-redux": "5.0.6",
         "react-transition-group": "2.2.1",
+        "react-virtualized": "^9.18.0",
         "redux": "3.7.2",
         "redux-observable": "0.17.0",
         "redux-thunk": "2.2.0",

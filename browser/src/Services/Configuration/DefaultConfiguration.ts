@@ -44,18 +44,16 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.neovimInput": null,
 
     "experimental.editor.textMateHighlighting.enabled": false,
-    "experimental.commandline.mode": false,
-    "experimental.commandline.icons": false,
+    "wildmenu.mode": true,
+    "commandline.mode": true,
+    "commandline.icons": true,
     "experimental.welcome.enabled": false,
-    "experimental.wildmenu.mode": false,
 
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
     "editor.maxLinesForLanguageServices": 2500,
-
-    "experimental.sidebar.enabled": false,
 
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
@@ -117,40 +115,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumn": false,
     "editor.cursorColumnOpacity": 0.1,
 
-    "editor.tokenColors": [
-        {
-            scope: "variable.object",
-            settings: "Identifier",
-        },
-        {
-            scope: "variable.other.constant",
-            settings: "Constant",
-        },
-        {
-            scope: "variable.language",
-            settings: "Identifier",
-        },
-        {
-            scope: "variable.parameter",
-            settings: "Identifier",
-        },
-        {
-            scope: "variable.other",
-            settings: "Identifier",
-        },
-        {
-            scope: "support.function",
-            settings: "Function",
-        },
-        {
-            scope: "entity.name",
-            settings: "Function",
-        },
-        {
-            scope: "entity.other",
-            settings: "Constant",
-        },
-    ],
+    "editor.tokenColors": [],
 
     "environment.additionalPaths": [],
 
@@ -249,11 +214,21 @@ const BaseConfiguration: IConfigurationValues = {
     },
 
     "menu.caseSensitive": "smart",
+    "menu.rowHeight": 40,
+    "menu.maxItemsToShow": 8,
+
+    // TEMPORARY - Since notifications came late in the cycle for this release,
+    // temporarily disabling it so that we have a bit more time to stabilize.
+    "notifications.enabled": process.env.NODE_ENV !== "production",
 
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
 
+    "sidebar.enabled": true,
     "sidebar.width": "50px",
+
+    "sidebar.marks.enabled": false,
+    "sidebar.plugins.enabled": false,
 
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
@@ -275,7 +250,7 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.wrap": false,
 
     "ui.animations.enabled": true,
-    "ui.colorscheme": "onedark",
+    "ui.colorscheme": "nord",
     "ui.iconTheme": "theme-icons-seti",
     "ui.fontFamily":
         "BlinkMacSystemFont, 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif",
@@ -283,6 +258,16 @@ const BaseConfiguration: IConfigurationValues = {
     "ui.fontSmoothing": "auto",
 
     "workspace.defaultWorkspace": null,
+    "workspace.autoDetectWorkspace": "noworkspace",
+    "workspace.autoDetectRootFiles": [
+        ".git",
+        "node_modules",
+        ".svn",
+        "package.json",
+        ".hg",
+        ".bzr",
+        "build.xml",
+    ],
 }
 
 const MacConfigOverrides: Partial<IConfigurationValues> = {

@@ -14,6 +14,8 @@ import * as Process from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 
+import { getInstance as getPluginsManagerInstance } from "./../PluginManager"
+
 import { automation } from "./../../Services/Automation"
 import { Colors, getInstance as getColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
@@ -24,11 +26,13 @@ import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
 import { getInstance as getMenuManagerInstance } from "./../../Services/Menu"
+import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
 import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
 import { getInstance as getSnippetsInstance } from "./../../Services/Snippets"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
+import { getInstance as getTokenColorsInstance } from "./../../Services/TokenColors"
 import { windowManager } from "./../../Services/WindowManager"
 import { getInstance as getWorkspaceInstance } from "./../../Services/Workspace"
 
@@ -77,6 +81,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return Log
     }
 
+    public get plugins(): any {
+        return getPluginsManagerInstance()
+    }
+
     public get recorder(): any {
         return recorder
     }
@@ -113,6 +121,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return getMenuManagerInstance()
     }
 
+    public get notifications(): any {
+        return getNotificationsInstance()
+    }
+
     public get overlays(): any /* TODO */ {
         return getOverlayInstance()
     }
@@ -131,6 +143,10 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
 
     public get statusBar(): OniApi.StatusBar {
         return getStatusBarInstance()
+    }
+
+    public get tokenColors(): any {
+        return getTokenColorsInstance()
     }
 
     public get ui(): Ui {

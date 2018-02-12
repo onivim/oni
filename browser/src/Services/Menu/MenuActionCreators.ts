@@ -24,6 +24,16 @@ const notifySelectedItemChange = (contextMenuState: any) => {
     }
 }
 
+export const setMenuConfiguration = (rowHeight: number, maxItemsToShow: number) => {
+    return {
+        type: "SET_MENU_CONFIGURATION",
+        payload: {
+            rowHeight,
+            maxItemsToShow,
+        },
+    }
+}
+
 export const showPopupMenu = (
     id: string,
     opts?: MenuActions.IMenuOptions,

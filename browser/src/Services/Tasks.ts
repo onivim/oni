@@ -17,6 +17,8 @@ import * as Oni from "oni-api"
 
 import { Menu, MenuManager } from "./../Services/Menu"
 
+import { render as renderKeyBindingInfo } from "./../UI/components/KeyBindingInfo"
+
 export interface ITask {
     name: string
     detail: string
@@ -50,9 +52,9 @@ export class Tasks {
                 .filter(t => t.name || t.detail)
                 .map(f => {
                     return {
-                        icon: "tasks",
                         label: f.name,
                         detail: f.detail,
+                        additionalComponent: renderKeyBindingInfo({ command: f.command }),
                     }
                 })
 

@@ -214,6 +214,25 @@ function! OniNextWindow( direction )
   endif
 endfunction
 
+function! OniSetMarkAndReport(mark)
+     execute 'normal! m' . a:mark
+    call OniCommand("_internal.notifyMarksChanged")
+endfunction
+
+let s:all_marks = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+function! OniListenForMarks()
+
+    let n = 0
+    let s:maxmarks = strlen(s:all_marks)
+    while n < s:maxmarks
+        let c = strpart(s:all_marks, n, 1)
+        execute "nnoremap <silent> m" . c . " :<C-u> call OniSetMarkAndReport('" . c . "')<CR>"
+        let n = n + 1
+    endwhile
+    call OniCommand("_internal.notifyMarksChanged")
+endfunction
+
 nnoremap <silent> gd :<C-u>call OniCommand("language.gotoDefinition")<CR>
 nnoremap <silent> <C-w>h :<C-u>call OniNextWindow('h')<CR>
 nnoremap <silent> <C-w>j :<C-u>call OniNextWindow('j')<CR>

@@ -103,6 +103,9 @@ export class MenuBinding extends Binding implements IMenuBinding {
             this._currentOptions = items
             this._currentId = activeId
 
+            if (!this.neovimInstance.isInitialized) {
+                return
+            }
             const currentWinId = await this.neovimInstance.request("nvim_get_current_win", [])
             const currentBufId = await this.neovimInstance.eval("bufnr('%')")
             const bufferLength = await this.neovimInstance.eval<number>("line('$')")
@@ -132,7 +135,6 @@ export class MenuBinding extends Binding implements IMenuBinding {
 }
 
 class SharedNeovimInstance implements SharedNeovimInstance {
-    private _initPromise: Promise<void>
     private _neovimInstance: NeovimInstance
 
     public get isInitialized(): boolean {
@@ -154,12 +156,12 @@ class SharedNeovimInstance implements SharedNeovimInstance {
     public async start(): Promise<void> {
         const startOptions: INeovimStartOptions = {
             runtimePaths: this._pluginManager.getAllRuntimePaths(),
+            loadInitVim: false,
+            useDefaultConfig: true,
         }
 
-        this._initPromise = this._neovimInstance.start(startOptions)
-
         Log.info("[SharedNeovimInstance::start] Starting...")
-        await this._initPromise
+        await this._neovimInstance.start(startOptions)
         Log.info("[SharedNeovimInstance::start] Started successfully!")
     }
 }

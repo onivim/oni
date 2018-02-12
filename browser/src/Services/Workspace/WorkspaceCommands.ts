@@ -6,7 +6,6 @@
 import * as fs from "fs"
 import * as path from "path"
 
-import { remote } from "electron"
 import * as mkdirp from "mkdirp"
 
 import { CallbackCommand, commandManager } from "./../CommandManager"
@@ -21,26 +20,6 @@ export const activateCommands = (
     editorManager: EditorManager,
     workspace: Workspace,
 ) => {
-    const openFolder = () => {
-        const dialogOptions: any = {
-            title: "Open Folder",
-            properties: ["openDirectory"],
-        }
-
-        remote.dialog.showOpenDialog(
-            remote.getCurrentWindow(),
-            dialogOptions,
-            async (folder: string[]) => {
-                if (!folder || !folder[0]) {
-                    return
-                }
-
-                const folderToOpen = folder[0]
-                await workspace.changeDirectory(folderToOpen)
-            },
-        )
-    }
-
     const openTestFileInSplit = () => {
         const mappedFile = getTestFileMappedToCurrentFile()
 
@@ -96,8 +75,7 @@ export const activateCommands = (
             "workspace.openFolder",
             "Workspace: Open Folder",
             "Set a folder as the working directory for Oni",
-            () => openFolder(),
-            () => !!!workspace.activeWorkspace,
+            () => workspace.openFolder(),
         ),
         new CallbackCommand(
             "workspace.openTestFile",

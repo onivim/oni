@@ -3,5 +3,5 @@
 // https://github.com/onivim/oni/wiki/Configuration
 
 module.exports = {
-    "experimental.commandline.mode": true,
+    "experimental.markdownPreview.enabled": true,
 };

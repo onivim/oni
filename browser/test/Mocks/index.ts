@@ -5,6 +5,8 @@
  * to exercise boundaries of class implementations
  */
 
+export * from "./MockThemeLoader"
+
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
@@ -17,10 +19,24 @@ import * as Language from "./../../src/Services/Language"
 import { createCompletablePromise, ICompletablePromise } from "./../../src/Utility"
 
 import { HighlightInfo } from "./../../src/Services/SyntaxHighlighting"
+import { TokenColor } from "./../../src/Services/TokenColors"
 import { IWorkspace } from "./../../src/Services/Workspace"
+
+export class MockTokenColors {
+    constructor(private _tokenColors: TokenColor[] = []) {}
+
+    public get tokenColors(): TokenColor[] {
+        return this._tokenColors
+    }
+}
 
 export class MockConfiguration {
     private _currentConfigurationFiles: string[] = []
+    private _onConfigurationChanged = new Event<any>()
+
+    public get onConfigurationChanged(): IEvent<any> {
+        return this._onConfigurationChanged
+    }
 
     public get currentConfigurationFiles(): string[] {
         return this._currentConfigurationFiles
@@ -44,6 +60,10 @@ export class MockConfiguration {
         this._currentConfigurationFiles = this._currentConfigurationFiles.filter(
             fp => fp !== filePath,
         )
+    }
+
+    public simulateConfigurationChangedEvent(changedConfigurationValues: any): void {
+        this._onConfigurationChanged.dispatch(changedConfigurationValues)
     }
 }
 
@@ -149,7 +169,7 @@ export class MockEditor extends Editor {
 
 export class MockBuffer {
     private _mockHighlights = new MockBufferHighlightsUpdater()
-    private _cursorPosition = types.Position.create(0, 0)
+    private _cursor = { line: 0, column: 0 }
 
     public get id(): string {
         return "1"
@@ -171,6 +191,10 @@ export class MockBuffer {
         return this._mockHighlights
     }
 
+    public get cursor(): Oni.Cursor {
+        return this._cursor
+    }
+
     public constructor(
         private _language: string = "test_language",
         private _filePath: string = "test_filepath",
@@ -178,11 +202,12 @@ export class MockBuffer {
     ) {}
 
     public async getCursorPosition(): Promise<types.Position> {
-        return this._cursorPosition
+        return types.Position.create(this._cursor.line, this._cursor.column)
     }
 
-    public setCursorPosition(position: types.Position) {
-        this._cursorPosition = position
+    public setCursorPosition(line: number, column: number) {
+        this._cursor.column = column
+        this._cursor.line = line
     }
 
     public setLinesSync(lines: string[]): void {
@@ -215,7 +240,10 @@ export class MockBuffer {
         return Promise.resolve(this._lines.slice(start, end))
     }
 
-    public updateHighlights(updateFunction: (highlightUpdater: IBufferHighlightsUpdater) => void) {
+    public updateHighlights(
+        tokenColors: any[],
+        updateFunction: (highlightUpdater: IBufferHighlightsUpdater) => void,
+    ) {
         updateFunction(this._mockHighlights)
     }
 }
