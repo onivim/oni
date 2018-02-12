@@ -21,14 +21,14 @@ fi
 npm run build
 npm run test:unit
 npm run lint
-npm run pack
+# npm run pack
 
 echo Using neovim path: $ONI_NEOVIM_PATH
 
-npm run test:integration
+# npm run test:integration
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-   npm run demo
+   # npm run demo
 fi
 
 # We'll run code coverage only on Linux, for now
