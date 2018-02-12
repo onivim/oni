@@ -134,6 +134,16 @@ interface IConversionArgs {
     type?: string
 }
 
+/**
+ * Takes a markdown string and defines a custom renderer then for the element type and returns an html string
+ *
+ * @name convertMarkdown
+ * @function
+ * @param {string} {markdown A Markdown String
+ * @param {Object} tokens An Object of lines with tokens for each line
+ * @param {string} type the section of the quickfix being processed
+ * @returns {string} An html string
+ */
 export const convertMarkdown = ({ markdown, tokens, type = "title" }: IConversionArgs): string => {
     marked.setOptions({
         sanitize: true,
