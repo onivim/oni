@@ -16,8 +16,6 @@
         "noImplicitThis": true,
         "noUnusedLocals": true,
         "outDir": "../lib_test/browser",
-        "pretty": true,
-        "removeComments": true,
         "skipLibCheck": true,
         "strictNullChecks": false,
         "suppressImplicitAnyIndexErrors": true,
