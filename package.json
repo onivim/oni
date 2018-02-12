@@ -210,7 +210,7 @@
         "shell-env": "^0.3.0",
         "shelljs": "0.7.7",
         "styled-components": "^2.3.0",
-        "typescript": "2.6.1",
+        "typescript": "2.7.1",
         "vscode-css-languageserver-bin": "^1.2.1",
         "vscode-html-languageserver-bin": "^1.1.0",
         "vscode-jsonrpc": "3.5.0",
