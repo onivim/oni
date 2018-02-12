@@ -35,12 +35,12 @@ fi
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     npm run ccov:instrument
     npm run ccov:test:browser
+    npm run ccov:report:lcov-debug
     npm run ccov:report
 
     ls -a .nyc_output
     ls -a .nyc_output/coverage
 
-    cat .nyc_output/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
 fi
 
 npm run copy-dist-to-s3
