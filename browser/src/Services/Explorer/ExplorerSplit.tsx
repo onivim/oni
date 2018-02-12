@@ -3,6 +3,7 @@
  *
  */
 
+import * as path from "path"
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
@@ -81,6 +82,18 @@ export class ExplorerSplit {
         this._store.dispatch({ type: "LEAVE" })
     }
 
+    public navigateUpwards(dirname: string): void {
+        const parentDir = dirname
+            .split(path.sep)
+            .slice(0, -1)
+            .join(path.sep)
+
+        this._store.dispatch({
+            type: "SET_ROOT_DIRECTORY",
+            rootPath: parentDir,
+        })
+    }
+
     public render(): JSX.Element {
         return (
             <Provider store={this._store}>
@@ -121,6 +134,9 @@ export class ExplorerSplit {
                     type: isDirectoryExpanded ? "COLLAPSE_DIRECTORY" : "EXPAND_DIRECTORY",
                     directoryPath: selectedItem.folderPath,
                 })
+                return
+            case "container":
+                this.navigateUpwards(selectedItem.name)
                 return
             default:
                 alert("Not implemented yet.") // tslint:disable-line
