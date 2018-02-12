@@ -72,8 +72,12 @@ export function wrapTokens({ tokens, element, text }: WrapTokenArgs): string {
     const symbolNames = Object.keys(symbols)
     const banned = ["\n", "\r", " ", "|"]
     const filteredNames = symbolNames.filter(str => !banned.includes(str))
-    // FIXME: RegExp does not respect word boundaries
-    const symbolRegex = new RegExp("(" + escapeRegExp(filteredNames.join("|")) + ")", "g")
+    // Check if a word is alphabetical if so make sure to match full words only
+    // if not alphabetical escape the string
+    const wholeWordMatch = filteredNames.map(
+        str => (/^[A-Za-z]/.test(str) ? `\\b${str}\\b` : escapeRegExp(str)),
+    )
+    const symbolRegex = new RegExp("(" + wholeWordMatch.join("|") + ")", "g")
     const html = text.replace(symbolRegex, (match, ...args) => {
         const className = scopesToString(symbols[match])
         return `<${element} class="marked ${className}">${match}</${element}>`

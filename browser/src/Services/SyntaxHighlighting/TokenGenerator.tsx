@@ -39,16 +39,15 @@ export interface IGrammarTokens {
  * each key has a value of the line, the line's associated tokens and the rulestack
  * @returns {IGrammarPerLine}
  */
-export default async function getTokens({
+const getTokens = (Grammar: GrammarLoader) => async ({
     language,
     ext,
     line,
-}: IGetTokens): Promise<IGrammarPerLine> {
+}: IGetTokens): Promise<IGrammarPerLine> => {
     const { activeBuffer: b } = editorManager.activeEditor
     const lang = language || b.language
     const extension = ext || path.extname(b.filePath)
 
-    const Grammar = new GrammarLoader()
     const grammar = await Grammar.getGrammarForLanguage(lang, extension)
 
     let tokens = null
@@ -56,7 +55,7 @@ export default async function getTokens({
 
     if (grammar) {
         const lines = line.split(/\n/)
-        const tokensPerLine = {}
+        const tokensPerLine: IGrammarPerLine = {}
         for (let index = 0; index < lines.length; index++) {
             const tokenizeResult = grammar.tokenizeLine(lines[index], ruleStack)
             tokens = tokenizeResult.tokens.map((t: any) => ({
@@ -70,3 +69,6 @@ export default async function getTokens({
     }
     return { 0: { tokens: [], ruleStack: null, line: null } }
 }
+
+const grammarloader = new GrammarLoader()
+export default getTokens(grammarloader)
