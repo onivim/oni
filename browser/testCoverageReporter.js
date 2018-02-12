@@ -24,15 +24,6 @@ function Coverage(runner) {
         console.log("Writing code coverage map...")
         mainReporter.write(coverageMap, {})
         console.log("Complete!")
-
-        // const outputPath = path.join(__dirname, "..", ".nyc_output")
-
-        // mkdirp.sync(outputPath)
-
-        // const outputFile = path.join(outputPath, "out.json")
-
-        // console.log("Writing code coverage results to: " + outputFile)
-        // fs.writeFileSync(outputFile, JSON.stringify(window.__coverage__))
     })
 }
 
