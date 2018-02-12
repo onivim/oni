@@ -27,7 +27,6 @@ const CiTests = [
     "Sidebar.ToggleSplitTest",
     "WindowManager.ErrorBoundary",
     "Workspace.ConfigurationTest",
-
     // Regression Tests
     "Regression.1251.NoAdditionalProcessesOnStartup",
     "Regression.1296.SettingColorsTest",
