@@ -17,9 +17,8 @@
         "outDir": "../lib_test/browser",
         "skipLibCheck": true,
         "strictNullChecks": false,
-        "emitBOM": false,
         "suppressImplicitAnyIndexErrors": true,
-        "target": "es6",
+        "target": "es2015",
         "sourceMap": true
     },
     "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
