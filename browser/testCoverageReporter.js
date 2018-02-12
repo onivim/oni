@@ -8,16 +8,31 @@ const fs = require("fs")
 const path = require("path")
 const mkdirp = require("mkdirp")
 
+const istanbulAPI = require("istanbul-api")
+const libCoverage = require("istanbul-lib-coverage")
+
 function Coverage(runner) {
     runner.on("end", () => {
-        const outputPath = path.join(__dirname, "..", ".nyc_output")
+        const mainReporter = istanbulAPI.createReporter()
+        const coverageMap = libCoverage.createCoverageMap()
+        console.log("Merging coverage map...")
+        coverageMap.merge(window.__coverage__ || {})
+        console.log("Merging coverage map complete")
 
-        mkdirp.sync(outputPath)
+        console.log("Adding reporters...")
+        mainReporter.addAll(["text", "html", "lcov"])
+        console.log("Writing code coverage map...")
+        mainReporter.write(coverageMap, {})
+        console.log("Complete!")
 
-        const outputFile = path.join(outputPath, "out.json")
+        // const outputPath = path.join(__dirname, "..", ".nyc_output")
 
-        console.log("Writing code coverage results to: " + outputFile)
-        fs.writeFileSync(outputFile, JSON.stringify(window.__coverage__))
+        // mkdirp.sync(outputPath)
+
+        // const outputFile = path.join(outputPath, "out.json")
+
+        // console.log("Writing code coverage results to: " + outputFile)
+        // fs.writeFileSync(outputFile, JSON.stringify(window.__coverage__))
     })
 }
 

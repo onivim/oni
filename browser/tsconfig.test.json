@@ -22,8 +22,9 @@
         "skipLibCheck": true,
         "strictNullChecks": false,
         "suppressImplicitAnyIndexErrors": true,
-        "target": "es2015",
-        "sourceMap": true
+        "target": "es6",
+        "inlineSourceMap": true,
+        "inlineSources": true
     },
     "include": ["src/**/*.ts", "test/**/*.ts"],
     "exclude": ["node_modules"]
