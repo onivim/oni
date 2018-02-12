@@ -125,8 +125,11 @@ export const startNeovim = async (
         "--",
     ])
 
+    Log.verbose(
+        "[NeovimProcessSpawner::startNeovim] Sending these args to Neovim: " +
+            argsToPass.toString(),
+    )
     const nvimProc = await spawnProcess(nvimProcessPath, argsToPass, {})
-
     Log.info(`[NeovimProcessSpawner::startNeovim] Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console
 
     return getSessionFromProcess(nvimProc, options.transport)
