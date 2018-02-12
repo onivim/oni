@@ -2,6 +2,15 @@ import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 
+const _runSudoCommand = async (command: string, options: any): Promise<{}> => {
+    const sudo = require("sudo-prompt")
+    return new Promise(resolve => {
+        sudo.exec(command, options, (error: Error, stdout: string, stderr: string) => {
+            resolve({ error, stdout, stderr })
+        })
+    })
+}
+
 export const isWindows = () => os.platform() === "win32"
 export const isMac = () => os.platform() === "darwin"
 export const isLinux = () => os.platform() === "linux"
@@ -21,7 +30,6 @@ export const isAddedToPath = () => {
 
     return false
 }
-export const removeFromPath = () => (isMac() ? fs.unlinkSync(getLinkPath()) : false) // TODO: windows + other
 
 export const addToPath = async () => {
     if (isMac()) {
@@ -32,14 +40,7 @@ export const addToPath = async () => {
     }
 }
 
-const _runSudoCommand = async (command: string, options: any) => {
-    const sudo = await import("sudo-prompt")
-    return new Promise(resolve => {
-        sudo.exec(command, options, (error: Error, stdout: string, stderr: string) => {
-            resolve({ error, stdout, stderr })
-        })
-    })
-}
+export const removeFromPath = () => (isMac() ? fs.unlinkSync(getLinkPath()) : false) // TODO: windows + other
 
-// TODO: WHY is typescript not emitting this?
+// test2
 //# sourceMappingURL=Platform.js.map

@@ -168,7 +168,9 @@
         "pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --publish never",
         "ccov:instrument": "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
         "ccov:test:browser": "cross-env ONI_CCOV=1 electron-mocha --renderer --require browser/testHelpers.js -R browser/testCoverageReporter --recursive lib_test/browser/test",
-        "ccov:remap:browser": "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output html-report --type html",
+        "ccov:remap:browser:html": "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output html-report --type html",
+        "ccov:remap:browser:json": "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output mapped-json --type coverage.json",
+        "ccov:remap:browser:lcov": "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output lcov.info --type lcovonly",
         "ccov:upload": "codecov",
         "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
         "start-hot": "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
@@ -307,5 +309,5 @@
         "type": "opencollective",
         "url": "https://opencollective.com/oni",
         "logo": "https://opencollective.com/opencollective/logo.txt"
-    }
+   }
 }

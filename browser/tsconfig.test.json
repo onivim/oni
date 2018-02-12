@@ -8,7 +8,6 @@
         "lib": ["dom", "es2017"],
         "module": "commonjs",
         "moduleResolution": "node",
-        "newLine": "LF",
         "noEmitOnError": true,
         "noFallthroughCasesInSwitch": true,
         "noImplicitAny": true,
@@ -18,10 +17,11 @@
         "outDir": "../lib_test/browser",
         "skipLibCheck": true,
         "strictNullChecks": false,
+        "emitBOM": false,
         "suppressImplicitAnyIndexErrors": true,
-        "target": "es2015",
+        "target": "es6",
         "sourceMap": true
     },
-    "include": ["src/**/*.ts", "test/**/*.ts"],
+    "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
     "exclude": ["node_modules"]
 }
