@@ -10,7 +10,9 @@
         "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
     },
     "oni": {
-        "supportedFileTypes": ["markdown"],
+        "supportedFileTypes": [
+            "markdown"
+        ],
         "commands": {
             "markdown.preview": {
                 "name": "Markdown Preview",
