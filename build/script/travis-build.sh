@@ -21,11 +21,11 @@ fi
 npm run build
 npm run test:unit
 npm run lint
-# npm run pack
+npm run pack
 
 echo Using neovim path: $ONI_NEOVIM_PATH
 
-# npm run test:integration
+npm run test:integration
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
    npm run demo
@@ -36,6 +36,7 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     npm run ccov:instrument
     npm run ccov:test:browser
     npm run ccov:remap:browser:lcov
+    npm run ccov:clean
     npm run ccov:upload
 fi
 
