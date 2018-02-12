@@ -8,6 +8,7 @@ import * as React from "react"
 import { connect } from "react-redux"
 
 import * as classNames from "classnames"
+import { keyframes } from "styled-components"
 
 import * as BufferSelectors from "./../../Editor/NeovimEditor/NeovimEditorSelectors"
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
@@ -124,6 +125,15 @@ export interface ITabPropsWithClick extends ITabProps {
     maxWidth: string
 }
 
+const TabEntranceKeyFrames = keyframes`
+    0% { transform: translateY(-3px) rotateX(-20deg); }
+    100% { transform: translateY(0px) rotateX(0deg); }
+`
+
+const TabWrapper = styled.div`
+    animation: ${TabEntranceKeyFrames} 0.1s ease-in forwards;
+`
+
 export class Tab extends React.Component<ITabPropsWithClick> {
     private _tab: HTMLDivElement
     public componentWillReceiveProps(next: ITabPropsWithClick) {
@@ -139,7 +149,7 @@ export class Tab extends React.Component<ITabPropsWithClick> {
             "not-dirty": !this.props.isDirty,
         })
 
-        const style = {
+        const style: React.CSSProperties = {
             backgroundColor: this.props.backgroundColor,
             color: this.props.foregroundColor,
             maxWidth: this.props.maxWidth,
@@ -149,8 +159,8 @@ export class Tab extends React.Component<ITabPropsWithClick> {
 
         return (
             <Sneakable callback={() => this.props.onClickName()}>
-                <div
-                    ref={(e: HTMLDivElement) => (this._tab = e)}
+                <TabWrapper
+                    innerRef={(e: HTMLDivElement) => (this._tab = e)}
                     className={cssClasses}
                     title={this.props.description}
                     style={style}
@@ -175,7 +185,7 @@ export class Tab extends React.Component<ITabPropsWithClick> {
                             <div className="circle" />
                         </div>
                     </div>
-                </div>
+                </TabWrapper>
             </Sneakable>
         )
     }
