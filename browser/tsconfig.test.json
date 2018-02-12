@@ -18,13 +18,11 @@
         "outDir": "../lib_test/browser",
         "pretty": true,
         "removeComments": true,
-        "rootDir": ".",
         "skipLibCheck": true,
         "strictNullChecks": false,
         "suppressImplicitAnyIndexErrors": true,
-        "target": "es6",
-        "inlineSourceMap": true,
-        "inlineSources": true
+        "target": "es2015",
+        "sourceMap": true
     },
     "include": ["src/**/*.ts", "test/**/*.ts"],
     "exclude": ["node_modules"]

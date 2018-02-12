@@ -149,7 +149,7 @@
         "build:test:unit": "cd browser && tsc -p tsconfig.test.json",
         "copy-icons": "node build/CopyIcons.js",
         "copy-dist-to-s3": "node build/script/CopyPackedFilesForS3Upload.js",
-        "debug:test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+        "debug:test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require source-map-support/register --require testHelpers.js --recursive ../lib_test/browser/test",
         "demo": "npm run build:test && mocha -t 30000 lib_test/test/Demo.js",
         "dist:win": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
         "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
@@ -166,8 +166,8 @@
         "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
         "lint:test": "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
         "pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --publish never",
-        "ccov:instrument": "nyc instrument --sourceMap true lib_test/browser/src lib_test/browser/src_ccov",
-        "ccov:test:browser": "cd browser && cross-env ONI_CCOV=1 electron-mocha --renderer --require testHelpers.js -R testCoverageReporter --recursive ../lib_test/browser/test",
+        "ccov:instrument": "nyc .js instrument lib_test/browser/src lib_test/browser/src_ccov",
+        "ccov:test:browser": "cross-env ONI_CCOV=1 electron-mocha --renderer --require browser/testHelpers.js -R browser/testCoverageReporter --recursive lib_test/browser/test",
         "ccov:report": "nyc report .nyc_output/out.json",
         "ccov:report:lcov": "nyc report --reporter=lcov .nyc_ouput/out.json",
         "ccov:report:json": "nyc report --reporter=json .nyc_ouput/out.json",
@@ -185,6 +185,9 @@
         "install:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm install --prod",
         "postinstall": "npm run install:plugins && electron-rebuild && opencollective postinstall",
         "profile:webpack": "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
+    },
+    "nyc": {
+        "include": ["lib_test/src/**/*.js", "lib_test/src/**/*.jsx"]
     },
     "repository": {
         "type": "git",
@@ -288,9 +291,11 @@
         "redux": "3.7.2",
         "redux-observable": "0.17.0",
         "redux-thunk": "2.2.0",
+        "remap-istanbul": "^0.10.1",
         "reselect": "3.0.1",
         "rxjs": "5.5.0",
         "sinon": "1.17.6",
+        "source-map-support": "^0.5.3",
         "spectron": "3.6.2",
         "style-loader": "0.18.2",
         "sudo-prompt": "7.1.1",

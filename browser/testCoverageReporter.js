@@ -20,7 +20,7 @@ function Coverage(runner) {
         console.log("Merging coverage map complete")
 
         console.log("Adding reporters...")
-        mainReporter.addAll(["text", "html", "lcov"])
+        mainReporter.addAll(["text", "json", "html", "lcov"])
         console.log("Writing code coverage map...")
         mainReporter.write(coverageMap, {})
         console.log("Complete!")
