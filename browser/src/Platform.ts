@@ -40,3 +40,6 @@ const _runSudoCommand = async (command: string, options: any) => {
         })
     })
 }
+
+// TODO: WHY is typescript not emitting this?
+//# sourceMappingURL=Platform.js.map
