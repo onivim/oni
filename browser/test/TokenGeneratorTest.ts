@@ -3,6 +3,7 @@ import getTokens, {
     IGrammarPerLine,
     IGrammarTokens,
 } from "./../src/Services/SyntaxHighlighting/TokenGenerator"
+// import * as sinon from "sinon"
 
 describe("Token Generator function test", async () => {
     const testString = "function() { a + b }"
@@ -10,8 +11,9 @@ describe("Token Generator function test", async () => {
     let firstLine: IGrammarTokens
 
     before(async () => {
-        tokens = await getTokens({ language: "typescript", ext: ".ts", line: testString })
-        // FIXME there is a dependency on the editorManager which breaks the tests :SS
+        // FIXME there's a dependency on the Grammar loader and the absence of the JSON files
+        // it loads ?mock the require
+        tokens = await getTokens({ language: "typescript", extension: ".ts", line: testString })
         firstLine = tokens[0]
     })
 

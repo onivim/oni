@@ -20,7 +20,7 @@ export interface IHighlight {
 interface IGetTokens {
     line: string
     language: string
-    ext?: string
+    extension?: string
 }
 
 export interface IGrammarPerLine {
@@ -41,14 +41,19 @@ export interface IGrammarTokens {
  */
 export const getTokens = (Grammar: GrammarLoader) => async ({
     language,
-    ext,
+    extension,
     line,
 }: IGetTokens): Promise<IGrammarPerLine> => {
-    const { activeBuffer: b } = editorManager.activeEditor
-    const lang = language || b.language
-    const extension = ext || path.extname(b.filePath)
+    let lang = language
+    let ext = extension
 
-    const grammar = await Grammar.getGrammarForLanguage(lang, extension)
+    if (!language || !extension) {
+        const { activeBuffer: b } = editorManager.activeEditor
+        lang = language || b.language
+        ext = extension || path.extname(b.filePath)
+    }
+
+    const grammar = await Grammar.getGrammarForLanguage(lang, ext)
 
     let tokens = null
     let ruleStack = null
