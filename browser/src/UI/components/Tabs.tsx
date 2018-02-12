@@ -234,6 +234,12 @@ export const shouldShowFileIcon = (state: State.IState): boolean => {
     return state.configuration["tabs.showFileIcon"]
 }
 
+export const checkTabBuffers = (buffersInTabs: number[], buffers: State.IBuffer[]): boolean => {
+    const tabBufs = buffers.filter(buf => buffersInTabs.find(tabBuf => tabBuf === buf.id))
+
+    return tabBufs.some(buf => buf.modified)
+}
+
 const getTabsFromBuffers = createSelector(
     [
         BufferSelectors.getBufferMetadata,
@@ -268,15 +274,27 @@ const getTabsFromBuffers = createSelector(
 )
 
 const getTabsFromVimTabs = createSelector(
-    [getTabState, getHighlightColor, showTabId, shouldShowFileIcon],
-    (tabState: any, color: any, shouldShowId: boolean, showFileIcon: boolean) => {
+    [
+        getTabState,
+        getHighlightColor,
+        showTabId,
+        shouldShowFileIcon,
+        BufferSelectors.getBufferMetadata,
+    ],
+    (
+        tabState: any,
+        color: any,
+        shouldShowId: boolean,
+        showFileIcon: boolean,
+        allBuffers: State.IBuffer[],
+    ) => {
         return tabState.tabs.map((t: any, idx: number) => ({
             id: t.id,
             name: getIdPrefix((idx + 1).toString(), shouldShowId) + getTabName(t.name),
             highlightColor: t.id === tabState.selectedTabId ? color : "transparent",
             iconFileName: showFileIcon ? getTabName(t.name) : "",
             isSelected: t.id === tabState.selectedTabId,
-            isDirty: false,
+            isDirty: checkTabBuffers(t.buffersInTab, allBuffers),
             description: t.name,
         }))
     },
