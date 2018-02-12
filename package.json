@@ -156,7 +156,7 @@
         "test": "npm run test:unit && npm run test:integration",
         "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js",
         "test:unit": "npm run test:unit:browser",
-        "test:react": "npm run build:test:unit && mocha browser/test/components/setup.js --recursive ../lib_test/browser/test/components",
+        "test:react": "npm run build:test:unit && mocha browser/test/components/setup.js --recursive ../browser/src/UI",
         "test:unit:browser": "npm run build:test:unit && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
         "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
         "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",

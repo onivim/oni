@@ -3,7 +3,7 @@ import { /* mount, */ shallow } from "enzyme"
 import * as React from "react"
 // import * as renderer from "react-test-renderer"
 import { spy } from "sinon"
-import CommandLine from "../../src/UI/components/CommandLine"
+import CommandLine from "../CommandLine"
 
 spy(CommandLine.prototype, "componentDidMount")
 
