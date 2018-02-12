@@ -40,8 +40,9 @@ export interface IConfigurationValues {
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
-    "experimental.commandline.mode": boolean
-    "experimental.commandline.icons": boolean
+    "wildmenu.mode": boolean
+    "commandline.mode": boolean
+    "commandline.icons": boolean
 
     "experimental.welcome.enabled": boolean
 
