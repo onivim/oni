@@ -36,6 +36,8 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     npm run ccov:instrument
     npm run ccov:test:browser
     npm run ccov:report
+    npm run ccov:report:lcov
+    npm run ccov:report:json
 
     ls -a
     ls -a .nyc_output
