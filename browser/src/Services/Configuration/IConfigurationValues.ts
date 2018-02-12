@@ -205,6 +205,17 @@ export interface IConfigurationValues {
     "sidebar.marks.enabled": boolean
     "sidebar.plugins.enabled": boolean
 
+    "oni.plugins.prettier": {
+        "no-semi": boolean
+        "tab-width": number
+        "use-tabs": boolean
+        "single-quote": boolean
+        "trailing-comma": "es5" | "all" | "none"
+        "no-bracket-spacing": boolean
+        "jsx-bracket-same-line": boolean
+        "arrow-parens": "avoid"
+    }
+
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
 

@@ -241,6 +241,17 @@ const BaseConfiguration: IConfigurationValues = {
         "oni.status.git": 3,
     },
 
+    "oni.plugins.prettier": {
+        "no-semi": false,
+        "tab-width": 2,
+        "use-tabs": false,
+        "single-quote": false,
+        "trailing-comma": "es5",
+        "no-bracket-spacing": true,
+        "jsx-bracket-same-line": false,
+        "arrow-parens": "avoid",
+    },
+
     "tabs.mode": "buffers",
     "tabs.height": "2.5em",
     "tabs.highlight": true,

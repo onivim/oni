@@ -3,6 +3,7 @@ const prettier = require("prettier")
 
 const activate = async Oni => {
     const currentBuffer = Oni.editors.activeEditor.activeBuffer
+    const config = Oni.configuration.getValue("oni.plugins.prettier")
 
     async function applyPrettier(buffer = currentBuffer) {
         const arrayOfLines = await currentBuffer.getLines()
@@ -10,11 +11,16 @@ const activate = async Oni => {
         const { line, character } = cursorPosition
         const bufferString = arrayOfLines.join(os.EOL)
 
-        const prettierCode = prettier.formatWithCursor(bufferString, {
-            semi: false,
-            cursorOffset: line,
-        })
+        // TODO: Add option to turn off prettier and to set when it runs
 
+        const prettierCode = prettier.formatWithCursor(
+            bufferString,
+            Object.assign(config, {
+                cursorOffset: line,
+            }),
+        )
+
+        // FIXME: Reposition cursor correctly on format
         // console.log("Cursor offset", prettierCode.cursorOffset)
 
         await Oni.editors.activeEditor.activeBuffer.setLines(
