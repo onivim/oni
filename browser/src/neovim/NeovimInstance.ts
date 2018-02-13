@@ -26,6 +26,7 @@ import { Session } from "./Session"
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 import { TokenColor } from "./../Services/TokenColors"
 import { INeovimBufferUpdate, NeovimBufferUpdateManager } from "./NeovimBufferUpdateManager"
+import { NeovimTokenColorSynchronizer } from "./NeovimTokenColorSynchronizer"
 
 import {
     IVimHighlight,
@@ -225,6 +226,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onWildMenuSelectEvent = new Event<IWildMenuSelectEvent>()
     private _onWildMenuShowEvent = new Event<IWildMenuShowEvent>()
     private _bufferUpdateManager: NeovimBufferUpdateManager
+    private _tokenColorSynchronizer: NeovimTokenColorSynchronizer
 
     private _pendingScrollTimeout: number | null = null
 
@@ -324,6 +326,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._marks
     }
 
+    public get tokenColorSynchronizer(): NeovimTokenColorSynchronizer {
+        return this._tokenColorSynchronizer
+    }
+
     constructor(widthInPixels: number, heightInPixels: number, configuration: Configuration) {
         super()
         this._configuration = configuration
@@ -336,6 +342,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._quickFix = new QuickFixList(this)
         this._autoCommands = new NeovimAutoCommands(this)
         this._marks = new NeovimMarks(this)
+        this._tokenColorSynchronizer = new NeovimTokenColorSynchronizer(this)
 
         this._bufferUpdateManager = new NeovimBufferUpdateManager(this._configuration, this)
     }
@@ -806,6 +813,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 case "wildmenu_hide":
                     this._onWildMenuHideEvent.dispatch()
                     break
+                case "update_sp":
+                case "mode_info_set":
+                case "busy_start":
+                case "busy_stop":
+                    Log.verbose("Ignore command: " + command)
+                    break
                 default:
                     Log.warn("Unhandled command: " + command)
             }
@@ -832,7 +845,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         const externaliseTabline = !useNativeTabs
         const externalisePopupWindows = !useNativePopupWindows
 
-        console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`) // tslint:disable-line no-console
+        Log.info(
+            `[NeovimInstance::_attachUI] Neovim version reported as ${version.major}.${
+                version.minor
+            }.${version.patch}`,
+        ) // tslint:disable-line no-console
 
         const startupOptions = this._getStartupOptionsForVersion(
             version.major,
@@ -840,6 +857,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             version.patch,
             externaliseTabline,
             externalisePopupWindows,
+        )
+
+        Log.info(
+            `[NeovimInstance::_attachUI] Using startup options: ${JSON.stringify(
+                startupOptions,
+            )} and size: ${columns}, ${rows}`,
         )
 
         await this._neovim.request("nvim_ui_attach", [columns, rows, startupOptions])
@@ -853,8 +876,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         shouldExtPopups: boolean,
     ) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
-            const useExtCmdLine = this._configuration.getValue("experimental.commandline.mode")
-            const useExtWildMenu = this._configuration.getValue("experimental.wildmenu.mode")
+            const useExtCmdLine = this._configuration.getValue("commandline.mode")
+            const useExtWildMenu = this._configuration.getValue("wildmenu.mode")
             return {
                 rgb: true,
                 popupmenu_external: shouldExtPopups,

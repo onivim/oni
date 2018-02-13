@@ -19,7 +19,16 @@ import * as Language from "./../../src/Services/Language"
 import { createCompletablePromise, ICompletablePromise } from "./../../src/Utility"
 
 import { HighlightInfo } from "./../../src/Services/SyntaxHighlighting"
+import { TokenColor } from "./../../src/Services/TokenColors"
 import { IWorkspace } from "./../../src/Services/Workspace"
+
+export class MockTokenColors {
+    constructor(private _tokenColors: TokenColor[] = []) {}
+
+    public get tokenColors(): TokenColor[] {
+        return this._tokenColors
+    }
+}
 
 export class MockConfiguration {
     private _currentConfigurationFiles: string[] = []
@@ -161,9 +170,10 @@ export class MockEditor extends Editor {
 export class MockBuffer {
     private _mockHighlights = new MockBufferHighlightsUpdater()
     private _cursor = { line: 0, column: 0 }
+    private _modified = false
 
-    public get id(): string {
-        return "1"
+    public get id(): number {
+        return this._id
     }
 
     public get language(): string {
@@ -186,10 +196,15 @@ export class MockBuffer {
         return this._cursor
     }
 
+    public get modified(): boolean {
+        return this._modified
+    }
+
     public constructor(
         private _language: string = "test_language",
         private _filePath: string = "test_filepath",
         private _lines: string[] = [],
+        private _id: number = 1,
     ) {}
 
     public async getCursorPosition(): Promise<types.Position> {
@@ -203,6 +218,7 @@ export class MockBuffer {
 
     public setLinesSync(lines: string[]): void {
         this._lines = lines
+        this._modified = true
     }
 
     public setLineSync(line: number, lineContents: string): void {
@@ -211,6 +227,7 @@ export class MockBuffer {
         }
 
         this._lines[line] = lineContents
+        this._modified = true
     }
 
     public async setLines(start: number, end: number, lines: string[]): Promise<void> {
@@ -221,6 +238,8 @@ export class MockBuffer {
         for (let i = 0; i < lines.length; i++) {
             this._lines[start + i] = lines[i]
         }
+
+        this._modified = true
     }
 
     public getLines(start: number = 0, end?: number): Promise<string[]> {
@@ -231,7 +250,10 @@ export class MockBuffer {
         return Promise.resolve(this._lines.slice(start, end))
     }
 
-    public updateHighlights(updateFunction: (highlightUpdater: IBufferHighlightsUpdater) => void) {
+    public updateHighlights(
+        tokenColors: any[],
+        updateFunction: (highlightUpdater: IBufferHighlightsUpdater) => void,
+    ) {
         updateFunction(this._mockHighlights)
     }
 }

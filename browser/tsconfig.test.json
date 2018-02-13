@@ -9,7 +9,6 @@
         "lib": ["dom", "es2017"],
         "module": "commonjs",
         "moduleResolution": "node",
-        "newLine": "LF",
         "noEmitOnError": true,
         "noFallthroughCasesInSwitch": true,
         "noImplicitAny": true,
@@ -17,15 +16,12 @@
         "noImplicitThis": true,
         "noUnusedLocals": true,
         "outDir": "../lib_test/browser",
-        "pretty": true,
-        "removeComments": true,
-        "rootDir": ".",
         "skipLibCheck": true,
         "strictNullChecks": false,
         "suppressImplicitAnyIndexErrors": true,
         "target": "es2015",
         "sourceMap": true
     },
-    "include": ["src/**/*.ts", "test/**/*.ts", "browser/test/**/*.tsx"],
+    "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
     "exclude": ["node_modules"]
 }

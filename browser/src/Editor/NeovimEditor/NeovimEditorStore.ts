@@ -132,6 +132,7 @@ export interface IBuffer {
 export interface ITab {
     id: number
     name: string
+    buffersInTab: number[]
 }
 
 export interface ITabState {

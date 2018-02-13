@@ -239,7 +239,6 @@ export const buffersReducer = (
             byId = a.payload.buffers.reduce((buffersById, buffer) => {
                 buffersById[buffer.id] = {
                     ...buffer,
-                    modified: false,
                 }
                 return byId
             }, byId)
