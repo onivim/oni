@@ -36,7 +36,6 @@ export interface ITabContainerProps {
     onBufferClose?: (bufferId: number) => void
 
     onTabSelect?: (tabId: number) => void
-
     onTabClose?: (tabId: number) => void
 }
 
