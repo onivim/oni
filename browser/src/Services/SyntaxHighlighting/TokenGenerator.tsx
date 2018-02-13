@@ -34,7 +34,7 @@ export interface IGrammarTokens {
 }
 
 /**
- * This function Takes a language, its extension, and a line/lines
+ * This function takes a language, its extension, and a line/lines
  * and it returns an object with keys representing each line as a number
  * each key has a value of the line, the line's associated tokens and the rulestack
  * @returns {IGrammarPerLine}
