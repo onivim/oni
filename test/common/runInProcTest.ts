@@ -61,12 +61,11 @@ const getConfigPath = (settings: any, rootPath: string) => {
 // Returns the path to the serialized config
 const serializeConfig = (configValues: { [key: string]: any }): string => {
     const stringifiedConfig = Object.keys(configValues).map(key => {
-        let val = configValues[key]
-        // Wrap string values in quites
-        if (typeof val === "string") {
-            val = `"${val}"`
+        if (typeof configValues[key] !== "string") {
+            return `"${key}": ${configValues[key]},`
+        } else {
+            return `"${key}": "${configValues[key]}",`
         }
-        return `"${key}": ${val},`
     })
 
     const outputConfig = `module.exports = {${stringifiedConfig.join(os.EOL)}}`
@@ -188,14 +187,19 @@ export const runInProcTest = (
                 })
             }
 
-            const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
-            console.log("")
-            console.log("---LOGS (Renderer): " + testName)
-            writeLogs(rendererLogs)
-            console.log("--- " + testName + " ---")
-
             console.log("Getting result...")
             const resultText = await oni.client.getText(".automated-test-result")
+            const result = JSON.parse(resultText)
+
+            if (!result || !result.passed) {
+                const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
+                console.log("")
+                console.log("---LOGS (Renderer): " + testName)
+                writeLogs(rendererLogs)
+                console.log("--- " + testName + " ---")
+            } else {
+                console.log("-- LOGS: Skipped writing logs because the test passed.")
+            }
 
             console.log("")
             logWithTimeStamp("---RESULT: " + testName)
@@ -203,7 +207,6 @@ export const runInProcTest = (
             console.log("--- " + testName + " ---")
             console.log("")
 
-            const result = JSON.parse(resultText)
             if (failures && !result.passed) {
                 const failedTest: IFailedTest = {
                     test: testName,

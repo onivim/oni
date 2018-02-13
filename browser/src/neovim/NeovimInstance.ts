@@ -875,7 +875,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         const externaliseTabline = !useNativeTabs
         const externalisePopupWindows = !useNativePopupWindows
 
-        console.log(`Neovim version reported as ${version.major}.${version.minor}.${version.patch}`) // tslint:disable-line no-console
+        Log.info(
+            `[NeovimInstance::_attachUI] Neovim version reported as ${version.major}.${
+                version.minor
+            }.${version.patch}`,
+        ) // tslint:disable-line no-console
 
         const startupOptions = this._getStartupOptionsForVersion(
             version.major,
@@ -883,6 +887,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             version.patch,
             externaliseTabline,
             externalisePopupWindows,
+        )
+
+        Log.info(
+            `[NeovimInstance::_attachUI] Using startup options: ${JSON.stringify(
+                startupOptions,
+            )} and size: ${columns}, ${rows}`,
         )
 
         await this._neovim.request("nvim_ui_attach", [columns, rows, startupOptions])
@@ -896,8 +906,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         shouldExtPopups: boolean,
     ) {
         if (major >= 0 && minor >= 2 && patch >= 1) {
-            const useExtCmdLine = this._configuration.getValue("experimental.commandline.mode")
-            const useExtWildMenu = this._configuration.getValue("experimental.wildmenu.mode")
+            const useExtCmdLine = this._configuration.getValue("commandline.mode")
+            const useExtWildMenu = this._configuration.getValue("wildmenu.mode")
             return {
                 rgb: true,
                 popupmenu_external: shouldExtPopups,
