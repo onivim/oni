@@ -34,17 +34,6 @@ const markedCss = css`
         white-space: pre-wrap;
         display: table;
     }
-
-    /*
-    All code blocks are set to black but
-    this is overriden for code blocks INSIDE a Pre element
-    */
-
-    code {
-        background-color: ${p => p.theme["editor.hover.contents.codeblock.background"]};
-        color: ${p => p.theme["editor.hover.contents.codeblock.foreground"]};
-        padding: 0 0.2rem;
-    }
 `
 
 const smallScrollbar = css`
@@ -65,6 +54,17 @@ const childStyles = css`
         a {
             color: ${p => p.theme["highlight.mode.normal.background"]};
         }
+    }
+
+    /*
+    All code blocks are set to black but
+    this is overriden for code blocks INSIDE a Pre element
+    */
+
+    code {
+        background-color: ${p => p.theme["editor.hover.contents.codeblock.background"]};
+        color: ${p => p.theme["editor.hover.contents.codeblock.foreground"]};
+        padding: 0 0.2rem;
     }
 `
 
