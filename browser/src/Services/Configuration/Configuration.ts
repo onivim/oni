@@ -5,7 +5,6 @@
 import { merge } from "lodash"
 import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
-
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
 import * as Log from "./../../Log"
 import * as Performance from "./../../Performance"
@@ -36,8 +35,6 @@ export interface GenericConfigurationValues {
 interface ConfigurationProviderInfo {
     disposables: IDisposable[]
 }
-
-// const isNestedObject = (value: any) => isPlainObject(value) && Object.values(value).some(v => !!v && isPlainObject(v))
 
 /**
  * Interface describing persistence layer for configuration
