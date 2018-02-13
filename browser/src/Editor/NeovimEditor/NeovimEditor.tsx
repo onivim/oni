@@ -261,6 +261,16 @@ export class NeovimEditor extends Editor implements IEditor {
         this._colors.onColorsChanged.subscribe(() => onColorsChanged())
         onColorsChanged()
 
+        const onTokenColorschanged = () => {
+            if (this._neovimInstance.isInitialized) {
+                this._neovimInstance.tokenColorSynchronizer.synchronizeTokenColors(
+                    this._tokenColors.tokenColors,
+                )
+            }
+        }
+
+        this._tokenColors.onTokenColorsChanged.subscribe(() => onTokenColorschanged())
+
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
@@ -421,7 +431,17 @@ export class NeovimEditor extends Editor implements IEditor {
             }
         })
 
-        this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
+        this._neovimInstance.on("tabline-update", async (currentTabId: number, tabs: any[]) => {
+            const atomicCalls = tabs.map((tab: any) => {
+                return ["nvim_call_function", ["tabpagebuflist", [tab.id]]]
+            })
+
+            const response = await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
+
+            tabs.map((tab: any, index: number) => {
+                tab.buffersInTab = response[0][index]
+            })
+
             this._actions.setTabs(currentTabId, tabs)
         })
 
@@ -484,7 +504,7 @@ export class NeovimEditor extends Editor implements IEditor {
             "experimental.editor.textMateHighlighting.enabled",
         )
         this._syntaxHighlighter = textMateHighlightingEnabled
-            ? new SyntaxHighlighter(this._configuration, this)
+            ? new SyntaxHighlighter(this, this._tokenColors)
             : new NullSyntaxHighlighter()
 
         this._completion = new Completion(
@@ -815,6 +835,10 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     private async _openFiles(files: string[], action: string): Promise<void> {
+        if (!files) {
+            return
+        }
+
         await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
 
         for (let i = 1; i < files.length; i++) {

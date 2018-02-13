@@ -2,6 +2,7 @@ const path = require("path")
 
 const webpack = require("webpack")
 
+// Override 'debug' settings
 const baseConfig = require("./webpack.debug.config.js")
 
 const OptimizeJsPlugin = require("optimize-js-plugin")
@@ -11,7 +12,7 @@ const productionConfig = Object.assign({}, baseConfig, {
     devtool: false,
     plugins: [
         new webpack.DefinePlugin({
-            "process.env.NODE_ENV":'"production"'
+            "process.env.NODE_ENV": '"production"',
         }),
         new webpack.optimize.CommonsChunkPlugin({
             async: true,
@@ -19,15 +20,9 @@ const productionConfig = Object.assign({}, baseConfig, {
         }),
         new BabiliPlugin(),
         new OptimizeJsPlugin({
-            sourceMap: false
+            sourceMap: false,
         }),
     ],
-    output: {
-        path: path.join(__dirname, "..", "lib", "browser"),
-        publicPath: "lib/browser/",
-        filename: "bundle.js",
-        chunkFilename: "[name].bundle.js"
-    },
 })
 
 module.exports = productionConfig

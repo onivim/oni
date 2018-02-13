@@ -26,8 +26,6 @@ import {
 import * as LanguageManager from "./../Services/Language"
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
-import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
-
 import {
     BufferHighlightId,
     BufferHighlightsUpdater,
@@ -39,6 +37,7 @@ import * as State from "./NeovimEditor/NeovimEditorStore"
 
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
+import { TokenColor } from "./../Services/TokenColors"
 
 import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 
@@ -209,19 +208,8 @@ export class Buffer implements IBuffer {
 
         return result
     }
-
-    public async getOrCreateHighlightGroup(
-        highlight: SyntaxHighlighting.IHighlight | string,
-    ): Promise<SyntaxHighlighting.HighlightGroupId> {
-        if (typeof highlight === "string") {
-            return highlight
-        } else {
-            // TODO: needed for theming integration!
-            return null
-        }
-    }
-
     public async updateHighlights(
+        tokenColors: TokenColor[],
         updateFunction: (highlightsUpdater: IBufferHighlightsUpdater) => void,
     ): Promise<void> {
         this._promiseQueue.enqueuePromise(async () => {
@@ -231,6 +219,7 @@ export class Buffer implements IBuffer {
                 this._neovimInstance,
                 this._bufferHighlightId,
             )
+            await this._neovimInstance.tokenColorSynchronizer.synchronizeTokenColors(tokenColors)
             await bufferUpdater.start()
 
             updateFunction(bufferUpdater)

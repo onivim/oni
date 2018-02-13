@@ -8,12 +8,7 @@
 
 import * as Oni from "oni-api"
 
-import { IHighlight } from "./../SyntaxHighlighting"
-
-export interface ITokenColorsSetting {
-    scope: string
-    settings: IHighlight | string
-}
+import { TokenColor } from "./../TokenColors"
 
 export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiased" | "none"
 export type DetectionSettings = "always" | "noworkspace" | "never"
@@ -45,8 +40,9 @@ export interface IConfigurationValues {
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
-    "experimental.commandline.mode": boolean
-    "experimental.commandline.icons": boolean
+    "wildmenu.mode": boolean
+    "commandline.mode": boolean
+    "commandline.icons": boolean
 
     "experimental.welcome.enabled": boolean
 
@@ -150,7 +146,7 @@ export interface IConfigurationValues {
     "editor.scrollBar.cursorTick.visible": boolean
 
     // Allow overriding token colors for specific textmate scopes
-    "editor.tokenColors": ITokenColorsSetting[]
+    "editor.tokenColors": TokenColor[]
 
     // Additional paths to include when launching sub-process from Oni
     // (and available in terminal integration, later)
