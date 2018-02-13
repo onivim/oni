@@ -22,21 +22,26 @@ const activate = async Oni => {
         backgroundColor: foreground,
     }
 
-    const prettierIcon = Oni.ui.createIcon({
-        name: "align-justify",
-        size: Oni.ui.iconSize.Default,
-    })
+    const prettierIcon = (type = "align-justify") =>
+        Oni.ui.createIcon({
+            name: type,
+            size: Oni.ui.iconSize.Default,
+        })
 
-    const iconContainer = React.createElement(
-        "div",
-        { style: { padding: "0 6px 0 0" } },
-        prettierIcon,
-    )
+    const iconContainer = type =>
+        React.createElement("div", { style: { padding: "0 6px 0 0" } }, prettierIcon(type))
 
     const prettierElement = React.createElement(
         "div",
         { style, className: "prettier" },
-        iconContainer,
+        iconContainer(),
+        "Prettier",
+    )
+
+    const errorElement = React.createElement(
+        "div",
+        { style, className: "prettier" },
+        iconContainer("cross"),
         "Prettier",
     )
 
@@ -46,7 +51,7 @@ const activate = async Oni => {
     Oni.commands.registerCommand({
         command: "autoformat.prettier",
         name: "Autoformat with Prettier",
-        execute: async () => applyPrettier(),
+        execute: async () => await applyPrettier(),
     })
 
     async function applyPrettier(buffer = currentBuffer) {
@@ -54,7 +59,7 @@ const activate = async Oni => {
         const cursorPosition = await currentBuffer.getCursorPosition()
         const { line, character } = cursorPosition
         const bufferString = arrayOfLines.join(os.EOL)
-        // TODO: Add option to turn off prettier and to set when it runs
+
         let prettierCode
 
         try {
@@ -65,19 +70,28 @@ const activate = async Oni => {
                 }),
             )
         } catch (e) {
-            // Add indicator
-            prettierItem.setContents("error")
+            // Add indicator can't animate with React.creatElement
+            prettierItem.setContents(errorElement)
         }
 
         // FIXME: Reposition cursor correctly on format
         // console.log("Cursor offset", prettierCode.cursorOffset)
 
-        await Oni.editors.activeEditor.activeBuffer.setLines(
-            0,
-            arrayOfLines.length,
-            prettierCode.formatted.split(os.EOL),
-        )
+        if (prettierCode.formatted) {
+            await Oni.editors.activeEditor.activeBuffer.setLines(
+                0,
+                arrayOfLines.length,
+                prettierCode.formatted.split(os.EOL),
+            )
+            // FIXME: cursor position is off not sure what this value means
+            await Oni.editors.activeEditor.activeBuffer.setCursorPosition(
+                line + prettierCode.cursorOffset,
+                0,
+            )
+        }
     }
+
+    // TODO check for prettierrc and use that if present
 
     Oni.editors.activeEditor.onBufferSaved.subscribe(async buffer => {
         if (config.formatOnSave && config.enabled) {
