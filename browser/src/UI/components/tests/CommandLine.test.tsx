@@ -1,21 +1,38 @@
-import { expect } from "chai"
-import { /* mount, */ shallow } from "enzyme"
+import { shallow } from "enzyme"
 import * as React from "react"
-// import * as renderer from "react-test-renderer"
-import { spy } from "sinon"
-import CommandLine from "../CommandLine"
-
-spy(CommandLine.prototype, "componentDidMount")
+import { CommandLine } from "../CommandLine"
 
 describe("<Commandline />: It should correctly mount the commandline component", () => {
-    it("calls componentDidMount", () => {
-        expect(CommandLine.prototype.componentDidMount.calledOnce).to.equal(true)
-        // expect(wrapper).to.exist()
-        // const wrapper = mount(<CommandLine />)
+    let wrapper: any
+
+    beforeEach(() => {
+        wrapper = shallow(
+            <CommandLine
+                showIcons={false}
+                prompt={""}
+                visible={true}
+                content="hello world"
+                position={0}
+                firstchar="1"
+                level={0}
+            />,
+        )
     })
 
-    it("Renders Without Exploding", () => {
-        const wrapper = shallow(<CommandLine />)
-        expect(wrapper.find(<CommandLine />).length).to.equal(1)
+    it("renders a shallow instance", () => {
+        expect(wrapper.length).toEqual(1)
     })
+
+    it("Contains an the correct text", () => {
+        expect(wrapper.find("div#command-line-output").prop("content")).toEqual("hello world")
+    })
+
+    // it("mounts without crashing", () => {
+    //     mount(<CommandLine />)
+    // })
+
+    // it("Renders Without Exploding", () => {
+    //     const wrapper = shallow(<CommandLine />)
+    //     expect(wrapper.find(<CommandLine />).length)
+    // })
 })

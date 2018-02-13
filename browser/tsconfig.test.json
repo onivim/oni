@@ -3,6 +3,7 @@
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "jsx": "react",
         "lib": ["dom", "es2017"],
