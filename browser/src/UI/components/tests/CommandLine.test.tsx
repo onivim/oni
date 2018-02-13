@@ -8,23 +8,30 @@ import ConnectCommand, { CommandLine } from "../CommandLine"
 const mockStore: MockStoreCreator<IState> = configureStore()
 
 interface IState {
-    showIcons: boolean
-    visible: boolean
-    content: string
-    firstchar: string
-    position: number
-    level: number
-    prompt: string
+    commandLine: {
+        showIcons: boolean
+        visible: boolean
+        content: string
+        firstchar: string
+        position: number
+        level: number
+        prompt: string
+    }
+    configuration: {
+        "experimental.commandline.icons": boolean
+    }
 }
 
 const initialState = {
-    visible: true,
-    content: "commandline test",
-    firstchar: ":",
-    position: 0,
-    level: 0,
-    prompt: "",
-    showIcons: true,
+    commandLine: {
+        showIcons: true,
+        visible: true,
+        content: "commandline test",
+        firstchar: ":",
+        position: 0,
+        level: 0,
+        prompt: "",
+    },
     configuration: {
         "experimental.commandline.icons": true,
     },
@@ -36,7 +43,7 @@ describe("<Commandline />", () => {
     let store: MockStore<IState>
     let container: any
 
-    const CommandLineComponent = <CommandLine {...initialState} />
+    const CommandLineComponent = <CommandLine {...initialState.commandLine} />
 
     beforeEach(() => {
         store = mockStore(initialState)
