@@ -52,7 +52,7 @@ Oni is a new kind of editor, focused on maximizing productivity - combining _mod
 The vision of Oni is to build an editor that allows you to go from _thought to code_ as easily as possible - bringing together the raw editing power of Vim, the feature capabilities of Atom/VSCode, and a powerful and intuitive extensibility model - wrapped up in a beautiful package.
 
 <p align="center">
-    <img src="https://s3-us-west-2.amazonaws.com/oni-media/screenshot-darwin.png"/>
+    <img src="https://user-images.githubusercontent.com/13532591/36127305-9c7b6b80-1011-11e8-85dd-0345788c0b56.png"/>
 </p>
 
 This repository is under **active development**, and until 1.0 please consider everything unstable.
