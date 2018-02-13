@@ -43,6 +43,15 @@ export class Automation implements OniApi.Automation.Api {
 
         const contents = remote.getCurrentWebContents()
 
+        const convertCharacter = (key: string) => {
+            switch (key.toLowerCase()) {
+                case "cr":
+                    return "enter"
+                default:
+                    return key
+            }
+        }
+
         const convertModifiers = (key: IKey): string[] => {
             let ret: string[] = []
 
@@ -63,7 +72,7 @@ export class Automation implements OniApi.Automation.Api {
         }
 
         parsedKeys.chord.forEach(key => {
-            const character = key.character
+            const character = convertCharacter(key.character)
             const modifiers = convertModifiers(key)
             contents.sendInputEvent(<any>{ keyCode: character, modifiers, type: "keyDown" })
             contents.sendInputEvent(<any>{ keyCode: character, modifiers, type: "char" })
