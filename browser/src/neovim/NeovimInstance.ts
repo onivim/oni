@@ -813,6 +813,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 case "wildmenu_hide":
                     this._onWildMenuHideEvent.dispatch()
                     break
+                case "update_sp":
+                case "mode_info_set":
+                case "busy_start":
+                case "busy_stop":
+                    Log.verbose("Ignore command: " + command)
+                    break
                 default:
                     Log.warn("Unhandled command: " + command)
             }
