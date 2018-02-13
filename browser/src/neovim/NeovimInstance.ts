@@ -384,8 +384,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
             this._neovim = nv
 
-            await this._checkAndFixIfBlocked()
-
             this._neovim.on("error", (err: Error) => {
                 this._onError(err)
             })
@@ -405,6 +403,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     )
                 }
             })
+
+            await this._checkAndFixIfBlocked()
 
             const size = this._getSize()
             this._rows = size.rows
@@ -600,19 +600,24 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     private async _checkAndFixIfBlocked(): Promise<void> {
+        Log.info("[NeovimInstance::_checkAndFixIfBlocked] checking mode...")
         const mode: any = await this._neovim.request("nvim_get_mode", [])
 
-        if (mode.blocking) {
+        if (mode && mode.blocking) {
+            Log.info("[NeovimInstance::_checkAndFixIfBlocked] mode is blocking, attempt to cancel.")
             // The UI is blocked on some error message.
             // Let's grab the message and show it, and unblock the UI
             await this.input("<esc>")
             const output = await this._neovim.request<string>("nvim_command_output", [":messages"])
+            Log.info("[NeovimInstance::_checkAndFixIfBlocked] sent esc, getting command")
 
             this._onMessage.dispatch({
                 severity: "error",
                 title: "Problem loading `init.vim`:",
                 details: output,
             })
+        } else {
+            Log.info("[NeovimInstance::_checkAndFixIfBlocked] Not blocking mode.")
         }
     }
 
