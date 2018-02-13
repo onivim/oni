@@ -243,14 +243,14 @@ const BaseConfiguration: IConfigurationValues = {
 
     "oni.plugins.prettier": {
         settings: {
-            "no-semi": false,
-            "tab-width": 2,
-            "use-tabs": false,
-            "single-quote": false,
-            "trailing-comma": "es5",
-            "no-bracket-spacing": true,
-            "jsx-bracket-same-line": false,
-            "arrow-parens": "avoid",
+            noSemi: false,
+            tabWidth: 2,
+            useTabs: false,
+            singleQuote: false,
+            trailingComma: "es5",
+            noBracketSpacing: true,
+            jsxBracketSameLine: false,
+            arrowParens: "avoid",
         },
         formatOnSave: false,
         enabled: false,

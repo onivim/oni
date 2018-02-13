@@ -207,14 +207,14 @@ export interface IConfigurationValues {
 
     "oni.plugins.prettier": {
         settings: {
-            "no-semi": boolean
-            "tab-width": number
-            "use-tabs": boolean
-            "single-quote": boolean
-            "trailing-comma": "es5" | "all" | "none"
-            "no-bracket-spacing": boolean
-            "jsx-bracket-same-line": boolean
-            "arrow-parens": "avoid"
+            noSemi: boolean
+            tabWidth: number
+            useTabs: boolean
+            singleQuote: boolean
+            trailingComma: "es5" | "all" | "none"
+            noBracketSpacing: boolean
+            jsxBracketSameLine: boolean
+            arrowParens: "avoid" | "always"
         }
         formatOnSave: boolean
         enabled: boolean
