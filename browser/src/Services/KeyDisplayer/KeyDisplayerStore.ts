@@ -7,8 +7,8 @@
 import { Reducer, Store } from "redux"
 import { createStore as createReduxStore } from "./../../Redux"
 
-import "rxjs/add/operator/delay"
 import { createEpicMiddleware, Epic } from "redux-observable"
+import "rxjs/add/operator/delay"
 
 export interface IKeyPressInfo {
     timeInMilliseconds: number
