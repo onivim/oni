@@ -61,11 +61,7 @@ const getConfigPath = (settings: any, rootPath: string) => {
 // Returns the path to the serialized config
 const serializeConfig = (configValues: { [key: string]: any }): string => {
     const stringifiedConfig = Object.keys(configValues).map(key => {
-        if (typeof configValues[key] !== "string") {
-            return `"${key}": ${configValues[key]},`
-        } else {
-            return `"${key}": "${configValues[key]}",`
-        }
+        return `"${key}": ${JSON.stringify(configValues[key])},`
     })
 
     const outputConfig = `module.exports = {${stringifiedConfig.join(os.EOL)}}`
