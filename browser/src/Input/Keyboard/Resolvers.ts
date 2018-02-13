@@ -1,4 +1,4 @@
-import { IKeyInfo, IKeyMap } from "./KeyboardLayout"
+import { IKeyInfo, IKeyMap, KeyboardLayoutManager } from "./KeyboardLayout"
 
 /**
  * Interface describing a 'key resolver' - a strategy
@@ -51,6 +51,58 @@ export const remapResolver = (
     previousResolution: string | null,
 ): string | null => {
     return keysToRemap[evt.key] ? keysToRemap[evt.key] : previousResolution
+}
+
+export const getMetaKeyResolver = () => {
+    const keyboardLayout: KeyboardLayoutManager = new KeyboardLayoutManager()
+
+    let keyMap = keyboardLayout.getCurrentKeyMap()
+
+    keyboardLayout.onKeyMapChanged.subscribe(() => {
+        keyMap = keyboardLayout.getCurrentKeyMap()
+    })
+
+    return (evt: KeyboardEvent, previousResolution: string | null): null | string => {
+        const isCharacterFromShiftKey = isShiftCharacter(keyMap, evt)
+        const isCharacterFromAltGraphKey = isAltGraphCharacter(keyMap, evt)
+
+        let mappedKey = previousResolution
+
+        if (mappedKey === "<") {
+            mappedKey = "lt"
+        }
+
+        const metaPressed = evt.metaKey
+
+        let controlPressed = false
+        // On Windows, when the AltGr key is pressed, _both_
+        // the evt.ctrlKey and evt.altKey are set to true.
+        if (evt.ctrlKey && !isCharacterFromAltGraphKey) {
+            mappedKey = "c-" + previousResolution + ""
+            controlPressed = true
+            evt.preventDefault()
+        }
+
+        if (evt.shiftKey && (!isCharacterFromShiftKey || controlPressed || metaPressed)) {
+            mappedKey = "s-" + mappedKey
+        }
+
+        if (evt.altKey && !isCharacterFromAltGraphKey) {
+            mappedKey = "a-" + mappedKey
+            evt.preventDefault()
+        }
+
+        if (metaPressed) {
+            mappedKey = "m-" + mappedKey
+            evt.preventDefault()
+        }
+
+        if (mappedKey.length > 1) {
+            mappedKey = "<" + mappedKey.toLowerCase() + ">"
+        }
+
+        return mappedKey
+    }
 }
 
 export const createMetaKeyResolver = (keyMap: IKeyMap) => {
