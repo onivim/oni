@@ -113,7 +113,11 @@ export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, {}> {
         }
 
         const errorIcon = (
-            <div style={iconPositionStyles} className="error-marker">
+            <div
+                style={iconPositionStyles}
+                className="error-marker"
+                key={this.props.y.toString() + this.props.text + this.props.color}
+            >
                 <ErrorIcon color={this.props.color} />
             </div>
         )

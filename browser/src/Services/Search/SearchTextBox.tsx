@@ -18,6 +18,7 @@ export interface ISearchTextBoxProps {
     onDismiss: () => void
     onCommit: (newValue: string) => void
     onChangeText: (newValue: string) => void
+    onClick: () => void
 }
 
 const SearchBoxContainerWrapper = withProps<ISearchTextBoxProps>(styled.div)`
@@ -45,6 +46,8 @@ const SearchTextBoxWrapper = withProps<ISearchTextBoxProps>(styled.div)`
         background-color: transparent;
         color: ${props => props.theme["editor.foreground"]}
     }
+
+    cursor: text;
 `
 
 export class SearchTextBox extends React.PureComponent<ISearchTextBoxProps, {}> {
@@ -60,7 +63,7 @@ export class SearchTextBox extends React.PureComponent<ISearchTextBoxProps, {}> 
             <div>{this.props.val}</div>
         )
         return (
-            <SearchBoxContainerWrapper {...this.props}>
+            <SearchBoxContainerWrapper {...this.props} onClick={this.props.onClick}>
                 <SearchTextBoxWrapper {...this.props}>{inner}</SearchTextBoxWrapper>
             </SearchBoxContainerWrapper>
         )

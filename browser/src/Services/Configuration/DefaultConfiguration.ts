@@ -44,10 +44,10 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.neovimInput": null,
 
     "experimental.editor.textMateHighlighting.enabled": false,
-    "experimental.commandline.mode": false,
-    "experimental.commandline.icons": false,
+    "wildmenu.mode": true,
+    "commandline.mode": true,
+    "commandline.icons": true,
     "experimental.welcome.enabled": false,
-    "experimental.wildmenu.mode": false,
 
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows
@@ -115,40 +115,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumn": false,
     "editor.cursorColumnOpacity": 0.1,
 
-    "editor.tokenColors": [
-        {
-            scope: "variable.object",
-            settings: "Identifier",
-        },
-        {
-            scope: "variable.other.constant",
-            settings: "Constant",
-        },
-        {
-            scope: "variable.language",
-            settings: "Identifier",
-        },
-        {
-            scope: "variable.parameter",
-            settings: "Identifier",
-        },
-        {
-            scope: "variable.other",
-            settings: "Identifier",
-        },
-        {
-            scope: "support.function",
-            settings: "Function",
-        },
-        {
-            scope: "entity.name",
-            settings: "Function",
-        },
-        {
-            scope: "entity.other",
-            settings: "Constant",
-        },
-    ],
+    "editor.tokenColors": [],
 
     "environment.additionalPaths": [],
 
@@ -249,6 +216,8 @@ const BaseConfiguration: IConfigurationValues = {
     "menu.caseSensitive": "smart",
     "menu.rowHeight": 40,
     "menu.maxItemsToShow": 8,
+
+    "notifications.enabled": true,
 
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),

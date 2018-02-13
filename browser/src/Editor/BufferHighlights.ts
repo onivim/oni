@@ -47,12 +47,16 @@ export class BufferHighlightsUpdater implements IBufferHighlightsUpdater {
         }
 
         const addHighlightCalls = highlights.map(hl => {
+            const highlightGroup = this._neovimInstance.tokenColorSynchronizer.getHighlightGroupForTokenColor(
+                hl.tokenColor,
+            )
+
             return [
                 "nvim_buf_add_highlight",
                 [
                     this._bufferId,
                     this._highlightId,
-                    hl.highlightGroup,
+                    highlightGroup,
                     hl.range.start.line,
                     hl.range.start.character,
                     hl.range.end.character,

@@ -108,7 +108,9 @@ export class ExplorerSplit {
         switch (selectedItem.type) {
             case "file":
                 this._editorManager.activeEditor.openFile(selectedItem.filePath)
-                windowManager.focusSplit(this._editorManager.activeEditor as any)
+                // FIXME: the editor manager is not a windowSplit aka this
+                // Should be being called with an ID not an active editor
+                windowManager.focusSplit("oni.window.0")
                 return
             case "folder":
                 const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(
