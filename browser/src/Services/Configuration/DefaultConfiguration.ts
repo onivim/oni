@@ -44,10 +44,10 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.neovimInput": null,
 
     "experimental.editor.textMateHighlighting.enabled": false,
-    "experimental.commandline.mode": false,
-    "experimental.commandline.icons": false,
+    "wildmenu.mode": true,
+    "commandline.mode": true,
+    "commandline.icons": true,
     "experimental.welcome.enabled": false,
-    "experimental.wildmenu.mode": false,
 
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows
