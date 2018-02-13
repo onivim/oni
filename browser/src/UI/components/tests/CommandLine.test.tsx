@@ -18,15 +18,13 @@ interface IState {
 }
 
 const initialState = {
-    commandLine: {
-        showIcons: true,
-        visible: true,
-        content: "commandline test",
-        firstchar: ":",
-        position: 0,
-        level: 0,
-        prompt: "",
-    },
+    visible: true,
+    content: "commandline test",
+    firstchar: ":",
+    position: 0,
+    level: 0,
+    prompt: "",
+    showIcons: true,
     configuration: {
         "experimental.commandline.icons": true,
     },
@@ -38,7 +36,7 @@ describe("<Commandline />", () => {
     let store: MockStore<IState>
     let container: any
 
-    const CommandLineComponent = <CommandLine {...initialState.commandLine} />
+    const CommandLineComponent = <CommandLine {...initialState} />
 
     beforeEach(() => {
         store = mockStore(initialState)
