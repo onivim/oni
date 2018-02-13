@@ -5,9 +5,9 @@
  */
 
 import { Reducer, Store } from "redux"
-import { createStore as createReduxStore } from "./../Redux"
+import { createStore as createReduxStore } from "./../../Redux"
 
-import "rxjs/add/operator/dela"
+import "rxjs/add/operator/delay"
 import { createEpicMiddleware, Epic } from "redux-observable"
 
 export interface IKeyPressInfo {
@@ -51,6 +51,7 @@ export type KeyDisplayerAction =
           type: "UPDATE_TIME"
           time: number
       }
+    | { type: "RESET" }
 
 export const reducer: Reducer<KeyDisplayerState> = (
     state: KeyDisplayerState = DefaultKeyDisplayerState,
@@ -73,6 +74,8 @@ export const reducer: Reducer<KeyDisplayerState> = (
                     key => key.timeInMilliseconds > action.time - WindowToShowInMilliseconds,
                 ),
             }
+        case "RESET":
+            return DefaultKeyDisplayerState
         default:
             return state
     }
@@ -107,7 +110,9 @@ export const getGroupedKeys = (currentTime: number, keys: IKeyPressInfo[]): IKey
         [[]],
     )
 
-    return coalescedKeys
+    const sanitizedKeys = coalescedKeys.filter(group => group.length > 0)
+
+    return sanitizedKeys
 }
 
 const clearKeysAfterDelayEpic: Epic<KeyDisplayerAction, KeyDisplayerState> = (action$, store) =>
