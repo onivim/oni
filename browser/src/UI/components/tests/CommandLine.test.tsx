@@ -1,38 +1,72 @@
-import { shallow } from "enzyme"
+import { mount, shallow } from "enzyme"
+import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
-import { CommandLine } from "../CommandLine"
+import { Provider } from "react-redux"
+import configureStore, { MockStore, MockStoreCreator } from "redux-mock-store"
+import ConnectCommand, { CommandLine } from "../CommandLine"
 
-describe("<Commandline />: It should correctly mount the commandline component", () => {
-    let wrapper: any
+const mockStore: MockStoreCreator<IState> = configureStore()
+
+interface IState {
+    showIcons: boolean
+    visible: boolean
+    content: string
+    firstchar: string
+    position: number
+    level: number
+    prompt: string
+}
+
+const initialState = {
+    commandLine: {
+        showIcons: true,
+        visible: true,
+        content: "commandline test",
+        firstchar: ":",
+        position: 0,
+        level: 0,
+        prompt: "",
+    },
+    configuration: {
+        "experimental.commandline.icons": true,
+    },
+}
+
+jest.mock("react-dom")
+
+describe("<Commandline />", () => {
+    let store: MockStore<IState>
+    let container: any
+
+    const CommandLineComponent = <CommandLine {...initialState.commandLine} />
 
     beforeEach(() => {
-        wrapper = shallow(
-            <CommandLine
-                showIcons={false}
-                prompt={""}
-                visible={true}
-                content="hello world"
-                position={0}
-                firstchar="1"
-                level={0}
-            />,
+        store = mockStore(initialState)
+        container = mount(
+            <Provider store={store}>
+                <ConnectCommand />
+            </Provider>,
         )
     })
 
-    it("renders a shallow instance", () => {
+    it("renders a shallow instance of the unconnected component", () => {
+        const wrapper = shallow(CommandLineComponent)
         expect(wrapper.length).toEqual(1)
     })
 
-    it("Contains an the correct text", () => {
-        expect(wrapper.find("div#command-line-output").prop("content")).toEqual("hello world")
+    it("should match last known snapshot unless we make a change", () => {
+        const wrapper = shallow(CommandLineComponent)
+        expect(shallowToJson(wrapper)).toMatchSnapshot()
     })
 
-    // it("mounts without crashing", () => {
-    //     mount(<CommandLine />)
-    // })
+    it("should initially not have a focused state when rendered", () => {
+        const wrapper = shallow(CommandLineComponent)
+        expect(wrapper.state().focused).toBe(false)
+    })
 
-    // it("Renders Without Exploding", () => {
-    //     const wrapper = shallow(<CommandLine />)
-    //     expect(wrapper.find(<CommandLine />).length)
-    // })
+    // REDUX CONNECTED COMPONENT TEST - full mount
+
+    it("renders the connected(Smart) component to ensure this components mounts", () => {
+        expect(container.find(ConnectCommand).length).toEqual(1)
+    })
 })

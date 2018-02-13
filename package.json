@@ -269,6 +269,7 @@
         "@types/react-redux": "5.0.12",
         "@types/react-transition-group": "2.0.6",
         "@types/react-virtualized": "^9.7.10",
+        "@types/redux-mock-store": "^0.0.13",
         "@types/shelljs": "^0.7.7",
         "@types/sinon": "1.16.32",
         "autoprefixer": "6.4.0",

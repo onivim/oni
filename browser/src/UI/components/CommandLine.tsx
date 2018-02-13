@@ -140,7 +140,7 @@ export class CommandLine extends React.PureComponent<ICommandLineRendererProps, 
                 <CommandLineBox className="command-line">
                     <CommandLineOutput
                         innerRef={e => (this._inputElement = e)}
-                        id="command-line-output"
+                        className="command-line-output"
                     >
                         {this.renderIconOrChar(firstchar)}
                         {this.props.prompt}
