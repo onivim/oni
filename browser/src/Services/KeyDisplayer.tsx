@@ -29,8 +29,9 @@ export interface IKeyDisplayerViewProps {
 
 const EmptyArray: IKeyPressInfo[] = []
 
-const WindowToShow = 500
-const WindowToCoalesce = 100
+const WindowToShow = 1000
+const WindowToCoalesce = 250
+const DupWindow = 25
 
 export class KeyDisplayerView extends React.PureComponent<IKeyDisplayerViewProps, {}> {
     public render(): JSX.Element {
@@ -48,12 +49,13 @@ export class KeyDisplayerView extends React.PureComponent<IKeyDisplayerViewProps
                     return [...prev, [cur]]
                 } else {
                     const lastItemInLastGroup = lastGroup[lastGroup.length - 1]
-                    if (
-                        Math.abs(lastItemInLastGroup.timeInMilliseconds - cur.timeInMilliseconds) <
-                        WindowToCoalesce
-                    ) {
+                    const diffTime = Math.abs(
+                        lastItemInLastGroup.timeInMilliseconds - cur.timeInMilliseconds,
+                    )
+
+                    if (diffTime < WindowToCoalesce) {
                         // Avoid duplicates..
-                        if (cur.key !== lastItemInLastGroup.key) {
+                        if (diffTime > DupWindow) {
                             lastGroup.push(cur)
                         }
 
