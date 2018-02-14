@@ -15,8 +15,9 @@ const BASEDELAY = 10
 export const test = async (oni: any) => {
     await oni.automation.waitForEditors()
 
-    const shortDelay = async () => oni.automation.sleep(500)
+    const isMac = process.platform === "darwin"
 
+    const shortDelay = async () => oni.automation.sleep(500)
     const longDelay = async () => oni.automation.sleep(1000)
 
     const simulateTyping = async (keys: string, baseDelay: number = 10) => {
@@ -45,10 +46,30 @@ export const test = async (oni: any) => {
         await shortDelay()
     }
 
+    const openCommandPalette = async () => {
+        await shortDelay()
+        const keys = isMac ? "<m-s-p>" : "<c-s-p>"
+        oni.automation.sendKeysV2(keys)
+        await shortDelay()
+    }
+
+    const openFindInFiles = async () => {
+        await shortDelay()
+        const keys = isMac ? "<m-s-f>" : "<c-s-f>"
+        oni.automation.sendKeysV2(keys)
+        await shortDelay()
+    }
+
+    const openQuickOpen = async () => {
+        await shortDelay()
+        const keys = isMac ? "<m-p>" : "<c-p>"
+        oni.automation.sendKeysV2(keys)
+        await shortDelay()
+    }
+
     const showConfig = async () => {
         await pressEscape()
-        oni.automation.sendKeysV2("<c-s-p>")
-        await shortDelay()
+        await openCommandPalette()
 
         await simulateTyping("config")
         await longDelay()
@@ -235,8 +256,7 @@ export const test = async (oni: any) => {
 
     await pressEscape()
 
-    oni.automation.sendKeysV2("<c-s-f>")
-    await shortDelay()
+    await openFindInFiles()
     await simulateTyping("OniEditor")
     await longDelay()
     oni.automation.sendKeysV2("<cr>")
@@ -253,7 +273,7 @@ export const test = async (oni: any) => {
 
     await pressEscape()
     await shortDelay()
-    oni.automation.sendKeysV2("<c-p>")
+    await openQuickOpen()
     await simulateTyping("NeovimEditor")
     await shortDelay()
     oni.automation.sendKeysV2("<cr>")

@@ -375,7 +375,6 @@ export class NeovimEditor extends Editor implements IEditor {
         this._neovimInstance.onLeave.subscribe(() => {
             // TODO: Only leave if all editors are closed...
             if (!this._configuration.getValue("debug.persistOnNeovimExit")) {
-                alert("CLOSING")
                 remote.getCurrentWindow().close()
             }
         })
