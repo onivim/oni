@@ -57,11 +57,16 @@ export class SidebarManager {
         return this._store
     }
 
-    constructor(private _windowManager: WindowManager) {
+    constructor(private _windowManager: WindowManager = null) {
         this._store = createStore()
 
-        this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
-        this._contentSplit = this._windowManager.createSplit("left", new SidebarContentSplit(this))
+        if (_windowManager) {
+            this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
+            this._contentSplit = this._windowManager.createSplit(
+                "left",
+                new SidebarContentSplit(this),
+            )
+        }
     }
 
     public setActiveEntry(id: string): void {
