@@ -36,6 +36,12 @@ const activate = async Oni => {
         const { line, character } = cursorPosition
         const bufferString = arrayOfLines.join(os.EOL)
 
+        let sum = 0
+        for (let i = 0; i < line + 1; i += 1) {
+            sum += arrayOfLines[i].length
+        }
+        sum += character
+
         let prettierCode
 
         const prettierrc = await checkPrettierrc(activeBuffer.filePath)
@@ -44,9 +50,7 @@ const activate = async Oni => {
             const prettierConfig = prettierrc || config.settings
             prettierCode = prettier.formatWithCursor(
                 bufferString,
-                Object.assign(prettierConfig, {
-                    cursorOffset: line,
-                }),
+                Object.assign(prettierConfig, { cursorOffset: sum }),
             )
             if (!prettierCode.formatted) {
                 throw new Error("Couldn't format the buffer")
@@ -54,6 +58,7 @@ const activate = async Oni => {
         } catch (e) {
             // Add indicator can't animate with React.creatElement
             prettierItem.setContents(errorElement)
+            await setTimeout(() => prettierItem.setContents(prettierElement), 2500)
         }
 
         // FIXME: Reposition cursor correctly on format
@@ -66,7 +71,21 @@ const activate = async Oni => {
                 prettierCode.formatted.split(os.EOL),
             )
 
-            await activeBuffer.setCursorPosition(prettierCode.cursorOffset, 0)
+            // Find position of the cursor which is prettierCode.cursorOffset i.e position in the string
+            // slice up the character and count number of lines
+
+            const beginning = prettierCode.formatted.substring(0, prettier.cursorOffset)
+            const beginningLines = beginning.split(os.EOL)
+            const line = beginningLines.length
+            // console.group("CURSOR===========")
+            // console.log("beginningLines: ", beginningLines)
+            // console.log("last : ", beginningLines[beginningLines.length - 1])
+            // console.log("prettier.cursorOffset: ", prettier.cursorOffset)
+            // console.groupEnd()
+            const column = beginningLines[beginningLines.length - 1].length - 1
+            // const linesBeforeCursor = prettierCode.formatted.substring(0, prettierCode.cursorOffset)
+
+            await activeBuffer.setCursorPosition(line, column)
         }
     }
 
