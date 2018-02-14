@@ -10,7 +10,7 @@ import { getCompletionElement } from "./../ci/Common"
 
 import { remote } from "electron"
 
-const BASEDELAY = 10
+const BASEDELAY = 20
 
 export const test = async (oni: any) => {
     await oni.automation.waitForEditors()
