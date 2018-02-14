@@ -25,43 +25,43 @@ export const test = async (oni: any) => {
         await shortDelay()
     }
 
+    const disableKeyDisplayer = async (func: () => Promise<void>) => {
+        oni.commands.executeCommand("keyDisplayer.hide")
+        await func()
+        oni.commands.executeCommand("keyDisplayer.show")
+    }
+
     // Set window size
     remote.getCurrentWindow().setSize(1280, 1024)
     oni.recorder.startRecording()
 
     oni.commands.executeCommand("keyDisplayer.show")
 
-    await shortDelay()
-    oni.automation.sendKeysV2("<c-s-p>")
-    await shortDelay()
-
-    await simulateTyping("config")
-    await shortDelay()
-    await shortDelay()
-    await shortDelay()
-    oni.automation.sendKeysV2("<cr>")
-
     await simulateTyping(":tabnew Hello.md")
     oni.automation.sendKeysV2("<cr>")
 
-    await simulateTyping("iHello and welcome to Oni!")
-    oni.automation.sendKeysV2("<cr>")
+    await disableKeyDisplayer(async () => {
+        await simulateTyping("iHello and welcome to Oni!")
+        oni.automation.sendKeysV2("<cr>")
 
-    await simulateTyping(
-        "Oni is a new kind of editor: combining the best of Vim, Atom, and VSCode.",
-    )
-    oni.automation.sendKeysV2("<cr>")
-    await simulateTyping(
-        "Built with web tech, featuring a high performance canvas renderer, with (neo)vim under the hood to handle the heavy lifting.",
-    )
-    oni.automation.sendKeysV2("<cr>")
+        await simulateTyping(
+            "Oni is a new kind of editor: combining the best of Vim, Atom, and VSCode.",
+        )
+        oni.automation.sendKeysV2("<cr>")
+        await simulateTyping(
+            "Built with web tech, featuring a high performance canvas renderer, with (neo)vim under the hood to handle the heavy lifting.",
+        )
+        oni.automation.sendKeysV2("<cr>")
+    })
 
     oni.automation.sendKeysV2("<esc>")
     await simulateTyping(":sp VIM.md")
     oni.automation.sendKeysV2("<cr>")
 
-    await simulateTyping("i")
-    await simulateTyping("Use your vim muscle memory...")
+    await disableKeyDisplayer(async () => {
+        await simulateTyping("i")
+        await simulateTyping("Use your vim muscle memory...")
+    })
 
     oni.automation.sendKeysV2("<esc>")
 
@@ -86,20 +86,23 @@ export const test = async (oni: any) => {
     oni.automation.sendKeysV2("<c-l>")
     await shortDelay()
 
-    await simulateTyping("o")
-    await simulateTyping("..but enjoy the conveniences of a modern UI editor:")
-    oni.automation.sendKeysV2("<esc>")
+    await disableKeyDisplayer(async () => {
+        await simulateTyping("o")
+        await simulateTyping("..but enjoy the conveniences of a modern UI editor:")
+        oni.automation.sendKeysV2("<esc>")
+    })
 
     await shortDelay()
-
     oni.automation.sendKeysV2("<c-g>")
     await shortDelay()
     await simulateTyping("a")
+    await shortDelay()
     await simulateTyping("b")
 
     oni.automation.sendKeysV2("<c-g>")
     await shortDelay()
     await simulateTyping("a")
+    await shortDelay()
     await simulateTyping("a")
     await shortDelay()
 
@@ -112,15 +115,17 @@ export const test = async (oni: any) => {
     oni.automation.sendKeysV2("<cr>")
 
     await simulateTyping("i")
-    await simulateTyping("// Oni is integrated with language services for web dev,")
-    oni.automation.sendKeysV2("<cr>")
-    await simulateTyping("but you can hook up your own, too!")
-    await shortDelay()
+    await disableKeyDisplayer(async () => {
+        await simulateTyping("// Oni is integrated with language services for web dev,")
+        oni.automation.sendKeysV2("<cr>")
+        await simulateTyping("but you can hook up your own, too!")
+        await shortDelay()
 
-    oni.automation.sendKeysV2("<cr>")
-    oni.automation.sendKeysV2("<c-w>")
-    await shortDelay()
-    await simulateTyping("window.", 200)
+        oni.automation.sendKeysV2("<cr>")
+        oni.automation.sendKeysV2("<c-w>")
+        await shortDelay()
+        await simulateTyping("window.", 200)
+    })
 
     await oni.automation.waitFor(() => getCompletionElement() != null)
 
@@ -135,7 +140,9 @@ export const test = async (oni: any) => {
     oni.automation.sendKeysV2("<c-k>")
 
     await simulateTyping("o")
-    await simulateTyping("Enjoy built in search with ripgrep..")
+    await disableKeyDisplayer(async () => {
+        await simulateTyping("Enjoy built in search with ripgrep..")
+    })
 
     oni.automation.sendKeysV2("<esc>")
 
@@ -153,8 +160,10 @@ export const test = async (oni: any) => {
     oni.automation.sendKeysV2("<c-k>")
 
     await simulateTyping("o")
-    await simulateTyping("...or the embedded file finder.")
-    await shortDelay()
+    await disableKeyDisplayer(async () => {
+        await simulateTyping("...or the embedded file finder.")
+        await shortDelay()
+    })
 
     oni.automation.sendKeysV2("<esc>")
     await shortDelay()
@@ -167,27 +176,55 @@ export const test = async (oni: any) => {
     await shortDelay()
 
     await simulateTyping("o")
-    await simulateTyping("...use the built in command palette to discover functionality.")
+    await disableKeyDisplayer(async () => {
+        await simulateTyping("...use the built in command palette to discover functionality.")
+    })
     oni.automation.sendKeysV2("<esc>")
     await shortDelay()
     oni.automation.sendKeysV2("<c-s-p>")
     await shortDelay()
 
     await simulateTyping("config")
+    await longDelay()
+    oni.automation.sendKeysV2("<cr>")
+
+    await longDelay()
+
+    oni.automation.sendKeysV2("/")
     await shortDelay()
-    await shortDelay()
+    oni.automation.sendKeysV2("fontSize")
     await shortDelay()
     oni.automation.sendKeysV2("<cr>")
 
     await longDelay()
+    oni.automation.simulateTyping("fp")
     await longDelay()
+    oni.automation.simulateTyping("ciw")
     await longDelay()
+    oni.automation.simulateTyping("14px")
+    await longDelay()
+    oni.automation.sendKeysV2("<esc>")
+    await shortDelay()
+    oni.automation.simulateTyping(":s")
+    oni.automation.sendKeysV2("<cr>")
 
-    // await simulateTyping("o")
-    // await simulateTyping("- Use the built in command palette to discover functionality")
-
-    // await simulateTyping("<C-S-P>")
-    // await simulateTyping("<esc>")
+    await longDelay()
+    oni.automation.simulateTyping(":new")
+    await shortDelay()
+    oni.automation.simulateTypings("i")
+    await disableKeyDisplayer(async () => {
+        oni.automation.simulateTypings("iLots more coming soon...")
+        oni.automation.sendKeysV2("<cr>")
+        oni.automation.simulateTypings("Live Preview")
+        oni.automation.sendKeysV2("<cr>")
+        oni.automation.simulateTypings("Integrated Browser")
+        oni.automation.sendKeysV2("<cr>")
+        oni.automation.simulateTypings("Interactive Tutorial")
+        oni.automation.sendKeysV2("<cr>")
+        oni.automation.simulateTypings(
+            "Thanks for watching! Check it today, start contributing, and help us get to a new level of productivity.",
+        )
+    })
 
     await shortDelay()
 }
