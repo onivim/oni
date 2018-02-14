@@ -45,6 +45,7 @@ const start = async (args: string[]): Promise<void> => {
     const languageManagerPromise = import("./Services/Language")
     const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
+    const keyDisplayerPromise = import("./Services/KeyDisplayer")
     const taksPromise = import("./Services/Tasks")
     const workspacePromise = import("./Services/Workspace")
 
@@ -225,6 +226,9 @@ const start = async (args: string[]): Promise<void> => {
 
     const Snippets = await snippetPromise
     Snippets.activate()
+
+    const KeyDisplayer = await keyDisplayerPromise
+    KeyDisplayer.activate(commandManager, inputManager, overlayManager)
 
     const ThemePicker = await themePickerPromise
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())

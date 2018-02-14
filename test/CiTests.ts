@@ -25,6 +25,7 @@ const CiTests = [
     "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
+    "Neovim.InvalidInitVimHandlingTest",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
     "WindowManager.ErrorBoundary",

@@ -56,6 +56,11 @@ export const activateCommands = (
         }
 
         const currentEditor = editorManager.activeEditor
+
+        if (!currentEditor || !currentEditor.activeBuffer) {
+            return null
+        }
+
         const currentBufferPath = currentEditor.activeBuffer.filePath
 
         if (!currentBufferPath) {
