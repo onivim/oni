@@ -10,6 +10,8 @@ import { getCompletionElement } from "./../ci/Common"
 
 import { remote } from "electron"
 
+const BASEDELAY = 10
+
 export const test = async (oni: any) => {
     await oni.automation.waitForEditors()
 
@@ -17,7 +19,7 @@ export const test = async (oni: any) => {
 
     const longDelay = async () => oni.automation.sleep(1000)
 
-    const simulateTyping = async (keys: string, baseDelay: number = 50) => {
+    const simulateTyping = async (keys: string, baseDelay: number = 10) => {
         for (const key of keys) {
             oni.automation.sendKeysV2(key)
             await oni.automation.sleep(baseDelay + Math.random() * 25)
@@ -60,7 +62,7 @@ export const test = async (oni: any) => {
 
     await disableKeyDisplayer(async () => {
         await simulateTyping("i")
-        await simulateTyping("Use your vim muscle memory...")
+        await simulateTyping("Use your Vim muscle memory to be productive without a mouse...")
     })
 
     oni.automation.sendKeysV2("<esc>")
@@ -202,8 +204,9 @@ export const test = async (oni: any) => {
     simulateTyping("14px")
     await longDelay()
     oni.automation.sendKeysV2("<esc>")
-    await shortDelay()
-    simulateTyping(":s")
+    await longDelay()
+    simulateTyping(":w")
+    await longDelay()
     oni.automation.sendKeysV2("<cr>")
 
     await longDelay()
