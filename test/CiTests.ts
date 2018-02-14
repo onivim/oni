@@ -34,6 +34,7 @@ const CiTests = [
     "Regression.1251.NoAdditionalProcessesOnStartup",
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
+    "TextmateHighlighting.ScopesOnEnterTest",
 ]
 
 const WindowsOnlyTests = [
