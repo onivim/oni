@@ -11,6 +11,8 @@ import { getCompletionElement } from "./../ci/Common"
 import { remote } from "electron"
 
 export const test = async (oni: any) => {
+    await oni.automation.waitForEditors()
+
     const shortDelay = async () => oni.automation.sleep(500)
 
     const longDelay = async () => oni.automation.sleep(1000)
@@ -26,6 +28,8 @@ export const test = async (oni: any) => {
     // Set window size
     remote.getCurrentWindow().setSize(1280, 1024)
     oni.recorder.startRecording()
+
+    oni.commands.executeCommand("keyDisplayer.show")
 
     await shortDelay()
     oni.automation.sendKeysV2("<c-s-p>")
