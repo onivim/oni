@@ -129,7 +129,6 @@ const NotificationDescription = styled.div`
     flex: 1 1 auto;
     overflow-y: auto;
     overflow-x: hidden;
-
     margin: 1em 0em;
 
     font-size: 0.9em;
@@ -140,7 +139,11 @@ const NotificationDescription = styled.div`
 export class NotificationView extends React.PureComponent<INotification, {}> {
     public render(): JSX.Element {
         return (
-            <NotificationWrapper key={this.props.id} onClick={this.props.onClick}>
+            <NotificationWrapper
+                key={this.props.id}
+                onClick={this.props.onClick}
+                className="notification"
+            >
                 <NotificationIconWrapper>
                     <Icon size={IconSize.Large} name="exclamation-triangle" />
                 </NotificationIconWrapper>
