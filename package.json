@@ -150,7 +150,7 @@
         "copy-icons": "node build/CopyIcons.js",
         "copy-dist-to-s3": "node build/script/CopyPackedFilesForS3Upload.js",
         "debug:test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
-        "demo": "npm run build:test && mocha -t 30000 lib_test/test/Demo.js",
+        "demo": "npm run build:test && mocha -t 30000000 lib_test/test/Demo.js",
         "dist:win": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
         "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
         "test": "npm run test:unit && npm run test:integration",
