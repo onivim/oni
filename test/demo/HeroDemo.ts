@@ -131,9 +131,7 @@ export const test = async (oni: any) => {
             await longDelay()
             await pressEnter()
             await pressEnter()
-            await simulateTyping(
-                "Thanks for watching! Check it today, start contributing, and help us get to new levels of productivity.",
-            )
+            await simulateTyping("Thanks for watching! Download Oni today.")
         })
 
         await pressEscape()
@@ -141,6 +139,10 @@ export const test = async (oni: any) => {
 
     // Set window size
     remote.getCurrentWindow().setSize(1280, 1024)
+
+    // Disable notifications, since there is sometimes noise... (HACK)
+    oni.notifications.disable()
+
     oni.recorder.startRecording()
 
     oni.commands.executeCommand("keyDisplayer.show")
@@ -159,7 +161,9 @@ export const test = async (oni: any) => {
         await simulateTyping(
             "Built with web tech, featuring a high performance canvas renderer, with (neo)vim handling the heavy lifting.",
         )
-        oni.automation.sendKeysV2("<cr>")
+        await pressEnter()
+        await simulateTyping("Available for Windows, OSX, and Linux.")
+        await pressEnter()
     })
 
     await pressEscape()
