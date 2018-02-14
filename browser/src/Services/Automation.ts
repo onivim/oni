@@ -160,6 +160,7 @@ export class Automation implements OniApi.Automation.Api {
             Log.info("[AUTOMATION] Completed test: " + testPath)
             this._reportResult(true)
         } catch (ex) {
+            alert("exception!")
             this._reportResult(false, ex)
         } finally {
             this._reportWindowSize()

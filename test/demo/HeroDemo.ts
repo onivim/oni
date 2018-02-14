@@ -49,7 +49,7 @@ export const test = async (oni: any) => {
         )
         oni.automation.sendKeysV2("<cr>")
         await simulateTyping(
-            "Built with web tech, featuring a high performance canvas renderer, with (neo)vim under the hood to handle the heavy lifting.",
+            "Built with web tech, featuring a high performance canvas renderer, with (neo)vim handling the heavy lifting.",
         )
         oni.automation.sendKeysV2("<cr>")
     })
@@ -70,9 +70,9 @@ export const test = async (oni: any) => {
     await shortDelay()
 
     oni.automation.sendKeysV2("G")
-    await shortDelay()
+    await longDelay()
     oni.automation.sendKeysV2("gg")
-    await shortDelay()
+    await longDelay()
 
     oni.automation.sendKeysV2("<c-w>")
     oni.automation.sendKeysV2("<c-h>")
@@ -88,7 +88,7 @@ export const test = async (oni: any) => {
 
     await disableKeyDisplayer(async () => {
         await simulateTyping("o")
-        await simulateTyping("..but enjoy the conveniences of a modern UI editor:")
+        await simulateTyping("..but enjoy the conveniences of a modern UI editor.")
         oni.automation.sendKeysV2("<esc>")
     })
 
@@ -97,21 +97,21 @@ export const test = async (oni: any) => {
     await shortDelay()
     await simulateTyping("a")
     await shortDelay()
-    await simulateTyping("b")
+    await simulateTyping("c")
 
     oni.automation.sendKeysV2("<c-g>")
     await shortDelay()
     await simulateTyping("a")
     await shortDelay()
-    await simulateTyping("a")
+    await simulateTyping("b")
     await shortDelay()
 
     oni.automation.sendKeysV2("<esc>")
 
-    await simulateTyping(":sp test.js")
+    await simulateTyping(":close")
     oni.automation.sendKeysV2("<cr>")
 
-    await simulateTyping(":bdel! VIM.md")
+    await simulateTyping(":tabnew test.js")
     oni.automation.sendKeysV2("<cr>")
 
     await simulateTyping("i")
@@ -124,7 +124,7 @@ export const test = async (oni: any) => {
         oni.automation.sendKeysV2("<cr>")
         oni.automation.sendKeysV2("<c-w>")
         await shortDelay()
-        await simulateTyping("window.", 200)
+        await simulateTyping("window.", 100)
     })
 
     await oni.automation.waitFor(() => getCompletionElement() != null)
@@ -136,8 +136,9 @@ export const test = async (oni: any) => {
     await shortDelay()
     oni.automation.sendKeysV2("<esc>")
 
-    oni.automation.sendKeysV2("<c-w>")
-    oni.automation.sendKeysV2("<c-k>")
+    await longDelay()
+    await simulateTyping("gT")
+    await longDelay()
 
     await simulateTyping("o")
     await disableKeyDisplayer(async () => {
@@ -146,15 +147,12 @@ export const test = async (oni: any) => {
 
     oni.automation.sendKeysV2("<esc>")
 
-    /*oni.automation.sendKeysV2("<c-s-f>")
+    oni.automation.sendKeysV2("<c-s-f>")
     await shortDelay()
     await simulateTyping("OniEditor")
     await longDelay()
-    oni.automation.sendKeysV2("<cr>")*/
-    await longDelay()
-
-    await simulateTyping(":close")
     oni.automation.sendKeysV2("<cr>")
+    await longDelay()
 
     oni.automation.sendKeysV2("<c-w>")
     oni.automation.sendKeysV2("<c-k>")
@@ -192,36 +190,36 @@ export const test = async (oni: any) => {
 
     oni.automation.sendKeysV2("/")
     await shortDelay()
-    oni.automation.sendKeysV2("fontSize")
+    simulateTyping("fontSize")
     await shortDelay()
     oni.automation.sendKeysV2("<cr>")
 
     await longDelay()
-    oni.automation.simulateTyping("fp")
+    simulateTyping("fp")
     await longDelay()
-    oni.automation.simulateTyping("ciw")
+    simulateTyping("ciw")
     await longDelay()
-    oni.automation.simulateTyping("14px")
+    simulateTyping("14px")
     await longDelay()
     oni.automation.sendKeysV2("<esc>")
     await shortDelay()
-    oni.automation.simulateTyping(":s")
+    simulateTyping(":s")
     oni.automation.sendKeysV2("<cr>")
 
     await longDelay()
-    oni.automation.simulateTyping(":new")
+    simulateTyping(":new")
     await shortDelay()
-    oni.automation.simulateTypings("i")
+    simulateTyping("i")
     await disableKeyDisplayer(async () => {
-        oni.automation.simulateTypings("iLots more coming soon...")
+        simulateTyping("Lots more coming soon...")
         oni.automation.sendKeysV2("<cr>")
-        oni.automation.simulateTypings("Live Preview")
+        simulateTyping("Live Preview")
         oni.automation.sendKeysV2("<cr>")
-        oni.automation.simulateTypings("Integrated Browser")
+        simulateTyping("Integrated Browser")
         oni.automation.sendKeysV2("<cr>")
-        oni.automation.simulateTypings("Interactive Tutorial")
+        simulateTyping("Interactive Tutorial")
         oni.automation.sendKeysV2("<cr>")
-        oni.automation.simulateTypings(
+        simulateTyping(
             "Thanks for watching! Check it today, start contributing, and help us get to a new level of productivity.",
         )
     })
