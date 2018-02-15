@@ -135,6 +135,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 export interface IExplorerViewContainerProps {
     onSelectionChanged: (id: string) => void
     onClick: (id: string) => void
+    navigateUpwards: (dirname: string) => void
 }
 
 export interface IExplorerViewProps extends IExplorerViewContainerProps {
