@@ -52,6 +52,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<s-c-t>", "language.symbols.document")
         input.bind("<c-tab>", "buffer.toggle")
         input.bind("<s-c-f>", "search.searchAllFiles")
+        input.bind("<s-c-e>", "explorer.toggle")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<c-c>", "editor.clipboard.yank", isVisualMode)
