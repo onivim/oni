@@ -37,7 +37,7 @@ const activate = async Oni => {
         const bufferString = arrayOfLines.join(os.EOL)
 
         let sum = 0
-        for (let i = 0; i < line + 1; i += 1) {
+        for (let i = 0; i < line; i += 1) {
             sum += arrayOfLines[i].length
         }
         sum += character
@@ -56,13 +56,9 @@ const activate = async Oni => {
                 throw new Error("Couldn't format the buffer")
             }
         } catch (e) {
-            // Add indicator can't animate with React.creatElement
             prettierItem.setContents(errorElement)
             await setTimeout(() => prettierItem.setContents(prettierElement), 2500)
         }
-
-        // FIXME: Reposition cursor correctly on format
-        console.log("Cursor offset", prettierCode.cursorOffset)
 
         if (prettierCode && prettierCode.formatted) {
             await activeBuffer.setLines(
@@ -73,17 +69,15 @@ const activate = async Oni => {
 
             // Find position of the cursor which is prettierCode.cursorOffset i.e position in the string
             // slice up the character and count number of lines
-
-            const beginning = prettierCode.formatted.substring(0, prettier.cursorOffset)
+            const beginning = prettierCode.formatted.substring(0, prettierCode.cursorOffset)
             const beginningLines = beginning.split(os.EOL)
             const line = beginningLines.length
-            // console.group("CURSOR===========")
-            // console.log("beginningLines: ", beginningLines)
-            // console.log("last : ", beginningLines[beginningLines.length - 1])
-            // console.log("prettier.cursorOffset: ", prettier.cursorOffset)
-            // console.groupEnd()
-            const column = beginningLines[beginningLines.length - 1].length - 1
-            // const linesBeforeCursor = prettierCode.formatted.substring(0, prettierCode.cursorOffset)
+
+            console.group("CURSOR===========")
+            console.log("beginningLines: ", beginningLines)
+            console.log("last : ", beginningLines[beginningLines.length - 1])
+            console.groupEnd()
+            const column = beginningLines[beginningLines.length - 1].length + 1
 
             await activeBuffer.setCursorPosition(line, column)
         }
