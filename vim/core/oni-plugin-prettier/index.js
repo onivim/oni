@@ -5,7 +5,7 @@ const activate = async Oni => {
     const config = Oni.configuration.getValue("oni.plugins.prettier")
     const prettierItem = Oni.statusBar.createItem(0, "oni.plugins.prettier")
 
-    const { errorElement, prettierElement } = createPrettierComponent(Oni)
+    const { errorElement, successElement, prettierElement } = createPrettierComponent(Oni)
 
     prettierItem.setContents(prettierElement)
     prettierItem.show()
@@ -36,11 +36,14 @@ const activate = async Oni => {
         const { line, character } = cursorPosition
         const bufferString = arrayOfLines.join(os.EOL)
 
-        let sum = 0
-        for (let i = 0; i < line; i += 1) {
-            sum += arrayOfLines[i].length
+        let charactersTillCursor = 0
+        for (let i = 0; i < line + 1; i += 1) {
+            if (i === line) {
+                charactersTillCursor += arrayOfLines[i].substring(0, character + 1).length
+                break
+            }
+            charactersTillCursor += arrayOfLines[i].length
         }
-        sum += character
 
         let prettierCode
 
@@ -50,17 +53,20 @@ const activate = async Oni => {
             const prettierConfig = prettierrc || config.settings
             prettierCode = prettier.formatWithCursor(
                 bufferString,
-                Object.assign(prettierConfig, { cursorOffset: sum }),
+                Object.assign(prettierConfig, { cursorOffset: charactersTillCursor }),
             )
             if (!prettierCode.formatted) {
                 throw new Error("Couldn't format the buffer")
             }
         } catch (e) {
+            console.warn(`Couldn't format the buffer because: ${e}`)
             prettierItem.setContents(errorElement)
-            await setTimeout(() => prettierItem.setContents(prettierElement), 2500)
+            await setTimeout(() => prettierItem.setContents(prettierElement), 3500)
         }
 
         if (prettierCode && prettierCode.formatted) {
+            prettierItem.setContents(successElement)
+            await setTimeout(() => prettierItem.setContents(prettierElement), 2500)
             await activeBuffer.setLines(
                 0,
                 arrayOfLines.length,
@@ -69,17 +75,21 @@ const activate = async Oni => {
 
             // Find position of the cursor which is prettierCode.cursorOffset i.e position in the string
             // slice up the character and count number of lines
-            const beginning = prettierCode.formatted.substring(0, prettierCode.cursorOffset)
+            const beginning = prettierCode.formatted.substring(0, prettierCode.cursorOffset + 1)
             const beginningLines = beginning.split(os.EOL)
-            const line = beginningLines.length
+            const outputLine = beginningLines.length
+            const outputColumn = beginningLines[beginningLines.length - 1].length
 
-            console.group("CURSOR===========")
-            console.log("beginningLines: ", beginningLines)
-            console.log("last : ", beginningLines[beginningLines.length - 1])
-            console.groupEnd()
-            const column = beginningLines[beginningLines.length - 1].length + 1
+            // console.group('CURSOR===========')
+            // console.log('Cursor last position', bufferString.substring(0, charactersTillCursor))
+            // console.log('outputLine: ', outputLine)
+            // console.log('outputColumn: ', outputColumn)
+            // console.log('beginning: ', beginning)
+            // console.log('beginningLines: ', beginningLines)
+            // console.log('last : ', beginningLines[beginningLines.length - 1])
+            // console.groupEnd()
 
-            await activeBuffer.setCursorPosition(line, column)
+            await activeBuffer.setCursorPosition(outputLine - 1, outputColumn)
         }
     }
 
@@ -107,12 +117,7 @@ function createPrettierComponent(Oni) {
         backgroundColor: foreground,
     }
 
-    // const image = React.createElement(
-    //     "img",
-    //     { style: { width: "6px", height: "4px" }, src: require("./assets/prettier.png") },
-    // )
-
-    const prettierIcon = (type = "align-justify") =>
+    const prettierIcon = (type = "indent") =>
         Oni.ui.createIcon({
             name: type,
             size: Oni.ui.iconSize.Default,
@@ -135,9 +140,17 @@ function createPrettierComponent(Oni) {
         "Prettier",
     )
 
+    const successElement = React.createElement(
+        "div",
+        { style, className: "prettier" },
+        iconContainer("check"),
+        "Prettier",
+    )
+
     return {
         errorElement,
         prettierElement,
+        successElement,
     }
 }
 
