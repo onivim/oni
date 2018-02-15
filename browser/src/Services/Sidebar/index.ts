@@ -19,6 +19,8 @@ export const activate = (configuration: Configuration, workspace: Workspace) => 
             detail: "Show / hide the contents of the sidebar pane.",
             execute: () => _sidebarManager.toggleSidebarVisibility(),
         })
+    } else {
+        _sidebarManager = new SidebarManager()
     }
 }
 

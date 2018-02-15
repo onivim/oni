@@ -60,7 +60,7 @@ describe("SyntaxHighlightReconciler", () => {
             isInsertMode: false,
             bufferToHighlights: {
                 [mockBuffer.id]: {
-                    bufferId: mockBuffer.id,
+                    bufferId: mockBuffer.id.toString(),
                     language: mockBuffer.language,
                     extension: null,
                     topVisibleLine: 0,
