@@ -12,5 +12,5 @@
         "skipLibCheck": true
     },
     "include": ["**/*.tsx", "**/*.ts", "**/*.js"],
-    "exclude": ["node_modules", "@types/jest"]
+    "exclude": ["node_modules"]
 }
