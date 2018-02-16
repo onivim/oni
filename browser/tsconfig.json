@@ -26,5 +26,5 @@
         "sourceMap": true
     },
     "include": ["src/**/*.ts", "test/**/*.ts", "src/**/*.tsx"],
-    "exclude": ["node_modules", "node_modules/@types/jest"]
+    "exclude": ["node_modules", "node_modules/@types/jest/index.d.ts"]
 }
