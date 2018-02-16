@@ -191,7 +191,7 @@ export class Tab extends React.Component<ITabPropsWithClick> {
     }
 }
 
-const getTabName = (name: string, isDuplicate?: boolean): string => {
+export const getTabName = (name: string, isDuplicate?: boolean): string => {
     if (!name) {
         return "[No Name]"
     }
@@ -249,7 +249,7 @@ export const checkTabBuffers = (buffersInTabs: number[], buffers: State.IBuffer[
     return tabBufs.some(buf => buf.modified)
 }
 
-const checkDuplicate = (current: string, names: string[]) =>
+export const checkDuplicate = (current: string, names: string[]) =>
     names.filter((name: string) => path.basename(name) === path.basename(current)).length > 1
 
 const getTabsFromBuffers = createSelector(
