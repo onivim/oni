@@ -25,6 +25,7 @@ const CiTests = [
     "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
+    "Neovim.InvalidInitVimHandlingTest",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
     "WindowManager.ErrorBoundary",
@@ -33,6 +34,7 @@ const CiTests = [
     "Regression.1251.NoAdditionalProcessesOnStartup",
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
+    "TextmateHighlighting.ScopesOnEnterTest",
 ]
 
 const WindowsOnlyTests = [
