@@ -284,19 +284,19 @@ export class Buffer implements IBuffer {
         }
 
         const getToken = (lineContents: string, character: number): Oni.IToken => {
-            try {
-                const tokenStart = getLastMatchingCharacter(lineContents, character, -1, tokenRegEx)
-                const tokenEnd = getLastMatchingCharacter(lineContents, character, 1, tokenRegEx)
-
-                const range = types.Range.create(line, tokenStart, line, tokenEnd)
-                const tokenName = lineContents.substring(tokenStart, tokenEnd + 1)
-
-                return {
-                    tokenName,
-                    range,
-                }
-            } catch (e) {
+            if (!lineContents || !character) {
                 return null
+            }
+
+            const tokenStart = getLastMatchingCharacter(lineContents, character, -1, tokenRegEx)
+            const tokenEnd = getLastMatchingCharacter(lineContents, character, 1, tokenRegEx)
+
+            const range = types.Range.create(line, tokenStart, line, tokenEnd)
+            const tokenName = lineContents.substring(tokenStart, tokenEnd + 1)
+
+            return {
+                tokenName,
+                range,
             }
         }
 

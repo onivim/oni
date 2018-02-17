@@ -417,6 +417,7 @@ const formatBuffers = (buffer: InactiveBufferContext & EventContext) => {
         language: buffer.filetype,
         hidden: buffer.hidden,
         listed: buffer.listed,
+        modified: buffer.modified,
     }
 }
 

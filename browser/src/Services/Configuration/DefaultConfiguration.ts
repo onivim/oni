@@ -44,10 +44,10 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.neovimInput": null,
 
     "experimental.editor.textMateHighlighting.enabled": false,
-    "experimental.commandline.mode": false,
-    "experimental.commandline.icons": false,
+    "wildmenu.mode": true,
+    "commandline.mode": true,
+    "commandline.icons": true,
     "experimental.welcome.enabled": false,
-    "experimental.wildmenu.mode": false,
 
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows
@@ -217,9 +217,7 @@ const BaseConfiguration: IConfigurationValues = {
     "menu.rowHeight": 40,
     "menu.maxItemsToShow": 8,
 
-    // TEMPORARY - Since notifications came late in the cycle for this release,
-    // temporarily disabling it so that we have a bit more time to stabilize.
-    "notifications.enabled": process.env.NODE_ENV !== "production",
+    "notifications.enabled": true,
 
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),

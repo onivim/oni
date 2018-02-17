@@ -78,6 +78,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     }
 
     public notifyStartInsertMode(buffer: Oni.Buffer): void {
+        if (!buffer) {
+            return
+        }
+
         this._store.dispatch({
             type: "START_INSERT_MODE",
             bufferId: buffer.id,
@@ -85,27 +89,27 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     }
 
     public async notifyEndInsertMode(buffer: any): Promise<void> {
-        try {
-            const lines = await buffer.getLines(0, buffer.lineCount, false)
-
-            // const currentState = this._store.getState()
-
-            // Send a full refresh of the lines
-            this._store.dispatch({
-                type: "END_INSERT_MODE",
-                bufferId: buffer.id,
-            })
-
-            this._store.dispatch({
-                type: "SYNTAX_UPDATE_BUFFER",
-                extension: path.extname(buffer.filePath),
-                language: buffer.language,
-                bufferId: buffer.id,
-                lines,
-            })
-        } catch (e) {
-            Log.warn(`Error notifying of insert mode ${e.message}`)
+        if (!buffer) {
+            return
         }
+
+        const lines = await buffer.getLines(0, buffer.lineCount, false)
+
+        // const currentState = this._store.getState()
+
+        // Send a full refresh of the lines
+        this._store.dispatch({
+            type: "END_INSERT_MODE",
+            bufferId: buffer.id,
+        })
+
+        this._store.dispatch({
+            type: "SYNTAX_UPDATE_BUFFER",
+            extension: path.extname(buffer.filePath),
+            language: buffer.language,
+            bufferId: buffer.id,
+            lines,
+        })
     }
 
     public async notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void> {
