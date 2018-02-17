@@ -6,7 +6,14 @@ const activate = async Oni => {
     const config = Oni.configuration.getValue("oni.plugins.prettier")
     const prettierItem = Oni.statusBar.createItem(0, "oni.plugins.prettier")
 
-    const { errorElement, successElement, prettierElement } = createPrettierComponent(Oni)
+    const callback = async () => {
+        const isNormalMode = Oni.editors.activeEditor.mode === "normal"
+        if (isNormalMode) {
+            await applyPrettier()
+        }
+    }
+
+    const { errorElement, successElement, prettierElement } = createPrettierComponent(Oni, callback)
 
     prettierItem.setContents(prettierElement)
     prettierItem.show()
@@ -14,12 +21,7 @@ const activate = async Oni => {
     Oni.commands.registerCommand({
         command: "autoformat.prettier",
         name: "Autoformat with Prettier",
-        execute: async () => {
-            const isNormalMode = Oni.editors.activeEditor.mode === "normal"
-            if (isNormalMode) {
-                await applyPrettier()
-            }
-        },
+        execute: callback,
     })
 
     async function checkPrettierrc(bufferPath) {
@@ -66,7 +68,7 @@ const activate = async Oni => {
 
         if (prettierCode && prettierCode.formatted) {
             prettierItem.setContents(successElement)
-            await setTimeout(() => prettierItem.setContents(prettierElement), 2500)
+            await setTimeout(() => prettierItem.setContents(prettierElement), 3500)
 
             await activeBuffer.setLines(
                 0,
@@ -94,8 +96,12 @@ const activate = async Oni => {
         }
     }
 
+    const defaultFiletypes = [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json"]
+    const allowedFiletypes = Array.isArray(config.allowedFiletypes)
+        ? config.allowedFiletypes
+        : defaultFiletypes
+
     Oni.editors.activeEditor.onBufferSaved.subscribe(async buffer => {
-        const allowedFiletypes = [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json"]
         const extension = path.extname(buffer.filePath)
         const isCompatible = allowedFiletypes.includes(extension)
         if (config.formatOnSave && config.enabled && isCompatible) {
@@ -104,7 +110,7 @@ const activate = async Oni => {
     })
 }
 
-function createPrettierComponent(Oni) {
+function createPrettierComponent(Oni, onClick) {
     const { React } = Oni.dependencies
 
     const background = Oni.colors.getColor("highlight.mode.normal.background")
@@ -132,7 +138,7 @@ function createPrettierComponent(Oni) {
 
     const prettierElement = React.createElement(
         "div",
-        { style, className: "prettier" },
+        { className: "prettier", style, onClick },
         iconContainer(),
         "Prettier",
     )
