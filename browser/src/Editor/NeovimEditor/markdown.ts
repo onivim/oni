@@ -1,6 +1,7 @@
 import { unescape } from "lodash"
 import * as marked from "marked"
 
+import * as Log from "./../../Log"
 import { IGrammarPerLine, IGrammarToken } from "./../../Services/SyntaxHighlighting/TokenGenerator"
 
 const renderer = new marked.Renderer()
@@ -63,26 +64,31 @@ interface WrapTokenArgs {
     text: string
 }
 export function wrapTokens({ tokens, element, text }: WrapTokenArgs): string {
-    const symbols: Symbols = tokens.reduce((acc, token) => {
-        const symbol = text.substring(token.range.start.character, token.range.end.character)
-        acc[symbol] = token.scopes
-        return acc
-    }, {})
+    try {
+        const symbols: Symbols = tokens.reduce((acc, token) => {
+            const symbol = text.substring(token.range.start.character, token.range.end.character)
+            acc[symbol] = token.scopes
+            return acc
+        }, {})
 
-    const symbolNames = Object.keys(symbols)
-    const banned = ["\n", "\r", " ", "|"]
-    const filteredNames = symbolNames.filter(str => !banned.includes(str))
-    // Check if a word is alphabetical if so make sure to match full words only
-    // if not alphabetical escape the string
-    const wholeWordMatch = filteredNames.map(
-        str => (/^[A-Za-z]/.test(str) ? `\\b${str}\\b` : escapeRegExp(str)),
-    )
-    const symbolRegex = new RegExp("(" + wholeWordMatch.join("|") + ")", "g")
-    const html = text.replace(symbolRegex, (match, ...args) => {
-        const className = scopesToString(symbols[match])
-        return `<${element} class="marked ${className}">${match}</${element}>`
-    })
-    return html
+        const symbolNames = Object.keys(symbols)
+        const banned = ["\n", "\r", " ", "|"]
+        const filteredNames = symbolNames.filter(str => !banned.includes(str))
+        // Check if a word is alphabetical if so make sure to match full words only
+        // if not alphabetical escape the string
+        const wholeWordMatch = filteredNames.map(
+            str => (/^[A-Za-z]/.test(str) ? `\\b${str}\\b` : escapeRegExp(str)),
+        )
+        const symbolRegex = new RegExp("(" + wholeWordMatch.join("|") + ")", "g")
+        const html = text.replace(symbolRegex, (match, ...args) => {
+            const className = scopesToString(symbols[match])
+            return `<${element} class="marked ${className}">${match}</${element}>`
+        })
+        return html
+    } catch (e) {
+        Log.warn(`Regex construction failed with: ${e.message}`)
+        return text
+    }
 }
 
 /**
@@ -100,15 +106,18 @@ export function renderWithClasses({
     // This is critical because marked's renderer refuses to leave html untouched so it converts
     // special chars to html entities which are rendered correctly in react
     const unescapedText = unescape(text)
+    const whiteSpaceForCode = (line: string, code: boolean) => (code ? line.trim() : line)
 
     if (tokens) {
+        const isCodeBlock = container === "code"
         const tokenValues = Object.values(tokens)
-        const tokenLines = new Set(tokenValues.map(l => l.line))
+        const tokenLines = new Set(tokenValues.map(l => whiteSpaceForCode(l.line, isCodeBlock)))
         const parts = new Set(unescapedText.split("\n"))
         // Find common lines in lines to render and lines in tokenisation map
         const intersection = new Set([...tokenLines].filter(x => parts.has(x)))
         const lineToToken = tokenValues.reduce((acc, t) => {
-            acc[t.line] = t
+            const key = whiteSpaceForCode(t.line, isCodeBlock)
+            acc[key] = t
             return acc
         }, {})
         if (intersection.size) {

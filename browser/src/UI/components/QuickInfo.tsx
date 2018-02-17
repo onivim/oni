@@ -32,7 +32,6 @@ const markedCss = css`
 
     .marked-code {
         white-space: pre-wrap;
-        display: table;
     }
 `
 

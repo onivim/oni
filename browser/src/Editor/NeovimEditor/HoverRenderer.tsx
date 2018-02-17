@@ -150,9 +150,7 @@ const getTitleAndContents = async (result: types.Hover) => {
     const [hasRemainder] = remainder
 
     if (!hasRemainder) {
-        const title = titleContent.trim()
-
-        if (!title) {
+        if (!titleContent) {
             return null
         }
 
