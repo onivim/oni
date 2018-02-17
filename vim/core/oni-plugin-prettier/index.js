@@ -1,4 +1,5 @@
 const os = require("os")
+const path = require("path")
 const prettier = require("prettier")
 
 const activate = async Oni => {
@@ -47,9 +48,8 @@ const activate = async Oni => {
 
         let prettierCode
 
-        const prettierrc = await checkPrettierrc(activeBuffer.filePath)
-
         try {
+            const prettierrc = await checkPrettierrc(activeBuffer.filePath)
             const prettierConfig = prettierrc || config.settings
             prettierCode = prettier.formatWithCursor(
                 bufferString,
@@ -67,6 +67,7 @@ const activate = async Oni => {
         if (prettierCode && prettierCode.formatted) {
             prettierItem.setContents(successElement)
             await setTimeout(() => prettierItem.setContents(prettierElement), 2500)
+
             await activeBuffer.setLines(
                 0,
                 arrayOfLines.length,
@@ -94,7 +95,10 @@ const activate = async Oni => {
     }
 
     Oni.editors.activeEditor.onBufferSaved.subscribe(async buffer => {
-        if (config.formatOnSave && config.enabled) {
+        const allowedFiletypes = [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json"]
+        const extension = path.extname(buffer.filePath)
+        const isCompatible = allowedFiletypes.includes(extension)
+        if (config.formatOnSave && config.enabled && isCompatible) {
             await applyPrettier()
         }
     })
