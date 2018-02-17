@@ -108,7 +108,7 @@ export class CursorPositionerView extends React.PureComponent<
                 this._timeout = window.setTimeout(() => {
                     this._measureElement(this._element)
                     this._timeout = null
-                }, 50)
+                }, 80)
             })
 
             this._resizeObserver.observe(this._element)
