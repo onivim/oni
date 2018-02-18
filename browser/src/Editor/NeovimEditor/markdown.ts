@@ -171,7 +171,6 @@ export const convertMarkdown = ({ markdown, tokens, type = "title" }: IConversio
         case "documentation":
             renderer.html = htmlString => DOMPurify.sanitize(htmlString, purifyConfig)
             renderer.paragraph = text => createContainer("p", text)
-            // renderer.codespan = code => renderWithClasses({ container: "code", text: code, tokens })
 
             break
         case "title":
