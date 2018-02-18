@@ -18,20 +18,23 @@ const CiTests = [
     "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
     "Editor.ExternalCommandLineTest",
+    "Editor.BufferModifiedState",
+    "Editor.TabModifiedState",
     "LargeFileTest",
     "MarkdownPreviewTest",
     "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
+    "Neovim.InvalidInitVimHandlingTest",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
     "WindowManager.ErrorBoundary",
     "Workspace.ConfigurationTest",
-
     // Regression Tests
     "Regression.1251.NoAdditionalProcessesOnStartup",
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
+    "TextmateHighlighting.ScopesOnEnterTest",
 ]
 
 const WindowsOnlyTests = [

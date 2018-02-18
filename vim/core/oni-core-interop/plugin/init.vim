@@ -149,6 +149,7 @@ augroup END
 
 augroup OniNotifyBufferUpdates
     autocmd!
+    autocmd! BufEnter * :call OniNotifyBufferUpdate()
     autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
     autocmd! CursorMoved * :call OniNotifyBufferUpdate()
     autocmd! InsertLeave * :call OniNotifyBufferUpdate()

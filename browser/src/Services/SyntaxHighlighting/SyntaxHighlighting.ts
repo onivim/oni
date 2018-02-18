@@ -13,7 +13,7 @@ import * as Oni from "oni-api"
 
 import { Store, Unsubscribe } from "redux"
 
-import { Configuration } from "./../Configuration"
+import { TokenColors } from "./../TokenColors"
 
 import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
@@ -34,10 +34,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     private _reconciler: SyntaxHighlightReconciler
     private _unsubscribe: Unsubscribe
 
-    constructor(private _configuration: Configuration, private _editor: NeovimEditor) {
+    constructor(private _editor: NeovimEditor, private _tokenColors: TokenColors) {
         this._store = createSyntaxHighlightStore()
 
-        this._reconciler = new SyntaxHighlightReconciler(this._configuration, this._editor)
+        this._reconciler = new SyntaxHighlightReconciler(this._editor, this._tokenColors)
         this._unsubscribe = this._store.subscribe(() => {
             const state = this._store.getState()
             this._reconciler.update(state)
@@ -78,6 +78,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     }
 
     public notifyStartInsertMode(buffer: Oni.Buffer): void {
+        if (!buffer) {
+            return
+        }
+
         this._store.dispatch({
             type: "START_INSERT_MODE",
             bufferId: buffer.id,
@@ -85,6 +89,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     }
 
     public async notifyEndInsertMode(buffer: any): Promise<void> {
+        if (!buffer) {
+            return
+        }
+
         const lines = await buffer.getLines(0, buffer.lineCount, false)
 
         // const currentState = this._store.getState()

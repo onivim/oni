@@ -45,6 +45,7 @@ const start = async (args: string[]): Promise<void> => {
     const languageManagerPromise = import("./Services/Language")
     const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
+    const keyDisplayerPromise = import("./Services/KeyDisplayer")
     const taksPromise = import("./Services/Tasks")
     const workspacePromise = import("./Services/Workspace")
 
@@ -189,8 +190,14 @@ const start = async (args: string[]): Promise<void> => {
 
     Performance.startMeasure("Oni.Start.Sidebar")
     const Sidebar = await sidebarPromise
+    const Explorer = await import("./Services/Explorer")
+    const Search = await import("./Services/Search")
+
     Sidebar.activate(configuration, workspace)
     const sidebarManager = Sidebar.getInstance()
+
+    Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
+    Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =
@@ -220,8 +227,8 @@ const start = async (args: string[]): Promise<void> => {
     const Snippets = await snippetPromise
     Snippets.activate()
 
-    const Search = await import("./Services/Search")
-    Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
+    const KeyDisplayer = await keyDisplayerPromise
+    KeyDisplayer.activate(commandManager, inputManager, overlayManager)
 
     const ThemePicker = await themePickerPromise
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())

@@ -34,7 +34,8 @@ export class CompletionProviders implements ICompletionsRequestor {
         column: number,
     ): Promise<types.CompletionItem[]> {
         const completionItemsPromise = this._completionProviders.map(async prov => {
-            const items = await prov.provider.getCompletions(language, filePath, line, column)
+            const items =
+                (await prov.provider.getCompletions(language, filePath, line, column)) || []
 
             // Tag the items with the provider id, so we know who to ask for details
             const augmentedItems = items.map(item => {

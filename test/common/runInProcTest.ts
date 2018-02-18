@@ -60,9 +60,9 @@ const getConfigPath = (settings: any, rootPath: string) => {
 // Helper method to write a config to a temporary folder
 // Returns the path to the serialized config
 const serializeConfig = (configValues: { [key: string]: any }): string => {
-    const stringifiedConfig = Object.keys(configValues).map(
-        key => `"${key}": ${configValues[key]},`,
-    )
+    const stringifiedConfig = Object.keys(configValues).map(key => {
+        return `"${key}": ${JSON.stringify(configValues[key])},`
+    })
 
     const outputConfig = `module.exports = {${stringifiedConfig.join(os.EOL)}}`
 
@@ -86,16 +86,39 @@ const logWithTimeStamp = (message: string) => {
     console.log(`[${deltaInSeconds}] ${message}`)
 }
 
-const reportRunningProcess = async () => {
-    const electronProcesses = await findProcess("name", "electron")
-    const oniProcesses = await findProcess("name", "oni")
+// Sometimes, on the automation machines, Oni will still be running
+// when starting the test. It will fail if there is an existing instance
+// running, so we need to make sure to finish it.
+const ensureOniNotRunning = async () => {
+    let attempts = 0
+    const maxAttempts = 5
 
-    const allProcesses = [...electronProcesses, ...oniProcesses]
+    while (attempts < maxAttempts) {
+        const oniProcesses = await findProcess("name", "oni")
+        console.log(`${attempts}/${maxAttempts} Active Processes:`)
+        oniProcesses.forEach(processInfo => {
+            console.log(` - Name: ${processInfo.name} PID: ${processInfo.pid}`)
+        })
+        const isOniProcess = processInfo => processInfo.name.indexOf("oni") >= 0
+        const filteredProcesses = oniProcesses.filter(isOniProcess)
 
-    console.log("Active Processes:")
-    allProcesses.forEach(processInfo => {
-        console.log(` - Name: ${processInfo.name} PID: ${processInfo.pid}`)
-    })
+        if (filteredProcesses.length === 0) {
+            return
+        }
+
+        filteredProcesses.forEach(processInfo => {
+            console.log("Attemping to kill pid: " + processInfo.pid)
+            // Sometimes, there can be a race condition here. For example,
+            // the process may have closed between when we queried above
+            // and when we try to kill it. So we'll wrap it in a try/catch.
+            try {
+                process.kill(processInfo.pid)
+            } catch (ex) {
+                console.warn(ex)
+            }
+        })
+        attempts++
+    }
 }
 
 export const runInProcTest = (
@@ -111,7 +134,9 @@ export const runInProcTest = (
         beforeEach(async () => {
             logWithTimeStamp("BEFORE EACH: " + testName)
 
-            await reportRunningProcess()
+            logWithTimeStamp(" - Closing existing instances...")
+            await ensureOniNotRunning()
+            logWithTimeStamp(" - Finished closing")
 
             testCase = loadTest(rootPath, testName)
             const startOptions = {
@@ -158,14 +183,19 @@ export const runInProcTest = (
                 })
             }
 
-            const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
-            console.log("")
-            console.log("---LOGS (Renderer): " + testName)
-            writeLogs(rendererLogs)
-            console.log("--- " + testName + " ---")
-
             console.log("Getting result...")
             const resultText = await oni.client.getText(".automated-test-result")
+            const result = JSON.parse(resultText)
+
+            if (!result || !result.passed) {
+                const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
+                console.log("")
+                console.log("---LOGS (Renderer): " + testName)
+                writeLogs(rendererLogs)
+                console.log("--- " + testName + " ---")
+            } else {
+                console.log("-- LOGS: Skipped writing logs because the test passed.")
+            }
 
             console.log("")
             logWithTimeStamp("---RESULT: " + testName)
@@ -173,7 +203,6 @@ export const runInProcTest = (
             console.log("--- " + testName + " ---")
             console.log("")
 
-            const result = JSON.parse(resultText)
             if (failures && !result.passed) {
                 const failedTest: IFailedTest = {
                     test: testName,
