@@ -52,6 +52,7 @@ interface IDraggeable {
 interface IDroppeable {
     isOver?: boolean
     connectDropTarget?: any
+    foldername?: string
     render: Render<{ isOver?: boolean; connectDropTarget?: any }>
 }
 
@@ -69,7 +70,6 @@ const Types = {
 
 const FileSource = {
     beginDrag(props: { render: Render<{}>; filename: string }) {
-        console.log("props: ", props)
         return {
             filename: props.filename,
         }
@@ -88,8 +88,8 @@ class DraggeableComponent extends React.Component<IDraggeable> {
 
 const FolderTarget = {
     drop(props: object, monitor: DND.DropTargetMonitor) {
-        console.log("props: ", props)
-        return true
+        const item = monitor.getItem()
+        return { ...props, item }
     },
 }
 
@@ -100,7 +100,8 @@ function folderCollect(folderConnect: any, monitor: any) {
     }
 }
 
-@DND.DropTarget<IDroppeable>(Types.folder, FolderTarget, folderCollect)
+// drop target type MUST match drag type
+@DND.DropTarget<IDroppeable>(Types.file, FolderTarget, folderCollect)
 class DroppeableComponent extends React.Component<IDroppeable> {
     public render() {
         const { isOver, connectDropTarget } = this.props
@@ -160,6 +161,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
             case "folder":
                 return (
                     <DroppeableComponent
+                        foldername={node.name}
                         render={({ isOver }) => {
                             return (
                                 <SidebarContainerView
