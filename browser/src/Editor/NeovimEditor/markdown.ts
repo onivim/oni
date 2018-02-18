@@ -109,17 +109,17 @@ export function renderWithClasses({
     if (tokens) {
         const isCodeBlock = container === "code"
         const tokenValues = Object.values(tokens)
-        const tokenLines = new Set(tokenValues.map(l => whiteSpaceForCode(l.line, isCodeBlock)))
-        const parts = new Set(unescapedText.split("\n"))
+        const tokenLines = tokenValues.map(l => whiteSpaceForCode(l.line, isCodeBlock))
+        const parts = unescapedText.split("\n")
         // Find common lines in lines to render and lines in tokenisation map
-        const intersection = new Set([...tokenLines].filter(x => parts.has(x)))
+        const intersection = tokenLines.filter(x => parts.includes(x))
         const lineToToken = tokenValues.reduce((acc, t) => {
             const key = whiteSpaceForCode(t.line, isCodeBlock)
             acc[key] = t
             return acc
         }, {})
-        if (intersection.size) {
-            const html = [...intersection].reduce((acc, match) => {
+        if (intersection.length) {
+            const html = intersection.reduce((acc, match) => {
                 return `${(acc += wrapTokens({
                     tokens: lineToToken[match].tokens,
                     element,
