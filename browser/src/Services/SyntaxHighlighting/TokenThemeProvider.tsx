@@ -41,14 +41,16 @@ const constructClassName = (token: string) => (theme: INewTheme) => {
 }
 
 /**
- * A object representing a key of default oni token and an array of tokens
+ * A object representing a key of default oni tokens and an array of tokens
  * to create based of of the colors of the default token
  */
 const defaultsToMap = {
     "variable.parameter": [
         "support.variable",
         "support.variable.property.dom",
+        "support.variable.dom",
         "support.class.dom",
+        "support.type.builtin",
         "support.class.builtin",
         "support.type.primitive",
         "support.variable.property",
@@ -101,6 +103,8 @@ const defaultsToMap = {
         "storage.type.function",
         "storage.type.namespace",
         "keyword.control.import",
+        "keyword.control.default",
+        "keyword.control.export",
         "variable.object",
         "variable.object.property",
         "variable.other.constant",
@@ -161,12 +165,12 @@ interface IGenerateTokenArgs {
 }
 
 /**
- * TokenThemeProvider is a Render Prop
+ * **TokenThemeProvider** is a Render Prop
  * It is designed to be used to give UI components access to a
  * theme with token colors as an accessible object as well as associated
- * styles for the tokens
+ * styles for the tokens.
  * It wraps the component it renders in a separate theme which shares values with the
- * main theme but adds on token colors to the theme as "editor.tokenColors.hoverTokens"
+ * main theme but adds on token colors to the theme as `"editor.tokenColors.hoverTokens"`
  * It takes the basic token colors and generates a larger set based on the existing
  * by copying the settings of the default ones this can be customised by passing a different set
  * of defaults as props
