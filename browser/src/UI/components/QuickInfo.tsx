@@ -29,10 +29,6 @@ const markedCss = css`
         white-space: pre-wrap;
         margin: 0;
     }
-
-    .marked-code {
-        white-space: pre-wrap;
-    }
 `
 
 const smallScrollbar = css`

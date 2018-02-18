@@ -46,12 +46,11 @@ export function escapeRegExp(str: string) {
 type TextElement = "code" | "pre" | "p" | "span"
 export const createContainer = (type: TextElement, content: string) => {
     switch (type) {
-        case "code":
-            return `<code class="marked-code">${content}</code>`
         case "pre":
             return `<pre class="marked-pre">${content}</pre>`
         case "p":
             return `<${type} class="marked-paragraph">${content}</${type}>`
+        case "code":
         default:
             return content
     }
