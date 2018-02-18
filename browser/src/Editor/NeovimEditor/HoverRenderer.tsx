@@ -146,14 +146,14 @@ const getTitleAndContents = async (result: types.Hover) => {
 
     const [{ value: titleContent, language }, ...remaining] = contents
 
+    if (!titleContent) {
+        return null
+    }
+
     const remainder = remaining.map(r => r.value)
     const [hasRemainder] = remainder
 
     if (!hasRemainder) {
-        if (!titleContent) {
-            return null
-        }
-
         const tokensPerLine = await getTokens({ language, line: titleContent })
 
         return {

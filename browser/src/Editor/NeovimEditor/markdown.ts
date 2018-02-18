@@ -4,8 +4,10 @@ import * as marked from "marked"
 import * as Log from "./../../Log"
 import { IGrammarPerLine, IGrammarToken } from "./../../Services/SyntaxHighlighting/TokenGenerator"
 
-const renderer = new marked.Renderer()
+// tslint:disable-next-line
+const { default: DOMPurify } = require("dompurify")
 
+const renderer = new marked.Renderer()
 interface IRendererArgs {
     tokens?: IGrammarPerLine
     text: string
@@ -141,6 +143,10 @@ interface IConversionArgs {
     type?: string
 }
 
+const purifyConfig = {
+    FORBID_TAGS: ["img", "script"],
+}
+
 /**
  * Takes a markdown string and defines a custom renderer then for the element type and returns an html string
  *
@@ -163,13 +169,21 @@ export const convertMarkdown = ({ markdown, tokens, type = "title" }: IConversio
 
     switch (type) {
         case "documentation":
+            renderer.html = htmlString => DOMPurify.sanitize(htmlString, purifyConfig)
             renderer.paragraph = text => createContainer("p", text)
+            // renderer.codespan = code => renderWithClasses({ container: "code", text: code, tokens })
+
             break
         case "title":
         default:
+            renderer.html = htmlString => DOMPurify.sanitize(htmlString, purifyConfig)
             renderer.paragraph = text => renderWithClasses({ text, tokens })
             renderer.blockquote = text => renderWithClasses({ text, tokens, container: "pre" })
     }
-    const html = marked(markdown)
+
+    const impure = marked(markdown)
+    const purified = DOMPurify.sanitize(unescape(impure), purifyConfig)
+
+    const html = purified
     return html
 }
