@@ -89,7 +89,12 @@ export interface ISidebarContainerViewProps {
     isFocused: boolean
     indentationLevel?: number
     isContainer?: boolean
+    isOver?: boolean
 }
+
+const SidebarContainer = withProps<{ isOver?: boolean }>(styled.div)`
+    ${p => p.isOver && `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
+`
 
 export class SidebarContainerView extends React.PureComponent<ISidebarContainerViewProps, {}> {
     public render(): JSX.Element {
@@ -101,7 +106,7 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
         const indentationlevel = this.props.indentationLevel || 0
 
         return (
-            <div>
+            <SidebarContainer isOver={this.props.isOver}>
                 <SidebarItemView
                     indentationLevel={indentationlevel}
                     icon={icon}
@@ -110,7 +115,7 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
                     isContainer={this.props.isContainer}
                 />
                 {this.props.isExpanded ? this.props.children : null}
-            </div>
+            </SidebarContainer>
         )
     }
 }

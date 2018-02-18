@@ -13,6 +13,7 @@ import styled from "styled-components"
 
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
+import { Draggeable, Droppeable } from "./../DragAndDrop"
 
 import { FileIcon } from "./../FileIcon"
 
@@ -20,9 +21,20 @@ import * as ExplorerSelectors from "./ExplorerSelectors"
 import { IExplorerState } from "./ExplorerStore"
 
 export interface INodeViewProps {
+    moveFile: (fileId: string, folderId: string) => void
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
     onClick: () => void
+}
+
+interface IFolderDroppeable {
+    moveFile: (fileId: string, folderId: string) => void
+    folderId?: string
+}
+
+interface IFileDraggeable {
+    filename?: string
+    fileId?: string
 }
 
 const NodeWrapper = styled.div`
@@ -38,24 +50,6 @@ const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
     elem && elem["scrollIntoViewIfNeeded"] && elem["scrollIntoViewIfNeeded"]()
 }
 
-// Drag Source ================================================================
-
-type Render<T> = (props: T) => React.ReactElement<T>
-
-interface IDraggeable {
-    isDragging?: boolean
-    connectDragSource?: any
-    filename?: string
-    render: Render<{ isDragging?: boolean; connectDragSource?: any }>
-}
-
-interface IDroppeable {
-    isOver?: boolean
-    connectDropTarget?: any
-    foldername?: string
-    render: Render<{ isOver?: boolean; connectDropTarget?: any }>
-}
-
 function fileCollect(fileConnect: DND.DragSourceConnector, monitor: DND.DragSourceMonitor) {
     return {
         connectDragSource: fileConnect.dragSource(),
@@ -69,45 +63,31 @@ const Types = {
 }
 
 const FileSource = {
-    beginDrag(props: { render: Render<{}>; filename: string }) {
+    beginDrag(props: IFileDraggeable) {
         return {
             filename: props.filename,
+            fileId: props.fileId,
         }
     },
 }
 
-// Drop Target ================================================================
-
-@DND.DragSource<IDraggeable>(Types.file, FileSource, fileCollect)
-class DraggeableComponent extends React.Component<IDraggeable> {
-    public render() {
-        const { isDragging, connectDragSource } = this.props
-        return connectDragSource(<div>{this.props.render({ isDragging })}</div>)
-    }
-}
-
-const FolderTarget = {
-    drop(props: object, monitor: DND.DropTargetMonitor) {
-        const item = monitor.getItem()
-        return { ...props, item }
-    },
-}
-
-function folderCollect(folderConnect: any, monitor: any) {
+function folderCollect(folderConnect: DND.DropTargetConnector, monitor: DND.DropTargetMonitor) {
     return {
         connectDropTarget: folderConnect.dropTarget(),
         isOver: monitor.isOver(),
     }
 }
 
-// drop target type MUST match drag type
-@DND.DropTarget<IDroppeable>(Types.file, FolderTarget, folderCollect)
-class DroppeableComponent extends React.Component<IDroppeable> {
-    public render() {
-        const { isOver, connectDropTarget } = this.props
-        return connectDropTarget(<div>{this.props.render({ isOver })}</div>)
-    }
+const FolderTarget = {
+    drop(props: IFolderDroppeable, monitor: DND.DropTargetMonitor) {
+        const file = monitor.getItem() as { fileId: string }
+        props.moveFile(file.fileId, props.folderId)
+        return { ...props, file }
+    },
 }
+
+const DraggeableComponent = Draggeable<IFileDraggeable>(Types.file, FileSource, fileCollect)
+const DroppeableComponent = Droppeable<IFolderDroppeable>(Types.file, FolderTarget, folderCollect)
 
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     public render(): JSX.Element {
@@ -130,6 +110,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                 return (
                     <DraggeableComponent
                         filename={node.name}
+                        fileId={node.id}
                         render={({ isDragging }) => {
                             return (
                                 <SidebarItemView
@@ -146,9 +127,11 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
             case "container":
                 return (
                     <DroppeableComponent
+                        moveFile={this.props.moveFile}
                         render={({ isOver }) => {
                             return (
                                 <SidebarContainerView
+                                    isOver={isOver}
                                     isContainer={true}
                                     isExpanded={node.expanded}
                                     text={node.name}
@@ -161,10 +144,12 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
             case "folder":
                 return (
                     <DroppeableComponent
-                        foldername={node.name}
+                        folderId={node.id}
+                        moveFile={this.props.moveFile}
                         render={({ isOver }) => {
                             return (
                                 <SidebarContainerView
+                                    isOver={isOver}
                                     isContainer={false}
                                     isExpanded={node.expanded}
                                     text={node.name}
@@ -182,6 +167,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 }
 
 export interface IExplorerViewContainerProps {
+    moveFile: (fileId: string, folderId: string) => void
     onSelectionChanged: (id: string) => void
     onClick: (id: string) => void
 }
@@ -221,6 +207,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                     const nodes = this.props.nodes.map(node => (
                         <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
                             <NodeView
+                                moveFile={this.props.moveFile}
                                 node={node}
                                 isSelected={node.id === selectedId}
                                 onClick={() => this.props.onClick(node.id)}

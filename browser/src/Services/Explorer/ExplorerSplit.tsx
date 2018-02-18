@@ -22,7 +22,7 @@ import { createStore, IExplorerState } from "./ExplorerStore"
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
 
-import { rm } from "shelljs"
+import { mv, rm } from "shelljs"
 
 export class ExplorerSplit {
     private _onEnterEvent: Event<void> = new Event<void>()
@@ -81,12 +81,20 @@ export class ExplorerSplit {
         this._store.dispatch({ type: "LEAVE" })
     }
 
+    public moveFile = (fileId: string, folderId: string): void => {
+        const file: any = this._getSelectedItem(fileId)
+        const folder: any = this._getSelectedItem(folderId)
+        mv(file.filePath, folder.folderPath)
+        this._store.dispatch({ type: "REFRESH" })
+    }
+
     public render(): JSX.Element {
         return (
             <Provider store={this._store}>
                 <Explorer
                     onSelectionChanged={id => this._onSelectionChanged(id)}
                     onClick={id => this._onOpenItem(id)}
+                    moveFile={this.moveFile}
                 />
             </Provider>
         )
