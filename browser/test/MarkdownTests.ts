@@ -81,8 +81,8 @@ describe("Markdown Conversion Functions", () => {
             text: "React HTMLElement",
             container: "code",
         })
-
-        const expected = `<code class="marked-code"><span class="marked react-js">React</span> <span class="marked stack-element">HTMLElement</span></code>`
+        // Note Code block provides its own code tag so this should return just spans
+        const expected = `<span class="marked react-js">React</span> <span class="marked stack-element">HTMLElement</span>`
             .replace("\n", "")
             .trim()
 
