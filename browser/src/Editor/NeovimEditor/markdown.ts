@@ -102,7 +102,7 @@ export function renderWithClasses({
     container = "p",
 }: IRendererArgs) {
     // This is critical because marked's renderer refuses to leave html untouched so it converts
-    // special chars to html entities which are rendered correctly in react
+    // special chars to html entities
     const unescapedText = unescape(text)
     const whiteSpaceForCode = (line: string, code: boolean) => (code ? line.trim() : line)
 
