@@ -3,12 +3,13 @@ import * as DND from "react-dnd"
 import HTML5Backend from "react-dnd-html5-backend"
 
 type Render<T> = (props: T) => React.ReactElement<T>
+type OnDrop = (item: any) => object | void
 
 // Drop Target ================================================================
 export interface IDroppeable {
     isOver?: boolean
     connectDropTarget?: any
-    onDrop: (item: any) => object
+    onDrop: OnDrop
     canDrop: () => boolean
     accepts: string[] | string
     render: Render<{
@@ -18,7 +19,7 @@ export interface IDroppeable {
     }>
 }
 interface DroppedProps {
-    onDrop: (item: any) => object
+    onDrop: OnDrop
 }
 
 const DropTarget = {
@@ -84,7 +85,7 @@ export class Draggeable<P extends IDraggeable> extends React.Component<P> {
 
 interface IDragDrop {
     isOver?: boolean
-    onDrop: (item: any) => object
+    onDrop: OnDrop
     accepts: string[] | string
     connectDropTarget?: any
     canDrop?: () => boolean

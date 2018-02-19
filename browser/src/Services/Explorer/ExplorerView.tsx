@@ -24,6 +24,7 @@ type Node = ExplorerSelectors.ExplorerNode
 
 export interface INodeViewProps {
     moveFile: (source: Node, dest: Node) => void
+    moveFolder: (source: Node, dest: Node) => void
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
     onClick: () => void
@@ -57,9 +58,12 @@ interface IMoveNode {
 }
 
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
-    public moveCurrentNode = ({ drag, drop }: IMoveNode) => {
+    public moveFile = ({ drag, drop }: IMoveNode) => {
         this.props.moveFile(drag.node, drop.node)
-        return drag
+    }
+
+    public moveFolder = ({ drag, drop }: IMoveNode) => {
+        this.props.moveFolder(drag.node, drop.node)
     }
 
     public render(): JSX.Element {
@@ -81,7 +85,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
             case "file":
                 return (
                     <DragAndDrop
-                        onDrop={props => this.moveCurrentNode(props)}
+                        onDrop={this.moveFile}
                         dragTarget={Types.FILE}
                         accepts={[Types.FILE, Types.FOLDER]}
                         canDrop={() => true}
@@ -89,6 +93,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         render={({ canDrop, isOver }) => {
                             return (
                                 <SidebarItemView
+                                    isOver={isOver}
                                     text={node.name}
                                     isFocused={this.props.isSelected}
                                     isContainer={false}
@@ -103,7 +108,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                 return (
                     <Droppeable
                         accepts={[Types.FILE, Types.FOLDER]}
-                        onDrop={item => this.moveCurrentNode(item)}
+                        onDrop={this.moveFile}
                         canDrop={() => true}
                         render={({ isOver }) => {
                             return (
@@ -120,10 +125,11 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                 )
             case "folder":
                 return (
-                    <Droppeable
-                        accepts={[Types.FILE]}
+                    <DragAndDrop
+                        accepts={[Types.FILE, Types.FOLDER]}
+                        dragTarget={Types.FOLDER}
                         canDrop={() => true}
-                        onDrop={props => this.moveCurrentNode(props)}
+                        onDrop={props => this.moveFolder(props)}
                         node={node}
                         render={({ isOver }) => {
                             return (
@@ -147,6 +153,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 
 export interface IExplorerViewContainerProps {
     moveFile: (source: Node, dest: Node) => void
+    moveFolder: (source: Node, dest: Node) => void
     onSelectionChanged: (id: string) => void
     onClick: (id: string) => void
 }
@@ -187,6 +194,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                         <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
                             <NodeView
                                 moveFile={this.props.moveFile}
+                                moveFolder={this.props.moveFolder}
                                 node={node}
                                 isSelected={node.id === selectedId}
                                 onClick={() => this.props.onClick(node.id)}

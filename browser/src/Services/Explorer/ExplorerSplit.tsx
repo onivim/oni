@@ -12,6 +12,7 @@ import { Event } from "oni-types"
 
 // import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
+import * as Log from "./../../Log"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 // import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
@@ -24,6 +25,8 @@ import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
 
 import { mv, rm } from "shelljs"
+
+type Node = ExplorerSelectors.ExplorerNode
 
 export class ExplorerSplit {
     private _onEnterEvent: Event<void> = new Event<void>()
@@ -82,10 +85,7 @@ export class ExplorerSplit {
         this._store.dispatch({ type: "LEAVE" })
     }
 
-    public moveFile = (
-        source: ExplorerSelectors.ExplorerNode,
-        dest: ExplorerSelectors.ExplorerNode,
-    ): void => {
+    public moveFile = (source: Node, dest: Node): void => {
         let folderPath
 
         if (dest.type === "file") {
@@ -102,9 +102,16 @@ export class ExplorerSplit {
         }
 
         if (folderPath && source && source.type === "file" && source.filePath) {
-            console.log(`moving.....: ${source.filePath} to ${folderPath}`)
+            Log.info(`moving: ${source.filePath} to ${folderPath}`)
             mv(source.filePath, folderPath)
             this._store.dispatch({ type: "REFRESH" })
+        }
+    }
+
+    public moveFolder = (source: Node, destination: Node) => {
+        if (source.type === "folder" && destination.type === "folder") {
+            Log.info(`moving folders: ${source.folderPath} to ${destination.folderPath}`)
+            mv(source.folderPath, destination.folderPath)
         }
     }
 
@@ -123,6 +130,7 @@ export class ExplorerSplit {
                     onSelectionChanged={id => this._onSelectionChanged(id)}
                     onClick={id => this._onOpenItem(id)}
                     moveFile={this.moveFile}
+                    moveFolder={this.moveFolder}
                 />
             </Provider>
         )

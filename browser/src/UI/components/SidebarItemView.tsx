@@ -10,6 +10,7 @@ import styled from "styled-components"
 import { withProps } from "./common"
 
 export interface ISidebarItemViewProps {
+    isOver?: boolean
     text: string | JSX.Element
     isFocused: boolean
     isContainer: boolean
@@ -26,6 +27,7 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
             ? "4px solid " + props.theme["highlight.mode.normal.background"]
             : "4px solid transparent"};
 
+    ${p => p.isOver && `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
     display: flex;
     flex-direction: row;
     justify-content: center;
