@@ -85,11 +85,19 @@ export class ExplorerSplit {
         this._store.dispatch({ type: "LEAVE" })
     }
 
-    public moveFile = (source: Node, dest: Node): void => {
+    public moveFileOrFolder = (source: Node, dest: Node): void => {
         let folderPath
+        let sourcePath
+
+        if (source.type === "folder" && dest.type === "folder") {
+            return this.moveFolder(source, dest)
+        }
 
         if (dest.type === "file") {
             const parent = this.findParentDir(dest.id)
+            if (!parent) {
+                return
+            }
             if (parent.type === "folder") {
                 folderPath = parent.folderPath
             } else if (parent.type === "container") {
@@ -102,17 +110,23 @@ export class ExplorerSplit {
         }
 
         if (folderPath && source && source.type === "file" && source.filePath) {
-            Log.info(`moving: ${source.filePath} to ${folderPath}`)
-            mv(source.filePath, folderPath)
-            this._store.dispatch({ type: "REFRESH" })
+            sourcePath = source.filePath
+        } else if (source && source.type === "folder" && folderPath) {
+            sourcePath = source.folderPath
         }
+
+        Log.info(`moving: ${sourcePath} to ${folderPath}`)
+        mv(sourcePath, folderPath)
+        this._store.dispatch({ type: "REFRESH" })
     }
 
-    public moveFolder = (source: Node, destination: Node) => {
-        if (source.type === "folder" && destination.type === "folder") {
-            Log.info(`moving folders: ${source.folderPath} to ${destination.folderPath}`)
-            mv(source.folderPath, destination.folderPath)
-        }
+    public moveFolder = (
+        source: ExplorerSelectors.IFolderNode,
+        destination: ExplorerSelectors.IFolderNode,
+    ) => {
+        Log.info(`moving folders: ${source.folderPath} to ${destination.folderPath}`)
+        mv(source.folderPath, destination.folderPath)
+        this._store.dispatch({ type: "REFRESH" })
     }
 
     public findParentDir = (fileId: string): ExplorerSelectors.ExplorerNode => {
@@ -129,8 +143,7 @@ export class ExplorerSplit {
                 <Explorer
                     onSelectionChanged={id => this._onSelectionChanged(id)}
                     onClick={id => this._onOpenItem(id)}
-                    moveFile={this.moveFile}
-                    moveFolder={this.moveFolder}
+                    moveFileOrFolder={this.moveFileOrFolder}
                 />
             </Provider>
         )
@@ -178,7 +191,12 @@ export class ExplorerSplit {
 
         // FIXME: use find as it's tidier
         const [folder] = nodes
-            .filter(item => (item.type === "folder" || "container" ? item.name === name : null))
+            .filter(
+                item =>
+                    item.type === "container"
+                        ? item.name === name
+                        : item.type === "folder" ? item.folderPath : null,
+            )
             .filter(i => !!i)
 
         return folder
