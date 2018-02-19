@@ -3,6 +3,7 @@
  *
  */
 
+import * as path from "path"
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
@@ -81,11 +82,38 @@ export class ExplorerSplit {
         this._store.dispatch({ type: "LEAVE" })
     }
 
-    public moveFile = (fileId: string, folderId: string): void => {
-        const file: any = this._getSelectedItem(fileId)
-        const folder: any = this._getSelectedItem(folderId)
-        mv(file.filePath, folder.folderPath)
-        this._store.dispatch({ type: "REFRESH" })
+    public moveFile = (
+        source: ExplorerSelectors.ExplorerNode,
+        dest: ExplorerSelectors.ExplorerNode,
+    ): void => {
+        let folderPath
+
+        if (dest.type === "file") {
+            const parent = this.findParentDir(dest.id)
+            if (parent.type === "folder") {
+                folderPath = parent.folderPath
+            } else if (parent.type === "container") {
+                folderPath = parent.name
+            }
+        } else if (dest.type === "container") {
+            folderPath = dest.name
+        } else {
+            folderPath = dest.folderPath
+        }
+
+        if (folderPath && source && source.type === "file" && source.filePath) {
+            console.log(`moving.....: ${source.filePath} to ${folderPath}`)
+            mv(source.filePath, folderPath)
+            this._store.dispatch({ type: "REFRESH" })
+        }
+    }
+
+    public findParentDir = (fileId: string): ExplorerSelectors.ExplorerNode => {
+        const file = this._getSelectedItem(fileId) as { filePath: string }
+        const parts = file.filePath.split(path.sep)
+        const folder = parts.slice(0, parts.length - 1).join(path.sep)
+        const parent = this._getSelectedItemByName(folder)
+        return parent
     }
 
     public render(): JSX.Element {
@@ -133,6 +161,19 @@ export class ExplorerSplit {
             default:
                 alert("Not implemented yet.") // tslint:disable-line
         }
+    }
+
+    private _getSelectedItemByName = (name: string) => {
+        const state = this._store.getState()
+
+        const nodes = ExplorerSelectors.mapStateToNodeList(state)
+
+        // FIXME: use find as it's tidier
+        const [folder] = nodes
+            .filter(item => (item.type === "folder" || "container" ? item.name === name : null))
+            .filter(i => !!i)
+
+        return folder
     }
 
     private _getSelectedItem(id?: string): ExplorerSelectors.ExplorerNode {

@@ -8,7 +8,7 @@ type Render<T> = (props: T) => React.ReactElement<T>
 export interface IDroppeable {
     isOver?: boolean
     connectDropTarget?: any
-    onDrop: (item: object) => object
+    onDrop: (item: any) => object
     canDrop: () => boolean
     accepts: string[] | string
     render: Render<{
@@ -17,11 +17,14 @@ export interface IDroppeable {
         connectDropTarget?: DND.DropTargetConnector
     }>
 }
+interface DroppedProps {
+    onDrop: (item: any) => object
+}
 
 const DropTarget = {
-    drop(props: { onDrop: (item: object) => object }, monitor: DND.DropTargetMonitor) {
-        const item = monitor.getItem()
-        return props.onDrop({ ...item, ...props })
+    drop(dropped: DroppedProps, monitor: DND.DropTargetMonitor) {
+        const dragged = monitor.getItem()
+        return dropped.onDrop({ drag: dragged, drop: dropped })
     },
 }
 
@@ -31,19 +34,14 @@ const DropCollect = (connect: DND.DropTargetConnector, monitor: DND.DropTargetMo
     canDrop: monitor.canDrop(),
 })
 
-// drop target type MUST match drag type
-class DroppeableComponent extends React.Component<IDroppeable> {
+// Drop target type MUST match drag type
+@DND.DropTarget<IDroppeable>(({ accepts }) => accepts, DropTarget, DropCollect)
+export class Droppeable<P extends IDroppeable> extends React.Component<P> {
     public render() {
         const { isOver, connectDropTarget, canDrop } = this.props
         return connectDropTarget(<div>{this.props.render({ isOver, canDrop })}</div>)
     }
 }
-
-export const Droppeable = DND.DropTarget<IDroppeable>(
-    ({ accepts }) => accepts,
-    DropTarget,
-    DropCollect,
-)(DroppeableComponent)
 
 // Drag Source ================================================================
 export interface IDraggeable {
@@ -54,7 +52,7 @@ export interface IDraggeable {
 }
 
 const DragSource = {
-    beginDrag(props) {
+    beginDrag(props: object) {
         return props
     },
 }
@@ -66,22 +64,27 @@ const DragCollect = (connect: DND.DragSourceConnector, monitor: DND.DragSourceMo
     }
 }
 
-class DraggeableComponent extends React.Component<IDraggeable> {
+/**
+ * A component that can be dragged onto a droppeable one
+ *
+ * @name props
+ * @function
+ * @param {String | String[]} >props.target The target Type that responds to the drop
+ * @param {Object} DragSource Object with a beginDrag which return the dragged props
+ * @param {React.Component} A component which is dragged onto another
+ * @returns {React.Component<P>} A react class component
+ */
+@DND.DragSource<IDraggeable>(props => props.target, DragSource, DragCollect)
+export class Draggeable<P extends IDraggeable> extends React.Component<P> {
     public render() {
         const { isDragging, connectDragSource } = this.props
         return connectDragSource(<div>{this.props.render({ isDragging })}</div>)
     }
 }
 
-export const Draggeable = DND.DragSource<IDraggeable>(
-    props => props.target,
-    DragSource,
-    DragCollect,
-)(DraggeableComponent)
-
 interface IDragDrop {
     isOver?: boolean
-    onDrop: (item: object) => object
+    onDrop: (item: any) => object
     accepts: string[] | string
     connectDropTarget?: any
     canDrop?: () => boolean
@@ -91,7 +94,14 @@ interface IDragDrop {
     render: Render<{ canDrop?: () => boolean; isOver?: boolean; isDragging: boolean }>
 }
 
-class DragDropComponent extends React.Component<IDragDrop> {
+/**
+ * A component which can be dragged or dropped onto
+ * @name DragAndDrop
+ * @function
+ */
+@DND.DropTarget<IDragDrop>(props => props.accepts, DropTarget, DropCollect)
+@DND.DragSource<IDragDrop>(props => props.dragTarget, DragSource, DragCollect)
+export class DragAndDrop<P extends IDragDrop> extends React.Component<P> {
     public render() {
         const { isDragging, isOver, connectDragSource, connectDropTarget } = this.props
         return connectDropTarget(
@@ -99,14 +109,6 @@ class DragDropComponent extends React.Component<IDragDrop> {
         )
     }
 }
-const Drop = DND.DropTarget<IDragDrop>(props => props.accepts, DropTarget, DropCollect)(
-    DragDropComponent,
-)
-export const DragAndDrop = DND.DragSource<IDragDrop>(
-    props => props.dragTarget,
-    DragSource,
-    DragCollect,
-)(Drop)
 
 export function DragAndDropContainer<State>(Container: React.ComponentClass<State>) {
     return DND.DragDropContext(HTML5Backend)(Container)
