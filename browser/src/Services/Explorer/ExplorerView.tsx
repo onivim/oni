@@ -13,7 +13,7 @@ import styled from "styled-components"
 
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
-import { Draggeable, Droppeable } from "./../DragAndDrop"
+import { DragDrop, /* Draggeable, */ Droppeable } from "./../DragAndDrop"
 
 import { FileIcon } from "./../FileIcon"
 
@@ -30,6 +30,10 @@ export interface INodeViewProps {
 interface IFolderDroppeable {
     moveFile: (fileId: string, folderId: string) => void
     folderId?: string
+}
+
+interface IFileDroppeable {
+    moveFile: (fileId: string, folderId: string) => void
 }
 
 interface IFileDraggeable {
@@ -58,8 +62,8 @@ function fileCollect(fileConnect: DND.DragSourceConnector, monitor: DND.DragSour
 }
 
 const Types = {
-    file: "FILE",
-    folder: "FOLDER",
+    FILE: "FILE",
+    FOLDER: "FOLDER",
 }
 
 const FileSource = {
@@ -86,8 +90,33 @@ const FolderTarget = {
     },
 }
 
-const DraggeableComponent = Draggeable<IFileDraggeable>(Types.file, FileSource, fileCollect)
-const DroppeableComponent = Droppeable<IFolderDroppeable>(Types.file, FolderTarget, folderCollect)
+const fileTarget = {
+    drop(props: IFileDroppeable, monitor: DND.DropTargetMonitor) {
+        const file = monitor.getItem() as { fileId: string }
+        const folderId = "0"
+        props.moveFile(file.fileId, folderId)
+    },
+}
+
+// const DraggeableComponent = Draggeable<IFileDraggeable>({
+//     Type: Types.FILE,
+//     Source: FileSource,
+//     Collect: fileCollect,
+// })
+const DroppeableComponent = Droppeable<IFolderDroppeable>({
+    Type: Types.FILE,
+    Target: FolderTarget,
+    Collect: folderCollect,
+})
+
+const DragDropComponent = DragDrop<IFolderDroppeable & IFileDraggeable>({
+    types: [Types.FILE, Types.FOLDER],
+    dragCollect: fileCollect,
+    dropCollect: folderCollect,
+    target: fileTarget,
+    source: FileSource,
+    dragType: Types.FILE,
+})
 
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     public render(): JSX.Element {
@@ -108,7 +137,8 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
         switch (node.type) {
             case "file":
                 return (
-                    <DraggeableComponent
+                    <DragDropComponent
+                        moveFile={this.props.moveFile}
                         filename={node.name}
                         fileId={node.id}
                         render={({ isDragging }) => {
