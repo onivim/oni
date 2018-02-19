@@ -13,7 +13,7 @@ import styled from "styled-components"
 
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
-import { DragDrop, /* Draggeable, */ Droppeable } from "./../DragAndDrop"
+import { DragAndDrop, Droppeable } from "./../DragAndDrop"
 
 import { FileIcon } from "./../FileIcon"
 
@@ -54,71 +54,17 @@ const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
     elem && elem["scrollIntoViewIfNeeded"] && elem["scrollIntoViewIfNeeded"]()
 }
 
-function fileCollect(fileConnect: DND.DragSourceConnector, monitor: DND.DragSourceMonitor) {
-    return {
-        connectDragSource: fileConnect.dragSource(),
-        isDragging: monitor.isDragging(),
-    }
-}
-
 const Types = {
     FILE: "FILE",
     FOLDER: "FOLDER",
 }
 
-const FileSource = {
-    beginDrag(props: IFileDraggeable) {
-        return {
-            filename: props.filename,
-            fileId: props.fileId,
-        }
-    },
-}
-
-function folderCollect(folderConnect: DND.DropTargetConnector, monitor: DND.DropTargetMonitor) {
-    return {
-        connectDropTarget: folderConnect.dropTarget(),
-        isOver: monitor.isOver(),
-    }
-}
-
-const FolderTarget = {
-    drop(props: IFolderDroppeable, monitor: DND.DropTargetMonitor) {
-        const file = monitor.getItem() as { fileId: string }
-        props.moveFile(file.fileId, props.folderId)
-        return { ...props, file }
-    },
-}
-
-const fileTarget = {
-    drop(props: IFileDroppeable, monitor: DND.DropTargetMonitor) {
-        const file = monitor.getItem() as { fileId: string }
-        const folderId = "0"
-        props.moveFile(file.fileId, folderId)
-    },
-}
-
-// const DraggeableComponent = Draggeable<IFileDraggeable>({
-//     Type: Types.FILE,
-//     Source: FileSource,
-//     Collect: fileCollect,
-// })
-const DroppeableComponent = Droppeable<IFolderDroppeable>({
-    Type: Types.FILE,
-    Target: FolderTarget,
-    Collect: folderCollect,
-})
-
-const DragDropComponent = DragDrop<IFolderDroppeable & IFileDraggeable>({
-    types: [Types.FILE, Types.FOLDER],
-    dragCollect: fileCollect,
-    dropCollect: folderCollect,
-    target: fileTarget,
-    source: FileSource,
-    dragType: Types.FILE,
-})
-
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
+    public moveCurrentNode = (item: { fileId?: string; folderId?: string }) => {
+        this.props.moveFile(item.fileId, item.folderId)
+        return item
+    }
+
     public render(): JSX.Element {
         return (
             <NodeWrapper
@@ -137,11 +83,12 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
         switch (node.type) {
             case "file":
                 return (
-                    <DragDropComponent
-                        moveFile={this.props.moveFile}
-                        filename={node.name}
-                        fileId={node.id}
-                        render={({ isDragging }) => {
+                    <DragAndDrop
+                        onDrop={item => this.moveCurrentNode(item)}
+                        dragTarget={Types.FILE}
+                        accepts={[Types.FILE, Types.FOLDER]}
+                        canDrop={() => true}
+                        render={({ canDrop, isOver }) => {
                             return (
                                 <SidebarItemView
                                     text={node.name}
@@ -156,8 +103,10 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                 )
             case "container":
                 return (
-                    <DroppeableComponent
-                        moveFile={this.props.moveFile}
+                    <Droppeable
+                        accepts={[Types.FILE, Types.FOLDER]}
+                        onDrop={item => this.moveCurrentNode(item)}
+                        canDrop={() => true}
                         render={({ isOver }) => {
                             return (
                                 <SidebarContainerView
@@ -173,9 +122,10 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                 )
             case "folder":
                 return (
-                    <DroppeableComponent
-                        folderId={node.id}
-                        moveFile={this.props.moveFile}
+                    <Droppeable
+                        accepts={[Types.FILE]}
+                        canDrop={() => true}
+                        onDrop={item => this.moveCurrentNode(item)}
                         render={({ isOver }) => {
                             return (
                                 <SidebarContainerView

@@ -8,86 +8,106 @@ type Render<T> = (props: T) => React.ReactElement<T>
 export interface IDroppeable {
     isOver?: boolean
     connectDropTarget?: any
-    render: Render<{ isOver?: boolean; connectDropTarget?: DND.DropTargetConnector }>
+    onDrop: (item: object) => object
+    canDrop: () => boolean
+    accepts: string[] | string
+    render: Render<{
+        canDrop: () => boolean
+        isOver?: boolean
+        connectDropTarget?: DND.DropTargetConnector
+    }>
 }
 
-interface IDroppeableArgs<T> {
-    Type: string
-    Target: DND.DropTargetSpec<T>
-    Collect: DND.DropTargetCollector
+const DropTarget = {
+    drop(props: { onDrop: (item: object) => object }, monitor: DND.DropTargetMonitor) {
+        const item = monitor.getItem()
+        return props.onDrop({ ...item, ...props })
+    },
 }
+
+const DropCollect = (connect: DND.DropTargetConnector, monitor: DND.DropTargetMonitor) => ({
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver(),
+    canDrop: monitor.canDrop(),
+})
 
 // drop target type MUST match drag type
-export function Droppeable<Props>({ Type, Target, Collect }: IDroppeableArgs<Props>) {
-    class DroppeableComponent extends React.Component<IDroppeable & Props> {
-        public render() {
-            const { isOver, connectDropTarget } = this.props
-            return connectDropTarget(<div>{this.props.render({ isOver })}</div>)
-        }
+class DroppeableComponent extends React.Component<IDroppeable> {
+    public render() {
+        const { isOver, connectDropTarget, canDrop } = this.props
+        return connectDropTarget(<div>{this.props.render({ isOver, canDrop })}</div>)
     }
-    return DND.DropTarget<IDroppeable & Props>(Type, Target, Collect)(DroppeableComponent)
 }
+
+export const Droppeable = DND.DropTarget<IDroppeable>(
+    ({ accepts }) => accepts,
+    DropTarget,
+    DropCollect,
+)(DroppeableComponent)
 
 // Drag Source ================================================================
 export interface IDraggeable {
+    target?: string
     isDragging?: boolean
     connectDragSource?: any
     render: Render<{ isDragging?: boolean; connectDragSource?: DND.DragSourceConnector }>
 }
 
-interface IDraggeableArgs<T> {
-    Type: string
-    Source: DND.DragSourceSpec<T>
-    Collect: DND.DragSourceCollector
+const DragSource = {
+    beginDrag(props) {
+        return props
+    },
 }
 
-export function Draggeable<Props>({ Type, Source, Collect }: IDraggeableArgs<Props>) {
-    class DraggeableComponent extends React.Component<IDraggeable & Props> {
-        public render() {
-            const { isDragging, connectDragSource } = this.props
-            return connectDragSource(<div>{this.props.render({ isDragging })}</div>)
-        }
+const DragCollect = (connect: DND.DragSourceConnector, monitor: DND.DragSourceMonitor) => {
+    return {
+        connectDragSource: connect.dragSource(),
+        isDragging: monitor.isDragging(),
     }
-    return DND.DragSource<IDraggeable & Props>(Type, Source, Collect)(DraggeableComponent)
 }
 
-export function DragAndDropContainer<State>(Container: React.ComponentClass<State>) {
-    return DND.DragDropContext(HTML5Backend)(Container)
+class DraggeableComponent extends React.Component<IDraggeable> {
+    public render() {
+        const { isDragging, connectDragSource } = this.props
+        return connectDragSource(<div>{this.props.render({ isDragging })}</div>)
+    }
 }
 
-interface IDragDropArgs<Props> {
-    types: string[]
-    dragCollect: DND.DragSourceCollector
-    dropCollect: DND.DropTargetCollector
-    source: DND.DragSourceSpec<Props>
-    dragType: string
-    target: DND.DropTargetSpec<Props>
-}
+export const Draggeable = DND.DragSource<IDraggeable>(
+    props => props.target,
+    DragSource,
+    DragCollect,
+)(DraggeableComponent)
 
 interface IDragDrop {
     isOver?: boolean
+    onDrop: (item: object) => object
+    accepts: string[] | string
     connectDropTarget?: any
+    canDrop?: () => boolean
+    dragTarget: string
     isDragging?: boolean
     connectDragSource?: any
-    render: Render<{ isOver?: boolean; isDragging: boolean }>
+    render: Render<{ canDrop?: () => boolean; isOver?: boolean; isDragging: boolean }>
 }
 
-export function DragDrop<Props>({
-    types,
-    dragCollect,
-    dropCollect,
-    source,
-    dragType,
-    target,
-}: IDragDropArgs<Props>) {
-    type FullProps = IDragDrop & Props
-    class DragDropComponent extends React.Component<FullProps> {
-        public render() {
-            const { isDragging, isOver } = this.props
-            return this.props.render({ isDragging, isOver })
-        }
+class DragDropComponent extends React.Component<IDragDrop> {
+    public render() {
+        const { isDragging, isOver, connectDragSource, connectDropTarget } = this.props
+        return connectDropTarget(
+            connectDragSource(<div>{this.props.render({ isDragging, isOver })}</div>),
+        )
     }
-    const Drop = DND.DropTarget<FullProps>(types, target, dropCollect)(DragDropComponent)
-    const DragAndDrop = DND.DragSource<FullProps>(dragType, source, dragCollect)(Drop)
-    return DragAndDrop
+}
+const Drop = DND.DropTarget<IDragDrop>(props => props.accepts, DropTarget, DropCollect)(
+    DragDropComponent,
+)
+export const DragAndDrop = DND.DragSource<IDragDrop>(
+    props => props.dragTarget,
+    DragSource,
+    DragCollect,
+)(Drop)
+
+export function DragAndDropContainer<State>(Container: React.ComponentClass<State>) {
+    return DND.DragDropContext(HTML5Backend)(Container)
 }
