@@ -192,8 +192,7 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@types/marked": "^0.3.0",
-        "@types/redux-batched-subscribe": "^0.1.2",
+        "chokidar": "^2.0.2",
         "dompurify": "1.0.2",
         "electron-settings": "^3.1.4",
         "find-up": "2.1.0",
@@ -221,6 +220,9 @@
         "vscode-textmate": "3.2.0"
     },
     "devDependencies": {
+        "@types/chokidar": "^1.7.4",
+        "@types/marked": "^0.3.0",
+        "@types/redux-batched-subscribe": "^0.1.2",
         "@types/classnames": "0.0.32",
         "@types/color": "2.0.0",
         "@types/electron-settings": "^3.1.1",
