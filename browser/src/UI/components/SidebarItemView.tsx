@@ -11,6 +11,7 @@ import { withProps } from "./common"
 
 export interface ISidebarItemViewProps {
     isOver?: boolean
+    canDrop?: boolean
     text: string | JSX.Element
     isFocused: boolean
     isContainer: boolean
@@ -19,6 +20,9 @@ export interface ISidebarItemViewProps {
 }
 
 const px = (num: number): string => num.toString() + "px"
+
+// FIXME: Find appropriate color for droppeable section
+// ${p => p.canDrop && `background-color: ${darken(p.theme["highlight.mode.normal.background"], 0.4)};`};
 
 const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
     padding-left: ${props => px(INDENT_AMOUNT * props.indentationLevel)};
@@ -85,16 +89,20 @@ export class SidebarItemView extends React.PureComponent<ISidebarItemViewProps, 
     }
 }
 
-export interface ISidebarContainerViewProps {
+export interface ISidebarContainerViewProps extends IContainerProps {
     text: string
     isExpanded: boolean
     isFocused: boolean
     indentationLevel?: number
     isContainer?: boolean
-    isOver?: boolean
 }
 
-const SidebarContainer = withProps<{ isOver?: boolean }>(styled.div)`
+interface IContainerProps {
+    isOver?: boolean
+    canDrop?: boolean
+}
+
+const SidebarContainer = withProps<IContainerProps>(styled.div)`
     ${p => p.isOver && `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
 `
 
@@ -108,7 +116,7 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
         const indentationlevel = this.props.indentationLevel || 0
 
         return (
-            <SidebarContainer isOver={this.props.isOver}>
+            <SidebarContainer canDrop={this.props.canDrop} isOver={this.props.isOver}>
                 <SidebarItemView
                     indentationLevel={indentationlevel}
                     icon={icon}

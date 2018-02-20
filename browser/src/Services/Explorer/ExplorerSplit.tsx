@@ -124,6 +124,9 @@ export class ExplorerSplit {
         source: ExplorerSelectors.IFolderNode,
         destination: ExplorerSelectors.IFolderNode,
     ) => {
+        if (source.folderPath === destination.folderPath) {
+            return
+        }
         Log.info(`moving folders: ${source.folderPath} to ${destination.folderPath}`)
         mv(source.folderPath, destination.folderPath)
         this._store.dispatch({ type: "REFRESH" })

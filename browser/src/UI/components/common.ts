@@ -25,9 +25,14 @@ export function withProps<T, U extends HTMLElement = HTMLElement>(
 
 const darken = (c: string, deg = 0.15) =>
     Color(c)
-        .darken(0.15)
+        .darken(deg)
         .hex()
         .toString()
+
+const lighten = (c: string, deg = 0.25) =>
+    Color(c)
+        .lighten(deg)
+        .hex()
 
 const boxShadow = css`
     box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -76,6 +81,7 @@ export {
     fontSizeSmall,
     fallBackFonts,
     darken,
+    lighten,
 }
 
 export default styled

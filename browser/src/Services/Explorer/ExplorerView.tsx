@@ -61,6 +61,10 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
         this.props.moveFileOrFolder(drag.node, drop.node)
     }
 
+    public isSameNode = ({ drag, drop }: IMoveNode) => {
+        return !(drag.node.name === drop.node.name)
+    }
+
     public render(): JSX.Element {
         return (
             <NodeWrapper
@@ -83,12 +87,13 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         onDrop={this.moveFileOrFolder}
                         dragTarget={Types.FILE}
                         accepts={[Types.FILE, Types.FOLDER]}
-                        canDrop={() => true}
+                        isValidDrop={this.isSameNode}
                         node={node}
                         render={({ canDrop, isOver }) => {
                             return (
                                 <SidebarItemView
-                                    isOver={isOver}
+                                    isOver={isOver && canDrop}
+                                    canDrop={canDrop}
                                     text={node.name}
                                     isFocused={this.props.isSelected}
                                     isContainer={false}
@@ -104,7 +109,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                     <Droppeable
                         accepts={[Types.FILE, Types.FOLDER]}
                         onDrop={this.moveFileOrFolder}
-                        canDrop={() => true}
+                        isValidDrop={() => true}
                         render={({ isOver }) => {
                             return (
                                 <SidebarContainerView
@@ -123,13 +128,13 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                     <DragAndDrop
                         accepts={[Types.FILE, Types.FOLDER]}
                         dragTarget={Types.FOLDER}
-                        canDrop={() => true}
+                        isValidDrop={this.isSameNode}
                         onDrop={this.moveFileOrFolder}
                         node={node}
-                        render={({ isOver }) => {
+                        render={({ isOver, canDrop }) => {
                             return (
                                 <SidebarContainerView
-                                    isOver={isOver}
+                                    isOver={isOver && canDrop}
                                     isContainer={false}
                                     isExpanded={node.expanded}
                                     text={node.name}

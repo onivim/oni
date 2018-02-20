@@ -4,28 +4,33 @@ import HTML5Backend from "react-dnd-html5-backend"
 
 type Render<T> = (props: T) => React.ReactElement<T>
 type OnDrop = (item: any) => object | void
+type IsValidDrop = (item: any) => boolean
 
 // Drop Target ================================================================
 export interface IDroppeable {
     isOver?: boolean
     connectDropTarget?: any
     onDrop: OnDrop
-    canDrop: () => boolean
+    isValidDrop: IsValidDrop
+    canDrop?: boolean
     accepts: string[] | string
     render: Render<{
-        canDrop: () => boolean
+        canDrop: boolean
         isOver?: boolean
         connectDropTarget?: DND.DropTargetConnector
     }>
 }
 interface DroppedProps {
     onDrop: OnDrop
+    isValidDrop: IsValidDrop
 }
 
 const DropTarget = {
     drop(dropped: DroppedProps, monitor: DND.DropTargetMonitor) {
-        const dragged = monitor.getItem()
-        return dropped.onDrop({ drag: dragged, drop: dropped })
+        return dropped.onDrop({ drag: monitor.getItem(), drop: dropped })
+    },
+    canDrop(props: DroppedProps, monitor: DND.DropTargetMonitor) {
+        return props.isValidDrop({ drag: monitor.getItem(), drop: props })
     },
 }
 
@@ -88,11 +93,12 @@ interface IDragDrop {
     onDrop: OnDrop
     accepts: string[] | string
     connectDropTarget?: any
-    canDrop?: () => boolean
+    canDrop?: boolean
+    isValidDrop: IsValidDrop
     dragTarget: string
     isDragging?: boolean
     connectDragSource?: any
-    render: Render<{ canDrop?: () => boolean; isOver?: boolean; isDragging: boolean }>
+    render: Render<{ canDrop?: boolean; isOver?: boolean; isDragging: boolean }>
 }
 
 /**
@@ -104,9 +110,9 @@ interface IDragDrop {
 @DND.DragSource<IDragDrop>(props => props.dragTarget, DragSource, DragCollect)
 export class DragAndDrop<P extends IDragDrop> extends React.Component<P> {
     public render() {
-        const { isDragging, isOver, connectDragSource, connectDropTarget } = this.props
+        const { isDragging, canDrop, isOver, connectDragSource, connectDropTarget } = this.props
         return connectDropTarget(
-            connectDragSource(<div>{this.props.render({ isDragging, isOver })}</div>),
+            connectDragSource(<div>{this.props.render({ isDragging, canDrop, isOver })}</div>),
         )
     }
 }
