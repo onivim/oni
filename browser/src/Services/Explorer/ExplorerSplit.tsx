@@ -95,14 +95,7 @@ export class ExplorerSplit {
 
         if (dest.type === "file") {
             const parent = this.findParentDir(dest.id)
-            if (!parent) {
-                return
-            }
-            if (parent.type === "folder") {
-                folderPath = parent.folderPath
-            } else if (parent.type === "container") {
-                folderPath = parent.name
-            }
+            folderPath = parent
         } else if (dest.type === "container") {
             folderPath = dest.name
         } else {
@@ -132,12 +125,11 @@ export class ExplorerSplit {
         this._store.dispatch({ type: "REFRESH" })
     }
 
-    public findParentDir = (fileId: string): ExplorerSelectors.ExplorerNode => {
+    public findParentDir = (fileId: string): string => {
         const file = this._getSelectedItem(fileId) as { filePath: string }
         const parts = file.filePath.split(path.sep)
         const folder = parts.slice(0, parts.length - 1).join(path.sep)
-        const parent = this._getSelectedItemByName(folder)
-        return parent
+        return folder
     }
 
     public render(): JSX.Element {
@@ -185,24 +177,6 @@ export class ExplorerSplit {
             default:
                 alert("Not implemented yet.") // tslint:disable-line
         }
-    }
-
-    private _getSelectedItemByName = (name: string) => {
-        const state = this._store.getState()
-
-        const nodes = ExplorerSelectors.mapStateToNodeList(state)
-
-        // FIXME: use find as it's tidier
-        const [folder] = nodes
-            .filter(
-                item =>
-                    item.type === "container"
-                        ? item.name === name
-                        : item.type === "folder" ? item.folderPath : null,
-            )
-            .filter(i => !!i)
-
-        return folder
     }
 
     private _getSelectedItem(id?: string): ExplorerSelectors.ExplorerNode {
