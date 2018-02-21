@@ -6,9 +6,9 @@ branches:
   - master
   - /^release.*/
 cache:
-    yarn: true
     directories:
-        - node_modules
+        - node_modules/oni-neovim-binaries
+        - node_modules/oni-ripgrep
 matrix:
   include:
   - os: linux
