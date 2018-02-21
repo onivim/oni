@@ -10,7 +10,7 @@ import { SnippetSession } from "./../../../src/Services/Snippets/SnippetSession"
 
 import * as Mocks from "./../../Mocks"
 
-// tslint:disable-file no-invalid-template-strings
+// tslint:disable no-invalid-template-strings
 
 describe("SnippetSession", () => {
     let mockEditor: Mocks.MockEditor
