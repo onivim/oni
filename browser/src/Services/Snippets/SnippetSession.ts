@@ -166,6 +166,10 @@ export class SnippetSession {
     }
 
     private async _highlightPlaceholder(currentPlaceholder: OniSnippetPlaceholder): Promise<void> {
+        if (!currentPlaceholder) {
+            return
+        }
+
         const adjustedLine = currentPlaceholder.line + this._position.line
         const adjustedCharacter =
             currentPlaceholder.line === 0

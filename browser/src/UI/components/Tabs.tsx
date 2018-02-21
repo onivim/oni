@@ -282,7 +282,7 @@ const getTabsFromVimTabs = createSelector(
         BufferSelectors.getBufferMetadata,
     ],
     (
-        tabState: any,
+        tabState: State.ITabState,
         color: any,
         shouldShowId: boolean,
         showFileIcon: boolean,

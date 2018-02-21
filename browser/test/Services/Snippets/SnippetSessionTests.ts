@@ -98,5 +98,23 @@ describe("SnippetSession", () => {
         })
     })
 
-    describe("synchronizeUpdatedPlaceholders", () => {})
+    describe("synchronizeUpdatedPlaceholders", () => {
+        it("updates placeholders", async () => {
+            const snippet = new OniSnippet("${1:test} ${1} ${1}")
+            snippetSession = new SnippetSession(mockEditor as any, snippet)
+            await snippetSession.start()
+
+            // Validate
+            const [currentLine] = await mockBuffer.getLines(0, 1)
+            assert.strictEqual(currentLine, "test test test")
+
+            // Simulate typing in first entry
+            await mockEditor.setActiveBufferLine(0, "test3 test test")
+
+            await snippetSession.synchronizeUpdatedPlaceholders()
+
+            const [synchronizedLine] = await mockBuffer.getLines(0, 1)
+            assert.strictEqual(synchronizedLine, "test3 test3 test3")
+        })
+    })
 })
