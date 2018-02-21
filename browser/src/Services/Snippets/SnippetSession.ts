@@ -6,6 +6,10 @@
 
 import * as types from "vscode-languageserver-types"
 
+import { IEvent, Event } from "oni-types"
+
+import * as Log from "./../../Log"
+
 import { OniSnippet, OniSnippetPlaceholder } from "./OniSnippet"
 
 import { IBuffer } from "./../../Editor/BufferManager"
@@ -20,12 +24,17 @@ export const splitLineAtPosition = (line: string, position: number): [string, st
 export class SnippetSession {
     private _buffer: IBuffer
     private _position: types.Position
+    private _onCancelEvent: Event<void> = new Event<void>()
 
     // Get state of line where we inserted
     private _prefix: string
     private _suffix: string
 
     private _placeholderIndex: number = -1
+
+    public get onCancel(): IEvent<void> {
+        return this._onCancelEvent
+    }
 
     constructor(private _editor: IEditor, private _snippet: OniSnippet) {}
 
@@ -73,11 +82,77 @@ export class SnippetSession {
     }
 
     public async setPlaceholderValue(index: number, val: string): Promise<void> {
+        const previousValue = this._snippet.getPlaceholderValue(index)
+
+        if (previousValue === val) {
+            Log.verbose(
+                "[SnippetSession::setPlaceHolderValue] Skipping because new placeholder value is same as previous",
+            )
+            return
+        }
+
         await this._snippet.setPlaceholder(index, val)
         await this._updateSnippet()
 
+        //         const placeholders = this._snippet.getPlaceholders()
+        //         await this._highlightPlaceholder(placeholders[this._placeholderIndex])
+    }
+
+    // Helper method to query the value of the current placeholder,
+    // propagate that to any other placeholders, and update the snippet
+    public async synchronizeUpdatedPlaceholders(): Promise<void> {
+        // Get current cursor position
+        const cursorPosition = await this._buffer.getCursorPosition()
+
+        const bounds = this._getBoundsForPlaceholder()
+
+        if (cursorPosition.line !== bounds.line) {
+            Log.info(
+                "[SnippetSession::synchronizeUpdatedPlaceholder] Cursor outside snippet, cancelling snippet session",
+            )
+            this._onCancelEvent.dispatch()
+            return
+        }
+
+        // Check substring of placeholder start / placeholder finish
+        const [currentLine] = await this._buffer.getLines(bounds.line, bounds.line + 1)
+
+        const startPosition = bounds.start
+        const endPosition = currentLine.length - bounds.distanceFromEnd
+
+        if (
+            cursorPosition.character < startPosition ||
+            cursorPosition.character > endPosition + 2
+        ) {
+            return
+        }
+
+        // Set placeholder value
+        const newPlaceholderValue = currentLine.substring(startPosition, endPosition)
+        await this.setPlaceholderValue(bounds.index, newPlaceholderValue)
+    }
+
+    private _getBoundsForPlaceholder(): {
+        index: number
+        line: number
+        start: number
+        distanceFromEnd: number
+    } {
         const placeholders = this._snippet.getPlaceholders()
-        await this._highlightPlaceholder(placeholders[this._placeholderIndex])
+        const currentPlaceholder = placeholders[this._placeholderIndex]
+
+        const currentSnippetLines = this._snippet.getLines()
+
+        const start =
+            currentPlaceholder.line === 0
+                ? this._prefix.length + currentPlaceholder.character
+                : currentPlaceholder.character
+        const distanceFromEnd =
+            currentSnippetLines[currentPlaceholder.line].length -
+            (currentPlaceholder.character + currentPlaceholder.value.length)
+        const line = currentPlaceholder.line + this._position.line
+
+        return { index: currentPlaceholder.index, line, start, distanceFromEnd }
     }
 
     private async _updateSnippet(): Promise<void> {
@@ -88,7 +163,7 @@ export class SnippetSession {
 
         await this._buffer.setLines(
             this._position.line,
-            this._position.line + snippetLines.length + 1,
+            this._position.line + snippetLines.length,
             snippetLines,
         )
     }
