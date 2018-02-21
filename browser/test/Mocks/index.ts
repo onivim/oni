@@ -131,6 +131,7 @@ export class MockStatusBar implements Oni.StatusBar {
 
 export class MockEditor extends Editor {
     private _activeBuffer: MockBuffer = null
+    private _currentSelection: types.Range = null
 
     public get activeBuffer(): Oni.Buffer {
         return this._activeBuffer as any
@@ -150,6 +151,14 @@ export class MockEditor extends Editor {
     public simulateBufferEnter(buffer: MockBuffer): void {
         this._activeBuffer = buffer
         this.notifyBufferEnter(buffer as any)
+    }
+
+    public async setSelection(range: types.Range): Promise<void> {
+        this._currentSelection = range
+    }
+
+    public async getSelection(): Promise<types.Range> {
+        return this._currentSelection
     }
 
     public setActiveBufferLine(line: number, lineContents: string): void {

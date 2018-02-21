@@ -167,6 +167,13 @@ export class OniEditor implements IEditor {
         return this._neovimEditor.setSelection(range)
     }
 
+    public async blockInput(
+        inputFunction: (input: (inp: string) => Promise<void>) => Promise<void>,
+    ) {
+        const neovim = this._neovimEditor.neovim as any
+        return neovim.blockInput(inputFunction)
+    }
+
     public executeCommand(command: string): void {
         this._neovimEditor.executeCommand(command)
     }
