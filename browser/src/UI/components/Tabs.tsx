@@ -235,6 +235,10 @@ export const shouldShowFileIcon = (state: State.IState): boolean => {
 }
 
 export const checkTabBuffers = (buffersInTabs: number[], buffers: State.IBuffer[]): boolean => {
+    if (buffersInTabs instanceof Array === false || buffers instanceof Array === false) {
+        return false
+    }
+
     const tabBufs = buffers.filter(buf => buffersInTabs.find(tabBuf => tabBuf === buf.id))
 
     return tabBufs.some(buf => buf.modified)
