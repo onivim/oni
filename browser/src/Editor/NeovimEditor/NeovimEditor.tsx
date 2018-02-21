@@ -453,13 +453,7 @@ export class NeovimEditor extends Editor implements IEditor {
             const response = await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
 
             tabs.map((tab: ITab, index: number) => {
-                const currentTabsBuffers = response[0][index]
-
-                if (currentTabsBuffers instanceof Array === false) {
-                    tab.buffersInTab = []
-                } else {
-                    tab.buffersInTab = response[0][index]
-                }
+                tab.buffersInTab = response[0][index] instanceof Array ? response[0][index] : []
             })
 
             this._actions.setTabs(currentTabId, tabs)
