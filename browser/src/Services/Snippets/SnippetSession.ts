@@ -6,7 +6,7 @@
 
 import * as types from "vscode-languageserver-types"
 
-import { OniSnippet } from "./OniSnippet"
+import { OniSnippet, OniSnippetPlaceholder } from "./OniSnippet"
 
 import { IBuffer } from "./../../Editor/BufferManager"
 import { IEditor } from "./../../Editor/Editor"
@@ -25,7 +25,7 @@ export class SnippetSession {
     private _prefix: string
     private _suffix: string
 
-    private _placeholderIndex: number = 0
+    private _placeholderIndex: number = -1
 
     constructor(private _editor: IEditor, private _snippet: OniSnippet) {}
 
@@ -49,32 +49,64 @@ export class SnippetSession {
         snippetLines[0] = this._prefix + snippetLines[0]
         snippetLines[lastIndex] = snippetLines[lastIndex] + this._suffix
 
-        await this._buffer.setLines(
-            cursorPosition.line,
-            cursorPosition.line + snippetLines.length,
-            snippetLines,
-        )
+        await this._buffer.setLines(cursorPosition.line, cursorPosition.line + 1, snippetLines)
+
+        await this.nextPlaceholder()
     }
 
     public async nextPlaceholder(): Promise<void> {
         const placeholders = this._snippet.getPlaceholders()
 
-        const firstPlaceholder = placeholders[this._placeholderIndex]
-        this._placeholderIndex++
+        this._placeholderIndex = (this._placeholderIndex + 1) % placeholders.length
+        const currentPlaceholder = placeholders[this._placeholderIndex]
 
-        const adjustedLine = firstPlaceholder.line + this._position.line
+        await this._highlightPlaceholder(currentPlaceholder)
+    }
+
+    public async previousPlaceholder(): Promise<void> {
+        const placeholders = this._snippet.getPlaceholders()
+
+        this._placeholderIndex = (this._placeholderIndex - 1) % placeholders.length
+        const currentPlaceholder = placeholders[this._placeholderIndex]
+
+        await this._highlightPlaceholder(currentPlaceholder)
+    }
+
+    public async setPlaceholderValue(index: number, val: string): Promise<void> {
+        await this._snippet.setPlaceholder(index, val)
+        await this._updateSnippet()
+
+        const placeholders = this._snippet.getPlaceholders()
+        await this._highlightPlaceholder(placeholders[this._placeholderIndex])
+    }
+
+    private async _updateSnippet(): Promise<void> {
+        const snippetLines = this._snippet.getLines()
+        const lastIndex = snippetLines.length - 1
+        snippetLines[0] = this._prefix + snippetLines[0]
+        snippetLines[lastIndex] = snippetLines[lastIndex] + this._suffix
+
+        await this._buffer.setLines(
+            this._position.line,
+            this._position.line + snippetLines.length + 1,
+            snippetLines,
+        )
+    }
+
+    private async _highlightPlaceholder(currentPlaceholder: OniSnippetPlaceholder): Promise<void> {
+        const adjustedLine = currentPlaceholder.line + this._position.line
         const adjustedCharacter =
-            firstPlaceholder.line === 0
-                ? this._position.character + firstPlaceholder.character
-                : firstPlaceholder.character
-        const placeHolderLength = firstPlaceholder.value.length
+            currentPlaceholder.line === 0
+                ? this._position.character + currentPlaceholder.character
+                : currentPlaceholder.character
+        const placeHolderLength = currentPlaceholder.value.length
 
         await this._editor.setSelection(
             types.Range.create(
                 adjustedLine,
                 adjustedCharacter,
                 adjustedLine,
-                adjustedCharacter + placeHolderLength,
+                adjustedCharacter + placeHolderLength - 1,
             ),
         )
     }

@@ -87,7 +87,9 @@ export class OniSnippet {
             )
 
             placeholderToReplace.forEach(rep => {
-                snippet.replace(rep, snip.children)
+                const placeHolder = new Snippets.Placeholder(rep.index)
+                placeHolder.appendChild(snip)
+                snippet.replace(rep, [placeHolder])
             })
         })
 

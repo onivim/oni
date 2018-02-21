@@ -225,7 +225,7 @@ const start = async (args: string[]): Promise<void> => {
     GlobalCommands.activate(commandManager, menuManager, tasks)
 
     const Snippets = await snippetPromise
-    Snippets.activate()
+    Snippets.activate(commandManager)
 
     const KeyDisplayer = await keyDisplayerPromise
     KeyDisplayer.activate(commandManager, inputManager, overlayManager)

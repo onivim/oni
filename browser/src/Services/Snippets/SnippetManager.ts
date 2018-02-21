@@ -4,6 +4,7 @@
  * Manages snippet integration
  */
 
+import { CommandManager } from "./../CommandManager"
 import { editorManager, EditorManager } from "./../EditorManager"
 
 import { OniSnippet } from "./OniSnippet"
@@ -28,20 +29,42 @@ export class SnippetManager {
     }
 
     public nextPlaceholder(): void {
-        if (this._isSnippetActive()) {
+        if (this.isSnippetActive()) {
             this._activeSession.nextPlaceholder()
         }
     }
 
-    private _isSnippetActive(): boolean {
+    public previousPlaceholder(): void {
+        if (this.isSnippetActive()) {
+            this._activeSession.previousPlaceholder()
+        }
+    }
+
+    public isSnippetActive(): boolean {
         return !!this._activeSession
     }
 }
 
 let _snippetManager: SnippetManager
 
-export const activate = () => {
+export const activate = (commandManager: CommandManager) => {
     _snippetManager = new SnippetManager(editorManager)
+
+    commandManager.registerCommand({
+        command: "snippet.nextPlaceholder",
+        name: null,
+        detail: null,
+        enabled: () => _snippetManager.isSnippetActive(),
+        execute: () => _snippetManager.nextPlaceholder(),
+    })
+
+    commandManager.registerCommand({
+        command: "snippet.previousPlaceholder",
+        name: null,
+        detail: null,
+        enabled: () => _snippetManager.isSnippetActive(),
+        execute: () => _snippetManager.previousPlaceholder(),
+    })
 }
 
 export const getInstance = (): SnippetManager => {
