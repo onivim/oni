@@ -8,8 +8,8 @@ import { IDisposable } from "oni-types"
 
 import * as Log from "./../../Log"
 
-import { Subject } from "rxjs/Subject"
 import "rxjs/add/operator/auditTime"
+import { Subject } from "rxjs/Subject"
 
 import { CommandManager } from "./../CommandManager"
 import { editorManager, EditorManager } from "./../EditorManager"

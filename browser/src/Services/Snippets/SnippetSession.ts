@@ -6,7 +6,7 @@
 
 import * as types from "vscode-languageserver-types"
 
-import { IEvent, Event } from "oni-types"
+import { Event, IEvent } from "oni-types"
 
 import * as Log from "./../../Log"
 
