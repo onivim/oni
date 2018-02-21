@@ -93,9 +93,6 @@ export class SnippetSession {
 
         await this._snippet.setPlaceholder(index, val)
         await this._updateSnippet()
-
-        //         const placeholders = this._snippet.getPlaceholders()
-        //         await this._highlightPlaceholder(placeholders[this._placeholderIndex])
     }
 
     // Helper method to query the value of the current placeholder,

@@ -3,6 +3,7 @@
  */
 
 import * as assert from "assert"
+import * as types from "vscode-languageserver-types"
 
 import { OniSnippet } from "./../../../src/Services/Snippets/OniSnippet"
 import { SnippetSession } from "./../../../src/Services/Snippets/SnippetSession"
@@ -61,4 +62,41 @@ describe("SnippetSession", () => {
         assert.strictEqual(firstLine, "somefoo")
         assert.strictEqual(secondLine, "barline")
     })
+
+    it("highlights first placeholder", async () => {
+        const snippet = new OniSnippet("${0:test}")
+        snippetSession = new SnippetSession(mockEditor as any, snippet)
+
+        mockBuffer.setLinesSync(["abc"])
+        mockBuffer.setCursorPosition(0, 1)
+
+        await snippetSession.start()
+
+        const selection = await mockEditor.getSelection()
+
+        const expectedRange = types.Range.create(0, 1, 0, 4)
+        assert.strictEqual(selection.start.line, expectedRange.start.line)
+        assert.strictEqual(selection.start.character, expectedRange.start.character)
+        assert.strictEqual(selection.end.character, expectedRange.end.character)
+    })
+
+    describe("next placeholder", () => {
+        it("highlights correct placeholder after calling nextPlaceholder", async () => {
+            const snippet = new OniSnippet("${0:test} ${1:test2}")
+            snippetSession = new SnippetSession(mockEditor as any, snippet)
+
+            await snippetSession.start()
+
+            await snippetSession.nextPlaceholder()
+
+            const selection = await mockEditor.getSelection()
+
+            const expectedRange = types.Range.create(0, 5, 0, 9)
+            assert.strictEqual(selection.start.line, expectedRange.start.line)
+            assert.strictEqual(selection.start.character, expectedRange.start.character)
+            assert.strictEqual(selection.end.character, expectedRange.end.character)
+        })
+    })
+
+    describe("synchronizeUpdatedPlaceholders", () => {})
 })
