@@ -41,8 +41,13 @@ The primary allotment of our [open collective](https://opencollective.com/oni) b
 
 * Guidelines:
     * The fix for the bug/feature/issue _MUST_ be complete and _MUST_ be covered by tests to be eligible for a bounty.
+    * Any associated documentation relevant to the bug/feature _MUST_ be updated.
     * If you begin working on an issue with an associated bounty, open a PR with "WIP" and the bug number in the title, as well as reference the issue #. This is important to reduce duplicate work.
-    * Upon completion, bounties are payable via an [open collective expense].
+
+#### Claiming a bounty
+
+- Upon completion of an issue with an associated bounty, bounties are payable by [Submitting an Expense](https://opencollective.com/oni/expenses/new) on our [OpenCollective](https://opencollective.com/oni). Note that OpenCollective requires a PDF or Photo for the expense - you can submit a link to the PR solving the issue. You can check out our [expenses](https://opencollective.com/oni/expenses#) page for an example.
+- A collaborator will approve the expense once we have verified it meets the criteria outlined above (complete fix, covered by tests, associated documentation updated)
 
 If you questions about the guidelines, please don't hesitate to contact the maintainer.
 
