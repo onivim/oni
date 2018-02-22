@@ -57,7 +57,6 @@ describe("SyntaxHighlightReconciler", () => {
         }
 
         const testState: ISyntaxHighlightState = {
-            isInsertMode: false,
             bufferToHighlights: {
                 [mockBuffer.id]: {
                     bufferId: mockBuffer.id.toString(),
@@ -65,7 +64,7 @@ describe("SyntaxHighlightReconciler", () => {
                     extension: null,
                     topVisibleLine: 0,
                     bottomVisibleLine: 100,
-                    activeInsertModeLine: -1,
+                    insertModeLine: null,
                     lines,
                 },
             },

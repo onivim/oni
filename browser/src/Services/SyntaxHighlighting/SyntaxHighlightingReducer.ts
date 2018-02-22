@@ -71,6 +71,20 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
                 ...state,
                 lines: linesReducer(state.lines, action),
             }
+        case "SYNTAX_UPDATE_TOKENS_FOR_LINE_INSERT_MODE":
+            return {
+                ...state,
+                insertModeLine: {
+                    version: action.version,
+                    lineNumber: action.lineNumber,
+                    info: {
+                        line: action.line,
+                        tokens: action.tokens,
+                        ruleStack: action.ruleStack,
+                        dirty: false,
+                    },
+                },
+            }
         default:
             return state
     }

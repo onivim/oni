@@ -32,12 +32,6 @@ export interface ISyntaxHighlightLineInfo {
     dirty: boolean
 }
 
-export interface InsertModeState {
-    line: number
-    bufferId: string
-    lineInfo: ISyntaxHighlightLineInfo
-}
-
 export interface SyntaxHighlightLines {
     [key: number]: ISyntaxHighlightLineInfo
 }
@@ -45,6 +39,7 @@ export interface SyntaxHighlightLines {
 // This tracks the last insert-mode line modified
 export interface InsertModeLineState {
     version: number
+    lineNumber: number
     info: ISyntaxHighlightLineInfo
 }
 
@@ -99,9 +94,11 @@ export type ISyntaxHighlightAction =
     | {
           type: "SYNTAX_UPDATE_TOKENS_FOR_LINE_INSERT_MODE"
           bufferId: string
+          line: string
           lineNumber: number
           tokens: ISyntaxHighlightTokenInfo[]
           ruleStack: StackElement
+          version: number
       }
     | {
           type: "SYNTAX_UPDATE_BUFFER_VIEWPORT"
@@ -160,8 +157,17 @@ const updateBufferLineMiddleware = (store: any) => (next: any) => (
                 scopes: t.scopes,
             }))
 
-            // TODO: Specific insert mode line update
-            console.log("Insert mode update: " + tokens + " | ")
+            const updateInsertLineAction: ISyntaxHighlightAction = {
+                type: "SYNTAX_UPDATE_TOKENS_FOR_LINE_INSERT_MODE",
+                line: action.line,
+                lineNumber: action.lineNumber,
+                bufferId: buffer.bufferId,
+                version: action.version,
+                ruleStack: tokenizeResult.ruleStack,
+                tokens,
+            }
+
+            store.dispatch(updateInsertLineAction)
         })
     }
 
