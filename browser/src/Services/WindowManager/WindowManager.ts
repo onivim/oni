@@ -97,17 +97,6 @@ export class AugmentedWindow implements IAugmentedSplitInfo {
     }
 }
 
-// const invertDirection = (direction: SplitDirection): SplitDirection => {
-//     switch (direction) {
-//         case "horizontal":
-//             return "vertical"
-//         case "vertical":
-//             return "horizontal"
-//         default:
-//             return null
-//     }
-// }
-
 export class WindowManager {
     private _lastId: number = 0
     private _idToSplit: { [key: string]: IAugmentedSplitInfo } = {}
