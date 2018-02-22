@@ -3,9 +3,9 @@
 // Reducers for handling state changes from ISyntaxHighlightActions
 
 import {
-    ISyntaxHighlightState,
     IBufferSyntaxHighlightState,
     ISyntaxHighlightLineInfo,
+    ISyntaxHighlightState,
 } from "./SyntaxHighlightingStore"
 
 export interface SyntaxHighlightRange {
