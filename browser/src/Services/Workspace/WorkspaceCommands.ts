@@ -11,8 +11,8 @@ import * as mkdirp from "mkdirp"
 import { CallbackCommand, commandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
-import { SnippetManager } from "./../Snippets"
 import * as FileMappings from "./../FileMappings"
+import { SnippetManager } from "./../Snippets"
 
 import { Workspace } from "./Workspace"
 
