@@ -50,7 +50,7 @@ export const startEditors = async (
         tokenColors,
         workspace,
     )
-    windowManager.split("horizontal", editor)
+    windowManager.createSplit("horizontal", editor)
 
     await editor.init(args)
 }

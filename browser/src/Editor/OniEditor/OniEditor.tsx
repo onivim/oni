@@ -111,8 +111,8 @@ export class OniEditor implements IEditor {
         private _overlayManager: OverlayManager,
         private _pluginManager: PluginManager,
         private _tasks: Tasks,
-        private _tokenColors: TokenColors,
         private _themeManager: ThemeManager,
+        private _tokenColors: TokenColors,
         private _workspace: Workspace,
     ) {
         this._neovimEditor = new NeovimEditor(
@@ -174,10 +174,11 @@ export class OniEditor implements IEditor {
                     this._pluginManager,
                     this._tasks,
                     this._themeManager,
+                    this._tokenColors,
                     this._workspace,
                 )
 
-                windowManager.split("vertical", newEditor, this)
+                windowManager.createSplit("vertical", newEditor, this)
                 await newEditor.init([])
                 return newEditor.openFile(file, "edit")
             }
