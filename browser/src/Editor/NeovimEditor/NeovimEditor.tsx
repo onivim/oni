@@ -885,12 +885,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._actions.setMode(newMode)
         this.setMode(newMode as Oni.Vim.Mode)
-
-        if (newMode === "insert") {
-            this._syntaxHighlighter.notifyStartInsertMode(this.activeBuffer)
-        } else {
-            this._syntaxHighlighter.notifyEndInsertMode(this.activeBuffer)
-        }
     }
 
     private _updateWindow(currentBuffer: EventContext) {
