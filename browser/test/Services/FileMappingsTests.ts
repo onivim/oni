@@ -33,12 +33,32 @@ describe("FileMappings", () => {
                 mappedFileName: "${fileName}Test.ts", // tslint:disable-line
             }
 
-            const mappedFile = FileMappings.getMappedFile(srcPath, srcFile, [mapping])
+            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, [mapping])
 
             assert.strictEqual(
                 mappedFile.templateFileFullPath,
                 null,
-                "`templateFileFullPath` should be null since there is no tempalate file specified.",
+                "`templateFileFullPath` should be null since there is no template file specified.",
+            )
+        })
+
+        it("returns a template file if template file exists", () => {
+            const srcFile = path.join(srcPath, "source.ts")
+
+            const mapping: FileMappings.IFileMapping = {
+                sourceFolder: "browser/src",
+
+                mappedFolder: "browser/test",
+                mappedFileName: "${fileName}Test.ts", // tslint:disable-line
+
+                templateFilePath: "templates/template.ts",
+            }
+
+            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, [mapping])
+
+            assert.strictEqual(
+                mappedFile.templateFileFullPath,
+                path.join(rootPath, mapping.templateFilePath),
             )
         })
     })
