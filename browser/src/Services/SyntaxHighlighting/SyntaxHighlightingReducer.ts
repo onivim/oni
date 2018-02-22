@@ -13,7 +13,6 @@ import { Reducer } from "redux"
 
 export const reducer: Reducer<ISyntaxHighlightState> = (
     state: ISyntaxHighlightState = {
-        isInsertMode: false,
         bufferToHighlights: {},
     },
     action: ISyntaxHighlightAction,
@@ -46,7 +45,7 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
         version: -1,
         topVisibleLine: -1,
         bottomVisibleLine: -1,
-        activeInsertModeLine: -1,
+        insertModeLine: null,
         lines: {},
     },
     action: ISyntaxHighlightAction,
@@ -100,6 +99,14 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
                 dirty: false,
                 tokens: action.tokens,
                 ruleStack: action.ruleStack,
+            }
+
+            const nextLine = newState[action.lineNumber + 1]
+            if (shouldDirtyNextLine && nextLine) {
+                newState[action.lineNumber + 1] = {
+                    ...nextLine,
+                    dirty: true,
+                }
             }
             return newState
         }

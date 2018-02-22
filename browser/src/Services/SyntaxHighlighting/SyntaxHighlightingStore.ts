@@ -97,6 +97,13 @@ export type ISyntaxHighlightAction =
           ruleStack: StackElement
       }
     | {
+          type: "SYNTAX_UPDATE_TOKENS_FOR_LINE_INSERT_MODE"
+          bufferId: string
+          lineNumber: number
+          tokens: ISyntaxHighlightTokenInfo[]
+          ruleStack: StackElement
+      }
+    | {
           type: "SYNTAX_UPDATE_BUFFER_VIEWPORT"
           bufferId: string
           topVisibleLine: number
