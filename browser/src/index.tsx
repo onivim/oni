@@ -140,6 +140,9 @@ const start = async (args: string[]): Promise<void> => {
         const notification = notifications.createItem()
         notification.setContents("Error Loading Configuration", err.toString())
         notification.setLevel("error")
+        notification.onClick.subscribe(() =>
+            commandManager.executeCommand("oni.config.openConfigJs"),
+        )
         notification.show()
     })
 
