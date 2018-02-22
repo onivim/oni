@@ -149,8 +149,6 @@ const updateBufferLineMiddleware = (store: any) => (next: any) => (
                 ),
                 scopes: t.scopes,
             }))
-
-            console.log("Insert mode update: " + tokens + " | ")
         })
     }
 

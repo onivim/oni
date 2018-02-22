@@ -18,7 +18,7 @@ export const reducer: Reducer<ISyntaxHighlightState> = (
     },
     action: ISyntaxHighlightAction,
 ) => {
-    let newState = state
+    const newState = state
 
     return {
         ...newState,
