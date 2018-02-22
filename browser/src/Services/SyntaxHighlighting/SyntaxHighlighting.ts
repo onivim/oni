@@ -21,9 +21,9 @@ import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
 import {
     createSyntaxHighlightStore,
+    ISyntaxHighlightAction,
     ISyntaxHighlightState,
     ISyntaxHighlightTokenInfo,
-    ISyntaxHighlightAction,
 } from "./SyntaxHighlightingStore"
 
 import { ISyntaxHighlighter } from "./ISyntaxHighlighter"
