@@ -13,9 +13,7 @@ export class StyleWriter {
         return this._style
     }
 
-    constructor(
-        private _primaryClassName: string,
-    ) {}
+    constructor(private _primaryClassName: string) {}
 
     public writeFontFace(fontFamily: string, sourceUrl: string, format: string): void {
         // Inspired by:
@@ -31,7 +29,7 @@ export class StyleWriter {
 
         const primaryClassBlock = [
             ".fa." + this._primaryClassName + " {",
-                "font-family: " + fontFamily + ";",
+            "font-family: " + fontFamily + ";",
             "}",
         ]
 
@@ -43,19 +41,11 @@ export class StyleWriter {
         const selector = ".fa." + this._primaryClassName + "." + iconClass
 
         if (fontColor) {
-            const primaryClassBlock = [
-                selector + " {",
-                    "color: " + fontColor + ";",
-                "}",
-            ]
+            const primaryClassBlock = [selector + " {", "color: " + fontColor + ";", "}"]
             this._append(primaryClassBlock)
         }
 
-        const pseudoElementBlock = [
-            selector + ":before {",
-            `   content: '${fontCharacter}';`,
-            "}",
-        ]
+        const pseudoElementBlock = [selector + ":before {", `   content: '${fontCharacter}';`, "}"]
         this._append(pseudoElementBlock)
     }
 

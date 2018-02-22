@@ -6,19 +6,32 @@
 
 import * as React from "react"
 
-import { TextInput } from "./../../UI/components/LightweightText"
+import styled from "styled-components"
+
+import { TextInputView } from "./../../UI/components/LightweightText"
 
 export interface IRenameViewProps {
     tokenName: string
     onComplete: (val: string) => void
+    onCancel: () => void
 }
 
+const ToolTipWrapper = styled.div`
+    background-color: ${props => props.theme["toolTip.background"]};
+    color: ${props => props.theme["toolTip.foreground"]};
+
+    input {
+        background-color: ${props => props.theme["toolTip.background"]};
+        color: ${props => props.theme["toolTip.foreground"]};
+    }
+`
+
 export class RenameView extends React.PureComponent<IRenameViewProps, {}> {
-
     public render(): JSX.Element {
-
-        return <div className="rename">
-                    <TextInput {...this.props} defaultValue={this.props.tokenName} />
-                </div>
+        return (
+            <ToolTipWrapper className="rename">
+                <TextInputView {...this.props} defaultValue={this.props.tokenName} />
+            </ToolTipWrapper>
+        )
     }
 }

@@ -2,7 +2,12 @@
 //
 // Reducers for handling state changes from ISyntaxHighlightActions
 
-import { IBufferSyntaxHighlightState, ISyntaxHighlightAction, ISyntaxHighlightState, SyntaxHighlightLines } from "./SyntaxHighlightingStore"
+import {
+    IBufferSyntaxHighlightState,
+    ISyntaxHighlightAction,
+    ISyntaxHighlightState,
+    SyntaxHighlightLines,
+} from "./SyntaxHighlightingStore"
 
 import { Reducer } from "redux"
 
@@ -13,7 +18,6 @@ export const reducer: Reducer<ISyntaxHighlightState> = (
     },
     action: ISyntaxHighlightAction,
 ) => {
-
     let newState = state
 
     return {
@@ -22,7 +26,9 @@ export const reducer: Reducer<ISyntaxHighlightState> = (
     }
 }
 
-export const bufferToHighlightsReducer: Reducer<{ [bufferId: string]: IBufferSyntaxHighlightState }> = (
+export const bufferToHighlightsReducer: Reducer<{
+    [bufferId: string]: IBufferSyntaxHighlightState
+}> = (
     state: { [bufferId: string]: IBufferSyntaxHighlightState } = {},
     action: ISyntaxHighlightAction,
 ) => {
@@ -45,7 +51,6 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
     },
     action: ISyntaxHighlightAction,
 ) => {
-
     switch (action.type) {
         case "SYNTAX_UPDATE_BUFFER":
             return {
@@ -76,38 +81,29 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
     state: SyntaxHighlightLines = {},
     action: ISyntaxHighlightAction,
 ) => {
-
     switch (action.type) {
-        case "SYNTAX_UPDATE_TOKENS_FOR_LINE":
-            {
-                const newState = {
-                    ...state,
-                }
-
-                const originalLine = newState[action.lineNumber]
-
-                // If the ruleStack changed, we need to invalidate the next line
-                const shouldDirtyNextLine = originalLine && originalLine.ruleStack && !originalLine.ruleStack.equals(action.ruleStack)
-
-                newState[action.lineNumber] = {
-                    ...originalLine,
-                    dirty: false,
-                    tokens: action.tokens,
-                    ruleStack: action.ruleStack,
-                }
-
-                const nextLine = newState[action.lineNumber + 1]
-                if (shouldDirtyNextLine && nextLine) {
-                    newState[action.lineNumber + 1] = {
-                        ...nextLine,
-                        dirty: true,
-                    }
-                }
-
-                return newState
+        case "SYNTAX_UPDATE_TOKENS_FOR_LINE": {
+            const newState = {
+                ...state,
             }
-        case "SYNTAX_UPDATE_BUFFER":
 
+            const originalLine = newState[action.lineNumber]
+
+            // If the ruleStack changed, we need to invalidate the next line
+            const shouldDirtyNextLine =
+                originalLine &&
+                originalLine.ruleStack &&
+                !originalLine.ruleStack.equals(action.ruleStack)
+
+            newState[action.lineNumber] = {
+                ...originalLine,
+                dirty: false,
+                tokens: action.tokens,
+                ruleStack: action.ruleStack,
+            }
+            return newState
+        }
+        case "SYNTAX_UPDATE_BUFFER":
             const updatedBufferState: SyntaxHighlightLines = {
                 ...state,
             }
@@ -127,7 +123,6 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
                     line: newLine,
                     dirty: true,
                 }
-
             }
 
             return updatedBufferState

@@ -18,7 +18,10 @@ export const getInstance = (): Icons => {
     return _icons
 }
 
-export const activate = async (configuration: Configuration, pluginManager: PluginManager): Promise<void> => {
+export const activate = async (
+    configuration: Configuration,
+    pluginManager: PluginManager,
+): Promise<void> => {
     _icons = new Icons(pluginManager)
 
     const iconTheme = configuration.getValue("ui.iconTheme")

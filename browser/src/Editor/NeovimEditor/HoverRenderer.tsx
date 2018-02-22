@@ -26,16 +26,19 @@ import { IToolTipsProvider } from "./ToolTipsProvider"
 const HoverToolTipId = "hover-tool-tip"
 
 export class HoverRenderer {
-
     constructor(
         private _colors: IColors,
         private _editor: Oni.Editor,
         private _configuration: Configuration,
         private _toolTipsProvider: IToolTipsProvider,
-    ) {
-    }
+    ) {}
 
-    public showQuickInfo(x: number, y: number, hover: types.Hover, errors: types.Diagnostic[]): void {
+    public showQuickInfo(
+        x: number,
+        y: number,
+        hover: types.Hover,
+        errors: types.Diagnostic[],
+    ): void {
         const elem = this._renderQuickInfoElement(hover, errors)
 
         if (!elem) {
@@ -79,15 +82,15 @@ export class HoverRenderer {
             return null
         }
 
-        return <div className="quickinfo-container enable-mouse">
-            <div className="quickinfo">
-                <div className="container horizontal center">
-                    <div className="container full">
-                        {elements}
+        return (
+            <div className="quickinfo-container enable-mouse">
+                <div className="quickinfo">
+                    <div className="container horizontal center">
+                        <div className="container full">{elements}</div>
                     </div>
                 </div>
             </div>
-        </div>
+        )
     }
 
     private _getDebugScopesElement(): JSX.Element {
@@ -107,12 +110,12 @@ export class HoverRenderer {
             return null
         }
         const items = scopeInfo.scopes.map((si: string) => <li>{si}</li>)
-        return <QuickInfoDocumentation>
-            <div>DEBUG: TextMate Scopes:</div>
-            <ul>
-                {items}
-            </ul>
-        </QuickInfoDocumentation>
+        return (
+            <QuickInfoDocumentation key="quickInfo.debugScopes">
+                <div>DEBUG: TextMate Scopes:</div>
+                <ul>{items}</ul>
+            </QuickInfoDocumentation>
+        )
     }
 }
 
@@ -120,7 +123,7 @@ const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[]
     if (!errors || !errors.length) {
         return Selectors.EmptyArray
     } else {
-        return [<ErrorInfo errors={errors} style={style} />]
+        return [<ErrorInfo errors={errors} style={style} key="quickInfo.errorInfo" />]
     }
 }
 
@@ -159,15 +162,19 @@ const getTitleAndContents = (result: types.Hover) => {
 const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element => {
     const titleAndContents = getTitleAndContents(hover)
     const hasDocs = !!(
-        titleAndContents
-        && titleAndContents.description
-        && titleAndContents.description.__html
+        titleAndContents &&
+        titleAndContents.description &&
+        titleAndContents.description.__html
     )
 
-    return titleAndContents && (
-        <QuickInfoContainer hasDocs={hasDocs}>
-            <QuickInfoTitle padding={hasDocs ? "0.5rem" : null } html={titleAndContents.title} />
-            {titleAndContents.description && <QuickInfoDocumentation html={titleAndContents.description} />}
-        </QuickInfoContainer>
+    return (
+        titleAndContents && (
+            <QuickInfoContainer hasDocs={hasDocs} key="quickInfo.titleAndDocumentation">
+                <QuickInfoTitle padding={hasDocs ? "0.5rem" : null} html={titleAndContents.title} />
+                {titleAndContents.description && (
+                    <QuickInfoDocumentation html={titleAndContents.description} />
+                )}
+            </QuickInfoContainer>
+        )
     )
 }

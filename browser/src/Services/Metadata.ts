@@ -18,7 +18,6 @@ export const getMetadata = async (): Promise<IMetadata> => {
 
     return new Promise<IMetadata>((resolve, reject) => {
         fs.readFile(packageMetadata, "utf8", (err: NodeJS.ErrnoException, data: string) => {
-
             if (err) {
                 reject(err)
                 return
@@ -40,11 +39,11 @@ export const showAboutMessage = async () => {
     const metadata = await getMetadata()
 
     const infoLines = [
-    `${metadata.name} version ${metadata.version}`,
-    "https://www.onivim.io",
-    "",
-    "Copyright 2017 Bryan Phelps",
-    "MIT License",
+        `${metadata.name} version ${metadata.version}`,
+        "https://www.onivim.io",
+        "",
+        "Copyright 2017 Bryan Phelps",
+        "MIT License",
     ]
 
     alert(infoLines.join(os.EOL))

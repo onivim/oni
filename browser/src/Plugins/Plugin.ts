@@ -11,15 +11,34 @@ import * as PackageMetadataParser from "./PackageMetadataParser"
 export class Plugin {
     private _oniPluginMetadata: Capabilities.IPluginMetadata
     private _oni: Oni
+    private _id: string
+    private _instance: any
+
+    public get id(): string {
+        return this._id
+    }
+
+    public get instance(): any {
+        return this._instance
+    }
 
     public get metadata(): Capabilities.IPluginMetadata {
         return this._oniPluginMetadata
     }
 
-    constructor(
-        private _pluginRootDirectory: string,
-    ) {
+    public get source(): string {
+        return this._source
+    }
+
+    public get name(): string | null {
+        const metadata = this.metadata
+        return metadata === null || metadata === undefined ? null : metadata.name
+    }
+
+    constructor(private _pluginRootDirectory: string, private _source: string) {
         const packageJsonPath = path.join(this._pluginRootDirectory, "package.json")
+
+        this._id = path.basename(this._pluginRootDirectory)
 
         if (fs.existsSync(packageJsonPath)) {
             this._oniPluginMetadata = PackageMetadataParser.readMetadata(packageJsonPath)
@@ -27,7 +46,6 @@ export class Plugin {
     }
 
     public activate(): void {
-
         if (!this._oniPluginMetadata || !this._oniPluginMetadata.main) {
             return
         }
@@ -36,15 +54,21 @@ export class Plugin {
         const vm = require("vm")
         Log.info(`[PLUGIN] Activating: ${this._oniPluginMetadata.name}`)
 
-        let moduleEntryPoint = path.normalize(path.join(this._pluginRootDirectory, this._oniPluginMetadata.main))
+        let moduleEntryPoint = path.normalize(
+            path.join(this._pluginRootDirectory, this._oniPluginMetadata.main),
+        )
         moduleEntryPoint = moduleEntryPoint.split("\\").join("/")
 
         try {
-            vm.runInNewContext(`debugger; const pluginEntryPoint = require('${moduleEntryPoint}').activate; if (!pluginEntryPoint) { console.warn('No activate method found for: ${moduleEntryPoint}'); } else { pluginEntryPoint(Oni); } `, {
-                Oni: this._oni,
-                require: window["require"], // tslint:disable-line no-string-literal
-                console,
-            })
+            vm.runInNewContext(
+                `debugger; const pluginEntryPoint = require('${moduleEntryPoint}').activate; if (!pluginEntryPoint) { console.warn('No activate method found for: ${moduleEntryPoint}'); } else { pluginContainer._instance = pluginEntryPoint(Oni); } `,
+                {
+                    pluginContainer: this,
+                    Oni: this._oni,
+                    require: window["require"], // tslint:disable-line no-string-literal
+                    console,
+                },
+            )
             Log.info(`[PLUGIN] Activation successful.`)
         } catch (ex) {
             Log.error(`[PLUGIN] Failed to load plugin: ${this._oniPluginMetadata.name}`, ex)

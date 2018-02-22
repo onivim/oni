@@ -10,7 +10,6 @@ export const activate = () => {
 
     require("./Services/ContextMenu/ContextMenu.less") // tslint:disable-line
 
-    require("./Services/Explorer/Explorer.less") // tslint:disable-line
     require("./Services/Menu/Menu.less")
 
     require("./UI/components/Error.less")

@@ -28,10 +28,10 @@ const LoadingSpinnerWrapper = withProps<{}>(styled.div)`
     }
 `
 
-export const NeovimEditorLoadingOverlayView = (props: {visible: boolean}): JSX.Element => {
-        const className = props.visible ? "stack layer" : " stack layer loaded"
+export const NeovimEditorLoadingOverlayView = (props: { visible: boolean }): JSX.Element => {
+    const className = props.visible ? "stack layer" : " stack layer loaded"
 
-        return <LoadingSpinnerWrapper className={className} />
+    return <LoadingSpinnerWrapper className={className} />
 }
 
 export const mapStateToProps = (state: State.IState): { visible: boolean } => {

@@ -16,10 +16,20 @@ import { DefaultThemeColors, IThemeColors } from "./../../Services/Themes"
 
 import { createStore as createReduxStore } from "./../../Redux"
 
-export interface Layers { [id: number]: Oni.EditorLayer[] }
-export interface Buffers { [filePath: string]: IBuffer }
-export interface Errors { [file: string]: { [key: string]: types.Diagnostic[] } }
-export interface ToolTips { [id: string]: IToolTip }
+import { IBufferLayer } from "./../NeovimEditor/BufferLayerManager"
+
+export interface Layers {
+    [id: number]: IBufferLayer[]
+}
+export interface Buffers {
+    [filePath: string]: IBuffer
+}
+export interface Errors {
+    [file: string]: { [key: string]: types.Diagnostic[] }
+}
+export interface ToolTips {
+    [id: string]: IToolTip
+}
 
 import { reducer } from "./NeovimEditorReducer"
 
@@ -32,8 +42,8 @@ export interface IViewport {
 }
 
 export interface IToolTip {
-    id: string,
-    options?: Oni.ToolTip.ToolTipOptions,
+    id: string
+    options?: Oni.ToolTip.ToolTipOptions
     element: JSX.Element
 }
 
@@ -88,13 +98,13 @@ export interface IWildMenu {
 }
 
 export interface ICommandLine {
-    visible: boolean,
-    content: string,
-    firstchar: string,
-    position: number,
-    prompt: string,
-    indent: number,
-    level: number,
+    visible: boolean
+    content: string
+    firstchar: string
+    position: number
+    prompt: string
+    indent: number
+    level: number
 }
 
 export interface IDefinition {
@@ -122,10 +132,11 @@ export interface IBuffer {
 export interface ITab {
     id: number
     name: string
+    buffersInTab: number[]
 }
 
 export interface ITabState {
-    selectedTabId: number | null,
+    selectedTabId: number | null
     tabs: ITab[]
 }
 
@@ -135,8 +146,8 @@ export interface IVimTabPage {
 }
 
 export interface IWindowState {
-    activeWindow: number,
-    windows: { [windowId: number]: IWindow },
+    activeWindow: number
+    windows: { [windowId: number]: IWindow }
 }
 
 export interface IWindow {
@@ -154,8 +165,10 @@ export interface IWindow {
     bottomBufferLine: number
 }
 
-export function readConf<K extends keyof IConfigurationValues>(conf: IConfigurationValues, k: K): IConfigurationValues[K] {
-
+export function readConf<K extends keyof IConfigurationValues>(
+    conf: IConfigurationValues,
+    k: K,
+): IConfigurationValues[K] {
     if (!conf) {
         return null
     } else {
@@ -231,7 +244,8 @@ export const createDefaultState = (): IState => ({
 let neovimEditorId = 0
 
 export const createStore = (): Store<IState> => {
-
     const editorId = neovimEditorId++
-    return createReduxStore("NeovimEditor" + editorId.toString(), reducer, createDefaultState(), [thunk])
+    return createReduxStore("NeovimEditor" + editorId.toString(), reducer, createDefaultState(), [
+        thunk,
+    ])
 }

@@ -13,11 +13,15 @@ import * as Oni from "oni-api"
 
 import { Store, Unsubscribe } from "redux"
 
-import { Configuration } from "./../Configuration"
+import { TokenColors } from "./../TokenColors"
 
 import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
-import { createSyntaxHighlightStore, ISyntaxHighlightState, ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
+import {
+    createSyntaxHighlightStore,
+    ISyntaxHighlightState,
+    ISyntaxHighlightTokenInfo,
+} from "./SyntaxHighlightingStore"
 
 import { ISyntaxHighlighter } from "./ISyntaxHighlighter"
 import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
@@ -26,32 +30,42 @@ import * as Log from "./../../Log"
 import * as Utility from "./../../Utility"
 
 export class SyntaxHighlighter implements ISyntaxHighlighter {
-
     private _store: Store<ISyntaxHighlightState>
     private _reconciler: SyntaxHighlightReconciler
     private _unsubscribe: Unsubscribe
 
-    constructor(
-        private _configuration: Configuration,
-        private _editor: NeovimEditor,
-    ) {
+    constructor(private _editor: NeovimEditor, private _tokenColors: TokenColors) {
         this._store = createSyntaxHighlightStore()
 
-        this._reconciler = new SyntaxHighlightReconciler(this._configuration, this._editor)
+        this._reconciler = new SyntaxHighlightReconciler(this._editor, this._tokenColors)
         this._unsubscribe = this._store.subscribe(() => {
             const state = this._store.getState()
             this._reconciler.update(state)
         })
     }
 
-    public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
-
-        Log.verbose("[SyntaxHighlighting.notifyViewportChanged] - bufferId: " + bufferId + " topLineInView: " + topLineInView + " bottomLineInView: " + bottomLineInView)
+    public notifyViewportChanged(
+        bufferId: string,
+        topLineInView: number,
+        bottomLineInView: number,
+    ): void {
+        Log.verbose(
+            "[SyntaxHighlighting.notifyViewportChanged] - bufferId: " +
+                bufferId +
+                " topLineInView: " +
+                topLineInView +
+                " bottomLineInView: " +
+                bottomLineInView,
+        )
 
         const state = this._store.getState()
         const previousBufferState = state.bufferToHighlights[bufferId]
 
-        if (previousBufferState && topLineInView === previousBufferState.topVisibleLine && bottomLineInView === previousBufferState.bottomVisibleLine) {
+        if (
+            previousBufferState &&
+            topLineInView === previousBufferState.topVisibleLine &&
+            bottomLineInView === previousBufferState.bottomVisibleLine
+        ) {
             return
         }
 
@@ -76,6 +90,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
                 version: evt.buffer.version,
             })
         } else {
+            // Incremental update
             this._store.dispatch({
                 type: "SYTNAX_UPDATE_BUFFER_LINE",
                 bufferId: evt.buffer.id,
@@ -86,8 +101,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
         }
     }
 
-    public getHighlightTokenAt(bufferId: string, position: types.Position): ISyntaxHighlightTokenInfo {
-
+    public getHighlightTokenAt(
+        bufferId: string,
+        position: types.Position,
+    ): ISyntaxHighlightTokenInfo {
         const state = this._store.getState()
         const buffer = state.bufferToHighlights[bufferId]
 
@@ -101,7 +118,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             return null
         }
 
-        return line.tokens.find((r) => Utility.isInRange(position.line, position.character, r.range))
+        return line.tokens.find(r => Utility.isInRange(position.line, position.character, r.range))
     }
 
     public dispose(): void {
@@ -121,13 +138,20 @@ export class NullSyntaxHighlighter implements ISyntaxHighlighter {
         return Promise.resolve(null)
     }
 
-    public getHighlightTokenAt(bufferId: string, position: types.Position): ISyntaxHighlightTokenInfo {
+    public getHighlightTokenAt(
+        bufferId: string,
+        position: types.Position,
+    ): ISyntaxHighlightTokenInfo {
         return null
     }
 
-    public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
+    public notifyViewportChanged(
+        bufferId: string,
+        topLineInView: number,
+        bottomLineInView: number,
+    ): void {
         // tslint: disable-line
     }
 
-    public dispose(): void { } // tslint:disable-line
+    public dispose(): void {} // tslint:disable-line
 }

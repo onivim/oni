@@ -30,15 +30,13 @@ export interface ICursorRendererProps {
     typingPrediction: TypingPredictionManager
 }
 
-const StyledCursor = styled.div`
-`
+const StyledCursor = styled.div``
 
 export interface ICursorRendererState {
     predictedCursorColumn: number
 }
 
 class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRendererState> {
-
     constructor(props: ICursorRendererProps) {
         super(props)
 
@@ -48,7 +46,7 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
     }
 
     public componentDidMount(): void {
-        this.props.typingPrediction.onPredictionsChanged.subscribe((predictions) => {
+        this.props.typingPrediction.onPredictionsChanged.subscribe(predictions => {
             this.setState({
                 predictedCursorColumn: predictions.predictedCursorColumn,
             })
@@ -56,7 +54,6 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
     }
 
     public render(): JSX.Element {
-
         const fontFamily = this.props.fontFamily
         const fontSize = this.props.fontSize
 
@@ -65,9 +62,10 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
         const width = isInsertCursor ? 0 : this.props.width
         const characterToShow = isInsertCursor ? "" : this.props.character
 
-        const position = this.props.mode === "insert" && this.state.predictedCursorColumn >= 0 ?
-                            this.state.predictedCursorColumn * this.props.fontPixelWidth :
-                            this.props.x
+        const position =
+            this.props.mode === "insert" && this.state.predictedCursorColumn >= 0
+                ? this.state.predictedCursorColumn * this.props.fontPixelWidth
+                : this.props.x
 
         const containerStyle: React.CSSProperties = {
             visibility: this.props.visible ? "visible" : "hidden",
@@ -103,25 +101,47 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
         }
 
         if (!this.props.animated) {
-            return this._renderCursor(containerStyle, cursorBlockStyle, cursorCharacterStyle, characterToShow)
+            return this._renderCursor(
+                containerStyle,
+                cursorBlockStyle,
+                cursorCharacterStyle,
+                characterToShow,
+            )
         } else {
-            return <Motion defaultStyle={{scale: 0}} style={{scale: spring(this.props.scale, { stiffness: 120, damping: 8})}}>
-            {(val) => {
-                const cursorStyle = {
-                    ...cursorBlockStyle,
-                    transform: "scale(" + val.scale + ")",
-                }
-                return this._renderCursor(containerStyle, cursorStyle, cursorCharacterStyle, characterToShow)
-            }}
-            </Motion>
+            return (
+                <Motion
+                    defaultStyle={{ scale: 0 }}
+                    style={{ scale: spring(this.props.scale, { stiffness: 120, damping: 8 }) }}
+                >
+                    {val => {
+                        const cursorStyle = {
+                            ...cursorBlockStyle,
+                            transform: "scale(" + val.scale + ")",
+                        }
+                        return this._renderCursor(
+                            containerStyle,
+                            cursorStyle,
+                            cursorCharacterStyle,
+                            characterToShow,
+                        )
+                    }}
+                </Motion>
+            )
         }
     }
 
-    private _renderCursor(containerStyle: React.CSSProperties, cursorBlockStyle: React.CSSProperties, cursorCharacterStyle: React.CSSProperties, characterToShow: string): JSX.Element {
-            return <StyledCursor style={containerStyle}>
+    private _renderCursor(
+        containerStyle: React.CSSProperties,
+        cursorBlockStyle: React.CSSProperties,
+        cursorCharacterStyle: React.CSSProperties,
+        characterToShow: string,
+    ): JSX.Element {
+        return (
+            <StyledCursor style={containerStyle}>
                 <div style={cursorBlockStyle} />
                 <div style={cursorCharacterStyle}>{characterToShow}</div>
             </StyledCursor>
+        )
     }
 }
 

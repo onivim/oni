@@ -8,7 +8,14 @@ import * as path from "path"
 
 import * as Platform from "./../../Platform"
 
-export const ocamlLanguageServerPath = Platform.isWindows() ? path.join(__dirname, "node_modules", ".bin", "ocaml-language-server.cmd") : path.join(__dirname, "node_modules", ".bin", "ocaml-language-server")
+export const ocamlLanguageServerPath = path.join(
+    __dirname,
+    "node_modules",
+    "ocaml-language-server",
+    "bin",
+    "server",
+    "index.js",
+)
 
 // If Windows, wrap in `bash -ic` to support WSL
 const wrapCommand = Platform.isWindows() ? (str: string) => "bash -ic " + str : (str: string) => str
@@ -25,8 +32,8 @@ export const ocamlAndReasonConfiguration = {
         debounce: {
             linter: 500,
         },
-        diagnostic: {
-            tools: ["merlin"],
+        diagnostics: {
+            tools: ["bsb", "merlin"],
         },
         path: {
             bsb: wrapCommand("bsb"),

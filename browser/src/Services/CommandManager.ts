@@ -21,18 +21,18 @@ export class CallbackCommand implements Oni.Commands.ICommand {
         public name: string,
         public detail: string,
         public execute: Oni.Commands.CommandCallback,
-        public enabled?: Oni.Commands.CommandEnabledCallback) {
-    }
+        public enabled?: Oni.Commands.CommandEnabledCallback,
+    ) {}
 }
 
 export class VimCommand implements Oni.Commands.ICommand {
     constructor(
         public command: string,
-        public name: string, public detail: string,
+        public name: string,
+        public detail: string,
         private _vimCommand: string,
-        private _neovimInstance: INeovimInstance) {
-
-    }
+        private _neovimInstance: INeovimInstance,
+    ) {}
 
     public execute(): void {
         this._neovimInstance.command(this._vimCommand)
@@ -40,7 +40,6 @@ export class VimCommand implements Oni.Commands.ICommand {
 }
 
 export class CommandManager implements ITaskProvider {
-
     private _commandDictionary: { [key: string]: Oni.Commands.ICommand } = {}
 
     public clearCommands(): void {
@@ -49,8 +48,7 @@ export class CommandManager implements ITaskProvider {
 
     public registerCommand(command: Oni.Commands.ICommand): void {
         if (this._commandDictionary[command.command]) {
-            Log.error(`Tried to register multiple commands for: ${command.name}`)
-            return
+            Log.verbose(`Overwriting existing command: ${command.command}`)
         }
 
         this._commandDictionary[command.command] = command
@@ -61,7 +59,6 @@ export class CommandManager implements ITaskProvider {
     }
 
     public executeCommand(name: string, args?: any): boolean | void {
-
         const command = this._commandDictionary[name]
 
         if (!command) {
@@ -86,11 +83,11 @@ export class CommandManager implements ITaskProvider {
     }
 
     public getTasks(): Promise<ITask[]> {
-        const commands =
-            values(this._commandDictionary)
-                .filter((c: Oni.Commands.ICommand) => !c.enabled || (c.enabled()))
+        const commands = values(this._commandDictionary).filter(
+            (c: Oni.Commands.ICommand) => !c.enabled || c.enabled(),
+        )
 
-        const tasks = commands.map((c) => ({
+        const tasks = commands.map(c => ({
             name: c.name,
             detail: c.detail,
             command: c.command,
