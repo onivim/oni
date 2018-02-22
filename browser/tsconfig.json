@@ -23,7 +23,8 @@
         "strictNullChecks": false,
         "suppressImplicitAnyIndexErrors": true,
         "target": "es2015",
-        "sourceMap": true
+        "sourceMap": true,
+        "types": []
     },
     "include": ["src/**/*.ts", "test/**/*.ts", "src/**/*.tsx"],
     "exclude": ["node_modules", "**/@types/jest"]

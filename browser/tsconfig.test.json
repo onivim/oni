@@ -20,7 +20,8 @@
         "strictNullChecks": false,
         "suppressImplicitAnyIndexErrors": true,
         "target": "es2015",
-        "sourceMap": true
+        "sourceMap": true,
+        "types": ["mocha"]
     },
     "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
     "exclude": ["node_modules"]
