@@ -46,7 +46,7 @@ describe("CompletionUtility", () => {
             mockBuffer.setCursorPosition(0, 9)
 
             const snippetCompletionItem = types.CompletionItem.create("completion_snippet")
-            snippetCompletionItem.insertText = "${0:foo} ${1:bar}"
+            snippetCompletionItem.insertText = "${0:foo} ${1:bar}" // tslint:disable-line
             snippetCompletionItem.insertTextFormat = types.InsertTextFormat.Snippet
 
             await CompletionUtility.commitCompletion(
