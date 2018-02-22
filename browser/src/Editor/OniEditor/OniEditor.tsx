@@ -162,7 +162,7 @@ export class OniEditor implements IEditor {
 
     public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
         if (this._configuration.getValue("editor.split.mode") === "oni") {
-            if (method === "vertical") {
+            if (method === "vertical" || method === "horizontal") {
                 const newEditor = new OniEditor(
                     this._colors,
                     this._completionProviders,
@@ -178,7 +178,7 @@ export class OniEditor implements IEditor {
                     this._workspace,
                 )
 
-                windowManager.createSplit("vertical", newEditor, this)
+                windowManager.createSplit(method, newEditor)
                 await newEditor.init([])
                 return newEditor.openFile(file, "edit")
             }
