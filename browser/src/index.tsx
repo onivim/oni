@@ -163,6 +163,9 @@ const start = async (args: string[]): Promise<void> => {
     const CSS = await cssPromise
     CSS.activate()
 
+    const Snippets = await snippetPromise
+    Snippets.activate(commandManager)
+
     Shell.Actions.setLoadingComplete()
 
     const Diagnostics = await diagnosticsPromise
@@ -182,6 +185,7 @@ const start = async (args: string[]): Promise<void> => {
             menuManager,
             overlayManager,
             pluginManager,
+            Snippets.getInstance(),
             tasks,
             Themes.getThemeManagerInstance(),
             TokenColors.getInstance(),
@@ -229,9 +233,6 @@ const start = async (args: string[]): Promise<void> => {
 
     const GlobalCommands = await globalCommandsPromise
     GlobalCommands.activate(commandManager, menuManager, tasks)
-
-    const Snippets = await snippetPromise
-    Snippets.activate(commandManager)
 
     const KeyDisplayer = await keyDisplayerPromise
     KeyDisplayer.activate(commandManager, inputManager, overlayManager)

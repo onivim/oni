@@ -1,5 +1,7 @@
 import * as assert from "assert"
 
+import * as types from "vscode-languageserver-types"
+
 import * as CompletionUtility from "./../../../src/Services/Completion/CompletionUtility"
 
 const DefaultCursorMatchRegEx = /[a-z]/i
@@ -19,7 +21,10 @@ describe("CompletionUtility", () => {
             mockBuffer.setLinesSync(["some comp sentence"])
             mockBuffer.setCursorPosition(0, 9)
 
-            await CompletionUtility.commitCompletion(mockBuffer as any, 0, 5, "completion")
+            const simpleCompletionItem = types.CompletionItem.create("completion")
+            simpleCompletionItem.insertText = "completion"
+
+            await CompletionUtility.commitCompletion(mockBuffer as any, 0, 5, simpleCompletionItem)
 
             const [resultLine] = await mockBuffer.getLines(0, 1)
 
