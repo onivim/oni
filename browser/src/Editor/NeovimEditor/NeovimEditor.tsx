@@ -85,7 +85,7 @@ import { BufferLayerManager } from "./BufferLayerManager"
 import { Definition } from "./Definition"
 import * as ActionCreators from "./NeovimEditorActions"
 import { NeovimEditorCommands } from "./NeovimEditorCommands"
-import { createStore, IState } from "./NeovimEditorStore"
+import { createStore, IState, ITab } from "./NeovimEditorStore"
 import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
@@ -446,15 +446,15 @@ export class NeovimEditor extends Editor implements IEditor {
             }
         })
 
-        this._neovimInstance.on("tabline-update", async (currentTabId: number, tabs: any[]) => {
-            const atomicCalls = tabs.map((tab: any) => {
+        this._neovimInstance.on("tabline-update", async (currentTabId: number, tabs: ITab[]) => {
+            const atomicCalls = tabs.map((tab: ITab) => {
                 return ["nvim_call_function", ["tabpagebuflist", [tab.id]]]
             })
 
             const response = await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
 
-            tabs.map((tab: any, index: number) => {
-                tab.buffersInTab = response[0][index]
+            tabs.map((tab: ITab, index: number) => {
+                tab.buffersInTab = response[0][index] instanceof Array ? response[0][index] : []
             })
 
             this._actions.setTabs(currentTabId, tabs)
