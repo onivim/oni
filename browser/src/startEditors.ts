@@ -12,7 +12,6 @@ import { Colors } from "./Services/Colors"
 import { CompletionProviders } from "./Services/Completion"
 import { Configuration } from "./Services/Configuration"
 import { IDiagnosticsDataSource } from "./Services/Diagnostics"
-import { editorManager } from "./Services/EditorManager"
 import { LanguageManager } from "./Services/Language"
 import { MenuManager } from "./Services/Menu"
 import { OverlayManager } from "./Services/Overlay"
@@ -51,7 +50,6 @@ export const startEditors = async (
         tokenColors,
         workspace,
     )
-    editorManager.setActiveEditor(editor)
     windowManager.createSplit("horizontal", editor)
 
     await editor.init(args)

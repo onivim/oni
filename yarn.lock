@@ -64,6 +64,10 @@
   dependencies:
     "@types/color-convert" "*"
 
+"@types/dompurify@^0.0.31":
+  version "0.0.31"
+  resolved "https://registry.yarnpkg.com/@types/dompurify/-/dompurify-0.0.31.tgz#f152d5a81f2b5625e29f11eb016cd9b301d0d4b4"
+
 "@types/electron-settings@^3.1.1":
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/@types/electron-settings/-/electron-settings-3.1.1.tgz#e3f8246ee1a8fc66b08203792d09589df355c776"
@@ -2297,9 +2301,9 @@ domhandler@^2.3.0:
   dependencies:
     domelementtype "1"
 
-dompurify@1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-1.0.2.tgz#7cf47d57614324a9723a1ba69143eeb7d3c617ac"
+dompurify@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-1.0.3.tgz#3f2f6ecb6ecd27599a506b410ff47d6eb90fd05d"
 
 domutils@1.5.1:
   version "1.5.1"
@@ -5504,8 +5508,8 @@ obuf@^1.0.0, obuf@^1.1.1:
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.1.tgz#104124b6c602c6796881a042541d36db43a5264e"
 
 ocaml-language-server@^1.0.25:
-  version "1.0.25"
-  resolved "https://registry.yarnpkg.com/ocaml-language-server/-/ocaml-language-server-1.0.25.tgz#1b94aacab3a5418ed8edb4a4ce8de236af76b84b"
+  version "1.0.26"
+  resolved "https://registry.yarnpkg.com/ocaml-language-server/-/ocaml-language-server-1.0.26.tgz#e996f3f2c5d50db02a7371f2f8f7c93e55778287"
   dependencies:
     async "2.6.0"
     glob "7.1.2"

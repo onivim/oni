@@ -220,7 +220,7 @@
     },
     "license": "MIT",
     "dependencies": {
-        "dompurify": "1.0.2",
+        "dompurify": "^1.0.3",
         "electron-settings": "^3.1.4",
         "find-up": "2.1.0",
         "keyboard-layout": "2.0.13",
@@ -249,6 +249,7 @@
     "devDependencies": {
         "@types/classnames": "0.0.32",
         "@types/color": "2.0.0",
+        "@types/dompurify": "^0.0.31",
         "@types/electron-settings": "^3.1.1",
         "@types/enzyme": "^3.1.8",
         "@types/jest": "^22.1.2",

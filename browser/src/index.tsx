@@ -76,11 +76,6 @@ const start = async (args: string[]): Promise<void> => {
         }
     }
 
-    configuration.onConfigurationError.subscribe(err => {
-        // TODO: Better / nicer handling of error:
-        alert(err)
-    })
-
     configuration.start()
 
     configChange(configuration.getValues()) // initialize values
@@ -139,6 +134,17 @@ const start = async (args: string[]): Promise<void> => {
 
     const Notifications = await notificationsPromise
     Notifications.activate(configuration, overlayManager)
+
+    configuration.onConfigurationError.subscribe(err => {
+        const notifications = Notifications.getInstance()
+        const notification = notifications.createItem()
+        notification.setContents("Error Loading Configuration", err.toString())
+        notification.setLevel("error")
+        notification.onClick.subscribe(() =>
+            commandManager.executeCommand("oni.config.openConfigJs"),
+        )
+        notification.show()
+    })
 
     UnhandledErrorMonitor.start(Notifications.getInstance())
 
@@ -225,7 +231,7 @@ const start = async (args: string[]): Promise<void> => {
     GlobalCommands.activate(commandManager, menuManager, tasks)
 
     const Snippets = await snippetPromise
-    Snippets.activate()
+    Snippets.activate(commandManager)
 
     const KeyDisplayer = await keyDisplayerPromise
     KeyDisplayer.activate(commandManager, inputManager, overlayManager)
