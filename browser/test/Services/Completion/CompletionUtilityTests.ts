@@ -5,7 +5,28 @@ import * as CompletionUtility from "./../../../src/Services/Completion/Completio
 const DefaultCursorMatchRegEx = /[a-z]/i
 const DefaultTriggerCharacters = ["."]
 
+import { MockBuffer } from "./../../Mocks"
+
 describe("CompletionUtility", () => {
+    describe("commitCompletion", () => {
+        let mockBuffer: MockBuffer
+
+        beforeEach(() => {
+            mockBuffer = new MockBuffer()
+        })
+
+        it("handles basic completion", async () => {
+            mockBuffer.setLinesSync(["some comp sentence"])
+            mockBuffer.setCursorPosition(0, 9)
+
+            await CompletionUtility.commitCompletion(mockBuffer as any, 0, 5, "completion")
+
+            const [resultLine] = await mockBuffer.getLines(0, 1)
+
+            assert.strictEqual(resultLine, "some completion sentence")
+        })
+    })
+
     describe("getCompletionStart", () => {
         it("rewinds back to first character", () => {
             const bufferLine = "abc"
