@@ -10,6 +10,7 @@ const {
     css,
     injectGlobal,
     keyframes,
+    withTheme,
     ThemeProvider,
 } = (styledComponents as ThemedStyledComponentsModule<any>) as ThemedStyledComponentsModule<
     IThemeColors
@@ -75,6 +76,7 @@ export {
     keyframes,
     styled,
     ThemeProvider,
+    withTheme,
     boxShadow,
     boxShadowInset,
     enableMouse,
@@ -82,6 +84,7 @@ export {
     fallBackFonts,
     darken,
     lighten,
+    IThemeColors,
 }
 
 export default styled
