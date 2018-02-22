@@ -111,9 +111,7 @@ const grammarLoader = new GrammarLoader()
 
 // Middleware that handles insert-mode updates
 // For insert-mode updates, we'll resolve them immediately and apply them ephemerally
-const updateBufferLineMiddleware = (store: any) => (next: any) => (
-    action: ISyntaxHighlightAction,
-) => {
+const updateBufferLineMiddleware = (store: any) => (next: any) => (action: any) => {
     const result: ISyntaxHighlightAction = next(action)
 
     if (action.type === "SYNTAX_UPDATE_BUFFER_LINE") {

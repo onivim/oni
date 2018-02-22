@@ -33,16 +33,16 @@ export const getRelevantRange = (
 
 export const getLineFromBuffer = (
     state: IBufferSyntaxHighlightState,
-    line: string,
+    lineNumber: number,
 ): ISyntaxHighlightLineInfo => {
     if (
         state.insertModeLine &&
         state.insertModeLine.info &&
         state.insertModeLine.version > state.version &&
-        state.insertModeLine.info.line === line
+        state.insertModeLine.lineNumber === lineNumber
     ) {
         return state.insertModeLine.info
     }
 
-    return state.lines[line]
+    return state.lines[lineNumber]
 }
