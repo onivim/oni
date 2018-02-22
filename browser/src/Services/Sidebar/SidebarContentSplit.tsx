@@ -4,7 +4,7 @@
 
 import * as React from "react"
 import { connect, Provider } from "react-redux"
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
@@ -33,7 +33,7 @@ export class SidebarContentSplit {
         return entry && entry.pane ? entry.pane : null
     }
 
-    constructor(private _sidebarManager: SidebarManager = new SidebarManager()) {}
+    constructor(private _sidebarManager: SidebarManager) {}
 
     public enter(): void {
         const pane: any = this.activePane
@@ -75,6 +75,11 @@ export interface ISidebarContentViewState {
     active: boolean
 }
 
+const EntranceKeyframes = keyframes`
+    0% { opacity: 0.5; transform: translateX(-5px); }
+    100%% { opacity: 1; transform: translateX(0px); }
+`
+
 export const SidebarContentWrapper = withProps<{}>(styled.div)`
     ${enableMouse}
     width: 200px;
@@ -83,6 +88,8 @@ export const SidebarContentWrapper = withProps<{}>(styled.div)`
     height: 100%;
     user-select: none;
     cursor: default;
+
+    animation: ${EntranceKeyframes} 0.25s ease-in forwards;
 
     display: flex;
     flex-direction: column;
@@ -110,7 +117,7 @@ export const SidebarHeaderWrapper = withProps<ISidebarHeaderProps>(styled.div)`
 export class SidebarHeaderView extends React.PureComponent<ISidebarHeaderProps, {}> {
     public render(): JSX.Element {
         return (
-            <SidebarHeaderWrapper {...this.props}>
+            <SidebarHeaderWrapper {...this.props} key={this.props.headerName}>
                 <span>{this.props.headerName}</span>
             </SidebarHeaderWrapper>
         )
@@ -165,9 +172,11 @@ export class SidebarContentView extends React.PureComponent<
         const header = activeEntry && activeEntry.pane ? activeEntry.pane.title : null
 
         return (
-            <SidebarContentWrapper key={activeEntry.id}>
+            <SidebarContentWrapper className="sidebar-content">
                 <SidebarHeaderView hasFocus={this.state.active} headerName={header} />
-                <SidebarInnerPaneWrapper>{activeEntry.pane.render()}</SidebarInnerPaneWrapper>
+                <SidebarInnerPaneWrapper key={activeEntry.id}>
+                    {activeEntry.pane.render()}
+                </SidebarInnerPaneWrapper>
             </SidebarContentWrapper>
         )
     }

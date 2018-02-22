@@ -16,6 +16,9 @@ import { IConfigurationValues } from "./Services/Configuration/IConfigurationVal
 const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
 
+    const UnhandledErrorMonitor = await import("./Services/UnhandledErrorMonitor")
+    UnhandledErrorMonitor.activate()
+
     const Shell = await import("./UI/Shell")
     Shell.activate()
 
@@ -34,6 +37,7 @@ const start = async (args: string[]): Promise<void> => {
     const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
     const browserWindowConfigurationSynchronizerPromise = import("./Services/BrowserWindowConfigurationSynchronizer")
     const colorsPromise = import("./Services/Colors")
+    const tokenColorsPromise = import("./Services/TokenColors")
     const diagnosticsPromise = import("./Services/Diagnostics")
     const editorManagerPromise = import("./Services/EditorManager")
     const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
@@ -41,6 +45,7 @@ const start = async (args: string[]): Promise<void> => {
     const languageManagerPromise = import("./Services/Language")
     const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
+    const keyDisplayerPromise = import("./Services/KeyDisplayer")
     const taksPromise = import("./Services/Tasks")
     const workspacePromise = import("./Services/Workspace")
 
@@ -103,6 +108,9 @@ const start = async (args: string[]): Promise<void> => {
     Shell.initializeColors(Colors.getInstance())
     Performance.endMeasure("Oni.Start.Themes")
 
+    const TokenColors = await tokenColorsPromise
+    TokenColors.activate(configuration, Themes.getThemeManagerInstance())
+
     const BrowserWindowConfigurationSynchronizer = await browserWindowConfigurationSynchronizerPromise
     BrowserWindowConfigurationSynchronizer.activate(configuration, Colors.getInstance())
 
@@ -130,7 +138,9 @@ const start = async (args: string[]): Promise<void> => {
     const menuManager = Menu.getInstance()
 
     const Notifications = await notificationsPromise
-    Notifications.activate(overlayManager)
+    Notifications.activate(configuration, overlayManager)
+
+    UnhandledErrorMonitor.start(Notifications.getInstance())
 
     const Tasks = await taksPromise
     Tasks.activate(menuManager)
@@ -168,6 +178,7 @@ const start = async (args: string[]): Promise<void> => {
             pluginManager,
             tasks,
             Themes.getThemeManagerInstance(),
+            TokenColors.getInstance(),
             workspace,
         )
 
@@ -179,14 +190,23 @@ const start = async (args: string[]): Promise<void> => {
 
     Performance.startMeasure("Oni.Start.Sidebar")
     const Sidebar = await sidebarPromise
+    const Explorer = await import("./Services/Explorer")
+    const Search = await import("./Services/Search")
+
     Sidebar.activate(configuration, workspace)
     const sidebarManager = Sidebar.getInstance()
+
+    Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
+    Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =
         LanguageManager.createLanguageClientsFromConfiguration
 
     diagnostics.start(languageManager)
+
+    const Browser = await import("./Services/Browser")
+    Browser.activate(commandManager, configuration, editorManager)
 
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()
@@ -205,10 +225,10 @@ const start = async (args: string[]): Promise<void> => {
     GlobalCommands.activate(commandManager, menuManager, tasks)
 
     const Snippets = await snippetPromise
-    Snippets.activate()
+    Snippets.activate(commandManager)
 
-    const Search = await import("./Services/Search")
-    Search.activate(editorManager, Sidebar.getInstance(), workspace)
+    const KeyDisplayer = await keyDisplayerPromise
+    KeyDisplayer.activate(commandManager, inputManager, overlayManager)
 
     const ThemePicker = await themePickerPromise
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())
@@ -217,7 +237,7 @@ const start = async (args: string[]): Promise<void> => {
     Bookmarks.activate(configuration, editorManager, Sidebar.getInstance())
 
     const PluginsSidebarPane = await import("./Plugins/PluginSidebarPane")
-    PluginsSidebarPane.activate(pluginManager, sidebarManager)
+    PluginsSidebarPane.activate(configuration, pluginManager, sidebarManager)
 
     Performance.endMeasure("Oni.Start.Activate")
 

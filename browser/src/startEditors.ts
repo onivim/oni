@@ -17,6 +17,7 @@ import { MenuManager } from "./Services/Menu"
 import { OverlayManager } from "./Services/Overlay"
 import { Tasks } from "./Services/Tasks"
 import { ThemeManager } from "./Services/Themes"
+import { TokenColors } from "./Services/TokenColors"
 import { windowManager } from "./Services/WindowManager"
 import { Workspace } from "./Services/Workspace"
 
@@ -32,6 +33,7 @@ export const startEditors = async (
     pluginManager: PluginManager,
     tasks: Tasks,
     themeManager: ThemeManager,
+    tokenColors: TokenColors,
     workspace: Workspace,
 ): Promise<void> => {
     const editor = new OniEditor(
@@ -45,6 +47,7 @@ export const startEditors = async (
         pluginManager,
         tasks,
         themeManager,
+        tokenColors,
         workspace,
     )
     windowManager.split("horizontal", editor)

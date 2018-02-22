@@ -8,6 +8,7 @@ import * as React from "react"
 import { connect } from "react-redux"
 
 import * as classNames from "classnames"
+import { keyframes } from "styled-components"
 
 import * as BufferSelectors from "./../../Editor/NeovimEditor/NeovimEditorSelectors"
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
@@ -16,6 +17,7 @@ import { addDefaultUnitIfNeeded } from "./../../Font"
 
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { Icon } from "./../../UI/Icon"
+import { styled, withProps } from "./../components/common"
 
 import { FileIcon } from "./../../Services/FileIcon"
 
@@ -54,6 +56,13 @@ export interface ITabsProps {
     fontFamily: string
     fontSize: string
 }
+
+const InnerName = withProps<{ isLong?: boolean }>(styled.span)`
+    ${p => p.isLong && `width: 250px;`};
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+`
 
 export class Tabs extends React.PureComponent<ITabsProps, {}> {
     public render(): JSX.Element {
@@ -116,6 +125,15 @@ export interface ITabPropsWithClick extends ITabProps {
     maxWidth: string
 }
 
+const TabEntranceKeyFrames = keyframes`
+    0% { transform: translateY(-3px) rotateX(-20deg); }
+    100% { transform: translateY(0px) rotateX(0deg); }
+`
+
+const TabWrapper = styled.div`
+    animation: ${TabEntranceKeyFrames} 0.1s ease-in forwards;
+`
+
 export class Tab extends React.Component<ITabPropsWithClick> {
     private _tab: HTMLDivElement
     public componentWillReceiveProps(next: ITabPropsWithClick) {
@@ -131,7 +149,7 @@ export class Tab extends React.Component<ITabPropsWithClick> {
             "not-dirty": !this.props.isDirty,
         })
 
-        const style = {
+        const style: React.CSSProperties = {
             backgroundColor: this.props.backgroundColor,
             color: this.props.foregroundColor,
             maxWidth: this.props.maxWidth,
@@ -141,8 +159,8 @@ export class Tab extends React.Component<ITabPropsWithClick> {
 
         return (
             <Sneakable callback={() => this.props.onClickName()}>
-                <div
-                    ref={(e: HTMLDivElement) => (this._tab = e)}
+                <TabWrapper
+                    innerRef={(e: HTMLDivElement) => (this._tab = e)}
                     className={cssClasses}
                     title={this.props.description}
                     style={style}
@@ -155,7 +173,9 @@ export class Tab extends React.Component<ITabPropsWithClick> {
                         />
                     </div>
                     <div className="name" onClick={this.props.onClickName}>
-                        <span className="name-inner">{this.props.name}</span>
+                        <InnerName isLong={this.props.name.length > 50}>
+                            {this.props.name}
+                        </InnerName>
                     </div>
                     <div className="corner enable-hover" onClick={this.props.onClickClose}>
                         <div className="icon-container x-icon-container">
@@ -165,7 +185,7 @@ export class Tab extends React.Component<ITabPropsWithClick> {
                             <div className="circle" />
                         </div>
                     </div>
-                </div>
+                </TabWrapper>
             </Sneakable>
         )
     }
@@ -214,6 +234,12 @@ export const shouldShowFileIcon = (state: State.IState): boolean => {
     return state.configuration["tabs.showFileIcon"]
 }
 
+export const checkTabBuffers = (buffersInTabs: number[], buffers: State.IBuffer[]): boolean => {
+    const tabBufs = buffers.filter(buf => buffersInTabs.find(tabBuf => tabBuf === buf.id))
+
+    return tabBufs.some(buf => buf.modified)
+}
+
 const getTabsFromBuffers = createSelector(
     [
         BufferSelectors.getBufferMetadata,
@@ -248,15 +274,27 @@ const getTabsFromBuffers = createSelector(
 )
 
 const getTabsFromVimTabs = createSelector(
-    [getTabState, getHighlightColor, showTabId, shouldShowFileIcon],
-    (tabState: any, color: any, shouldShowId: boolean, showFileIcon: boolean) => {
+    [
+        getTabState,
+        getHighlightColor,
+        showTabId,
+        shouldShowFileIcon,
+        BufferSelectors.getBufferMetadata,
+    ],
+    (
+        tabState: State.ITabState,
+        color: any,
+        shouldShowId: boolean,
+        showFileIcon: boolean,
+        allBuffers: State.IBuffer[],
+    ) => {
         return tabState.tabs.map((t: any, idx: number) => ({
             id: t.id,
             name: getIdPrefix((idx + 1).toString(), shouldShowId) + getTabName(t.name),
             highlightColor: t.id === tabState.selectedTabId ? color : "transparent",
             iconFileName: showFileIcon ? getTabName(t.name) : "",
             isSelected: t.id === tabState.selectedTabId,
-            isDirty: false,
+            isDirty: checkTabBuffers(t.buffersInTab, allBuffers),
             description: t.name,
         }))
     },

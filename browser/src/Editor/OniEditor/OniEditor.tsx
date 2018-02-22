@@ -32,6 +32,7 @@ import { ISyntaxHighlighter } from "./../../Services/SyntaxHighlighting"
 
 import { Tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
+import { TokenColors } from "./../../Services/TokenColors"
 import { Workspace } from "./../../Services/Workspace"
 
 import { IEditor } from "./../Editor"
@@ -101,6 +102,7 @@ export class OniEditor implements IEditor {
     }
 
     constructor(
+<<<<<<< HEAD
         private _colors: IColors,
         private _completionProviders: CompletionProviders,
         private _configuration: Configuration,
@@ -125,6 +127,34 @@ export class OniEditor implements IEditor {
             this._tasks,
             this._themeManager,
             this._workspace,
+=======
+        colors: IColors,
+        completionProviders: CompletionProviders,
+        configuration: Configuration,
+        diagnostics: IDiagnosticsDataSource,
+        languageManager: LanguageManager,
+        menuManager: MenuManager,
+        overlayManager: OverlayManager,
+        pluginManager: PluginManager,
+        tasks: Tasks,
+        themeManager: ThemeManager,
+        tokenColors: TokenColors,
+        workspace: Workspace,
+    ) {
+        this._neovimEditor = new NeovimEditor(
+            colors,
+            completionProviders,
+            configuration,
+            diagnostics,
+            languageManager,
+            menuManager,
+            overlayManager,
+            pluginManager,
+            tasks,
+            themeManager,
+            tokenColors,
+            workspace,
+>>>>>>> master
         )
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
@@ -189,6 +219,13 @@ export class OniEditor implements IEditor {
 
     public async setSelection(range: types.Range): Promise<void> {
         return this._neovimEditor.setSelection(range)
+    }
+
+    public async blockInput(
+        inputFunction: (input: (inp: string) => Promise<void>) => Promise<void>,
+    ) {
+        const neovim = this._neovimEditor.neovim as any
+        return neovim.blockInput(inputFunction)
     }
 
     public executeCommand(command: string): void {

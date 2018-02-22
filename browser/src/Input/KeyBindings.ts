@@ -32,6 +32,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-m>", "oni.editor.minimize")
         input.bind("<m-h>", "oni.editor.hide")
         input.bind("<c-tab>", "buffer.toggle")
+        input.bind("<m-s-f>", "search.searchAllFiles")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
@@ -50,6 +51,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<c-t>", "language.symbols.workspace", () => !menu.isMenuOpen())
         input.bind("<s-c-t>", "language.symbols.document")
         input.bind("<c-tab>", "buffer.toggle")
+        input.bind("<s-c-f>", "search.searchAllFiles")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<c-c>", "editor.clipboard.yank", isVisualMode)
@@ -86,8 +88,12 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind(["<s-enter", "<C-s>"], "quickOpen.openFileHorizontal")
     input.bind("<C-t>", "quickOpen.openFileNewTab")
 
+    // Snippets
+    input.bind("<tab>", "snippet.nextPlaceholder")
+    input.bind("<s-tab>", "snippet.previousPlaceholder")
+
     // Completion
-    input.bind(["<enter>", "<tab>"], "contextMenu.select")
+    input.bind(["<enter>"], "contextMenu.select")
     input.bind(["<down>", "<C-n>"], "contextMenu.next")
     input.bind(["<up>", "<C-p>"], "contextMenu.previous")
     input.bind(
@@ -108,4 +114,6 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     // TODO: Scope 's' to just the local window
     input.bind("<c-g>", "sneak.show", () => isNormalMode() && !menu.isMenuOpen())
     input.bind(["<esc>", "<c-c>"], "sneak.hide")
+
+    input.bind("<s-c-b>", "sidebar.toggle", isNormalMode)
 }
