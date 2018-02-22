@@ -7,6 +7,8 @@
 import * as os from "os"
 import * as path from "path"
 
+import { Subject } from "rxjs/Subject"
+
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
@@ -21,6 +23,7 @@ import {
     createSyntaxHighlightStore,
     ISyntaxHighlightState,
     ISyntaxHighlightTokenInfo,
+    ISyntaxHighlightAction,
 } from "./SyntaxHighlightingStore"
 
 import { ISyntaxHighlighter } from "./ISyntaxHighlighter"
@@ -34,6 +37,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     private _reconciler: SyntaxHighlightReconciler
     private _unsubscribe: Unsubscribe
 
+    private _throttledActions: Subject<ISyntaxHighlightAction> = new Subject<
+        ISyntaxHighlightAction
+    >()
+
     constructor(private _editor: NeovimEditor, private _tokenColors: TokenColors) {
         this._store = createSyntaxHighlightStore()
 
@@ -41,6 +48,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
         this._unsubscribe = this._store.subscribe(() => {
             const state = this._store.getState()
             this._reconciler.update(state)
+        })
+
+        this._throttledActions.auditTime(50).subscribe(action => {
+            this._store.dispatch(action)
         })
     }
 
@@ -91,7 +102,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             })
         } else {
             // Incremental update
-            this._store.dispatch({
+            this._throttledActions.next({
                 type: "SYNTAX_UPDATE_BUFFER_LINE",
                 bufferId: evt.buffer.id,
                 version: evt.buffer.version,
