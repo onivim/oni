@@ -23,6 +23,7 @@ const start = async (args: string[]): Promise<void> => {
     Shell.activate()
 
     const configurationPromise = import("./Services/Configuration")
+    const configurationCommandsPromise = import("./Services/Configuration/ConfigurationCommands")
     const pluginManagerPromise = import("./Plugins/PluginManager")
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
@@ -223,6 +224,9 @@ const start = async (args: string[]): Promise<void> => {
     const { inputManager } = await inputManagerPromise
 
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
+
+    const ConfigurationCommands = await configurationCommandsPromise
+    ConfigurationCommands.activate(commandManager, editorManager)
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
