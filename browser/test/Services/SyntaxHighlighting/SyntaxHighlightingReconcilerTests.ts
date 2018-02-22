@@ -108,7 +108,7 @@ describe("SyntaxHighlightReconciler", () => {
         )
     })
 
-    it.only("uses latest info from insert mode", () => {
+    it("uses latest info from insert mode", () => {
         // Simulate an empty state to start
         const testState = createHighlightState(0, null, [])
 
