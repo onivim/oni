@@ -28,7 +28,6 @@ import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 import { convertTextDocumentEditsToFileMap } from "./../Language/Edits"
 
-import * as WorkspaceCommands from "./WorkspaceCommands"
 import { WorkspaceConfiguration } from "./WorkspaceConfiguration"
 
 const fsStat = promisify(stat)
@@ -195,8 +194,6 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
     _workspace.onDirectoryChanged.subscribe(newDirectory => {
         configuration.setValues({ "workspace.defaultWorkspace": newDirectory }, true)
     })
-
-    WorkspaceCommands.activateCommands(configuration, editorManager, _workspace)
 }
 
 export const getInstance = (): Workspace => {

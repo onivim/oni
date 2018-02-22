@@ -11,6 +11,7 @@ import * as mkdirp from "mkdirp"
 import { CallbackCommand, commandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
+import { SnippetManager } from "./../Snippets"
 import * as FileMappings from "./../FileMappings"
 
 import { Workspace } from "./Workspace"
@@ -18,35 +19,48 @@ import { Workspace } from "./Workspace"
 export const activateCommands = (
     configuration: Configuration,
     editorManager: EditorManager,
+    snippetManager: SnippetManager,
     workspace: Workspace,
 ) => {
-    const openTestFileInSplit = () => {
-        const mappedFile = getTestFileMappedToCurrentFile()
+    const openTestFileInSplit = async () => {
+        const mappingResult = getTestFileMappedToCurrentFile()
+        const mappedFile = mappingResult.fullPath
+        const templateFile = mappingResult.templateFileFullPath
 
         if (mappedFile) {
+            let snippetToInsert: string = null
+
             if (!fs.existsSync(mappedFile)) {
                 // Ensure the folder exists for the mapped file
                 const containingFolder = path.dirname(mappedFile)
                 mkdirp.sync(containingFolder)
+
+                if (templateFile && fs.existsSync(templateFile)) {
+                    snippetToInsert = fs.readFileSync(templateFile).toString("utf8")
+                }
             }
 
-            editorManager.activeEditor.openFile(mappedFile)
+            await editorManager.activeEditor.openFile(mappedFile)
+
+            if (snippetToInsert) {
+                await snippetManager.insertSnippet(snippetToInsert)
+            }
         }
     }
 
     const hasExistingTestFile = () => {
         const mappedFile = getTestFileMappedToCurrentFile()
 
-        return fs.existsSync(mappedFile)
+        return mappedFile && fs.existsSync(mappedFile.fullPath)
     }
 
     const canCreateTestFile = () => {
         const mappedFile = getTestFileMappedToCurrentFile()
 
-        return !fs.existsSync(mappedFile)
+        return mappedFile && !fs.existsSync(mappedFile.fullPath)
     }
 
-    const getTestFileMappedToCurrentFile = (): string => {
+    const getTestFileMappedToCurrentFile = (): FileMappings.IFileMappingResult => {
         const mappings: FileMappings.IFileMapping[] = configuration.getValue(
             "workspace.testFileMappings",
         )
@@ -72,6 +86,7 @@ export const activateCommands = (
             currentBufferPath,
             mappings,
         )
+
         return mappedFile
     }
 
