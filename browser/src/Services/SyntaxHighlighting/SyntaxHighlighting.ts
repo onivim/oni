@@ -92,7 +92,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
         } else {
             // Incremental update
             this._store.dispatch({
-                type: "SYTNAX_UPDATE_BUFFER_LINE",
+                type: "SYNTAX_UPDATE_BUFFER_LINE",
                 bufferId: evt.buffer.id,
                 version: evt.buffer.version,
                 lineNumber: firstChange.range.start.line,
