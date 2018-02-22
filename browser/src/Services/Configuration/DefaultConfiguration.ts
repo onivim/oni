@@ -100,6 +100,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickOpen.execCommand": null,
     "editor.quickOpen.filterStrategy": "fuse",
 
+    "editor.split.mode": "native",
+
     "editor.typingPrediction": true,
 
     "editor.scrollBar.visible": true,

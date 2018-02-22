@@ -34,6 +34,8 @@ export interface IConfigurationValues {
     "debug.fakeLag.languageServer": number | null
     "debug.fakeLag.neovimInput": number | null
 
+    "editor.split.mode": string
+
     // - textMateHighlighting
     "experimental.editor.textMateHighlighting.enabled": boolean
 

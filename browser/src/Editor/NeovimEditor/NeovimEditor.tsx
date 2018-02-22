@@ -42,6 +42,7 @@ import { commandManager } from "./../../Services/CommandManager"
 import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
+import { editorManager } from "./../../Services/EditorManager"
 import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
 import { TokenColors } from "./../../Services/TokenColors"
@@ -657,6 +658,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public enter(): void {
+        editorManager.setActiveEditor(this)
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
         this._actions.setHasFocus(true)
