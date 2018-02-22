@@ -33,6 +33,7 @@ const NotificationsWrapper = styled.div`
     position: absolute;
     top: 16px;
     right: 16px;
+    max-height: 50%;
 `
 
 export class NotificationsView extends React.PureComponent<NotificationsViewProps, {}> {
@@ -64,6 +65,7 @@ const NotificationWrapper = styled.div`
     width: 20em;
 
     margin: 1em;
+    max-height: 50%;
 
     display: flex;
     flex-direction: row;
@@ -111,7 +113,7 @@ const NotificationContents = styled.div`
 
     padding: 8px;
 
-    overflow-y: auto;
+    overflow-y: overlay;
     overflow-x: hidden;
     height: 100%;
 `
@@ -127,7 +129,7 @@ const NotificationTitle = styled.div`
 
 const NotificationDescription = styled.div`
     flex: 1 1 auto;
-    overflow-y: auto;
+    overflow-y: overlay;
     overflow-x: hidden;
     margin: 1em 0em;
 
