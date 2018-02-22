@@ -551,9 +551,14 @@ export class NeovimEditor extends Editor implements IEditor {
             this._languageManager,
         )
 
-        this._languageIntegration.onShowHover.subscribe(hover => {
+        this._languageIntegration.onShowHover.subscribe(async hover => {
             const { cursorPixelX, cursorPixelY } = this._store.getState()
-            this._hoverRenderer.showQuickInfo(cursorPixelX, cursorPixelY, hover.hover, hover.errors)
+            await this._hoverRenderer.showQuickInfo(
+                cursorPixelX,
+                cursorPixelY,
+                hover.hover,
+                hover.errors,
+            )
         })
 
         this._languageIntegration.onHideHover.subscribe(() => {

@@ -7,12 +7,10 @@ import * as os from "os"
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
+import getTokens from "./../../Services/SyntaxHighlighting/TokenGenerator"
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
-import {
-    QuickInfoContainer,
-    QuickInfoDocumentation,
-    QuickInfoTitle,
-} from "./../../UI/components/QuickInfo"
+import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
+import QuickInfoWithTheme from "./../../UI/components/QuickInfoContainer"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
@@ -33,13 +31,13 @@ export class HoverRenderer {
         private _toolTipsProvider: IToolTipsProvider,
     ) {}
 
-    public showQuickInfo(
+    public async showQuickInfo(
         x: number,
         y: number,
         hover: types.Hover,
         errors: types.Diagnostic[],
-    ): void {
-        const elem = this._renderQuickInfoElement(hover, errors)
+    ): Promise<void> {
+        const elem = await this._renderQuickInfoElement(hover, errors)
 
         if (!elem) {
             return
@@ -56,8 +54,14 @@ export class HoverRenderer {
         this._toolTipsProvider.hideToolTip(HoverToolTipId)
     }
 
-    private _renderQuickInfoElement(hover: types.Hover, errors: types.Diagnostic[]): JSX.Element {
-        const quickInfoElement = getQuickInfoElementsFromHover(hover)
+    private async _renderQuickInfoElement(
+        hover: types.Hover,
+        errors: types.Diagnostic[],
+    ): Promise<JSX.Element> {
+        const titleAndContents = await getTitleAndContents(hover)
+        const quickInfoElement = !!titleAndContents ? (
+            <QuickInfoWithTheme titleAndContents={titleAndContents} key="quick-info-element" />
+        ) : null
 
         const borderColor = this._colors.getColor("toolTip.border")
 
@@ -119,6 +123,8 @@ export class HoverRenderer {
     }
 }
 
+const html = (str: string) => ({ __html: str })
+
 const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[] => {
     if (!errors || !errors.length) {
         return Selectors.EmptyArray
@@ -127,54 +133,46 @@ const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[]
     }
 }
 
-const getTitleAndContents = (result: types.Hover) => {
+const getTitleAndContents = async (result: types.Hover) => {
     if (!result || !result.contents) {
         return null
     }
 
     const contents = Helpers.getTextFromContents(result.contents)
 
-    if (contents.length === 0) {
+    if (!contents.length) {
         return null
-    } else if (contents.length === 1 && contents[0]) {
-        const title = contents[0].trim()
+    }
 
-        if (!title) {
-            return null
-        }
+    const [{ value: titleContent, language }, ...remaining] = contents
+
+    if (!titleContent) {
+        return null
+    }
+
+    const remainder = remaining.map(r => r.value)
+    const [hasRemainder] = remainder
+
+    if (!hasRemainder) {
+        const tokensPerLine = await getTokens({ language, line: titleContent })
 
         return {
-            title: convertMarkdown(title),
+            title: html(convertMarkdown({ markdown: titleContent, tokens: tokensPerLine })),
             description: null,
         }
     } else {
-        const description = [...contents]
-        description.shift()
-        const descriptionContent = description.join(os.EOL)
+        const descriptionContent = remainder.join(os.EOL)
+
+        const tokensPerLine = await getTokens({ language, line: titleContent })
 
         return {
-            title: convertMarkdown(contents[0]),
-            description: convertMarkdown(descriptionContent),
+            title: html(convertMarkdown({ markdown: titleContent, tokens: tokensPerLine })),
+            description: html(
+                convertMarkdown({
+                    markdown: descriptionContent,
+                    type: "documentation",
+                }),
+            ),
         }
     }
-}
-
-const getQuickInfoElementsFromHover = (hover: types.Hover): JSX.Element => {
-    const titleAndContents = getTitleAndContents(hover)
-    const hasDocs = !!(
-        titleAndContents &&
-        titleAndContents.description &&
-        titleAndContents.description.__html
-    )
-
-    return (
-        titleAndContents && (
-            <QuickInfoContainer hasDocs={hasDocs} key="quickInfo.titleAndDocumentation">
-                <QuickInfoTitle padding={hasDocs ? "0.5rem" : null} html={titleAndContents.title} />
-                {titleAndContents.description && (
-                    <QuickInfoDocumentation html={titleAndContents.description} />
-                )}
-            </QuickInfoContainer>
-        )
-    )
 }

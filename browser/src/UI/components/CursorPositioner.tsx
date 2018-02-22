@@ -108,7 +108,7 @@ export class CursorPositionerView extends React.PureComponent<
                 this._timeout = window.setTimeout(() => {
                     this._measureElement(this._element)
                     this._timeout = null
-                }, 50)
+                }, 80)
             })
 
             this._resizeObserver.observe(this._element)
@@ -133,7 +133,7 @@ export class CursorPositionerView extends React.PureComponent<
             top: adjustedY.toString() + "px",
             left: "0px",
             width: this.props.containerWidth.toString() + "px",
-            maxWidth: "55vw",
+            maxWidth: "45vw",
             visibility: this.state.isMeasured ? "visible" : "hidden", // Wait until we've measured the bounds to show..
         }
 

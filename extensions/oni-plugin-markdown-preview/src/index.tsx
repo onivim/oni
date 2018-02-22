@@ -111,7 +111,7 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 
     private generateMarkdown(): string {
-        const markdownLines: [string] = dompurify.sanitize(this.state.source).split("\n")
+        const markdownLines: string[] = dompurify.sanitize(this.state.source).split("\n")
 
         const generateAnchor = (line: number): string => {
             return `<a id="${generateScrollingAnchorId(line)}"></a>`
