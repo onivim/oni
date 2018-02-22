@@ -24,8 +24,8 @@
         "suppressImplicitAnyIndexErrors": true,
         "target": "es2015",
         "sourceMap": true,
-        "types": []
+        "types": ["mocha"]
     },
     "include": ["src/**/*.ts", "test/**/*.ts", "src/**/*.tsx"],
-    "exclude": ["node_modules", "**/@types/jest"]
+    "exclude": ["node_modules", "browser/src/UI/components/tests"]
 }
