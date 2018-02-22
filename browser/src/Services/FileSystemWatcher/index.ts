@@ -2,12 +2,13 @@ import * as chokidar from "chokidar"
 import { Event, IEvent } from "oni-types"
 
 import * as Log from "./../../Log"
+import * as Workspace from "./../Workspace"
 
 export type Targets = string | string[]
 
 interface IFSOptions {
     options?: chokidar.WatchOptions
-    target: Targets
+    target?: Targets
 }
 
 interface IFileChangeEvent {
@@ -21,13 +22,18 @@ interface IStatsChangeEvent {
 
 export class FSWatcher {
     private _watcher: chokidar.FSWatcher
+    private _workspace: Workspace.Workspace
+    private _activeWorkspace: string
     private _onAdd = new Event<IFileChangeEvent>()
     private _onAddDir = new Event<IStatsChangeEvent>()
     private _onMove = new Event<IFileChangeEvent>()
     private _onChange = new Event<IFileChangeEvent>()
 
     constructor({ options, target }: IFSOptions) {
-        this._watcher = chokidar.watch(target, options)
+        this._workspace = Workspace.getInstance()
+        this._activeWorkspace = this._workspace.activeWorkspace
+        const fileOrFolder = target || this._activeWorkspace
+        this._watcher = chokidar.watch(fileOrFolder, options)
         this._attachEventListeners()
     }
 
