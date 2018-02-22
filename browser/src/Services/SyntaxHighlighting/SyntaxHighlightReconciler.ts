@@ -53,7 +53,7 @@ export class SyntaxHighlightReconciler {
                     return false
                 }
 
-                const latestLine = currentHighlightState.lines[line]
+                const latestLine = Selectors.getLineFromBuffer(currentHighlightState, line)
 
                 // If dirty (haven't processed tokens yet) - skip
                 if (latestLine.dirty) {

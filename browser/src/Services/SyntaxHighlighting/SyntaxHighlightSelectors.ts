@@ -2,7 +2,11 @@
 //
 // Reducers for handling state changes from ISyntaxHighlightActions
 
-import { ISyntaxHighlightState } from "./SyntaxHighlightingStore"
+import {
+    ISyntaxHighlightState,
+    IBufferSyntaxHighlightState,
+    ISyntaxHighlightLineInfo,
+} from "./SyntaxHighlightingStore"
 
 export interface SyntaxHighlightRange {
     top: number
@@ -21,15 +25,24 @@ export const getRelevantRange = (
 
     const buffer = state.bufferToHighlights[bufferId]
 
-    if (!state.isInsertMode) {
-        return {
-            top: buffer.topVisibleLine,
-            bottom: buffer.bottomVisibleLine,
-        }
-    } else {
-        return {
-            top: buffer.activeInsertModeLine,
-            bottom: buffer.activeInsertModeLine,
-        }
+    return {
+        top: buffer.topVisibleLine,
+        bottom: buffer.bottomVisibleLine,
     }
+}
+
+export const getLineFromBuffer = (
+    state: IBufferSyntaxHighlightState,
+    line: string,
+): ISyntaxHighlightLineInfo => {
+    if (
+        state.insertModeLine &&
+        state.insertModeLine.info &&
+        state.insertModeLine.version > state.version &&
+        state.insertModeLine.info.line === line
+    ) {
+        return state.insertModeLine.info
+    }
+
+    return state.lines[line]
 }
