@@ -18,7 +18,7 @@ import { inputManager } from "./InputManager"
 import * as Log from "./../Log"
 import * as Shell from "./../UI/Shell"
 
-import { parseKeysFromVimString, IKey } from "./../Input/KeyParser"
+import { IKey, parseKeysFromVimString } from "./../Input/KeyParser"
 
 export interface ITestResult {
     passed: boolean
@@ -53,7 +53,7 @@ export class Automation implements OniApi.Automation.Api {
         }
 
         const convertModifiers = (key: IKey): string[] => {
-            let ret: string[] = []
+            const ret: string[] = []
 
             if (key.control) {
                 ret.push("control")
@@ -74,9 +74,9 @@ export class Automation implements OniApi.Automation.Api {
         parsedKeys.chord.forEach(key => {
             const character = convertCharacter(key.character)
             const modifiers = convertModifiers(key)
-            contents.sendInputEvent(<any>{ keyCode: character, modifiers, type: "keyDown" })
-            contents.sendInputEvent(<any>{ keyCode: character, modifiers, type: "char" })
-            contents.sendInputEvent(<any>{ keyCode: character, type: "keyUp" })
+            contents.sendInputEvent({ keyCode: character, modifiers, type: "keyDown" } as any)
+            contents.sendInputEvent({ keyCode: character, modifiers, type: "char" } as any)
+            contents.sendInputEvent({ keyCode: character, type: "keyUp" } as any)
         })
     }
 
