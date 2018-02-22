@@ -102,7 +102,6 @@ export class OniEditor implements IEditor {
     }
 
     constructor(
-<<<<<<< HEAD
         private _colors: IColors,
         private _completionProviders: CompletionProviders,
         private _configuration: Configuration,
@@ -112,6 +111,7 @@ export class OniEditor implements IEditor {
         private _overlayManager: OverlayManager,
         private _pluginManager: PluginManager,
         private _tasks: Tasks,
+        private _tokenColors: TokenColors,
         private _themeManager: ThemeManager,
         private _workspace: Workspace,
     ) {
@@ -126,35 +126,8 @@ export class OniEditor implements IEditor {
             this._pluginManager,
             this._tasks,
             this._themeManager,
+            this._tokenColors,
             this._workspace,
-=======
-        colors: IColors,
-        completionProviders: CompletionProviders,
-        configuration: Configuration,
-        diagnostics: IDiagnosticsDataSource,
-        languageManager: LanguageManager,
-        menuManager: MenuManager,
-        overlayManager: OverlayManager,
-        pluginManager: PluginManager,
-        tasks: Tasks,
-        themeManager: ThemeManager,
-        tokenColors: TokenColors,
-        workspace: Workspace,
-    ) {
-        this._neovimEditor = new NeovimEditor(
-            colors,
-            completionProviders,
-            configuration,
-            diagnostics,
-            languageManager,
-            menuManager,
-            overlayManager,
-            pluginManager,
-            tasks,
-            themeManager,
-            tokenColors,
-            workspace,
->>>>>>> master
         )
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
