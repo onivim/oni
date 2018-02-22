@@ -23,6 +23,7 @@ const start = async (args: string[]): Promise<void> => {
     Shell.activate()
 
     const configurationPromise = import("./Services/Configuration")
+    const configurationCommandsPromise = import("./Services/Configuration/ConfigurationCommands")
     const pluginManagerPromise = import("./Plugins/PluginManager")
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
@@ -48,6 +49,7 @@ const start = async (args: string[]): Promise<void> => {
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
     const taksPromise = import("./Services/Tasks")
     const workspacePromise = import("./Services/Workspace")
+    const workspaceCommandsPromise = import("./Services/Workspace/WorkspaceCommands")
 
     const themePickerPromise = import("./Services/Themes/ThemePicker")
     const cssPromise = import("./CSS")
@@ -228,11 +230,22 @@ const start = async (args: string[]): Promise<void> => {
 
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
 
+    const ConfigurationCommands = await configurationCommandsPromise
+    ConfigurationCommands.activate(commandManager, editorManager)
+
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
 
     const GlobalCommands = await globalCommandsPromise
     GlobalCommands.activate(commandManager, menuManager, tasks)
+
+    const WorkspaceCommands = await workspaceCommandsPromise
+    WorkspaceCommands.activateCommands(
+        configuration,
+        editorManager,
+        Snippets.getInstance(),
+        workspace,
+    )
 
     const KeyDisplayer = await keyDisplayerPromise
     KeyDisplayer.activate(commandManager, inputManager, overlayManager)

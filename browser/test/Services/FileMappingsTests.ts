@@ -23,6 +23,47 @@ describe("FileMappings", () => {
     })
 
     describe("getMappedFile", () => {
+        it("returns null for template file if template file doesn't exist", () => {
+            const srcFile = path.join(srcPath, "source.ts")
+
+            const mapping: FileMappings.IFileMapping = {
+                sourceFolder: "browser/src",
+
+                mappedFolder: "browser/test",
+                mappedFileName: "${fileName}Test.ts", // tslint:disable-line
+            }
+
+            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, [mapping])
+
+            assert.strictEqual(
+                mappedFile.templateFileFullPath,
+                null,
+                "`templateFileFullPath` should be null since there is no template file specified.",
+            )
+        })
+
+        it("returns a template file if template file exists", () => {
+            const srcFile = path.join(srcPath, "source.ts")
+
+            const mapping: FileMappings.IFileMapping = {
+                sourceFolder: "browser/src",
+
+                mappedFolder: "browser/test",
+                mappedFileName: "${fileName}Test.ts", // tslint:disable-line
+
+                templateFilePath: "templates/template.ts",
+            }
+
+            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, [mapping])
+
+            assert.strictEqual(
+                mappedFile.templateFileFullPath,
+                path.join(rootPath, mapping.templateFilePath),
+            )
+        })
+    })
+
+    describe("getMappedFileFromMapping", () => {
         it("returns simple mapping", () => {
             const srcFile = path.join(srcPath, "source.ts")
             const testFile = path.join(testPath, "sourceTest.ts")

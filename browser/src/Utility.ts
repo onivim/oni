@@ -157,6 +157,10 @@ export const createCompletablePromise = <T>(): ICompletablePromise<T> => {
     }
 }
 
+export const normalizeNewLines = (str: string): string => {
+    return str.split("\r\n").join("\n")
+}
+
 /**
  * Helper function to ignore incoming values while a promise is waiting to complete
  * This is lossy, in that any input that comes in will be dropped while the promise
