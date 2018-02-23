@@ -2,6 +2,12 @@
  * ConfigurationEditor.ts
  */
 
+import * as os from "os"
+import * as fs from "fs"
+import * as Oni from "oni-api"
+
+import * as Log from "./../../Log"
+
 import { EditorManager } from "./../EditorManager"
 
 import { Configuration } from "./Configuration"
@@ -52,11 +58,28 @@ export interface IConfigurationEditInfo {
 export class ConfigurationEditManager {
     private _fileToEditor: { [filePath: string]: IConfigurationEditInfo } = {}
 
-    constructor(private _configuration: Configuration, private _editorManager: EditorManager) {}
+    constructor(private _configuration: Configuration, private _editorManager: EditorManager) {
+        this._editorManager.activeEditor.onBufferSaved.subscribe(evt => {
+            const activeEditingSession = this._fileToEditor[evt.filePath]
+
+            if (activeEditingSession) {
+                const currentBuffer = this._editorManager.activeEditor.activeBuffer
+                if (currentBuffer.filePath === evt.filePath) {
+                    this._transpileConfiguration(
+                        currentBuffer,
+                        activeEditingSession.editor,
+                        activeEditingSession.destinationConfigFilePath,
+                    )
+                }
+            }
+        })
+    }
 
     public async editConfiguration(configFile: string): Promise<void> {
         const editor = this._configuration.editor
         const editFile = await editor.getEditFile(configFile)
+
+        const normalizedEditFile = !!editFile ? editFile : configFile
 
         if (editFile) {
             this._fileToEditor[editFile] = {
@@ -69,5 +92,32 @@ export class ConfigurationEditManager {
                 destinationConfigFilePath: configFile,
             }
         }
+
+        this._editorManager.activeEditor.openFile(normalizedEditFile)
+    }
+
+    private async _transpileConfiguration(
+        buffer: Oni.Buffer,
+        editor: IConfigurationEditor,
+        destinationConfigFilePath: string,
+    ): Promise<void> {
+        Log.info(
+            `[ConfigurationEditManager::_transpileConfiguration] Transpiling ${
+                buffer.filePath
+            } to ${destinationConfigFilePath}`,
+        )
+
+        const contents = await buffer.getLines()
+        const joinedContents = contents.join(os.EOL)
+        const transpiledContents = await editor.transpileConfigurationToJavaScript(joinedContents)
+
+        if (
+            buffer.filePath === destinationConfigFilePath &&
+            joinedContents === transpiledContents
+        ) {
+            return
+        }
+
+        fs.writeFileSync(destinationConfigFilePath, transpiledContents)
     }
 }
