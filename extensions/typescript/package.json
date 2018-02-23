@@ -1,0 +1,21 @@
+{
+    "name": "typescript",
+    "version": "0.0.1",
+    "description": "TypeScript extension for Oni",
+    "engines": {
+        "oni": "0.2.18"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "contributes": {
+        "snippets": [
+            {
+                "language": "typescript",
+                "path": "snippets/typescript.json"
+            }
+        ]
+    },
+    "author": "",
+    "license": "MIT"
+}

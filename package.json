@@ -3,7 +3,7 @@
     "author": "",
     "email": "bryphe@outlook.com",
     "homepage": "https://www.onivim.io",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "Code editor with a modern twist on modal editing - powered by neovim.",
     "keywords": [
         "vim",
@@ -147,6 +147,7 @@
         "build:test": "npm run build:test:unit && npm run build:test:integration",
         "build:test:integration": "cd test && tsc -p tsconfig.json",
         "build:test:unit": "cd browser && tsc -p tsconfig.test.json",
+        "check-cached-binaries": "node build/script/CheckBinariesForBuild.js",
         "copy-icons": "node build/CopyIcons.js",
         "copy-dist-to-s3": "node build/script/CopyPackedFilesForS3Upload.js",
         "debug:test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
