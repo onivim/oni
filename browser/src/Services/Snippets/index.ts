@@ -3,12 +3,12 @@ export * from "./SnippetSession"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
-import { CompletionProviders } from "./../Completion"
 import { CommandManager } from "./../CommandManager"
+import { CompletionProviders } from "./../Completion"
 import { editorManager } from "./../EditorManager"
 
-import { SnippetManager } from "./SnippetManager"
 import { SnippetCompletionProvider } from "./SnippetCompletionProvider"
+import { SnippetManager } from "./SnippetManager"
 import { PluginSnippetProvider } from "./SnippetProvider"
 
 let _snippetManager: SnippetManager

@@ -9,8 +9,8 @@ import * as types from "vscode-languageserver-types"
 import * as Log from "./../../Log"
 
 import { ICompletionsRequestor } from "./../Completion"
-import { SnippetManager } from "./SnippetManager"
 import { ISnippet } from "./ISnippet"
+import { SnippetManager } from "./SnippetManager"
 
 export const convertSnippetToCompletionItem = (snippet: ISnippet): types.CompletionItem => ({
     insertTextFormat: types.InsertTextFormat.Snippet,
