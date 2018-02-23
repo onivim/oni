@@ -224,6 +224,8 @@ const start = async (args: string[]): Promise<void> => {
     const api = pluginManager.startApi()
     configuration.activate(api)
 
+    Snippets.activateCompletionProvider(CompletionProviders.getInstance(), pluginManager)
+
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     const { inputManager } = await inputManagerPromise
