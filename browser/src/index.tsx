@@ -233,7 +233,7 @@ const start = async (args: string[]): Promise<void> => {
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
 
     const ConfigurationCommands = await configurationCommandsPromise
-    ConfigurationCommands.activate(commandManager, editorManager)
+    ConfigurationCommands.activate(commandManager, configuration, editorManager)
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)

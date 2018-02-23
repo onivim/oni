@@ -2,10 +2,6 @@
  * ConfigurationCommands
  */
 
-import * as fs from "fs"
-import * as os from "os"
-import * as path from "path"
-
 import { CommandManager } from "./../CommandManager"
 import { EditorManager } from "./../EditorManager"
 
