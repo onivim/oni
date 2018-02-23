@@ -1,0 +1,12 @@
+/**
+ * ${0}.ts
+ */
+
+import * as assert from "assert"
+
+describe("${0}", () => {
+    it("${1:tests}", async () => {
+        ${2:assert.ok(false, "fail")}
+    })
+})
+

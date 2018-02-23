@@ -42,13 +42,13 @@ export const DefaultCompletionBufferInfo: ICompletionBufferInfo = {
 export interface ILastCompletionInfo {
     meetLine: number
     meetPosition: number
-    completedText: string
+    completion: types.CompletionItem
 }
 
 export const DefaultLastCompletionInfo: ILastCompletionInfo = {
     meetLine: -1,
     meetPosition: -1,
-    completedText: "",
+    completion: null,
 }
 
 export interface ICompletionResults {

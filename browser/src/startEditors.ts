@@ -15,6 +15,7 @@ import { IDiagnosticsDataSource } from "./Services/Diagnostics"
 import { LanguageManager } from "./Services/Language"
 import { MenuManager } from "./Services/Menu"
 import { OverlayManager } from "./Services/Overlay"
+import { SnippetManager } from "./Services/Snippets"
 import { Tasks } from "./Services/Tasks"
 import { ThemeManager } from "./Services/Themes"
 import { TokenColors } from "./Services/TokenColors"
@@ -31,6 +32,7 @@ export const startEditors = async (
     menuManager: MenuManager,
     overlayManager: OverlayManager,
     pluginManager: PluginManager,
+    snippetManager: SnippetManager,
     tasks: Tasks,
     themeManager: ThemeManager,
     tokenColors: TokenColors,
@@ -45,6 +47,7 @@ export const startEditors = async (
         menuManager,
         overlayManager,
         pluginManager,
+        snippetManager,
         tasks,
         themeManager,
         tokenColors,

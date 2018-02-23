@@ -177,13 +177,18 @@ export class SnippetSession {
                 : currentPlaceholder.character
         const placeHolderLength = currentPlaceholder.value.length
 
-        await this._editor.setSelection(
-            types.Range.create(
-                adjustedLine,
-                adjustedCharacter,
-                adjustedLine,
-                adjustedCharacter + placeHolderLength - 1,
-            ),
-        )
+        if (placeHolderLength === 0) {
+            await (this._editor as any).clearSelection()
+            await this._editor.activeBuffer.setCursorPosition(adjustedLine, adjustedCharacter)
+        } else {
+            await this._editor.setSelection(
+                types.Range.create(
+                    adjustedLine,
+                    adjustedCharacter,
+                    adjustedLine,
+                    adjustedCharacter + placeHolderLength - 1,
+                ),
+            )
+        }
     }
 }
