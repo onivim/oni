@@ -99,13 +99,13 @@ describe("SnippetSession", () => {
             assert.strictEqual(selection.end.character, expectedRange.end.character)
         })
 
-        it("traverses order correctly", async () => {
+        it("traverses order correctly, when placeholders are reversed", async () => {
             const snippet = new OniSnippet("${1:test} ${0:test2}")
             snippetSession = new SnippetSession(mockEditor as any, snippet)
 
             await snippetSession.start()
 
-            const selection = await mockEditor.getSelection()
+            let selection = await mockEditor.getSelection()
 
             // Validate we are highlighting the _second_ item now
             const expectedRange = types.Range.create(0, 5, 0, 9)
@@ -114,12 +114,38 @@ describe("SnippetSession", () => {
             assert.strictEqual(selection.end.character, expectedRange.end.character)
 
             await snippetSession.nextPlaceholder()
+            selection = await mockEditor.getSelection()
 
             // Validate we are highlighting the _second_ item now
             const secondItemRange = types.Range.create(0, 1, 0, 4)
             assert.strictEqual(selection.start.line, secondItemRange.start.line)
             assert.strictEqual(selection.start.character, secondItemRange.start.character)
             assert.strictEqual(selection.end.character, secondItemRange.end.character)
+        })
+
+        it("traverses order correctly, when there are multiple placeholders with the same index", async () => {
+            const snippet = new OniSnippet("${1:test} ${0:test2} ${1}")
+            snippetSession = new SnippetSession(mockEditor as any, snippet)
+
+            const placeholder0Range = types.Range.create(0, 5, 0, 9)
+            const placeholder1Range = types.Range.create(0, 1, 0, 4)
+
+            await snippetSession.start() // Placeholder 0
+            await snippetSession.nextPlaceholder() // Placeholder 1
+
+            let selection = await mockEditor.getSelection()
+
+            assert.strictEqual(selection.start.line, placeholder1Range.start.line)
+            assert.strictEqual(selection.start.character, placeholder1Range.start.character)
+            assert.strictEqual(selection.end.character, placeholder1Range.end.character)
+
+            await snippetSession.nextPlaceholder() // Wrap back to placeholder 0
+            selection = await mockEditor.getSelection()
+
+            // Validate we are highlighting the _second_ item now
+            assert.strictEqual(selection.start.line, placeholder0Range.start.line)
+            assert.strictEqual(selection.start.character, placeholder0Range.start.character)
+            assert.strictEqual(selection.end.character, placeholder0Range.end.character)
         })
     })
 
