@@ -139,6 +139,7 @@ const NotificationIconWrapper = withProps<IErrorStyles>(styled.div)`
 
 const NotificationContents = styled.div`
     flex: 1 1 auto;
+    width: 100%;
 
     display: flex;
     flex-direction: column;
