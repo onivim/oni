@@ -117,7 +117,7 @@ describe("SnippetSession", () => {
             selection = await mockEditor.getSelection()
 
             // Validate we are highlighting the _second_ item now
-            const secondItemRange = types.Range.create(0, 1, 0, 4)
+            const secondItemRange = types.Range.create(0, 0, 0, 3)
             assert.strictEqual(selection.start.line, secondItemRange.start.line)
             assert.strictEqual(selection.start.character, secondItemRange.start.character)
             assert.strictEqual(selection.end.character, secondItemRange.end.character)
@@ -128,7 +128,7 @@ describe("SnippetSession", () => {
             snippetSession = new SnippetSession(mockEditor as any, snippet)
 
             const placeholder0Range = types.Range.create(0, 5, 0, 9)
-            const placeholder1Range = types.Range.create(0, 1, 0, 4)
+            const placeholder1Range = types.Range.create(0, 0, 0, 3)
 
             await snippetSession.start() // Placeholder 0
             await snippetSession.nextPlaceholder() // Placeholder 1
