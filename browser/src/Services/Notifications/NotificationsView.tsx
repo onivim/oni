@@ -7,6 +7,7 @@
 import * as React from "react"
 
 import { connect, Provider } from "react-redux"
+import { AutoSizer } from "react-virtualized"
 
 import styled, { keyframes } from "styled-components"
 
@@ -14,7 +15,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group"
 
 import { INotification, INotificationsState } from "./NotificationStore"
 
-import { boxShadow } from "./../../UI/components/common"
+import { boxShadow, withProps } from "./../../UI/components/common"
 import { Icon, IconSize } from "./../../UI/Icon"
 
 export interface NotificationsViewProps {
@@ -41,13 +42,22 @@ export class NotificationsView extends React.PureComponent<NotificationsViewProp
         return (
             <NotificationsWrapper>
                 <TransitionGroup>
-                    {this.props.notifications.map(notification => {
-                        return (
-                            <Transition>
-                                <NotificationView {...notification} key={notification.id} />
-                            </Transition>
-                        )
-                    })}
+                    <AutoSizer>
+                        {({ height, width }) =>
+                            this.props.notifications.map(notification => {
+                                return (
+                                    <Transition>
+                                        <NotificationView
+                                            height={height}
+                                            width={width}
+                                            {...notification}
+                                            key={notification.id}
+                                        />
+                                    </Transition>
+                                )
+                            })
+                        }
+                    </AutoSizer>
                 </TransitionGroup>
             </NotificationsWrapper>
         )
@@ -59,13 +69,14 @@ const frames = keyframes`
     100% { opacity: 1; transform: translateY(0px); }
 `
 
-const NotificationWrapper = styled.div`
-    background-color: red;
+const NotificationWrapper = withProps<IStyleProps>(styled.div)`
+    background-color: ${p => (!p.warn ? p.theme["editor.hover.content.background"] : "red")};
     color: white;
-    width: 20em;
+    width: ${p => p.width};
 
     margin: 1em;
     max-height: 50%;
+    height: ${p => p.height};
 
     display: flex;
     flex-direction: row;
@@ -93,7 +104,8 @@ const NotificationWrapper = styled.div`
     }
 `
 
-const NotificationIconWrapper = styled.div`
+const NotificationIconWrapper = withProps<{ color?: string }>(styled.div)`
+    ${({ color }) => color && `color: ${color};`};
     flex: 0 0 auto;
 
     padding: 16px;
@@ -113,9 +125,8 @@ const NotificationContents = styled.div`
 
     padding: 8px;
 
-    overflow-y: overlay;
+    overflow-y: auto;
     overflow-x: hidden;
-    height: 100%;
 `
 
 const NotificationTitle = styled.div`
@@ -129,7 +140,7 @@ const NotificationTitle = styled.div`
 
 const NotificationDescription = styled.div`
     flex: 1 1 auto;
-    overflow-y: overlay;
+    overflow-y: auto;
     overflow-x: hidden;
     margin: 1em 0em;
 
@@ -138,15 +149,24 @@ const NotificationDescription = styled.div`
 
 // export interface NotificationViewProps extends INotification { }
 
-export class NotificationView extends React.PureComponent<INotification, {}> {
+interface IStyleProps {
+    height: number
+    width: number
+    warn?: boolean
+}
+
+export class NotificationView extends React.PureComponent<INotification & IStyleProps, {}> {
     public render(): JSX.Element {
+        const { width, height } = this.props
         return (
             <NotificationWrapper
+                width={width}
+                height={height}
                 key={this.props.id}
                 onClick={this.props.onClick}
                 className="notification"
             >
-                <NotificationIconWrapper>
+                <NotificationIconWrapper color="red">
                     <Icon size={IconSize.Large} name="exclamation-triangle" />
                 </NotificationIconWrapper>
                 <NotificationContents>
