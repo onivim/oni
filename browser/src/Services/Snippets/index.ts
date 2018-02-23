@@ -10,10 +10,7 @@ import { SnippetCompletionProvider } from "./SnippetCompletionProvider"
 
 let _snippetManager: SnippetManager
 
-export const activate = (
-    commandManager: CommandManager,
-    completionProviders: CompletionProviders,
-) => {
+export const activate = (commandManager: CommandManager) => {
     _snippetManager = new SnippetManager(editorManager)
 
     commandManager.registerCommand({
@@ -39,7 +36,9 @@ export const activate = (
         enabled: () => _snippetManager.isSnippetActive(),
         execute: () => _snippetManager.cancel(),
     })
+}
 
+export const activateCompletionProvider = (completionProviders: CompletionProviders) => {
     completionProviders.registerCompletionProvider(
         "oni-snippets",
         new SnippetCompletionProvider(_snippetManager),
