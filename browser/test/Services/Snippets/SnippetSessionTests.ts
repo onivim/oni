@@ -98,6 +98,29 @@ describe("SnippetSession", () => {
             assert.strictEqual(selection.start.character, expectedRange.start.character)
             assert.strictEqual(selection.end.character, expectedRange.end.character)
         })
+
+        it("traverses order correctly", async () => {
+            const snippet = new OniSnippet("${1:test} ${0:test2}")
+            snippetSession = new SnippetSession(mockEditor as any, snippet)
+
+            await snippetSession.start()
+
+            const selection = await mockEditor.getSelection()
+
+            // Validate we are highlighting the _second_ item now
+            const expectedRange = types.Range.create(0, 5, 0, 9)
+            assert.strictEqual(selection.start.line, expectedRange.start.line)
+            assert.strictEqual(selection.start.character, expectedRange.start.character)
+            assert.strictEqual(selection.end.character, expectedRange.end.character)
+
+            await snippetSession.nextPlaceholder()
+
+            // Validate we are highlighting the _second_ item now
+            const secondItemRange = types.Range.create(0, 1, 0, 4)
+            assert.strictEqual(selection.start.line, secondItemRange.start.line)
+            assert.strictEqual(selection.start.character, secondItemRange.start.character)
+            assert.strictEqual(selection.end.character, secondItemRange.end.character)
+        })
     })
 
     describe("synchronizeUpdatedPlaceholders", () => {
