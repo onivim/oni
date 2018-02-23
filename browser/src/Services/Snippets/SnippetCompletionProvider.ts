@@ -15,8 +15,10 @@ import { ISnippet } from "./ISnippet"
 export const convertSnippetToCompletionItem = (snippet: ISnippet): types.CompletionItem => ({
     insertTextFormat: types.InsertTextFormat.Snippet,
     insertText: snippet.body,
-    label: snippet.prefix,
+    label: snippet.prefix + " (snippet)",
     detail: snippet.description,
+    documentation: snippet.body,
+    kind: types.CompletionItemKind.Snippet,
 })
 
 export class SnippetCompletionProvider implements ICompletionsRequestor {

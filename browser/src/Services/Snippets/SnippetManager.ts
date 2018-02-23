@@ -36,7 +36,7 @@ export class SnippetManager {
     }
 
     public async getSnippetsForLanguage(language: string): Promise<ISnippet[]> {
-        if (language === "typescript") {
+        if (language === "javascript") {
             return [
                 {
                     prefix: "for",
