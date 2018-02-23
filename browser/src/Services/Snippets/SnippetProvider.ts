@@ -5,17 +5,14 @@
  */
 
 import * as fs from "fs"
+import * as os from "os"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
 import * as Log from "./../../Log"
 import { flatMap } from "./../../Utility"
 
-export interface ISnippet {
-    prefix: string
-    body: string
-    description: string
-}
+import { ISnippet } from "./ISnippet"
 
 export interface ISnippetProvider {
     getSnippets(language: string): Promise<ISnippet[]>
@@ -37,6 +34,12 @@ export class CompositeSnippetProvider implements ISnippetProvider {
             return [...prev, ...cur]
         }, [])
     }
+}
+
+export interface ISnippetPluginContribution {
+    prefix: string
+    body: string[]
+    description: string
 }
 
 export class PluginSnippetProvider implements ISnippetProvider {
@@ -84,12 +87,21 @@ export class PluginSnippetProvider implements ISnippetProvider {
             })
         })
 
-        const snippets = Object.values(JSON.parse(contents)) as ISnippet[]
+        const snippets = Object.values(JSON.parse(contents)) as ISnippetPluginContribution[]
         Log.verbose(
             `[PluginSnippetProvider._loadSnippetsFromFile] - Loaded ${
                 snippets.length
             } snippets from ${snippetFilePath}`,
         )
-        return snippets
+
+        const normalizedSnippets = snippets.map((snip: ISnippetPluginContribution): ISnippet => {
+            return {
+                prefix: snip.prefix,
+                description: snip.description,
+                body: snip.body.join(os.EOL),
+            }
+        })
+
+        return normalizedSnippets
     }
 }
