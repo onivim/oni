@@ -9,6 +9,7 @@ const path = require("path")
 const fs = require("fs")
 const mkdirp = require("mkdirp")
 const fsExtra = require("fs-extra")
+const os = require("os")
 
 const rootPath = path.join(__dirname, "..", "..")
 const cachePath = path.join(rootPath, ".oni_build_cache")
