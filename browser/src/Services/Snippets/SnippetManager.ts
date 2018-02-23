@@ -14,6 +14,7 @@ import { Subject } from "rxjs/Subject"
 import { EditorManager } from "./../EditorManager"
 
 import { OniSnippet } from "./OniSnippet"
+import { CompositeSnippetProvider, ISnippetProvider } from "./SnippetProvider"
 import { SnippetSession } from "./SnippetSession"
 
 import { ISnippet } from "./ISnippet"
@@ -22,9 +23,12 @@ export class SnippetManager {
     private _activeSession: SnippetSession
     private _disposables: IDisposable[] = []
 
+    private _snippetProvider: CompositeSnippetProvider
     private _synchronizeSnippetObseravble: Subject<void> = new Subject<void>()
 
     constructor(private _editorManager: EditorManager) {
+        this._snippetProvider = new CompositeSnippetProvider()
+
         this._synchronizeSnippetObseravble.auditTime(50).subscribe(() => {
             const activeEditor = this._editorManager.activeEditor as any
             const activeSession = this._activeSession
@@ -36,17 +40,11 @@ export class SnippetManager {
     }
 
     public async getSnippetsForLanguage(language: string): Promise<ISnippet[]> {
-        if (language === "javascript") {
-            return [
-                {
-                    prefix: "for",
-                    body: "${0:test} hello ${1:test2}\n",
-                    description: "for-loop",
-                },
-            ]
-        } else {
-            return []
-        }
+        return this._snippetProvider.getSnippets(language)
+    }
+
+    public registerSnippetProvider(snippetProvider: ISnippetProvider): void {
+        this._snippetProvider.registerProvider(snippetProvider)
     }
 
     /**
