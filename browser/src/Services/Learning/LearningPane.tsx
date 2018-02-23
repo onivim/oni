@@ -36,6 +36,7 @@ export class LearningPane implements SidebarPane {
     }
 
     public enter(): void {
+        this._tutorialManager.startTutorial(null)
         this._onEnter.dispatch()
     }
 
