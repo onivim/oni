@@ -23,11 +23,15 @@ import { getQuickInfo } from "./QuickInfo"
 import { doRename } from "./Rename"
 import { getSignatureHelp } from "./SignatureHelp"
 import { getDocumentSymbols, getWorkspaceSymbols } from "./Symbols"
+import { TypeScriptConfigurationEditor } from "./TypeScriptConfigurationEditor"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
 import * as Utility from "./Utility"
 
 export const activate = (oni: Oni.Plugin.Api) => {
-    let _host: TypeScriptServerHost = null
+    let _host: TypeScriptServerHost = null(
+        // Add typescript as an editor
+        oni.configuration as any,
+    ).registerEditor("typescript", new TypeScriptConfigurationEditor())
 
     const initializeHost = (host: TypeScriptServerHost) => {
         host.on("semanticDiag", diagnostics => {
