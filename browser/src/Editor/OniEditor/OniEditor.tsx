@@ -195,6 +195,10 @@ export class OniEditor implements IEditor {
         return this._neovimEditor.newFile(filePath)
     }
 
+    public async clearSelection(): Promise<void> {
+        return this._neovimEditor.clearSelection()
+    }
+
     public async setSelection(range: types.Range): Promise<void> {
         return this._neovimEditor.setSelection(range)
     }
