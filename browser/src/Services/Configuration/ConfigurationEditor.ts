@@ -2,9 +2,9 @@
  * ConfigurationEditor.ts
  */
 
-import * as os from "os"
 import * as fs from "fs"
 import * as Oni from "oni-api"
+import * as os from "os"
 
 import * as Log from "./../../Log"
 
