@@ -33,7 +33,7 @@ const BaseConfiguration: IConfigurationValues = {
     deactivate: noop,
 
     "autoUpdate.enabled": false,
-    "configuration.editor": "javascript",
+    "configuration.editor": "typescript",
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
