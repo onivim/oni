@@ -7,15 +7,12 @@
 import * as React from "react"
 
 import { connect, Provider } from "react-redux"
-import { AutoSizer } from "react-virtualized"
-
-import styled, { keyframes } from "styled-components"
 
 import { CSSTransition, TransitionGroup } from "react-transition-group"
 
 import { INotification, INotificationsState } from "./NotificationStore"
 
-import { boxShadow, withProps } from "./../../UI/components/common"
+import { boxShadow, keyframes, styled, withProps } from "./../../UI/components/common"
 import { Icon, IconSize } from "./../../UI/Icon"
 
 export interface NotificationsViewProps {
@@ -34,7 +31,14 @@ const NotificationsWrapper = styled.div`
     position: absolute;
     top: 16px;
     right: 16px;
-    max-height: 50%;
+    max-height: 90%;
+    width: 30%;
+    pointer-events: all;
+    overflow: auto;
+
+    .notification:first-child {
+        margin-top: 0;
+    }
 `
 
 export class NotificationsView extends React.PureComponent<NotificationsViewProps, {}> {
@@ -42,22 +46,13 @@ export class NotificationsView extends React.PureComponent<NotificationsViewProp
         return (
             <NotificationsWrapper>
                 <TransitionGroup>
-                    <AutoSizer>
-                        {({ height, width }) =>
-                            this.props.notifications.map(notification => {
-                                return (
-                                    <Transition>
-                                        <NotificationView
-                                            height={height}
-                                            width={width}
-                                            {...notification}
-                                            key={notification.id}
-                                        />
-                                    </Transition>
-                                )
-                            })
-                        }
-                    </AutoSizer>
+                    {this.props.notifications.map(notification => {
+                        return (
+                            <Transition>
+                                <NotificationView {...notification} key={notification.id} />
+                            </Transition>
+                        )
+                    })}
                 </TransitionGroup>
             </NotificationsWrapper>
         )
@@ -69,17 +64,35 @@ const frames = keyframes`
     100% { opacity: 1; transform: translateY(0px); }
 `
 
-const NotificationWrapper = withProps<IStyleProps>(styled.div)`
-    background-color: ${p => (!p.warn ? p.theme["editor.hover.content.background"] : "red")};
-    color: white;
-    width: ${p => p.width};
+type Level = "warn" | "info" | "error"
 
-    margin: 1em;
+interface IErrorStyles {
+    level?: Level
+}
+
+const getColorForErrorLevel = (level: Level) => {
+    const colorToLevel = {
+        warn: "red",
+        error: "yellow",
+        info: "white",
+    }
+
+    return colorToLevel[level]
+}
+
+const NotificationWrapper = withProps<IErrorStyles>(styled.div)`
+    background-color: ${p => p.theme["toolTip.background"]};
+    border-radius: 4px;
+    padding: 0 1rem 1rem;
+    color: white;
+    margin: 1rem 0 1rem 1rem;
+    ${boxShadow};
+
     max-height: 50%;
-    height: ${p => p.height};
 
     display: flex;
-    flex-direction: row;
+    flex: auto;
+    flex-direction: column;
 
     justify-content: center;
     align-items: center;
@@ -99,16 +112,24 @@ const NotificationWrapper = withProps<IStyleProps>(styled.div)`
     }
 
     &:hover {
-        ${boxShadow};
         transform: translateY(-1px);
     }
 `
 
-const NotificationIconWrapper = withProps<{ color?: string }>(styled.div)`
-    ${({ color }) => color && `color: ${color};`};
-    flex: 0 0 auto;
+const IconContainer = styled.div`
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+`
 
-    padding: 16px;
+const NotificationIconWrapper = withProps<IErrorStyles>(styled.div)`
+    ${({ level }) => level && `color: ${getColorForErrorLevel(level)};`};
+    flex: 0 0 auto;
+    align-self: flex-start;
+
+    padding: 8px;
 
     &:hover {
         ${boxShadow};
@@ -129,13 +150,13 @@ const NotificationContents = styled.div`
     overflow-x: hidden;
 `
 
-const NotificationTitle = styled.div`
+const NotificationTitle = withProps<IErrorStyles>(styled.div)`
+    ${({ level }) => level && `color: ${getColorForErrorLevel(level)};`};
     flex: 0 0 auto;
-
+    width: 100%;
+    word-break: break-word;
     font-weight: bold;
     font-size: 1.1em;
-
-    margin-top: 0.5em;
 `
 
 const NotificationDescription = styled.div`
@@ -147,35 +168,42 @@ const NotificationDescription = styled.div`
     font-size: 0.9em;
 `
 
-// export interface NotificationViewProps extends INotification { }
+const NotificationHeader = styled.header`
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid ${p => p.theme["toolTip.border"]};
+    padding: 0.5rem;
+`
 
-interface IStyleProps {
-    height: number
-    width: number
-    warn?: boolean
-}
-
-export class NotificationView extends React.PureComponent<INotification & IStyleProps, {}> {
+export class NotificationView extends React.PureComponent<INotification, {}> {
     public render(): JSX.Element {
-        const { width, height } = this.props
         return (
             <NotificationWrapper
-                width={width}
-                height={height}
                 key={this.props.id}
                 onClick={this.props.onClick}
                 className="notification"
+                level={this.props.level}
             >
-                <NotificationIconWrapper color="red">
-                    <Icon size={IconSize.Large} name="exclamation-triangle" />
-                </NotificationIconWrapper>
+                <NotificationHeader>
+                    <IconContainer>
+                        <NotificationIconWrapper level={this.props.level}>
+                            <Icon size={IconSize.Large} name="exclamation-triangle" />
+                        </NotificationIconWrapper>
+                        <NotificationIconWrapper onClick={evt => this._onClickClose(evt)}>
+                            <Icon size={IconSize.Large} name="times" />
+                        </NotificationIconWrapper>
+                    </IconContainer>
+                    <NotificationTitle level={this.props.level}>
+                        {this.props.title}
+                    </NotificationTitle>
+                </NotificationHeader>
                 <NotificationContents>
-                    <NotificationTitle>{this.props.title}</NotificationTitle>
                     <NotificationDescription>{this.props.detail}</NotificationDescription>
                 </NotificationContents>
-                <NotificationIconWrapper onClick={evt => this._onClickClose(evt)}>
-                    <Icon size={IconSize.Large} name="times" />
-                </NotificationIconWrapper>
             </NotificationWrapper>
         )
     }
