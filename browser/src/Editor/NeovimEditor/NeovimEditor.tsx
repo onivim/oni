@@ -45,6 +45,7 @@ import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { editorManager } from "./../../Services/EditorManager"
 import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
+import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
 
 import * as Shell from "./../../UI/Shell"
@@ -168,6 +169,7 @@ export class NeovimEditor extends Editor implements IEditor {
         private _menuManager: MenuManager,
         private _overlayManager: OverlayManager,
         private _pluginManager: PluginManager,
+        private _snippetManager: SnippetManager,
         private _tasks: Tasks,
         private _themeManager: ThemeManager,
         private _tokenColors: TokenColors,
@@ -527,6 +529,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._configuration,
             this._completionProviders,
             this._languageManager,
+            this._snippetManager,
         )
         this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
 

@@ -34,7 +34,8 @@ export const getFilteredCompletions = (state: ICompletionState): types.Completio
     if (
         state.meetInfo.meetLine === state.lastCompletionInfo.meetLine &&
         state.meetInfo.meetPosition === state.lastCompletionInfo.meetPosition &&
-        state.meetInfo.meetBase === state.lastCompletionInfo.completedText
+        state.meetInfo.meetBase ===
+            CompletionUtility.getInsertText(state.lastCompletionInfo.completion)
     ) {
         return EmptyCompletions
     }
