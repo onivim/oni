@@ -54,7 +54,7 @@ export class OniSnippet {
     }
 
     public getPlaceholderValue(index: number): string {
-        return this._placeholderValues[index] || null
+        return this._placeholderValues[index] || ""
     }
 
     public getPlaceholders(): OniSnippetPlaceholder[] {
