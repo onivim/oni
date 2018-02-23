@@ -5,6 +5,9 @@
 import * as fs from "fs"
 import * as Oni from "oni-api"
 import * as os from "os"
+import * as path from "path"
+
+import * as mkdirp from "mkdirp"
 
 import * as Log from "./../../Log"
 
@@ -33,7 +36,7 @@ export interface IConfigurationEditor {
     // For configuration editors that use a different language
     // (TypeScript, Reason, etc), this specifies the file
     // that should be opened for editing.
-    getEditFile(configurationFilePath: string): Promise<string>
+    editConfiguration(configurationFilePath: string): Promise<string>
 
     // When the edit file is saved, this is responsible for transpiling the contents
     // to javascript.
@@ -41,7 +44,16 @@ export interface IConfigurationEditor {
 }
 
 export class JavaScriptConfigurationEditor {
-    public async getEditFile(configurationFilePath: string): Promise<string> {
+    public async editConfiguration(configurationFilePath: string): Promise<string> {
+        // Create default file, if it doesn't already exist
+        if (!fs.existsSync(configurationFilePath)) {
+            const defaultConfigJsPath = path.join(__dirname, "configuration", "config.default.js")
+            const defaultConfigLines = fs.readFileSync(defaultConfigJsPath, "utf8")
+
+            mkdirp.sync(path.dirname(configurationFilePath))
+            fs.writeFileSync(configurationFilePath, defaultConfigLines)
+        }
+
         return configurationFilePath
     }
 
@@ -77,7 +89,7 @@ export class ConfigurationEditManager {
 
     public async editConfiguration(configFile: string): Promise<void> {
         const editor = this._configuration.editor
-        const editFile = await editor.getEditFile(configFile)
+        const editFile = await editor.editConfiguration(configFile)
 
         const normalizedEditFile = !!editFile ? editFile : configFile
 
@@ -115,6 +127,9 @@ export class ConfigurationEditManager {
             buffer.filePath === destinationConfigFilePath &&
             joinedContents === transpiledContents
         ) {
+            Log.info(
+                `[ConfigurationEditManager::_transpileConfiguration] Aborting transpile since destination file / source file + contents are the same (expected for JavaScript strategy).`,
+            )
             return
         }
 
