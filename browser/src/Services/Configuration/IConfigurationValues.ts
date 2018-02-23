@@ -41,9 +41,6 @@ export interface IConfigurationValues {
     // - textMateHighlighting
     "experimental.editor.textMateHighlighting.enabled": boolean
 
-    // Whether or not the learning pane is available
-    "experimental.learning.enabled": boolean
-
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string

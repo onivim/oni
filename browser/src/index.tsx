@@ -202,7 +202,6 @@ const start = async (args: string[]): Promise<void> => {
 
     Performance.startMeasure("Oni.Start.Sidebar")
     const Sidebar = await sidebarPromise
-    const Learning = await import("./Services/Learning")
     const Explorer = await import("./Services/Explorer")
     const Search = await import("./Services/Search")
 
@@ -211,7 +210,6 @@ const start = async (args: string[]): Promise<void> => {
 
     Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
-    Learning.activate(configuration, editorManager, Sidebar.getInstance())
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =
