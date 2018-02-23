@@ -28,10 +28,12 @@ import { TypeScriptServerHost } from "./TypeScriptServerHost"
 import * as Utility from "./Utility"
 
 export const activate = (oni: Oni.Plugin.Api) => {
-    let _host: TypeScriptServerHost = null(
-        // Add typescript as an editor
-        oni.configuration as any,
-    ).registerEditor("typescript", new TypeScriptConfigurationEditor())
+    let _host: TypeScriptServerHost = null
+
+    const anyConfig = oni.configuration as any
+
+    // Add typescript as an editor
+    anyConfig.registerEditor("typescript", new TypeScriptConfigurationEditor())
 
     const initializeHost = (host: TypeScriptServerHost) => {
         host.on("semanticDiag", diagnostics => {
