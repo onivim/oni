@@ -13,7 +13,8 @@ const fsExtra = require("fs-extra")
 const rootPath = path.join(__dirname, "..", "..")
 const cachePath = path.join(rootPath, ".oni_build_cache")
 
-const modulesToCheck = ["oni-neovim-binaries", "oni-ripgrep"]
+const modulesToCheck =
+    os.platform() === "darwin" ? ["oni-neovim-binaries", "oni-ripgrep"] : ["oni-ripgrep"]
 
 const isAuthenticated = !!process.env["GITHUB_TOKEN"]
 
