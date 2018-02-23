@@ -52,11 +52,11 @@ const cacheFoldersExist = doBinFoldersExist(cachePath)
 console.log("- doBinFoldersExist in root: " + foldersExist)
 console.log("- doBinFoldersExist in cache: " + cacheFoldersExist)
 
-if (isAuthenticated && doBinFoldersExist) {
+if (isAuthenticated && foldersExist) {
     console.log("- Copying files to cache")
     copyFolders(rootPath, cachePath)
     console.log("- Copy complete")
-} else if (!isAuthenticated && !doBinFoldersExist && cacheFoldersExist) {
+} else if (!isAuthenticated && !foldersExist && cacheFoldersExist) {
     console.log("- Copying files from cache")
     copyFolders(cachePath, rootPath)
     console.log("- Copy complete!")
