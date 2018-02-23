@@ -25,7 +25,9 @@ export const getSmallestPlaceholder = (
     placeholders: OniSnippetPlaceholder[],
 ): OniSnippetPlaceholder => {
     return placeholders.reduce((prev: OniSnippetPlaceholder, curr: OniSnippetPlaceholder) => {
-        if (!prev) return curr
+        if (!prev) {
+            return curr
+        }
 
         if (curr.index < prev.index) {
             return curr
@@ -95,10 +97,6 @@ export class SnippetSession {
         }
 
         await this.nextPlaceholder()
-    }
-
-    private _finish(): void {
-        this._onCancelEvent.dispatch()
     }
 
     public async nextPlaceholder(): Promise<void> {
@@ -176,6 +174,10 @@ export class SnippetSession {
         // Set placeholder value
         const newPlaceholderValue = currentLine.substring(startPosition, endPosition)
         await this.setPlaceholderValue(bounds.index, newPlaceholderValue)
+    }
+
+    private _finish(): void {
+        this._onCancelEvent.dispatch()
     }
 
     private _getBoundsForPlaceholder(): {
