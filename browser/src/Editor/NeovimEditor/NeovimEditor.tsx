@@ -674,6 +674,11 @@ export class NeovimEditor extends Editor implements IEditor {
         this._commands.deactivate()
     }
 
+    public async clearSelection(): Promise<void> {
+        await this._neovimInstance.input("<esc>")
+        await this._neovimInstance.input("a")
+    }
+
     public async setSelection(range: types.Range): Promise<void> {
         await this._neovimInstance.input("<esc>")
 
