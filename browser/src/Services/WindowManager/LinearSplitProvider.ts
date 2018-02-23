@@ -48,7 +48,17 @@ export class LinearSplitProvider implements IWindowSplitProvider {
     ): boolean {
         // If there is no reference split, we can just tack this split on
         if (!referenceSplit) {
-            this._splitProviders.push(new SingleSplitProvider(split))
+            if (direction === this._direction) {
+                this._splitProviders.push(new SingleSplitProvider(split))
+            } else {
+                const childSplitProvider = new LinearSplitProvider(this._direction)
+                childSplitProvider._splitProviders = this._splitProviders
+                this._splitProviders = [childSplitProvider]
+                this._splitProviders.push(new SingleSplitProvider(split))
+                this._direction = direction
+            }
+
+            return true
         }
 
         const containingSplit = this._getProviderForSplit(referenceSplit)

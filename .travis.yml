@@ -5,10 +5,6 @@ branches:
   only:
   - master
   - /^release.*/
-cache:
-    directories:
-        - node_modules/oni-neovim-binaries
-        - node_modules/oni-ripgrep
 matrix:
   include:
   - os: linux

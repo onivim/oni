@@ -12,13 +12,20 @@ export interface IFileMapping {
 
     mappedFolder: string
     mappedFileName: string
+
+    templateFilePath?: string
+}
+
+export interface IFileMappingResult {
+    fullPath: string
+    templateFileFullPath?: string
 }
 
 export const getMappedFile = (
     rootFolder: string,
     filePath: string,
     mappings: IFileMapping[],
-): string | null => {
+): IFileMappingResult | null => {
     const mappingsThatApply = mappings.filter(m => doesMappingMatchFile(rootFolder, filePath, m))
 
     if (mappingsThatApply.length === 0) {
@@ -27,7 +34,15 @@ export const getMappedFile = (
 
     const mapping = mappingsThatApply[0]
 
-    return getMappedFileFromMapping(rootFolder, filePath, mapping)
+    const fullPath = getMappedFileFromMapping(rootFolder, filePath, mapping)
+    const templateFileFullPath = mapping.templateFilePath
+        ? path.join(rootFolder, mapping.templateFilePath)
+        : null
+
+    return {
+        fullPath,
+        templateFileFullPath,
+    }
 }
 
 export const doesMappingMatchFile = (

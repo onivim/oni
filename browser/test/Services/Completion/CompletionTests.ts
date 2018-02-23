@@ -75,6 +75,7 @@ describe("Completion", () => {
             mockConfiguration as any,
             mockCompletionRequestor,
             mockLanguageManager as any,
+            null /* snippet manager */,
         )
     })
 
