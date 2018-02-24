@@ -447,7 +447,7 @@ export const createStore = (
             createEpicMiddleware(
                 combineEpics(
                     commitCompletionEpic(editor, snippetManager),
-                    createGetCompletionMeetEpic(languageManager, configuration),
+                    createGetCompletionMeetEpic(languageManager, configuration, syntaxHighlighter),
                     createGetCompletionsEpic(completionsRequestor),
                     createGetCompletionDetailsEpic(completionsRequestor),
                     selectFirstItemEpic,
