@@ -87,11 +87,6 @@ export class SearchPaneView extends React.PureComponent<
         this._cleanExistingSubscriptions()
     }
 
-    private _cleanExistingSubscriptions(): void {
-        this._subscriptions.forEach(s => s.dispose())
-        this._subscriptions = []
-    }
-
     public render(): JSX.Element {
         if (!this.state.activeWorkspace) {
             return (
@@ -147,6 +142,11 @@ export class SearchPaneView extends React.PureComponent<
 
     //     this._startSearch()
     // }
+
+    private _cleanExistingSubscriptions(): void {
+        this._subscriptions.forEach(s => s.dispose())
+        this._subscriptions = []
+    }
 
     private _onChangeSearchQuery(val: string): void {
         this.setState({
