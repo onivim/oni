@@ -42,8 +42,10 @@ import { commandManager } from "./../../Services/CommandManager"
 import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
+import { editorManager } from "./../../Services/EditorManager"
 import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
+import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
 
 import * as Shell from "./../../UI/Shell"
@@ -84,7 +86,7 @@ import { BufferLayerManager } from "./BufferLayerManager"
 import { Definition } from "./Definition"
 import * as ActionCreators from "./NeovimEditorActions"
 import { NeovimEditorCommands } from "./NeovimEditorCommands"
-import { createStore, IState } from "./NeovimEditorStore"
+import { createStore, IState, ITab } from "./NeovimEditorStore"
 import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
@@ -167,6 +169,7 @@ export class NeovimEditor extends Editor implements IEditor {
         private _menuManager: MenuManager,
         private _overlayManager: OverlayManager,
         private _pluginManager: PluginManager,
+        private _snippetManager: SnippetManager,
         private _tasks: Tasks,
         private _themeManager: ThemeManager,
         private _tokenColors: TokenColors,
@@ -445,15 +448,15 @@ export class NeovimEditor extends Editor implements IEditor {
             }
         })
 
-        this._neovimInstance.on("tabline-update", async (currentTabId: number, tabs: any[]) => {
-            const atomicCalls = tabs.map((tab: any) => {
+        this._neovimInstance.on("tabline-update", async (currentTabId: number, tabs: ITab[]) => {
+            const atomicCalls = tabs.map((tab: ITab) => {
                 return ["nvim_call_function", ["tabpagebuflist", [tab.id]]]
             })
 
             const response = await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
 
-            tabs.map((tab: any, index: number) => {
-                tab.buffersInTab = response[0][index]
+            tabs.map((tab: ITab, index: number) => {
+                tab.buffersInTab = response[0][index] instanceof Array ? response[0][index] : []
             })
 
             this._actions.setTabs(currentTabId, tabs)
@@ -526,6 +529,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._configuration,
             this._completionProviders,
             this._languageManager,
+            this._snippetManager,
         )
         this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
 
@@ -551,9 +555,14 @@ export class NeovimEditor extends Editor implements IEditor {
             this._languageManager,
         )
 
-        this._languageIntegration.onShowHover.subscribe(hover => {
+        this._languageIntegration.onShowHover.subscribe(async hover => {
             const { cursorPixelX, cursorPixelY } = this._store.getState()
-            this._hoverRenderer.showQuickInfo(cursorPixelX, cursorPixelY, hover.hover, hover.errors)
+            await this._hoverRenderer.showQuickInfo(
+                cursorPixelX,
+                cursorPixelY,
+                hover.hover,
+                hover.errors,
+            )
         })
 
         this._languageIntegration.onHideHover.subscribe(() => {
@@ -652,6 +661,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public enter(): void {
+        editorManager.setActiveEditor(this)
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
         this._actions.setHasFocus(true)
@@ -662,6 +672,11 @@ export class NeovimEditor extends Editor implements IEditor {
         Log.info("[NeovimEditor::leave]")
         this._actions.setHasFocus(false)
         this._commands.deactivate()
+    }
+
+    public async clearSelection(): Promise<void> {
+        await this._neovimInstance.input("<esc>")
+        await this._neovimInstance.input("a")
     }
 
     public async setSelection(range: types.Range): Promise<void> {
@@ -878,12 +893,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._actions.setMode(newMode)
         this.setMode(newMode as Oni.Vim.Mode)
-
-        if (newMode === "insert") {
-            this._syntaxHighlighter.notifyStartInsertMode(this.activeBuffer)
-        } else {
-            this._syntaxHighlighter.notifyEndInsertMode(this.activeBuffer)
-        }
     }
 
     private _updateWindow(currentBuffer: EventContext) {

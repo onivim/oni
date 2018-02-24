@@ -33,6 +33,7 @@ const BaseConfiguration: IConfigurationValues = {
     deactivate: noop,
 
     "autoUpdate.enabled": false,
+    "configuration.editor": "javascript",
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
@@ -99,6 +100,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.quickOpen.execCommand": null,
     "editor.quickOpen.filterStrategy": "fuse",
+
+    "editor.split.mode": "native",
 
     "editor.typingPrediction": true,
 

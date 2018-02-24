@@ -2,6 +2,7 @@
  * Configuration.ts
  */
 
+import { merge } from "lodash"
 import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
@@ -9,6 +10,7 @@ import * as Log from "./../../Log"
 import * as Performance from "./../../Performance"
 import { diff } from "./../../Utility"
 
+import { IConfigurationEditor, JavaScriptConfigurationEditor } from "./ConfigurationEditor"
 import { DefaultConfiguration } from "./DefaultConfiguration"
 import { checkDeprecatedSettings } from "./DeprecatedConfigurationValues"
 import { FileConfigurationProvider } from "./FileConfigurationProvider"
@@ -57,6 +59,13 @@ export class Configuration implements Oni.Configuration {
     private _fileToProvider: { [key: string]: IConfigurationProvider } = {}
     private _configProviderInfo = new Map<IConfigurationProvider, ConfigurationProviderInfo>()
 
+    private _configurationEditors: { [key: string]: IConfigurationEditor } = {}
+
+    public get editor(): IConfigurationEditor {
+        const val = this.getValue("configuration.editor")
+        return this._configurationEditors[val] || new JavaScriptConfigurationEditor()
+    }
+
     public get onConfigurationError(): IEvent<Error> {
         return this._onConfigurationErrorEvent
     }
@@ -78,6 +87,10 @@ export class Configuration implements Oni.Configuration {
         this.addConfigurationFile(UserConfiguration.getUserConfigFilePath())
 
         Performance.mark("Config.load.end")
+    }
+
+    public registerEditor(id: string, editor: IConfigurationEditor): void {
+        this._configurationEditors[id] = editor
     }
 
     public addConfigurationFile(filePath: string): void {
@@ -172,12 +185,12 @@ export class Configuration implements Oni.Configuration {
 
     private _updateConfig(): void {
         const previousConfig = this._config
-
-        let currentConfig = {
-            ...this._defaultConfiguration,
-            ...this._persistedConfiguration.getPersistedValues(),
-            ...this._setValues,
-        }
+        // Need a deep merge here to recursively update the config
+        let currentConfig = merge(
+            this._defaultConfiguration,
+            this._persistedConfiguration.getPersistedValues(),
+            this._setValues,
+        )
 
         this._configurationProviders.forEach(configProvider => {
             const configurationValues = configProvider.getValues()

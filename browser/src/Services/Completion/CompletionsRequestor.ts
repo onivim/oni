@@ -11,8 +11,6 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import { LanguageManager } from "./../Language"
 
-import * as CompletionUtility from "./CompletionUtility"
-
 export interface ICompletionsRequestor {
     getCompletions(
         fileLanguage: string,
@@ -75,9 +73,7 @@ export class LanguageServiceCompletionsRequestor implements ICompletionsRequesto
             Log.debug(`[COMPLETION] Got completions: ${items.length}`)
         }
 
-        const completions = items.map(i => _convertCompletionForContextMenu(i))
-
-        return completions
+        return items
     }
 
     public async getCompletionDetails(
@@ -101,29 +97,7 @@ export class LanguageServiceCompletionsRequestor implements ICompletionsRequesto
             return null
         }
 
-        return _convertCompletionForContextMenu(result)
-    }
-}
-
-// TODO: Should this be moved to another level? Like over to the menu renderer?
-// It'd be nice if this layer only cared about `types.CompletionItem` and didn't
-// have to worry about presentational aspects..
-const _convertCompletionForContextMenu = (completion: types.CompletionItem): any => ({
-    label: completion.label,
-    detail: completion.detail,
-    documentation: getCompletionDocumentation(completion),
-    icon: CompletionUtility.convertKindToIconName(completion.kind),
-    insertText: completion.insertText,
-    rawCompletion: completion,
-})
-
-const getCompletionDocumentation = (item: types.CompletionItem): string | null => {
-    if (item.documentation) {
-        return item.documentation
-    } else if (item.data && item.data.documentation) {
-        return item.data.documentation
-    } else {
-        return null
+        return result
     }
 }
 

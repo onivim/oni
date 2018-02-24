@@ -18,6 +18,7 @@ module.exports = {
             sourceFolder: "browser/src",
             mappedFolder: "browser/test",
             mappedFileName: "${fileName}Tests.ts",
+            templateFilePath: ".oni/templates/UnitTestTemplate.ts.template",
         },
     ],
 }

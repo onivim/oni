@@ -8,12 +8,14 @@ export interface IContributions {
     commands: ICommandContribution[]
     themes: IThemeContribution[]
     iconThemes: IIconThemeContribution[]
+    snippets: ISnippetContribution[]
 }
 
 export const DefaultContributions: IContributions = {
     commands: [],
     themes: [],
     iconThemes: [],
+    snippets: [],
 }
 
 export interface ICommandContribution {
@@ -25,6 +27,11 @@ export interface ICommandContribution {
 export interface IIconThemeContribution {
     id: string
     label: string
+    path: string
+}
+
+export interface ISnippetContribution {
+    language: string
     path: string
 }
 
