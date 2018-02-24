@@ -27,5 +27,5 @@
         "types": ["mocha"]
     },
     "include": ["src/**/*.ts", "test/**/*.ts", "src/**/*.tsx"],
-    "exclude": ["node_modules", "browser/src/UI/components/tests"]
+    "exclude": ["node_modules", "**/*.test.tsx", "ui-tests"]
 }

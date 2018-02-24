@@ -156,9 +156,9 @@
         "test": "npm run test:unit && npm run test:integration",
         "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js",
         "test:unit": "npm run test:unit:browser && npm run test:react",
-        "test:react": "jest",
-        "test:react:watch": "jest --watch",
-        "test:react:coverage": "jest --coverage",
+        "test:react": "jest ./ui-tests",
+        "test:react:watch": "jest ./ui-tests --watch",
+        "test:react:coverage": "jest ./ui-tests --coverage",
         "test:unit:browser": "npm run build:test:unit && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
         "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
         "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
@@ -191,8 +191,11 @@
     },
     "jest": {
         "setupFiles": [
-            "./browser/src/UI/components/tests/jestsetup.ts"
+            "./ui-tests/jestsetup.ts"
         ],
+        "moduleNameMapper": {
+          "electron": "<rootDir>/ui-tests/mocks/electronMock.ts"
+        },
         "snapshotSerializers": [
             "enzyme-to-json/serializer"
         ],
@@ -208,9 +211,21 @@
             "json",
             "node"
         ],
+        "modulePathIgnorePatterns": [
+            "<rootDir>/dist/"
+        ],
         "globals": {
             "ts-jest": {
-                "tsConfigFile": "./browser/tsconfig.test.json"
+                "babelConfig": {
+                    "env": {
+                        "test": {
+                            "plugins": [
+                                "dynamic-import-node"
+                            ]
+                        }
+                    }
+                },
+                "tsConfigFile": "./ui-tests/tsconfig.react.json"
             }
         }
     },
@@ -275,6 +290,7 @@
         "@types/shelljs": "^0.7.7",
         "@types/sinon": "1.16.32",
         "autoprefixer": "6.4.0",
+        "babel-plugin-dynamic-import-node": "^1.2.0",
         "babili-webpack-plugin": "0.1.2",
         "bs-platform": "1.8.0",
         "chai": "^4.1.2",

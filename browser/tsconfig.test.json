@@ -22,6 +22,6 @@
         "target": "es2015",
         "sourceMap": true
     },
-    "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
+    "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"],
     "exclude": ["node_modules"]
 }

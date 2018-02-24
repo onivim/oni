@@ -3,7 +3,7 @@ import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
 import { Provider } from "react-redux"
 import configureStore, { MockStore, MockStoreCreator } from "redux-mock-store"
-import ConnectCommand, { CommandLine } from "../CommandLine"
+import ConnectCommand, { CommandLine } from "../browser/src/UI/components/CommandLine"
 
 const mockStore: MockStoreCreator<IState> = configureStore()
 
