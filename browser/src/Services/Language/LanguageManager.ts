@@ -19,9 +19,9 @@ import { ILanguageClient } from "./LanguageClient"
 import * as LanguageClientTypes from "./LanguageClientTypes"
 import { IServerCapabilities } from "./ServerCapabilities"
 
-import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
-import { PluginManager } from "./../../Plugins/PluginManager"
 import * as Capabilities from "./../../Plugins/Api/Capabilities"
+import { PluginManager } from "./../../Plugins/PluginManager"
+import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
 
 import { listenForWorkspaceEdits } from "./Workspace"
 

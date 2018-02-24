@@ -3,8 +3,8 @@ import * as path from "path"
 
 import * as Oni from "oni-api"
 
-import { IContributions } from "./Api/Capabilities"
 import { Configuration, getUserConfigFolderPath } from "./../Services/Configuration"
+import { IContributions } from "./Api/Capabilities"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
 import { Plugin } from "./Plugin"
