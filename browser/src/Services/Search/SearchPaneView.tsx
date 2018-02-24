@@ -14,8 +14,8 @@ export * from "./SearchProvider"
 
 import { ISearchOptions } from "./SearchProvider"
 
-import { SearchTextBox } from "./SearchTextBox"
 import styled from "styled-components"
+import { SearchTextBox } from "./SearchTextBox"
 
 import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
