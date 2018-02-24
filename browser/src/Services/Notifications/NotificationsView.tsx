@@ -74,7 +74,7 @@ const getColorForErrorLevel = (level: Level) => {
     const colorToLevel = {
         warn: "red",
         error: "yellow",
-        info: "white",
+        info: "#1D7CF2",
     }
 
     return colorToLevel[level]
@@ -83,6 +83,7 @@ const getColorForErrorLevel = (level: Level) => {
 const NotificationWrapper = withProps<IErrorStyles>(styled.div)`
     background-color: ${p => p.theme["toolTip.background"]};
     border-radius: 4px;
+    border-left: solid 4px ${p => getColorForErrorLevel(p.level)};
     padding: 0 1rem 1rem;
     color: white;
     margin: 1rem 0 1rem 1rem;
@@ -181,26 +182,31 @@ const NotificationHeader = styled.header`
 `
 
 export class NotificationView extends React.PureComponent<INotification, {}> {
+    private iconDictionary = {
+        error: "times-circle",
+        warn: "exclamation-triangle",
+        info: "info-circle",
+    }
+
     public render(): JSX.Element {
+        const { level } = this.props
         return (
             <NotificationWrapper
                 key={this.props.id}
                 onClick={this.props.onClick}
                 className="notification"
-                level={this.props.level}
+                level={level}
             >
                 <NotificationHeader>
                     <IconContainer>
-                        <NotificationIconWrapper level={this.props.level}>
-                            <Icon size={IconSize.Large} name="exclamation-triangle" />
+                        <NotificationIconWrapper level={level}>
+                            <Icon size={IconSize.Large} name={this.iconDictionary[level]} />
                         </NotificationIconWrapper>
                         <NotificationIconWrapper onClick={evt => this._onClickClose(evt)}>
                             <Icon size={IconSize.Large} name="times" />
                         </NotificationIconWrapper>
                     </IconContainer>
-                    <NotificationTitle level={this.props.level}>
-                        {this.props.title}
-                    </NotificationTitle>
+                    <NotificationTitle level={level}>{this.props.title}</NotificationTitle>
                 </NotificationHeader>
                 <NotificationContents>
                     <NotificationDescription>{this.props.detail}</NotificationDescription>
