@@ -21,6 +21,34 @@ export const splitLineAtPosition = (line: string, position: number): [string, st
     return [prefix, post]
 }
 
+export const getSmallestPlaceholder = (
+    placeholders: OniSnippetPlaceholder[],
+): OniSnippetPlaceholder => {
+    return placeholders.reduce((prev: OniSnippetPlaceholder, curr: OniSnippetPlaceholder) => {
+        if (!prev) {
+            return curr
+        }
+
+        if (curr.index < prev.index) {
+            return curr
+        }
+        return prev
+    }, null)
+}
+
+export const getPlaceholderByIndex = (
+    placeholders: OniSnippetPlaceholder[],
+    index: number,
+): OniSnippetPlaceholder | null => {
+    const matchingPlaceholders = placeholders.filter(p => p.index === index)
+
+    if (matchingPlaceholders.length === 0) {
+        return null
+    }
+
+    return matchingPlaceholders[0]
+}
+
 export class SnippetSession {
     private _buffer: IBuffer
     private _position: types.Position
@@ -30,7 +58,7 @@ export class SnippetSession {
     private _prefix: string
     private _suffix: string
 
-    private _placeholderIndex: number = -1
+    private _currentPlaceholder: OniSnippetPlaceholder = null
 
     public get onCancel(): IEvent<void> {
         return this._onCancelEvent
@@ -60,25 +88,44 @@ export class SnippetSession {
 
         await this._buffer.setLines(cursorPosition.line, cursorPosition.line + 1, snippetLines)
 
+        const placeholders = this._snippet.getPlaceholders()
+
+        if (!placeholders || placeholders.length === 0) {
+            // If no placeholders, we're done with the session
+            this._finish()
+            return
+        }
+
         await this.nextPlaceholder()
     }
 
     public async nextPlaceholder(): Promise<void> {
         const placeholders = this._snippet.getPlaceholders()
 
-        this._placeholderIndex = (this._placeholderIndex + 1) % placeholders.length
-        const currentPlaceholder = placeholders[this._placeholderIndex]
+        if (!this._currentPlaceholder) {
+            const newPlaceholder = getSmallestPlaceholder(placeholders)
+            this._currentPlaceholder = newPlaceholder
+        } else {
+            const nextPlaceholder = getPlaceholderByIndex(
+                placeholders,
+                this._currentPlaceholder.index + 1,
+            )
+            this._currentPlaceholder = nextPlaceholder || getSmallestPlaceholder(placeholders)
+        }
 
-        await this._highlightPlaceholder(currentPlaceholder)
+        await this._highlightPlaceholder(this._currentPlaceholder)
     }
 
     public async previousPlaceholder(): Promise<void> {
         const placeholders = this._snippet.getPlaceholders()
 
-        this._placeholderIndex = (this._placeholderIndex - 1) % placeholders.length
-        const currentPlaceholder = placeholders[this._placeholderIndex]
+        const nextPlaceholder = getPlaceholderByIndex(
+            placeholders,
+            this._currentPlaceholder.index - 1,
+        )
+        this._currentPlaceholder = nextPlaceholder || getSmallestPlaceholder(placeholders)
 
-        await this._highlightPlaceholder(currentPlaceholder)
+        await this._highlightPlaceholder(this._currentPlaceholder)
     }
 
     public async setPlaceholderValue(index: number, val: string): Promise<void> {
@@ -129,14 +176,17 @@ export class SnippetSession {
         await this.setPlaceholderValue(bounds.index, newPlaceholderValue)
     }
 
+    private _finish(): void {
+        this._onCancelEvent.dispatch()
+    }
+
     private _getBoundsForPlaceholder(): {
         index: number
         line: number
         start: number
         distanceFromEnd: number
     } {
-        const placeholders = this._snippet.getPlaceholders()
-        const currentPlaceholder = placeholders[this._placeholderIndex]
+        const currentPlaceholder = this._currentPlaceholder
 
         const currentSnippetLines = this._snippet.getLines()
 
