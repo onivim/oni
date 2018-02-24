@@ -12,7 +12,7 @@ const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
 const extensionsRoot = path.join(__dirname, "extensions")
 
-export class PluginManager {
+export class PluginManager implements Oni.IPluginManager {
     private _rootPluginPaths: string[] = []
     private _plugins: Plugin[] = []
     private _anonymousPlugin: AnonymousPlugin

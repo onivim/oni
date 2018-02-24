@@ -14,6 +14,7 @@ describe("SyntaxHighlightingReducer", () => {
                     language: "any",
                     bufferId: "1",
                     lines: ["line1", "line2"],
+                    version: 1,
                 }
 
                 const newState = SyntaxHighlighting.linesReducer(originalState, updateBufferAction)
@@ -55,6 +56,7 @@ describe("SyntaxHighlightingReducer", () => {
                     language: "any",
                     bufferId: "1",
                     lines: ["line1", "line2_update"],
+                    version: 1,
                 }
 
                 const newState = SyntaxHighlighting.linesReducer(originalState, updateBufferAction)

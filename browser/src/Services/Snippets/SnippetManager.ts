@@ -11,19 +11,24 @@ import * as Log from "./../../Log"
 import "rxjs/add/operator/auditTime"
 import { Subject } from "rxjs/Subject"
 
-import { CommandManager } from "./../CommandManager"
-import { editorManager, EditorManager } from "./../EditorManager"
+import { EditorManager } from "./../EditorManager"
 
 import { OniSnippet } from "./OniSnippet"
+import { CompositeSnippetProvider, ISnippetProvider } from "./SnippetProvider"
 import { SnippetSession } from "./SnippetSession"
+
+import { ISnippet } from "./ISnippet"
 
 export class SnippetManager {
     private _activeSession: SnippetSession
     private _disposables: IDisposable[] = []
 
+    private _snippetProvider: CompositeSnippetProvider
     private _synchronizeSnippetObseravble: Subject<void> = new Subject<void>()
 
     constructor(private _editorManager: EditorManager) {
+        this._snippetProvider = new CompositeSnippetProvider()
+
         this._synchronizeSnippetObseravble.auditTime(50).subscribe(() => {
             const activeEditor = this._editorManager.activeEditor as any
             const activeSession = this._activeSession
@@ -32,6 +37,14 @@ export class SnippetManager {
                 activeEditor.blockInput(() => activeSession.synchronizeUpdatedPlaceholders())
             }
         })
+    }
+
+    public async getSnippetsForLanguage(language: string): Promise<ISnippet[]> {
+        return this._snippetProvider.getSnippets(language)
+    }
+
+    public registerSnippetProvider(snippetProvider: ISnippetProvider): void {
+        this._snippetProvider.registerProvider(snippetProvider)
     }
 
     /**
@@ -88,38 +101,4 @@ export class SnippetManager {
         this._disposables = []
         this._activeSession = null
     }
-}
-
-let _snippetManager: SnippetManager
-
-export const activate = (commandManager: CommandManager) => {
-    _snippetManager = new SnippetManager(editorManager)
-
-    commandManager.registerCommand({
-        command: "snippet.nextPlaceholder",
-        name: null,
-        detail: null,
-        enabled: () => _snippetManager.isSnippetActive(),
-        execute: () => _snippetManager.nextPlaceholder(),
-    })
-
-    commandManager.registerCommand({
-        command: "snippet.previousPlaceholder",
-        name: null,
-        detail: null,
-        enabled: () => _snippetManager.isSnippetActive(),
-        execute: () => _snippetManager.previousPlaceholder(),
-    })
-
-    commandManager.registerCommand({
-        command: "snippet.cancel",
-        name: null,
-        detail: null,
-        enabled: () => _snippetManager.isSnippetActive(),
-        execute: () => _snippetManager.cancel(),
-    })
-}
-
-export const getInstance = (): SnippetManager => {
-    return _snippetManager
 }
