@@ -20,8 +20,8 @@
         "suppressImplicitAnyIndexErrors": true,
         "target": "es2015",
         "sourceMap": true,
-        "types": []
+        "types": ["jest", "electron", "react"]
     },
-    "include": ["**/*.tsx", "**/*.ts"],
+    "include": ["**/*.tsx", "**/*.ts", "../browser/**/*.ts", "../browser/**/*.tsx"],
     "exclude": ["node_modules"]
 }
