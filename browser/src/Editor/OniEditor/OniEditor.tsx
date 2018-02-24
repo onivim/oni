@@ -145,7 +145,7 @@ export class OniEditor implements IEditor {
             wrapReactComponentWithLayer("oni.layer.errors", <ErrorsContainer />),
         )
 
-        this._neovimEditor.bufferLayers.addBufferLayer("image", buf => new ImageBufferLayer())
+        this._neovimEditor.bufferLayers.addBufferLayer("image", buf => new ImageBufferLayer(buf))
     }
 
     public dispose(): void {
