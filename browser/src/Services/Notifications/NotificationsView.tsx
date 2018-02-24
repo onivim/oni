@@ -74,7 +74,7 @@ const getColorForErrorLevel = (level: Level) => {
     const colorToLevel = {
         warn: "yellow",
         error: "red",
-        info: "#1D7CF2",
+        info: "#1D7CF2", // blue
     }
 
     return colorToLevel[level]
