@@ -72,8 +72,8 @@ interface IErrorStyles {
 
 const getColorForErrorLevel = (level: Level) => {
     const colorToLevel = {
-        warn: "red",
-        error: "yellow",
+        warn: "yellow",
+        error: "red",
         info: "#1D7CF2",
     }
 
