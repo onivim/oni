@@ -17,6 +17,7 @@ import { createStore as oniCreateStore } from "./../../Redux"
 import { Configuration } from "./../Configuration"
 import { LanguageManager } from "./../Language"
 import { SnippetManager } from "./../Snippets"
+import { ISyntaxHighlighter } from "./../SyntaxHighlighting"
 
 import * as CompletionSelects from "./CompletionSelectors"
 import { ICompletionsRequestor } from "./CompletionsRequestor"
@@ -194,6 +195,7 @@ const nullAction: CompletionAction = { type: null } as CompletionAction
 const createGetCompletionMeetEpic = (
     languageManager: LanguageManager,
     configuration: Configuration,
+    syntaxHighlighter: ISyntaxHighlighter,
 ): Epic<CompletionAction, ICompletionState> => (action$, store) =>
     action$
         .ofType("CURSOR_MOVED")
@@ -216,6 +218,22 @@ const createGetCompletionMeetEpic = (
 
             if (!currentState.cursorInfo || !currentState.cursorInfo.lineContents) {
                 return nullAction
+            }
+
+            // Check and validate we're not in comments or string scopes
+
+            const highlightInfo = syntaxHighlighter.getHighlightTokenAt(
+                0 /* where to get id?*/,
+                types.Position.create(currentState.cursorInfo.line, currentState.cursorInfo.column),
+            )
+
+            if (highlightInfo && highlightInfo.scopes) {
+                const anyScopesMatchFilter = highlightInfo.scopes.filter(
+                    scope => scope.startsWith("string.") || scope.startsWith("comment."),
+                )
+                if (anyScopesMatchFilter.length > 0) {
+                    return nullAction
+                }
             }
 
             const { bufferInfo } = currentState
@@ -412,6 +430,7 @@ export const createStore = (
     configuration: Configuration,
     completionsRequestor: ICompletionsRequestor,
     snippetManager: SnippetManager,
+    syntaxHighlighter: ISyntaxHighlighter,
 ): Store<ICompletionState> => {
     return oniCreateStore(
         "COMPLETION_STORE",

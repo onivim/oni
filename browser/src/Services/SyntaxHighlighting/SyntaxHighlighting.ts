@@ -19,6 +19,8 @@ import { TokenColors } from "./../TokenColors"
 
 import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
+import { getLineFromBuffer } from "./SyntaxHighlightSelectors"
+
 import {
     createSyntaxHighlightStore,
     ISyntaxHighlightAction,
@@ -123,7 +125,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             return null
         }
 
-        const line = buffer.lines[position.line]
+        const line = getLineFromBuffer(buffer, position.line)
 
         if (!line) {
             return null
