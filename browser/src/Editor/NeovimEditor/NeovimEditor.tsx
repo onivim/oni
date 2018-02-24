@@ -404,6 +404,10 @@ export class NeovimEditor extends Editor implements IEditor {
             this._onBufEnter(evt),
         )
 
+        this._neovimInstance.autoCommands.onFileTypeChanged.subscribe((evt: EventContext) =>
+            this._onFileTypeChanged(evt),
+        )
+
         this._neovimInstance.autoCommands.onBufWipeout.subscribe((evt: BufferEventContext) =>
             this._onBufWipeout(evt),
         )
@@ -907,6 +911,11 @@ export class NeovimEditor extends Editor implements IEditor {
             currentBuffer.windowTopLine - 1,
             currentBuffer.windowBottomLine - 1,
         )
+    }
+
+    private _onFileTypeChanged(evt: EventContext): void {
+        const buf = this._bufferManager.updateBufferFromEvent(evt)
+        this._bufferLayerManager.notifyBufferFileTypeChanged(buf)
     }
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {

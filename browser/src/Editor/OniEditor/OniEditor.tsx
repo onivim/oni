@@ -46,6 +46,8 @@ import { NeovimEditor } from "./../NeovimEditor"
 
 import { windowManager } from "./../../Services/WindowManager"
 
+import { ImageBufferLayer } from "./ImageBufferLayer"
+
 // Helper method to wrap a react component into a layer
 const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.EditorLayer => {
     return {
@@ -142,6 +144,8 @@ export class OniEditor implements IEditor {
         this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
             wrapReactComponentWithLayer("oni.layer.errors", <ErrorsContainer />),
         )
+
+        this._neovimEditor.bufferLayers.addBufferLayer("image", buf => new ImageBufferLayer())
     }
 
     public dispose(): void {

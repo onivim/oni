@@ -62,6 +62,11 @@ export class BufferLayerManager {
             })
         }
     }
+
+    public notifyBufferFileTypeChanged(buf: Oni.Buffer): void {
+        this._buffers = this._buffers.filter(b => b.id !== buf.id)
+        this.notifyBufferEnter(buf)
+    }
 }
 
 export const wrapReactComponentWithLayer = (
