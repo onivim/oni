@@ -74,7 +74,9 @@ const start = async (args: string[]): Promise<void> => {
     const configChange = (newConfigValues: Partial<IConfigurationValues>) => {
         let prop: keyof IConfigurationValues
         for (prop in newConfigValues) {
-            Shell.Actions.setConfigValue(prop, newConfigValues[prop])
+            if (newConfigValues.hasOwnProperty(prop)) {
+                Shell.Actions.setConfigValue(prop, newConfigValues[prop])
+            }
         }
     }
 
