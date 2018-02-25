@@ -65,6 +65,7 @@ const defaultsToMap = {
         "constant.numeric.integer",
     ],
     "support.function": [
+        "function",
         "support.function",
         "entity.name",
         "entity.name.type",
@@ -74,6 +75,7 @@ const defaultsToMap = {
         "entity.name.type.enum",
         "entity.name.type.interface",
         "entity.name.type.module",
+        "entity.other.attribute.name",
         "punctuation.accessor",
         "punctuation.separator.continuation",
         "punctuation.separator.comma",
@@ -81,6 +83,7 @@ const defaultsToMap = {
         "punctuation.terminator",
     ],
     "variable.other.constant": [
+        "constant",
         "constant.language",
         "variable.other",
         "entity.other",
@@ -119,6 +122,7 @@ const defaultsToMap = {
         "string.quoted.double",
         "string.quoted.single",
         "string.quoted.triple",
+        "string",
     ],
 }
 
