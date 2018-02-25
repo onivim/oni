@@ -19,7 +19,7 @@ export interface NotificationsViewProps {
     notifications: INotification[]
 }
 
-const Transition = (props: { children: any }) => {
+const Transition = (props: { children: React.ReactNode }) => {
     return (
         <CSSTransition {...props} timeout={1000} classNames="notification">
             {props.children}
@@ -180,38 +180,61 @@ const NotificationHeader = styled.header`
     border-bottom: 1px solid ${p => p.theme["toolTip.border"]};
     padding: 0.5rem;
 `
+interface IViewState {
+    expired: boolean
+}
 
-export class NotificationView extends React.PureComponent<INotification, {}> {
+export class NotificationView extends React.PureComponent<INotification, IViewState> {
+    public state = {
+        expired: false,
+    }
+
+    private _timer: any
+    private _lifetime = 20000
     private iconDictionary = {
         error: "times-circle",
         warn: "exclamation-triangle",
         info: "info-circle",
     }
 
+    public componentDidMount() {
+        this._timer = setTimeout(this.clearNotification, this._lifetime)
+    }
+
+    public clearNotification = () => {
+        this.setState({ expired: true })
+    }
+
+    public componentWillUnmount() {
+        clearTimeout(this._timer)
+    }
+
     public render(): JSX.Element {
         const { level } = this.props
         return (
-            <NotificationWrapper
-                key={this.props.id}
-                onClick={this.props.onClick}
-                className="notification"
-                level={level}
-            >
-                <NotificationHeader>
-                    <IconContainer>
-                        <NotificationIconWrapper level={level}>
-                            <Icon size={IconSize.Large} name={this.iconDictionary[level]} />
-                        </NotificationIconWrapper>
-                        <NotificationIconWrapper onClick={evt => this._onClickClose(evt)}>
-                            <Icon size={IconSize.Large} name="times" />
-                        </NotificationIconWrapper>
-                    </IconContainer>
-                    <NotificationTitle level={level}>{this.props.title}</NotificationTitle>
-                </NotificationHeader>
-                <NotificationContents>
-                    <NotificationDescription>{this.props.detail}</NotificationDescription>
-                </NotificationContents>
-            </NotificationWrapper>
+            !this.state.expired && (
+                <NotificationWrapper
+                    key={this.props.id}
+                    onClick={this.props.onClick}
+                    className="notification"
+                    level={level}
+                >
+                    <NotificationHeader>
+                        <IconContainer>
+                            <NotificationIconWrapper level={level}>
+                                <Icon size={IconSize.Large} name={this.iconDictionary[level]} />
+                            </NotificationIconWrapper>
+                            <NotificationIconWrapper onClick={evt => this._onClickClose(evt)}>
+                                <Icon size={IconSize.Large} name="times" />
+                            </NotificationIconWrapper>
+                        </IconContainer>
+                        <NotificationTitle level={level}>{this.props.title}</NotificationTitle>
+                    </NotificationHeader>
+                    <NotificationContents>
+                        <NotificationDescription>{this.props.detail}</NotificationDescription>
+                    </NotificationContents>
+                </NotificationWrapper>
+            )
         )
     }
 
