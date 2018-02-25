@@ -5,15 +5,11 @@ import * as Log from "./../../Log"
 import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
 
-interface ProcessEnv {
-    [key: string]: string
-}
-
 export class Process implements Oni.Process {
     public _spawnedProcessIds: number[] = []
     private _shellEnvPromise: Promise<any>
     private _shellEnv: any
-    private _env: ProcessEnv
+    private _env: NodeJS.ProcessEnv
 
     constructor() {
         this._shellEnvPromise = import("shell-env")
