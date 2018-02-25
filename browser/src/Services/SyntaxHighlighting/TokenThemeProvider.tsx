@@ -203,15 +203,20 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
     private enhancedTokens: TokenColor[]
 
     public componentDidMount() {
-        const editorTokens = this.createThemeFromTokens()
+        const editorTokens = this.props.theme["editor.tokenColors"]
+            ? this.createThemeFromTokens(this.tokenColors)
+            : this.createThemeFromTokens()
+
+        // FIXME: the new tokens aren't highlighting properly
         this.setState({ theme: { ...this.props.theme, ...editorTokens } })
     }
 
-    public createThemeFromTokens() {
+    public createThemeFromTokens(tokens?: TokenColor[]) {
         if (!this.enhancedTokens) {
             this.enhancedTokens = this.generateTokens({ defaultTokens: this.tokenColors })
         }
-        const tokenColorsMap = this.enhancedTokens.reduce((theme, token) => {
+        const tokensToUse = tokens || this.enhancedTokens
+        const tokenColorsMap = tokensToUse.reduce((theme, token) => {
             return {
                 ...theme,
                 [token.scope]: {
