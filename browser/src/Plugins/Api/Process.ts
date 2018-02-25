@@ -1,5 +1,4 @@
 import * as ChildProcess from "child_process"
-import { memoize } from "lodash"
 
 import * as Oni from "oni-api"
 import * as Log from "./../../Log"
@@ -15,47 +14,6 @@ export class Process implements Oni.Process {
     private _shellEnvPromise: Promise<any>
     private _shellEnv: any
     private _env: ProcessEnv
-
-    private mergeSpawnOptions = memoize(
-        async (
-            originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions,
-        ): Promise<any> => {
-            let existingPath: string
-
-            try {
-                const t1 = performance.now()
-                if (!this._shellEnv) {
-                    this._shellEnv = await this._shellEnvPromise
-                }
-                if (!this._env) {
-                    this._env = await this._shellEnv()
-                }
-                process.env = { ...process.env, ...this._env }
-                existingPath = process.env.Path || process.env.PATH
-                const t2 = performance.now()
-                console.log("Time to get env async with dynamic import  ===========", t2 - t1)
-            } catch (e) {
-                existingPath = process.env.Path || process.env.PATH
-            }
-
-            const requiredOptions = {
-                env: {
-                    ...process.env,
-                    ...originalSpawnOptions.env,
-                },
-            }
-
-            requiredOptions.env.PATH = this.mergePathEnvironmentVariable(
-                existingPath,
-                configuration.getValue("environment.additionalPaths"),
-            )
-
-            return {
-                ...originalSpawnOptions,
-                ...requiredOptions,
-            }
-        },
-    )
 
     constructor() {
         this._shellEnvPromise = import("shell-env")
@@ -140,6 +98,40 @@ export class Process implements Oni.Process {
         })
 
         return proc
+    }
+
+    private mergeSpawnOptions = async (
+        originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions,
+    ): Promise<any> => {
+        let existingPath: string
+
+        try {
+            if (!this._shellEnv || !this._env) {
+                this._shellEnv = await this._shellEnvPromise
+                this._env = this._shellEnv.sync()
+            }
+            process.env = { ...process.env, ...this._env }
+            existingPath = process.env.Path || process.env.PATH
+        } catch (e) {
+            existingPath = process.env.Path || process.env.PATH
+        }
+
+        const requiredOptions = {
+            env: {
+                ...process.env,
+                ...originalSpawnOptions.env,
+            },
+        }
+
+        requiredOptions.env.PATH = this.mergePathEnvironmentVariable(
+            existingPath,
+            configuration.getValue("environment.additionalPaths"),
+        )
+
+        return {
+            ...originalSpawnOptions,
+            ...requiredOptions,
+        }
     }
 }
 
