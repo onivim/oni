@@ -15,14 +15,18 @@ import * as Log from "./../Log"
 
 export class EditorManager implements Oni.EditorManager {
     private _activeEditor: Oni.Editor = null
-    private _allEditors: AllEditors = new AllEditors()
+    private _anyEditorProxy: AnyEditorProxy = new AnyEditorProxy()
     private _onActiveEditorChanged: Event<Oni.Editor> = new Event<Oni.Editor>()
+
+    public get allEditors(): Oni.Editor[] {
+        return []
+    }
 
     /**
      * API Methods
      */
-    public get allEditors(): Oni.Editor {
-        return this._allEditors
+    public get anyEditor(): Oni.Editor {
+        return this._anyEditorProxy
     }
 
     public get activeEditor(): Oni.Editor {
@@ -39,10 +43,10 @@ export class EditorManager implements Oni.EditorManager {
     public setActiveEditor(editor: Oni.Editor) {
         this._activeEditor = editor
 
-        const oldEditor = this._allEditors.getUnderlyingEditor()
+        const oldEditor = this._anyEditorProxy.getUnderlyingEditor()
         if (editor !== oldEditor) {
             this._onActiveEditorChanged.dispatch(editor)
-            this._allEditors.setActiveEditor(editor)
+            this._anyEditorProxy.setActiveEditor(editor)
         }
     }
 }
@@ -54,7 +58,7 @@ export class EditorManager implements Oni.EditorManager {
  * This enables consumers to use `Oni.editor.allEditors.onModeChanged((newMode) => { ... }),
  * for convenience, as it handles manages tracking subscriptions as the active editor changes.
  */
-class AllEditors implements Oni.Editor {
+class AnyEditorProxy implements Oni.Editor {
     private _activeEditor: Oni.Editor
     private _subscriptions: IDisposable[] = []
 

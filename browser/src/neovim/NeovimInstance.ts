@@ -2,7 +2,6 @@ import { EventEmitter } from "events"
 import * as path from "path"
 
 import * as mkdirp from "mkdirp"
-
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
@@ -358,6 +357,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._tokenColorSynchronizer = new NeovimTokenColorSynchronizer(this)
 
         this._bufferUpdateManager = new NeovimBufferUpdateManager(this._configuration, this)
+
+        this._onModeChanged.subscribe(newMode => {
+            this._bufferUpdateManager.notifyModeChanged(newMode)
+        })
     }
 
     public async chdir(directoryPath: string): Promise<void> {

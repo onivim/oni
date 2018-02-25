@@ -24,8 +24,8 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     if (Platform.isMac()) {
         input.bind("<m-q>", "oni.quit")
-        input.bind("<m-p>", "quickOpen.show")
-        input.bind("<m-s-p>", "commands.show")
+        input.bind("<m-p>", "quickOpen.show", () => isNormalMode() && !isMenuOpen())
+        input.bind("<m-s-p>", "commands.show", isNormalMode)
         input.bind("<m-enter>", "language.codeAction.expand")
         input.bind("<m-t>", "language.symbols.workspace", () => !menu.isMenuOpen())
         input.bind("<s-m-t>", "language.symbols.document")

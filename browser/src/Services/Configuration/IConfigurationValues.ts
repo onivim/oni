@@ -36,6 +36,8 @@ export interface IConfigurationValues {
 
     "editor.split.mode": string
 
+    "configuration.editor": string
+
     // - textMateHighlighting
     "experimental.editor.textMateHighlighting.enabled": boolean
 

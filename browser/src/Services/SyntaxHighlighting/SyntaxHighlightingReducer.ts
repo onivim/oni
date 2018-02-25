@@ -13,27 +13,11 @@ import { Reducer } from "redux"
 
 export const reducer: Reducer<ISyntaxHighlightState> = (
     state: ISyntaxHighlightState = {
-        isInsertMode: false,
         bufferToHighlights: {},
     },
     action: ISyntaxHighlightAction,
 ) => {
-    let newState = state
-
-    switch (action.type) {
-        case "START_INSERT_MODE":
-            newState = {
-                ...state,
-                isInsertMode: true,
-            }
-            break
-        case "END_INSERT_MODE":
-            newState = {
-                ...state,
-                isInsertMode: false, // If we're getting a full buffer update, assume we're not in insert mode
-            }
-            break
-    }
+    const newState = state
 
     return {
         ...newState,
@@ -58,19 +42,15 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
         bufferId: null,
         extension: null,
         language: null,
+        version: -1,
         topVisibleLine: -1,
         bottomVisibleLine: -1,
-        activeInsertModeLine: -1,
+        insertModeLine: null,
         lines: {},
     },
     action: ISyntaxHighlightAction,
 ) => {
     switch (action.type) {
-        case "START_INSERT_MODE":
-            return {
-                ...state,
-                activeInsertModeLine: -1,
-            }
         case "SYNTAX_UPDATE_BUFFER":
             return {
                 ...state,
@@ -78,12 +58,7 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
                 language: action.language,
                 extension: action.extension,
                 lines: linesReducer(state.lines, action),
-            }
-        case "SYNTAX_UPDATE_BUFFER_LINE":
-            return {
-                ...state,
-                activeInsertModeLine: action.lineNumber,
-                lines: linesReducer(state.lines, action),
+                version: action.version,
             }
         case "SYNTAX_UPDATE_BUFFER_VIEWPORT":
             return {
@@ -95,6 +70,20 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
             return {
                 ...state,
                 lines: linesReducer(state.lines, action),
+            }
+        case "SYNTAX_UPDATE_TOKENS_FOR_LINE_INSERT_MODE":
+            return {
+                ...state,
+                insertModeLine: {
+                    version: action.version,
+                    lineNumber: action.lineNumber,
+                    info: {
+                        line: action.line,
+                        tokens: action.tokens,
+                        ruleStack: action.ruleStack,
+                        dirty: false,
+                    },
+                },
             }
         default:
             return state
@@ -133,24 +122,6 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
                     dirty: true,
                 }
             }
-
-            return newState
-        }
-        case "SYNTAX_UPDATE_BUFFER_LINE": {
-            const newState = {
-                ...state,
-            }
-
-            // Set 'dirty' flag for updated line to true
-            const oldLine = newState[action.lineNumber]
-            newState[action.lineNumber] = {
-                tokens: [],
-                ruleStack: null,
-                ...oldLine,
-                line: action.line,
-                dirty: true,
-            }
-
             return newState
         }
         case "SYNTAX_UPDATE_BUFFER":

@@ -57,7 +57,6 @@ describe("SyntaxHighlightReconciler", () => {
         }
 
         const testState: ISyntaxHighlightState = {
-            isInsertMode: false,
             bufferToHighlights: {
                 [mockBuffer.id]: {
                     bufferId: mockBuffer.id.toString(),
@@ -65,8 +64,9 @@ describe("SyntaxHighlightReconciler", () => {
                     extension: null,
                     topVisibleLine: 0,
                     bottomVisibleLine: 100,
-                    activeInsertModeLine: -1,
+                    insertModeLine: null,
                     lines,
+                    version: 1,
                 },
             },
         }
@@ -105,6 +105,68 @@ describe("SyntaxHighlightReconciler", () => {
             highlights,
             expectedHighlights,
             "Validate highlightsAfterClearing are correct",
+        )
+    })
+
+    it("uses latest info from insert mode", () => {
+        // Simulate an empty state to start
+        const testState = createHighlightState(0, null, [])
+
+        syntaxHighlightReconciler.update(testState)
+
+        // And then we'll throw in an insert mode edit
+        const tokenInfo = {
+            scopes: ["scope.test"],
+            range: types.Range.create(0, 0, 0, 5),
+        }
+
+        const currentBufferInfo = testState.bufferToHighlights[mockBuffer.id]
+
+        const bufferInfoWithInsertUpdates = {
+            ...currentBufferInfo,
+            insertModeLine: {
+                lineNumber: 0,
+                version: 2,
+                info: {
+                    line: "token",
+                    ruleStack: null as any,
+                    tokens: [tokenInfo],
+                    dirty: false,
+                },
+            },
+        }
+
+        const updatedState: ISyntaxHighlightState = {
+            ...testState,
+            bufferToHighlights: {
+                ...testState.bufferToHighlights,
+                [mockBuffer.id]: bufferInfoWithInsertUpdates,
+            },
+        }
+
+        syntaxHighlightReconciler.update(updatedState)
+
+        const highlights = mockBuffer.mockHighlights.getHighlightsForLine(0)
+
+        const expectedHighlights: HighlightInfo[] = [
+            {
+                range: types.Range.create(0, 0, 0, 5),
+                tokenColor: {
+                    scope: "scope.test",
+                    settings: {
+                        backgroundColor: COLOR_BLACK,
+                        foregroundColor: COLOR_WHITE,
+                        italic: true,
+                        bold: true,
+                    },
+                },
+            },
+        ]
+
+        assert.deepEqual(
+            highlights,
+            expectedHighlights,
+            "Validate tokens set in insert mode are correct",
         )
     })
 
