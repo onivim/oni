@@ -1,7 +1,23 @@
 import * as Color from "color"
 import * as styledComponents from "styled-components"
-import { ThemedStyledComponentsModule, ThemeProps } from "styled-components" // tslint:disable-line no-duplicate-imports
+import {
+    FlattenInterpolation,
+    InterpolationFunction,
+    InterpolationValue,
+    ThemedStyledComponentsModule,
+    ThemeProps,
+} from "styled-components" // tslint:disable-line no-duplicate-imports
 import { IThemeColors } from "../../Services/Themes/ThemeManager"
+
+export type Css =
+    | InterpolationValue[]
+    | FlattenInterpolation<ThemeProps<any>>
+    | InterpolationFunction<ThemeProps<any>>
+
+export type TypedCss =
+    | InterpolationValue[]
+    | FlattenInterpolation<ThemeProps<IThemeColors>>
+    | InterpolationFunction<ThemeProps<IThemeColors>>
 
 export const bufferScrollBarSize = "7px"
 

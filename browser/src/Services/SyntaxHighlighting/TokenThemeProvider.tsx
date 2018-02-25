@@ -2,7 +2,7 @@ import * as React from "react"
 import { css, ThemeProvider, withTheme } from "styled-components"
 
 import { getInstance as TokenColorsInstance, TokenColor } from "./../../Services/TokenColors"
-import { IThemeColors } from "./../../UI/components/common"
+import { Css, IThemeColors } from "./../../UI/components/common"
 
 /**
  * Provides a check that a token exists and has valid values
@@ -174,7 +174,7 @@ interface IProps {
 
 interface IState {
     theme: INewTheme
-    styles: string
+    styles: Css
 }
 
 interface IGenerateTokenArgs {
@@ -196,7 +196,7 @@ interface IGenerateTokenArgs {
 class TokenThemeProvider extends React.Component<IProps, IState> {
     public state: IState = {
         styles: null,
-        theme: null,
+        theme: this.props.theme,
     }
 
     private tokenColors = TokenColorsInstance().tokenColors
