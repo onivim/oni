@@ -20,6 +20,12 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.(html)$/,
+                use: {
+                    loader: "html-loader",
+                },
+            },
+            {
                 test: /\.less$/,
                 use: [
                     {
@@ -49,6 +55,7 @@ module.exports = {
         new webpack.DefinePlugin({
             "process.env.NODE_ENV": '"development"',
         }),
+        new webpack.BannerPlugin({ banner: "#! /usr/bin/env node" }),
     ],
     output: {
         path: path.join(__dirname, "..", "lib", "browser"),
