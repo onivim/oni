@@ -16,10 +16,6 @@ export class Process implements Oni.Process {
     private _shellEnv: any
     private _env: ProcessEnv
 
-    constructor() {
-        this._shellEnvPromise = import("shell-env")
-    }
-
     private mergeSpawnOptions = memoize(
         async (
             originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions,
@@ -60,6 +56,10 @@ export class Process implements Oni.Process {
             }
         },
     )
+
+    constructor() {
+        this._shellEnvPromise = import("shell-env")
+    }
 
     public getPathSeparator = () => {
         return Platform.isWindows() ? ";" : ":"
