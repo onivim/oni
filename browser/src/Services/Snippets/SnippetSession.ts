@@ -60,8 +60,20 @@ export class SnippetSession {
 
     private _currentPlaceholder: OniSnippetPlaceholder = null
 
+    public get buffer(): IBuffer {
+        return this._buffer
+    }
+
     public get onCancel(): IEvent<void> {
         return this._onCancelEvent
+    }
+
+    public get position(): types.Position {
+        return this._position
+    }
+
+    public get lines(): string[] {
+        return this._snippet.getLines()
     }
 
     constructor(private _editor: IEditor, private _snippet: OniSnippet) {}

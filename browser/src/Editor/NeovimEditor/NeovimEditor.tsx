@@ -421,8 +421,20 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.setNeovimError(true)
         })
 
+        // These functions are mirrors of each other if vim changes dir then oni responds
+        // and if oni initiates the dir change then we inform vim
+        // NOTE: the gates to check that the dirs being passed aren't already set prevent
+        // an infinite loop!!
         this._neovimInstance.onDirectoryChanged.subscribe(async newDirectory => {
-            await this._workspace.changeDirectory(newDirectory)
+            if (newDirectory !== this._workspace.activeWorkspace) {
+                await this._workspace.changeDirectory(newDirectory)
+            }
+        })
+
+        this._workspace.onDirectoryChanged.subscribe(async newDirectory => {
+            if (newDirectory !== this._neovimInstance.currentVimDirectory) {
+                await this._neovimInstance.chdir(newDirectory)
+            }
         })
 
         this._neovimInstance.on("action", (action: any) => {

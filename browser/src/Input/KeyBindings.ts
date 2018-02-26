@@ -91,6 +91,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     // Snippets
     input.bind("<tab>", "snippet.nextPlaceholder")
     input.bind("<s-tab>", "snippet.previousPlaceholder")
+    input.bind("<esc>", "snippet.cancel")
 
     // Completion
     input.bind(["<enter>"], "contextMenu.select")
