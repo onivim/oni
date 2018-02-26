@@ -6,7 +6,7 @@
 
 import * as React from "react"
 
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
 
 import * as Oni from "oni-api"
 
@@ -35,12 +35,19 @@ export interface ISnippetBufferLayerViewProps {
     snippetSession: SnippetSession
 }
 
+const EntranceKeyFrames = keyframes`
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+`
+
 const NonSnippetOverlayTop = styled.div`
+    animation: ${EntranceKeyFrames} 0.2s ease-in;
     background-color: rgba(0, 0, 0, 0.1);
     box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.2);
 `
 
 const NonSnippetOverlayBottom = styled.div`
+    animation: ${EntranceKeyFrames} 0.2s ease-in;
     background-color: rgba(0, 0, 0, 0.1);
     box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.2);
 `
