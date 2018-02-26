@@ -51,10 +51,13 @@ export class SnippetBufferLayerView extends React.PureComponent<ISnippetBufferLa
             return null
         }
 
-        // const fullScreenSize = this.props.context.dimensions
+        const fullScreenSize = this.props.context.dimensions
 
         // Get screen size in pixel space
-        // const fullSizeInPixels = this.props.context.screenToPixel({ screenX:fullScreenSize.width, screenY: fullScreenSize.height})
+        const fullSizeInPixels = this.props.context.screenToPixel({
+            screenX: fullScreenSize.width,
+            screenY: fullScreenSize.height,
+        })
 
         const snippetStartPosition = this.props.snippetSession.position.line
         const snippetEndPosition = this.props.snippetSession.position.line + 1 // TODO
@@ -76,14 +79,22 @@ export class SnippetBufferLayerView extends React.PureComponent<ISnippetBufferLa
 
         const bottomOverlay: React.CSSProperties = {
             position: "absolute",
-            height: endPositionInPixels.pixelY.toString() + "px",
+            height: (fullSizeInPixels.pixelY - endPositionInPixels.pixelY).toString() + "px",
             left: "0px",
             bottom: "0px",
             right: "0px",
         }
 
         return (
-            <div style={{ position: "relative" }}>
+            <div
+                style={{
+                    position: "absolute",
+                    top: "0px",
+                    bottom: "0px",
+                    left: "0px",
+                    right: "0px",
+                }}
+            >
                 <NonSnippetOverlayTop style={topOverlay} />
                 <NonSnippetOverlayBottom style={bottomOverlay} />
             </div>
