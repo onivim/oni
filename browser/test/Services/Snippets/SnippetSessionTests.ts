@@ -167,5 +167,25 @@ describe("SnippetSession", () => {
             const [synchronizedLine] = await mockBuffer.getLines(0, 1)
             assert.strictEqual(synchronizedLine, "test3 test3 test3")
         })
+
+        it("updates placeholders when a placeholder becomes smaller", async () => {
+            const snippet = new OniSnippet('import { ${1} } from "${0:module}"') // tslint:disable-line
+
+            snippetSession = new SnippetSession(mockEditor as any, snippet)
+            await snippetSession.start()
+
+            // Simulate shortening from "module" -> "a"
+            await mockEditor.setActiveBufferLine(0, 'import { } from "a"')
+
+            await snippetSession.synchronizeUpdatedPlaceholders()
+
+            const [synchronizedLine] = await mockBuffer.getLines(0, 1)
+            assert.strictEqual(synchronizedLine, 'import { } from "a"')
+
+            await snippetSession.synchronizeUpdatedPlaceholders()
+
+            const [synchronizedLine2] = await mockBuffer.getLines(0, 1)
+            assert.strictEqual(synchronizedLine2, 'import { } from "a"')
+        })
     })
 })

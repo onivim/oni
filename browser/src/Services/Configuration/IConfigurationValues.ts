@@ -39,7 +39,7 @@ export interface IConfigurationValues {
     "configuration.editor": string
 
     // - textMateHighlighting
-    "experimental.editor.textMateHighlighting.enabled": boolean
+    "editor.textMateHighlighting.enabled": boolean
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"

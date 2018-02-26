@@ -51,6 +51,14 @@ export interface IAddBufferLayerAction {
     }
 }
 
+export interface IRemoveBufferLayerAction {
+    type: "REMOVE_BUFFER_LAYER"
+    payload: {
+        bufferId: number
+        layer: IBufferLayer
+    }
+}
+
 export interface ISetViewportAction {
     type: "SET_VIEWPORT"
     payload: {
@@ -281,6 +289,7 @@ export type Action<K extends keyof IConfigurationValues> = SimpleAction | Action
 
 export type SimpleAction =
     | IAddBufferLayerAction
+    | IRemoveBufferLayerAction
     | IBufferEnterAction
     | IBufferSaveAction
     | IBufferUpdateAction
@@ -426,6 +435,17 @@ export const addBufferLayer = (
     layer: Oni.EditorLayer,
 ): IAddBufferLayerAction => ({
     type: "ADD_BUFFER_LAYER",
+    payload: {
+        bufferId,
+        layer,
+    },
+})
+
+export const removeBufferLayer = (
+    bufferId: number,
+    layer: Oni.EditorLayer,
+): IRemoveBufferLayerAction => ({
+    type: "REMOVE_BUFFER_LAYER",
     payload: {
         bufferId,
         layer,
