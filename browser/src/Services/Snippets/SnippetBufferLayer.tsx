@@ -78,7 +78,8 @@ export class SnippetBufferLayerView extends React.PureComponent<ISnippetBufferLa
         })
 
         const snippetStartPosition = this.props.snippetSession.position.line
-        const snippetEndPosition = this.props.snippetSession.position.line + 1 // TODO
+        const snippetEndPosition =
+            this.props.snippetSession.position.line + this.props.snippetSession.lines.length
 
         const startPositionInPixels = this.props.context.screenToPixel(
             this.props.context.bufferToScreen(types.Position.create(snippetStartPosition, 0)),

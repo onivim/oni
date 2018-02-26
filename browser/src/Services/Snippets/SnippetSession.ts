@@ -72,6 +72,10 @@ export class SnippetSession {
         return this._position
     }
 
+    public get lines(): string[] {
+        return this._snippet.getLines()
+    }
+
     constructor(private _editor: IEditor, private _snippet: OniSnippet) {}
 
     public async start(): Promise<void> {
