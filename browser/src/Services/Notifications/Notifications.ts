@@ -33,6 +33,10 @@ export class Notifications {
         this._overlay.hide()
     }
 
+    // public setExpiration(expiration: number) {
+    //     this._store.dispatch()
+    // }
+
     public createItem(): Notification {
         this._id++
 
