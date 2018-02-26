@@ -10,7 +10,7 @@ import { EventEmitter } from "events"
 
 import * as OniApi from "oni-api"
 
-import * as Process from "./Process"
+import Process from "./Process"
 import { Services } from "./Services"
 import { Ui } from "./Ui"
 

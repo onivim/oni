@@ -14,14 +14,14 @@ self=$0
 OPEN_DIRECTORY="$PWD"
 
 # test if $self is a symlink
-if [ -L $self ] ; then
+if [ -L "$self" ] ; then
    # readlink returns the path to the file the link points to:
-   target=`readlink $self`
+   target=$(readlink "$self")
 else
    target=$self
 fi
 
-ONI_PATH=`dirname $target`
+ONI_PATH=$(dirname "$target")
 
 FULL_ONI_PATH="$ONI_PATH/../../MacOS/Oni"
 

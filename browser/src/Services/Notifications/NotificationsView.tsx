@@ -189,7 +189,7 @@ export class NotificationView extends React.PureComponent<INotification, IViewSt
         expired: false,
     }
 
-    private _timer: any
+    private _timer: any // NodeJS.Timer should work but there's a type conflict
     private _lifetime = 20000
     private iconDictionary = {
         error: "times-circle",
@@ -198,7 +198,9 @@ export class NotificationView extends React.PureComponent<INotification, IViewSt
     }
 
     public componentDidMount() {
-        this._timer = setTimeout(this.clearNotification, this._lifetime)
+        if (this.props.level !== "error") {
+            this._timer = setTimeout(this.clearNotification, this._lifetime)
+        }
     }
 
     public clearNotification = () => {
