@@ -33,7 +33,7 @@ const NotificationsWrapper = styled.div`
     top: 16px;
     right: 16px;
     max-height: 90%;
-    width: 30%;
+    max-width: 25rem;
     pointer-events: all;
     overflow: auto;
 
