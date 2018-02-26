@@ -88,16 +88,13 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
             },
         )
 
-        // TODO: Promote cursor moved to API
-        const sub3 = (this._editor as any).onCursorMoved.subscribe(
-            (cursorMoveEvent: Oni.Cursor) => {
-                this._store.dispatch({
-                    type: "CURSOR_MOVED",
-                    line: cursorMoveEvent.line,
-                    column: cursorMoveEvent.column,
-                })
-            },
-        )
+        const sub3 = this._editor.onCursorMoved.subscribe((cursorMoveEvent: Oni.Cursor) => {
+            this._store.dispatch({
+                type: "CURSOR_MOVED",
+                line: cursorMoveEvent.line,
+                column: cursorMoveEvent.column,
+            })
+        })
 
         this._storeUnsubscribe = this._store.subscribe(() =>
             this._onStateUpdate(this._store.getState()),
