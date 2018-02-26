@@ -18,7 +18,7 @@ export class BadLayer implements Oni.BufferLayer {
         return "automation.test.layer"
     }
 
-    public render(context: Oni.BufferLayer): JSX.Element {
+    public render(context: Oni.BufferLayerRenderContext): JSX.Element {
         throw new Error("Bad layer!")
     }
 }
