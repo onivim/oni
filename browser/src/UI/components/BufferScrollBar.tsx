@@ -1,8 +1,11 @@
 import * as React from "react"
 
+import * as uniqBy from "lodash/uniqBy"
 import styled from "styled-components"
 
 import { bufferScrollBarSize } from "./common"
+
+import { EmptyArray } from "./../../Utility"
 
 export interface IBufferScrollBarProps {
     windowId: number
@@ -59,9 +62,10 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
             height: windowHeight + "px",
         }
 
-        const markers = this.props.markers || []
+        const markers = this.props.markers || EmptyArray
 
-        const markerElements = markers.map(m => {
+        const uniqueMarkers = uniqBy(markers, m => m.id)
+        const markerElements = uniqueMarkers.map(m => {
             const line = m.line
             const pos = line / this.props.bufferSize * this.props.height
             const size = "2px"
@@ -74,7 +78,7 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
                 width: "100%",
             }
 
-            return <div style={markerStyle} key={m.line.toString() + m.color} />
+            return <div style={markerStyle} key={`${this.props.windowId}_${m.color}_${m.line}`} />
         })
 
         return (

@@ -193,11 +193,13 @@ export const definitionReducer = (s: State.IDefinition, a: Actions.SimpleAction)
 }
 
 export const viewportReducer = (s: State.IViewport, a: Actions.ISetViewportAction) => {
+    const { width, height } = a.payload
     switch (a.type) {
         case "SET_VIEWPORT":
             return {
-                width: a.payload.width,
-                height: a.payload.height,
+                ...s,
+                width,
+                height,
             }
         default:
             return s
@@ -237,7 +239,6 @@ export const buffersReducer = (
             byId = a.payload.buffers.reduce((buffersById, buffer) => {
                 buffersById[buffer.id] = {
                     ...buffer,
-                    modified: false,
                 }
                 return byId
             }, byId)

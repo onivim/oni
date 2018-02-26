@@ -17,6 +17,7 @@ import * as State from "./MenuState"
 
 import { MenuContainer } from "./MenuComponent"
 
+import { Configuration } from "./../Configuration"
 import { Overlay, OverlayManager } from "./../Overlay"
 
 export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
@@ -39,14 +40,25 @@ export const menuActions: typeof ActionCreators = bindActionCreators(
     menuStore.dispatch,
 )
 
+export const sanitizeConfigurationValue = (value: any, defaultValue: number): number => {
+    const parsedValue = parseInt(value, 10)
+    return parsedValue > 0 ? parsedValue : defaultValue
+}
+
 export class MenuManager {
     private _id: number = 0
     private _overlay: Overlay
 
-    constructor(private _overlayManager: OverlayManager) {
+    constructor(private _configuration: Configuration, private _overlayManager: OverlayManager) {
         this._overlay = this._overlayManager.createItem()
         this._overlay.setContents(MenuContainer())
         this._overlay.show()
+
+        this._configuration.onConfigurationChanged.subscribe(() => {
+            this._updateConfiguration()
+        })
+
+        this._updateConfiguration()
     }
 
     public create(): Menu {
@@ -76,6 +88,17 @@ export class MenuManager {
         if (menuState && menuState.menu) {
             menuState.menu.onSelectItem(idx)
         }
+    }
+
+    private _updateConfiguration(): void {
+        const values = this._configuration.getValues()
+        const rowHeightUnsanitized = values["menu.rowHeight"]
+        const maxItemsUnsanitized = values["menu.maxItemsToShow"]
+
+        menuActions.setMenuConfiguration(
+            sanitizeConfigurationValue(rowHeightUnsanitized, 40),
+            sanitizeConfigurationValue(maxItemsUnsanitized, 6),
+        )
     }
 }
 

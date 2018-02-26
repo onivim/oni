@@ -244,6 +244,8 @@ export const queryForDefinitionEpic = (
 ): Epic<LanguageAction, ILanguageState> => (action$, store) =>
     action$
         .ofType("CURSOR_MOVED")
+        .debounceTime(configuration.getValue("editor.quickInfo.delay"))
+        .filter(() => store.getState().mode === "normal")
         .filter(
             () =>
                 store.getState().mode === "normal" &&

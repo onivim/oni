@@ -59,20 +59,10 @@ export class ExplorerSplit {
                 rootPath: this._workspace.activeWorkspace,
             })
         }
-
-        this._editorManager.allEditors.onBufferEnter.subscribe(args => {
-            this._store.dispatch({
-                type: "BUFFER_OPENED",
-                filePath: args.filePath,
-            })
-        })
     }
 
     public enter(): void {
         this._store.dispatch({ type: "ENTER" })
-        this._commandManager.registerCommand(
-            new CallbackCommand("explorer.open", null, null, () => this._onOpenItem()),
-        )
         this._commandManager.registerCommand(
             new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
         )
@@ -82,9 +72,6 @@ export class ExplorerSplit {
 
     public leave(): void {
         this._store.dispatch({ type: "LEAVE" })
-
-        this._commandManager.unregisterCommand("explorer.open")
-        this._commandManager.unregisterCommand("explorer.delete")
     }
 
     public render(): JSX.Element {
@@ -114,7 +101,9 @@ export class ExplorerSplit {
         switch (selectedItem.type) {
             case "file":
                 this._editorManager.activeEditor.openFile(selectedItem.filePath)
-                windowManager.focusSplit(this._editorManager.activeEditor as any)
+                // FIXME: the editor manager is not a windowSplit aka this
+                // Should be being called with an ID not an active editor
+                windowManager.focusSplit("oni.window.0")
                 return
             case "folder":
                 const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(

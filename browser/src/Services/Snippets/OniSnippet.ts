@@ -8,6 +8,7 @@
  */
 
 import * as Snippets from "vscode-snippet-parser/lib"
+import { normalizeNewLines } from "./../../Utility"
 
 export interface OniSnippetPlaceholder {
     index: number
@@ -42,11 +43,18 @@ export const getLineCharacterFromOffset = (
 export class OniSnippet {
     private _parser: Snippets.SnippetParser = new Snippets.SnippetParser()
     private _placeholderValues: { [index: number]: string } = {}
+    private _snippetString: string
 
-    constructor(private _snippetString: string) {}
+    constructor(snippet: string) {
+        this._snippetString = normalizeNewLines(snippet)
+    }
 
     public setPlaceholder(index: number, newValue: string): void {
         this._placeholderValues[index] = newValue
+    }
+
+    public getPlaceholderValue(index: number): string {
+        return this._placeholderValues[index] || ""
     }
 
     public getPlaceholders(): OniSnippetPlaceholder[] {
@@ -87,7 +95,9 @@ export class OniSnippet {
             )
 
             placeholderToReplace.forEach(rep => {
-                snippet.replace(rep, snip.children)
+                const placeHolder = new Snippets.Placeholder(rep.index)
+                placeHolder.appendChild(snip)
+                snippet.replace(rep, [placeHolder])
             })
         })
 

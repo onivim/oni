@@ -29,6 +29,7 @@ export function nodeRequire(moduleName: string): any {
 }
 
 export const EmptyArray: any[] = []
+export const noop = () => {} // tslint:disable-line
 
 export const normalizePath = (fileName: string) => fileName.split("\\").join("/")
 
@@ -41,6 +42,9 @@ export const replaceAll = (str: string, wordsToReplace: { [key: string]: string 
 
     return str.replace(re, matched => wordsToReplace[matched.toLowerCase()])
 }
+
+export const flatMap = <T, U>(xs: T[], f: (item: T) => U[]): U[] =>
+    xs.reduce((x: U[], y: T) => [...x, ...f(y)], [])
 
 export const diff = (newObject: any, oldObject: any) => {
     // Return changed properties between newObject and oldObject
@@ -154,6 +158,10 @@ export const createCompletablePromise = <T>(): ICompletablePromise<T> => {
         resolve,
         reject,
     }
+}
+
+export const normalizeNewLines = (str: string): string => {
+    return str.split("\r\n").join("\n")
 }
 
 /**

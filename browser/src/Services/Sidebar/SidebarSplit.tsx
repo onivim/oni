@@ -12,7 +12,7 @@ import { SidebarManager } from "./SidebarStore"
 import { Sidebar } from "./SidebarView"
 
 export class SidebarSplit {
-    constructor(private _sidebarManager: SidebarManager = new SidebarManager()) {}
+    constructor(private _sidebarManager: SidebarManager) {}
 
     public enter(): void {
         this._sidebarManager.setActiveEntry(this._sidebarManager.activeEntryId)

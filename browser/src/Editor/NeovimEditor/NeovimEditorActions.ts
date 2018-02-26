@@ -20,6 +20,8 @@ import { IConfigurationValues } from "./../../Services/Configuration"
 import { Errors } from "./../../Services/Diagnostics"
 import { IThemeColors } from "./../../Services/Themes"
 
+import { IBufferLayer } from "./../NeovimEditor/BufferLayerManager"
+
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
 
@@ -45,7 +47,7 @@ export interface IAddBufferLayerAction {
     type: "ADD_BUFFER_LAYER"
     payload: {
         bufferId: number
-        layer: Oni.EditorLayer
+        layer: IBufferLayer
     }
 }
 
@@ -415,6 +417,7 @@ const formatBuffers = (buffer: InactiveBufferContext & EventContext) => {
         language: buffer.filetype,
         hidden: buffer.hidden,
         listed: buffer.listed,
+        modified: buffer.modified,
     }
 }
 

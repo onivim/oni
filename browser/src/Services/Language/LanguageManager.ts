@@ -48,9 +48,9 @@ export class LanguageManager {
     ) {
         this._languageClientStatusBar = new LanguageClientStatusBar(this._statusBar)
 
-        this._editorManager.allEditors.onBufferEnter.subscribe(async () => this._onBufferEnter())
+        this._editorManager.anyEditor.onBufferEnter.subscribe(async () => this._onBufferEnter())
 
-        this._editorManager.allEditors.onBufferLeave.subscribe(
+        this._editorManager.anyEditor.onBufferLeave.subscribe(
             (bufferInfo: Oni.EditorBufferEventArgs) => {
                 const { language, filePath } = bufferInfo
 
@@ -67,7 +67,7 @@ export class LanguageManager {
             },
         )
 
-        this._editorManager.allEditors.onBufferChanged.subscribe(
+        this._editorManager.anyEditor.onBufferChanged.subscribe(
             async (change: Oni.EditorBufferChangedEventArgs) => {
                 const { language, filePath } = change.buffer
 
@@ -107,7 +107,7 @@ export class LanguageManager {
             },
         )
 
-        this._editorManager.allEditors.onBufferSaved.subscribe(
+        this._editorManager.anyEditor.onBufferSaved.subscribe(
             (bufferInfo: Oni.EditorBufferEventArgs) => {
                 const { language, filePath } = bufferInfo
 

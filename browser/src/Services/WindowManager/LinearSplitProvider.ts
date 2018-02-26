@@ -5,10 +5,9 @@
  * a tree-based hierarchy of horizontal and vertical splits
  */
 
-import * as Oni from "oni-api"
-
 import {
     Direction,
+    IAugmentedSplitInfo,
     IWindowSplitProvider,
     SingleSplitProvider,
     SplitDirection,
@@ -20,11 +19,11 @@ export class LinearSplitProvider implements IWindowSplitProvider {
 
     constructor(private _direction: SplitDirection) {}
 
-    public contains(split: Oni.IWindowSplit): boolean {
+    public contains(split: IAugmentedSplitInfo): boolean {
         return this._getProviderForSplit(split) != null
     }
 
-    public close(split: Oni.IWindowSplit): boolean {
+    public close(split: IAugmentedSplitInfo): boolean {
         const containingSplit = this._getProviderForSplit(split)
 
         if (!containingSplit) {
@@ -43,13 +42,23 @@ export class LinearSplitProvider implements IWindowSplitProvider {
     }
 
     public split(
-        split: Oni.IWindowSplit,
+        split: IAugmentedSplitInfo,
         direction: SplitDirection,
-        referenceSplit?: Oni.IWindowSplit,
+        referenceSplit?: IAugmentedSplitInfo,
     ): boolean {
         // If there is no reference split, we can just tack this split on
         if (!referenceSplit) {
-            this._splitProviders.push(new SingleSplitProvider(split))
+            if (direction === this._direction) {
+                this._splitProviders.push(new SingleSplitProvider(split))
+            } else {
+                const childSplitProvider = new LinearSplitProvider(this._direction)
+                childSplitProvider._splitProviders = this._splitProviders
+                this._splitProviders = [childSplitProvider]
+                this._splitProviders.push(new SingleSplitProvider(split))
+                this._direction = direction
+            }
+
+            return true
         }
 
         const containingSplit = this._getProviderForSplit(referenceSplit)
@@ -78,7 +87,7 @@ export class LinearSplitProvider implements IWindowSplitProvider {
         return true
     }
 
-    public move(split: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit {
+    public move(split: IAugmentedSplitInfo, direction: Direction): IAugmentedSplitInfo {
         if (!split) {
             if (this._direction === "horizontal") {
                 const index = direction === "left" ? this._splitProviders.length - 1 : 0
@@ -127,7 +136,7 @@ export class LinearSplitProvider implements IWindowSplitProvider {
         return this._splitProviders[newIndex].move(null, direction)
     }
 
-    public getState(): SplitOrLeaf<Oni.IWindowSplit> {
+    public getState(): SplitOrLeaf<IAugmentedSplitInfo> {
         return {
             type: "Split",
             direction: this._direction,
@@ -150,7 +159,7 @@ export class LinearSplitProvider implements IWindowSplitProvider {
         }
     }
 
-    private _getProviderForSplit(split: Oni.IWindowSplit): IWindowSplitProvider {
+    private _getProviderForSplit(split: IAugmentedSplitInfo): IWindowSplitProvider {
         const providers = this._splitProviders.filter(prov => prov.contains(split))
 
         return providers.length > 0 ? providers[0] : null

@@ -4,11 +4,11 @@
  * Handles enhanced syntax highlighting
  */
 
-import { Configuration } from "./../Configuration"
+import { TokenColor, TokenColors } from "./../TokenColors"
 
 import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
-import { HighlightGroupId, HighlightInfo } from "./Definitions"
+import { HighlightInfo } from "./Definitions"
 import {
     ISyntaxHighlightLineInfo,
     ISyntaxHighlightState,
@@ -27,7 +27,7 @@ import * as Log from "./../../Log"
 export class SyntaxHighlightReconciler {
     private _previousState: { [line: number]: ISyntaxHighlightLineInfo } = {}
 
-    constructor(private _configuration: Configuration, private _editor: NeovimEditor) {}
+    constructor(private _editor: NeovimEditor, private _tokenColors: TokenColors) {}
 
     public update(state: ISyntaxHighlightState) {
         const activeBuffer: any = this._editor.activeBuffer
@@ -53,7 +53,7 @@ export class SyntaxHighlightReconciler {
                     return false
                 }
 
-                const latestLine = currentHighlightState.lines[line]
+                const latestLine = Selectors.getLineFromBuffer(currentHighlightState, lineNumber)
 
                 // If dirty (haven't processed tokens yet) - skip
                 if (latestLine.dirty) {
@@ -61,11 +61,12 @@ export class SyntaxHighlightReconciler {
                 }
 
                 // Or lines that haven't been updated
-                return this._previousState[line] !== currentHighlightState.lines[line]
+                return this._previousState[line] !== latestLine
             })
 
             const tokens = filteredLines.map(li => {
-                const line = currentHighlightState.lines[li]
+                const lineNumber = parseInt(li, 10)
+                const line = Selectors.getLineFromBuffer(currentHighlightState, lineNumber)
 
                 const highlights = this._mapTokensToHighlights(line.tokens)
                 return {
@@ -75,52 +76,59 @@ export class SyntaxHighlightReconciler {
             })
 
             filteredLines.forEach(li => {
-                this._previousState[li] = currentHighlightState.lines[li]
+                const lineNumber = parseInt(li, 10)
+                this._previousState[li] = Selectors.getLineFromBuffer(
+                    currentHighlightState,
+                    lineNumber,
+                )
             })
 
             if (tokens.length > 0) {
                 Log.verbose(
                     "[SyntaxHighlightReconciler] Applying changes to " + tokens.length + " lines.",
                 )
-                activeBuffer.updateHighlights((highlightUpdater: any) => {
-                    tokens.forEach(token => {
-                        const line = token.line
-                        const highlights = token.highlights
+                activeBuffer.updateHighlights(
+                    this._tokenColors.tokenColors,
+                    (highlightUpdater: any) => {
+                        tokens.forEach(token => {
+                            const line = token.line
+                            const highlights = token.highlights
 
-                        if (Log.isDebugLoggingEnabled()) {
-                            Log.debug(
-                                "[SyntaxHighlightingReconciler] Updating tokens for line: " +
-                                    token.line +
-                                    " | " +
-                                    JSON.stringify(highlights),
-                            )
-                        }
+                            if (Log.isDebugLoggingEnabled()) {
+                                Log.debug(
+                                    "[SyntaxHighlightingReconciler] Updating tokens for line: " +
+                                        token.line +
+                                        " | " +
+                                        JSON.stringify(highlights),
+                                )
+                            }
 
-                        highlightUpdater.setHighlightsForLine(line, highlights)
-                    })
-                })
+                            highlightUpdater.setHighlightsForLine(line, highlights)
+                        })
+                    },
+                )
             }
         }
     }
 
     private _mapTokensToHighlights(tokens: ISyntaxHighlightTokenInfo[]): HighlightInfo[] {
         const mapTokenToHighlight = (token: ISyntaxHighlightTokenInfo) => ({
-            highlightGroup: this._getHighlightGroupFromScope(token.scopes),
+            tokenColor: this._getHighlightGroupFromScope(token.scopes),
             range: token.range,
         })
 
-        return tokens.map(mapTokenToHighlight).filter(t => !!t.highlightGroup)
+        return tokens.map(mapTokenToHighlight).filter(t => !!t.tokenColor)
     }
 
-    private _getHighlightGroupFromScope(scopes: string[]): HighlightGroupId {
-        const configurationColors = this._configuration.getValue("editor.tokenColors")
+    private _getHighlightGroupFromScope(scopes: string[]): TokenColor {
+        const configurationColors = this._tokenColors.tokenColors
 
         for (const scope of scopes) {
             const matchingRule = configurationColors.find((c: any) => scope.indexOf(c.scope) === 0)
 
             if (matchingRule) {
                 // TODO: Convert to highlight group id
-                return matchingRule.settings
+                return matchingRule
             }
         }
 

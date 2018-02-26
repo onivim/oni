@@ -4,18 +4,14 @@
  * Contextual commands for NeovimEditor
  *
  */
-import * as fs from "fs"
 import * as os from "os"
-import * as path from "path"
 
 import { clipboard } from "electron"
 import * as Oni from "oni-api"
 
 import { NeovimInstance } from "./../../neovim"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
-import { getUserConfigFilePath } from "./../../Services/Configuration"
 import { ContextMenuManager } from "./../../Services/ContextMenu"
-import { editorManager } from "./../../Services/EditorManager"
 import { findAllReferences, format, LanguageEditorIntegration } from "./../../Services/Language"
 import { MenuManager } from "./../../Services/Menu"
 import { QuickOpen } from "./../../Services/QuickOpen"
@@ -104,29 +100,9 @@ export class NeovimEditorCommands {
             await neovimInstance.command("set nopaste")
         }
 
-        const openDefaultConfig = async (): Promise<void> => {
-            const activeEditor = editorManager.activeEditor
-            const buf = await activeEditor.openFile(getUserConfigFilePath())
-            const lineCount = buf.lineCount
-
-            if (lineCount === 1) {
-                const defaultConfigJsPath = path.join(
-                    __dirname,
-                    "configuration",
-                    "config.default.js",
-                )
-                const defaultConfigLines = fs
-                    .readFileSync(defaultConfigJsPath, "utf8")
-                    .split(os.EOL)
-                await buf.setLines(0, defaultConfigLines.length, defaultConfigLines)
-            }
-        }
-
         const shouldShowMenu = () => {
             return !this._menuManager.isMenuOpen()
         }
-
-        const isRenameActive = () => this._rename.isRenameActive()
 
         const commands = [
             new CallbackCommand(
@@ -202,20 +178,6 @@ export class NeovimEditorCommands {
             new CallbackCommand("editor.rename", "Rename", "Rename an item", () =>
                 this._rename.startRename(),
             ),
-            new CallbackCommand(
-                "editor.rename.commit",
-                null,
-                null,
-                () => this._rename.commitRename(),
-                isRenameActive,
-            ),
-            new CallbackCommand(
-                "editor.rename.cancel",
-                null,
-                null,
-                () => this._rename.cancelRename(),
-                isRenameActive,
-            ),
 
             new CallbackCommand("editor.quickInfo.show", null, null, () =>
                 this._languageEditorIntegration.showHover(),
@@ -228,15 +190,8 @@ export class NeovimEditorCommands {
                 this._symbols.openWorkspaceSymbolsMenu(),
             ),
             new CallbackCommand(
-                "oni.config.openConfigJs",
-                "Edit Oni Config",
-                "Edit configuration file ('config.js') for Oni",
-                () => openDefaultConfig(),
-            ),
-
-            new CallbackCommand(
                 "oni.config.openInitVim",
-                "Edit Neovim Config",
+                "Configuration: Edit Neovim Config",
                 "Edit configuration file ('init.vim') for Neovim",
                 () => this._neovimInstance.openInitVim(),
             ),
