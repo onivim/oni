@@ -432,7 +432,7 @@ const formatBuffers = (buffer: InactiveBufferContext & EventContext) => {
 
 export const addBufferLayer = (
     bufferId: number,
-    layer: Oni.EditorLayer,
+    layer: Oni.BufferLayer,
 ): IAddBufferLayerAction => ({
     type: "ADD_BUFFER_LAYER",
     payload: {
@@ -443,7 +443,7 @@ export const addBufferLayer = (
 
 export const removeBufferLayer = (
     bufferId: number,
-    layer: Oni.EditorLayer,
+    layer: Oni.BufferLayer,
 ): IRemoveBufferLayerAction => ({
     type: "REMOVE_BUFFER_LAYER",
     payload: {

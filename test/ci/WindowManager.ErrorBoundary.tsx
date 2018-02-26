@@ -13,12 +13,12 @@ import * as Oni from "oni-api"
 
 import { createNewFile } from "./Common"
 
-export class BadLayer implements Oni.EditorLayer {
+export class BadLayer implements Oni.BufferLayer {
     public get id(): string {
         return "automation.test.layer"
     }
 
-    public render(context: Oni.EditorLayerRenderContext): JSX.Element {
+    public render(context: Oni.BufferLayer): JSX.Element {
         throw new Error("Bad layer!")
     }
 }

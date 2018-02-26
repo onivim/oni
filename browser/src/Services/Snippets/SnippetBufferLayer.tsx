@@ -14,7 +14,7 @@ import * as types from "vscode-languageserver-types"
 
 import { SnippetSession } from "./SnippetSession"
 
-export class SnippetBufferLayer implements Oni.EditorLayer {
+export class SnippetBufferLayer implements Oni.BufferLayer {
     constructor(private _buffer: Oni.Buffer, private _snippetSession: SnippetSession) {
         this._buffer.addLayer(this)
     }
@@ -27,7 +27,7 @@ export class SnippetBufferLayer implements Oni.EditorLayer {
         return "Snippet"
     }
 
-    public render(context: Oni.EditorLayerRenderContext): JSX.Element {
+    public render(context: Oni.BufferLayerRenderContext): JSX.Element {
         return <SnippetBufferLayerView context={context} snippetSession={this._snippetSession} />
     }
 
@@ -42,7 +42,7 @@ export class SnippetBufferLayer implements Oni.EditorLayer {
 }
 
 export interface ISnippetBufferLayerViewProps {
-    context: Oni.EditorLayerRenderContext
+    context: Oni.BufferLayerRenderContext
     snippetSession: SnippetSession
 }
 
