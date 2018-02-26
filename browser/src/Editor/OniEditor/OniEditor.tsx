@@ -47,10 +47,10 @@ import { NeovimEditor } from "./../NeovimEditor"
 import { windowManager } from "./../../Services/WindowManager"
 
 // Helper method to wrap a react component into a layer
-const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.EditorLayer => {
+const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.BufferLayer => {
     return {
         id,
-        render: (context: Oni.EditorLayerRenderContext) => (context.isActive ? component : null),
+        render: (context: Oni.BufferLayerRenderContext) => (context.isActive ? component : null),
     }
 }
 

@@ -35,7 +35,7 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
     public render(): JSX.Element {
         const containers = this.props.windows.map(windowState => {
             const layers =
-                this.props.layers[windowState.bufferId] || (EmptyArray as Oni.EditorLayer[])
+                this.props.layers[windowState.bufferId] || (EmptyArray as Oni.BufferLayer[])
 
             const layerContext = {
                 isActive: windowState.windowId === this.props.activeWindowId,

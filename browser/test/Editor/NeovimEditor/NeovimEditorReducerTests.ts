@@ -11,7 +11,7 @@ import * as State from "./../../../src/Editor/NeovimEditor/NeovimEditorStore"
 
 describe("NeovimEditorReducer", () => {
     describe("layersReducer", () => {
-        const simpleLayer: Oni.EditorLayer = {
+        const simpleLayer: Oni.BufferLayer = {
             id: "test",
             friendlyName: "Test",
             render(): JSX.Element {
