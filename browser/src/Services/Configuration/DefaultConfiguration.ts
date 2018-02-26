@@ -44,7 +44,7 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.languageServer": null,
     "debug.fakeLag.neovimInput": null,
 
-    "experimental.editor.textMateHighlighting.enabled": false,
+    "editor.textMateHighlighting.enabled": false,
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
@@ -55,6 +55,7 @@ const BaseConfiguration: IConfigurationValues = {
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
     "editor.maxLinesForLanguageServices": 2500,
+    "editor.textMateHighlighting.enabled": true,
 
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
