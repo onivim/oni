@@ -60,6 +60,10 @@ export class SnippetSession {
 
     private _currentPlaceholder: OniSnippetPlaceholder = null
 
+    public get buffer(): IBuffer {
+        return this._buffer
+    }
+
     public get onCancel(): IEvent<void> {
         return this._onCancelEvent
     }
