@@ -15,7 +15,9 @@ import * as types from "vscode-languageserver-types"
 import { SnippetSession } from "./SnippetSession"
 
 export class SnippetBufferLayer implements Oni.EditorLayer {
-    constructor(private _snippetSession: SnippetSession) {}
+    constructor(private _buffer: Oni.Buffer, private _snippetSession: SnippetSession) {
+        this._buffer.addLayer(this)
+    }
 
     public get id(): string {
         return "oni.layers.snippet"
@@ -27,6 +29,15 @@ export class SnippetBufferLayer implements Oni.EditorLayer {
 
     public render(context: Oni.EditorLayerRenderContext): JSX.Element {
         return <SnippetBufferLayerView context={context} snippetSession={this._snippetSession} />
+    }
+
+    public dispose(): void {
+        if (this._buffer) {
+            ;(this._buffer as any).removeLayer(this)
+
+            this._buffer = null
+            this._snippetSession = null
+        }
     }
 }
 
