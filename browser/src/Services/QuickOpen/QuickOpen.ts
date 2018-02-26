@@ -215,7 +215,12 @@ export class QuickOpen {
             }
             this._neovimInstance.command(`${arg.label}`)
         } else {
-            let fullPath = path.join(this._workspace.activeWorkspace, arg.detail, arg.label)
+            const { activeWorkspace } = this._workspace
+            const pathArgs = activeWorkspace
+                ? [activeWorkspace, arg.detail, arg.label]
+                : [arg.detail, arg.label]
+
+            let fullPath = path.join(...pathArgs)
 
             this._seenItems.push(fullPath)
 
