@@ -4,15 +4,19 @@
  * UX for the Snippet functionality, implemented as a buffer layer
  */
 
-import * as React from "React"
+import * as React from "react"
+
+import styled from "styled-components"
 
 import * as Oni from "oni-api"
-import { Event, IEvent } from "oni-types"
+
+import * as types from "vscode-languageserver-types"
 
 import { SnippetSession } from "./SnippetSession"
 
 export class SnippetBufferLayer implements Oni.EditorLayer {
     constructor(private _snippetSession: SnippetSession) {}
+
     public get id(): string {
         return "oni.layers.snippet"
     }
@@ -31,8 +35,58 @@ export interface ISnippetBufferLayerViewProps {
     snippetSession: SnippetSession
 }
 
+const NonSnippetOverlayTop = styled.div`
+    background-color: rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.2);
+`
+
+const NonSnippetOverlayBottom = styled.div`
+    background-color: rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.2);
+`
+
 export class SnippetBufferLayerView extends React.PureComponent<ISnippetBufferLayerViewProps, {}> {
     public render(): JSX.Element {
-        return <div>Hello World!</div>
+        if (!this.props.context.screenToPixel || !this.props.context.bufferToScreen) {
+            return null
+        }
+
+        // const fullScreenSize = this.props.context.dimensions
+
+        // Get screen size in pixel space
+        // const fullSizeInPixels = this.props.context.screenToPixel({ screenX:fullScreenSize.width, screenY: fullScreenSize.height})
+
+        const snippetStartPosition = this.props.snippetSession.position.line
+        const snippetEndPosition = this.props.snippetSession.position.line + 1 // TODO
+
+        const startPositionInPixels = this.props.context.screenToPixel(
+            this.props.context.bufferToScreen(types.Position.create(snippetStartPosition, 0)),
+        )
+        const endPositionInPixels = this.props.context.screenToPixel(
+            this.props.context.bufferToScreen(types.Position.create(snippetEndPosition, 0)),
+        )
+
+        const topOverlay: React.CSSProperties = {
+            position: "absolute",
+            top: "0px",
+            left: "0px",
+            right: "0px",
+            height: startPositionInPixels.pixelY.toString() + "px",
+        }
+
+        const bottomOverlay: React.CSSProperties = {
+            position: "absolute",
+            height: endPositionInPixels.pixelY.toString() + "px",
+            left: "0px",
+            bottom: "0px",
+            right: "0px",
+        }
+
+        return (
+            <div style={{ position: "relative" }}>
+                <NonSnippetOverlayTop style={topOverlay} />
+                <NonSnippetOverlayBottom style={bottomOverlay} />
+            </div>
+        )
     }
 }

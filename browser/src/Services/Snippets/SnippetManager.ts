@@ -14,6 +14,7 @@ import { Subject } from "rxjs/Subject"
 import { EditorManager } from "./../EditorManager"
 
 import { OniSnippet } from "./OniSnippet"
+import { SnippetBufferLayer } from "./SnippetBufferLayer"
 import { CompositeSnippetProvider, ISnippetProvider } from "./SnippetProvider"
 import { SnippetSession } from "./SnippetSession"
 
@@ -59,6 +60,9 @@ export class SnippetManager {
         const activeEditor = this._editorManager.activeEditor as any
         const snippetSession = new SnippetSession(activeEditor as any, snip)
         await snippetSession.start()
+
+        const buffer = this._editorManager.activeEditor.activeBuffer
+        buffer.addLayer(new SnippetBufferLayer(snippetSession))
 
         const s2 = activeEditor.onBufferChanged.subscribe(() => {
             this._synchronizeSnippetObseravble.next()

@@ -68,6 +68,10 @@ export class SnippetSession {
         return this._onCancelEvent
     }
 
+    public get position(): types.Position {
+        return this._position
+    }
+
     constructor(private _editor: IEditor, private _snippet: OniSnippet) {}
 
     public async start(): Promise<void> {
