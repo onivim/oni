@@ -422,7 +422,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         // These functions are mirrors of each other if vim changes dir then oni responds
-        // and if oni intiates the dir change them we inform vim
+        // and if oni initiates the dir change then we inform vim
         // NOTE: the gates to check that the dirs being passed aren't already set prevent
         // an infinite loop!!
         this._neovimInstance.onDirectoryChanged.subscribe(async newDirectory => {
