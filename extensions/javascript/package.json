@@ -1,7 +1,7 @@
 {
-    "name": "typescript",
+    "name": "JavaScript",
     "version": "0.0.1",
-    "description": "TypeScript extension for Oni",
+    "description": "JavaScript extension for Oni",
     "engines": {
         "oni": "0.2.18"
     },
@@ -11,8 +11,8 @@
     "contributes": {
         "snippets": [
             {
-                "language": "typescript",
-                "path": "snippets/typescript.json"
+                "language": "javascript",
+                "path": "snippets/javascript.json"
             }
         ]
     },
