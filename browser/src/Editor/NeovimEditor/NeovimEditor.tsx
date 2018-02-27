@@ -723,10 +723,10 @@ export class NeovimEditor extends Editor implements IEditor {
     ): Promise<Oni.Buffer> {
         const cmd = new Proxy(
             {
-                [Oni.FileOpenMode.NewTab]: "tabe!",
+                [Oni.FileOpenMode.NewTab]: "tabnew!",
                 [Oni.FileOpenMode.HorizontalSplit]: "sp!",
                 [Oni.FileOpenMode.VerticalSplit]: "vsp!",
-                [Oni.FileOpenMode.Edit]: "tab drop!",
+                [Oni.FileOpenMode.Edit]: "tab drop",
             },
             {
                 get: (target: { [cmd: string]: string }, name: string) =>
