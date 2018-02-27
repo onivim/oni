@@ -48,7 +48,7 @@ describe("SnippetSession", () => {
         })
 
         it("matches existing whitespace - 2 spaces", async () => {
-            const snippetSession = new SnippetSession(mockEditor as any, "\t\tfoo")
+            snippetSession = new SnippetSession(mockEditor as any, "\t\tfoo")
 
             const indentationInfo = {
                 type: "space",
@@ -64,7 +64,7 @@ describe("SnippetSession", () => {
         })
 
         it("matches existing whitespace - tabs", async () => {
-            const snippetSession = new SnippetSession(mockEditor as any, "\t\tfoo")
+            snippetSession = new SnippetSession(mockEditor as any, "\t\tfoo")
 
             const indentationInfo = {
                 type: "tab",
