@@ -64,7 +64,9 @@ const serializeConfig = (configValues: { [key: string]: any }): string => {
         return `"${key}": ${JSON.stringify(configValues[key])},`
     })
 
-    const outputConfig = `module.exports = {${stringifiedConfig.join(os.EOL)}}`
+    const outputConfig = `// User Configuration${os.EOL}${os.EOL}module.exports = {${
+        os.EOL
+    }${stringifiedConfig.join(os.EOL)}${os.EOL}}`
 
     const folder = os.tmpdir()
     const fileName = "config_" + new Date().getTime().toString() + ".js"

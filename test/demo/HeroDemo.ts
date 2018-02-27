@@ -17,8 +17,9 @@ const BASEDELAY = 20
 export const test = async (oni: any) => {
     await oni.automation.waitForEditors()
 
-    const shortDelay = async () => oni.automation.sleep(500)
+    const isMac = process.platform === "darwin"
 
+    const shortDelay = async () => oni.automation.sleep(500)
     const longDelay = async () => oni.automation.sleep(1000)
 
     const simulateTyping = async (keys: string, baseDelay: number = 10) => {
@@ -47,10 +48,30 @@ export const test = async (oni: any) => {
         await shortDelay()
     }
 
+    const openCommandPalette = async () => {
+        await shortDelay()
+        const keys = isMac ? "<m-s-p>" : "<c-s-p>"
+        oni.automation.sendKeysV2(keys)
+        await shortDelay()
+    }
+
+    const openFindInFiles = async () => {
+        await shortDelay()
+        const keys = isMac ? "<m-s-f>" : "<c-s-f>"
+        oni.automation.sendKeysV2(keys)
+        await shortDelay()
+    }
+
+    const openQuickOpen = async () => {
+        await shortDelay()
+        const keys = isMac ? "<m-p>" : "<c-p>"
+        oni.automation.sendKeysV2(keys)
+        await shortDelay()
+    }
+
     const showConfig = async () => {
         await pressEscape()
-        oni.automation.sendKeysV2("<c-s-p>")
-        await shortDelay()
+        await openCommandPalette()
 
         await simulateTyping("config")
         await longDelay()
@@ -112,9 +133,7 @@ export const test = async (oni: any) => {
             await longDelay()
             await pressEnter()
             await pressEnter()
-            await simulateTyping(
-                "Thanks for watching! Check it today, start contributing, and let's reach for new levels of productivity.",
-            )
+            await simulateTyping("Thanks for watching! Download Oni today.")
         })
 
         await pressEscape()
@@ -122,6 +141,10 @@ export const test = async (oni: any) => {
 
     // Set window size
     remote.getCurrentWindow().setSize(1280, 720)
+
+    // Disable notifications, since there is sometimes noise... (HACK)
+    oni.notifications.disable()
+
     oni.recorder.startRecording()
 
     oni.commands.executeCommand("keyDisplayer.show")
@@ -140,7 +163,9 @@ export const test = async (oni: any) => {
         await simulateTyping(
             "Built with web tech, featuring a high performance canvas renderer, with (neo)vim handling the heavy lifting.",
         )
-        oni.automation.sendKeysV2("<cr>")
+        await pressEnter()
+        await simulateTyping("Available for Windows, OSX, and Linux.")
+        await pressEnter()
     })
 
     await pressEscape()
@@ -237,8 +262,7 @@ export const test = async (oni: any) => {
 
     await pressEscape()
 
-    oni.automation.sendKeysV2("<c-s-f>")
-    await shortDelay()
+    await openFindInFiles()
     await simulateTyping("OniEditor")
     await longDelay()
     oni.automation.sendKeysV2("<cr>")
@@ -255,7 +279,7 @@ export const test = async (oni: any) => {
 
     await pressEscape()
     await shortDelay()
-    oni.automation.sendKeysV2("<c-p>")
+    await openQuickOpen()
     await simulateTyping("NeovimEditor")
     await shortDelay()
     oni.automation.sendKeysV2("<cr>")
