@@ -6,6 +6,7 @@
 
 import { Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
+import { Observable } from "rxjs"
 import { createStore as createReduxStore } from "./../../Redux"
 
 export type NotificationLevel = "info" | "warn" | "error"
@@ -82,13 +83,14 @@ const hideNotificationAfterExpirationEpic: Epic<NotificationAction, INotificatio
     action$,
     store,
 ) => {
-    let currentExpTime: number
     return action$
         .ofType("SHOW_NOTIFICATION")
-        .filter((action: IShowNotification) => action.expirationTime === -1)
-        .map(({ expirationTime }: IShowNotification) => (currentExpTime = expirationTime))
-        .delay(currentExpTime)
-        .map((action: IShowNotification) => ({ type: "HIDE_NOTIFICATION", id: action.id }))
+        .mergeMap(({ expirationTime, id }: IShowNotification) =>
+            Observable.timer(expirationTime).mapTo({
+                type: "HIDE_NOTIFICATION",
+                id,
+            } as IHideNotification),
+        )
 }
 export const stateReducer: Reducer<INotificationsState> = (
     state: INotificationsState = DefaultNotificationState,
