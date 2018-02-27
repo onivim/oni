@@ -5,15 +5,19 @@
  */
 
 import * as React from "react"
+import { connect } from "react-redux"
 
 import { boxShadow, OverlayWrapper } from "./../../UI/components/common"
 import { TextInputView } from "./../../UI/components/LightweightText"
 
-import { ISneakInfo, IAugmentedSneakInfo } from "./SneakStore"
+import { IAugmentedSneakInfo, ISneakInfo, ISneakState } from "./SneakStore"
 
-export interface ISneakViewProps {
-    sneaks: IAugmentedSneakInfo[]
+export interface ISneakContainerProps {
     onComplete: (sneakInfo: ISneakInfo) => void
+}
+
+export interface ISneakViewProps extends ISneakContainerProps {
+    sneaks: IAugmentedSneakInfo[]
 }
 
 export interface ISneakViewState {
@@ -98,3 +102,15 @@ export class SneakItemView extends React.PureComponent<ISneakItemViewProps, {}> 
         )
     }
 }
+
+const mapStateToProps = (
+    state: ISneakState,
+    containerProps?: ISneakContainerProps,
+): ISneakViewProps => {
+    return {
+        ...containerProps,
+        sneaks: state.sneaks || [],
+    }
+}
+
+export const ConnectedSneakView = connect(mapStateToProps)(SneakView)

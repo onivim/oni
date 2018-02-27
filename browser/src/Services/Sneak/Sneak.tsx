@@ -6,15 +6,16 @@
 
 import * as React from "react"
 import { Store } from "redux"
+import { Provider } from "react-redux"
 
 import { IDisposable } from "oni-types"
 
 import { Overlay, OverlayManager } from "./../Overlay"
 
 import { createStore as createSneakStore, ISneakInfo, ISneakState } from "./SneakStore"
-import { SneakView } from "./SneakView"
+import { ConnectedSneakView } from "./SneakView"
 
-export type SneakProvider = () => ISneakInfo[]
+export type SneakProvider = () => Promise<ISneakInfo[]>
 
 export class Sneak {
     private _activeOverlay: Overlay
@@ -36,24 +37,20 @@ export class Sneak {
     }
 
     public show(): void {
-        this._store.dispatch({ type: "START" })
-
-        const rects = this._collectSneakRectangles()
-
-        this._store.dispatch({ type: "ADD_SNEAKS", sneaks: rects })
-
         if (this._activeOverlay) {
             this._activeOverlay.hide()
             this._activeOverlay = null
         }
 
+        this._store.dispatch({ type: "START" })
+        this._collectSneakRectangles()
+
         this._activeOverlay = this._overlayManager.createItem()
 
         this._activeOverlay.setContents(
-            <SneakView
-                sneaks={this._store.getState().sneaks}
-                onComplete={info => this._onComplete(info)}
-            />,
+            <Provider store={this._store}>
+                <ConnectedSneakView onComplete={info => this._onComplete(info)} />,
+            </Provider>,
         )
         this._activeOverlay.show()
     }
@@ -71,12 +68,14 @@ export class Sneak {
         sneakInfo.callback()
     }
 
-    private _collectSneakRectangles(): ISneakInfo[] {
-        const ret = this._providers.reduce((prev: ISneakInfo[], cur: SneakProvider) => {
-            const sneaks = cur().filter(s => !!s)
-            return [...prev, ...sneaks]
-        }, [])
-
-        return ret
+    private _collectSneakRectangles(): void {
+        this._providers.forEach(async provider => {
+            const sneaks = await provider()
+            const normalizedSneaks = sneaks.filter(s => !!s)
+            this._store.dispatch({
+                type: "ADD_SNEAKS",
+                sneaks: normalizedSneaks,
+            })
+        })
     }
 }
