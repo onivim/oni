@@ -720,10 +720,10 @@ export class NeovimEditor extends Editor implements IEditor {
     public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
         const cmd = new Proxy(
             {
-                tab: "taball!",
+                tab: "tabnew!",
                 horizontal: "sp!",
                 vertical: "vsp!",
-                edit: "e!",
+                edit: "tab drop!",
             },
             {
                 get: (target: { [cmd: string]: string }, name: string) =>

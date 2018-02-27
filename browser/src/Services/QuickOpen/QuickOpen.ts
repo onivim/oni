@@ -14,7 +14,7 @@ import { INeovimInstance } from "./../../neovim"
 
 import { commandManager } from "./../CommandManager"
 import { configuration } from "./../Configuration"
-import { editorManager } from "./../EditorManager"
+import { editorManager, FileOpenMode } from "./../EditorManager"
 import { getInstance as getWorkspaceInstance } from "./../Workspace"
 
 import { fuseFilter, Menu, MenuManager } from "./../Menu"
@@ -66,21 +66,21 @@ export class QuickOpen {
     public openFileNewTab(): void {
         const selectedItem = this._menu.selectedItem
         if (selectedItem) {
-            this._onItemSelected(selectedItem, ":tabnew")
+            this._onItemSelected(selectedItem, FileOpenMode.NewTab)
         }
     }
 
     public openFileHorizontal(): void {
         const selectedItem = this._menu.selectedItem
         if (selectedItem) {
-            this._onItemSelected(selectedItem, ":sp")
+            this._onItemSelected(selectedItem, FileOpenMode.HorizontalSplit)
         }
     }
 
     public openFileVertical(): void {
         const selectedItem = this._menu.selectedItem
         if (selectedItem) {
-            this._onItemSelected(selectedItem, ":vsp")
+            this._onItemSelected(selectedItem, FileOpenMode.VerticalSplit)
         }
     }
 
@@ -202,7 +202,10 @@ export class QuickOpen {
         }
     }
 
-    private _onItemSelected(selectedOption: Oni.Menu.MenuOption, openInSplit: string = ":e"): void {
+    private async _onItemSelected(
+        selectedOption: Oni.Menu.MenuOption,
+        openInSplit: FileOpenMode = FileOpenMode.HorizontalSplit,
+    ): Promise<void> {
         const arg = selectedOption
 
         if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
@@ -210,10 +213,12 @@ export class QuickOpen {
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
             commandManager.executeCommand("oni.openFolder")
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
-            if (openInSplit !== "e") {
-                this._neovimInstance.command(openInSplit + "!")
+            if (openInSplit !== FileOpenMode.Edit) {
+                await editorManager.openFile(editorManager.activeEditor.activeBuffer.filePath, {
+                    openMode: openInSplit,
+                })
             }
-            this._neovimInstance.command(`${arg.label}`)
+            await this._neovimInstance.command(`${arg.label}`)
         } else {
             const { activeWorkspace } = this._workspace
             const pathArgs = activeWorkspace
@@ -224,7 +229,7 @@ export class QuickOpen {
 
             this._seenItems.push(fullPath)
 
-            this._neovimInstance.command(openInSplit + "! " + fullPath)
+            editorManager.openFile(fullPath, { openMode: openInSplit })
 
             if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folder)) {
                 this._neovimInstance.chdir(fullPath)

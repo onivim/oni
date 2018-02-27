@@ -242,7 +242,7 @@ const BaseConfiguration: IConfigurationValues = {
         "oni.status.git": 3,
     },
 
-    "tabs.mode": "buffers",
+    "tabs.mode": "tabs",
     "tabs.height": "2.5em",
     "tabs.highlight": true,
     "tabs.maxWidth": "30em",

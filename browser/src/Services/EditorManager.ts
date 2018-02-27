@@ -13,6 +13,21 @@ import { Event, IDisposable, IEvent } from "oni-types"
 
 import * as Log from "./../Log"
 
+export enum FileOpenMode {
+    Edit = 0,
+    NewTab,
+    VerticalSplit,
+    HorizontalSplit,
+}
+
+export interface FileOpenOptions {
+    openMode: FileOpenMode
+}
+
+export const DefaultFileOpenOptions: FileOpenOptions = {
+    openMode: FileOpenMode.Edit,
+}
+
 export class EditorManager implements Oni.EditorManager {
     private _activeEditor: Oni.Editor = null
     private _anyEditorProxy: AnyEditorProxy = new AnyEditorProxy()
@@ -35,6 +50,27 @@ export class EditorManager implements Oni.EditorManager {
 
     public get onActiveEditorChanged(): IEvent<Oni.Editor> {
         return this._onActiveEditorChanged
+    }
+
+    /**
+     * Potential API methods
+     */
+    public async openFile(
+        filePath: string,
+        fileOpenOptions: FileOpenOptions = DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
+        switch (fileOpenOptions.openMode) {
+            case FileOpenMode.Edit:
+                return this._activeEditor.openFile(filePath, "edit")
+            case FileOpenMode.NewTab:
+                return this._activeEditor.openFile(filePath, "tab")
+            case FileOpenMode.VerticalSplit:
+                return this._activeEditor.openFile(filePath, "vertical")
+            case FileOpenMode.HorizontalSplit:
+                return this._activeEditor.openFile(filePath, "horizontal")
+            default:
+                throw new Error("Unrecognized open mode")
+        }
     }
 
     /**
