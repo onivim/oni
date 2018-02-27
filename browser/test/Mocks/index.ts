@@ -5,6 +5,7 @@
  * to exercise boundaries of class implementations
  */
 
+export * from "./MockPluginManager"
 export * from "./MockThemeLoader"
 
 import * as Oni from "oni-api"

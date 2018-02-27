@@ -132,6 +132,7 @@ export class Buffer implements IBuffer {
     }
 
     public async setLanguage(language: string): Promise<void> {
+        this._language = language
         await this._neovimInstance.request<any>("nvim_buf_set_option", [
             parseInt(this._id, 10),
             "filetype",
