@@ -4,6 +4,9 @@
  * Entry point for sneak functionality
  */
 
+import { CallbackCommand, CommandManager } from "./../CommandManager"
+import { OverlayManager } from "./../Overlay"
+
 import { Sneak } from "./Sneak"
 
 let _sneak: Sneak

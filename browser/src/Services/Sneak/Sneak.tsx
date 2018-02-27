@@ -9,9 +9,9 @@ import * as React from "react"
 import { Shapes } from "oni-api"
 import { IDisposable } from "oni-types"
 
-import { Overlay, OverlayManager } from "./Overlay"
+import { Overlay, OverlayManager } from "./../Overlay"
 
-import { TextInputView } from "./../UI/components/LightweightText"
+import { SneakView } from "./SneakView"
 
 export interface ISneakInfo {
     rectangle: Shapes.Rectangle
@@ -22,7 +22,7 @@ export interface IAugmentedSneakInfo extends ISneakInfo {
     triggerKeys: string
 }
 
-export type SneakProvider = () => Promise<ISneakInfo[]>
+export type SneakProvider = () => ISneakInfo[]
 
 export class Sneak {
     private _activeOverlay: Overlay
@@ -92,112 +92,5 @@ export class Sneak {
         }, [])
 
         return ret
-    }
-}
-
-export interface ISneakViewProps {
-    sneaks: IAugmentedSneakInfo[]
-    onComplete: (sneakInfo: ISneakInfo) => void
-}
-
-export const TestSneaks = [
-    {
-        triggerKeys: "AA",
-        rectangle: Shapes.Rectangle.create(10, 10, 100, 100),
-        callback: () => {
-            alert("testing")
-        },
-    },
-    {
-        triggerKeys: "AB",
-        rectangle: Shapes.Rectangle.create(50, 50, 50, 50),
-        callback: () => {
-            alert("testing2")
-        },
-    },
-]
-
-import { boxShadow, OverlayWrapper } from "./../UI/components/common"
-
-export interface ISneakViewState {
-    filterText: string
-}
-
-// Render a keyboard input?
-// Grab input while 'sneaking'?
-export class SneakView extends React.PureComponent<ISneakViewProps, ISneakViewState> {
-    constructor(props: ISneakViewProps) {
-        super(props)
-
-        this.state = {
-            filterText: "",
-        }
-    }
-
-    public render(): JSX.Element {
-        const normalizedFilterText = this.state.filterText.toUpperCase()
-        const filteredSneaks = this.props.sneaks.filter(
-            sneak => sneak.triggerKeys.indexOf(normalizedFilterText) === 0,
-        )
-        const sneaks = filteredSneaks.map(si => (
-            <SneakItemView sneak={si} filterLength={normalizedFilterText.length} />
-        ))
-
-        if (filteredSneaks.length === 1) {
-            this.props.onComplete(filteredSneaks[0])
-        }
-
-        return (
-            <OverlayWrapper style={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}>
-                <div style={{ opacity: 0.01 }}>
-                    <TextInputView
-                        onChange={evt => {
-                            this.setState({ filterText: evt.currentTarget.value })
-                        }}
-                    />
-                </div>
-                {sneaks}
-            </OverlayWrapper>
-        )
-    }
-}
-
-export interface ISneakItemViewProps {
-    sneak: IAugmentedSneakInfo
-    filterLength: number
-}
-
-import styled from "styled-components"
-
-const SneakItemWrapper = styled.div`
-    ${boxShadow} background-color: ${props => props.theme["highlight.mode.visual.background"]};
-    color: ${props => props.theme["highlight.mode.visual.foreground"]};
-`
-
-const SneakItemViewSize = 20
-const px = (num: number): string => num.toString() + "px"
-export class SneakItemView extends React.PureComponent<ISneakItemViewProps, {}> {
-    public render(): JSX.Element {
-        const style: React.CSSProperties = {
-            position: "absolute",
-            left: px(this.props.sneak.rectangle.x),
-            top: px(this.props.sneak.rectangle.y),
-            width: px(SneakItemViewSize),
-            height: px(SneakItemViewSize),
-        }
-
-        return (
-            <SneakItemWrapper style={style}>
-                <span style={{ fontWeight: "bold" }}>
-                    {this.props.sneak.triggerKeys.substring(0, this.props.filterLength)}
-                </span>
-                <span>
-                    {this.props.sneak.triggerKeys.substring(
-                        this.props.filterLength,
-                        this.props.sneak.triggerKeys.length,
-                    )}
-                </span>
-            </SneakItemWrapper>
-        )
     }
 }
