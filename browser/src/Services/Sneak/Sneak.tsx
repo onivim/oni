@@ -9,8 +9,6 @@ import * as React from "react"
 import { Shapes } from "oni-api"
 import { IDisposable } from "oni-types"
 
-import { CallbackCommand, CommandManager } from "./CommandManager"
-
 import { Overlay, OverlayManager } from "./Overlay"
 
 import { TextInputView } from "./../UI/components/LightweightText"
@@ -24,7 +22,7 @@ export interface IAugmentedSneakInfo extends ISneakInfo {
     triggerKeys: string
 }
 
-export type SneakProvider = () => ISneakInfo[]
+export type SneakProvider = () => Promise<ISneakInfo[]>
 
 export class Sneak {
     private _activeOverlay: Overlay
@@ -202,35 +200,4 @@ export class SneakItemView extends React.PureComponent<ISneakItemViewProps, {}> 
             </SneakItemWrapper>
         )
     }
-}
-
-let _sneak: Sneak
-
-export const activate = (commandManager: CommandManager, overlayManager: OverlayManager) => {
-    _sneak = new Sneak(overlayManager)
-
-    commandManager.registerCommand(
-        new CallbackCommand(
-            "sneak.show",
-            "Sneak: Current Window",
-            "Show commands for current window",
-            () => {
-                _sneak.show()
-            },
-        ),
-    )
-
-    commandManager.registerCommand(
-        new CallbackCommand(
-            "sneak.hide",
-            "Sneak: Hide",
-            "Hide sneak view",
-            () => _sneak.close(),
-            () => _sneak.isActive,
-        ),
-    )
-}
-
-export const getInstance = (): Sneak => {
-    return _sneak
 }
