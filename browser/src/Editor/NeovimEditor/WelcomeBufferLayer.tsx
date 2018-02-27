@@ -168,7 +168,7 @@ export interface WelcomeHeaderState {
     version: string
 }
 
-export class WelcomeBufferLayer implements Oni.EditorLayer {
+export class WelcomeBufferLayer implements Oni.BufferLayer {
     public get id(): string {
         return "oni.welcome"
     }
@@ -177,7 +177,7 @@ export class WelcomeBufferLayer implements Oni.EditorLayer {
         return "Welcome"
     }
 
-    public render(context: Oni.EditorLayerRenderContext): JSX.Element {
+    public render(context: Oni.BufferLayerRenderContext): JSX.Element {
         return (
             <WelcomeWrapper
                 className="enable-mouse"

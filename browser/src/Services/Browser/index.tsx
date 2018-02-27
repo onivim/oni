@@ -78,7 +78,7 @@ const AddressBar = styled.div`
     text-align: left;
 `
 
-export class BrowserLayer implements Oni.EditorLayer {
+export class BrowserLayer implements Oni.BufferLayer {
     private _goBackEvent = new Event<void>()
     private _goForwardEvent = new Event<void>()
     private _reloadEvent = new Event<void>()

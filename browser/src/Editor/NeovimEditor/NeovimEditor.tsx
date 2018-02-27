@@ -648,6 +648,12 @@ export class NeovimEditor extends Editor implements IEditor {
         }
     }
 
+    public async blockInput(
+        inputFunction: (inputCallback: Oni.InputCallbackFunction) => Promise<void>,
+    ): Promise<void> {
+        return this._neovimInstance.blockInput(inputFunction)
+    }
+
     public dispose(): void {
         if (this._syntaxHighlighter) {
             this._syntaxHighlighter.dispose()

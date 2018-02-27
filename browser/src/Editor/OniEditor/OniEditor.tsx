@@ -47,10 +47,10 @@ import { NeovimEditor } from "./../NeovimEditor"
 import { windowManager } from "./../../Services/WindowManager"
 
 // Helper method to wrap a react component into a layer
-const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.EditorLayer => {
+const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.BufferLayer => {
     return {
         id,
-        render: (context: Oni.EditorLayerRenderContext) => (context.isActive ? component : null),
+        render: (context: Oni.BufferLayerRenderContext) => (context.isActive ? component : null),
     }
 }
 
@@ -204,10 +204,9 @@ export class OniEditor implements IEditor {
     }
 
     public async blockInput(
-        inputFunction: (input: (inp: string) => Promise<void>) => Promise<void>,
-    ) {
-        const neovim = this._neovimEditor.neovim as any
-        return neovim.blockInput(inputFunction)
+        inputFunction: (input: Oni.InputCallbackFunction) => Promise<void>,
+    ): Promise<void> {
+        return this._neovimEditor.blockInput(inputFunction)
     }
 
     public executeCommand(command: string): void {

@@ -6,10 +6,10 @@
 
 import * as Oni from "oni-api"
 
-export type BufferLayerFactory = (buf: Oni.Buffer) => Oni.EditorLayer
+export type BufferLayerFactory = (buf: Oni.Buffer) => Oni.BufferLayer
 export type BufferFilter = (buf: Oni.Buffer) => boolean
 
-export interface IBufferLayer extends Oni.EditorLayer {
+export interface IBufferLayer extends Oni.BufferLayer {
     handleInput?: (key: string) => boolean
 }
 
@@ -67,9 +67,9 @@ export class BufferLayerManager {
 export const wrapReactComponentWithLayer = (
     id: string,
     component: JSX.Element,
-): Oni.EditorLayer => {
+): Oni.BufferLayer => {
     return {
         id,
-        render: (context: Oni.EditorLayerRenderContext) => (context.isActive ? component : null),
+        render: (context: Oni.BufferLayerRenderContext) => (context.isActive ? component : null),
     }
 }
