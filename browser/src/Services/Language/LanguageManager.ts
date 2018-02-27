@@ -331,7 +331,7 @@ export class LanguageManager {
         const buffer = this._editorManager.activeEditor.activeBuffer
         const { language, filePath } = buffer
 
-        if (!language) {
+        if (!language && filePath) {
             const languages = this._pluginManager.getAllContributionsOfType<
                 Capabilities.ILanguageContribution
             >(contributes => contributes.languages)

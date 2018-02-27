@@ -13,7 +13,7 @@ import * as Oni from "oni-api"
 import { withProps } from "./../../UI/components/common"
 // import { VimNavigator } from "./../../UI/components/VimNavigator"
 
-export class ImageBufferLayer implements Oni.EditorLayer {
+export class ImageBufferLayer implements Oni.BufferLayer {
     constructor(private _buffer: Oni.Buffer) {}
     public get id(): string {
         return "oni.image"
@@ -23,7 +23,7 @@ export class ImageBufferLayer implements Oni.EditorLayer {
         return "Image"
     }
 
-    public render(context: Oni.EditorLayerRenderContext): JSX.Element {
+    public render(context: Oni.BufferLayerRenderContext): JSX.Element {
         return <ImageLayerView imagePath={this._buffer.filePath} key={this._buffer.filePath} />
     }
 }
