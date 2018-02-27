@@ -85,12 +85,13 @@ const hideNotificationAfterExpirationEpic: Epic<NotificationAction, INotificatio
 ) => {
     return action$
         .ofType("SHOW_NOTIFICATION")
-        .mergeMap(({ expirationTime, id }: IShowNotification) =>
-            Observable.timer(expirationTime).mapTo({
+        .filter((action: IShowNotification) => !!action.expirationTime)
+        .mergeMap(({ expirationTime, id }: IShowNotification) => {
+            return Observable.timer(expirationTime).mapTo({
                 type: "HIDE_NOTIFICATION",
                 id,
-            } as IHideNotification),
-        )
+            } as IHideNotification)
+        })
 }
 export const stateReducer: Reducer<INotificationsState> = (
     state: INotificationsState = DefaultNotificationState,

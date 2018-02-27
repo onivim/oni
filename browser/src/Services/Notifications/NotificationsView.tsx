@@ -181,67 +181,42 @@ const NotificationHeader = styled.header`
     border-bottom: 1px solid ${p => p.theme["toolTip.border"]};
     padding: 0.5rem;
 `
-interface IViewState {
-    expired: boolean
-}
 
-export class NotificationView extends React.PureComponent<INotification, IViewState> {
-    public state = {
-        expired: false,
-    }
-
-    private _timer: any // NodeJS.Timer should work but there's a type conflict
-    private _lifetime = 20000
+export class NotificationView extends React.PureComponent<INotification, {}> {
     private iconDictionary = {
         error: "times-circle",
         warn: "exclamation-triangle",
         info: "info-circle",
     }
 
-    public componentDidMount() {
-        if (this.props.level !== "error") {
-            this._timer = setTimeout(this.clearNotification, this._lifetime)
-        }
-    }
-
-    public clearNotification = () => {
-        this.setState({ expired: true })
-    }
-
-    public componentWillUnmount() {
-        clearTimeout(this._timer)
-    }
-
     public render(): JSX.Element {
         const { level } = this.props
         return (
-            !this.state.expired && (
-                <NotificationWrapper
-                    key={this.props.id}
-                    onClick={this.props.onClick}
-                    className="notification"
-                    level={level}
-                >
-                    <NotificationHeader>
-                        <IconContainer>
-                            <NotificationIconWrapper level={level}>
-                                <Sneakable callback={this.props.onClick}>
-                                    <Icon size={IconSize.Large} name={this.iconDictionary[level]} />
-                                </Sneakable>
-                            </NotificationIconWrapper>
-                            <NotificationIconWrapper onClick={evt => this._onClickClose(evt)}>
-                                <Sneakable callback={this.props.onClose}>
-                                    <Icon size={IconSize.Large} name="times" />
-                                </Sneakable>
-                            </NotificationIconWrapper>
-                        </IconContainer>
-                        <NotificationTitle level={level}>{this.props.title}</NotificationTitle>
-                    </NotificationHeader>
-                    <NotificationContents>
-                        <NotificationDescription>{this.props.detail}</NotificationDescription>
-                    </NotificationContents>
-                </NotificationWrapper>
-            )
+            <NotificationWrapper
+                key={this.props.id}
+                onClick={this.props.onClick}
+                className="notification"
+                level={level}
+            >
+                <NotificationHeader>
+                    <IconContainer>
+                        <NotificationIconWrapper level={level}>
+                            <Sneakable callback={this.props.onClick}>
+                                <Icon size={IconSize.Large} name={this.iconDictionary[level]} />
+                            </Sneakable>
+                        </NotificationIconWrapper>
+                        <NotificationIconWrapper onClick={evt => this._onClickClose(evt)}>
+                            <Sneakable callback={this.props.onClose}>
+                                <Icon size={IconSize.Large} name="times" />
+                            </Sneakable>
+                        </NotificationIconWrapper>
+                    </IconContainer>
+                    <NotificationTitle level={level}>{this.props.title}</NotificationTitle>
+                </NotificationHeader>
+                <NotificationContents>
+                    <NotificationDescription>{this.props.detail}</NotificationDescription>
+                </NotificationContents>
+            </NotificationWrapper>
         )
     }
 
