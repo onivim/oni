@@ -1904,13 +1904,13 @@ deep-is@~0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
 
+deepmerge@2.0.1, deepmerge@~2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.0.1.tgz#25c1c24f110fb914f80001b925264dd77f3f4312"
+
 deepmerge@~1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-1.3.2.tgz#1663691629d4dbfe364fa12a2a4f0aa86aa3a050"
-
-deepmerge@~2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.0.1.tgz#25c1c24f110fb914f80001b925264dd77f3f4312"
 
 default-require-extensions@^1.0.0:
   version "1.0.0"
@@ -4587,11 +4587,12 @@ obuf@^1.0.0, obuf@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.1.tgz#104124b6c602c6796881a042541d36db43a5264e"
 
-ocaml-language-server@^1.0.25:
-  version "1.0.26"
-  resolved "https://registry.yarnpkg.com/ocaml-language-server/-/ocaml-language-server-1.0.26.tgz#e996f3f2c5d50db02a7371f2f8f7c93e55778287"
+ocaml-language-server@^1.0.27:
+  version "1.0.27"
+  resolved "https://registry.yarnpkg.com/ocaml-language-server/-/ocaml-language-server-1.0.27.tgz#b592579a9d2edce5e7064938f08b654ed2b64dfd"
   dependencies:
     async "2.6.0"
+    deepmerge "2.0.1"
     glob "7.1.2"
     lodash "4.17.5"
     lokijs "1.5.2"
@@ -4624,9 +4625,9 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@^0.0.32:
-  version "0.0.32"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.32.tgz#777bedf022e5a20bbf41b508902f132c37ad82c5"
+oni-api@^0.0.35:
+  version "0.0.35"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.35.tgz#832f2826a0e75b89db6307db8194df718929b1d7"
 
 oni-neovim-binaries@0.1.0:
   version "0.1.0"

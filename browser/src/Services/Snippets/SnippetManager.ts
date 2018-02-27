@@ -14,6 +14,7 @@ import { Subject } from "rxjs/Subject"
 import { EditorManager } from "./../EditorManager"
 
 import { OniSnippet } from "./OniSnippet"
+import { SnippetBufferLayer } from "./SnippetBufferLayer"
 import { CompositeSnippetProvider, ISnippetProvider } from "./SnippetProvider"
 import { SnippetSession } from "./SnippetSession"
 
@@ -22,6 +23,7 @@ import { ISnippet } from "./ISnippet"
 export class SnippetManager {
     private _activeSession: SnippetSession
     private _disposables: IDisposable[] = []
+    private _currentLayer: SnippetBufferLayer = null
 
     private _snippetProvider: CompositeSnippetProvider
     private _synchronizeSnippetObseravble: Subject<void> = new Subject<void>()
@@ -60,6 +62,9 @@ export class SnippetManager {
         const snippetSession = new SnippetSession(activeEditor as any, snip)
         await snippetSession.start()
 
+        const buffer = this._editorManager.activeEditor.activeBuffer
+        this._currentLayer = new SnippetBufferLayer(buffer, snippetSession)
+
         const s2 = activeEditor.onBufferChanged.subscribe(() => {
             this._synchronizeSnippetObseravble.next()
         })
@@ -92,6 +97,10 @@ export class SnippetManager {
     public cancel(): void {
         if (this._activeSession) {
             this._cleanupAfterSession()
+        }
+
+        if (this._currentLayer) {
+            this._currentLayer.dispose()
         }
     }
 

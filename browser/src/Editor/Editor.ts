@@ -71,6 +71,12 @@ export class Editor implements Oni.Editor {
         return Promise.reject("Not implemented")
     }
 
+    public async blockInput(
+        inputFunction: (input: Oni.InputCallbackFunction) => Promise<void>,
+    ): Promise<void> {
+        return Promise.reject("Not implemented")
+    }
+
     protected setMode(mode: Oni.Vim.Mode): void {
         if (mode !== this._currentMode) {
             this._currentMode = mode

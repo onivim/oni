@@ -33,9 +33,12 @@ export class UnhandledErrorMonitor {
             this._onUnhandledRejectionEvent.dispatch(evt.reason)
         })
 
-        window.addEventListener("error", (evt: any) => {
+        window.addEventListener("error", (evt: ErrorEvent) => {
             if (!this._started) {
-                this._queuedErrors.push(evt.error)
+                const hasOccured = this._queuedErrors.find(e => e.name === evt.error.name)
+                if (!hasOccured) {
+                    this._queuedErrors.push(evt.error)
+                }
             }
 
             this._onUnhandledErrorEvent.dispatch(evt.error)

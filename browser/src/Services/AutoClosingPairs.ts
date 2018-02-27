@@ -85,13 +85,12 @@ export const activate = (
 
     const handleEnterCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
         const neovim: NeovimInstance = editor.neovim as any
-        neovim.blockInput(async (inputFunc: any) => {
+        editor.blockInput(async (inputFunc: Oni.InputCallbackFunction) => {
             const activeBuffer = editor.activeBuffer
 
-            const lines = await (activeBuffer as any).getLines(
+            const lines = await activeBuffer.getLines(
                 activeBuffer.cursor.line,
                 activeBuffer.cursor.line + 1,
-                false,
             )
             const line = lines[0]
 
@@ -124,13 +123,11 @@ export const activate = (
     }
 
     const handleCloseCharacter = (pair: IAutoClosingPair, editor: Oni.Editor) => () => {
-        const neovim: any = editor.neovim
-        neovim.blockInput(async (inputFunc: any) => {
+        editor.blockInput(async (inputFunc: Oni.InputCallbackFunction) => {
             const activeBuffer = editor.activeBuffer
-            const lines = await (activeBuffer as any).getLines(
+            const lines = await activeBuffer.getLines(
                 activeBuffer.cursor.line,
                 activeBuffer.cursor.line + 1,
-                false,
             )
             const line = lines[0]
             if (line[activeBuffer.cursor.column] === pair.close) {

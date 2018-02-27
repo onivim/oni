@@ -265,6 +265,14 @@ export class MockBuffer {
     ) {
         updateFunction(this._mockHighlights)
     }
+
+    public addLayer(): void {
+        // tslint:disable-line
+    }
+
+    public removeLayer(): void {
+        // tslint:disable-line
+    }
 }
 
 export class MockBufferHighlightsUpdater implements IBufferHighlightsUpdater {
