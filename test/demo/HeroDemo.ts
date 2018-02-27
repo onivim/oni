@@ -113,7 +113,7 @@ export const test = async (oni: any) => {
             await pressEnter()
             await pressEnter()
             await simulateTyping(
-                "Thanks for watching! Check it today, start contributing, and help us get to new levels of productivity.",
+                "Thanks for watching! Check it today, start contributing, and let's reach for new levels of productivity.",
             )
         })
 
