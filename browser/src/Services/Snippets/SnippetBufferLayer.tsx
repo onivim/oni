@@ -81,12 +81,19 @@ export class SnippetBufferLayerView extends React.PureComponent<ISnippetBufferLa
         const snippetEndPosition =
             this.props.snippetSession.position.line + this.props.snippetSession.lines.length
 
-        const startPositionInPixels = this.props.context.screenToPixel(
-            this.props.context.bufferToScreen(types.Position.create(snippetStartPosition, 0)),
+        const startScreenPosition = this.props.context.bufferToScreen(
+            types.Position.create(snippetStartPosition, 0),
         )
-        const endPositionInPixels = this.props.context.screenToPixel(
-            this.props.context.bufferToScreen(types.Position.create(snippetEndPosition, 0)),
+        const endScreenPosition = this.props.context.bufferToScreen(
+            types.Position.create(snippetEndPosition, 0),
         )
+
+        if (!startScreenPosition || !endScreenPosition) {
+            return null
+        }
+
+        const startPositionInPixels = this.props.context.screenToPixel(startScreenPosition)
+        const endPositionInPixels = this.props.context.screenToPixel(endScreenPosition)
 
         const topOverlay: React.CSSProperties = {
             position: "absolute",
