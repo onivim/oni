@@ -8,6 +8,8 @@ import * as path from "path"
 
 import { getCompletionElement } from "./../ci/Common"
 
+import { getDistPath } from "./DemoCommon"
+
 import { remote } from "electron"
 
 const BASEDELAY = 20
@@ -273,7 +275,9 @@ export const test = async (oni: any) => {
     await simulateTyping(":q")
     await longDelay()
 
-    oni.recorder.stopRecording()
+    oni.configuration.setValues({ "recorder.outputPath": getDistPath() })
+    oni.recorder.stopRecording(`demo-${process.platform}.webm`)
+
     await pressEscape()
 }
 

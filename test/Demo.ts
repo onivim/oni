@@ -3,14 +3,11 @@ import * as path from "path"
 
 import { runInProcTest } from "./common"
 
-const DemoTests = [
-    "HeroDemo",
-    // "HeroScreenshot",
-]
+const DemoTests = ["HeroDemo", "HeroScreenshot"]
 
 // tslint:disable:no-console
 
-describe("demo tests", function() {
+describe("demo tests", () => {
     // tslint:disable-line only-arrow-functions
     // Retry up to two times
     // this.retries(2)
