@@ -5,7 +5,6 @@
 import * as assert from "assert"
 import * as types from "vscode-languageserver-types"
 
-import { OniSnippet } from "./../../../src/Services/Snippets/OniSnippet"
 import { SnippetSession } from "./../../../src/Services/Snippets/SnippetSession"
 
 import * as Mocks from "./../../Mocks"
