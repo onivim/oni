@@ -5,8 +5,8 @@
  */
 
 import * as React from "react"
-import { Store } from "redux"
 import { Provider } from "react-redux"
+import { Store } from "redux"
 
 import { IDisposable } from "oni-types"
 
