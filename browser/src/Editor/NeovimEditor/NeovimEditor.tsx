@@ -727,6 +727,7 @@ export class NeovimEditor extends Editor implements IEditor {
                 [Oni.FileOpenMode.HorizontalSplit]: "sp!",
                 [Oni.FileOpenMode.VerticalSplit]: "vsp!",
                 [Oni.FileOpenMode.Edit]: "tab drop",
+                [Oni.FileOpenMode.ExistingTab]: "e!",
             },
             {
                 get: (target: { [cmd: string]: string }, name: string) =>
