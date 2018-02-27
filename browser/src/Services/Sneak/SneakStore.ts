@@ -21,13 +21,11 @@ export interface IAugmentedSneakInfo extends ISneakInfo {
 
 export interface ISneakState {
     isActive: boolean
-    currentIndex: number
     sneaks: IAugmentedSneakInfo[]
 }
 
 const DefaultSneakState: ISneakState = {
     isActive: true,
-    currentIndex: 0,
     sneaks: [],
 }
 
@@ -56,9 +54,30 @@ export const sneakReducer: Reducer<ISneakState> = (
                 isActive: false,
             }
         case "ADD_SNEAKS":
+            if (!state.isActive) {
+                return state
+            }
+
+            const newSneaks: IAugmentedSneakInfo[] = action.sneaks.map((sneak, idx) => {
+                return {
+                    ...sneak,
+                    triggerKeys: getLabelFromIndex(idx + state.sneaks.length),
+                }
+            })
+
+            return {
+                ...state,
+                sneaks: [...state.sneaks, ...newSneaks],
+            }
         default:
             return state
     }
+}
+
+export const getLabelFromIndex = (index: number): string => {
+    const firstDigit = Math.floor(index / 26)
+    const secondDigit = index - firstDigit * 26
+    return String.fromCharCode(97 + firstDigit, 97 + secondDigit).toUpperCase()
 }
 
 export const createStore = (): Store<ISneakState> => {
