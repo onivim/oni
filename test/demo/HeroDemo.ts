@@ -74,18 +74,18 @@ export const test = async (oni: any) => {
 
         // HACK - since the test uses a different config,
         // we'll directly set the config value...
-        oni.configuration.setValues({ "editor.fontSize": "14px" })
+        oni.configuration.setValues({ "editor.fontSize": "15px" })
 
         await longDelay()
         await simulateTyping("b")
         await longDelay()
         await simulateTyping("ciw")
         await longDelay()
-        await simulateTyping("11px")
+        await simulateTyping("12px")
         await pressEscape()
         await simulateTyping(":w")
         await pressEscape()
-        oni.configuration.setValues({ "editor.fontSize": "11px" })
+        oni.configuration.setValues({ "editor.fontSize": "12px" })
         await longDelay()
         await pressEscape()
     }
@@ -119,7 +119,7 @@ export const test = async (oni: any) => {
     }
 
     // Set window size
-    remote.getCurrentWindow().setSize(1280, 1024)
+    remote.getCurrentWindow().setSize(1280, 720)
     oni.recorder.startRecording()
 
     oni.commands.executeCommand("keyDisplayer.show")
@@ -281,6 +281,6 @@ export const settings = {
     config: {
         "tabs.mode": "tabs",
         "ui.colorscheme": "nord",
-        "editor.fontSize": "11px",
+        "editor.fontSize": "12px",
     },
 }
