@@ -13,6 +13,7 @@ import { INotificationsState, NotificationLevel } from "./NotificationStore"
 export class Notification {
     private _title: string = ""
     private _detail: string = ""
+    private _expirationTime: number
     private _level: NotificationLevel = "info"
 
     private _onClickEvent = new Event<void>()
@@ -37,6 +38,12 @@ export class Notification {
         this._level = level
     }
 
+    public setExpiration(expiration: number = 20000) {
+        if (this._level !== "error") {
+            this._expirationTime = expiration
+        }
+    }
+
     public show(): void {
         this._store.dispatch({
             type: "SHOW_NOTIFICATION",
@@ -44,6 +51,7 @@ export class Notification {
             title: this._title,
             detail: this._detail,
             level: this._level,
+            expirationTime: this._expirationTime,
             onClick: () => {
                 this._onClickEvent.dispatch()
                 this.hide()
