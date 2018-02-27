@@ -717,13 +717,16 @@ export class NeovimEditor extends Editor implements IEditor {
         await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
     }
 
-    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
+    public async openFile(
+        file: string,
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
         const cmd = new Proxy(
             {
-                tab: "taball!",
-                horizontal: "sp!",
-                vertical: "vsp!",
-                edit: "e!",
+                [Oni.FileOpenMode.NewTab]: "tabe!",
+                [Oni.FileOpenMode.HorizontalSplit]: "sp!",
+                [Oni.FileOpenMode.VerticalSplit]: "vsp!",
+                [Oni.FileOpenMode.Edit]: "tab drop!",
             },
             {
                 get: (target: { [cmd: string]: string }, name: string) =>
@@ -731,7 +734,7 @@ export class NeovimEditor extends Editor implements IEditor {
             },
         )
 
-        await this._neovimInstance.command(`:${cmd[method]} ${file}`)
+        await this._neovimInstance.command(`:${cmd[openOptions.openMode]} ${file}`)
         return this.activeBuffer
     }
 
