@@ -14,13 +14,11 @@ import { Event, IEvent } from "oni-types"
 
 import * as types from "vscode-languageserver-types"
 
-import { IBufferHighlightsUpdater } from "./../../src/Editor/BufferHighlights"
 import { Editor } from "./../../src/Editor/Editor"
 
 import * as Language from "./../../src/Services/Language"
 import { createCompletablePromise, ICompletablePromise } from "./../../src/Utility"
 
-import { HighlightInfo } from "./../../src/Services/SyntaxHighlighting"
 import { TokenColor } from "./../../src/Services/TokenColors"
 import { IWorkspace } from "./../../src/Services/Workspace"
 

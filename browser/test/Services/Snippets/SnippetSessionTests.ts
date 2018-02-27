@@ -22,28 +22,62 @@ describe("SnippetSession", () => {
         mockEditor.simulateBufferEnter(mockBuffer)
     })
 
-    it("inserts into empty line", async () => {
-        snippetSession = new SnippetSession(mockEditor as any, "foo")
+    describe("insertion", () => {
+        it("inserts into empty line", async () => {
+            snippetSession = new SnippetSession(mockEditor as any, "foo")
 
-        await snippetSession.start()
+            await snippetSession.start()
 
-        const [firstLine] = await mockBuffer.getLines(0, 1)
+            const [firstLine] = await mockBuffer.getLines(0, 1)
 
-        assert.strictEqual(firstLine, "foo")
-    })
+            assert.strictEqual(firstLine, "foo")
+        })
 
-    it("inserts between characters", async () => {
-        snippetSession = new SnippetSession(mockEditor as any, "foo")
+        it("inserts between characters", async () => {
+            snippetSession = new SnippetSession(mockEditor as any, "foo")
 
-        // Add a line, and move cursor to line
-        mockBuffer.setLinesSync(["someline"])
-        mockBuffer.setCursorPosition(0, 4)
+            // Add a line, and move cursor to line
+            mockBuffer.setLinesSync(["someline"])
+            mockBuffer.setCursorPosition(0, 4)
 
-        await snippetSession.start()
+            await snippetSession.start()
 
-        const [firstLine] = await mockBuffer.getLines(0, 1)
+            const [firstLine] = await mockBuffer.getLines(0, 1)
 
-        assert.strictEqual(firstLine, "somefooline")
+            assert.strictEqual(firstLine, "somefooline")
+        })
+
+        it("matches existing whitespace - 2 spaces", async () => {
+            const snippetSession = new SnippetSession(mockEditor as any, "\t\tfoo")
+
+            const indentationInfo = {
+                type: "space",
+                amount: 2,
+                indent: "  ",
+            }
+
+            mockBuffer.setWhitespace(indentationInfo as any)
+            await snippetSession.start()
+
+            const [firstLine] = await mockBuffer.getLines(0, 1)
+            assert.strictEqual(firstLine, "    foo")
+        })
+
+        it("matches existing whitespace - tabs", async () => {
+            const snippetSession = new SnippetSession(mockEditor as any, "\t\tfoo")
+
+            const indentationInfo = {
+                type: "tab",
+                amount: 0,
+                indent: "\t",
+            }
+
+            mockBuffer.setWhitespace(indentationInfo as any)
+            await snippetSession.start()
+
+            const [firstLine] = await mockBuffer.getLines(0, 1)
+            assert.strictEqual(firstLine, "\t\tfoo")
+        })
     })
 
     it("handles multiple lines", async () => {

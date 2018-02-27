@@ -13,6 +13,7 @@ import * as Oni from "oni-api"
 import * as types from "vscode-languageserver-types"
 
 import { IBufferHighlightsUpdater } from "./../../src/Editor/BufferHighlights"
+import { BufferIndentationInfo } from "./../../src/Editor/BufferManager"
 
 import { HighlightInfo } from "./../../src/Services/SyntaxHighlighting"
 
@@ -20,6 +21,12 @@ export class MockBuffer {
     private _mockHighlights = new MockBufferHighlightsUpdater()
     private _cursor = { line: 0, column: 0 }
     private _modified = false
+
+    private _indentationInfo: BufferIndentationInfo = {
+        indent: "   ",
+        type: "space",
+        amount: 3,
+    }
 
     public get id(): number {
         return this._id
@@ -56,6 +63,10 @@ export class MockBuffer {
         private _id: number = 1,
     ) {}
 
+    public async detectIndentation(): Promise<BufferIndentationInfo> {
+        return this._indentationInfo
+    }
+
     public async getCursorPosition(): Promise<types.Position> {
         return types.Position.create(this._cursor.line, this._cursor.column)
     }
@@ -77,6 +88,10 @@ export class MockBuffer {
 
         this._lines[line] = lineContents
         this._modified = true
+    }
+
+    public setWhitespace(indentationInfo: BufferIndentationInfo): void {
+        this._indentationInfo = indentationInfo
     }
 
     public async setLines(start: number, end: number, lines: string[]): Promise<void> {
