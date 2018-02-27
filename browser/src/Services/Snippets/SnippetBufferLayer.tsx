@@ -9,6 +9,7 @@ import * as React from "react"
 import styled, { keyframes } from "styled-components"
 
 import * as Oni from "oni-api"
+import { IDisposable } from "oni-types"
 
 import * as types from "vscode-languageserver-types"
 
@@ -63,7 +64,40 @@ const NonSnippetOverlayBottom = styled.div`
     box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.2);
 `
 
-export class SnippetBufferLayerView extends React.PureComponent<ISnippetBufferLayerViewProps, {}> {
+export interface ISnippetBufferLayerViewState {
+    cursors: types.Position[]
+}
+
+export class SnippetBufferLayerView extends React.PureComponent<
+    ISnippetBufferLayerViewProps,
+    ISnippetBufferLayerViewState
+> {
+    private _disposables: IDisposable[] = []
+
+    constructor(props: ISnippetBufferLayerViewProps) {
+        super(props)
+
+        this.state = {
+            cursors: [],
+        }
+    }
+
+    public componentDidMount(): void {
+        this._cleanup()
+
+        const s1 = this.props.snippetSession.onCursorMoved.subscribe(p => {
+            this.setState({
+                cursors: p.cursors,
+            })
+        })
+
+        this._disposables = [s1]
+    }
+
+    public componentWillUnmount(): void {
+        this._cleanup()
+    }
+
     public render(): JSX.Element {
         if (!this.props.context.screenToPixel || !this.props.context.bufferToScreen) {
             return null
@@ -104,6 +138,25 @@ export class SnippetBufferLayerView extends React.PureComponent<ISnippetBufferLa
             right: "0px",
         }
 
+        const cursors = this.state.cursors.map(c => {
+            const pos = this.props.context.screenToPixel(this.props.context.bufferToScreen(c))
+
+            const size = this.props.context.screenToPixel(
+                this.props.context.bufferToScreen(types.Position.create(1, 1)),
+            )
+
+            const style: React.CSSProperties = {
+                position: "absolute",
+                top: pos.pixelY.toString() + "px",
+                left: pos.pixelX.toString() + "px",
+                width: "2px",
+                height: size.pixelY.toString() + "px",
+                backgroundColor: "white",
+            }
+
+            return <div style={style} />
+        })
+
         return (
             <div
                 style={{
@@ -116,7 +169,14 @@ export class SnippetBufferLayerView extends React.PureComponent<ISnippetBufferLa
             >
                 <NonSnippetOverlayTop style={topOverlay} />
                 <NonSnippetOverlayBottom style={bottomOverlay} />
+                {cursors}
             </div>
         )
+    }
+
+    private _cleanup(): void {
+        this._disposables.forEach(d => d.dispose())
+
+        this._disposables = []
     }
 }

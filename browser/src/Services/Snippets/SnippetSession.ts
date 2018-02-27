@@ -49,10 +49,17 @@ export const getPlaceholderByIndex = (
     return matchingPlaceholders[0]
 }
 
+export interface IMirrorCursorUpdateEvent {
+    cursors: types.Position[]
+}
+
 export class SnippetSession {
     private _buffer: IBuffer
     private _position: types.Position
     private _onCancelEvent: Event<void> = new Event<void>()
+    private _onCursorMovedEvent: Event<IMirrorCursorUpdateEvent> = new Event<
+        IMirrorCursorUpdateEvent
+    >()
 
     // Get state of line where we inserted
     private _prefix: string
@@ -66,6 +73,10 @@ export class SnippetSession {
 
     public get onCancel(): IEvent<void> {
         return this._onCancelEvent
+    }
+
+    public get onCursorMoved(): IEvent<IMirrorCursorUpdateEvent> {
+        return this._onCursorMovedEvent
     }
 
     public get position(): types.Position {
@@ -156,6 +167,42 @@ export class SnippetSession {
         await this._updateSnippet()
     }
 
+    // Update the cursor position relative to all placeholders
+    public async updateCursorPosition(): Promise<void> {
+        const pos = await this._buffer.getCursorPosition()
+
+        if (
+            !this._currentPlaceholder ||
+            pos.line !== this._currentPlaceholder.line + this._position.line
+        ) {
+            return
+        }
+
+        const boundsForPlaceholder = this._getBoundsForPlaceholder()
+
+        const offset = pos.character - boundsForPlaceholder.start
+
+        const allPlaceholdersAtIndex = this._snippet
+            .getPlaceholders()
+            .filter(
+                f =>
+                    f.index === this._currentPlaceholder.index &&
+                    !(
+                        f.line === this._currentPlaceholder.line &&
+                        f.character === this._currentPlaceholder.character
+                    ),
+            )
+
+        const cursorPositions: types.Position[] = allPlaceholdersAtIndex.map(p => {
+            const bounds = this._getBoundsForPlaceholder(p)
+            return types.Position.create(bounds.line, bounds.start + offset)
+        })
+
+        this._onCursorMovedEvent.dispatch({
+            cursors: cursorPositions,
+        })
+    }
+
     // Helper method to query the value of the current placeholder,
     // propagate that to any other placeholders, and update the snippet
     public async synchronizeUpdatedPlaceholders(): Promise<void> {
@@ -194,14 +241,14 @@ export class SnippetSession {
         this._onCancelEvent.dispatch()
     }
 
-    private _getBoundsForPlaceholder(): {
+    private _getBoundsForPlaceholder(
+        currentPlaceholder: OniSnippetPlaceholder = this._currentPlaceholder,
+    ): {
         index: number
         line: number
         start: number
         distanceFromEnd: number
     } {
-        const currentPlaceholder = this._currentPlaceholder
-
         const currentSnippetLines = this._snippet.getLines()
 
         const start =
