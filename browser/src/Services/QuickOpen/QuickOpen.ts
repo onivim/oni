@@ -15,6 +15,8 @@ import { INeovimInstance } from "./../../neovim"
 import { commandManager } from "./../CommandManager"
 import { configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
+import { getInstance as getWorkspaceInstance } from "./../Workspace"
+
 import { fuseFilter, Menu, MenuManager } from "./../Menu"
 
 import { FinderProcess } from "./FinderProcess"
@@ -32,6 +34,7 @@ export class QuickOpen {
     private _neovimInstance: INeovimInstance
     private _menu: Menu
     private _lastCommand: string | null = null
+    private _workspace = getWorkspaceInstance()
 
     constructor(menuManager: MenuManager, neovimInstance: INeovimInstance) {
         this._neovimInstance = neovimInstance
@@ -212,7 +215,12 @@ export class QuickOpen {
             }
             this._neovimInstance.command(`${arg.label}`)
         } else {
-            let fullPath = path.join(arg.detail, arg.label)
+            const { activeWorkspace } = this._workspace
+            const pathArgs = activeWorkspace
+                ? [activeWorkspace, arg.detail, arg.label]
+                : [arg.detail, arg.label]
+
+            let fullPath = path.join(...pathArgs)
 
             this._seenItems.push(fullPath)
 
