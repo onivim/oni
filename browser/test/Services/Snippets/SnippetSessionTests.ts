@@ -24,8 +24,7 @@ describe("SnippetSession", () => {
     })
 
     it("inserts into empty line", async () => {
-        const snippet = new OniSnippet("foo")
-        snippetSession = new SnippetSession(mockEditor as any, snippet)
+        snippetSession = new SnippetSession(mockEditor as any, "foo")
 
         await snippetSession.start()
 
@@ -35,8 +34,7 @@ describe("SnippetSession", () => {
     })
 
     it("inserts between characters", async () => {
-        const snippet = new OniSnippet("foo")
-        snippetSession = new SnippetSession(mockEditor as any, snippet)
+        snippetSession = new SnippetSession(mockEditor as any, "foo")
 
         // Add a line, and move cursor to line
         mockBuffer.setLinesSync(["someline"])
@@ -50,8 +48,7 @@ describe("SnippetSession", () => {
     })
 
     it("handles multiple lines", async () => {
-        const snippet = new OniSnippet("foo\nbar")
-        snippetSession = new SnippetSession(mockEditor as any, snippet)
+        snippetSession = new SnippetSession(mockEditor as any, "foo\nbar")
 
         // Add a line, and move cursor to line
         mockBuffer.setLinesSync(["someline"])
@@ -66,8 +63,7 @@ describe("SnippetSession", () => {
     })
 
     it("highlights first placeholder", async () => {
-        const snippet = new OniSnippet("${0:test}")
-        snippetSession = new SnippetSession(mockEditor as any, snippet)
+        snippetSession = new SnippetSession(mockEditor as any, "${0:test}")
 
         mockBuffer.setLinesSync(["abc"])
         mockBuffer.setCursorPosition(0, 1)
@@ -84,8 +80,7 @@ describe("SnippetSession", () => {
 
     describe("next placeholder", () => {
         it("highlights correct placeholder after calling nextPlaceholder", async () => {
-            const snippet = new OniSnippet("${0:test} ${1:test2}")
-            snippetSession = new SnippetSession(mockEditor as any, snippet)
+            snippetSession = new SnippetSession(mockEditor as any, "${0:test} ${1:test2}")
 
             await snippetSession.start()
 
@@ -100,8 +95,7 @@ describe("SnippetSession", () => {
         })
 
         it("traverses order correctly, when placeholders are reversed", async () => {
-            const snippet = new OniSnippet("${1:test} ${0:test2}")
-            snippetSession = new SnippetSession(mockEditor as any, snippet)
+            snippetSession = new SnippetSession(mockEditor as any, "${1:test} ${0:test2}")
 
             await snippetSession.start()
 
@@ -124,8 +118,7 @@ describe("SnippetSession", () => {
         })
 
         it("traverses order correctly, when there are multiple placeholders with the same index", async () => {
-            const snippet = new OniSnippet("${1:test} ${0:test2} ${1}")
-            snippetSession = new SnippetSession(mockEditor as any, snippet)
+            snippetSession = new SnippetSession(mockEditor as any, "${1:test} ${0:test2} ${1}")
 
             const placeholder0Range = types.Range.create(0, 5, 0, 9)
             const placeholder1Range = types.Range.create(0, 0, 0, 3)
@@ -151,8 +144,7 @@ describe("SnippetSession", () => {
 
     describe("synchronizeUpdatedPlaceholders", () => {
         it("updates placeholders", async () => {
-            const snippet = new OniSnippet("${1:test} ${1} ${1}")
-            snippetSession = new SnippetSession(mockEditor as any, snippet)
+            snippetSession = new SnippetSession(mockEditor as any, "${1:test} ${1} ${1}")
             await snippetSession.start()
 
             // Validate
@@ -169,9 +161,10 @@ describe("SnippetSession", () => {
         })
 
         it("updates placeholders when a placeholder becomes smaller", async () => {
-            const snippet = new OniSnippet('import { ${1} } from "${0:module}"') // tslint:disable-line
-
-            snippetSession = new SnippetSession(mockEditor as any, snippet)
+            snippetSession = new SnippetSession(
+                mockEditor as any,
+                'import { ${1} } from "${0:module}"',
+            )
             await snippetSession.start()
 
             // Simulate shortening from "module" -> "a"
