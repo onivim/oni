@@ -204,10 +204,9 @@ export class OniEditor implements IEditor {
     }
 
     public async blockInput(
-        inputFunction: (input: (inp: string) => Promise<void>) => Promise<void>,
-    ) {
-        const neovim = this._neovimEditor.neovim as any
-        return neovim.blockInput(inputFunction)
+        inputFunction: (input: Oni.InputCallbackFunction) => Promise<void>,
+    ): Promise<void> {
+        return this._neovimEditor.blockInput(inputFunction)
     }
 
     public executeCommand(command: string): void {
