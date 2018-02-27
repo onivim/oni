@@ -171,6 +171,8 @@ export class SnippetSession {
     public async updateCursorPosition(): Promise<void> {
         const pos = await this._buffer.getCursorPosition()
 
+        const mode = this._editor.mode
+
         if (
             !this._currentPlaceholder ||
             pos.line !== this._currentPlaceholder.line + this._position.line
@@ -180,7 +182,7 @@ export class SnippetSession {
 
         const boundsForPlaceholder = this._getBoundsForPlaceholder()
 
-        const offset = pos.character - boundsForPlaceholder.start
+        const offset = mode === "visual" ? 0 : pos.character - boundsForPlaceholder.start
 
         const allPlaceholdersAtIndex = this._snippet
             .getPlaceholders()
