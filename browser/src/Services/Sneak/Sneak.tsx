@@ -74,12 +74,12 @@ export class Sneak {
         return sneaks.map((sneak, idx) => {
             return {
                 ...sneak,
-                triggerKeys: this._getLabelFromIndex(idx, sneaks.length),
+                triggerKeys: this._getLabelFromIndex(idx),
             }
         })
     }
 
-    private _getLabelFromIndex(index: number, max: number): string {
+    private _getLabelFromIndex(index: number): string {
         const firstDigit = Math.floor(index / 26)
         const secondDigit = index - firstDigit * 26
         return String.fromCharCode(97 + firstDigit, 97 + secondDigit).toUpperCase()
