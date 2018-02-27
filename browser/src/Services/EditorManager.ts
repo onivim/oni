@@ -11,8 +11,6 @@
 import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 
-import * as Log from "./../Log"
-
 export class EditorManager implements Oni.EditorManager {
     private _activeEditor: Oni.Editor = null
     private _anyEditorProxy: AnyEditorProxy = new AnyEditorProxy()
@@ -35,6 +33,13 @@ export class EditorManager implements Oni.EditorManager {
 
     public get onActiveEditorChanged(): IEvent<Oni.Editor> {
         return this._onActiveEditorChanged
+    }
+
+    public openFile(
+        filePath: string,
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
+        return this._activeEditor.openFile(filePath, openOptions)
     }
 
     /**
@@ -98,16 +103,6 @@ class AnyEditorProxy implements Oni.Editor {
         return this._activeEditor.neovim
     }
 
-    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
-        await this._activeEditor.openFile(file, method)
-        return this._activeEditor.activeBuffer
-    }
-
-    public openFiles(files: string[]): Promise<Oni.Buffer[]> {
-        Log.warn("Not implemented")
-        return Promise.resolve([])
-    }
-
     public get onModeChanged(): IEvent<Oni.Vim.Mode> {
         return this._onModeChanged
     }
@@ -144,6 +139,14 @@ class AnyEditorProxy implements Oni.Editor {
         inputFunction: (input: Oni.InputCallbackFunction) => Promise<void>,
     ): Promise<void> {
         return this._activeEditor.blockInput(inputFunction)
+    }
+
+    public async openFile(filePath: string, openOptions: Oni.FileOpenOptions): Promise<Oni.Buffer> {
+        return this._activeEditor.openFile(filePath, openOptions)
+    }
+
+    public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
+        return this._activeEditor.getBuffers()
     }
 
     /**
