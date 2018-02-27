@@ -15,6 +15,8 @@ import * as types from "vscode-languageserver-types"
 
 import { SnippetSession } from "./SnippetSession"
 
+import { withProps } from "./../../UI/components/common"
+
 export class SnippetBufferLayer implements Oni.BufferLayer {
     constructor(private _buffer: Oni.Buffer, private _snippetSession: SnippetSession) {
         this._buffer.addLayer(this)
@@ -64,8 +66,14 @@ const NonSnippetOverlayBottom = styled.div`
     box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.2);
 `
 
+const CursorWrapper = withProps<{}>(styled.div)`
+    position: absolute;
+    background-color: ${props => props.theme["editor.foreground"]};
+`
+
 export interface ISnippetBufferLayerViewState {
-    cursors: types.Position[]
+    mode: Oni.Vim.Mode
+    cursors: types.Range[]
 }
 
 export class SnippetBufferLayerView extends React.PureComponent<
@@ -78,6 +86,7 @@ export class SnippetBufferLayerView extends React.PureComponent<
         super(props)
 
         this.state = {
+            mode: null,
             cursors: [],
         }
     }
@@ -87,6 +96,7 @@ export class SnippetBufferLayerView extends React.PureComponent<
 
         const s1 = this.props.snippetSession.onCursorMoved.subscribe(p => {
             this.setState({
+                mode: p.mode,
                 cursors: p.cursors,
             })
         })
@@ -139,22 +149,24 @@ export class SnippetBufferLayerView extends React.PureComponent<
         }
 
         const cursors = this.state.cursors.map(c => {
-            const pos = this.props.context.screenToPixel(this.props.context.bufferToScreen(c))
+            const pos = this.props.context.screenToPixel(this.props.context.bufferToScreen(c.start))
 
             const size = this.props.context.screenToPixel(
-                this.props.context.bufferToScreen(types.Position.create(1, 1)),
+                this.props.context.bufferToScreen(types.Position.create(1, c.end.character)),
             )
 
             const style: React.CSSProperties = {
-                position: "absolute",
                 top: pos.pixelY.toString() + "px",
                 left: pos.pixelX.toString() + "px",
-                width: "2px",
+                width:
+                    this.state.mode === "visual"
+                        ? (size.pixelX - pos.pixelX).toString() + "px"
+                        : "2px",
+                opacity: this.state.mode === "visual" ? 0.2 : 0.8,
                 height: size.pixelY.toString() + "px",
-                backgroundColor: "white",
             }
 
-            return <div style={style} />
+            return <CursorWrapper style={style} />
         })
 
         return (

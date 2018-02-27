@@ -6,6 +6,7 @@
 
 import * as types from "vscode-languageserver-types"
 
+import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 import * as Log from "./../../Log"
@@ -50,7 +51,8 @@ export const getPlaceholderByIndex = (
 }
 
 export interface IMirrorCursorUpdateEvent {
-    cursors: types.Position[]
+    mode: Oni.Vim.Mode
+    cursors: types.Range[]
 }
 
 export class SnippetSession {
@@ -171,7 +173,7 @@ export class SnippetSession {
     public async updateCursorPosition(): Promise<void> {
         const pos = await this._buffer.getCursorPosition()
 
-        const mode = this._editor.mode
+        const mode = this._editor.mode as Oni.Vim.Mode
 
         if (
             !this._currentPlaceholder ||
@@ -182,7 +184,7 @@ export class SnippetSession {
 
         const boundsForPlaceholder = this._getBoundsForPlaceholder()
 
-        const offset = mode === "visual" ? 0 : pos.character - boundsForPlaceholder.start
+        const offset = pos.character - boundsForPlaceholder.start
 
         const allPlaceholdersAtIndex = this._snippet
             .getPlaceholders()
@@ -195,12 +197,28 @@ export class SnippetSession {
                     ),
             )
 
-        const cursorPositions: types.Position[] = allPlaceholdersAtIndex.map(p => {
-            const bounds = this._getBoundsForPlaceholder(p)
-            return types.Position.create(bounds.line, bounds.start + offset)
+        const cursorPositions: types.Range[] = allPlaceholdersAtIndex.map(p => {
+            if (mode === "visual") {
+                const bounds = this._getBoundsForPlaceholder(p)
+                return types.Range.create(
+                    bounds.line,
+                    bounds.start,
+                    bounds.line,
+                    bounds.start + bounds.length,
+                )
+            } else {
+                const bounds = this._getBoundsForPlaceholder(p)
+                return types.Range.create(
+                    bounds.line,
+                    bounds.start + offset,
+                    bounds.line,
+                    bounds.start + offset,
+                )
+            }
         })
 
         this._onCursorMovedEvent.dispatch({
+            mode,
             cursors: cursorPositions,
         })
     }
@@ -249,6 +267,7 @@ export class SnippetSession {
         index: number
         line: number
         start: number
+        length: number
         distanceFromEnd: number
     } {
         const currentSnippetLines = this._snippet.getLines()
@@ -257,12 +276,13 @@ export class SnippetSession {
             currentPlaceholder.line === 0
                 ? this._prefix.length + currentPlaceholder.character
                 : currentPlaceholder.character
+        const length = currentPlaceholder.value.length
         const distanceFromEnd =
             currentSnippetLines[currentPlaceholder.line].length -
-            (currentPlaceholder.character + currentPlaceholder.value.length)
+            (currentPlaceholder.character + length)
         const line = currentPlaceholder.line + this._position.line
 
-        return { index: currentPlaceholder.index, line, start, distanceFromEnd }
+        return { index: currentPlaceholder.index, line, start, length, distanceFromEnd }
     }
 
     private async _updateSnippet(): Promise<void> {
