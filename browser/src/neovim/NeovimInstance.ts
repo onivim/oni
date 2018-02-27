@@ -2,7 +2,6 @@ import { EventEmitter } from "events"
 import * as path from "path"
 
 import * as mkdirp from "mkdirp"
-
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
@@ -191,6 +190,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _neovim: Session
     private _initPromise: Promise<void>
     private _isLeaving: boolean
+    private _currentVimDirectory: string
 
     private _inputQueue: PromiseQueue = new PromiseQueue()
 
@@ -343,6 +343,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._tokenColorSynchronizer
     }
 
+    public get currentVimDirectory(): string {
+        return this._currentVimDirectory
+    }
+
     constructor(widthInPixels: number, heightInPixels: number, configuration: Configuration) {
         super()
         this._configuration = configuration
@@ -358,6 +362,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._tokenColorSynchronizer = new NeovimTokenColorSynchronizer(this)
 
         this._bufferUpdateManager = new NeovimBufferUpdateManager(this._configuration, this)
+
+        this._onModeChanged.subscribe(newMode => {
+            this._bufferUpdateManager.notifyModeChanged(newMode)
+        })
     }
 
     public async chdir(directoryPath: string): Promise<void> {
@@ -872,8 +880,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     private async _updateProcessDirectory(): Promise<void> {
-        const newDirectory = await this.getCurrentWorkingDirectory()
-        this._onDirectoryChanged.dispatch(newDirectory)
+        this._currentVimDirectory = await this.getCurrentWorkingDirectory()
+        this._onDirectoryChanged.dispatch(this._currentVimDirectory)
     }
 
     private async _attachUI(columns: number, rows: number): Promise<void> {

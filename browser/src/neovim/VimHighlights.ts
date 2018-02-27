@@ -28,4 +28,5 @@ export const VimHighlightToDefaultScope = {
     Identifier: ["variable.language", "variable.object", "variable.parameter", "variable.other"],
     Function: ["support.function", "entity.name"],
     Constant: ["variable.other.constant", "entity.other"],
+    String: ["string.quoted.double", "string.quoted.single", "string.quoted.triple"],
 }

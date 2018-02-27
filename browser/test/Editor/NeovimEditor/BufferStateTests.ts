@@ -38,5 +38,14 @@ describe("BufferStateTests", () => {
 
             assert(!result, "Unmodified buffer correctly linked")
         })
+
+        it("Passing over empty arrays works correctly", () => {
+            const buffers = [] as any
+            const buffersInTabs = [] as number[]
+
+            const result = checkTabBuffers(buffersInTabs, buffers)
+
+            assert(!result, "No buffers correctly linked")
+        })
     })
 })

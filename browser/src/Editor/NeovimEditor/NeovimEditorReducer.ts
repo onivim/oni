@@ -166,12 +166,20 @@ export function reducer<K extends keyof IConfigurationValues>(
 
 export const layersReducer = (s: State.Layers, a: Actions.SimpleAction) => {
     switch (a.type) {
-        case "ADD_BUFFER_LAYER":
+        case "ADD_BUFFER_LAYER": {
             const currentLayers = s[a.payload.bufferId] || []
             return {
                 ...s,
                 [a.payload.bufferId]: [...currentLayers, a.payload.layer],
             }
+        }
+        case "REMOVE_BUFFER_LAYER": {
+            const currentLayers = s[a.payload.bufferId] || []
+            return {
+                ...s,
+                [a.payload.bufferId]: currentLayers.filter(l => l !== a.payload.layer),
+            }
+        }
         default:
             return s
     }

@@ -99,6 +99,10 @@ export class Buffer implements IBuffer {
         this._actions.addBufferLayer(parseInt(this._id, 10), layer)
     }
 
+    public removeLayer(layer: IBufferLayer): void {
+        this._actions.removeBufferLayer(parseInt(this._id, 10), layer)
+    }
+
     public async getCursorPosition(): Promise<types.Position> {
         const pos = await this._neovimInstance.callFunction("getpos", ["."])
         const [, oneBasedLine, oneBasedColumn] = pos
@@ -284,6 +288,10 @@ export class Buffer implements IBuffer {
         }
 
         const getToken = (lineContents: string, character: number): Oni.IToken => {
+            if (!lineContents || !character) {
+                return null
+            }
+
             const tokenStart = getLastMatchingCharacter(lineContents, character, -1, tokenRegEx)
             const tokenEnd = getLastMatchingCharacter(lineContents, character, 1, tokenRegEx)
 
