@@ -49,7 +49,7 @@ export class Sneak {
 
         this._activeOverlay.setContents(
             <Provider store={this._store}>
-                <ConnectedSneakView onComplete={info => this._onComplete(info)} />,
+                <ConnectedSneakView onComplete={info => this._onComplete(info)} />
             </Provider>,
         )
         this._activeOverlay.show()
