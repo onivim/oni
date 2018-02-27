@@ -5,6 +5,9 @@
  */
 
 import { Reducer, Store } from "redux"
+
+import { Shapes } from "oni-api"
+
 import { createStore as createReduxStore } from "./../../Redux"
 
 export interface ISneakInfo {

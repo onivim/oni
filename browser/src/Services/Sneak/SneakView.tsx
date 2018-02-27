@@ -9,7 +9,7 @@ import * as React from "react"
 import { boxShadow, OverlayWrapper } from "./../../UI/components/common"
 import { TextInputView } from "./../../UI/components/LightweightText"
 
-import { ISneakInfo, IAugmentedSneakInfo } from "./Sneak"
+import { ISneakInfo, IAugmentedSneakInfo } from "./SneakStore"
 
 export interface ISneakViewProps {
     sneaks: IAugmentedSneakInfo[]

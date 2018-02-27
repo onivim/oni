@@ -6,21 +6,12 @@
 
 import * as React from "react"
 
-import { Shapes } from "oni-api"
 import { IDisposable } from "oni-types"
 
 import { Overlay, OverlayManager } from "./../Overlay"
 
+import { ISneakInfo, IAugmentedSneakInfo } from "./SneakStore"
 import { SneakView } from "./SneakView"
-
-export interface ISneakInfo {
-    rectangle: Shapes.Rectangle
-    callback: () => void
-}
-
-export interface IAugmentedSneakInfo extends ISneakInfo {
-    triggerKeys: string
-}
 
 export type SneakProvider = () => ISneakInfo[]
 
