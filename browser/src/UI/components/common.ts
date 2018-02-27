@@ -49,6 +49,10 @@ export const OverlayWrapper = styled.div`
     right: 0px;
     bottom: 0px;
 `
+const tint = (base: string, mix: string, degree: number = 0.1) =>
+    Color(base)
+        .mix(Color(mix), 0.3)
+        .toString()
 
 const fontSizeSmall = `font-size: 0.9em;`
 
@@ -72,6 +76,7 @@ export {
     styled,
     ThemeProvider,
     withTheme,
+    tint,
     boxShadow,
     boxShadowInset,
     enableMouse,

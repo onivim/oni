@@ -190,6 +190,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _neovim: Session
     private _initPromise: Promise<void>
     private _isLeaving: boolean
+    private _currentVimDirectory: string
 
     private _inputQueue: PromiseQueue = new PromiseQueue()
 
@@ -340,6 +341,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get tokenColorSynchronizer(): NeovimTokenColorSynchronizer {
         return this._tokenColorSynchronizer
+    }
+
+    public get currentVimDirectory(): string {
+        return this._currentVimDirectory
     }
 
     constructor(widthInPixels: number, heightInPixels: number, configuration: Configuration) {
@@ -875,8 +880,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     private async _updateProcessDirectory(): Promise<void> {
-        const newDirectory = await this.getCurrentWorkingDirectory()
-        this._onDirectoryChanged.dispatch(newDirectory)
+        this._currentVimDirectory = await this.getCurrentWorkingDirectory()
+        this._onDirectoryChanged.dispatch(this._currentVimDirectory)
     }
 
     private async _attachUI(columns: number, rows: number): Promise<void> {
