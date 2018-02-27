@@ -11,7 +11,9 @@ export class MockPluginManager implements Oni.IPluginManager {
         return false
     }
 
-    public discoverPlugins(): void {}
+    public discoverPlugins(): void {
+        // tslint:disable-line
+    }
 
     public getAllContributionsOfType<T>(selector: (capabilities: IContributions) => T[]): T[] {
         return []
