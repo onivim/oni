@@ -13,6 +13,13 @@ const getTypeScriptConfigurationFromJavaScriptConfiguration = (configurationFile
     return typeScriptConfig
 }
 
+const ensureTsConfigJson = async (configurationDirectory: string): Promise<void> => {
+    const tsConfigJsonPath = path.join(configurationDirectory, "tsconfig.json")
+    if (!fs.existsSync(tsConfigJsonPath)) {
+        fs.writeFileSync(tsConfigJsonPath, "test")
+    }
+}
+
 export class TypeScriptConfigurationEditor {
     public async editConfiguration(configurationFilePath: string): Promise<string> {
         // If a javascript configuration exists, but not a TypeScript one, we'll
@@ -26,6 +33,9 @@ export class TypeScriptConfigurationEditor {
         if (javaScriptConfigExists && !typeScriptConfigExists) {
             return null
         }
+
+        // Ensure that a `tsconfig.json` exists
+        await ensureTsConfigJson()
 
         return typeScriptConfigFile
     }
