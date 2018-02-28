@@ -24,7 +24,7 @@ import { LanguageClientLogger } from "./../../Plugins/Api/LanguageClient/Languag
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import * as Process from "./../../Plugins/Api/Process"
+import Process from "./../../Plugins/Api/Process"
 
 import { IServerCapabilities } from "./ServerCapabilities"
 

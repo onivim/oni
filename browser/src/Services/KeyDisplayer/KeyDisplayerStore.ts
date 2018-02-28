@@ -29,7 +29,7 @@ export const WindowToGroupInMilliseconds = 250
 // Keys coming quicker than the 'DupWindow' will be removed
 // This is somewhat of a hack, as there is a bug in the input
 // resolver pipeline where they can be called multiple times
-export const DupWindow = 25
+export const DupWindow = 5
 
 export interface KeyDisplayerState {
     keys: IKeyPressInfo[]
@@ -97,10 +97,11 @@ export const getGroupedKeys = (currentTime: number, keys: IKeyPressInfo[]): IKey
 
                 if (diffTime < WindowToGroupInMilliseconds) {
                     // Avoid duplicates..
-                    if (diffTime > DupWindow) {
-                        lastGroup.push(cur)
+                    if (diffTime < DupWindow && lastItemInLastGroup.key === cur.key) {
+                        return prev
                     }
 
+                    lastGroup.push(cur)
                     return prev
                 } else {
                     return [...prev, [cur]]

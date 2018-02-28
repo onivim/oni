@@ -404,6 +404,10 @@ export class NeovimEditor extends Editor implements IEditor {
             this._onBufEnter(evt),
         )
 
+        this._neovimInstance.autoCommands.onFileTypeChanged.subscribe((evt: EventContext) =>
+            this._onFileTypeChanged(evt),
+        )
+
         this._neovimInstance.autoCommands.onBufWipeout.subscribe((evt: BufferEventContext) =>
             this._onBufWipeout(evt),
         )
@@ -421,8 +425,20 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.setNeovimError(true)
         })
 
+        // These functions are mirrors of each other if vim changes dir then oni responds
+        // and if oni initiates the dir change then we inform vim
+        // NOTE: the gates to check that the dirs being passed aren't already set prevent
+        // an infinite loop!!
         this._neovimInstance.onDirectoryChanged.subscribe(async newDirectory => {
-            await this._workspace.changeDirectory(newDirectory)
+            if (newDirectory !== this._workspace.activeWorkspace) {
+                await this._workspace.changeDirectory(newDirectory)
+            }
+        })
+
+        this._workspace.onDirectoryChanged.subscribe(async newDirectory => {
+            if (newDirectory !== this._neovimInstance.currentVimDirectory) {
+                await this._neovimInstance.chdir(newDirectory)
+            }
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -518,7 +534,7 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         const textMateHighlightingEnabled = this._configuration.getValue(
-            "experimental.editor.textMateHighlighting.enabled",
+            "editor.textMateHighlighting.enabled",
         )
         this._syntaxHighlighter = textMateHighlightingEnabled
             ? new SyntaxHighlighter(this, this._tokenColors)
@@ -636,6 +652,12 @@ export class NeovimEditor extends Editor implements IEditor {
         }
     }
 
+    public async blockInput(
+        inputFunction: (inputCallback: Oni.InputCallbackFunction) => Promise<void>,
+    ): Promise<void> {
+        return this._neovimInstance.blockInput(inputFunction)
+    }
+
     public dispose(): void {
         if (this._syntaxHighlighter) {
             this._syntaxHighlighter.dispose()
@@ -699,13 +721,17 @@ export class NeovimEditor extends Editor implements IEditor {
         await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
     }
 
-    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
+    public async openFile(
+        file: string,
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
         const cmd = new Proxy(
             {
-                tab: "taball!",
-                horizontal: "sp!",
-                vertical: "vsp!",
-                edit: "e!",
+                [Oni.FileOpenMode.NewTab]: "tabnew!",
+                [Oni.FileOpenMode.HorizontalSplit]: "sp!",
+                [Oni.FileOpenMode.VerticalSplit]: "vsp!",
+                [Oni.FileOpenMode.Edit]: "tab drop",
+                [Oni.FileOpenMode.ExistingTab]: "e!",
             },
             {
                 get: (target: { [cmd: string]: string }, name: string) =>
@@ -713,7 +739,7 @@ export class NeovimEditor extends Editor implements IEditor {
             },
         )
 
-        await this._neovimInstance.command(`:${cmd[method]} ${file}`)
+        await this._neovimInstance.command(`:${cmd[openOptions.openMode]} ${file}`)
         return this.activeBuffer
     }
 
@@ -907,6 +933,11 @@ export class NeovimEditor extends Editor implements IEditor {
             currentBuffer.windowTopLine - 1,
             currentBuffer.windowBottomLine - 1,
         )
+    }
+
+    private _onFileTypeChanged(evt: EventContext): void {
+        const buf = this._bufferManager.updateBufferFromEvent(evt)
+        this._bufferLayerManager.notifyBufferFileTypeChanged(buf)
     }
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {

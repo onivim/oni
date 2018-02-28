@@ -39,7 +39,7 @@ export interface IConfigurationValues {
     "configuration.editor": string
 
     // - textMateHighlighting
-    "experimental.editor.textMateHighlighting.enabled": boolean
+    "editor.textMateHighlighting.enabled": boolean
 
     // Whether or not the learning pane is available
     "experimental.learning.enabled": boolean

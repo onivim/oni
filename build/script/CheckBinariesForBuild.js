@@ -9,11 +9,13 @@ const path = require("path")
 const fs = require("fs")
 const mkdirp = require("mkdirp")
 const fsExtra = require("fs-extra")
+const os = require("os")
 
 const rootPath = path.join(__dirname, "..", "..")
 const cachePath = path.join(rootPath, ".oni_build_cache")
 
-const modulesToCheck = ["oni-neovim-binaries", "oni-ripgrep"]
+const modulesToCheck =
+    os.platform() === "darwin" ? ["oni-neovim-binaries", "oni-ripgrep"] : ["oni-ripgrep"]
 
 const isAuthenticated = !!process.env["GITHUB_TOKEN"]
 
@@ -52,15 +54,23 @@ const cacheFoldersExist = doBinFoldersExist(cachePath)
 console.log("- doBinFoldersExist in root: " + foldersExist)
 console.log("- doBinFoldersExist in cache: " + cacheFoldersExist)
 
-if (isAuthenticated && doBinFoldersExist) {
+if (isAuthenticated && foldersExist) {
     console.log("- Copying files to cache")
     copyFolders(rootPath, cachePath)
     console.log("- Copy complete")
-} else if (!isAuthenticated && !doBinFoldersExist && cacheFoldersExist) {
+} else if (!isAuthenticated && !foldersExist && cacheFoldersExist) {
     console.log("- Copying files from cache")
     copyFolders(cachePath, rootPath)
     console.log("- Copy complete!")
-} else {
+}
+
+// Check again, now that files were copied if they needed to be copied
+
+const finalCheckForBinaries = doBinFoldersExist(rootPath)
+
+console.log(" - Final check for binaries in node_modules: " + finalCheckForBinaries)
+
+if (!finalCheckForBinaries) {
     console.log("Binary folders do not exist, cancelling build")
     process.exit(1)
 }
