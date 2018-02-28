@@ -20,7 +20,7 @@ export interface NotificationsViewProps {
     notifications: INotification[]
 }
 
-const Transition = (props: { children: any }) => {
+const Transition = (props: { children: React.ReactNode }) => {
     return (
         <CSSTransition {...props} timeout={1000} classNames="notification">
             {props.children}
@@ -33,7 +33,7 @@ const NotificationsWrapper = styled.div`
     top: 16px;
     right: 16px;
     max-height: 90%;
-    width: 30%;
+    max-width: 25rem;
     pointer-events: all;
     overflow: auto;
 

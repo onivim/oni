@@ -29,7 +29,7 @@ export const getLineCharacterFromOffset = (
     let idx = 0
     let currentOffset = 0
     while (idx < lines.length) {
-        if (offset >= currentOffset && offset < currentOffset + lines[idx].length) {
+        if (offset >= currentOffset && offset <= currentOffset + lines[idx].length) {
             return { line: idx, character: offset - currentOffset }
         }
 

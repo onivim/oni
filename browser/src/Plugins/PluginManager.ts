@@ -4,6 +4,7 @@ import * as path from "path"
 import * as Oni from "oni-api"
 
 import { Configuration, getUserConfigFolderPath } from "./../Services/Configuration"
+import { IContributions } from "./Api/Capabilities"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
 import { Plugin } from "./Plugin"
@@ -11,6 +12,8 @@ import { Plugin } from "./Plugin"
 const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
 const extensionsRoot = path.join(__dirname, "extensions")
+
+import { flatMap } from "./../Utility"
 
 export class PluginManager implements Oni.IPluginManager {
     private _rootPluginPaths: string[] = []
@@ -82,6 +85,15 @@ export class PluginManager implements Oni.IPluginManager {
             }
         }
         return null
+    }
+
+    public getAllContributionsOfType<T>(selector: (capabilities: IContributions) => T[]): T[] {
+        const filteredPlugins = this.plugins.filter(p => p.metadata && p.metadata.contributes)
+        const capabilities = flatMap(
+            filteredPlugins,
+            p => selector(p.metadata.contributes) || ([] as T[]),
+        )
+        return capabilities
     }
 
     private _createPlugin(pluginRootDirectory: string, source: string): Plugin {

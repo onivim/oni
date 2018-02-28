@@ -163,9 +163,16 @@ export class OniEditor implements IEditor {
         this._neovimEditor.leave()
     }
 
-    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
+    public async openFile(
+        file: string,
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
+        const openMode = openOptions.openMode
         if (this._configuration.getValue("editor.split.mode") === "oni") {
-            if (method === "vertical" || method === "horizontal") {
+            if (
+                openMode === Oni.FileOpenMode.HorizontalSplit ||
+                openMode === Oni.FileOpenMode.VerticalSplit
+            ) {
                 const newEditor = new OniEditor(
                     this._colors,
                     this._completionProviders,
@@ -182,13 +189,14 @@ export class OniEditor implements IEditor {
                     this._workspace,
                 )
 
-                windowManager.createSplit(method, newEditor)
+                // TODO
+                windowManager.createSplit("vertical", newEditor)
                 await newEditor.init([])
-                return newEditor.openFile(file, "edit")
+                return newEditor.openFile(file, { openMode: Oni.FileOpenMode.Edit })
             }
         }
 
-        return this._neovimEditor.openFile(file, method)
+        return this._neovimEditor.openFile(file, openOptions)
     }
 
     public async newFile(filePath: string): Promise<Oni.Buffer> {
@@ -204,10 +212,9 @@ export class OniEditor implements IEditor {
     }
 
     public async blockInput(
-        inputFunction: (input: (inp: string) => Promise<void>) => Promise<void>,
-    ) {
-        const neovim = this._neovimEditor.neovim as any
-        return neovim.blockInput(inputFunction)
+        inputFunction: (input: Oni.InputCallbackFunction) => Promise<void>,
+    ): Promise<void> {
+        return this._neovimEditor.blockInput(inputFunction)
     }
 
     public executeCommand(command: string): void {
