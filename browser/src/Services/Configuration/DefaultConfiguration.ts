@@ -47,6 +47,7 @@ const BaseConfiguration: IConfigurationValues = {
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
+    "experimental.learning.enabled": true,
     "experimental.welcome.enabled": false,
 
     "experimental.neovim.transport": "stdio",

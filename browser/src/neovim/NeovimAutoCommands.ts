@@ -18,6 +18,7 @@ export interface INeovimAutoCommands {
     onBufDelete: IEvent<BufferEventContext>
     onBufUnload: IEvent<BufferEventContext>
     onBufWritePost: IEvent<EventContext>
+    onFileTypeChanged: IEvent<EventContext>
     onWinEnter: IEvent<EventContext>
     onCursorMoved: IEvent<EventContext>
     onCursorMovedI: IEvent<EventContext>

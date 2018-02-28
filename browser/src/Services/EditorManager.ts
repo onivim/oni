@@ -11,23 +11,6 @@
 import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 
-import * as Log from "./../Log"
-
-export enum FileOpenMode {
-    Edit = 0,
-    NewTab,
-    VerticalSplit,
-    HorizontalSplit,
-}
-
-export interface FileOpenOptions {
-    openMode: FileOpenMode
-}
-
-export const DefaultFileOpenOptions: FileOpenOptions = {
-    openMode: FileOpenMode.Edit,
-}
-
 export class EditorManager implements Oni.EditorManager {
     private _activeEditor: Oni.Editor = null
     private _anyEditorProxy: AnyEditorProxy = new AnyEditorProxy()
@@ -52,25 +35,11 @@ export class EditorManager implements Oni.EditorManager {
         return this._onActiveEditorChanged
     }
 
-    /**
-     * Potential API methods
-     */
-    public async openFile(
+    public openFile(
         filePath: string,
-        fileOpenOptions: FileOpenOptions = DefaultFileOpenOptions,
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
     ): Promise<Oni.Buffer> {
-        switch (fileOpenOptions.openMode) {
-            case FileOpenMode.Edit:
-                return this._activeEditor.openFile(filePath, "edit")
-            case FileOpenMode.NewTab:
-                return this._activeEditor.openFile(filePath, "tab")
-            case FileOpenMode.VerticalSplit:
-                return this._activeEditor.openFile(filePath, "vertical")
-            case FileOpenMode.HorizontalSplit:
-                return this._activeEditor.openFile(filePath, "horizontal")
-            default:
-                throw new Error("Unrecognized open mode")
-        }
+        return this._activeEditor.openFile(filePath, openOptions)
     }
 
     /**
@@ -134,16 +103,6 @@ class AnyEditorProxy implements Oni.Editor {
         return this._activeEditor.neovim
     }
 
-    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
-        await this._activeEditor.openFile(file, method)
-        return this._activeEditor.activeBuffer
-    }
-
-    public openFiles(files: string[]): Promise<Oni.Buffer[]> {
-        Log.warn("Not implemented")
-        return Promise.resolve([])
-    }
-
     public get onModeChanged(): IEvent<Oni.Vim.Mode> {
         return this._onModeChanged
     }
@@ -180,6 +139,14 @@ class AnyEditorProxy implements Oni.Editor {
         inputFunction: (input: Oni.InputCallbackFunction) => Promise<void>,
     ): Promise<void> {
         return this._activeEditor.blockInput(inputFunction)
+    }
+
+    public async openFile(filePath: string, openOptions: Oni.FileOpenOptions): Promise<Oni.Buffer> {
+        return this._activeEditor.openFile(filePath, openOptions)
+    }
+
+    public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
+        return this._activeEditor.getBuffers()
     }
 
     /**
