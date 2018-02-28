@@ -56,7 +56,7 @@ export const activateProviders = (
     )
 
     _snippetManager.registerSnippetProvider(new PluginSnippetProvider(pluginManager))
-    const userProvider = new UserSnippetProvider(configuration)
+    const userProvider = new UserSnippetProvider(commandManager, configuration, editorManager)
     _snippetManager.registerSnippetProvider(userProvider)
 }
 

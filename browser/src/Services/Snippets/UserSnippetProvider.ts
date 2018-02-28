@@ -40,6 +40,7 @@ export class UserSnippetProvider implements ISnippetProvider {
         })
 
         this._commandManager.registerCommand({
+            command: "userSnippets.editGlobal",
             name: "Snippets: Edit User Snippets (global)",
             detail: "Edit user snippet definitions for all files.",
             execute: () => alert("edit definitions"),
