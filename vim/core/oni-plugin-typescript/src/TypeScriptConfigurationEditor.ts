@@ -31,12 +31,14 @@ export const deactivate = (oni: Oni.Plugin.Api) => {
 }
 
 export const configuration = {
-   ${0}
+   // Set configuration values here...
 }
 `
 const getTypeScriptConfigurationFromJavaScriptConfiguration = (configurationFile: string) => {
     const dirName = path.dirname(configurationFile)
-    const typeScriptConfig = path.join(dirName, "config.ts")
+    const typeScriptConfig = path.join(dirName, path.basename(configurationFile, ".js") + ".ts")
+
+    console.log("getTypeScriptConfigurationFromJavaScriptConfiguration: " + typeScriptConfig)
     return typeScriptConfig
 }
 
