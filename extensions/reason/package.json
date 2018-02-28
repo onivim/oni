@@ -12,7 +12,7 @@
         "snippets": [
             {
                 "language": "reason",
-                "path": "snippets/javascript.json"
+                "path": "snippets/reason.json"
             }
         ]
     },
