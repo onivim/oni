@@ -166,10 +166,10 @@ export class FileConfigurationProvider implements IConfigurationProvider {
 export const promoteConfigurationToRootLevel = (
     config: Partial<IConfigurationValues>,
 ): Partial<IConfigurationValues> => {
-    if (config["configuration"]) {
-        let configurationValues = config["configuration"]
+    if (config.configuration) {
+        const configurationValues = config.configuration
         let mergedConfig = { ...config }
-        delete mergedConfig["configuration"]
+        delete mergedConfig.configuration
         mergedConfig = { ...mergedConfig, ...configurationValues }
         return mergedConfig
     }

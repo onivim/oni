@@ -31,7 +31,7 @@ export const deactivate = (oni: Oni.Plugin.Api) => {
 }
 
 export const configuration = {
-   ${0} 
+   ${0}
 }
 `
 const getTypeScriptConfigurationFromJavaScriptConfiguration = (configurationFile: string) => {
