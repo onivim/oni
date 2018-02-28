@@ -13,7 +13,7 @@ import * as Log from "./../../Log"
 
 import { OniSnippet, OniSnippetPlaceholder } from "./OniSnippet"
 
-import { IBuffer } from "./../../Editor/BufferManager"
+import { BufferIndentationInfo, IBuffer } from "./../../Editor/BufferManager"
 import { IEditor } from "./../../Editor/Editor"
 
 export const splitLineAtPosition = (line: string, position: number): [string, string] => {
@@ -55,8 +55,16 @@ export interface IMirrorCursorUpdateEvent {
     cursors: types.Range[]
 }
 
+export const makeSnippetConsistentWithExistingWhitespace = (
+    snippet: string,
+    info: BufferIndentationInfo,
+) => {
+    return snippet.split("\t").join(info.indent)
+}
+
 export class SnippetSession {
     private _buffer: IBuffer
+    private _snippet: OniSnippet
     private _position: types.Position
     private _onCancelEvent: Event<void> = new Event<void>()
     private _onCursorMovedEvent: Event<IMirrorCursorUpdateEvent> = new Event<
@@ -89,10 +97,18 @@ export class SnippetSession {
         return this._snippet.getLines()
     }
 
-    constructor(private _editor: IEditor, private _snippet: OniSnippet) {}
+    constructor(private _editor: IEditor, private _snippetString: string) {}
 
     public async start(): Promise<void> {
         this._buffer = this._editor.activeBuffer as IBuffer
+
+        const whitespaceSettings = await this._buffer.detectIndentation()
+        const normalizedSnippet = makeSnippetConsistentWithExistingWhitespace(
+            this._snippetString,
+            whitespaceSettings,
+        )
+        this._snippet = new OniSnippet(normalizedSnippet)
+
         const cursorPosition = await this._buffer.getCursorPosition()
         const [currentLine] = await this._buffer.getLines(
             cursorPosition.line,
