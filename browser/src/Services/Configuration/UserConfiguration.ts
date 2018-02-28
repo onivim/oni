@@ -11,6 +11,16 @@ import * as Platform from "./../../Platform"
 import * as Log from "./../../Log"
 
 export const getUserConfigFilePath = (): string => {
+    const configFileFromEnv = process.env["ONI_CONFIG_FILE"] as string // tslint:disable-line
+
+    if (configFileFromEnv) {
+        Log.info(
+            "getUserConfigFilePath - path overridden by environment variable:  " +
+                configFileFromEnv,
+        )
+        return configFileFromEnv
+    }
+
     return path.join(getUserConfigFolderPath(), "config.js")
 }
 
@@ -19,8 +29,9 @@ export const getUserConfigFolderPath = (): string => {
     Log.info("$env:ONI_CONFIG_FILE: " + configFileFromEnv)
 
     if (configFileFromEnv) {
-        Log.info("getUserConfigFolderPath: " + configFileFromEnv)
-        return path.dirname(configFileFromEnv)
+        const configDir = path.dirname(configFileFromEnv)
+        Log.info("getUserConfigFolderPath - path overridden by environment variable:  " + configDir)
+        return configDir
     }
 
     return Platform.isWindows()
