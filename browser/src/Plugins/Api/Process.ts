@@ -106,7 +106,6 @@ export class Process implements Oni.Process {
                 this._shellEnv = await this._shellEnvPromise
                 this._env = this._shellEnv.sync()
             }
-            process.env = { ...process.env, ...this._env }
             existingPath = process.env.Path || process.env.PATH
         } catch (e) {
             existingPath = process.env.Path || process.env.PATH
@@ -115,6 +114,7 @@ export class Process implements Oni.Process {
         const requiredOptions = {
             env: {
                 ...process.env,
+                this._env,
                 ...originalSpawnOptions.env,
             },
         }
