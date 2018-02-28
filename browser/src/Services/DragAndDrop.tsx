@@ -1,6 +1,5 @@
 import * as React from "react"
 import * as DND from "react-dnd"
-import HTML5Backend from "react-dnd-html5-backend"
 
 type Render<T> = (props: T) => React.ReactElement<T>
 type OnDrop = (item: any) => object | void
