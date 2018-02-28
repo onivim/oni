@@ -23,6 +23,7 @@ const start = async (args: string[]): Promise<void> => {
     Shell.activate()
 
     const configurationPromise = import("./Services/Configuration")
+    const configurationCommandsPromise = import("./Services/Configuration/ConfigurationCommands")
     const pluginManagerPromise = import("./Plugins/PluginManager")
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
@@ -48,6 +49,7 @@ const start = async (args: string[]): Promise<void> => {
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
     const taksPromise = import("./Services/Tasks")
     const workspacePromise = import("./Services/Workspace")
+    const workspaceCommandsPromise = import("./Services/Workspace/WorkspaceCommands")
 
     const themePickerPromise = import("./Services/Themes/ThemePicker")
     const cssPromise = import("./CSS")
@@ -153,7 +155,7 @@ const start = async (args: string[]): Promise<void> => {
     const tasks = Tasks.getInstance()
 
     const LanguageManager = await languageManagerPromise
-    LanguageManager.activate(configuration, editorManager, statusBar, workspace)
+    LanguageManager.activate(configuration, editorManager, pluginManager, statusBar, workspace)
     const languageManager = LanguageManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Editors")
@@ -162,6 +164,9 @@ const start = async (args: string[]): Promise<void> => {
 
     const CSS = await cssPromise
     CSS.activate()
+
+    const Snippets = await snippetPromise
+    Snippets.activate(commandManager)
 
     Shell.Actions.setLoadingComplete()
 
@@ -182,6 +187,7 @@ const start = async (args: string[]): Promise<void> => {
             menuManager,
             overlayManager,
             pluginManager,
+            Snippets.getInstance(),
             tasks,
             Themes.getThemeManagerInstance(),
             TokenColors.getInstance(),
@@ -218,11 +224,16 @@ const start = async (args: string[]): Promise<void> => {
     const api = pluginManager.startApi()
     configuration.activate(api)
 
+    Snippets.activateCompletionProvider(CompletionProviders.getInstance(), pluginManager)
+
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     const { inputManager } = await inputManagerPromise
 
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
+
+    const ConfigurationCommands = await configurationCommandsPromise
+    ConfigurationCommands.activate(commandManager, configuration, editorManager)
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
@@ -230,8 +241,13 @@ const start = async (args: string[]): Promise<void> => {
     const GlobalCommands = await globalCommandsPromise
     GlobalCommands.activate(commandManager, menuManager, tasks)
 
-    const Snippets = await snippetPromise
-    Snippets.activate(commandManager)
+    const WorkspaceCommands = await workspaceCommandsPromise
+    WorkspaceCommands.activateCommands(
+        configuration,
+        editorManager,
+        Snippets.getInstance(),
+        workspace,
+    )
 
     const KeyDisplayer = await keyDisplayerPromise
     KeyDisplayer.activate(commandManager, inputManager, overlayManager)

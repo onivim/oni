@@ -10,6 +10,7 @@ import * as Log from "./../../Log"
 import * as Performance from "./../../Performance"
 import { diff } from "./../../Utility"
 
+import { IConfigurationEditor, JavaScriptConfigurationEditor } from "./ConfigurationEditor"
 import { DefaultConfiguration } from "./DefaultConfiguration"
 import { checkDeprecatedSettings } from "./DeprecatedConfigurationValues"
 import { FileConfigurationProvider } from "./FileConfigurationProvider"
@@ -58,6 +59,13 @@ export class Configuration implements Oni.Configuration {
     private _fileToProvider: { [key: string]: IConfigurationProvider } = {}
     private _configProviderInfo = new Map<IConfigurationProvider, ConfigurationProviderInfo>()
 
+    private _configurationEditors: { [key: string]: IConfigurationEditor } = {}
+
+    public get editor(): IConfigurationEditor {
+        const val = this.getValue("configuration.editor")
+        return this._configurationEditors[val] || new JavaScriptConfigurationEditor()
+    }
+
     public get onConfigurationError(): IEvent<Error> {
         return this._onConfigurationErrorEvent
     }
@@ -79,6 +87,10 @@ export class Configuration implements Oni.Configuration {
         this.addConfigurationFile(UserConfiguration.getUserConfigFilePath())
 
         Performance.mark("Config.load.end")
+    }
+
+    public registerEditor(id: string, editor: IConfigurationEditor): void {
+        this._configurationEditors[id] = editor
     }
 
     public addConfigurationFile(filePath: string): void {

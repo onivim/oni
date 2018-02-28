@@ -5,6 +5,7 @@
  * to exercise boundaries of class implementations
  */
 
+export * from "./MockPluginManager"
 export * from "./MockThemeLoader"
 
 import * as Oni from "oni-api"
@@ -264,6 +265,14 @@ export class MockBuffer {
         updateFunction: (highlightUpdater: IBufferHighlightsUpdater) => void,
     ) {
         updateFunction(this._mockHighlights)
+    }
+
+    public addLayer(): void {
+        // tslint:disable-line
+    }
+
+    public removeLayer(): void {
+        // tslint:disable-line
     }
 }
 

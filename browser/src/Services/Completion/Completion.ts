@@ -8,6 +8,7 @@ import { Store, Unsubscribe } from "redux"
 import * as types from "vscode-languageserver-types"
 
 import { LanguageManager } from "./../Language"
+import { SnippetManager } from "./../Snippets"
 
 import { getFilteredCompletions } from "./CompletionSelectors"
 import { ICompletionsRequestor } from "./CompletionsRequestor"
@@ -17,7 +18,6 @@ import { ICompletionState } from "./CompletionState"
 import { createStore } from "./CompletionStore"
 
 import { Configuration } from "./../Configuration"
-import * as CompletionUtility from "./CompletionUtility"
 
 export interface ICompletionShowEventArgs {
     filteredCompletions: types.CompletionItem[]
@@ -67,6 +67,7 @@ export class Completion implements IDisposable {
         private _configuration: Configuration,
         private _completionsRequestor: ICompletionsRequestor,
         private _languageManager: LanguageManager,
+        private _snippetManager: SnippetManager,
     ) {
         this._completionsRequestor = this._completionsRequestor
         this._store = createStore(
@@ -74,6 +75,7 @@ export class Completion implements IDisposable {
             this._languageManager,
             this._configuration,
             this._completionsRequestor,
+            this._snippetManager,
         )
 
         const sub1 = this._editor.onBufferEnter.subscribe((buf: Oni.Buffer) => {
@@ -90,7 +92,7 @@ export class Completion implements IDisposable {
             this._onModeChanged(newMode)
         })
 
-        const sub4 = (this._editor as any).onCursorMoved.subscribe((cursor: Oni.Cursor) => {
+        const sub4 = this._editor.onCursorMoved.subscribe((cursor: Oni.Cursor) => {
             this._onCursorMoved(cursor)
         })
 
@@ -113,7 +115,7 @@ export class Completion implements IDisposable {
             type: "COMMIT_COMPLETION",
             meetLine: state.meetInfo.meetLine,
             meetPosition: state.meetInfo.meetPosition,
-            completionText: CompletionUtility.getInsertText(completionItem),
+            completion: completionItem,
         })
     }
 

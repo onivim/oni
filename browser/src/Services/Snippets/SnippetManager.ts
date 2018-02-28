@@ -11,20 +11,27 @@ import * as Log from "./../../Log"
 import "rxjs/add/operator/auditTime"
 import { Subject } from "rxjs/Subject"
 
-import { CommandManager } from "./../CommandManager"
-import { editorManager, EditorManager } from "./../EditorManager"
+import { EditorManager } from "./../EditorManager"
 
 import { OniSnippet } from "./OniSnippet"
+import { SnippetBufferLayer } from "./SnippetBufferLayer"
+import { CompositeSnippetProvider, ISnippetProvider } from "./SnippetProvider"
 import { SnippetSession } from "./SnippetSession"
+
+import { ISnippet } from "./ISnippet"
 
 export class SnippetManager {
     private _activeSession: SnippetSession
     private _disposables: IDisposable[] = []
+    private _currentLayer: SnippetBufferLayer = null
 
-    private _synchronizeSnippetObseravble: Subject<void> = new Subject<void>()
+    private _snippetProvider: CompositeSnippetProvider
+    private _synchronizeSnippetObservable: Subject<void> = new Subject<void>()
 
     constructor(private _editorManager: EditorManager) {
-        this._synchronizeSnippetObseravble.auditTime(50).subscribe(() => {
+        this._snippetProvider = new CompositeSnippetProvider()
+
+        this._synchronizeSnippetObservable.auditTime(50).subscribe(() => {
             const activeEditor = this._editorManager.activeEditor as any
             const activeSession = this._activeSession
 
@@ -32,6 +39,14 @@ export class SnippetManager {
                 activeEditor.blockInput(() => activeSession.synchronizeUpdatedPlaceholders())
             }
         })
+    }
+
+    public async getSnippetsForLanguage(language: string): Promise<ISnippet[]> {
+        return this._snippetProvider.getSnippets(language)
+    }
+
+    public registerSnippetProvider(snippetProvider: ISnippetProvider): void {
+        this._snippetProvider.registerProvider(snippetProvider)
     }
 
     /**
@@ -47,15 +62,24 @@ export class SnippetManager {
         const snippetSession = new SnippetSession(activeEditor as any, snip)
         await snippetSession.start()
 
+        const buffer = this._editorManager.activeEditor.activeBuffer
+        this._currentLayer = new SnippetBufferLayer(buffer, snippetSession)
+
+        const s1 = activeEditor.onCursorMoved.subscribe(() => {
+            if (this.isSnippetActive()) {
+                this._activeSession.updateCursorPosition()
+            }
+        })
+
         const s2 = activeEditor.onBufferChanged.subscribe(() => {
-            this._synchronizeSnippetObseravble.next()
+            this._synchronizeSnippetObservable.next()
         })
 
         const s3 = snippetSession.onCancel.subscribe(() => {
             this.cancel()
         })
 
-        this._disposables = [s2, s3]
+        this._disposables = [s1, s2, s3]
 
         this._activeSession = snippetSession
     }
@@ -80,6 +104,10 @@ export class SnippetManager {
         if (this._activeSession) {
             this._cleanupAfterSession()
         }
+
+        if (this._currentLayer) {
+            this._currentLayer.dispose()
+        }
     }
 
     private _cleanupAfterSession(): void {
@@ -88,38 +116,4 @@ export class SnippetManager {
         this._disposables = []
         this._activeSession = null
     }
-}
-
-let _snippetManager: SnippetManager
-
-export const activate = (commandManager: CommandManager) => {
-    _snippetManager = new SnippetManager(editorManager)
-
-    commandManager.registerCommand({
-        command: "snippet.nextPlaceholder",
-        name: null,
-        detail: null,
-        enabled: () => _snippetManager.isSnippetActive(),
-        execute: () => _snippetManager.nextPlaceholder(),
-    })
-
-    commandManager.registerCommand({
-        command: "snippet.previousPlaceholder",
-        name: null,
-        detail: null,
-        enabled: () => _snippetManager.isSnippetActive(),
-        execute: () => _snippetManager.previousPlaceholder(),
-    })
-
-    commandManager.registerCommand({
-        command: "snippet.cancel",
-        name: null,
-        detail: null,
-        enabled: () => _snippetManager.isSnippetActive(),
-        execute: () => _snippetManager.cancel(),
-    })
-}
-
-export const getInstance = (): SnippetManager => {
-    return _snippetManager
 }

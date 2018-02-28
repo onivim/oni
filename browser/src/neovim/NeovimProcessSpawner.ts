@@ -3,7 +3,7 @@ import * as net from "net"
 import * as path from "path"
 
 import * as Platform from "./../Platform"
-import { spawnProcess } from "./../Plugins/Api/Process"
+import Process from "./../Plugins/Api/Process"
 
 import { Session } from "./Session"
 
@@ -129,7 +129,7 @@ export const startNeovim = async (
         "[NeovimProcessSpawner::startNeovim] Sending these args to Neovim: " +
             argsToPass.toString(),
     )
-    const nvimProc = await spawnProcess(nvimProcessPath, argsToPass, {})
+    const nvimProc = await Process.spawnProcess(nvimProcessPath, argsToPass, {})
     Log.info(`[NeovimProcessSpawner::startNeovim] Starting Neovim - process: ${nvimProc.pid}`) // tslint:disable-line no-console
 
     return getSessionFromProcess(nvimProc, options.transport)

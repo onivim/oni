@@ -33,6 +33,7 @@ const BaseConfiguration: IConfigurationValues = {
     deactivate: noop,
 
     "autoUpdate.enabled": false,
+    "configuration.editor": "javascript",
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
@@ -43,7 +44,6 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.languageServer": null,
     "debug.fakeLag.neovimInput": null,
 
-    "experimental.editor.textMateHighlighting.enabled": false,
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
@@ -54,6 +54,7 @@ const BaseConfiguration: IConfigurationValues = {
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
     "editor.maxLinesForLanguageServices": 2500,
+    "editor.textMateHighlighting.enabled": true,
 
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
@@ -99,6 +100,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.quickOpen.execCommand": null,
     "editor.quickOpen.filterStrategy": "fuse",
+
+    "editor.split.mode": "native",
 
     "editor.typingPrediction": true,
 

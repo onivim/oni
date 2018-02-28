@@ -8,6 +8,7 @@
  */
 
 import * as os from "os"
+import * as path from "path"
 
 import * as Oni from "oni-api"
 import { Event, IDisposable } from "oni-types"
@@ -18,6 +19,8 @@ import { ILanguageClient } from "./LanguageClient"
 import * as LanguageClientTypes from "./LanguageClientTypes"
 import { IServerCapabilities } from "./ServerCapabilities"
 
+import * as Capabilities from "./../../Plugins/Api/Capabilities"
+import { PluginManager } from "./../../Plugins/PluginManager"
 import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
 
 import { listenForWorkspaceEdits } from "./Workspace"
@@ -43,14 +46,15 @@ export class LanguageManager {
     constructor(
         private _configuration: Oni.Configuration,
         private _editorManager: Oni.EditorManager,
+        private _pluginManager: PluginManager,
         private _statusBar: Oni.StatusBar,
         private _workspace: IWorkspace,
     ) {
         this._languageClientStatusBar = new LanguageClientStatusBar(this._statusBar)
 
-        this._editorManager.allEditors.onBufferEnter.subscribe(async () => this._onBufferEnter())
+        this._editorManager.anyEditor.onBufferEnter.subscribe(async () => this._onBufferEnter())
 
-        this._editorManager.allEditors.onBufferLeave.subscribe(
+        this._editorManager.anyEditor.onBufferLeave.subscribe(
             (bufferInfo: Oni.EditorBufferEventArgs) => {
                 const { language, filePath } = bufferInfo
 
@@ -67,7 +71,7 @@ export class LanguageManager {
             },
         )
 
-        this._editorManager.allEditors.onBufferChanged.subscribe(
+        this._editorManager.anyEditor.onBufferChanged.subscribe(
             async (change: Oni.EditorBufferChangedEventArgs) => {
                 const { language, filePath } = change.buffer
 
@@ -107,7 +111,7 @@ export class LanguageManager {
             },
         )
 
-        this._editorManager.allEditors.onBufferSaved.subscribe(
+        this._editorManager.anyEditor.onBufferSaved.subscribe(
             (bufferInfo: Oni.EditorBufferEventArgs) => {
                 const { language, filePath } = bufferInfo
 
@@ -318,7 +322,7 @@ export class LanguageManager {
         }
     }
 
-    private _onBufferEnter(): void {
+    private async _onBufferEnter(): Promise<void> {
         if (!this._editorManager.activeEditor.activeBuffer) {
             Log.warn("[LanguageManager] No active buffer on buffer enter")
             return
@@ -326,6 +330,23 @@ export class LanguageManager {
 
         const buffer = this._editorManager.activeEditor.activeBuffer
         const { language, filePath } = buffer
+
+        if (!language) {
+            const languages = this._pluginManager.getAllContributionsOfType<
+                Capabilities.ILanguageContribution
+            >(contributes => contributes.languages)
+            const matchingLanguages = languages.filter(l =>
+                l.extensions.indexOf(path.extname(filePath)),
+            )
+            if (matchingLanguages.length > 0) {
+                Log.info(
+                    `[LanguageManager::_onBufferEnter] Setting language for file ${filePath} to ${
+                        matchingLanguages[0].id
+                    }`,
+                )
+                await (buffer as any).setLanguage(matchingLanguages[0].id)
+            }
+        }
 
         if (language) {
             this._languageClientStatusBar.show(language)
@@ -345,7 +366,7 @@ export class LanguageManager {
             return
         }
 
-        this.sendLanguageServerNotification(
+        await this.sendLanguageServerNotification(
             language,
             filePath,
             "textDocument/didOpen",
@@ -414,10 +435,17 @@ let _languageManager: LanguageManager = null
 export const activate = (
     configuration: Oni.Configuration,
     editorManager: Oni.EditorManager,
+    pluginManager: PluginManager,
     statusBar: Oni.StatusBar,
     workspace: IWorkspace,
 ): void => {
-    _languageManager = new LanguageManager(configuration, editorManager, statusBar, workspace)
+    _languageManager = new LanguageManager(
+        configuration,
+        editorManager,
+        pluginManager,
+        statusBar,
+        workspace,
+    )
 }
 
 export const getInstance = (): LanguageManager => {

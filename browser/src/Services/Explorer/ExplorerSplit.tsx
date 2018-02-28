@@ -63,13 +63,6 @@ export class ExplorerSplit {
                 rootPath: this._workspace.activeWorkspace,
             })
         }
-
-        this._editorManager.allEditors.onBufferEnter.subscribe(args => {
-            this._store.dispatch({
-                type: "BUFFER_OPENED",
-                filePath: args.filePath,
-            })
-        })
     }
 
     public enter(): void {
