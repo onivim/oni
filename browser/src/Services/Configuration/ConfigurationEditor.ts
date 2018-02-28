@@ -88,6 +88,7 @@ export class ConfigurationEditManager {
     }
 
     public async editConfiguration(configFile: string): Promise<void> {
+        Log.info("[ConfigurationEditManager::editConfiguration]: " + configFile)
         const editor = this._configuration.editor
         const editFile = await editor.editConfiguration(configFile)
 
