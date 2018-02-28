@@ -38,7 +38,6 @@ const getTypeScriptConfigurationFromJavaScriptConfiguration = (configurationFile
     const dirName = path.dirname(configurationFile)
     const typeScriptConfig = path.join(dirName, path.basename(configurationFile, ".js") + ".ts")
 
-    console.log("getTypeScriptConfigurationFromJavaScriptConfiguration: " + typeScriptConfig)
     return typeScriptConfig
 }
 
