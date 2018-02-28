@@ -43,7 +43,11 @@ const setStatus = statusText => {
 }
 
 const check = () => {
-    setStatus("Checking bundle - attempt " + attempt)
+    setStatus(
+        "Checking bundle - attempt " +
+            attempt.toString() +
+            ". Check console where you ran `npm run start` for output / status...",
+    )
 
     fetch(WEBPACK_BUNDLE_URL).then(
         () => {
