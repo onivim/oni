@@ -14,7 +14,7 @@ import { INeovimInstance } from "./../../neovim"
 
 import { commandManager } from "./../CommandManager"
 import { configuration } from "./../Configuration"
-import { editorManager, FileOpenMode } from "./../EditorManager"
+import { editorManager } from "./../EditorManager"
 import { getInstance as getWorkspaceInstance } from "./../Workspace"
 
 import { fuseFilter, Menu, MenuManager } from "./../Menu"
@@ -66,21 +66,21 @@ export class QuickOpen {
     public openFileNewTab(): void {
         const selectedItem = this._menu.selectedItem
         if (selectedItem) {
-            this._onItemSelected(selectedItem, FileOpenMode.NewTab)
+            this._onItemSelected(selectedItem, Oni.FileOpenMode.NewTab)
         }
     }
 
     public openFileHorizontal(): void {
         const selectedItem = this._menu.selectedItem
         if (selectedItem) {
-            this._onItemSelected(selectedItem, FileOpenMode.HorizontalSplit)
+            this._onItemSelected(selectedItem, Oni.FileOpenMode.HorizontalSplit)
         }
     }
 
     public openFileVertical(): void {
         const selectedItem = this._menu.selectedItem
         if (selectedItem) {
-            this._onItemSelected(selectedItem, FileOpenMode.VerticalSplit)
+            this._onItemSelected(selectedItem, Oni.FileOpenMode.VerticalSplit)
         }
     }
 
@@ -204,7 +204,7 @@ export class QuickOpen {
 
     private async _onItemSelected(
         selectedOption: Oni.Menu.MenuOption,
-        openInSplit: FileOpenMode = FileOpenMode.HorizontalSplit,
+        openInSplit: Oni.FileOpenMode = Oni.FileOpenMode.Edit,
     ): Promise<void> {
         const arg = selectedOption
 
@@ -213,7 +213,7 @@ export class QuickOpen {
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
             commandManager.executeCommand("oni.openFolder")
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
-            if (openInSplit !== FileOpenMode.Edit) {
+            if (openInSplit !== Oni.FileOpenMode.Edit) {
                 await editorManager.openFile(editorManager.activeEditor.activeBuffer.filePath, {
                     openMode: openInSplit,
                 })
