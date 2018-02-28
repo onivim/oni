@@ -5,11 +5,14 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { CommandManager } from "./../CommandManager"
 import { CompletionProviders } from "./../Completion"
+import { Configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
 
 import { SnippetCompletionProvider } from "./SnippetCompletionProvider"
 import { SnippetManager } from "./SnippetManager"
+
 import { PluginSnippetProvider } from "./SnippetProvider"
+import { UserSnippetProvider } from "./UserSnippetProvider"
 
 let _snippetManager: SnippetManager
 
@@ -41,8 +44,10 @@ export const activate = (commandManager: CommandManager) => {
     })
 }
 
-export const activateCompletionProvider = (
+export const activateProviders = (
+    commandManager: CommandManager,
     completionProviders: CompletionProviders,
+    configuration: Configuration,
     pluginManager: PluginManager,
 ) => {
     completionProviders.registerCompletionProvider(
@@ -51,6 +56,8 @@ export const activateCompletionProvider = (
     )
 
     _snippetManager.registerSnippetProvider(new PluginSnippetProvider(pluginManager))
+    const userProvider = new UserSnippetProvider(configuration)
+    _snippetManager.registerSnippetProvider(userProvider)
 }
 
 export const getInstance = (): SnippetManager => {
