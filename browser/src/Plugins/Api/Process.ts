@@ -5,15 +5,33 @@ import * as Log from "./../../Log"
 import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
 
-export class Process implements Oni.Process {
-    public _spawnedProcessIds: number[] = []
+export interface IShellEnvironmentFetcher {
+    getEnvironmentVariables(): Promise<any>
+}
+
+export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
     private _shellEnvPromise: Promise<any>
     private _shellEnv: any
-    private _env: NodeJS.ProcessEnv
 
     constructor() {
         this._shellEnvPromise = import("shell-env")
     }
+
+    public async getEnvironmentVariables(): Promise<any> {
+        if (!this._shellEnv) {
+            this._shellEnv = await this._shellEnvPromise
+            return this._shellEnv.sync()
+        }
+    }
+}
+
+export class Process implements Oni.Process {
+    public _spawnedProcessIds: number[] = []
+    private _env: NodeJS.ProcessEnv
+
+    constructor(
+        private _shellEnvironmentFetcher: IShellEnvironmentFetcher = new ShellEnvironmentFetcher(),
+    ) {}
 
     public getPathSeparator = () => {
         return Platform.isWindows() ? ";" : ":"
@@ -96,17 +114,15 @@ export class Process implements Oni.Process {
         return proc
     }
 
-    private mergeSpawnOptions = async (
+    public mergeSpawnOptions = async (
         originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions,
     ): Promise<any> => {
         let existingPath: string
 
         try {
-            if (!this._shellEnv || !this._env) {
-                this._shellEnv = await this._shellEnvPromise
-                this._env = this._shellEnv.sync()
+            if (!this._env) {
+                this._env = (await this._shellEnvironmentFetcher.getEnvironmentVariables()) || {}
             }
-            process.env = { ...process.env, ...this._env }
             existingPath = process.env.Path || process.env.PATH
         } catch (e) {
             existingPath = process.env.Path || process.env.PATH
@@ -115,6 +131,7 @@ export class Process implements Oni.Process {
         const requiredOptions = {
             env: {
                 ...process.env,
+                ...this._env,
                 ...originalSpawnOptions.env,
             },
         }
