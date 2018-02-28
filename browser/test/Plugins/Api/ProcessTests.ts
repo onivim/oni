@@ -4,7 +4,7 @@
 
 import * as assert from "assert"
 
-import { Process, IShellEnvironmentFetcher } from "./../../../src/Plugins/Api/Process"
+import { IShellEnvironmentFetcher, Process } from "./../../../src/Plugins/Api/Process"
 
 class MockShellEnvironmentFetcher implements IShellEnvironmentFetcher {
     constructor(private _env: any) {}
@@ -25,7 +25,7 @@ describe("ProcessTests", () => {
             },
         })
 
-        assert.strictEqual(newOptions.env["test1"], true)
-        assert.strictEqual(newOptions.env["test2"], true)
+        assert.strictEqual(newOptions.env.test1, true)
+        assert.strictEqual(newOptions.env.test2, true)
     })
 })
