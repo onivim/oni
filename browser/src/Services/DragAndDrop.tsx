@@ -40,7 +40,9 @@ const DropCollect = (connect: DND.DropTargetConnector, monitor: DND.DropTargetMo
     canDrop: monitor.canDrop(),
 })
 
-// Drop target type MUST match drag type
+/**
+ * A component which can have items of a specific matching type dropped onto it
+ */
 @DND.DropTarget<IDroppeable>(({ accepts }) => accepts, DropTarget, DropCollect)
 export class Droppeable<P extends IDroppeable> extends React.Component<P> {
     public render() {
@@ -102,9 +104,7 @@ interface IDragDrop {
 }
 
 /**
- * A component which can be dragged or dropped onto
- * @name DragAndDrop
- * @function
+ * A render prop which takes a given component and makes it a drop target as well as draggeable
  */
 @DND.DropTarget<IDragDrop>(props => props.accepts, DropTarget, DropCollect)
 @DND.DragSource<IDragDrop>(props => props.dragTarget, DragSource, DragCollect)
@@ -115,8 +115,4 @@ export class DragAndDrop<P extends IDragDrop> extends React.Component<P> {
             connectDragSource(<div>{this.props.render({ isDragging, canDrop, isOver })}</div>),
         )
     }
-}
-
-export function DragAndDropContainer<State>(Container: React.ComponentClass<State>) {
-    return DND.DragDropContext(HTML5Backend)(Container)
 }

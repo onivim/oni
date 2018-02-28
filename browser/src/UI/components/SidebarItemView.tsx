@@ -21,9 +21,6 @@ export interface ISidebarItemViewProps {
 
 const px = (num: number): string => num.toString() + "px"
 
-// FIXME: Find appropriate color for droppeable section
-// ${p => p.canDrop && `background-color: ${darken(p.theme["highlight.mode.normal.background"], 0.4)};`};
-
 const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
     padding-left: ${props => px(INDENT_AMOUNT * props.indentationLevel)};
     border-left: ${props =>
