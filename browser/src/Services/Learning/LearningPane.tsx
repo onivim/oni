@@ -25,8 +25,6 @@ export class LearningPane implements SidebarPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
 
-    constructor() {}
-
     public get id(): string {
         return "oni.sidebar.learning"
     }
