@@ -114,7 +114,7 @@ export class Process implements Oni.Process {
         const requiredOptions = {
             env: {
                 ...process.env,
-                this._env,
+                ...this._env,
                 ...originalSpawnOptions.env,
             },
         }
