@@ -31,9 +31,13 @@ export const activate = (oni: Oni.Plugin.Api) => {
     let _host: TypeScriptServerHost = null
 
     const anyConfig = oni.configuration as any
+    const anyProcess = oni.process as any
 
     // Add typescript as an editor
-    anyConfig.registerEditor("typescript", new TypeScriptConfigurationEditor())
+    anyConfig.registerEditor(
+        "typescript",
+        new TypeScriptConfigurationEditor(anyProcess.getDirname()),
+    )
 
     const initializeHost = (host: TypeScriptServerHost) => {
         host.on("semanticDiag", diagnostics => {

@@ -105,7 +105,9 @@ export class ConfigurationEditManager {
             }
         }
 
-        this._editorManager.activeEditor.openFile(normalizedEditFile)
+        this._editorManager.activeEditor.openFile(normalizedEditFile, {
+            openMode: Oni.FileOpenMode.NewTab,
+        })
     }
 
     private async _transpileConfiguration(

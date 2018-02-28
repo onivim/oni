@@ -7,20 +7,48 @@
 import * as fs from "fs"
 import * as path from "path"
 
+const tsConfigTemplate = (typePath: string) => `
+import * as Oni from "E:/oni/node_modules/oni-api"
+
+export const activate = (oni: Oni.Plugin.Api) => {
+    console.log("config activated")
+
+    // Input
+    //
+    // Add input bindings here:
+    //
+    oni.input.bind("<c-enter>", () => console.log("Control+Enter was pressed"))
+
+    //
+    // Or remove the default bindings here by uncommenting the below line:
+    //
+    // oni.input.unbind("<c-p>")
+
+}
+
+export const deactivate = (oni: Oni.Plugin.Api) => {
+    console.log("config deactivated")
+}
+
+export const configuration = {
+   ${0} 
+}
+`
 const getTypeScriptConfigurationFromJavaScriptConfiguration = (configurationFile: string) => {
     const dirName = path.dirname(configurationFile)
-    const typeScriptConfig = path.join(dirName, "config.typescript.ts")
+    const typeScriptConfig = path.join(dirName, "config.ts")
     return typeScriptConfig
 }
 
-const ensureTsConfigJson = async (configurationDirectory: string): Promise<void> => {
-    const tsConfigJsonPath = path.join(configurationDirectory, "tsconfig.json")
-    if (!fs.existsSync(tsConfigJsonPath)) {
-        fs.writeFileSync(tsConfigJsonPath, "test")
+const ensureTsConfig = async (typeScriptConfigFile: string, typeRoots: string): Promise<void> => {
+    if (!fs.existsSync(typeScriptConfigFile)) {
+        fs.writeFileSync(typeScriptConfigFile, tsConfigTemplate(typeRoots))
     }
 }
 
 export class TypeScriptConfigurationEditor {
+    constructor(private _mainProcessDirectory) {}
+
     public async editConfiguration(configurationFilePath: string): Promise<string> {
         // If a javascript configuration exists, but not a TypeScript one, we'll
         // let the default config handle it.
@@ -34,8 +62,13 @@ export class TypeScriptConfigurationEditor {
             return null
         }
 
+        const configDirectory = path.dirname(configurationFilePath)
+
+        const typeRoots = path.join(this._mainProcessDirectory, "node_modules")
+
         // Ensure that a `tsconfig.json` exists
-        await ensureTsConfigJson()
+        // await ensureTsConfigJson(configDirectory, typeRoots)
+        await ensureTsConfig(typeScriptConfigFile, typeRoots)
 
         return typeScriptConfigFile
     }

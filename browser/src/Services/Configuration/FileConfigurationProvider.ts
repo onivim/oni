@@ -121,11 +121,12 @@ export class FileConfigurationProvider implements IConfigurationProvider {
     private _getLatestConfig(): void {
         this._lastError = null
 
-        let userRuntimeConfig: IConfigurationValues | null = null
+        let userRuntimeConfig: Partial<IConfigurationValues> | null = null
         let error: Error | null = null
         if (fs.existsSync(this._configurationFilePath)) {
             try {
-                userRuntimeConfig = global["require"](this._configurationFilePath) // tslint:disable-line no-string-literal
+                const loadedConfig = global["require"](this._configurationFilePath) // tslint:disable-line no-string-literal
+                userRuntimeConfig = promoteConfigurationToRootLevel(loadedConfig)
             } catch (e) {
                 e.message =
                     "[Config Error] Failed to parse " +
@@ -160,4 +161,18 @@ export class FileConfigurationProvider implements IConfigurationProvider {
             }
         }
     }
+}
+
+export const promoteConfigurationToRootLevel = (
+    config: Partial<IConfigurationValues>,
+): Partial<IConfigurationValues> => {
+    if (config["configuration"]) {
+        let configurationValues = config["configuration"]
+        let mergedConfig = { ...config }
+        delete mergedConfig["configuration"]
+        mergedConfig = { ...mergedConfig, ...configurationValues }
+        return mergedConfig
+    }
+
+    return config
 }
