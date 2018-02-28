@@ -46,6 +46,10 @@
   dependencies:
     "@types/color-convert" "*"
 
+"@types/detect-indent@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@types/detect-indent/-/detect-indent-5.0.0.tgz#8b1bbd7891268d5ed20d23ecd23ae333d33934cd"
+
 "@types/dompurify@^0.0.31":
   version "0.0.31"
   resolved "https://registry.yarnpkg.com/@types/dompurify/-/dompurify-0.0.31.tgz#f152d5a81f2b5625e29f11eb016cd9b301d0d4b4"
@@ -1904,13 +1908,13 @@ deep-is@~0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
 
+deepmerge@2.0.1, deepmerge@~2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.0.1.tgz#25c1c24f110fb914f80001b925264dd77f3f4312"
+
 deepmerge@~1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-1.3.2.tgz#1663691629d4dbfe364fa12a2a4f0aa86aa3a050"
-
-deepmerge@~2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.0.1.tgz#25c1c24f110fb914f80001b925264dd77f3f4312"
 
 default-require-extensions@^1.0.0:
   version "1.0.0"
@@ -1971,6 +1975,10 @@ detect-indent@^4.0.0:
   resolved "https://registry.yarnpkg.com/detect-indent/-/detect-indent-4.0.0.tgz#f76d064352cdf43a1cb6ce619c4ee3a9475de208"
   dependencies:
     repeating "^2.0.0"
+
+detect-indent@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/detect-indent/-/detect-indent-5.0.0.tgz#3871cc0a6a002e8c3e5b3cf7f336264675f06b9d"
 
 detect-libc@^1.0.2:
   version "1.0.3"
@@ -4587,11 +4595,12 @@ obuf@^1.0.0, obuf@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.1.tgz#104124b6c602c6796881a042541d36db43a5264e"
 
-ocaml-language-server@^1.0.25:
-  version "1.0.26"
-  resolved "https://registry.yarnpkg.com/ocaml-language-server/-/ocaml-language-server-1.0.26.tgz#e996f3f2c5d50db02a7371f2f8f7c93e55778287"
+ocaml-language-server@^1.0.27:
+  version "1.0.27"
+  resolved "https://registry.yarnpkg.com/ocaml-language-server/-/ocaml-language-server-1.0.27.tgz#b592579a9d2edce5e7064938f08b654ed2b64dfd"
   dependencies:
     async "2.6.0"
+    deepmerge "2.0.1"
     glob "7.1.2"
     lodash "4.17.5"
     lokijs "1.5.2"
@@ -4624,9 +4633,9 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@^0.0.32:
-  version "0.0.32"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.32.tgz#777bedf022e5a20bbf41b508902f132c37ad82c5"
+oni-api@^0.0.37:
+  version "0.0.37"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.37.tgz#330e2f1edab9b1cd0b81feceec4716c5c2ab1e01"
 
 oni-neovim-binaries@0.1.0:
   version "0.1.0"
