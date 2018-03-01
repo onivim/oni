@@ -3,8 +3,8 @@ export * from "./QuickOpen"
 import * as Oni from "oni-api"
 
 import { CommandManager } from "./../CommandManager"
-import { MenuManager } from "./../Menu"
 import { EditorManager } from "./../EditorManager"
+import { MenuManager } from "./../Menu"
 import { Workspace } from "./../Workspace"
 
 import { QuickOpen } from "./QuickOpen"
