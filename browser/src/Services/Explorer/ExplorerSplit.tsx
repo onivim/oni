@@ -27,6 +27,7 @@ import { Explorer } from "./ExplorerView"
 import { mv, rm } from "shelljs"
 
 type Node = ExplorerSelectors.ExplorerNode
+type File = ExplorerSelectors.IFileNode
 
 export class ExplorerSplit {
     private _onEnterEvent: Event<void> = new Event<void>()
@@ -79,6 +80,10 @@ export class ExplorerSplit {
     }
 
     public moveFileOrFolder = (source: Node, dest: Node): void => {
+        if (!source || !dest) {
+            return
+        }
+
         let folderPath
         let sourcePath
 
@@ -95,15 +100,18 @@ export class ExplorerSplit {
             folderPath = dest.folderPath
         }
 
-        if (folderPath && source && source.type === "file" && source.filePath) {
+        if (folderPath && source.type === "file" && source.filePath) {
             sourcePath = source.filePath
-        } else if (source && source.type === "folder" && folderPath) {
+        } else if (source.type === "folder" && folderPath) {
             sourcePath = source.folderPath
         }
 
         Log.info(`moving: ${sourcePath} to ${folderPath}`)
         mv(sourcePath, folderPath)
         this._store.dispatch({ type: "REFRESH" })
+        if (dest.type === "folder") {
+            this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: dest.folderPath })
+        }
     }
 
     public moveFolder = (
@@ -116,12 +124,12 @@ export class ExplorerSplit {
         Log.info(`moving folders: ${source.folderPath} to ${destination.folderPath}`)
         mv(source.folderPath, destination.folderPath)
         this._store.dispatch({ type: "REFRESH" })
+        this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: destination.folderPath })
     }
 
     public findParentDir = (fileId: string): string => {
-        const file = this._getSelectedItem(fileId) as { filePath: string }
-        const parts = file.filePath.split(path.sep)
-        const folder = parts.slice(0, parts.length - 1).join(path.sep)
+        const { filePath } = this._getSelectedItem(fileId) as File
+        const folder = path.dirname(filePath)
         return folder
     }
 
