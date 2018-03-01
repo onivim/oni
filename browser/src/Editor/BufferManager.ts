@@ -44,6 +44,7 @@ import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 export interface IBuffer extends Oni.Buffer {
     getCursorPosition(): Promise<types.Position>
     handleInput(key: string): boolean
+    detectIndentation(): Promise<BufferIndentationInfo>
 }
 
 export type IndentationType = "tab" | "space"

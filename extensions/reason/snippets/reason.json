@@ -1,0 +1,54 @@
+{
+    "function": {
+        "prefix": "let",
+        "body": ["let ${1:f} = (${2:pattern}) => ${3:${2:pattern}};$0"]
+    },
+    "function (block)": {
+        "prefix": "let",
+        "body": ["let ${1:f} = (${2:pattern}) => {", "\t${3:${2:pattern}}$0", "};"]
+    },
+    "lambda": {
+        "prefix": "fun",
+        "body": ["(${1:pattern}) => ${2:${1:pattern}}"]
+    },
+    "lambda (switch)": {
+        "prefix": "fun",
+        "body": ["fun", "\t| ${1:pattern} => ${2:${1:pattern}}", "\t;"]
+    },
+    "let": {
+        "prefix": "let",
+        "body": ["let ${1:pattern} = ${2:()};$0"]
+    },
+    "let (block)": {
+        "prefix": "let",
+        "body": ["let ${1:pattern} = {", "\t$0", "};"]
+    },
+    "module": {
+        "prefix": "module",
+        "body": ["module ${1:M} = ${2:{}};$0"]
+    },
+    "module (block)": {
+        "prefix": "module",
+        "body": ["module ${1:M} = {", "\t$0", "};"]
+    },
+    "module function": {
+        "prefix": "module",
+        "body": ["module ${1:M} = (${2:X}: $3{:{}}) => ${4:${2:X}};$0"]
+    },
+    "module function (block)": {
+        "prefix": "module",
+        "body": ["module ${1:M} = (${2:X}: $3{:{}}) => {", "\t${4:include ${2:X}}", "\t$0", "};"]
+    },
+    "switch": {
+        "prefix": "switch",
+        "body": ["switch ${1:scrutinee} {", "| ${2:pattern} => ${3:${2:pattern}}", "};"]
+    },
+    "type (alias or abstract)": {
+        "prefix": "type",
+        "body": ["type ${1:name} ${2:${3:'${4:arg} }= ${5:'${4:arg}}};$0"]
+    },
+    "type": {
+        "prefix": "type",
+        "body": ["type ${1:name} ${2:'${3:arg} }=", "\t| ${4:Con${2: '${3:arg}}}", "\t;"]
+    }
+}
