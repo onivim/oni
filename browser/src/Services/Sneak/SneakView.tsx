@@ -41,7 +41,11 @@ export class SneakView extends React.PureComponent<ISneakViewProps, ISneakViewSt
             sneak => sneak.triggerKeys.indexOf(normalizedFilterText) === 0,
         )
         const sneaks = filteredSneaks.map(si => (
-            <SneakItemView sneak={si} filterLength={normalizedFilterText.length} />
+            <SneakItemView
+                sneak={si}
+                filterLength={normalizedFilterText.length}
+                key={si.triggerKeys}
+            />
         ))
 
         if (filteredSneaks.length === 1) {
@@ -68,14 +72,21 @@ export interface ISneakItemViewProps {
     filterLength: number
 }
 
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
+
+const SneakEnterKeyFrames = keyframes`
+    0% { opacity: 0; transform: scale(0.9) translateY(-5px) rotateX(-70deg); }
+    100%% { opacity: 1; transform: scale(1.0) translateY(0px) rotateX(0deg); }
+`
 
 const SneakItemWrapper = styled.div`
     ${boxShadow} background-color: ${props => props.theme["highlight.mode.visual.background"]};
     color: ${props => props.theme["highlight.mode.visual.foreground"]};
+    animation: ${SneakEnterKeyFrames} 0.2s ease-in;
+    text-align: center;
 `
 
-const SneakItemViewSize = 20
+const SneakItemViewSize = 22
 const px = (num: number): string => num.toString() + "px"
 export class SneakItemView extends React.PureComponent<ISneakItemViewProps, {}> {
     public render(): JSX.Element {
