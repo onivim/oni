@@ -48,7 +48,16 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
 
             const layerElements = layers.map(l => {
                 return (
-                    <div key={l.id} style={InnerLayerStyle}>
+                    <div
+                        key={
+                            l.id +
+                            "." +
+                            windowState.windowId.toString() +
+                            "." +
+                            windowState.bufferId.toString()
+                        }
+                        style={InnerLayerStyle}
+                    >
                         {l.render(layerContext)}
                     </div>
                 )
