@@ -146,8 +146,9 @@ export class OniEditor implements IEditor {
             wrapReactComponentWithLayer("oni.layer.errors", <ErrorsContainer />),
         )
 
+        const extensions = this._configuration.getValue("editor.imageLayerExtensions")
         this._neovimEditor.bufferLayers.addBufferLayer(
-            buf => [".gif", ".jpg", ".jpeg", ".bmp", ".png"].includes(path.extname(buf.filePath)),
+            buf => extensions.includes(path.extname(buf.filePath)),
             buf => new ImageBufferLayer(buf),
         )
     }
