@@ -63,24 +63,10 @@ export class QuickOpen {
         return this._menu && this._menu.isOpen()
     }
 
-    public openFileNewTab(): void {
+    public openFile(openFileMode: Oni.FileOpenMode = Oni.FileOpenMode.NewTab): void {
         const selectedItem = this._menu.selectedItem
         if (selectedItem) {
-            this._onItemSelected(selectedItem, Oni.FileOpenMode.NewTab)
-        }
-    }
-
-    public openFileHorizontal(): void {
-        const selectedItem = this._menu.selectedItem
-        if (selectedItem) {
-            this._onItemSelected(selectedItem, Oni.FileOpenMode.HorizontalSplit)
-        }
-    }
-
-    public openFileVertical(): void {
-        const selectedItem = this._menu.selectedItem
-        if (selectedItem) {
-            this._onItemSelected(selectedItem, Oni.FileOpenMode.VerticalSplit)
+            this._onItemSelected(selectedItem, openFileMode)
         }
     }
 
