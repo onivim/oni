@@ -44,6 +44,8 @@ const layoutFromSplitInfoHelper = (
     }
 
     // Recursive case
+    //
+    // TODO: Handle specified sizes for the windows. We're just distributing the space evenly, currently.
     const splitWidth =
         split.direction === "horizontal" ? rectangle.width / split.splits.length : rectangle.width
     const splitHeight =

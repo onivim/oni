@@ -85,6 +85,7 @@ export class WindowSplitView extends React.PureComponent<IWindowSplitViewProps, 
     public render(): JSX.Element {
         const className = "container horizontal full"
 
+        // TODO: Add drag handles here to allow for resizing!
         return (
             <div className={className}>
                 <AutoSizer>
