@@ -68,15 +68,21 @@ export class SnippetManager {
             }
         })
 
-        const s2 = activeEditor.onBufferChanged.subscribe(() => {
+        const s2 = activeEditor.onModeChanged.subscribe(() => {
+            if (this.isSnippetActive()) {
+                this._activeSession.updateCursorPosition()
+            }
+        })
+
+        const s3 = activeEditor.onBufferChanged.subscribe(() => {
             this._synchronizeSnippetObservable.next()
         })
 
-        const s3 = snippetSession.onCancel.subscribe(() => {
+        const s4 = snippetSession.onCancel.subscribe(() => {
             this.cancel()
         })
 
-        this._disposables = [s1, s2, s3]
+        this._disposables = [s1, s2, s3, s4]
 
         this._activeSession = snippetSession
     }
