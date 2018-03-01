@@ -8,10 +8,10 @@
 import {
     Direction,
     IAugmentedSplitInfo,
+    ISplitInfo,
     IWindowSplitProvider,
     SingleSplitProvider,
     SplitDirection,
-    ISplitInfo,
 } from "./index"
 
 export const getInverseDirection = (splitDirection: SplitDirection): SplitDirection => {

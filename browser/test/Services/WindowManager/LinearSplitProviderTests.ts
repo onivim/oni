@@ -4,7 +4,7 @@
 
 import * as assert from "assert"
 
-import { LinearSplitProvider, ISplitLeaf, ISplitInfo } from "./../../../src/Services/WindowManager"
+import { ISplitInfo, ISplitLeaf, LinearSplitProvider } from "./../../../src/Services/WindowManager"
 
 export class MockWindowSplit {
     constructor(private _id: string = "mock.window") {}
@@ -108,11 +108,11 @@ describe("LinearSplitProviderTests", () => {
         it("simple vertical split case", () => {
             const splitProvider = new LinearSplitProvider("horizontal")
 
-            const split0 = new MockWindowSplit()
-            const split1 = new MockWindowSplit()
+            const mockSplit0 = new MockWindowSplit()
+            const mockSplit1 = new MockWindowSplit()
 
-            splitProvider.split(split0, "vertical")
-            splitProvider.split(split1, "vertical", split0)
+            splitProvider.split(mockSplit0, "vertical")
+            splitProvider.split(mockSplit1, "vertical", mockSplit0)
 
             const state = splitProvider.getState()
 
@@ -120,18 +120,18 @@ describe("LinearSplitProviderTests", () => {
             const splitState1: ISplitLeaf<MockWindowSplit> = state.splits[1] as any
 
             assert.strictEqual(state.direction, "horizontal")
-            assert.strictEqual(splitState0.contents, split0)
-            assert.strictEqual(splitState1.contents, split1)
+            assert.strictEqual(splitState0.contents, mockSplit0)
+            assert.strictEqual(splitState1.contents, mockSplit1)
         })
 
         it("simple horizontal split case", () => {
             const splitProvider = new LinearSplitProvider("vertical")
 
-            const split0 = new MockWindowSplit()
-            const split1 = new MockWindowSplit()
+            const mockSplit0 = new MockWindowSplit()
+            const mockSplit1 = new MockWindowSplit()
 
-            splitProvider.split(split0, "horizontal")
-            splitProvider.split(split1, "horizontal", split0)
+            splitProvider.split(mockSplit0, "horizontal")
+            splitProvider.split(mockSplit1, "horizontal", mockSplit0)
 
             const state = splitProvider.getState()
 
@@ -139,8 +139,8 @@ describe("LinearSplitProviderTests", () => {
             const splitState1: ISplitLeaf<MockWindowSplit> = state.splits[1] as any
 
             assert.strictEqual(state.direction, "vertical")
-            assert.strictEqual(splitState0.contents, split0)
-            assert.strictEqual(splitState1.contents, split1)
+            assert.strictEqual(splitState0.contents, mockSplit0)
+            assert.strictEqual(splitState1.contents, mockSplit1)
         })
 
         // Test split arrangement like:
@@ -150,23 +150,23 @@ describe("LinearSplitProviderTests", () => {
         it("nested horizontal split case", () => {
             const splitProvider = new LinearSplitProvider("horizontal")
 
-            const split0 = new MockWindowSplit()
-            const split1 = new MockWindowSplit()
+            const mockSplit0 = new MockWindowSplit()
+            const mockSplit1 = new MockWindowSplit()
 
-            splitProvider.split(split0, "vertical")
-            splitProvider.split(split1, "vertical", split0)
+            splitProvider.split(mockSplit0, "vertical")
+            splitProvider.split(mockSplit1, "vertical", mockSplit0)
 
-            // Now, add a horizontal split against split1
+            // Now, add a horizontal split against mockSplit1
             const split2 = new MockWindowSplit()
 
-            splitProvider.split(split2, "horizontal", split1)
+            splitProvider.split(split2, "horizontal", mockSplit1)
 
             const state = splitProvider.getState()
 
             assert.strictEqual(state.direction, "horizontal", "Verify root is still horizontal")
             const verticalSplitLeft = state.splits[0] as ISplitLeaf<MockWindowSplit>
             assert.strictEqual(verticalSplitLeft.type, "Leaf")
-            assert.strictEqual(verticalSplitLeft.contents, split0)
+            assert.strictEqual(verticalSplitLeft.contents, mockSplit0)
 
             const verticalSplitRight = state.splits[1] as ISplitInfo<MockWindowSplit>
             assert.strictEqual(verticalSplitRight.type, "Split")
@@ -177,7 +177,7 @@ describe("LinearSplitProviderTests", () => {
             const verticalSplitRightChild1: ISplitLeaf<MockWindowSplit> = verticalSplitRight
                 .splits[1] as any
 
-            assert.strictEqual(verticalSplitRightChild0.contents, split1)
+            assert.strictEqual(verticalSplitRightChild0.contents, mockSplit1)
             assert.strictEqual(verticalSplitRightChild1.contents, split2)
         })
 
@@ -189,16 +189,16 @@ describe("LinearSplitProviderTests", () => {
         it("nested vertical split case", () => {
             const splitProvider = new LinearSplitProvider("vertical")
 
-            const split0 = new MockWindowSplit("split0")
-            const split1 = new MockWindowSplit("split1")
+            const mockSplit0 = new MockWindowSplit("mockSplit0")
+            const mockSplit1 = new MockWindowSplit("mockSplit1")
 
-            splitProvider.split(split0, "horizontal")
-            splitProvider.split(split1, "horizontal", split0)
+            splitProvider.split(mockSplit0, "horizontal")
+            splitProvider.split(mockSplit1, "horizontal", mockSplit0)
 
-            // Now, add a horizontal split against split1
+            // Now, add a horizontal split against mockSplit1
             const split2 = new MockWindowSplit("split2")
 
-            splitProvider.split(split2, "vertical", split0)
+            splitProvider.split(split2, "vertical", mockSplit0)
 
             const state = splitProvider.getState()
 
@@ -207,7 +207,7 @@ describe("LinearSplitProviderTests", () => {
             // Verify bottom leaf is as expected
             const horizontalSplitBottom = state.splits[1] as ISplitLeaf<MockWindowSplit>
             assert.strictEqual(horizontalSplitBottom.type, "Leaf")
-            assert.strictEqual(horizontalSplitBottom.contents, split1)
+            assert.strictEqual(horizontalSplitBottom.contents, mockSplit1)
 
             const horizontalSplitTop = state.splits[0] as ISplitInfo<MockWindowSplit>
             assert.strictEqual(horizontalSplitTop.type, "Split")
@@ -222,7 +222,7 @@ describe("LinearSplitProviderTests", () => {
             const horizontalSplitTopChild1: ISplitLeaf<MockWindowSplit> = horizontalSplitTop
                 .splits[1] as any
 
-            assert.strictEqual(horizontalSplitTopChild0.contents, split0)
+            assert.strictEqual(horizontalSplitTopChild0.contents, mockSplit0)
             assert.strictEqual(horizontalSplitTopChild1.contents, split2)
         })
     })

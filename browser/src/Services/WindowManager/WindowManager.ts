@@ -191,9 +191,9 @@ export class WindowManager {
         return new WindowSplitHandle(this._store, this, windowId)
     }
 
-    private _getAugmentedWindowSplitFromSplit(split: Oni.IWindowSplit): IAugmentedSplitInfo {
-        const augmentedWindows = Object.values(this._idToSplit)
-        return augmentedWindows.find(aw => aw.innerSplit === split) || null
+    public getSplitHandle(split: Oni.IWindowSplit): WindowSplitHandle {
+        const augmentedSplit = this._getAugmentedWindowSplitFromSplit(split)
+        return new WindowSplitHandle(this._store, this, augmentedSplit.id)
     }
 
     public move(direction: Direction): void {
@@ -250,6 +250,11 @@ export class WindowManager {
     public focusSplit(splitId: string): void {
         const split = this._idToSplit[splitId]
         this._focusNewSplit(split)
+    }
+
+    private _getAugmentedWindowSplitFromSplit(split: Oni.IWindowSplit): IAugmentedSplitInfo {
+        const augmentedWindows = Object.values(this._idToSplit)
+        return augmentedWindows.find(aw => aw.innerSplit === split) || null
     }
 
     private _focusNewSplit(newSplit: any): void {

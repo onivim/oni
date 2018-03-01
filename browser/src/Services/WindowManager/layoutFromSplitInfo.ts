@@ -8,7 +8,9 @@ import * as Oni from "oni-api"
 
 import { IAugmentedSplitInfo, ISplitInfo, SplitOrLeaf } from "./WindowManagerStore"
 
-export type LayoutResult = { [windowId: string]: Oni.Shapes.Rectangle }
+export interface LayoutResult {
+    [windowId: string]: Oni.Shapes.Rectangle
+}
 
 export const layoutFromSplitInfo = (
     splits: ISplitInfo<IAugmentedSplitInfo>,
