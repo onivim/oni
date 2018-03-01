@@ -13,7 +13,6 @@ import { NeovimInstance } from "./../../neovim"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 import { findAllReferences, format, LanguageEditorIntegration } from "./../../Services/Language"
-import { MenuManager } from "./../../Services/Menu"
 import { replaceAll } from "./../../Utility"
 
 import { Definition } from "./Definition"
@@ -28,7 +27,6 @@ export class NeovimEditorCommands {
         private _contextMenuManager: ContextMenuManager,
         private _definition: Definition,
         private _languageEditorIntegration: LanguageEditorIntegration,
-        private _menuManager: MenuManager,
         private _neovimInstance: NeovimInstance,
         private _rename: Rename,
         private _symbols: Symbols,
@@ -76,10 +74,6 @@ export class NeovimEditorCommands {
             await neovimInstance.command("set paste")
             await neovimInstance.input(sanitizedText)
             await neovimInstance.command("set nopaste")
-        }
-
-        const shouldShowMenu = () => {
-            return !this._menuManager.isMenuOpen()
         }
 
         const commands = [

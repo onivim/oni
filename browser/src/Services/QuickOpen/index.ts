@@ -23,7 +23,7 @@ export const activate = (
 
     const isOpen = () => _quickOpen.isOpen()
 
-    _quickOpen = new QuickOpen(menuManager, editorManager.activeEditor.neovim as any)
+    _quickOpen = new QuickOpen(commandManager, editorManager, menuManager, workspace)
 
     commandManager.registerCommand({
         command: "quickOpen.show",

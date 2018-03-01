@@ -10,6 +10,7 @@ import * as path from "path"
 
 import * as Oni from "oni-api"
 
+import { CommandManager } from "./../CommandManager"
 import { configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 import { Workspace } from "./../Workspace"
@@ -109,7 +110,7 @@ export class QuickOpen {
     public async showBufferLines() {
         let nu = 0
 
-        const currentLines = await editorManager.activeEditor.activeBuffer.getLines()
+        const currentLines = await this._editorManager.activeEditor.activeBuffer.getLines()
 
         const options = currentLines.map((line: string) => {
             return {
