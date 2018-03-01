@@ -745,12 +745,13 @@ export class NeovimEditor extends Editor implements IEditor {
         file: string,
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
     ): Promise<Oni.Buffer> {
+        const tabsMode = this._configuration.getValue("tabs.mode") === "tabs"
         const cmd = new Proxy(
             {
                 [Oni.FileOpenMode.NewTab]: "tabnew!",
                 [Oni.FileOpenMode.HorizontalSplit]: "sp!",
                 [Oni.FileOpenMode.VerticalSplit]: "vsp!",
-                [Oni.FileOpenMode.Edit]: "tab drop",
+                [Oni.FileOpenMode.Edit]: tabsMode ? "tab drop" : "e!",
                 [Oni.FileOpenMode.ExistingTab]: "e!",
             },
             {
