@@ -12,10 +12,12 @@ export interface IDroppeable {
     onDrop: OnDrop
     isValidDrop: IsValidDrop
     canDrop?: boolean
+    didDrop?: boolean
     accepts: string[] | string
     render: Render<{
         canDrop: boolean
         isOver?: boolean
+        didDrop?: boolean
         connectDropTarget?: DND.DropTargetConnector
     }>
 }
@@ -37,6 +39,7 @@ const DropCollect = (connect: DND.DropTargetConnector, monitor: DND.DropTargetMo
     connectDropTarget: connect.dropTarget(),
     isOver: monitor.isOver(),
     canDrop: monitor.canDrop(),
+    didDrop: monitor.didDrop(),
 })
 
 /**
@@ -45,8 +48,8 @@ const DropCollect = (connect: DND.DropTargetConnector, monitor: DND.DropTargetMo
 @DND.DropTarget<IDroppeable>(({ accepts }) => accepts, DropTarget, DropCollect)
 export class Droppeable<P extends IDroppeable> extends React.Component<P> {
     public render() {
-        const { isOver, connectDropTarget, canDrop } = this.props
-        return connectDropTarget(<div>{this.props.render({ isOver, canDrop })}</div>)
+        const { isOver, connectDropTarget, canDrop, didDrop } = this.props
+        return connectDropTarget(<div>{this.props.render({ isOver, canDrop, didDrop })}</div>)
     }
 }
 
