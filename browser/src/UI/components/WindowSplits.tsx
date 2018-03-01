@@ -98,7 +98,9 @@ export class WindowSplitView extends React.PureComponent<IWindowSplitViewProps, 
                                         containerClassName="split"
                                         split={item.split}
                                         isFocused={this.props.activeSplitId === item.split.id}
-                                        onClick={noop}
+                                        onClick={() => {
+                                            this.props.windowManager.focusSplit(split.id)
+                                        }}
                                     />
                                 </div>
                             )
