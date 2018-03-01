@@ -10,12 +10,9 @@ import * as path from "path"
 
 import * as Oni from "oni-api"
 
-import { INeovimInstance } from "./../../neovim"
-
-import { commandManager } from "./../CommandManager"
 import { configuration } from "./../Configuration"
-import { editorManager } from "./../EditorManager"
-import { getInstance as getWorkspaceInstance } from "./../Workspace"
+import { EditorManager } from "./../EditorManager"
+import { Workspace } from "./../Workspace"
 
 import { fuseFilter, Menu, MenuManager } from "./../Menu"
 
@@ -31,14 +28,15 @@ export class QuickOpen {
     private _finderProcess: FinderProcess
     private _seenItems: string[] = []
     private _loadedItems: QuickOpenItem[] = []
-    private _neovimInstance: INeovimInstance
     private _menu: Menu
     private _lastCommand: string | null = null
-    private _workspace = getWorkspaceInstance()
 
-    constructor(menuManager: MenuManager, neovimInstance: INeovimInstance) {
-        this._neovimInstance = neovimInstance
-
+    constructor(
+        private _commandManager: CommandManager,
+        private _editorManager: EditorManager,
+        menuManager: MenuManager,
+        private _workspace: Workspace,
+    ) {
         this._menu = menuManager.create()
         this._menu.onItemSelected.subscribe((selectedItem: any) => {
             this._onItemSelected(selectedItem)
@@ -195,16 +193,19 @@ export class QuickOpen {
         const arg = selectedOption
 
         if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
-            commandManager.executeCommand("oni.config.openConfigJs")
+            this._commandManager.executeCommand("oni.config.openConfigJs")
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
-            commandManager.executeCommand("oni.openFolder")
+            this._commandManager.executeCommand("oni.openFolder")
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
             if (openInSplit !== Oni.FileOpenMode.Edit) {
-                await editorManager.openFile(editorManager.activeEditor.activeBuffer.filePath, {
-                    openMode: openInSplit,
-                })
+                await this._editorManager.openFile(
+                    this._editorManager.activeEditor.activeBuffer.filePath,
+                    {
+                        openMode: openInSplit,
+                    },
+                )
             }
-            await this._neovimInstance.command(`${arg.label}`)
+            await this._editorManager.activeEditor.neovim.command(`${arg.label}`)
         } else {
             const { activeWorkspace } = this._workspace
             const pathArgs = activeWorkspace
@@ -215,10 +216,10 @@ export class QuickOpen {
 
             this._seenItems.push(fullPath)
 
-            editorManager.openFile(fullPath, { openMode: openInSplit })
+            await this._editorManager.openFile(fullPath, { openMode: openInSplit })
 
             if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folder)) {
-                this._neovimInstance.chdir(fullPath)
+                this._workspace.changeDirectory(fullPath)
             }
 
             // If we are bookmark, and we open a file, the open it's dirname
@@ -231,9 +232,9 @@ export class QuickOpen {
                 )
 
                 if (lstatSync(fullPath).isDirectory()) {
-                    this._neovimInstance.chdir(fullPath)
+                    this._workspace.changeDirectory(fullPath)
                 } else {
-                    this._neovimInstance.chdir(arg.detail)
+                    this._workspace.changeDirectory(arg.detail)
                 }
             }
         }
