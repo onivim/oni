@@ -704,6 +704,25 @@ export class NeovimEditor extends Editor implements IEditor {
     public async setSelection(range: types.Range): Promise<void> {
         await this._neovimInstance.input("<esc>")
 
+        // Clear out any pending block selection
+        // Without this, if there was a line-wise visual selection,
+        // range selection would not work correctly.
+        const atomicCallsVisualMode = [
+            [
+                "nvim_call_function",
+                ["setpos", [".", [0, range.start.line + 1, range.start.character + 1]]],
+            ],
+            ["nvim_command", ["normal! v"]],
+            [
+                "nvim_call_function",
+                ["setpos", [".", [0, range.end.line + 1, range.end.character + 1]]],
+            ],
+        ]
+        await this._neovimInstance.request("nvim_call_atomic", [atomicCallsVisualMode])
+        await this._neovimInstance.input("<esc>")
+
+        // Re-select the selection and switch to 'select' mode so that typing
+        // overwrites the selection
         const atomicCalls = [
             [
                 "nvim_call_function",
@@ -713,6 +732,7 @@ export class NeovimEditor extends Editor implements IEditor {
                 "nvim_call_function",
                 ["setpos", ["'>", [0, range.end.line + 1, range.end.character + 1]]],
             ],
+            // ["nvim_command", ["normal! v"]],
             ["nvim_command", ["set selectmode=cmd"]],
             ["nvim_command", ["normal! gv"]],
             ["nvim_command", ["set selectmode="]],
