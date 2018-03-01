@@ -69,12 +69,14 @@ import { AutoSizer } from "react-virtualized"
 const px = (num: number): string => num.toString() + "px"
 
 const rectangleToStyleProperties = (rect: Oni.Shapes.Rectangle): React.CSSProperties => {
+    const halfPadding = 3
+    const topPosition = rect.y === 0 ? 0 : Math.ceil(rect.y) + halfPadding
     return {
         position: "absolute",
-        top: px(rect.y),
-        left: px(rect.x),
-        width: px(rect.width),
-        height: px(rect.height),
+        top: px(topPosition),
+        left: px(Math.ceil(rect.x) + halfPadding),
+        width: px(Math.floor(rect.width) - halfPadding * 2),
+        height: px(Math.floor(rect.height) - halfPadding * 2),
     }
 }
 import * as Oni from "oni-api"
