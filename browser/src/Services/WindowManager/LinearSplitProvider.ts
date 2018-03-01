@@ -76,7 +76,7 @@ export class LinearSplitProvider implements IWindowSplitProvider {
             return false
         }
 
-        const result = containingSplit.split(split, direction)
+        const result = containingSplit.split(split, direction, referenceSplit)
 
         // Containing split handled it, so we're good
         if (result) {

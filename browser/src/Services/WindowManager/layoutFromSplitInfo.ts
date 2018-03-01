@@ -8,8 +8,13 @@ import * as Oni from "oni-api"
 
 import { IAugmentedSplitInfo, ISplitInfo, SplitOrLeaf } from "./WindowManagerStore"
 
+export interface LayoutResultInfo {
+    rectangle: Oni.Shapes.Rectangle
+    split: IAugmentedSplitInfo
+}
+
 export interface LayoutResult {
-    [windowId: string]: Oni.Shapes.Rectangle
+    [windowId: string]: LayoutResultInfo
 }
 
 export const layoutFromSplitInfo = (
@@ -26,7 +31,12 @@ const layoutFromSplitInfoHelper = (
 ): LayoutResult => {
     // Base case..
     if (split.type === "Leaf") {
-        return { [split.contents.id]: rectangle }
+        return {
+            [split.contents.id]: {
+                rectangle,
+                split: split.contents,
+            },
+        }
     }
 
     if (split.splits.length === 0) {
