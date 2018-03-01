@@ -11,6 +11,10 @@ export class MockWindowSplit {
         return "mock.window"
     }
 
+    public get innerSplit(): any {
+        return null
+    }
+
     public render(): JSX.Element {
         return null
     }

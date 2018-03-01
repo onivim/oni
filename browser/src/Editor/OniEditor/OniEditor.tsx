@@ -177,30 +177,36 @@ export class OniEditor implements IEditor {
                 openMode === Oni.FileOpenMode.HorizontalSplit ||
                 openMode === Oni.FileOpenMode.VerticalSplit
             ) {
-                const newEditor = new OniEditor(
-                    this._colors,
-                    this._completionProviders,
-                    this._configuration,
-                    this._diagnostics,
-                    this._languageManager,
-                    this._menuManager,
-                    this._overlayManager,
-                    this._pluginManager,
-                    this._snippetManager,
-                    this._tasks,
-                    this._themeManager,
-                    this._tokenColors,
-                    this._workspace,
-                )
-
                 // TODO
-                windowManager.createSplit("vertical", newEditor)
-                await newEditor.init([])
+                const newEditor = await this._split("vertical")
                 return newEditor.openFile(file, { openMode: Oni.FileOpenMode.Edit })
             }
         }
 
         return this._neovimEditor.openFile(file, openOptions)
+    }
+
+    private async _split(direction: any): Promise<OniEditor> {
+        const newEditor = new OniEditor(
+            this._colors,
+            this._completionProviders,
+            this._configuration,
+            this._diagnostics,
+            this._languageManager,
+            this._menuManager,
+            this._overlayManager,
+            this._pluginManager,
+            this._snippetManager,
+            this._tasks,
+            this._themeManager,
+            this._tokenColors,
+            this._workspace,
+        )
+
+        // TODO
+        windowManager.createSplit(direction, newEditor, this)
+        await newEditor.init([])
+        return newEditor
     }
 
     public async newFile(filePath: string): Promise<Oni.Buffer> {
