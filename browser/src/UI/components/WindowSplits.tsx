@@ -5,14 +5,15 @@
  */
 
 import * as React from "react"
-
 import { connect } from "react-redux"
+import { AutoSizer } from "react-virtualized"
 
 import { WindowSplitHost } from "./WindowSplitHost"
 
 import {
     IAugmentedSplitInfo,
     ISplitInfo,
+    layoutFromSplitInfo,
     leftDockSelector,
     WindowManager,
     WindowState,
@@ -61,10 +62,6 @@ export interface IWindowSplitViewProps {
     split: ISplitInfo<IAugmentedSplitInfo>
     windowManager: WindowManager
 }
-
-import { layoutFromSplitInfo } from "./../../Services/WindowManager"
-
-import { AutoSizer } from "react-virtualized"
 
 const px = (num: number): string => num.toString() + "px"
 
