@@ -157,9 +157,9 @@ describe("LinearSplitProviderTests", () => {
             splitProvider.split(mockSplit1, "vertical", mockSplit0)
 
             // Now, add a horizontal split against mockSplit1
-            const split2 = new MockWindowSplit()
+            const mockSplit2 = new MockWindowSplit()
 
-            splitProvider.split(split2, "horizontal", mockSplit1)
+            splitProvider.split(mockSplit2, "horizontal", mockSplit1)
 
             const state = splitProvider.getState()
 
@@ -178,7 +178,7 @@ describe("LinearSplitProviderTests", () => {
                 .splits[1] as any
 
             assert.strictEqual(verticalSplitRightChild0.contents, mockSplit1)
-            assert.strictEqual(verticalSplitRightChild1.contents, split2)
+            assert.strictEqual(verticalSplitRightChild1.contents, mockSplit2)
         })
 
         // Test split arrangement like:
@@ -196,9 +196,9 @@ describe("LinearSplitProviderTests", () => {
             splitProvider.split(mockSplit1, "horizontal", mockSplit0)
 
             // Now, add a horizontal split against mockSplit1
-            const split2 = new MockWindowSplit("split2")
+            const mockSplit2 = new MockWindowSplit("mockSplit2")
 
-            splitProvider.split(split2, "vertical", mockSplit0)
+            splitProvider.split(mockSplit2, "vertical", mockSplit0)
 
             const state = splitProvider.getState()
 
@@ -223,7 +223,7 @@ describe("LinearSplitProviderTests", () => {
                 .splits[1] as any
 
             assert.strictEqual(horizontalSplitTopChild0.contents, mockSplit0)
-            assert.strictEqual(horizontalSplitTopChild1.contents, split2)
+            assert.strictEqual(horizontalSplitTopChild1.contents, mockSplit2)
         })
     })
 })
