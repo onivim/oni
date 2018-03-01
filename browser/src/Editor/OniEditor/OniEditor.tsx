@@ -178,7 +178,7 @@ export class OniEditor implements IEditor {
                 openMode === Oni.FileOpenMode.VerticalSplit
             ) {
                 // TODO
-                const newEditor = await this._split("vertical")
+                const newEditor = await this._split("horizontal")
                 return newEditor.openFile(file, { openMode: Oni.FileOpenMode.Edit })
             }
         }
