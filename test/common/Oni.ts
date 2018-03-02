@@ -93,15 +93,27 @@ export class Oni {
         log("Oni started. Waiting for window load..")
         await this.client.waitUntilWindowLoaded()
         const count = await this.client.getWindowCount()
-        assert.equal(count, 1)
+        assert.ok(count > 0)
 
-        log("Window loaded.")
+        log(`Window loaded. Reports ${count} windows.`)
     }
 
     public async close(): Promise<void> {
         log("Closing Oni...")
-        if (this._app && this._app.isRunning()) {
-            await this._app.stop()
+        if (this._app) {
+            let attempts = 1
+            while (attempts < 5) {
+                log("- Calling _app.stop")
+                await this._app.stop()
+                log("- _app.stop call completed")
+
+                if (!this._app.isRunning()) {
+                    log("- _app.isRunning() is now false")
+                    break
+                }
+
+                attempts++
+            }
         }
         log("Oni closed.")
     }
