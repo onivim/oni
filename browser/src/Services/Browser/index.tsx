@@ -62,6 +62,8 @@ export const activate = (
 
     const openUrl = async (url: string, openMode: Oni.FileOpenMode = Oni.FileOpenMode.NewTab) => {
         if (configuration.getValue("experimental.browser.enabled")) {
+            url = url || configuration.getValue("browser.defaultUrl")
+
             count++
             const buffer: Oni.Buffer = await editorManager.activeEditor.openFile(
                 "Browser" + count.toString(),
@@ -81,15 +83,14 @@ export const activate = (
             command: "browser.openUrl.verticalSplit",
             name: "Browser: Open in Vertical Split",
             detail: "Open a browser window",
-            execute: () => openUrl("https://github.com/onivim/oni", Oni.FileOpenMode.VerticalSplit),
+            execute: (url?: string) => openUrl(url, Oni.FileOpenMode.VerticalSplit),
         })
 
         commandManager.registerCommand({
             command: "browser.openUrl.horizontalSplit",
             name: "Browser: Open in Horizontal Split",
             detail: "Open a browser window",
-            execute: () =>
-                openUrl("https://github.com/onivim/oni", Oni.FileOpenMode.HorizontalSplit),
+            execute: (url?: string) => openUrl(url, Oni.FileOpenMode.HorizontalSplit),
         })
     }
 
