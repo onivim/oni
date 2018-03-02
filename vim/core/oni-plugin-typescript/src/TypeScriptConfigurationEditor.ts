@@ -96,7 +96,7 @@ export class TypeScriptConfigurationEditor {
             reportDiagnostics: true,
             compilerOptions: {
                 jsx: "React",
-            },
+            } as any,
         })
 
         return output.outputText
