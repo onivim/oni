@@ -89,10 +89,11 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         accepts={[Types.FILE, Types.FOLDER]}
                         isValidDrop={this.isSameNode}
                         node={node}
-                        render={({ canDrop, isOver }) => {
+                        render={({ canDrop, didDrop, isOver }) => {
                             return (
                                 <SidebarItemView
                                     isOver={isOver && canDrop}
+                                    didDrop={didDrop}
                                     canDrop={canDrop}
                                     text={node.name}
                                     isFocused={this.props.isSelected}
@@ -131,9 +132,10 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         isValidDrop={this.isSameNode}
                         onDrop={this.moveFileOrFolder}
                         node={node}
-                        render={({ isOver, canDrop }) => {
+                        render={({ isOver, didDrop, canDrop }) => {
                             return (
                                 <SidebarContainerView
+                                    didDrop={didDrop}
                                     isOver={isOver && canDrop}
                                     isContainer={false}
                                     isExpanded={node.expanded}

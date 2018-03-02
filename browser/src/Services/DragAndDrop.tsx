@@ -94,6 +94,7 @@ export class Draggeable<P extends IDraggeable> extends React.Component<P> {
 
 interface IDragDrop {
     isOver?: boolean
+    didDrop?: boolean
     onDrop: OnDrop
     accepts: string[] | string
     connectDropTarget?: any
@@ -102,7 +103,7 @@ interface IDragDrop {
     dragTarget: string
     isDragging?: boolean
     connectDragSource?: any
-    render: Render<{ canDrop?: boolean; isOver?: boolean; isDragging: boolean }>
+    render: Render<{ didDrop?: boolean; canDrop?: boolean; isOver?: boolean; isDragging?: boolean }>
 }
 
 /**
@@ -112,9 +113,8 @@ interface IDragDrop {
 @DND.DragSource<IDragDrop>(props => props.dragTarget, DragSource, DragCollect)
 export class DragAndDrop<P extends IDragDrop> extends React.Component<P> {
     public render() {
-        const { isDragging, canDrop, isOver, connectDragSource, connectDropTarget } = this.props
-        return connectDropTarget(
-            connectDragSource(<div>{this.props.render({ isDragging, canDrop, isOver })}</div>),
-        )
+        const { connectDragSource, connectDropTarget } = this.props
+
+        return connectDropTarget(connectDragSource(<div>{this.props.render(this.props)}</div>))
     }
 }
