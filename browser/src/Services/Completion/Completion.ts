@@ -95,7 +95,7 @@ export class Completion implements IDisposable {
             this._onModeChanged(newMode)
         })
 
-        const sub4 = (this._editor as any).onCursorMoved.subscribe((cursor: Oni.Cursor) => {
+        const sub4 = this._editor.onCursorMoved.subscribe((cursor: Oni.Cursor) => {
             this._onCursorMoved(cursor)
         })
 

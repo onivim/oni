@@ -13,7 +13,7 @@ import { Subject } from "rxjs/Subject"
 
 import { EditorManager } from "./../EditorManager"
 
-import { OniSnippet } from "./OniSnippet"
+import { SnippetBufferLayer } from "./SnippetBufferLayer"
 import { CompositeSnippetProvider, ISnippetProvider } from "./SnippetProvider"
 import { SnippetSession } from "./SnippetSession"
 
@@ -22,14 +22,15 @@ import { ISnippet } from "./ISnippet"
 export class SnippetManager {
     private _activeSession: SnippetSession
     private _disposables: IDisposable[] = []
+    private _currentLayer: SnippetBufferLayer = null
 
     private _snippetProvider: CompositeSnippetProvider
-    private _synchronizeSnippetObseravble: Subject<void> = new Subject<void>()
+    private _synchronizeSnippetObservable: Subject<void> = new Subject<void>()
 
     constructor(private _editorManager: EditorManager) {
         this._snippetProvider = new CompositeSnippetProvider()
 
-        this._synchronizeSnippetObseravble.auditTime(50).subscribe(() => {
+        this._synchronizeSnippetObservable.auditTime(50).subscribe(() => {
             const activeEditor = this._editorManager.activeEditor as any
             const activeSession = this._activeSession
 
@@ -54,21 +55,34 @@ export class SnippetManager {
         this.cancel()
         Log.info("[SnippetManager::insertSnippet]")
 
-        const snip = new OniSnippet(snippet)
-
         const activeEditor = this._editorManager.activeEditor as any
-        const snippetSession = new SnippetSession(activeEditor as any, snip)
+        const snippetSession = new SnippetSession(activeEditor as any, snippet)
         await snippetSession.start()
 
-        const s2 = activeEditor.onBufferChanged.subscribe(() => {
-            this._synchronizeSnippetObseravble.next()
+        const buffer = this._editorManager.activeEditor.activeBuffer
+        this._currentLayer = new SnippetBufferLayer(buffer, snippetSession)
+
+        const s1 = activeEditor.onCursorMoved.subscribe(() => {
+            if (this.isSnippetActive()) {
+                this._activeSession.updateCursorPosition()
+            }
         })
 
-        const s3 = snippetSession.onCancel.subscribe(() => {
+        const s2 = activeEditor.onModeChanged.subscribe(() => {
+            if (this.isSnippetActive()) {
+                this._activeSession.updateCursorPosition()
+            }
+        })
+
+        const s3 = activeEditor.onBufferChanged.subscribe(() => {
+            this._synchronizeSnippetObservable.next()
+        })
+
+        const s4 = snippetSession.onCancel.subscribe(() => {
             this.cancel()
         })
 
-        this._disposables = [s2, s3]
+        this._disposables = [s1, s2, s3, s4]
 
         this._activeSession = snippetSession
     }
@@ -92,6 +106,10 @@ export class SnippetManager {
     public cancel(): void {
         if (this._activeSession) {
             this._cleanupAfterSession()
+        }
+
+        if (this._currentLayer) {
+            this._currentLayer.dispose()
         }
     }
 

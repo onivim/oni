@@ -1,0 +1,21 @@
+{
+    "name": "html",
+    "version": "0.0.1",
+    "description": "HTML extension for Oni",
+    "engines": {
+        "oni": "0.2.18"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "contributes": {
+        "snippets": [
+            {
+                "language": "html",
+                "path": "snippets/html.json"
+            }
+        ]
+    },
+    "author": "",
+    "license": "MIT"
+}

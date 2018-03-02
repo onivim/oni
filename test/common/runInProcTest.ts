@@ -64,7 +64,9 @@ const serializeConfig = (configValues: { [key: string]: any }): string => {
         return `"${key}": ${JSON.stringify(configValues[key])},`
     })
 
-    const outputConfig = `module.exports = {${stringifiedConfig.join(os.EOL)}}`
+    const outputConfig = `// User Configuration${os.EOL}${os.EOL}module.exports = {${
+        os.EOL
+    }${stringifiedConfig.join(os.EOL)}${os.EOL}}`
 
     const folder = os.tmpdir()
     const fileName = "config_" + new Date().getTime().toString() + ".js"
@@ -99,10 +101,13 @@ const ensureOniNotRunning = async () => {
         oniProcesses.forEach(processInfo => {
             console.log(` - Name: ${processInfo.name} PID: ${processInfo.pid}`)
         })
-        const isOniProcess = processInfo => processInfo.name.indexOf("oni") >= 0
+        const isOniProcess = processInfo =>
+            processInfo.name.toLowerCase().indexOf("oni") >= 0 ||
+            processInfo.name.toLowerCase().indexOf("chromedriver") >= 0
         const filteredProcesses = oniProcesses.filter(isOniProcess)
 
         if (filteredProcesses.length === 0) {
+            console.log("No Oni processes found - leaving.")
             return
         }
 
@@ -168,7 +173,7 @@ export const runInProcTest = (
             oni.client.execute("Oni.automation.runTest('" + testCase.testPath + "')")
 
             logWithTimeStamp("Waiting for result...") // tslint:disable-line
-            const value = await oni.client.waitForExist(".automated-test-result", 60000)
+            const value = await oni.client.waitForExist(".automated-test-result", 300000)
             logWithTimeStamp("waitForExist for 'automated-test-result' complete: " + value)
 
             console.log("Retrieving logs...")
@@ -192,6 +197,11 @@ export const runInProcTest = (
                 console.log("")
                 console.log("---LOGS (Renderer): " + testName)
                 writeLogs(rendererLogs)
+                console.log("--- " + testName + " ---")
+
+                const mainProcessLogs: any[] = await oni.client.getMainProcessLogs()
+                console.log("---LOGS (Main): " + testName)
+                writeLogs(mainProcessLogs)
                 console.log("--- " + testName + " ---")
             } else {
                 console.log("-- LOGS: Skipped writing logs because the test passed.")

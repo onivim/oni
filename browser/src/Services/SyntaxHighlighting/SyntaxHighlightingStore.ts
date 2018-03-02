@@ -195,7 +195,7 @@ const updateTokenMiddleware = (store: any) => (next: any) => (action: any) => {
 
             if (
                 Object.keys(buffer.lines).length >=
-                configuration.getValue("experimental.editor.textMateHighlighting.maxLines")
+                configuration.getValue("editor.textMateHighlighting.maxLines")
             ) {
                 Log.info(
                     "[SyntaxHighlighting - fullBufferUpdateEpic]: Not applying syntax highlighting as the maxLines limit was exceeded",

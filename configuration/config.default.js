@@ -32,7 +32,7 @@ module.exports = {
     //"oni.bookmarks": ["~/Documents"],
     //"oni.loadInitVim": false,
     //"editor.fontSize": "14px",
-    //"editor.fontFamily": "Monaco"
+    //"editor.fontFamily": "Monaco",
 
     // UI customizations
     "ui.animations.enabled": true,

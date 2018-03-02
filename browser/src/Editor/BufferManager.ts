@@ -44,6 +44,32 @@ import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 export interface IBuffer extends Oni.Buffer {
     getCursorPosition(): Promise<types.Position>
     handleInput(key: string): boolean
+    detectIndentation(): Promise<BufferIndentationInfo>
+}
+
+export type IndentationType = "tab" | "space"
+
+export interface BufferIndentationInfo {
+    type: IndentationType
+
+    // If indentation is 'space', this is how
+    // many spaces are at a particular tabstop
+    amount: number
+
+    // String value for indentation
+    indent: string
+}
+
+const getStringFromTypeAndAmount = (type: IndentationType, amount: number): string => {
+    if (type === "tab") {
+        return "\t"
+    } else {
+        let str = ""
+        for (let i = 0; i < amount; i++) {
+            str += " "
+        }
+        return str
+    }
 }
 
 export class Buffer implements IBuffer {
@@ -99,6 +125,10 @@ export class Buffer implements IBuffer {
         this._actions.addBufferLayer(parseInt(this._id, 10), layer)
     }
 
+    public removeLayer(layer: IBufferLayer): void {
+        this._actions.removeBufferLayer(parseInt(this._id, 10), layer)
+    }
+
     public async getCursorPosition(): Promise<types.Position> {
         const pos = await this._neovimInstance.callFunction("getpos", ["."])
         const [, oneBasedLine, oneBasedColumn] = pos
@@ -128,11 +158,42 @@ export class Buffer implements IBuffer {
     }
 
     public async setLanguage(language: string): Promise<void> {
+        this._language = language
         await this._neovimInstance.request<any>("nvim_buf_set_option", [
             parseInt(this._id, 10),
             "filetype",
             language,
         ])
+    }
+
+    public async detectIndentation(): Promise<BufferIndentationInfo> {
+        const bufferLinesPromise = this.getLines(0, 1024)
+        const detectIndentPromise = import("detect-indent")
+
+        await Promise.all([bufferLinesPromise, detectIndentPromise])
+
+        const bufferLines = await bufferLinesPromise
+        const detectIndent = await detectIndentPromise
+
+        const ret = detectIndent(bufferLines.join("\n"))
+
+        // We were able to infer tab settings from lines, so return
+        if (ret.type === "tab" || ret.type === "space") {
+            return ret
+        }
+
+        // Otherwise, we'll fall back to getting vim tab settings
+        const isSpaces = await this._neovimInstance.request<boolean>("nvim_get_option", [
+            "expandtab",
+        ])
+        const tabSize = await this._neovimInstance.request<number>("nvim_get_option", ["tabstop"])
+
+        const tabType = isSpaces ? "space" : "tab"
+        return {
+            amount: tabSize,
+            type: tabType,
+            indent: getStringFromTypeAndAmount(tabType, tabSize),
+        }
     }
 
     public async applyTextEdits(textEdits: types.TextEdit | types.TextEdit[]): Promise<void> {

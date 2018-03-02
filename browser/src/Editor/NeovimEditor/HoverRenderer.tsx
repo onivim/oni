@@ -78,7 +78,7 @@ export class HoverRenderer {
         // Remove falsy values as check below [null] is truthy
         const elements = [...errorElements, quickInfoElement].filter(Boolean)
 
-        if (this._configuration.getValue("experimental.editor.textMateHighlighting.debugScopes")) {
+        if (this._configuration.getValue("editor.textMateHighlighting.debugScopes")) {
             elements.push(this._getDebugScopesElement())
         }
 

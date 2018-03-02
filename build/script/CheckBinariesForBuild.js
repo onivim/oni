@@ -62,7 +62,15 @@ if (isAuthenticated && foldersExist) {
     console.log("- Copying files from cache")
     copyFolders(cachePath, rootPath)
     console.log("- Copy complete!")
-} else {
+}
+
+// Check again, now that files were copied if they needed to be copied
+
+const finalCheckForBinaries = doBinFoldersExist(rootPath)
+
+console.log(" - Final check for binaries in node_modules: " + finalCheckForBinaries)
+
+if (!finalCheckForBinaries) {
     console.log("Binary folders do not exist, cancelling build")
     process.exit(1)
 }

@@ -19,6 +19,7 @@ const CiTests = [
     "AutoCompletionTest-TypeScript",
     "Editor.ExternalCommandLineTest",
     "Editor.BufferModifiedState",
+    "Editor.OpenFile.PathWithSpacesTest",
     "Editor.TabModifiedState",
     "LargeFileTest",
     "MarkdownPreviewTest",
