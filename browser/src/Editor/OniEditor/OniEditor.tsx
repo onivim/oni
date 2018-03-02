@@ -44,7 +44,7 @@ import { ErrorsContainer } from "./containers/ErrorsContainer"
 
 import { NeovimEditor } from "./../NeovimEditor"
 
-import { windowManager } from "./../../Services/WindowManager"
+import { windowManager, SplitDirection } from "./../../Services/WindowManager"
 
 import { ImageBufferLayer } from "./ImageBufferLayer"
 
@@ -177,8 +177,9 @@ export class OniEditor implements IEditor {
                 openMode === Oni.FileOpenMode.HorizontalSplit ||
                 openMode === Oni.FileOpenMode.VerticalSplit
             ) {
-                // TODO
-                const newEditor = await this._split("horizontal")
+                const splitDirection =
+                    openMode === Oni.FileOpenMode.HorizontalSplit ? "horizontal" : "vertical"
+                const newEditor = await this._split(splitDirection)
                 return newEditor.openFile(file, { openMode: Oni.FileOpenMode.Edit })
             }
         }
@@ -230,7 +231,7 @@ export class OniEditor implements IEditor {
         return this._neovimEditor.render()
     }
 
-    private async _split(direction: any): Promise<OniEditor> {
+    private async _split(direction: SplitDirection): Promise<OniEditor> {
         const newEditor = new OniEditor(
             this._colors,
             this._completionProviders,
