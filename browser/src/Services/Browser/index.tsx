@@ -6,18 +6,16 @@
 
 import { shell } from "electron"
 import * as React from "react"
-import styled from "styled-components"
 
 import * as Oni from "oni-api"
-import { Event, IDisposable, IEvent } from "oni-types"
+import { Event } from "oni-types"
 
 import { CommandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 
-import { Icon, IconSize } from "./../../UI/Icon"
-
 import { BrowserView } from "./BrowserView"
+
 export class BrowserLayer implements Oni.BufferLayer {
     private _goBackEvent = new Event<void>()
     private _goForwardEvent = new Event<void>()
@@ -62,11 +60,12 @@ export const activate = (
 
     const activeLayers: { [bufferId: string]: BrowserLayer } = {}
 
-    const openUrl = async (url: string) => {
+    const openUrl = async (url: string, openMode: Oni.FileOpenMode = Oni.FileOpenMode.NewTab) => {
         if (configuration.getValue("experimental.browser.enabled")) {
             count++
-            const buffer: Oni.Buffer = await (editorManager.activeEditor as any).newFile(
+            const buffer: Oni.Buffer = await editorManager.activeEditor.openFile(
                 "Browser" + count.toString(),
+                { openMode },
             )
 
             const layer = new BrowserLayer(url)
@@ -75,6 +74,23 @@ export const activate = (
         } else {
             shell.openExternal(url)
         }
+    }
+
+    if (configuration.getValue("experimental.browser.enabled")) {
+        commandManager.registerCommand({
+            command: "browser.openUrl.verticalSplit",
+            name: "Browser: Open in Vertical Split",
+            detail: "Open a browser window",
+            execute: () => openUrl("https://github.com/onivim/oni", Oni.FileOpenMode.VerticalSplit),
+        })
+
+        commandManager.registerCommand({
+            command: "browser.openUrl.horizontalSplit",
+            name: "Browser: Open in Horizontal Split",
+            detail: "Open a browser window",
+            execute: () =>
+                openUrl("https://github.com/onivim/oni", Oni.FileOpenMode.HorizontalSplit),
+        })
     }
 
     commandManager.registerCommand({

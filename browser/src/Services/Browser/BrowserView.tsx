@@ -4,16 +4,10 @@
  * Entry point for browser integration plugin
  */
 
-import { shell } from "electron"
 import * as React from "react"
 import styled from "styled-components"
 
-import * as Oni from "oni-api"
-import { Event, IDisposable, IEvent } from "oni-types"
-
-import { CommandManager } from "./../CommandManager"
-import { Configuration } from "./../Configuration"
-import { EditorManager } from "./../EditorManager"
+import { IDisposable, IEvent } from "oni-types"
 
 import { Icon, IconSize } from "./../../UI/Icon"
 
