@@ -10,7 +10,7 @@
 import * as Snippets from "vscode-snippet-parser/lib"
 import { normalizeNewLines } from "./../../Utility"
 
-export type OniVariableResolver = Snippets.VariableResolver
+export type VariableResolver = Snippets.VariableResolver
 
 export interface OniSnippetPlaceholder {
     index: number
