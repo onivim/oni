@@ -5,12 +5,12 @@
  */
 
 import * as assert from "assert"
-import * as os from "os"
 import * as fs from "fs"
+import * as os from "os"
 import * as path from "path"
 
-import * as Oni from "oni-api"
 import * as mkdirp from "mkdirp"
+import * as Oni from "oni-api"
 
 const folderName = "folder with spaces"
 const fileName = "file with spaces.txt"
