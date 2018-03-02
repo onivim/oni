@@ -3,6 +3,7 @@
  *
  */
 
+import { capitalize } from "lodash"
 import * as path from "path"
 import * as React from "react"
 import { Provider } from "react-redux"
@@ -12,10 +13,10 @@ import { Event } from "oni-types"
 
 // import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
-import * as Log from "./../../Log"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
-// import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
+// import { Configuration } from "./../../Services/Configuration"
+import { getInstance as NotificationsInstance } from "./../../Services/Notifications"
 import { windowManager } from "./../../Services/WindowManager"
 import { IWorkspace } from "./../../Services/Workspace"
 
@@ -32,6 +33,7 @@ type File = ExplorerSelectors.IFileNode
 export class ExplorerSplit {
     private _onEnterEvent: Event<void> = new Event<void>()
     private _selectedId: string = null
+    private _notifications = NotificationsInstance()
 
     private _store: Store<IExplorerState>
 
@@ -79,6 +81,14 @@ export class ExplorerSplit {
         this._store.dispatch({ type: "LEAVE" })
     }
 
+    public sendExplorerNotification({ title, details }: { title: string; details: string }) {
+        const notification = this._notifications.createItem()
+        notification.setContents(title, details)
+        notification.setLevel("success")
+        notification.setExpiration(8000)
+        notification.show()
+    }
+
     public moveFileOrFolder = (source: Node, dest: Node): void => {
         if (!source || !dest) {
             return
@@ -106,12 +116,15 @@ export class ExplorerSplit {
             sourcePath = source.folderPath
         }
 
-        Log.info(`moving: ${sourcePath} to ${folderPath}`)
         mv(sourcePath, folderPath)
         this._store.dispatch({ type: "REFRESH" })
         if (dest.type === "folder") {
             this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: dest.folderPath })
         }
+        this.sendExplorerNotification({
+            title: `${capitalize(source.type)} Moved`,
+            details: `Successfully moved ${sourcePath} to ${folderPath}`,
+        })
     }
 
     public moveFolder = (
@@ -121,10 +134,13 @@ export class ExplorerSplit {
         if (source.folderPath === destination.folderPath) {
             return
         }
-        Log.info(`moving folders: ${source.folderPath} to ${destination.folderPath}`)
         mv(source.folderPath, destination.folderPath)
         this._store.dispatch({ type: "REFRESH" })
         this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: destination.folderPath })
+        this.sendExplorerNotification({
+            title: `${capitalize(source.type)} Moved`,
+            details: `Successfully moved ${source.folderPath} to ${destination.folderPath}`,
+        })
     }
 
     public findParentDir = (fileId: string): string => {
