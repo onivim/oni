@@ -101,13 +101,11 @@ const ensureOniNotRunning = async () => {
         oniProcesses.forEach(processInfo => {
             console.log(` - Name: ${processInfo.name} PID: ${processInfo.pid}`)
         })
-        const isOniProcess = processInfo =>
-            processInfo.name.toLowerCase().indexOf("oni") >= 0 ||
-            processInfo.name.toLowerCase().indexOf("node") >= 0
+        const isOniProcess = processInfo => processInfo.name.toLowerCase().indexOf("oni") >= 0
         const filteredProcesses = oniProcesses.filter(isOniProcess)
 
         if (filteredProcesses.length === 0) {
-            console.log("No Oni/node processes found - leaving.")
+            console.log("No Oni processes found - leaving.")
             return
         }
 
