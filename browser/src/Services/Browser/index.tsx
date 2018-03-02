@@ -98,6 +98,7 @@ export class BrowserLayer implements Oni.BufferLayer {
                 goBack={this._goBackEvent}
                 goForward={this._goForwardEvent}
                 reload={this._reloadEvent}
+                debug={this._debugEvent}
             />
         )
     }
