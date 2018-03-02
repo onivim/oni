@@ -345,7 +345,7 @@ export class Buffer implements IBuffer {
         }
 
         const getToken = (lineContents: string, character: number): Oni.IToken => {
-            if (!lineContents || !character) {
+            if (!lineContents || !lineContents.substring || !character) {
                 return null
             }
 
