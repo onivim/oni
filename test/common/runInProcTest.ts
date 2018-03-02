@@ -156,7 +156,7 @@ export const runInProcTest = (
 
         afterEach(async () => {
             logWithTimeStamp("[AFTER EACH]: " + testName)
-            await oni.close()
+            await oni.quit()
         })
 
         it("ci test: " + testName, async () => {
@@ -197,6 +197,11 @@ export const runInProcTest = (
                 console.log("")
                 console.log("---LOGS (Renderer): " + testName)
                 writeLogs(rendererLogs)
+                console.log("--- " + testName + " ---")
+
+                const mainProcessLogs: any[] = await oni.client.getMainProcessLogs()
+                console.log("---LOGS (Main): " + testName)
+                writeLogs(mainProcessLogs)
                 console.log("--- " + testName + " ---")
             } else {
                 console.log("-- LOGS: Skipped writing logs because the test passed.")

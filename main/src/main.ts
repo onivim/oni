@@ -83,12 +83,6 @@ let mainWindow: BrowserWindow = null
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
 if (!isDevelopment && !isDebug && !isAutomation) {
-    // If running from spectron, ignore the arguments
-    if (processArgs.find(f => f.indexOf("--test-type=webdriver") >= 0)) {
-        Log.warn("Clearing arguments because running from automation!")
-        processArgs = []
-    }
-
     const currentOptions = {
         args: processArgs,
         workingDirectory: process.env["ONI_CWD"] || process.cwd(), // tslint:disable-line no-string-literal
@@ -100,12 +94,19 @@ if (!isDevelopment && !isDebug && !isAutomation) {
         loadFileFromArguments(process.platform, options.args, options.workingDirectory)
     })
 } else {
+    // If running from spectron, ignore the arguments
+    let argsToUse = processArgs
+    if (isAutomation) {
+        Log.warn("Clearing arguments because running from automation!")
+        argsToUse = []
+    }
+
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
     app.on("ready", async () => {
         await addDevExtensions()
-        loadFileFromArguments(process.platform, process.argv, process.cwd())
+        loadFileFromArguments(process.platform, argsToUse, process.env["ONI_CWD"] || process.cwd())
     })
 }
 
