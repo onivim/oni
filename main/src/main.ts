@@ -108,7 +108,7 @@ if (!isDevelopment && !isDebug && !isAutomation) {
         if (isAutomation) {
             await addDevExtensions()
         }
-        loadFileFromArguments(process.platform, argsToUse, process.env["ONI_CWD"] || process.cwd())
+        loadFileFromArguments(process.platform, argsToUse, process.env.ONI_CWD || process.cwd())
     })
 }
 
@@ -226,8 +226,8 @@ app.on("open-file", (event, filePath) => {
     if (mainWindow) {
         mainWindow.webContents.send("open-file", filePath)
     } else if (process.platform.includes("darwin")) {
-        const processArgs = [...process.argv, filePath]
-        createWindow(processArgs, process.cwd())
+        const argsToUse = [...process.argv, filePath]
+        createWindow(argsToUse, process.cwd())
     }
 })
 
