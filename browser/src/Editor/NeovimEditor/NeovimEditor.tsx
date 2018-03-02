@@ -403,6 +403,9 @@ export class NeovimEditor extends Editor implements IEditor {
         this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: BufferEventContext) =>
             this._onBufEnter(evt),
         )
+        this._neovimInstance.autoCommands.onBufWinEnter.subscribe((evt: BufferEventContext) =>
+            this._onBufEnter(evt),
+        )
 
         this._neovimInstance.autoCommands.onFileTypeChanged.subscribe((evt: EventContext) =>
             this._onFileTypeChanged(evt),
@@ -760,7 +763,9 @@ export class NeovimEditor extends Editor implements IEditor {
             },
         )
 
-        await this._neovimInstance.command(`:${cmd[openOptions.openMode]} ${file}`)
+        await this._neovimInstance.command(
+            `:${cmd[openOptions.openMode]} ${this._escapeSpaces(file)}`,
+        )
         return this.activeBuffer
     }
 
@@ -985,6 +990,10 @@ export class NeovimEditor extends Editor implements IEditor {
         const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
 
         this._actions.bufferEnter(buffers)
+    }
+
+    private _escapeSpaces(str: string): string {
+        return str.split(" ").join("\\ ")
     }
 
     private _onImeStart(): void {
