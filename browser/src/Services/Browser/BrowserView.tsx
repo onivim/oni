@@ -4,6 +4,8 @@
  * Entry point for browser integration plugin
  */
 
+import * as path from "path"
+
 import * as React from "react"
 import styled from "styled-components"
 
@@ -179,6 +181,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
     private _initializeElement(elem: HTMLElement) {
         if (elem && !this._webviewElement) {
             const webviewElement = document.createElement("webview")
+            webviewElement.preload = path.join(__dirname, "lib", "webview_preload", "index.js")
             elem.appendChild(webviewElement)
             this._webviewElement = webviewElement
             this._webviewElement.src = this.props.url
