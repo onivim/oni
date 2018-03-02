@@ -16,6 +16,7 @@ import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 
 import { Icon, IconSize } from "./../../UI/Icon"
+import * as path from "path"
 
 const Column = styled.div`
     pointer-events: auto;
@@ -155,7 +156,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
                     <AddressBar>
                         <span>{this.props.url}</span>
                     </AddressBar>
-                    <BrowserButton>
+                    <BrowserButton onClick={() => this._openDebugger()}>
                         <Icon name="bug" size={IconSize.Large} />
                     </BrowserButton>
                 </BrowserControlsWrapper>
@@ -174,6 +175,12 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
                 </BrowserViewWrapper>
             </Column>
         )
+    }
+
+    private _openDebugger(): void {
+        if (this._webviewElement) {
+            this._webviewElement.openDevTools()
+        }
     }
 
     private _goBack(): void {
@@ -197,6 +204,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
     private _initializeElement(elem: HTMLElement) {
         if (elem && !this._webviewElement) {
             const webviewElement = document.createElement("webview")
+            webviewElement.preload = path.join(__dirname, "lib", "webview_preload", "index.js")
             elem.appendChild(webviewElement)
             this._webviewElement = webviewElement
             this._webviewElement.src = this.props.url
