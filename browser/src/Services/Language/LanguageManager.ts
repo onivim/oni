@@ -335,8 +335,9 @@ export class LanguageManager {
             const languages = this._pluginManager.getAllContributionsOfType<
                 Capabilities.ILanguageContribution
             >(contributes => contributes.languages)
-            const matchingLanguages = languages.filter(l =>
-                l.extensions.indexOf(path.extname(filePath)),
+            const extension = path.extname(filePath)
+            const matchingLanguages = languages.filter(
+                l => l.extensions.indexOf(extension) && extension.length > 0,
             )
             if (matchingLanguages.length > 0) {
                 Log.info(
