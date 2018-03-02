@@ -17,6 +17,7 @@ import { EditorManager } from "./../EditorManager"
 import { BrowserView } from "./BrowserView"
 
 export class BrowserLayer implements Oni.BufferLayer {
+    private _debugEvent = new Event<void>()
     private _goBackEvent = new Event<void>()
     private _goForwardEvent = new Event<void>()
     private _reloadEvent = new Event<void>()
@@ -34,8 +35,13 @@ export class BrowserLayer implements Oni.BufferLayer {
                 goBack={this._goBackEvent}
                 goForward={this._goForwardEvent}
                 reload={this._reloadEvent}
+                debug={this._debugEvent}
             />
         )
+    }
+
+    public openDebugger(): void {
+        this._debugEvent.dispatch()
     }
 
     public goBack(): void {
@@ -50,7 +56,6 @@ export class BrowserLayer implements Oni.BufferLayer {
         this._reloadEvent.dispatch()
     }
 }
-
 export const activate = (
     commandManager: CommandManager,
     configuration: Configuration,
@@ -115,6 +120,14 @@ export const activate = (
         !!configuration.getValue("experimental.browser.enabled")
 
     // Per-layer commands
+    commandManager.registerCommand({
+        command: "browser.debug",
+        execute: executeCommandForLayer(browser => browser.openDebugger()),
+        name: "Browser: Open DevTools",
+        detail: "Open the devtools pane for the current browser window.",
+        enabled: isBrowserLayerActive,
+    })
+
     commandManager.registerCommand({
         command: "browser.goBack",
         execute: executeCommandForLayer(browser => browser.goBack()),
