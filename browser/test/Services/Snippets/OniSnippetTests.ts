@@ -99,4 +99,12 @@ describe("OniSnippet", () => {
             assert.deepEqual(oniSnippet.getLines(), ["test2test2test2"])
         })
     })
+
+    describe("variableResolvers", () => {
+        it("simple variable resolution", () => {
+            const oniSnippet = new OniSnippet("$CURRENT_YEAR", { resolve: variableName => "2018" })
+
+            assert.deepEqual(oniSnippet.getLines(), ["2018"])
+        })
+    })
 })
