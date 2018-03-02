@@ -12,6 +12,7 @@ import { makeSingleInstance } from "./ProcessLifecycle"
 
 global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 
+const processArgs = process.argv || []
 const isAutomation = processArgs.find(f => f.indexOf("--test-type=webdriver") >= 0)
 const isDevelopment = process.env.NODE_ENV === "development" || process.env.ONI_WEBPACK_LOAD === "1"
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
@@ -82,8 +83,6 @@ let mainWindow: BrowserWindow = null
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
 if (!isDevelopment && !isDebug && !isAutomation) {
-    let processArgs = process.argv || []
-
     // If running from spectron, ignore the arguments
     if (processArgs.find(f => f.indexOf("--test-type=webdriver") >= 0)) {
         Log.warn("Clearing arguments because running from automation!")
