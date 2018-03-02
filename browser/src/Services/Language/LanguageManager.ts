@@ -337,7 +337,7 @@ export class LanguageManager {
             >(contributes => contributes.languages)
             const extension = path.extname(filePath)
             const matchingLanguages = languages.filter(
-                l => l.extensions.indexOf(extension) && extension.length > 0,
+                l => l.extensions.indexOf(extension) && extension && extension.length > 0,
             )
             if (matchingLanguages.length > 0) {
                 Log.info(
