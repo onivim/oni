@@ -403,6 +403,9 @@ export class NeovimEditor extends Editor implements IEditor {
         this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: BufferEventContext) =>
             this._onBufEnter(evt),
         )
+        this._neovimInstance.autoCommands.onBufWinEnter.subscribe((evt: BufferEventContext) =>
+            this._onBufEnter(evt),
+        )
 
         this._neovimInstance.autoCommands.onFileTypeChanged.subscribe((evt: EventContext) =>
             this._onFileTypeChanged(evt),
