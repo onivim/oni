@@ -7,8 +7,11 @@
 import * as fs from "fs"
 import * as path from "path"
 
+const normalizePath = (str: string) => str.split("\\").join("\\\\")
+
 const tsConfigTemplate = (typePath: string) => `
-import * as Oni from "E:/oni/node_modules/oni-api"
+import * as React from "${normalizePath(path.join(typePath, "react"))}"
+import * as Oni from "${normalizePath(path.join(typePath, "oni-api"))}"
 
 export const activate = (oni: Oni.Plugin.Api) => {
     console.log("config activated")
@@ -31,12 +34,24 @@ export const deactivate = (oni: Oni.Plugin.Api) => {
 }
 
 export const configuration = {
-   // Set configuration values here...
+    //add custom config here, such as
+
+    "ui.colorscheme": "nord",
+
+    //"oni.useDefaultConfig": true,
+    //"oni.bookmarks": ["~/Documents"],
+    //"oni.loadInitVim": false,
+    //"editor.fontSize": "14px",
+    //"editor.fontFamily": "Monaco",
+
+    // UI customizations
+    "ui.animations.enabled": true,
+    "ui.fontSmoothing": "auto",
 }
 `
 const getTypeScriptConfigurationFromJavaScriptConfiguration = (configurationFile: string) => {
     const dirName = path.dirname(configurationFile)
-    const typeScriptConfig = path.join(dirName, path.basename(configurationFile, ".js") + ".ts")
+    const typeScriptConfig = path.join(dirName, path.basename(configurationFile, ".js") + ".tsx")
 
     return typeScriptConfig
 }
@@ -79,6 +94,9 @@ export class TypeScriptConfigurationEditor {
 
         const output = ts.transpileModule(contents, {
             reportDiagnostics: true,
+            compilerOptions: {
+                jsx: "React",
+            },
         })
 
         return output.outputText
