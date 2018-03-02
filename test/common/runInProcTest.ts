@@ -101,10 +101,13 @@ const ensureOniNotRunning = async () => {
         oniProcesses.forEach(processInfo => {
             console.log(` - Name: ${processInfo.name} PID: ${processInfo.pid}`)
         })
-        const isOniProcess = processInfo => processInfo.name.indexOf("oni") >= 0
+        const isOniProcess = processInfo =>
+            processInfo.name.toLowerCase().indexOf("oni") >= 0 ||
+            processInfo.name.toLowerCase().indexOf("chromedriver") >= 0
         const filteredProcesses = oniProcesses.filter(isOniProcess)
 
         if (filteredProcesses.length === 0) {
+            console.log("No Oni processes found - leaving.")
             return
         }
 
@@ -194,6 +197,11 @@ export const runInProcTest = (
                 console.log("")
                 console.log("---LOGS (Renderer): " + testName)
                 writeLogs(rendererLogs)
+                console.log("--- " + testName + " ---")
+
+                const mainProcessLogs: any[] = await oni.client.getMainProcessLogs()
+                console.log("---LOGS (Main): " + testName)
+                writeLogs(mainProcessLogs)
                 console.log("--- " + testName + " ---")
             } else {
                 console.log("-- LOGS: Skipped writing logs because the test passed.")
