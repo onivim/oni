@@ -80,6 +80,7 @@ const AddressBar = styled.div`
 `
 
 export class BrowserLayer implements Oni.BufferLayer {
+    private _debugEvent = new Event<void>()
     private _goBackEvent = new Event<void>()
     private _goForwardEvent = new Event<void>()
     private _reloadEvent = new Event<void>()
@@ -101,6 +102,10 @@ export class BrowserLayer implements Oni.BufferLayer {
         )
     }
 
+    public openDebugger(): void {
+        this._debugEvent.dispatch()
+    }
+
     public goBack(): void {
         this._goBackEvent.dispatch()
     }
@@ -117,6 +122,7 @@ export class BrowserLayer implements Oni.BufferLayer {
 export interface IBrowserViewProps {
     url: string
 
+    debug: IEvent<void>
     goBack: IEvent<void>
     goForward: IEvent<void>
     reload: IEvent<void>
@@ -130,8 +136,9 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
         const d1 = this.props.goBack.subscribe(() => this._goBack())
         const d2 = this.props.goForward.subscribe(() => this._goForward())
         const d3 = this.props.reload.subscribe(() => this._reload())
+        const d4 = this.props.debug.subscribe(() => this._openDebugger())
 
-        this._disposables = this._disposables.concat([d1, d2, d3])
+        this._disposables = this._disposables.concat([d1, d2, d3, d4])
     }
 
     public componentWillUnmount(): void {
@@ -257,6 +264,14 @@ export const activate = (
         !!configuration.getValue("experimental.browser.enabled")
 
     // Per-layer commands
+    commandManager.registerCommand({
+        command: "browser.debug",
+        execute: executeCommandForLayer(browser => browser.openDebugger()),
+        name: "Browser: Open DevTools",
+        detail: "Open the devtools pane for the current browser window.",
+        enabled: isBrowserLayerActive,
+    })
+
     commandManager.registerCommand({
         command: "browser.goBack",
         execute: executeCommandForLayer(browser => browser.goBack()),
