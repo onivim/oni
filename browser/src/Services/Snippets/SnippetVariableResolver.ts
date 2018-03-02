@@ -16,16 +16,16 @@ export class SnippetVariableResolver implements VariableResolver {
     constructor(private _buffer: Oni.Buffer) {
         const currentDate = new Date()
 
+        const line = this._buffer && this._buffer.cursor ? this._buffer.cursor.line : 0
+        const filePath = this._buffer && this._buffer.filePath ? this._buffer.filePath : ""
+
         this._variableToValue = {
-            TM_LINE_INDEX: this._buffer.cursor.line.toString(),
-            TM_LINE_NUMBER: (this._buffer.cursor.line + 1).toString(),
-            TM_FILENAME: path.basename(this._buffer.filePath),
-            TM_DIRECTORY: path.dirname(this._buffer.filePath),
-            TM_FILEPATH: this._buffer.filePath,
-            TM_FILENAME_BASE: path.basename(
-                this._buffer.filePath,
-                path.extname(this._buffer.filePath),
-            ),
+            TM_LINE_INDEX: line.toString(),
+            TM_LINE_NUMBER: (line + 1).toString(),
+            TM_FILENAME: path.basename(filePath),
+            TM_DIRECTORY: path.dirname(filePath),
+            TM_FILEPATH: filePath,
+            TM_FILENAME_BASE: path.basename(filePath, path.extname(filePath)),
             CURRENT_YEAR: currentDate.getFullYear().toString(),
             CURRENT_MONTH: currentDate.getMonth().toString(),
             CURRENT_DATE: currentDate.getDate().toString(),

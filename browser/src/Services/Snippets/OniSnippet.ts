@@ -11,6 +11,7 @@ import * as Snippets from "vscode-snippet-parser/lib"
 import { normalizeNewLines } from "./../../Utility"
 
 export type VariableResolver = Snippets.VariableResolver
+export type Variable = Snippets.Variable
 
 export interface OniSnippetPlaceholder {
     index: number
@@ -47,7 +48,7 @@ export class OniSnippet {
     private _placeholderValues: { [index: number]: string } = {}
     private _snippetString: string
 
-    constructor(snippet: string, private _variableResolver?: OniVariableResolver) {
+    constructor(snippet: string, private _variableResolver?: VariableResolver) {
         this._snippetString = normalizeNewLines(snippet)
     }
 
