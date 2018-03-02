@@ -52,6 +52,7 @@ export type CompletionAction =
           type: "BUFFER_ENTER"
           language: string
           filePath: string
+          bufferId: string
       }
     | {
           type: "COMMIT_COMPLETION"
@@ -83,6 +84,7 @@ const bufferInfoReducer: Reducer<ICompletionBufferInfo> = (
     state: ICompletionBufferInfo = {
         language: null,
         filePath: null,
+        bufferId: null,
     },
     action: CompletionAction,
 ) => {
@@ -91,6 +93,7 @@ const bufferInfoReducer: Reducer<ICompletionBufferInfo> = (
             return {
                 language: action.language,
                 filePath: action.filePath,
+                bufferId: action.bufferId,
             }
         default:
             return state
@@ -250,12 +253,19 @@ const createGetCompletionMeetEpic = (
                 completionCharacters,
             )
 
+            const highlightInfo = syntaxHighlighter.getHighlightTokenAt(
+                currentState.bufferInfo.bufferId,
+                types.Position.create(currentState.cursorInfo.line, meet.positionToQuery),
+            )
+            const scopes = highlightInfo && highlightInfo.scopes ? highlightInfo.scopes : []
+
             const meetForAction: ICompletionMeetInfo = {
                 meetPosition: meet.position,
                 meetLine: currentState.cursorInfo.line,
                 queryPosition: meet.positionToQuery,
                 meetBase: meet.base,
                 shouldExpand: meet.shouldExpandCompletions,
+                textMateScopes: scopes,
             }
 
             return {
@@ -325,12 +335,13 @@ const createGetCompletionsEpic = (
 
             // Check if the meet is different from the last meet we queried
             const requestResult: Observable<types.CompletionItem[]> = Observable.defer(async () => {
-                const results = await completionsRequestor.getCompletions(
-                    state.bufferInfo.language,
-                    state.bufferInfo.filePath,
-                    action.currentMeet.meetLine,
-                    action.currentMeet.queryPosition,
-                )
+                const results = await completionsRequestor.getCompletions({
+                    language: state.bufferInfo.language,
+                    filePath: state.bufferInfo.filePath,
+                    line: action.currentMeet.meetLine,
+                    column: action.currentMeet.queryPosition,
+                    textMateScopes: action.currentMeet.textMateScopes,
+                })
                 const completions = results || []
                 const orderedCompletions = orderCompletions(
                     completions,

@@ -548,6 +548,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._completionProviders,
             this._languageManager,
             this._snippetManager,
+            this._syntaxHighlighter,
         )
         this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
 

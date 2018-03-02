@@ -25,25 +25,6 @@ export interface ICompletionShowEventArgs {
     base: string
 }
 
-export class TestRequestor implements ICompletionsRequestor {
-    public async getCompletions(
-        language: string,
-        filePath: string,
-        line: number,
-        column: number,
-    ): Promise<types.CompletionItem[]> {
-        return [types.CompletionItem.create("test1"), types.CompletionItem.create("test2")]
-    }
-
-    public async getCompletionDetails(
-        language: string,
-        filePath: string,
-        completionItem: types.CompletionItem,
-    ): Promise<types.CompletionItem> {
-        return completionItem
-    }
-}
-
 export class Completion implements IDisposable {
     private _lastCursorPosition: Oni.Cursor
     private _store: Store<ICompletionState>
@@ -69,7 +50,7 @@ export class Completion implements IDisposable {
         private _completionsRequestor: ICompletionsRequestor,
         private _languageManager: LanguageManager,
         private _snippetManager: SnippetManager,
-        private _syntaxHighlighter: S,
+        private _syntaxHighlighter: ISyntaxHighlighter,
     ) {
         this._completionsRequestor = this._completionsRequestor
         this._store = createStore(
@@ -156,6 +137,7 @@ export class Completion implements IDisposable {
             type: "BUFFER_ENTER",
             language: buffer.language,
             filePath: buffer.filePath,
+            bufferId: buffer.id,
         })
     }
 
