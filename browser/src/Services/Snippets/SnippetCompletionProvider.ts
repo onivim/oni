@@ -29,6 +29,13 @@ export class SnippetCompletionProvider implements ICompletionsRequestor {
     ): Promise<types.CompletionItem[]> {
         Log.verbose("[SnippetCompletionProvider::getCompletions] Starting...")
 
+        const commentsOrQuotedStrings = context.textMateScopes.filter(
+            f => f.indexOf("comment.") === 0 || f.indexOf("string.quoted.") === 0,
+        )
+        if (commentsOrQuotedStrings.length) {
+            return []
+        }
+
         const snippets = await this._snippetManager.getSnippetsForLanguage(context.language)
         Log.verbose(
             "[SnippetCompletionProvider::getCompletions] Got " + snippets.length + " snippets.",

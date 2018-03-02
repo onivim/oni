@@ -6,6 +6,7 @@ import * as assert from "assert"
 import * as types from "vscode-languageserver-types"
 
 import * as Completion from "./../../../src/Services/Completion"
+import * as SyntaxHighlighting from "./../../../src/Services/SyntaxHighlighting"
 
 import * as Mocks from "./../../Mocks"
 import * as TestHelpers from "./../../TestHelpers"
@@ -78,6 +79,7 @@ describe("Completion", () => {
             mockCompletionRequestor,
             mockLanguageManager as any,
             null /* snippet manager */,
+            new SyntaxHighlighting.NullSyntaxHighlighter(),
         )
     })
 

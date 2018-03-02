@@ -17,6 +17,7 @@ import { createStore as oniCreateStore } from "./../../Redux"
 import { Configuration } from "./../Configuration"
 import { LanguageManager } from "./../Language"
 import { SnippetManager } from "./../Snippets"
+import { ISyntaxHighlighter } from "./../SyntaxHighlighting"
 
 import * as CompletionSelects from "./CompletionSelectors"
 import { ICompletionsRequestor } from "./CompletionsRequestor"
@@ -51,6 +52,7 @@ export type CompletionAction =
           type: "BUFFER_ENTER"
           language: string
           filePath: string
+          bufferId: string
       }
     | {
           type: "COMMIT_COMPLETION"
@@ -82,6 +84,7 @@ const bufferInfoReducer: Reducer<ICompletionBufferInfo> = (
     state: ICompletionBufferInfo = {
         language: null,
         filePath: null,
+        bufferId: null,
     },
     action: CompletionAction,
 ) => {
@@ -90,6 +93,7 @@ const bufferInfoReducer: Reducer<ICompletionBufferInfo> = (
             return {
                 language: action.language,
                 filePath: action.filePath,
+                bufferId: action.bufferId,
             }
         default:
             return state
@@ -194,6 +198,7 @@ const nullAction: CompletionAction = { type: null } as CompletionAction
 const createGetCompletionMeetEpic = (
     languageManager: LanguageManager,
     configuration: Configuration,
+    syntaxHighlighter: ISyntaxHighlighter,
 ): Epic<CompletionAction, ICompletionState> => (action$, store) =>
     action$
         .ofType("CURSOR_MOVED")
@@ -232,13 +237,19 @@ const createGetCompletionMeetEpic = (
                 completionCharacters,
             )
 
+            const highlightInfo = syntaxHighlighter.getHighlightTokenAt(
+                currentState.bufferInfo.bufferId,
+                types.Position.create(currentState.cursorInfo.line, meet.positionToQuery),
+            )
+            const scopes = highlightInfo && highlightInfo.scopes ? highlightInfo.scopes : []
+
             const meetForAction: ICompletionMeetInfo = {
                 meetPosition: meet.position,
                 meetLine: currentState.cursorInfo.line,
                 queryPosition: meet.positionToQuery,
                 meetBase: meet.base,
                 shouldExpand: meet.shouldExpandCompletions,
-                textMateScopes: [],
+                textMateScopes: scopes,
             }
 
             return {
@@ -414,6 +425,7 @@ export const createStore = (
     configuration: Configuration,
     completionsRequestor: ICompletionsRequestor,
     snippetManager: SnippetManager,
+    syntaxHighlighter: ISyntaxHighlighter,
 ): Store<ICompletionState> => {
     return oniCreateStore(
         "COMPLETION_STORE",
@@ -430,7 +442,7 @@ export const createStore = (
             createEpicMiddleware(
                 combineEpics(
                     commitCompletionEpic(editor, snippetManager),
-                    createGetCompletionMeetEpic(languageManager, configuration),
+                    createGetCompletionMeetEpic(languageManager, configuration, syntaxHighlighter),
                     createGetCompletionsEpic(completionsRequestor),
                     createGetCompletionDetailsEpic(completionsRequestor),
                     selectFirstItemEpic,

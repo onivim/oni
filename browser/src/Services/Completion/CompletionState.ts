@@ -34,11 +34,13 @@ export const DefaultMeetInfo: ICompletionMeetInfo = {
 export interface ICompletionBufferInfo {
     language: string
     filePath: string
+    bufferId: string
 }
 
 export const DefaultCompletionBufferInfo: ICompletionBufferInfo = {
     language: null,
     filePath: null,
+    bufferId: null,
 }
 
 export interface ILastCompletionInfo {
