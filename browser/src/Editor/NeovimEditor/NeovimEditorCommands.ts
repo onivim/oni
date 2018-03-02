@@ -13,8 +13,6 @@ import { NeovimInstance } from "./../../neovim"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 import { findAllReferences, format, LanguageEditorIntegration } from "./../../Services/Language"
-import { MenuManager } from "./../../Services/Menu"
-import { QuickOpen } from "./../../Services/QuickOpen"
 import { replaceAll } from "./../../Utility"
 
 import { Definition } from "./Definition"
@@ -29,7 +27,6 @@ export class NeovimEditorCommands {
         private _contextMenuManager: ContextMenuManager,
         private _definition: Definition,
         private _languageEditorIntegration: LanguageEditorIntegration,
-        private _menuManager: MenuManager,
         private _neovimInstance: NeovimInstance,
         private _rename: Rename,
         private _symbols: Symbols,
@@ -37,27 +34,6 @@ export class NeovimEditorCommands {
 
     public activate(): void {
         const isContextMenuOpen = () => this._contextMenuManager.isMenuOpen()
-
-        // TODO: This should be extracted
-        // - Should not depend on NeovimInstance
-        // - Should be able to work against the public 'IEditor' interface
-        const quickOpen = new QuickOpen(this._menuManager, this._neovimInstance)
-
-        const quickOpenCommand = (innerCommand: Oni.Commands.CommandCallback) => (
-            qo: QuickOpen,
-        ) => {
-            return () => {
-                if (qo.isOpen()) {
-                    return innerCommand(qo)
-                }
-
-                return false
-            }
-        }
-
-        const quickOpenFileNewTab = quickOpenCommand((qo: QuickOpen) => qo.openFileNewTab())
-        const quickOpenFileHorizontal = quickOpenCommand((qo: QuickOpen) => qo.openFileHorizontal())
-        const quickOpenFileVertical = quickOpenCommand((qo: QuickOpen) => qo.openFileVertical())
 
         /**
          * Higher-order function for commands dealing with completion
@@ -98,10 +74,6 @@ export class NeovimEditorCommands {
             await neovimInstance.command("set paste")
             await neovimInstance.input(sanitizedText)
             await neovimInstance.command("set nopaste")
-        }
-
-        const shouldShowMenu = () => {
-            return !this._menuManager.isMenuOpen()
         }
 
         const commands = [
@@ -194,36 +166,6 @@ export class NeovimEditorCommands {
                 "Configuration: Edit Neovim Config",
                 "Edit configuration file ('init.vim') for Neovim",
                 () => this._neovimInstance.openInitVim(),
-            ),
-
-            // TODO: Factor these out
-            new CallbackCommand(
-                "quickOpen.show",
-                null,
-                null,
-                () => quickOpen.show(),
-                shouldShowMenu,
-            ),
-            new CallbackCommand("quickOpen.showBufferLines", null, null, () =>
-                quickOpen.showBufferLines(),
-            ),
-            new CallbackCommand(
-                "quickOpen.openFileNewTab",
-                null,
-                null,
-                quickOpenFileNewTab(quickOpen),
-            ),
-            new CallbackCommand(
-                "quickOpen.openFileVertical",
-                null,
-                null,
-                quickOpenFileVertical(quickOpen),
-            ),
-            new CallbackCommand(
-                "quickOpen.openFileHorizontal",
-                null,
-                null,
-                quickOpenFileHorizontal(quickOpen),
             ),
         ]
 
