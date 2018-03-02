@@ -84,9 +84,10 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     // QuickOpen
     input.bind("<C-/>", "quickOpen.showBufferLines", isNormalMode)
-    input.bind(["<c-enter", "<C-v>"], "quickOpen.openFileVertical")
-    input.bind(["<s-enter", "<C-s>"], "quickOpen.openFileHorizontal")
+    input.bind(["<C-v>"], "quickOpen.openFileVertical")
+    input.bind(["<C-s>"], "quickOpen.openFileHorizontal")
     input.bind("<C-t>", "quickOpen.openFileNewTab")
+    input.bind(["<C-enter>"], "quickOpen.openFileExistingTab")
 
     // Snippets
     input.bind("<tab>", "snippet.nextPlaceholder")

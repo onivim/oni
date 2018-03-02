@@ -259,7 +259,6 @@ export class NeovimEditor extends Editor implements IEditor {
             this._contextMenuManager,
             this._definition,
             this._languageIntegration,
-            this._menuManager,
             this._neovimInstance,
             this._rename,
             this._symbols,
