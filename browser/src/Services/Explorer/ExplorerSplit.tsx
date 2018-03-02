@@ -123,7 +123,7 @@ export class ExplorerSplit {
         }
         this.sendExplorerNotification({
             title: `${capitalize(source.type)} Moved`,
-            details: `Successfully moved ${sourcePath} to ${folderPath}`,
+            details: `Successfully moved ${source.name} to ${folderPath}`,
         })
     }
 
@@ -139,7 +139,7 @@ export class ExplorerSplit {
         this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: destination.folderPath })
         this.sendExplorerNotification({
             title: `${capitalize(source.type)} Moved`,
-            details: `Successfully moved ${source.folderPath} to ${destination.folderPath}`,
+            details: `Successfully moved ${source.name} to ${destination.folderPath}`,
         })
     }
 

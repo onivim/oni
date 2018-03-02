@@ -5,9 +5,8 @@
  */
 
 import * as React from "react"
-import { CSSTransition } from "react-transition-group"
 
-import { keyframes, styled, withProps } from "./common"
+import { styled, withProps } from "./common"
 
 export interface ISidebarItemViewProps {
     isOver?: boolean
@@ -18,19 +17,6 @@ export interface ISidebarItemViewProps {
     isContainer: boolean
     indentationLevel: number
     icon?: JSX.Element
-}
-
-const frames = keyframes`
-    0% { opacity: 0; transform: translateY(4px); }
-    100% { opacity: 1; transform: translateY(0px); }
-`
-
-const Transition = (props: { children: React.ReactNode }) => {
-    return (
-        <CSSTransition {...props} timeout={1000} classNames="sidebarItem">
-            {props.children}
-        </CSSTransition>
-    )
 }
 
 const px = (num: number): string => num.toString() + "px"
@@ -91,13 +77,11 @@ export class SidebarItemView extends React.PureComponent<ISidebarItemViewProps, 
     public render(): JSX.Element {
         const icon = this.props.icon ? <div className="icon">{this.props.icon}</div> : null
         return (
-            !this.props.didDrop && (
-                <SidebarItemStyleWrapper {...this.props} className="item">
-                    <SidebarItemBackground {...this.props} />
-                    {icon}
-                    <div className="name">{this.props.text}</div>
-                </SidebarItemStyleWrapper>
-            )
+            <SidebarItemStyleWrapper {...this.props} className="item">
+                <SidebarItemBackground {...this.props} />
+                {icon}
+                <div className="name">{this.props.text}</div>
+            </SidebarItemStyleWrapper>
         )
     }
 }
@@ -118,16 +102,6 @@ interface IContainerProps {
 
 const SidebarContainer = withProps<IContainerProps>(styled.div)`
     ${p => p.isOver && `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
-
-    transition: all 0.1s ease-in;
-
-    &.sidebarItem-enter {
-        animation: ${frames} 0.25s ease-in;
-    }
-
-    &.sidebarItem-exit {
-        animation: ${frames} 0.25s ease-in both reverse;
-    }
 `
 
 export class SidebarContainerView extends React.PureComponent<ISidebarContainerViewProps, {}> {
@@ -140,23 +114,17 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
         const indentationlevel = this.props.indentationLevel || 0
 
         return (
-            <Transition>
-                <SidebarContainer
-                    canDrop={this.props.canDrop}
-                    isOver={this.props.isOver}
-                    className="sidebarItem"
-                >
-                    <SidebarItemView
-                        didDrop={this.props.didDrop}
-                        indentationLevel={indentationlevel}
-                        icon={icon}
-                        text={this.props.text}
-                        isFocused={this.props.isFocused}
-                        isContainer={this.props.isContainer}
-                    />
-                    {this.props.isExpanded ? this.props.children : null}
-                </SidebarContainer>
-            </Transition>
+            <SidebarContainer canDrop={this.props.canDrop} isOver={this.props.isOver}>
+                <SidebarItemView
+                    didDrop={this.props.didDrop}
+                    indentationLevel={indentationlevel}
+                    icon={icon}
+                    text={this.props.text}
+                    isFocused={this.props.isFocused}
+                    isContainer={this.props.isContainer}
+                />
+                {this.props.isExpanded ? this.props.children : null}
+            </SidebarContainer>
         )
     }
 }

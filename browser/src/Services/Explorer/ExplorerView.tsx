@@ -9,8 +9,9 @@ import HTML5Backend from "react-dnd-html5-backend"
 import { connect } from "react-redux"
 import { compose } from "redux"
 
-import styled from "styled-components"
+import { Transition, TransitionGroup } from "react-transition-group"
 
+import { styled, withProps } from "./../../UI/components/common"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 import { DragAndDrop, Droppeable } from "./../DragAndDrop"
@@ -21,6 +22,7 @@ import * as ExplorerSelectors from "./ExplorerSelectors"
 import { IExplorerState } from "./ExplorerStore"
 
 type Node = ExplorerSelectors.ExplorerNode
+type Status = "ENTERING" | "ENTERED" | "EXITING" | "EXITED"
 
 export interface INodeViewProps {
     moveFileOrFolder: (source: Node, dest: Node) => void
@@ -35,6 +37,10 @@ const NodeWrapper = styled.div`
     }
 `
 
+const TransitionContainer = withProps<{ status?: Status }>(styled.div)`
+    ${p => transitionStyles[p.status]};
+`
+
 // tslint:disable-next-line
 const noop = (elem: HTMLElement) => {}
 const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
@@ -45,6 +51,27 @@ const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
 const Types = {
     FILE: "FILE",
     FOLDER: "FOLDER",
+}
+
+interface IPopIn {
+    timeout: number
+    in: boolean
+    render?: (status: Status) => React.ReactElement<Status>
+    children?: React.ReactNode
+    enableEnter?: boolean
+}
+
+const PopIn = ({ in: inProp, timeout, render, children, ...props }: IPopIn) => (
+    <Transition in={inProp} timeout={timeout} {...props} enter={props.enableEnter}>
+        {(status: Status) => <TransitionContainer status={status}>{children}</TransitionContainer>}
+    </Transition>
+)
+
+const transitionStyles = {
+    entering: { opacity: 0 },
+    entered: { opacity: 1 },
+    exiting: { opacity: 1 },
+    exited: { opacity: 0 },
 }
 
 interface IMoveNode {
@@ -89,18 +116,20 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         accepts={[Types.FILE, Types.FOLDER]}
                         isValidDrop={this.isSameNode}
                         node={node}
-                        render={({ canDrop, didDrop, isOver }) => {
+                        render={({ canDrop, isDragging, didDrop, isOver }) => {
                             return (
-                                <SidebarItemView
-                                    isOver={isOver && canDrop}
-                                    didDrop={didDrop}
-                                    canDrop={canDrop}
-                                    text={node.name}
-                                    isFocused={this.props.isSelected}
-                                    isContainer={false}
-                                    indentationLevel={node.indentationLevel}
-                                    icon={<FileIcon fileName={node.name} isLarge={true} />}
-                                />
+                                <PopIn timeout={1000} in={true} enableEnter={didDrop}>
+                                    <SidebarItemView
+                                        isOver={isOver && canDrop}
+                                        didDrop={didDrop}
+                                        canDrop={canDrop}
+                                        text={node.name}
+                                        isFocused={this.props.isSelected}
+                                        isContainer={false}
+                                        indentationLevel={node.indentationLevel}
+                                        icon={<FileIcon fileName={node.name} isLarge={true} />}
+                                    />
+                                </PopIn>
                             )
                         }}
                     />
@@ -204,7 +233,9 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 
                     return (
                         <div className="explorer enable-mouse">
-                            <div className="items">{nodes}</div>
+                            <TransitionGroup>
+                                <div className="items">{nodes}</div>
+                            </TransitionGroup>
                         </div>
                     )
                 }}
