@@ -102,7 +102,7 @@ const ensureOniNotRunning = async () => {
         const chromeDriverProcessGone = await tryToKillProcess("chromedriver")
         const oniProcessGone = await tryToKillProcess("oni")
 
-        if (nvimProcessGone && chromeDriverProcessGone && orientation) {
+        if (nvimProcessGone && chromeDriverProcessGone && oniProcessGone) {
             console.log("All processes gone!")
             return
         }
@@ -111,7 +111,7 @@ const ensureOniNotRunning = async () => {
     }
 }
 
-const tryToKillProcess = async (name: string): boolean => {
+const tryToKillProcess = async (name: string): Promise<boolean> => {
     const oniProcesses = await findProcess("name", "oni")
     oniProcesses.forEach(processInfo => {
         console.log(` - Name: ${processInfo.name} PID: ${processInfo.pid}`)
