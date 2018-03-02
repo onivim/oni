@@ -6,6 +6,9 @@
  */
 
 const __oni_win: any = window
+
+// Note that this name must be in sync with 'BrowserView.tsx'
 __oni_win["__oni_sneak_collector__"] = () => {
     console.log("hello world")
+    return ["1, 2, 3, 4"]
 }

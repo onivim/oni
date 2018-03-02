@@ -11,6 +11,8 @@ import { IDisposable, IEvent } from "oni-types"
 
 import { Icon, IconSize } from "./../../UI/Icon"
 
+import { getInstance as getSneakInstance } from "./../../Services/Sneak"
+
 const Column = styled.div`
     pointer-events: auto;
 
@@ -91,7 +93,20 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
         const d3 = this.props.reload.subscribe(() => this._reload())
         const d4 = this.props.debug.subscribe(() => this._openDebugger())
 
-        this._disposables = this._disposables.concat([d1, d2, d3, d4])
+        const d5 = getSneakInstance().addSneakProvider(async () => {
+            if (this._webviewElement) {
+                this._webviewElement.executeJavaScript(
+                    "window['__oni_sneak_collector__']()",
+                    (result: any) => {
+                        alert(result)
+                    },
+                )
+            }
+
+            return []
+        })
+
+        this._disposables = this._disposables.concat([d1, d2, d3, d4, d5])
     }
 
     public componentWillUnmount(): void {
