@@ -12,6 +12,8 @@ import { makeSingleInstance } from "./ProcessLifecycle"
 
 global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 
+const processArgs = process.argv || []
+const isAutomation = processArgs.find(f => f.indexOf("--test-type=webdriver") >= 0)
 const isDevelopment = process.env.NODE_ENV === "development" || process.env.ONI_WEBPACK_LOAD === "1"
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
 
@@ -80,15 +82,7 @@ let mainWindow: BrowserWindow = null
 
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
-if (!isDevelopment && !isDebug) {
-    let processArgs = process.argv || []
-
-    // If running from spectron, ignore the arguments
-    if (processArgs.find(f => f.indexOf("--test-type=webdriver") >= 0)) {
-        Log.warn("Clearing arguments because running from automation!")
-        processArgs = []
-    }
-
+if (!isDevelopment && !isDebug && !isAutomation) {
     const currentOptions = {
         args: processArgs,
         workingDirectory: process.env["ONI_CWD"] || process.cwd(), // tslint:disable-line no-string-literal
@@ -100,12 +94,21 @@ if (!isDevelopment && !isDebug) {
         loadFileFromArguments(process.platform, options.args, options.workingDirectory)
     })
 } else {
+    // If running from spectron, ignore the arguments
+    let argsToUse = processArgs
+    if (isAutomation) {
+        Log.warn("Clearing arguments because running from automation!")
+        argsToUse = []
+    }
+
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
     app.on("ready", async () => {
-        await addDevExtensions()
-        loadFileFromArguments(process.platform, process.argv, process.cwd())
+        if (isAutomation) {
+            await addDevExtensions()
+        }
+        loadFileFromArguments(process.platform, argsToUse, process.env.ONI_CWD || process.cwd())
     })
 }
 
@@ -223,8 +226,8 @@ app.on("open-file", (event, filePath) => {
     if (mainWindow) {
         mainWindow.webContents.send("open-file", filePath)
     } else if (process.platform.includes("darwin")) {
-        const processArgs = [...process.argv, filePath]
-        createWindow(processArgs, process.cwd())
+        const argsToUse = [...process.argv, filePath]
+        createWindow(argsToUse, process.cwd())
     }
 })
 
@@ -232,7 +235,7 @@ app.on("open-file", (event, filePath) => {
 app.on("window-all-closed", () => {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== "darwin") {
+    if (process.platform !== "darwin" || isAutomation) {
         app.quit()
     }
 })

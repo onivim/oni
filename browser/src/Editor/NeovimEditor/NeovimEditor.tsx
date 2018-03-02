@@ -259,7 +259,6 @@ export class NeovimEditor extends Editor implements IEditor {
             this._contextMenuManager,
             this._definition,
             this._languageIntegration,
-            this._menuManager,
             this._neovimInstance,
             this._rename,
             this._symbols,
@@ -401,6 +400,9 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: BufferEventContext) =>
+            this._onBufEnter(evt),
+        )
+        this._neovimInstance.autoCommands.onBufWinEnter.subscribe((evt: BufferEventContext) =>
             this._onBufEnter(evt),
         )
 
@@ -704,6 +706,25 @@ export class NeovimEditor extends Editor implements IEditor {
     public async setSelection(range: types.Range): Promise<void> {
         await this._neovimInstance.input("<esc>")
 
+        // Clear out any pending block selection
+        // Without this, if there was a line-wise visual selection,
+        // range selection would not work correctly.
+        const atomicCallsVisualMode = [
+            [
+                "nvim_call_function",
+                ["setpos", [".", [0, range.start.line + 1, range.start.character + 1]]],
+            ],
+            ["nvim_command", ["normal! v"]],
+            [
+                "nvim_call_function",
+                ["setpos", [".", [0, range.end.line + 1, range.end.character + 1]]],
+            ],
+        ]
+        await this._neovimInstance.request("nvim_call_atomic", [atomicCallsVisualMode])
+        await this._neovimInstance.input("<esc>")
+
+        // Re-select the selection and switch to 'select' mode so that typing
+        // overwrites the selection
         const atomicCalls = [
             [
                 "nvim_call_function",
@@ -713,6 +734,7 @@ export class NeovimEditor extends Editor implements IEditor {
                 "nvim_call_function",
                 ["setpos", ["'>", [0, range.end.line + 1, range.end.character + 1]]],
             ],
+            // ["nvim_command", ["normal! v"]],
             ["nvim_command", ["set selectmode=cmd"]],
             ["nvim_command", ["normal! gv"]],
             ["nvim_command", ["set selectmode="]],
@@ -725,12 +747,13 @@ export class NeovimEditor extends Editor implements IEditor {
         file: string,
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
     ): Promise<Oni.Buffer> {
+        const tabsMode = this._configuration.getValue("tabs.mode") === "tabs"
         const cmd = new Proxy(
             {
                 [Oni.FileOpenMode.NewTab]: "tabnew!",
                 [Oni.FileOpenMode.HorizontalSplit]: "sp!",
                 [Oni.FileOpenMode.VerticalSplit]: "vsp!",
-                [Oni.FileOpenMode.Edit]: "tab drop",
+                [Oni.FileOpenMode.Edit]: tabsMode ? "tab drop" : "e!",
                 [Oni.FileOpenMode.ExistingTab]: "e!",
             },
             {
@@ -739,7 +762,9 @@ export class NeovimEditor extends Editor implements IEditor {
             },
         )
 
-        await this._neovimInstance.command(`:${cmd[openOptions.openMode]} ${file}`)
+        await this._neovimInstance.command(
+            `:${cmd[openOptions.openMode]} ${this._escapeSpaces(file)}`,
+        )
         return this.activeBuffer
     }
 
@@ -964,6 +989,10 @@ export class NeovimEditor extends Editor implements IEditor {
         const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
 
         this._actions.bufferEnter(buffers)
+    }
+
+    private _escapeSpaces(str: string): string {
+        return str.split(" ").join("\\ ")
     }
 
     private _onImeStart(): void {

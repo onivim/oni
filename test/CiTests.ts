@@ -23,6 +23,7 @@ const CiTests = [
 
     "Editor.ExternalCommandLineTest",
     "Editor.BufferModifiedState",
+    "Editor.OpenFile.PathWithSpacesTest",
     "Editor.TabModifiedState",
     "LargeFileTest",
     "MarkdownPreviewTest",

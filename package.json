@@ -136,7 +136,7 @@
     "scripts": {
         "precommit": "pretty-quick --staged",
         "prepush": "npm run build && npm run lint",
-        "build": "npm run build:browser && npm run build:main && npm run build:plugins",
+        "build": "npm run build:browser && npm run build:webview_preload && npm run build:main && npm run build:plugins",
         "build-debug": "npm run build:browser-debug && npm run build:main && npm run build:plugins",
         "build:browser": "webpack --config browser/webpack.production.config.js",
         "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
@@ -146,7 +146,8 @@
         "build:plugin:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm run build",
         "build:test": "npm run build:test:unit && npm run build:test:integration",
         "build:test:integration": "cd test && tsc -p tsconfig.json",
-        "build:test:unit": "cd browser && tsc -p tsconfig.test.json",
+        "build:test:unit": "rimraf lib_test && cd browser && tsc -p tsconfig.test.json",
+        "build:webview_preload": "cd webview_preload && tsc -p tsconfig.json",
         "check-cached-binaries": "node build/script/CheckBinariesForBuild.js",
         "copy-icons": "node build/CopyIcons.js",
         "copy-dist-to-s3": "node build/script/CopyPackedFilesForS3Upload.js",
