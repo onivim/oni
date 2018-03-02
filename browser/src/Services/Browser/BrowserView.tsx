@@ -75,6 +75,7 @@ const AddressBar = styled.div`
 export interface IBrowserViewProps {
     url: string
 
+    debug: IEvent<void>
     goBack: IEvent<void>
     goForward: IEvent<void>
     reload: IEvent<void>
@@ -88,8 +89,9 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
         const d1 = this.props.goBack.subscribe(() => this._goBack())
         const d2 = this.props.goForward.subscribe(() => this._goForward())
         const d3 = this.props.reload.subscribe(() => this._reload())
+        const d4 = this.props.debug.subscribe(() => this._openDebugger())
 
-        this._disposables = this._disposables.concat([d1, d2, d3])
+        this._disposables = this._disposables.concat([d1, d2, d3, d4])
     }
 
     public componentWillUnmount(): void {
@@ -114,7 +116,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
                     <AddressBar>
                         <span>{this.props.url}</span>
                     </AddressBar>
-                    <BrowserButton>
+                    <BrowserButton onClick={() => this._openDebugger()}>
                         <Icon name="bug" size={IconSize.Large} />
                     </BrowserButton>
                 </BrowserControlsWrapper>
@@ -144,6 +146,12 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
     private _goForward(): void {
         if (this._webviewElement) {
             this._webviewElement.goForward()
+        }
+    }
+
+    private _openDebugger(): void {
+        if (this._webviewElement) {
+            this._webviewElement.openDevTools()
         }
     }
 
