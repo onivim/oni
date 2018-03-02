@@ -103,14 +103,14 @@ export class Oni {
         if (this._app) {
             let attempts = 1
             while (attempts < 5) {
-                log("- Calling _app.stop")
-                await this._app.stop()
-                log("- _app.stop call completed")
-
                 if (!this._app.isRunning()) {
                     log("- _app.isRunning() is now false")
                     break
                 }
+
+                log("- Calling _app.stop")
+                await this._app.stop()
+                log("- _app.stop call completed")
 
                 attempts++
             }
