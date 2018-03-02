@@ -24,25 +24,6 @@ export interface ICompletionShowEventArgs {
     base: string
 }
 
-export class TestRequestor implements ICompletionsRequestor {
-    public async getCompletions(
-        language: string,
-        filePath: string,
-        line: number,
-        column: number,
-    ): Promise<types.CompletionItem[]> {
-        return [types.CompletionItem.create("test1"), types.CompletionItem.create("test2")]
-    }
-
-    public async getCompletionDetails(
-        language: string,
-        filePath: string,
-        completionItem: types.CompletionItem,
-    ): Promise<types.CompletionItem> {
-        return completionItem
-    }
-}
-
 export class Completion implements IDisposable {
     private _lastCursorPosition: Oni.Cursor
     private _store: Store<ICompletionState>

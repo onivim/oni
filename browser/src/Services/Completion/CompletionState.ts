@@ -19,6 +19,7 @@ export interface ICompletionMeetInfo {
     queryPosition: number
     meetBase: string
     shouldExpand: boolean
+    textMateScopes: string[]
 }
 
 export const DefaultMeetInfo: ICompletionMeetInfo = {
@@ -27,6 +28,7 @@ export const DefaultMeetInfo: ICompletionMeetInfo = {
     queryPosition: -1,
     meetBase: "",
     shouldExpand: false,
+    textMateScopes: [],
 }
 
 export interface ICompletionBufferInfo {

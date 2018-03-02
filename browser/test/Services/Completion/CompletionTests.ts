@@ -27,12 +27,14 @@ export class MockCompletionRequestor implements Completion.ICompletionsRequestor
     }
 
     public getCompletions(
-        fileLanguage: string,
-        filePath: string,
-        line: number,
-        column: number,
+        context: Completion.CompletionsRequestContext,
     ): Promise<types.CompletionItem[]> {
-        return this._completionsRequestor.get(fileLanguage, filePath, line, column)
+        return this._completionsRequestor.get(
+            context.language,
+            context.filePath,
+            context.line,
+            context.column,
+        )
     }
 
     public getCompletionDetails(
