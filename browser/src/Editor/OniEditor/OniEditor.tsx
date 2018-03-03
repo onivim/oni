@@ -18,6 +18,7 @@ import * as Log from "./../../Log"
 import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { IColors } from "./../../Services/Colors"
+import { commandManager } from "./../../Services/CommandManager"
 import { CompletionProviders } from "./../../Services/Completion"
 import { Configuration } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
@@ -160,6 +161,22 @@ export class OniEditor implements IEditor {
         this._neovimEditor.enter()
 
         editorManager.setActiveEditor(this)
+
+        commandManager.registerCommand({
+            command: "editor.split.horizontal",
+            execute: () => this._split("horizontal"),
+            enabled: () => editorManager.activeEditor === this,
+            name: null,
+            detail: null,
+        })
+
+        commandManager.registerCommand({
+            command: "editor.split.vertical",
+            execute: () => this._split("vertical"),
+            enabled: () => editorManager.activeEditor === this,
+            name: null,
+            detail: null,
+        })
     }
 
     public leave(): void {
