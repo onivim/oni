@@ -249,6 +249,16 @@ export class OniEditor implements IEditor {
     }
 
     private async _split(direction: SplitDirection): Promise<OniEditor> {
+        if (this._configuration.getValue("editor.split.mode") !== "oni") {
+            if (direction === "horizontal") {
+                await this._neovimEditor.neovim.command(":sp")
+            } else {
+                await this._neovimEditor.neovim.command(":vsp")
+            }
+
+            return this
+        }
+
         const newEditor = new OniEditor(
             this._colors,
             this._completionProviders,
