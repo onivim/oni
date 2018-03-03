@@ -16,6 +16,8 @@ import { OniSnippet, OniSnippetPlaceholder } from "./OniSnippet"
 import { BufferIndentationInfo, IBuffer } from "./../../Editor/BufferManager"
 import { IEditor } from "./../../Editor/Editor"
 
+import { SnippetVariableResolver } from "./SnippetVariableResolver"
+
 export const splitLineAtPosition = (line: string, position: number): [string, string] => {
     const prefix = line.substring(0, position)
     const post = line.substring(position, line.length)
@@ -107,7 +109,7 @@ export class SnippetSession {
             this._snippetString,
             whitespaceSettings,
         )
-        this._snippet = new OniSnippet(normalizedSnippet)
+        this._snippet = new OniSnippet(normalizedSnippet, new SnippetVariableResolver(this._buffer))
 
         const cursorPosition = await this._buffer.getCursorPosition()
         const [currentLine] = await this._buffer.getLines(
