@@ -224,8 +224,7 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
     /**
      * Construct Class name is a function which takes a token
      * and returns another function which takes the theme as an argument
-     * with which it creates a css class based on the token name and returns this as
-     * a string
+     * with which it creates a css class based on the token name and returns this as a string
      * @returns {fn(theme) => string}
      */
     public constructClassName = (token: string) => (theme: INewTheme) => {

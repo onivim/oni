@@ -78,7 +78,7 @@ export class TokenColors implements IDisposable {
                           scope: s,
                           settings: token.settings,
                       }))
-                    : { scope: token.scope, settings: token.settings },
+                    : token,
         )
         return [].concat(...multidimensionalTokens).filter(t => !!t.scope)
     }
