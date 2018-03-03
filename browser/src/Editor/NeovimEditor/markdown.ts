@@ -169,7 +169,7 @@ export const convertMarkdown = ({ markdown, tokens, type = "title" }: IConversio
 
     switch (type) {
         case "documentation":
-            renderer.html = htmlString => DOMPurify.sanitize(htmlString, purifyConfig)
+            renderer.html = text => DOMPurify.sanitize(text, purifyConfig)
             renderer.paragraph = text =>
                 createContainer("p", DOMPurify.sanitize(text, purifyConfig))
 
