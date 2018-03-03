@@ -157,7 +157,7 @@ export class Buffer implements IBuffer {
 
         // Neovim does not error if it is unable to get lines instead it returns an array
         // of type [1, "an error message"]
-        if (typeof lines[0] === "number") {
+        if (lines && typeof lines[0] === "number") {
             return null
         }
         return lines
