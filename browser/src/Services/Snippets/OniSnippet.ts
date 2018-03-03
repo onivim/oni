@@ -10,6 +10,9 @@
 import * as Snippets from "vscode-snippet-parser/lib"
 import { normalizeNewLines } from "./../../Utility"
 
+export type VariableResolver = Snippets.VariableResolver
+export type Variable = Snippets.Variable
+
 export interface OniSnippetPlaceholder {
     index: number
 
@@ -45,7 +48,7 @@ export class OniSnippet {
     private _placeholderValues: { [index: number]: string } = {}
     private _snippetString: string
 
-    constructor(snippet: string) {
+    constructor(snippet: string, private _variableResolver?: VariableResolver) {
         this._snippetString = normalizeNewLines(snippet)
     }
 
@@ -85,6 +88,10 @@ export class OniSnippet {
 
     private _getSnippetWithFilledPlaceholders(): Snippets.TextmateSnippet {
         const snippet = this._parser.parse(this._snippetString)
+
+        if (this._variableResolver) {
+            snippet.resolveVariables(this._variableResolver)
+        }
 
         Object.keys(this._placeholderValues).forEach((key: string) => {
             const val = this._placeholderValues[key]
