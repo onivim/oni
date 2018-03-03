@@ -58,7 +58,7 @@ const _convertCompletionForContextMenu = (completion: types.CompletionItem): any
     label: completion.label,
     detail: completion.detail,
     documentation: getCompletionDocumentation(completion),
-    icon: CompletionUtility.convertKindToIconName(completion.kind),
+    icon: <div>hi</div>,
     rawCompletion: completion,
 })
 

@@ -9,8 +9,6 @@ import * as types from "vscode-languageserver-types"
 import { connect, Provider } from "react-redux"
 import { Store } from "redux"
 
-import * as Oni from "oni-api"
-
 import { IMenus } from "./../Menu/MenuState"
 
 import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
@@ -24,7 +22,7 @@ export interface IContextMenuItem {
     label: string
     detail?: string
     documentation?: string
-    icon?: string
+    icon?: string | JSX.Element
 }
 
 export interface IContextMenuProps {
@@ -87,7 +85,7 @@ const getDocumentationFromItems = (items: any[], selectedIndex: number): string 
     return items[selectedIndex].documentation
 }
 
-export interface IContextMenuItemProps extends Oni.Menu.MenuOption {
+export interface IContextMenuItemProps extends IContextMenuItem {
     base: string
     isSelected: boolean
     highlightColor?: string
@@ -108,13 +106,23 @@ export class ContextMenuItem extends React.PureComponent<IContextMenuItemProps, 
 
         const arrowColor = this.props.isSelected ? highlightColor : "transparent"
 
+        let iconElement: JSX.Element = null
+
+        if (typeof this.props.icon === "string") {
+            iconElement = (
+                <span className="icon" style={iconContainerStyle}>
+                    <Icon name={this.props.icon} />
+                </span>
+            )
+        } else {
+            iconElement = this.props.icon
+        }
+
         return (
             <div className={className} key={this.props.label}>
                 <div className="main">
-                    <span className="icon" style={iconContainerStyle}>
-                        <Icon name={this.props.icon} />
-                    </span>
                     <Arrow direction={ArrowDirection.Right} size={5} color={arrowColor} />
+                    {iconElement}
                     <HighlightText
                         className="label"
                         highlightClassName="highlight"
