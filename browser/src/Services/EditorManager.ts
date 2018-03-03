@@ -12,12 +12,13 @@ import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 
 export class EditorManager implements Oni.EditorManager {
+    private _allEditors: Oni.Editor[] = []
     private _activeEditor: Oni.Editor = null
     private _anyEditorProxy: AnyEditorProxy = new AnyEditorProxy()
     private _onActiveEditorChanged: Event<Oni.Editor> = new Event<Oni.Editor>()
 
     public get allEditors(): Oni.Editor[] {
-        return []
+        return this._allEditors
     }
 
     /**
@@ -40,6 +41,20 @@ export class EditorManager implements Oni.EditorManager {
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
     ): Promise<Oni.Buffer> {
         return this._activeEditor.openFile(filePath, openOptions)
+    }
+
+    public registerEditor(editor: Oni.Editor) {
+        if (this._allEditors.indexOf(editor) === -1) {
+            this._allEditors.push(editor)
+        }
+    }
+
+    public unregisterEditor(editor: Oni.Editor): void {
+        this._allEditors = this._allEditors.filter(ed => ed !== editor)
+
+        if (this._allEditors.length === 0) {
+            // Quit?
+        }
     }
 
     /**

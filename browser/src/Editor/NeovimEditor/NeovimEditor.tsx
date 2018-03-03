@@ -47,6 +47,7 @@ import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
+import { windowManager } from "./../../Services/WindowManager"
 
 import * as Shell from "./../../UI/Shell"
 
@@ -176,6 +177,8 @@ export class NeovimEditor extends Editor implements IEditor {
         private _workspace: Workspace,
     ) {
         super()
+
+        editorManager.registerEditor(this)
 
         const services: any[] = []
 
@@ -375,9 +378,14 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onLeave.subscribe(() => {
-            // TODO: Only leave if all editors are closed...
-            if (!this._configuration.getValue("debug.persistOnNeovimExit")) {
+            const isSplitModeOni = this._configuration.getValue("editor.split.mode") === "oni"
+
+            if (!this._configuration.getValue("debug.persistOnNeovimExit") && !isSplitModeOni) {
                 remote.getCurrentWindow().close()
+            } else if (isSplitModeOni) {
+                const handle = windowManager.getSplitHandle(this)
+                handle.close()
+                editorManager.unregisterEditor(this)
             }
         })
 
