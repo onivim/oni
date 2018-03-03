@@ -48,6 +48,7 @@ export interface IBuffer extends Oni.Buffer {
 }
 
 export type IndentationType = "tab" | "space"
+type MaybeMixedArray = string[] | Array<string | number>
 
 export interface BufferIndentationInfo {
     type: IndentationType
@@ -148,7 +149,7 @@ export class Buffer implements IBuffer {
             Log.warn("getLines called with over 2500 lines, this may cause instability.")
         }
 
-        const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [
+        const lines = await this._neovimInstance.request<MaybeMixedArray>("nvim_buf_get_lines", [
             parseInt(this._id, 10),
             start,
             end,
@@ -157,10 +158,17 @@ export class Buffer implements IBuffer {
 
         // Neovim does not error if it is unable to get lines instead it returns an array
         // of type [1, "an error message"]
-        if (lines && typeof lines[0] === "number") {
-            return null
+        function isStringArray(arr: MaybeMixedArray): arr is string[] {
+            if (typeof arr[0] !== "string") {
+                return false
+            }
+            return true
         }
-        return lines
+        if (lines && isStringArray(lines)) {
+            return lines
+        }
+
+        return null
     }
 
     public async setLanguage(language: string): Promise<void> {
