@@ -33,12 +33,12 @@ class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
         return (
             isVisible && (
                 <TokenThemeProvider
-                    render={({ theme, styles }) => (
+                    render={({ styles }) => (
                         <QuickInfoContainer hasDocs={hasDocs}>
                             <QuickInfoTitle
-                                padding={hasDocs ? "0.5rem" : null}
-                                html={titleAndContents.title}
                                 tokenStyles={styles}
+                                padding={hasDocs && "0.5rem"}
+                                html={titleAndContents.title}
                             />
                             {titleAndContents.description && (
                                 <QuickInfoDocumentation

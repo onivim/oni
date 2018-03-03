@@ -13,12 +13,14 @@ import { TokenColor } from "./../Services/TokenColors"
 
 import { NeovimInstance } from "./NeovimInstance"
 
-const getGuiStringFromTokenColor = (color: TokenColor): string => {
-    if (color.settings.bold && color.settings.italic) {
+const getGuiStringFromTokenColor = ({ settings: { fontStyle } }: TokenColor): string => {
+    if (!fontStyle) {
+        return "gui=none"
+    } else if (fontStyle.includes("bold italic")) {
         return "gui=bold,italic"
-    } else if (color.settings.bold) {
+    } else if (fontStyle === "bold") {
         return "gui=bold"
-    } else if (color.settings.italic) {
+    } else if (fontStyle === "italic") {
         return "gui=italic"
     } else {
         return "gui=none"
@@ -79,8 +81,8 @@ export class NeovimTokenColorSynchronizer {
 
     private _convertTokenStyleToHighlightInfo(tokenColor: TokenColor): string {
         const name = this._getOrCreateHighlightGroup(tokenColor)
-        const foregroundColor = Color(tokenColor.settings.foregroundColor).hex()
-        const backgroundColor = Color(tokenColor.settings.backgroundColor).hex()
+        const foregroundColor = Color(tokenColor.settings.foreground).hex()
+        const backgroundColor = Color(tokenColor.settings.background).hex()
         const gui = getGuiStringFromTokenColor(tokenColor)
         return `:hi ${name} guifg=${foregroundColor} guibg=${backgroundColor} ${gui}`
     }

@@ -12,18 +12,8 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 import { Configuration, configuration, GenericConfigurationValues } from "./../Configuration"
 
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
-import { TokenColor } from "./../TokenColors"
+import { ThemeToken, TokenColor } from "./../TokenColors"
 import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
-
-interface ThemeToken {
-    scope: string | string[]
-    settings: {
-        foreground?: string
-        background?: string
-        bold?: boolean
-        italic?: boolean
-    }
-}
 
 export interface IThemeColors {
     background: string
@@ -401,8 +391,6 @@ export class ThemeManager {
             defaultTheme: DefaultThemeColors,
             themeColors: this.activeTheme.colors,
         })
-
-        console.log("this._activeTheme: ", this._activeTheme)
 
         this._colors = {
             ...DefaultThemeColors,

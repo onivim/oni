@@ -1,7 +1,7 @@
 import * as os from "os"
 
 import * as React from "react"
-import styled, { boxShadowInset, css, fontSizeSmall, withProps } from "./common"
+import styled, { boxShadowInset, Css, css, fontSizeSmall, withProps } from "./common"
 
 export const QuickInfoWrapper = styled.div`
     user-select: none;
@@ -78,7 +78,7 @@ const childStyles = css`
 `
 
 interface DocProps {
-    tokenStyles?: any
+    tokenStyles?: Css
 }
 export const Documentation = withProps<DocProps>(styled.div)`
     ${fontSizeSmall};
@@ -107,7 +107,7 @@ export const Documentation = withProps<DocProps>(styled.div)`
 
 interface TitleProps {
     padding?: string
-    tokenStyles?: any
+    tokenStyles?: Css
 }
 export const Title = withProps<TitleProps>(styled.div)`
     padding: ${p => p.padding || "0.7rem"};
