@@ -39,7 +39,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
    ocamlmerlin -version
    PATH=$PATH:~/.nvm/versions/node/$NODE_VERSION/bin
 
-   npm run demo
+   npm run demo:screenshot
 fi
 
 npm run test:integration

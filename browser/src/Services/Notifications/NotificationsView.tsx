@@ -13,13 +13,14 @@ import { CSSTransition, TransitionGroup } from "react-transition-group"
 import { INotification, INotificationsState } from "./NotificationStore"
 
 import { boxShadow, keyframes, styled, withProps } from "./../../UI/components/common"
+import { Sneakable } from "./../../UI/components/Sneakable"
 import { Icon, IconSize } from "./../../UI/Icon"
 
 export interface NotificationsViewProps {
     notifications: INotification[]
 }
 
-const Transition = (props: { children: any }) => {
+const Transition = (props: { children: React.ReactNode }) => {
     return (
         <CSSTransition {...props} timeout={1000} classNames="notification">
             {props.children}
@@ -32,7 +33,7 @@ const NotificationsWrapper = styled.div`
     top: 16px;
     right: 16px;
     max-height: 90%;
-    width: 30%;
+    max-width: 25rem;
     pointer-events: all;
     overflow: auto;
 
@@ -200,10 +201,14 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
                 <NotificationHeader>
                     <IconContainer>
                         <NotificationIconWrapper level={level}>
-                            <Icon size={IconSize.Large} name={this.iconDictionary[level]} />
+                            <Sneakable callback={this.props.onClick}>
+                                <Icon size={IconSize.Large} name={this.iconDictionary[level]} />
+                            </Sneakable>
                         </NotificationIconWrapper>
                         <NotificationIconWrapper onClick={evt => this._onClickClose(evt)}>
-                            <Icon size={IconSize.Large} name="times" />
+                            <Sneakable callback={this.props.onClose}>
+                                <Icon size={IconSize.Large} name="times" />
+                            </Sneakable>
                         </NotificationIconWrapper>
                     </IconContainer>
                     <NotificationTitle level={level}>{this.props.title}</NotificationTitle>
@@ -215,7 +220,7 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
         )
     }
 
-    private _onClickClose(evt: React.MouseEvent<HTMLElement>): void {
+    private _onClickClose = (evt: React.MouseEvent<HTMLElement>): void => {
         this.props.onClose()
         evt.stopPropagation()
         evt.preventDefault()

@@ -47,6 +47,7 @@ const start = async (args: string[]): Promise<void> => {
     const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
+    const quickOpenPromise = import("./Services/QuickOpen")
     const taksPromise = import("./Services/Tasks")
     const workspacePromise = import("./Services/Workspace")
     const workspaceCommandsPromise = import("./Services/Workspace/WorkspaceCommands")
@@ -134,6 +135,9 @@ const start = async (args: string[]): Promise<void> => {
     Menu.activate(configuration, overlayManager)
     const menuManager = Menu.getInstance()
 
+    const QuickOpen = await quickOpenPromise
+    QuickOpen.activate(commandManager, menuManager, editorManager, workspace)
+
     const Notifications = await notificationsPromise
     Notifications.activate(configuration, overlayManager)
 
@@ -155,7 +159,7 @@ const start = async (args: string[]): Promise<void> => {
     const tasks = Tasks.getInstance()
 
     const LanguageManager = await languageManagerPromise
-    LanguageManager.activate(configuration, editorManager, statusBar, workspace)
+    LanguageManager.activate(configuration, editorManager, pluginManager, statusBar, workspace)
     const languageManager = LanguageManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Editors")
@@ -202,6 +206,7 @@ const start = async (args: string[]): Promise<void> => {
 
     Performance.startMeasure("Oni.Start.Sidebar")
     const Sidebar = await sidebarPromise
+    const Learning = await import("./Services/Learning")
     const Explorer = await import("./Services/Explorer")
     const Search = await import("./Services/Search")
 
@@ -210,6 +215,7 @@ const start = async (args: string[]): Promise<void> => {
 
     Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
+    Learning.activate(configuration, editorManager, Sidebar.getInstance())
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =

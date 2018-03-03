@@ -10,6 +10,8 @@ import { clipboard, desktopCapturer } from "electron"
 import * as fs from "fs"
 import * as path from "path"
 
+import * as Oni from "oni-api"
+
 import * as Log from "./../Log"
 
 import { configuration } from "./Configuration"
@@ -27,7 +29,7 @@ const toBuffer = (ab: ArrayBuffer) => {
     return buffer
 }
 
-class Recorder {
+class Recorder implements Oni.Recorder {
     private _recorder: any = null
     private _blobs: Blob[] = []
 

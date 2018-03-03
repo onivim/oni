@@ -33,6 +33,9 @@ const BaseConfiguration: IConfigurationValues = {
     deactivate: noop,
 
     "autoUpdate.enabled": false,
+
+    "browser.defaultUrl": "https://duckduckgo.com",
+
     "configuration.editor": "javascript",
 
     "debug.fixedSize": null,
@@ -44,10 +47,10 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.languageServer": null,
     "debug.fakeLag.neovimInput": null,
 
-    "experimental.editor.textMateHighlighting.enabled": false,
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
+    "experimental.learning.enabled": false,
     "experimental.welcome.enabled": false,
 
     "experimental.neovim.transport": "stdio",
@@ -55,6 +58,7 @@ const BaseConfiguration: IConfigurationValues = {
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
     "editor.maxLinesForLanguageServices": 2500,
+    "editor.textMateHighlighting.enabled": true,
 
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
@@ -242,7 +246,7 @@ const BaseConfiguration: IConfigurationValues = {
         "oni.status.git": 3,
     },
 
-    "tabs.mode": "buffers",
+    "tabs.mode": "tabs",
     "tabs.height": "2.5em",
     "tabs.highlight": true,
     "tabs.maxWidth": "30em",
