@@ -161,13 +161,14 @@ export class Buffer implements IBuffer {
         // Neovim does not error if it is unable to get lines instead it returns an array
         // of type [1, "an error message"], we only check the first on the assumption that
         // that is where the number is placed by neovim
-        const isStringArray = (arr: MaybeStringArray): arr is string[] => typeof arr[0] !== "string"
+        const isStringArray = (array: MaybeStringArray): array is string[] =>
+            typeof array[0] === "string"
 
         if (lines && isStringArray(lines)) {
             return lines
         }
 
-        return null
+        return []
     }
 
     public async setLanguage(language: string): Promise<void> {
