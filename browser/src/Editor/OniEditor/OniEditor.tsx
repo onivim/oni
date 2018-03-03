@@ -44,7 +44,7 @@ import { ErrorsContainer } from "./containers/ErrorsContainer"
 
 import { NeovimEditor } from "./../NeovimEditor"
 
-import { windowManager, SplitDirection } from "./../../Services/WindowManager"
+import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 
 import { ImageBufferLayer } from "./ImageBufferLayer"
 
