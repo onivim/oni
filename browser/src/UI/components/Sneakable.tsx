@@ -11,6 +11,8 @@ import { IDisposable } from "oni-types"
 
 import { /* SneakProvider, Sneak,*/ getInstance as getSneak } from "./../../Services/Sneak"
 
+import { EmptyArray } from "./../../Utility"
+
 export interface ISneakableProps {
     callback?: (evt?: any) => void
 }
@@ -40,7 +42,7 @@ export class Sneakable extends React.PureComponent<ISneakableProps, {}> {
                     },
                 ]
             } else {
-                return null
+                return EmptyArray
             }
         })
     }
