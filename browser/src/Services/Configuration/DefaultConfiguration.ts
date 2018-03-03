@@ -123,6 +123,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.tokenColors": [],
 
+    "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
+
     "environment.additionalPaths": [],
 
     "language.html.languageServer.command": htmlLanguageServerPath,
