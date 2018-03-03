@@ -4,12 +4,17 @@
  * Entry point for browser integration plugin
  */
 
+import * as path from "path"
+
 import * as React from "react"
 import styled from "styled-components"
 
 import { IDisposable, IEvent } from "oni-types"
+import * as Oni from "oni-api"
 
 import { Icon, IconSize } from "./../../UI/Icon"
+
+import { getInstance as getSneakInstance, ISneakInfo } from "./../../Services/Sneak"
 
 const Column = styled.div`
     pointer-events: auto;
@@ -81,6 +86,11 @@ export interface IBrowserViewProps {
     reload: IEvent<void>
 }
 
+export interface SneakInfoFromBrowser {
+    id: string
+    rectangle: Oni.Shapes.Rectangle
+}
+
 export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
     private _webviewElement: any
     private _disposables: IDisposable[] = []
@@ -91,7 +101,45 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
         const d3 = this.props.reload.subscribe(() => this._reload())
         const d4 = this.props.debug.subscribe(() => this._openDebugger())
 
-        this._disposables = this._disposables.concat([d1, d2, d3, d4])
+        const d5 = getSneakInstance().addSneakProvider(async (): Promise<ISneakInfo[]> => {
+            if (this._webviewElement) {
+                const promise = new Promise<SneakInfoFromBrowser[]>(resolve => {
+                    this._webviewElement.executeJavaScript(
+                        "window['__oni_sneak_collector__']()",
+                        (result: any) => {
+                            resolve(result)
+                        },
+                    )
+                })
+
+                const webviewDimensions: ClientRect = this._webviewElement.getBoundingClientRect()
+
+                const sneaks: SneakInfoFromBrowser[] = await promise
+
+                return sneaks.map(s => {
+                    const callbackFunction = (id: string) => () => this._triggerSneak(id)
+                    return {
+                        rectangle: Oni.Shapes.Rectangle.create(
+                            webviewDimensions.left + s.rectangle.x,
+                            webviewDimensions.top + s.rectangle.y,
+                            s.rectangle.width,
+                            s.rectangle.height,
+                        ),
+                        callback: callbackFunction(s.id),
+                    }
+                })
+            }
+
+            return []
+        })
+
+        this._disposables = this._disposables.concat([d1, d2, d3, d4, d5])
+    }
+
+    public _triggerSneak(id: string): void {
+        if (this._webviewElement) {
+            this._webviewElement.executeJavaScript(`window["__oni_sneak_execute__"]("${id}")`, true)
+        }
     }
 
     public componentWillUnmount(): void {
@@ -164,6 +212,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
     private _initializeElement(elem: HTMLElement) {
         if (elem && !this._webviewElement) {
             const webviewElement = document.createElement("webview")
+            webviewElement.preload = path.join(__dirname, "lib", "webview_preload", "index.js")
             elem.appendChild(webviewElement)
             this._webviewElement = webviewElement
             this._webviewElement.src = this.props.url
