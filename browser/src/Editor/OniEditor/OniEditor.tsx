@@ -280,7 +280,6 @@ export class OniEditor implements IEditor {
             this._workspace,
         )
 
-        // TODO
         windowManager.createSplit(direction, newEditor, this)
         await newEditor.init([])
         return newEditor
