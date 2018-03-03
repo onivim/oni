@@ -154,6 +154,12 @@ export class Buffer implements IBuffer {
             end,
             false,
         ])
+
+        // Neovim does not error if it is unable to get lines instead it returns an array
+        // of type [1, "an error message"]
+        if (typeof lines[0] === "number") {
+            return null
+        }
         return lines
     }
 
@@ -345,7 +351,7 @@ export class Buffer implements IBuffer {
         }
 
         const getToken = (lineContents: string, character: number): Oni.IToken => {
-            if (!lineContents || !lineContents.substring || !character) {
+            if (!lineContents || !character) {
                 return null
             }
 
