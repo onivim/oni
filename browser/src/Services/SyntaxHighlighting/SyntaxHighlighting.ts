@@ -19,8 +19,6 @@ import { TokenColors } from "./../TokenColors"
 
 import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
-import { getLineFromBuffer } from "./SyntaxHighlightSelectors"
-
 import {
     createSyntaxHighlightStore,
     ISyntaxHighlightAction,
