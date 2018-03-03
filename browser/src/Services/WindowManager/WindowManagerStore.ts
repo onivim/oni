@@ -15,6 +15,8 @@ export interface IAugmentedSplitInfo extends Oni.IWindowSplit {
     // Internal bookkeeping
     id: string
 
+    innerSplit: Oni.IWindowSplit
+
     // Potential API methods
     enter?(): void
     leave?(): void
