@@ -223,22 +223,6 @@ const createGetCompletionMeetEpic = (
                 return nullAction
             }
 
-            // Check and validate we're not in comments or string scopes
-
-            const highlightInfo = syntaxHighlighter.getHighlightTokenAt(
-                0 /* where to get id?*/,
-                types.Position.create(currentState.cursorInfo.line, currentState.cursorInfo.column),
-            )
-
-            if (highlightInfo && highlightInfo.scopes) {
-                const anyScopesMatchFilter = highlightInfo.scopes.filter(
-                    scope => scope.startsWith("string.") || scope.startsWith("comment."),
-                )
-                if (anyScopesMatchFilter.length > 0) {
-                    return nullAction
-                }
-            }
-
             const { bufferInfo } = currentState
 
             const token = languageManager.getTokenRegex(bufferInfo.language)
