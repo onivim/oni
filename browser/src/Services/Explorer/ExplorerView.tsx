@@ -11,7 +11,7 @@ import { compose } from "redux"
 
 // import { Transition, TransitionGroup } from "react-transition-group"
 
-import { styled, withProps } from "./../../UI/components/common"
+import { styled } from "./../../UI/components/common"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 import { DragAndDrop, Droppeable } from "./../DragAndDrop"
@@ -22,7 +22,6 @@ import * as ExplorerSelectors from "./ExplorerSelectors"
 import { IExplorerState } from "./ExplorerStore"
 
 type Node = ExplorerSelectors.ExplorerNode
-type Status = "ENTERING" | "ENTERED" | "EXITING" | "EXITED"
 
 export interface INodeViewProps {
     moveFileOrFolder: (source: Node, dest: Node) => void
