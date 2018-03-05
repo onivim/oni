@@ -157,7 +157,7 @@ export class Buffer implements IBuffer {
             ])
             return lines
         } catch (e) {
-            Log.warn(`Failed to get lines for buffer ${this._id}`)
+            Log.warn(`Failed to get lines for buffer ${this._id}.`)
             return []
         }
     }

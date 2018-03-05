@@ -11,7 +11,7 @@ import * as msgpack from "./MsgPack"
 type RequestHandlerFunction = (result: any) => void
 
 type NvimError = [number, string]
-type Primitives = "string" | "number" | "object"
+type Primitives = "string" | "number" | "object" | "boolean"
 
 const log = (msg: string) => {
     if (configuration.getValue("debug.detailedSessionLogging")) {
