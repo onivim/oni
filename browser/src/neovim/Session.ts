@@ -10,10 +10,22 @@ import * as msgpack from "./MsgPack"
 
 type RequestHandlerFunction = (result: any) => void
 
+type NvimError = [number, string]
+type Primitives = "string" | "number" | "object"
+
 const log = (msg: string) => {
     if (configuration.getValue("debug.detailedSessionLogging")) {
         Log.info("[DEBUG - Neovim Session] " + msg)
     }
+}
+
+// TODO: This can possibly be generalised to use in other
+// neovim type guard check functions
+const isArrayOfType = <P>(value: NvimError | P, variableType: Primitives): value is P => {
+    if (value && Array.isArray(value)) {
+        return typeof value[0] === variableType
+    }
+    return false
 }
 
 /**
@@ -80,11 +92,26 @@ export class Session extends EventEmitter {
         })
     }
 
+    // Neovim does not error if it is unable to get lines instead it returns an array
+    // of type [1, "an error message"] **on Some occasions**, we only check the first on the assumption that
+    // that is where the number is placed by neovim
+    public isNeovimError = <T>(val: T, methodName: string) => {
+        switch (methodName) {
+            case "nvim_buf_get_lines":
+                return !isArrayOfType<T>(val, "string")
+            default:
+                return false
+        }
+    }
+
     public request<T>(methodName: string, args: any): Promise<T> {
         this._requestId++
         let r = null
-        const promise = new Promise<T>(resolve => {
-            r = (val: any) => {
+        const promise = new Promise<T>((resolve, reject) => {
+            r = (val: T) => {
+                if (this.isNeovimError<T>(val, methodName)) {
+                    return reject(null)
+                }
                 resolve(val)
             }
         })
