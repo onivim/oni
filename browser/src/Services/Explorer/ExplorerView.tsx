@@ -9,7 +9,7 @@ import HTML5Backend from "react-dnd-html5-backend"
 import { connect } from "react-redux"
 import { compose } from "redux"
 
-import { Transition, TransitionGroup } from "react-transition-group"
+// import { Transition, TransitionGroup } from "react-transition-group"
 
 import { styled, withProps } from "./../../UI/components/common"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
@@ -37,10 +37,6 @@ const NodeWrapper = styled.div`
     }
 `
 
-const TransitionContainer = withProps<{ status?: Status }>(styled.div)`
-    ${p => transitionStyles[p.status]};
-`
-
 // tslint:disable-next-line
 const noop = (elem: HTMLElement) => {}
 const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
@@ -51,27 +47,6 @@ const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
 const Types = {
     FILE: "FILE",
     FOLDER: "FOLDER",
-}
-
-interface IPopIn {
-    timeout: number
-    in: boolean
-    render?: (status: Status) => React.ReactElement<Status>
-    children?: React.ReactNode
-    enableEnter?: boolean
-}
-
-const PopIn = ({ in: inProp, timeout, render, children, ...props }: IPopIn) => (
-    <Transition in={inProp} timeout={timeout} {...props} enter={props.enableEnter}>
-        {(status: Status) => <TransitionContainer status={status}>{children}</TransitionContainer>}
-    </Transition>
-)
-
-const transitionStyles = {
-    entering: { opacity: 0 },
-    entered: { opacity: 1 },
-    exiting: { opacity: 1 },
-    exited: { opacity: 0 },
 }
 
 interface IMoveNode {
@@ -118,18 +93,16 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         node={node}
                         render={({ canDrop, isDragging, didDrop, isOver }) => {
                             return (
-                                <PopIn timeout={1000} in={true} enableEnter={didDrop}>
-                                    <SidebarItemView
-                                        isOver={isOver && canDrop}
-                                        didDrop={didDrop}
-                                        canDrop={canDrop}
-                                        text={node.name}
-                                        isFocused={this.props.isSelected}
-                                        isContainer={false}
-                                        indentationLevel={node.indentationLevel}
-                                        icon={<FileIcon fileName={node.name} isLarge={true} />}
-                                    />
-                                </PopIn>
+                                <SidebarItemView
+                                    isOver={isOver && canDrop}
+                                    didDrop={didDrop}
+                                    canDrop={canDrop}
+                                    text={node.name}
+                                    isFocused={this.props.isSelected}
+                                    isContainer={false}
+                                    indentationLevel={node.indentationLevel}
+                                    icon={<FileIcon fileName={node.name} isLarge={true} />}
+                                />
                             )
                         }}
                     />
@@ -233,9 +206,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
 
                     return (
                         <div className="explorer enable-mouse">
-                            <TransitionGroup>
-                                <div className="items">{nodes}</div>
-                            </TransitionGroup>
+                            <div className="items">{nodes}</div>
                         </div>
                     )
                 }}
