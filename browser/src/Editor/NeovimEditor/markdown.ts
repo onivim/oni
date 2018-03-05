@@ -143,7 +143,7 @@ interface IConversionArgs {
     type?: string
 }
 
-const purifyConfig = {
+const config = {
     FORBID_TAGS: ["img", "script"],
 }
 
@@ -169,17 +169,16 @@ export const convertMarkdown = ({ markdown, tokens, type = "title" }: IConversio
 
     switch (type) {
         case "documentation":
-            renderer.html = text => DOMPurify.sanitize(text, purifyConfig)
-            renderer.paragraph = text =>
-                createContainer("p", DOMPurify.sanitize(text, purifyConfig))
+            renderer.html = htmlString => DOMPurify.sanitize(htmlString, config)
+            renderer.paragraph = text => createContainer("p", DOMPurify.sanitize(text, config))
 
             break
         case "title":
         default:
-            renderer.html = htmlString => DOMPurify.sanitize(htmlString, purifyConfig)
+            renderer.html = htmlString => DOMPurify.sanitize(htmlString, config)
             renderer.paragraph = text => {
                 const stringWithClasses = renderWithClasses({ text, tokens })
-                return DOMPurify.sanitize(stringWithClasses, purifyConfig)
+                return DOMPurify.sanitize(stringWithClasses, config)
             }
             renderer.blockquote = text => {
                 const stringWithClasses = renderWithClasses({
@@ -187,7 +186,7 @@ export const convertMarkdown = ({ markdown, tokens, type = "title" }: IConversio
                     tokens,
                     container: "pre",
                 })
-                return DOMPurify.sanitize(stringWithClasses, purifyConfig)
+                return DOMPurify.sanitize(stringWithClasses, config)
             }
     }
 
