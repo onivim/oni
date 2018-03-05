@@ -8,8 +8,10 @@ import { connect } from "react-redux"
 
 import styled from "styled-components"
 
+import { withProps } from "./../../UI/components/common"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
+import { Icon } from "./../../UI/Icon"
 
 import { FileIcon } from "./../FileIcon"
 
@@ -35,6 +37,47 @@ const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
     elem && elem["scrollIntoViewIfNeeded"] && elem["scrollIntoViewIfNeeded"]()
 }
 
+const MenuContainer = styled.div`
+    width: 100%;
+    height: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+`
+
+const Option = withProps<{ color?: string }>(styled.span)`
+    display: flex;
+    flex: 1;
+    margin: 0.5rem;
+    justify-content: center;
+    ${p => p.color && `color: ${p.color}`};
+`
+
+class Menu extends React.Component<{ selected: boolean; children: React.ReactNode }> {
+    public renderMenu = () => (
+        <MenuContainer>
+            <Option color="red">
+                <Icon name="trash" />
+            </Option>
+            <Option color="yellow">
+                <Icon name="edit" />
+            </Option>
+        </MenuContainer>
+    )
+
+    public render() {
+        const { children, selected } = this.props
+        return selected ? (
+            <div>
+                {this.renderMenu()}
+                {children}
+            </div>
+        ) : (
+            children
+        )
+    }
+}
+
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     public render(): JSX.Element {
         return (
@@ -54,13 +97,15 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
         switch (node.type) {
             case "file":
                 return (
-                    <SidebarItemView
-                        text={node.name}
-                        isFocused={this.props.isSelected}
-                        isContainer={false}
-                        indentationLevel={node.indentationLevel}
-                        icon={<FileIcon fileName={node.name} isLarge={true} />}
-                    />
+                    <Menu selected={this.props.isSelected}>
+                        <SidebarItemView
+                            text={node.name}
+                            isFocused={this.props.isSelected}
+                            isContainer={false}
+                            indentationLevel={node.indentationLevel}
+                            icon={<FileIcon fileName={node.name} isLarge={true} />}
+                        />
+                    </Menu>
                 )
             case "container":
                 return (
@@ -90,6 +135,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 export interface IExplorerViewContainerProps {
     onSelectionChanged: (id: string) => void
     onClick: (id: string) => void
+    navigateUpwards: (dirname: string) => void
 }
 
 export interface IExplorerViewProps extends IExplorerViewContainerProps {

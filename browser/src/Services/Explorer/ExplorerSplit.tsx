@@ -3,6 +3,7 @@
  *
  */
 
+import * as path from "path"
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
@@ -80,9 +81,22 @@ export class ExplorerSplit {
                 <Explorer
                     onSelectionChanged={id => this._onSelectionChanged(id)}
                     onClick={id => this._onOpenItem(id)}
+                    navigateUpwards={this._navigateUpwards}
                 />
             </Provider>
         )
+    }
+
+    private _navigateUpwards(dirname: string): void {
+        const parentDir = dirname
+            .split(path.sep)
+            .slice(0, -1)
+            .join(path.sep)
+
+        this._store.dispatch({
+            type: "SET_ROOT_DIRECTORY",
+            rootPath: parentDir,
+        })
     }
 
     private _onSelectionChanged(id: string): void {
