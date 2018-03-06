@@ -17,11 +17,9 @@ import { CommandManager } from "./../CommandManager"
 import { Configuration, getUserConfigFolderPath } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 
+import { loadSnippetsFromFile } from "./SnippetProvider"
+
 import * as Log from "./../../Log"
-
-import { promisify } from "util"
-
-const readFile = promisify(fs.readFile)
 
 const GLOBAL_SNIPPET_NAME = "global_snippets"
 
@@ -31,7 +29,7 @@ const SnippetTemplate = [
     '       "prefix": "for",',
     '       "body": [',
     '         "for (const ${2:element} of ${1:array}) {",',
-    '         "\t$0",',
+    '         "\\t$0",',
     '         "}"',
     "       ],",
     '       "description": "For Loop"',
@@ -139,21 +137,8 @@ export class UserSnippetProvider implements ISnippetProvider {
         if (this._snippetCache[language]) {
             return this._snippetCache[language]
         }
-
         const filePath = this.getUserSnippetFilePath(language)
-        const exists = fs.existsSync(filePath)
-
-        let snippets: ISnippet[] = []
-        if (exists) {
-            try {
-                const contents = await readFile(filePath)
-                snippets = Object.values(JSON.parse(contents.toString())) as ISnippet[]
-            } catch (ex) {
-                Log.error(ex)
-                snippets = []
-            }
-        }
-
+        const snippets = await loadSnippetsFromFile(filePath)
         this._snippetCache[language] = snippets
         return snippets
     }
