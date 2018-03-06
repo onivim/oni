@@ -10,7 +10,7 @@ import { connect, Provider } from "react-redux"
 
 import { CSSTransition, TransitionGroup } from "react-transition-group"
 
-import { INotification, INotificationsState } from "./NotificationStore"
+import { INotification, INotificationsState, NotificationLevel } from "./NotificationStore"
 
 import { boxShadow, keyframes, styled, withProps } from "./../../UI/components/common"
 import { Sneakable } from "./../../UI/components/Sneakable"
@@ -65,17 +65,16 @@ const frames = keyframes`
     100% { opacity: 1; transform: translateY(0px); }
 `
 
-type Level = "warn" | "info" | "error"
-
 interface IErrorStyles {
-    level?: Level
+    level?: NotificationLevel
 }
 
-const getColorForErrorLevel = (level: Level) => {
+const getColorForErrorLevel = (level: NotificationLevel) => {
     const colorToLevel = {
         warn: "yellow",
         error: "red",
         info: "#1D7CF2", // blue
+        success: "#5AB379", // green
     }
 
     return colorToLevel[level]
@@ -187,6 +186,7 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
         error: "times-circle",
         warn: "exclamation-triangle",
         info: "info-circle",
+        success: "check-circle",
     }
 
     public render(): JSX.Element {
