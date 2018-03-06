@@ -1,12 +1,14 @@
 import * as React from "react"
 import { connect, Provider } from "react-redux"
 
-import * as take from "lodash/take"
+import styled from "styled-components"
+
+import { AutoSizer, List } from "react-virtualized"
 
 import * as Oni from "oni-api"
 
 import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
-import { Visible } from "./../../UI/components/Visible"
+// import { Visible } from "./../../UI/components/Visible"
 import { Icon, IconSize } from "./../../UI/Icon"
 
 import { focusManager } from "./../FocusManager"
@@ -14,6 +16,8 @@ import { focusManager } from "./../FocusManager"
 import { IMenuOptionWithHighlights, menuStore } from "./Menu"
 import * as ActionCreators from "./MenuActionCreators"
 import * as State from "./MenuState"
+
+import { withProps } from "./../../UI/components/common"
 
 import { TextInputView } from "./../../UI/components/LightweightText"
 
@@ -26,18 +30,25 @@ export interface IMenuProps {
     items: IMenuOptionWithHighlights[]
     isLoading: boolean
 
-    backgroundColor: string
-    foregroundColor: string
+    rowHeight: number
+    maxItemsToShow: number
 }
 
-export class MenuView extends React.PureComponent<IMenuProps, {}> {
+const MenuStyleWrapper = styled.div`
+    background-color: ${props => props.theme["menu.background"]};
+    color: ${props => props.theme["menu.foreground"]};
 
+    & input {
+        color: ${props => props.theme["menu.foreground"]};
+        background-color: rgba(0, 0, 0.2);
+    }
+`
+
+export class MenuView extends React.PureComponent<IMenuProps, {}> {
     private _inputElement: HTMLInputElement = null
 
     public componentWillUpdate(newProps: Readonly<IMenuProps>): void {
-        if (newProps.visible !== this.props.visible
-            && !newProps.visible
-            && this._inputElement) {
+        if (newProps.visible !== this.props.visible && !newProps.visible && this._inputElement) {
             focusManager.popFocus(this._inputElement)
         }
     }
@@ -47,44 +58,58 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
             return null
         }
 
-        // TODO: sync max display items (10) with value in Reducer.popupMenuReducer() (Reducer.ts)
-        const initialItems = take(this.props.items, 10)
-
-        // const pinnedItems = initialItems.filter(f => f.pinned)
-        // const unpinnedItems = initialItems.filter(f => !f.pinned)
-        const items = initialItems.map((menuItem, index) =>
-            // FIXME: undefined
-            <MenuItem {...menuItem as any}
-                key={index}
-                filterText={this.props.filterText}
-                isSelected={index === this.props.selectedIndex}
-                onClick={() => this.props.onSelect(index)}
-            />)
-
-        const menuStyle = {
-            backgroundColor: this.props.backgroundColor,
-            color: this.props.foregroundColor,
+        const rowRenderer = (props: { key: string; index: number; style: React.CSSProperties }) => {
+            const item = this.props.items[props.index]
+            return (
+                <div style={props.style} key={props.key}>
+                    <MenuItem
+                        {...item as any}
+                        key={props.key}
+                        filterText={this.props.filterText}
+                        isSelected={props.index === this.props.selectedIndex}
+                        onClick={() => this.props.onSelect(props.index)}
+                    />
+                </div>
+            )
         }
 
         const footerClassName = "footer " + (this.props.isLoading ? "loading" : "loaded")
 
-        return <div className="menu-background enable-mouse">
-            <div className="menu" style={menuStyle}>
-                <TextInputView
-                    overrideDefaultStyle={true}
-                    backgroundColor={null}
-                    foregroundColor={this.props.foregroundColor}
-                    onChange={(evt) => this._onChange(evt)} />
-                <div className="items">
-                    {items}
-                </div>
-                <div className={footerClassName} style={menuStyle}>
-                    <div className="loading-spinner">
-                        <Icon name="circle-o-notch" className=" fa-spin" size={IconSize.Large} />
+        const height =
+            Math.min(this.props.items.length, this.props.maxItemsToShow) * this.props.rowHeight
+
+        return (
+            <div className="menu-background enable-mouse">
+                <MenuStyleWrapper className="menu">
+                    <TextInputView onChange={evt => this._onChange(evt)} />
+                    <div className="items">
+                        <div>
+                            <AutoSizer disableHeight={true}>
+                                {({ width }) => (
+                                    <List
+                                        scrollToIndex={this.props.selectedIndex}
+                                        width={width}
+                                        height={height}
+                                        rowCount={this.props.items.length}
+                                        rowHeight={this.props.rowHeight}
+                                        rowRenderer={rowRenderer}
+                                    />
+                                )}
+                            </AutoSizer>
+                        </div>
                     </div>
-                </div>
+                    <div className={footerClassName}>
+                        <div className="loading-spinner">
+                            <Icon
+                                name="circle-o-notch"
+                                className=" fa-spin"
+                                size={IconSize.Large}
+                            />
+                        </div>
+                    </div>
+                </MenuStyleWrapper>
             </div>
-        </div>
+        )
     }
 
     private _onChange(evt: React.FormEvent<HTMLInputElement>) {
@@ -94,20 +119,23 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
 }
 
 const EmptyArray: any[] = []
-const noop = () => { } // tslint:disable-line
+const noop = () => {} // tslint:disable-line
+const NullProps: any = {
+    visible: false,
+    selectedIndex: 0,
+    filterText: "",
+    items: EmptyArray,
+    onSelect: noop,
+    isLoading: true,
+    rowHeight: 0,
+    maxItemsToShow: 0,
+}
 
-const mapStateToProps = (state: State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlights>) => {
+const mapStateToProps = (
+    state: State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlights>,
+): any => {
     if (!state.menu) {
-        return {
-            visible: false,
-            selectedIndex: 0,
-            filterText: "",
-            items: EmptyArray,
-            backgroundColor: "black",
-            foregroundColor: "white",
-            onSelect: noop,
-            isLoading: true,
-        }
+        return NullProps
     } else {
         const popupMenu = state.menu
         return {
@@ -115,15 +143,15 @@ const mapStateToProps = (state: State.IMenus<Oni.Menu.MenuOption, IMenuOptionWit
             selectedIndex: popupMenu.selectedIndex,
             filterText: popupMenu.filter,
             items: popupMenu.filteredOptions,
-            backgroundColor: popupMenu.backgroundColor,
-            foregroundColor: popupMenu.foregroundColor,
             onSelect: popupMenu.onSelectItem,
             isLoading: popupMenu.isLoading,
+            rowHeight: state.configuration.rowHeight,
+            maxItemsToShow: state.configuration.maxItemsToShow,
         }
     }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: any): any => {
     const dispatchFilterText = (text: string) => {
         dispatch(ActionCreators.filterMenu(text))
     }
@@ -133,16 +161,18 @@ const mapDispatchToProps = (dispatch: any) => {
     }
 }
 
-export const ConnectedMenu = connect(mapStateToProps, mapDispatchToProps)(MenuView)
+export const ConnectedMenu: any = connect(mapStateToProps, mapDispatchToProps)(MenuView)
 
 export const MenuContainer = () => {
-    return <Provider store={menuStore}>
+    return (
+        <Provider store={menuStore}>
             <ConnectedMenu />
         </Provider>
+    )
 }
 
 export interface IMenuItemProps {
-    icon?: string
+    icon?: string | JSX.Element
     isSelected: boolean
     filterText: string
     label: string
@@ -150,11 +180,41 @@ export interface IMenuItemProps {
     detail: string
     detailHighlights: number[]
     pinned: boolean
+    additionalComponent?: JSX.Element
     onClick: () => void
+    height: number
 }
 
-export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
+export interface IMenuItemWrapperProps {
+    isSelected: boolean
+}
 
+const MenuItemWrapper = withProps<IMenuItemWrapperProps>(styled.div)`
+    position: absolute;
+    top: 4px;
+    left: 0px;
+    right: 4px;
+    bottom: 4px;
+
+    border-left: ${props =>
+        props.isSelected
+            ? "4px solid " + props.theme["highlight.mode.normal.background"]
+            : "4px solid transparent"};
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    user-select: none;
+    -webkit-user-drag:none;
+    cursor: pointer;
+    font-size: 1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`
+
+export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
     public render(): JSX.Element {
         let className = "item"
 
@@ -162,15 +222,37 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
             className += " selected"
         }
 
-        const icon = this.props.icon ? <Icon name={this.props.icon} /> : null
+        let iconToUse: any = <Icon name={"default"} />
 
-        return <div className={className} onClick={() => this.props.onClick()}>
-            {icon}
-            <HighlightTextByIndex className="label" text={this.props.label} highlightIndices={this.props.labelHighlights} highlightClassName={"highlight"} />
-            <HighlightTextByIndex className="detail" text={this.props.detail} highlightIndices={this.props.detailHighlights} highlightClassName={"highlight"} />
-            <Visible visible={this.props.pinned}>
-                <Icon name="clock-o" />
-            </Visible>
-        </div>
+        if (this.props.icon) {
+            iconToUse =
+                typeof this.props.icon === "string"
+                    ? (iconToUse = <Icon name={this.props.icon} />)
+                    : this.props.icon
+        }
+
+        return (
+            <MenuItemWrapper
+                isSelected={this.props.isSelected}
+                className={className}
+                onClick={() => this.props.onClick()}
+                style={{ height: this.props.height + "px" }}
+            >
+                {iconToUse}
+                <HighlightTextByIndex
+                    className="label"
+                    text={this.props.label}
+                    highlightIndices={this.props.labelHighlights}
+                    highlightClassName={"highlight"}
+                />
+                <HighlightTextByIndex
+                    className="detail"
+                    text={this.props.detail}
+                    highlightIndices={this.props.detailHighlights}
+                    highlightClassName={"highlight"}
+                />
+                {this.props.additionalComponent}
+            </MenuItemWrapper>
+        )
     }
 }

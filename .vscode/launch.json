@@ -12,9 +12,7 @@
             "windows": {
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
             },
-            "runtimeArgs": [
-                "--enable-logging"
-            ],
+            "runtimeArgs": ["--enable-logging"],
             "console": "internalConsole"
         },
         {
@@ -27,10 +25,7 @@
             "windows": {
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
             },
-            "runtimeArgs": [
-                "--enable-logging",
-                "${workspaceRoot}/lib/main/src/main.js"
-            ],
+            "runtimeArgs": ["--enable-logging", "${workspaceRoot}/lib/main/src/main.js"],
             "webRoot": "${workspaceRoot}",
             "sourceMaps": true,
             "sourceMapPathOverrides": {

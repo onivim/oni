@@ -20,22 +20,33 @@ export interface INeovimBufferUpdate {
 }
 
 export class NeovimBufferUpdateManager {
-
     private _onBufferUpdateEvent = new Event<INeovimBufferUpdate>()
     private _lastEventContext: EventContext
+    private _lastMode: string
 
     public get onBufferUpdate(): IEvent<INeovimBufferUpdate> {
         return this._onBufferUpdateEvent
     }
 
-    constructor(
-        private _configuration: Configuration,
-        private _neovimInstance: NeovimInstance,
-    ) {
-
-    }
+    constructor(private _configuration: Configuration, private _neovimInstance: NeovimInstance) {}
 
     public async notifyFullBufferUpdate(eventContext: EventContext): Promise<void> {
+        if (!this._shouldSubscribeToUpdates(eventContext)) {
+            return
+        }
+
+        this._doFullUpdate(eventContext)
+    }
+
+    public async notifyModeChanged(newMode: string): Promise<void> {
+        const shouldUpdate = newMode === "insert" && this._lastMode !== "insert"
+        this._lastMode = newMode
+
+        if (!shouldUpdate) {
+            return
+        }
+
+        const eventContext = await this._neovimInstance.getContext()
 
         if (!this._shouldSubscribeToUpdates(eventContext)) {
             return
@@ -44,7 +55,11 @@ export class NeovimBufferUpdateManager {
         this._doFullUpdate(eventContext)
     }
 
-    public notifyIncrementalBufferUpdate(eventContext: EventContext, lineNumber: number, lineContents: string): void {
+    public notifyIncrementalBufferUpdate(
+        eventContext: EventContext,
+        lineNumber: number,
+        lineContents: string,
+    ): void {
         if (!this._shouldSubscribeToUpdates(eventContext)) {
             return
         }
@@ -60,17 +75,24 @@ export class NeovimBufferUpdateManager {
 
         const update: INeovimBufferUpdate = {
             eventContext,
-            contentChanges: [{
-                range: types.Range.create(lineNumber - 1, 0, lineNumber, 0),
-                text: changedLine + os.EOL,
-            }],
+            contentChanges: [
+                {
+                    range: types.Range.create(lineNumber - 1, 0, lineNumber, 0),
+                    text: changedLine + os.EOL,
+                },
+            ],
         }
 
         this._onBufferUpdateEvent.dispatch(update)
     }
 
     private async _doFullUpdate(eventContext: EventContext): Promise<void> {
-        const bufferLines = await this._neovimInstance.request<string[]>("nvim_buf_get_lines", [eventContext.bufferNumber, 0, eventContext.bufferTotalLines, false])
+        const bufferLines = await this._neovimInstance.request<string[]>("nvim_buf_get_lines", [
+            eventContext.bufferNumber,
+            0,
+            eventContext.bufferTotalLines,
+            false,
+        ])
 
         const update: INeovimBufferUpdate = {
             eventContext,
@@ -81,7 +103,10 @@ export class NeovimBufferUpdateManager {
         this._onBufferUpdateEvent.dispatch(update)
     }
 
-    private _shouldDoFullUpdate(currentContext: EventContext, previousContext: EventContext): boolean {
+    private _shouldDoFullUpdate(
+        currentContext: EventContext,
+        previousContext: EventContext,
+    ): boolean {
         if (!previousContext) {
             return true
         }
@@ -98,7 +123,10 @@ export class NeovimBufferUpdateManager {
     }
 
     private _shouldSubscribeToUpdates(context: EventContext): boolean {
-        if (context.bufferTotalLines > this._configuration.getValue("editor.maxLinesForLanguageServices")) {
+        if (
+            context.bufferTotalLines >
+            this._configuration.getValue("editor.maxLinesForLanguageServices")
+        ) {
             return false
         }
 

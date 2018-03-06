@@ -2,23 +2,23 @@ const path = require("path")
 
 const rgb = (r, g, b) => `rgb(${r}, ${g}, ${b})`
 
-const activate = (Oni) => {
+const activate = Oni => {
     const React = Oni.dependencies.React
     const items = Oni.configuration.getValue("statusbar.priority", {})
     const ids = Object.keys(items)
 
-    const mode = ids.find(id => id.includes('mode'));
-    const linenumber = ids.find(id => id.includes('linenumber'));
-    const dir = ids.find(id => id.includes('workingDir'));
-    const gitHubRepo = ids.find(id => id.includes('gitHubRepo'));
+    const mode = ids.find(id => id.includes("mode"))
+    const linenumber = ids.find(id => id.includes("linenumber"))
+    const dir = ids.find(id => id.includes("workingDir"))
+    const gitHubRepo = ids.find(id => id.includes("gitHubRepo"))
 
     const workingDirectoryItem = Oni.statusBar.createItem(0, dir)
     const lineNumberItem = Oni.statusBar.createItem(1, linenumber)
     const modeItem = Oni.statusBar.createItem(1, mode)
     const gitHubRepoItem = Oni.statusBar.createItem(1, gitHubRepo)
 
-    const setMode = (mode) => {
-        const getBackgroundColorForMode = (m) => {
+    const setMode = mode => {
+        const getBackgroundColorForMode = m => {
             switch (m) {
                 case "insert":
                 case "replace":
@@ -32,7 +32,7 @@ const activate = (Oni) => {
             }
         }
 
-        const getForegroundColorForMode = (m) => {
+        const getForegroundColorForMode = m => {
             switch (m) {
                 case "insert":
                 case "replace":
@@ -46,7 +46,7 @@ const activate = (Oni) => {
             }
         }
 
-        const parseMode = (m) => {
+        const parseMode = m => {
             // Need to change modes like `cmdline_insert`
             if (m.indexOf("_") >= 0) {
                 return m.split("_")[1]
@@ -59,15 +59,19 @@ const activate = (Oni) => {
             width: "100%",
             height: "100%",
             display: "flex",
-            "alignItems": "center",
-            "paddingLeft": "8px",
-            "paddingRight": "8px",
-            "textTransform": "uppercase",
+            alignItems: "center",
+            paddingLeft: "8px",
+            paddingRight: "8px",
+            textTransform: "uppercase",
             color: getForegroundColorForMode(mode),
-            backgroundColor: getBackgroundColorForMode(mode)
+            backgroundColor: getBackgroundColorForMode(mode),
         }
 
-        const modeElement  = React.createElement("div", { style, className: "mode" }, parseMode(mode))
+        const modeElement = React.createElement(
+            "div",
+            { style, className: "mode" },
+            parseMode(mode),
+        )
         modeItem.setContents(modeElement)
     }
 
@@ -76,16 +80,20 @@ const activate = (Oni) => {
         lineNumberItem.setContents(element)
     }
 
-    const setWorkingDirectory = (workingDirectory) => {
+    const setWorkingDirectory = workingDirectory => {
         if (!workingDirectory) {
             workingDirectory = ""
         }
 
         const openFolderCommand = () => {
-            Oni.commands.executeCommand("oni.openFolder")
+            Oni.commands.executeCommand("workspace.openFolder")
         }
 
-        const element = React.createElement("div", { style: { color: "rgb(140, 140, 140)" }, onClick: openFolderCommand }, workingDirectory)
+        const element = React.createElement(
+            "div",
+            { style: { color: "rgb(140, 140, 140)" }, onClick: openFolderCommand },
+            workingDirectory,
+        )
         workingDirectoryItem.setContents(element)
     }
 
@@ -95,23 +103,23 @@ const activate = (Oni) => {
         }
 
         const gitHubIcon = Oni.ui.createIcon({
-          name: 'github',
-          size: Oni.ui.iconSize.Default,
-        });
+            name: "github",
+            size: Oni.ui.iconSize.Default,
+        })
 
         const element = React.createElement("div", { onClick: openGitHubRepoCommand }, gitHubIcon)
         gitHubRepoItem.setContents(element)
     }
 
-    Oni.editors.activeEditor.onModeChanged.subscribe((newMode) => {
+    Oni.editors.activeEditor.onModeChanged.subscribe(newMode => {
         setMode(newMode)
     })
 
-    Oni.editors.activeEditor.onCursorMoved.subscribe((cursor) => {
+    Oni.editors.activeEditor.onCursorMoved.subscribe(cursor => {
         setLineNumber(cursor.line + 1, cursor.column + 1)
     })
 
-    Oni.workspace.onDirectoryChanged.subscribe((newDirectory) => {
+    Oni.workspace.onDirectoryChanged.subscribe(newDirectory => {
         setWorkingDirectory(newDirectory)
     })
 
@@ -128,5 +136,5 @@ const activate = (Oni) => {
 }
 
 module.exports = {
-    activate
+    activate,
 }

@@ -7,17 +7,24 @@
 import * as os from "os"
 import * as path from "path"
 
+import { Subject } from "rxjs/Subject"
+
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
 import { Store, Unsubscribe } from "redux"
 
-import { Configuration } from "./../Configuration"
+import { TokenColors } from "./../TokenColors"
 
 import { NeovimEditor } from "./../../Editor/NeovimEditor"
 
-import { createSyntaxHighlightStore, ISyntaxHighlightState, ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
+import {
+    createSyntaxHighlightStore,
+    ISyntaxHighlightAction,
+    ISyntaxHighlightState,
+    ISyntaxHighlightTokenInfo,
+} from "./SyntaxHighlightingStore"
 
 import { ISyntaxHighlighter } from "./ISyntaxHighlighter"
 import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
@@ -26,32 +33,50 @@ import * as Log from "./../../Log"
 import * as Utility from "./../../Utility"
 
 export class SyntaxHighlighter implements ISyntaxHighlighter {
-
     private _store: Store<ISyntaxHighlightState>
     private _reconciler: SyntaxHighlightReconciler
     private _unsubscribe: Unsubscribe
 
-    constructor(
-        private _configuration: Configuration,
-        private _editor: NeovimEditor,
-    ) {
+    private _throttledActions: Subject<ISyntaxHighlightAction> = new Subject<
+        ISyntaxHighlightAction
+    >()
+
+    constructor(private _editor: NeovimEditor, private _tokenColors: TokenColors) {
         this._store = createSyntaxHighlightStore()
 
-        this._reconciler = new SyntaxHighlightReconciler(this._configuration, this._editor)
+        this._reconciler = new SyntaxHighlightReconciler(this._editor, this._tokenColors)
         this._unsubscribe = this._store.subscribe(() => {
             const state = this._store.getState()
             this._reconciler.update(state)
         })
+
+        this._throttledActions.auditTime(50).subscribe(action => {
+            this._store.dispatch(action)
+        })
     }
 
-    public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
-
-        Log.verbose("[SyntaxHighlighting.notifyViewportChanged] - bufferId: " + bufferId + " topLineInView: " + topLineInView + " bottomLineInView: " + bottomLineInView)
+    public notifyViewportChanged(
+        bufferId: string,
+        topLineInView: number,
+        bottomLineInView: number,
+    ): void {
+        Log.verbose(
+            "[SyntaxHighlighting.notifyViewportChanged] - bufferId: " +
+                bufferId +
+                " topLineInView: " +
+                topLineInView +
+                " bottomLineInView: " +
+                bottomLineInView,
+        )
 
         const state = this._store.getState()
         const previousBufferState = state.bufferToHighlights[bufferId]
 
-        if (previousBufferState && topLineInView === previousBufferState.topVisibleLine && bottomLineInView === previousBufferState.bottomVisibleLine) {
+        if (
+            previousBufferState &&
+            topLineInView === previousBufferState.topVisibleLine &&
+            bottomLineInView === previousBufferState.bottomVisibleLine
+        ) {
             return
         }
 
@@ -60,34 +85,6 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             bufferId,
             topVisibleLine: topLineInView,
             bottomVisibleLine: bottomLineInView,
-        })
-    }
-
-    public notifyStartInsertMode(buffer: Oni.Buffer): void {
-        this._store.dispatch({
-            type: "START_INSERT_MODE",
-            bufferId: buffer.id,
-        })
-    }
-
-    public async notifyEndInsertMode(buffer: any): Promise<void> {
-
-        const lines = await buffer.getLines(0, buffer.lineCount, false)
-
-        // const currentState = this._store.getState()
-
-        // Send a full refresh of the lines
-        this._store.dispatch({
-            type: "END_INSERT_MODE",
-            bufferId: buffer.id,
-        })
-
-        this._store.dispatch({
-            type: "SYNTAX_UPDATE_BUFFER",
-            extension: path.extname(buffer.filePath),
-            language: buffer.language,
-            bufferId: buffer.id,
-            lines,
         })
     }
 
@@ -101,21 +98,24 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
                 language: evt.buffer.language,
                 bufferId: evt.buffer.id,
                 lines,
+                version: evt.buffer.version,
             })
         } else {
-
             // Incremental update
-            this._store.dispatch({
+            this._throttledActions.next({
                 type: "SYNTAX_UPDATE_BUFFER_LINE",
                 bufferId: evt.buffer.id,
+                version: evt.buffer.version,
                 lineNumber: firstChange.range.start.line,
                 line: firstChange.text,
             })
         }
     }
 
-    public getHighlightTokenAt(bufferId: string, position: types.Position): ISyntaxHighlightTokenInfo {
-
+    public getHighlightTokenAt(
+        bufferId: string,
+        position: types.Position,
+    ): ISyntaxHighlightTokenInfo {
         const state = this._store.getState()
         const buffer = state.bufferToHighlights[bufferId]
 
@@ -129,7 +129,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             return null
         }
 
-        return line.tokens.find((r) => Utility.isInRange(position.line, position.character, r.range))
+        return line.tokens.find(r => Utility.isInRange(position.line, position.character, r.range))
     }
 
     public dispose(): void {
@@ -149,20 +149,20 @@ export class NullSyntaxHighlighter implements ISyntaxHighlighter {
         return Promise.resolve(null)
     }
 
-    public getHighlightTokenAt(bufferId: string, position: types.Position): ISyntaxHighlightTokenInfo {
+    public getHighlightTokenAt(
+        bufferId: string,
+        position: types.Position,
+    ): ISyntaxHighlightTokenInfo {
         return null
     }
 
-    public notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void {
-        // tslint: disable-line
-    }
-    public notifyStartInsertMode(buffer: Oni.Buffer): void {
-        // tslint: disable-line
-    }
-
-    public notifyEndInsertMode(buffer: Oni.Buffer): void {
+    public notifyViewportChanged(
+        bufferId: string,
+        topLineInView: number,
+        bottomLineInView: number,
+    ): void {
         // tslint: disable-line
     }
 
-    public dispose(): void { } // tslint:disable-line
+    public dispose(): void {} // tslint:disable-line
 }

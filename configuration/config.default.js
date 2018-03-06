@@ -2,10 +2,10 @@
 // check out our wiki page:
 // https://github.com/onivim/oni/wiki/Configuration
 
-const activate = (oni) => {
+const activate = oni => {
     console.log("config activated")
 
-    // Input 
+    // Input
     //
     // Add input bindings here:
     //
@@ -24,17 +24,17 @@ const deactivate = () => {
 module.exports = {
     activate,
     deactivate,
-   //add custom config here, such as
+    //add custom config here, such as
 
-   "ui.colorscheme": "onedark",
+    "ui.colorscheme": "nord",
 
-   //"oni.useDefaultConfig": true,
-   //"oni.bookmarks": ["~/Documents"],
-   //"oni.loadInitVim": false,
-   //"editor.fontSize": "14px",
-   //"editor.fontFamily": "Monaco"
+    //"oni.useDefaultConfig": true,
+    //"oni.bookmarks": ["~/Documents"],
+    //"oni.loadInitVim": false,
+    //"editor.fontSize": "14px",
+    //"editor.fontFamily": "Monaco",
 
-   // UI customizations
+    // UI customizations
     "ui.animations.enabled": true,
     "ui.fontSmoothing": "auto",
 }

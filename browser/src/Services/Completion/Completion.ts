@@ -7,30 +7,51 @@ import { Event, IDisposable, IEvent } from "oni-types"
 import { Store, Unsubscribe } from "redux"
 import * as types from "vscode-languageserver-types"
 
+import { LanguageManager } from "./../Language"
+import { SnippetManager } from "./../Snippets"
+
 import { getFilteredCompletions } from "./CompletionSelectors"
-import { ICompletionsRequestor, LanguageServiceCompletionsRequestor  } from "./CompletionsRequestor"
+import { ICompletionsRequestor } from "./CompletionsRequestor"
 
 import { ICompletionState } from "./CompletionState"
 
 import { createStore } from "./CompletionStore"
 
 import { Configuration } from "./../Configuration"
-import { LanguageManager } from "./../Language"
-import * as CompletionUtility from "./CompletionUtility"
 
 export interface ICompletionShowEventArgs {
     filteredCompletions: types.CompletionItem[]
     base: string
 }
 
-export class Completion implements IDisposable {
+export class TestRequestor implements ICompletionsRequestor {
+    public async getCompletions(
+        language: string,
+        filePath: string,
+        line: number,
+        column: number,
+    ): Promise<types.CompletionItem[]> {
+        return [types.CompletionItem.create("test1"), types.CompletionItem.create("test2")]
+    }
 
+    public async getCompletionDetails(
+        language: string,
+        filePath: string,
+        completionItem: types.CompletionItem,
+    ): Promise<types.CompletionItem> {
+        return completionItem
+    }
+}
+
+export class Completion implements IDisposable {
     private _lastCursorPosition: Oni.Cursor
     private _store: Store<ICompletionState>
     private _storeUnsubscribe: Unsubscribe = null
     private _subscriptions: IDisposable[]
 
-    private _onShowCompletionItemsEvent: Event<ICompletionShowEventArgs> = new Event<ICompletionShowEventArgs>()
+    private _onShowCompletionItemsEvent: Event<ICompletionShowEventArgs> = new Event<
+        ICompletionShowEventArgs
+    >()
     private _onHideCompletionItemsEvent: Event<void> = new Event<void>()
 
     public get onShowCompletionItems(): IEvent<ICompletionShowEventArgs> {
@@ -43,31 +64,42 @@ export class Completion implements IDisposable {
 
     constructor(
         private _editor: Oni.Editor,
-        private _languageManager: LanguageManager,
         private _configuration: Configuration,
-        private _completionsRequestor?: ICompletionsRequestor,
+        private _completionsRequestor: ICompletionsRequestor,
+        private _languageManager: LanguageManager,
+        private _snippetManager: SnippetManager,
     ) {
-        this._completionsRequestor = this._completionsRequestor || new LanguageServiceCompletionsRequestor(this._languageManager)
-        this._store = createStore(this._languageManager, this._configuration, this._completionsRequestor)
+        this._completionsRequestor = this._completionsRequestor
+        this._store = createStore(
+            this._editor,
+            this._languageManager,
+            this._configuration,
+            this._completionsRequestor,
+            this._snippetManager,
+        )
 
         const sub1 = this._editor.onBufferEnter.subscribe((buf: Oni.Buffer) => {
             this._onBufferEnter(buf)
         })
 
-        const sub2 = this._editor.onBufferChanged.subscribe((buf: Oni.EditorBufferChangedEventArgs) => {
-            this._onBufferUpdate(buf)
-        })
+        const sub2 = this._editor.onBufferChanged.subscribe(
+            (buf: Oni.EditorBufferChangedEventArgs) => {
+                this._onBufferUpdate(buf)
+            },
+        )
 
         const sub3 = this._editor.onModeChanged.subscribe((newMode: string) => {
             this._onModeChanged(newMode)
         })
 
-        const sub4 = (this._editor as any).onCursorMoved.subscribe((cursor: Oni.Cursor) => {
+        const sub4 = this._editor.onCursorMoved.subscribe((cursor: Oni.Cursor) => {
             this._onCursorMoved(cursor)
         })
 
         this._subscriptions = [sub1, sub2, sub3, sub4]
-        this._storeUnsubscribe = this._store.subscribe(() => this._onStateChanged(this._store.getState()))
+        this._storeUnsubscribe = this._store.subscribe(() =>
+            this._onStateChanged(this._store.getState()),
+        )
     }
 
     public resolveItem(completionItem: types.CompletionItem): void {
@@ -83,13 +115,13 @@ export class Completion implements IDisposable {
             type: "COMMIT_COMPLETION",
             meetLine: state.meetInfo.meetLine,
             meetPosition: state.meetInfo.meetPosition,
-            completionText: CompletionUtility.getInsertText(completionItem),
+            completion: completionItem,
         })
     }
 
     public dispose(): void {
         if (this._subscriptions) {
-            this._subscriptions.forEach((disposable) => disposable.dispose())
+            this._subscriptions.forEach(disposable => disposable.dispose())
             this._subscriptions = null
         }
 
@@ -100,7 +132,6 @@ export class Completion implements IDisposable {
     }
 
     private _onStateChanged(newState: ICompletionState): void {
-
         const filteredCompletions = getFilteredCompletions(newState)
 
         if (filteredCompletions && filteredCompletions.length) {
@@ -126,7 +157,6 @@ export class Completion implements IDisposable {
     }
 
     private _onBufferUpdate(bufferUpdate: Oni.EditorBufferChangedEventArgs): void {
-
         // Ignore if this is a full update
         const firstChange = bufferUpdate.contentChanges[0]
 
@@ -157,9 +187,11 @@ export class Completion implements IDisposable {
     }
 
     private async _onModeChanged(newMode: string): Promise<void> {
-       if (newMode === "insert" && this._lastCursorPosition) {
-
-            const [latestLine] = await this._editor.activeBuffer.getLines(this._lastCursorPosition.line, this._lastCursorPosition.line + 1)
+        if (newMode === "insert" && this._lastCursorPosition) {
+            const [latestLine] = await this._editor.activeBuffer.getLines(
+                this._lastCursorPosition.line,
+                this._lastCursorPosition.line + 1,
+            )
 
             this._store.dispatch({
                 type: "CURSOR_MOVED",
@@ -169,7 +201,7 @@ export class Completion implements IDisposable {
             })
         }
 
-       this._store.dispatch({
+        this._store.dispatch({
             type: "MODE_CHANGED",
             mode: newMode,
         })

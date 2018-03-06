@@ -25,6 +25,7 @@ export interface INeovimInputProps {
     onImeEnd: () => void
     onKeyDown?: (key: string) => void
 
+    startActive?: boolean
     typingPrediction: TypingPredictionManager
 }
 
@@ -43,14 +44,19 @@ export class NeovimInput extends React.PureComponent<INeovimInputProps, {}> {
     }
 
     public render(): JSX.Element {
-        return <div ref={(elem) => this._mouseElement = elem} className="stack enable-mouse">
-            <KeyboardInput onActivate={this.props.onActivate}
-                typingPrediction={this.props.typingPrediction}
-                onBounceStart={this.props.onBounceStart}
-                onBounceEnd={this.props.onBounceEnd}
-                onImeStart={this.props.onImeStart}
-                onImeEnd={this.props.onImeEnd}
-                onKeyDown={this.props.onKeyDown} />
-        </div>
+        return (
+            <div ref={elem => (this._mouseElement = elem)} className="stack enable-mouse">
+                <KeyboardInput
+                    startActive={this.props.startActive}
+                    onActivate={this.props.onActivate}
+                    typingPrediction={this.props.typingPrediction}
+                    onBounceStart={this.props.onBounceStart}
+                    onBounceEnd={this.props.onBounceEnd}
+                    onImeStart={this.props.onImeStart}
+                    onImeEnd={this.props.onImeEnd}
+                    onKeyDown={this.props.onKeyDown}
+                />
+            </div>
+        )
     }
 }

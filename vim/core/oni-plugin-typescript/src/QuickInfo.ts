@@ -15,9 +15,11 @@ import * as Oni from "oni-api"
 
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
 
-export const getQuickInfo = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (protocolName: string, payload: any): Promise<types.Hover> => {
-
-    const textDocument: types.TextDocument  = payload.textDocument
+export const getQuickInfo = (oni: Oni.Plugin.Api, host: TypeScriptServerHost) => async (
+    protocolName: string,
+    payload: any,
+): Promise<types.Hover> => {
+    const textDocument: types.TextDocument = payload.textDocument
     const position: types.Position = payload.position
 
     const filePath = oni.language.unwrapFileUriPath(textDocument.uri)

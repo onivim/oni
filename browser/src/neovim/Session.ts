@@ -55,7 +55,7 @@ export class Session extends EventEmitter {
                 case 1 /* Response */:
                     const [responseMessage, payload1, payload2] = remaining
                     const result = payload1 || payload2
-                    log("Received response - "  + responseMessage + " : " + result)
+                    log("Received response - " + responseMessage + " : " + result)
                     this._pendingRequests[responseMessage](result)
                     this._pendingRequests[responseMessage] = null
                     break
@@ -83,7 +83,7 @@ export class Session extends EventEmitter {
     public request<T>(methodName: string, args: any): Promise<T> {
         this._requestId++
         let r = null
-        const promise = new Promise<T>((resolve) => {
+        const promise = new Promise<T>(resolve => {
             r = (val: any) => {
                 resolve(val)
             }
@@ -111,7 +111,7 @@ export class Session extends EventEmitter {
         // The demo examples use `end` on the stream, but that
         // actually closes the stream - the flush is needed
         // to send the data immediately across the stream.
-        (this._encoder as any).write(args);
-        (this._encoder as any)._flush()
+        ;(this._encoder as any).write(args)
+        ;(this._encoder as any)._flush()
     }
 }

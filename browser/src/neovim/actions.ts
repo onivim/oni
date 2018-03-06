@@ -92,7 +92,12 @@ export function scroll(scrollValue: number): IScrollAction {
     }
 }
 
-export function setScrollRegion(top: number, bottom: number, left: number, right: number): ISetScrollRegionAction {
+export function setScrollRegion(
+    top: number,
+    bottom: number,
+    left: number,
+    right: number,
+): ISetScrollRegionAction {
     return {
         type: SET_SCROLL_REGION,
         top,
@@ -133,7 +138,14 @@ export function setHighlight(
     return action
 }
 
-export const CommandLineShow = (content: [any, string], pos: number, firstc: string, prompt: string, indent: number, level: number) => ({
+export const CommandLineShow = (
+    content: [any, string],
+    pos: number,
+    firstc: string,
+    prompt: string,
+    indent: number,
+    level: number,
+) => ({
     type: "COMMAND_LINE_SHOW",
     payload: {
         content,

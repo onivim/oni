@@ -29,27 +29,48 @@ export class BufferHighlightsUpdater implements IBufferHighlightsUpdater {
 
     public async start(): Promise<void> {
         if (!this._highlightId) {
-            this._highlightId = await this._neovimInstance.request<number>("nvim_buf_add_highlight", [this._bufferId, 0, "", 0, 0, 0])
+            this._highlightId = await this._neovimInstance.request<number>(
+                "nvim_buf_add_highlight",
+                [this._bufferId, 0, "", 0, 0, 0],
+            )
         }
     }
 
-    public setHighlightsForLine(line: number, highlights: SyntaxHighlighting.HighlightInfo[]): void {
+    public setHighlightsForLine(
+        line: number,
+        highlights: SyntaxHighlighting.HighlightInfo[],
+    ): void {
         this.clearHighlightsForLine(line)
 
         if (!highlights || !highlights.length) {
             return
         }
 
-        const addHighlightCalls = highlights.map((hl) => {
-            return ["nvim_buf_add_highlight", [this._bufferId, this._highlightId, hl.highlightGroup,
-                hl.range.start.line, hl.range.start.character, hl.range.end.character]]
+        const addHighlightCalls = highlights.map(hl => {
+            const highlightGroup = this._neovimInstance.tokenColorSynchronizer.getHighlightGroupForTokenColor(
+                hl.tokenColor,
+            )
+
+            return [
+                "nvim_buf_add_highlight",
+                [
+                    this._bufferId,
+                    this._highlightId,
+                    highlightGroup,
+                    hl.range.start.line,
+                    hl.range.start.character,
+                    hl.range.end.character,
+                ],
+            ]
         })
 
         this._calls = this._calls.concat(addHighlightCalls)
     }
     public clearHighlightsForLine(line: number): void {
-
-        this._calls.push(["nvim_buf_clear_highlight", [this._bufferId, this._highlightId, line, line + 1]])
+        this._calls.push([
+            "nvim_buf_clear_highlight",
+            [this._bufferId, this._highlightId, line, line + 1],
+        ])
     }
 
     public async apply(): Promise<BufferHighlightId> {

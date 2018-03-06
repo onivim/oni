@@ -1,3 +1,4 @@
+import * as minimist from "minimist"
 import * as path from "path"
 
 import { app, BrowserWindow, ipcMain, Menu } from "electron"
@@ -11,17 +12,30 @@ import { makeSingleInstance } from "./ProcessLifecycle"
 
 global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 
-const isDevelopment = process.env.NODE_ENV === "development"
+const processArgs = process.argv || []
+const isAutomation = processArgs.find(f => f.indexOf("--test-type=webdriver") >= 0)
+const isDevelopment = process.env.NODE_ENV === "development" || process.env.ONI_WEBPACK_LOAD === "1"
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
+
+// We want to check for the 'help' flag before initializing electron
+const argv = minimist(process.argv.slice(1))
+const version = require(path.join(__dirname, "..", "..", "..", "package.json")).version // tslint:disable-line no-var-requires
+if (argv.help || argv.h) {
+    process.stdout.write("ONI: Modern Modal Editing - powered by Neovim\n")
+    process.stdout.write(` version: ${version}\n`)
+    process.stdout.write("\nUsage:\n oni [FILE]\t\tEdit file\n")
+    process.stdout.write("\nhttps://github.com/onivim/oni\n")
+    process.exit(0)
+}
 
 interface IWindowState {
     bounds?: {
-        x: number,
-        y: number,
-        height: number,
-        width: number,
+        x: number
+        y: number
+        height: number
+        width: number
     }
-    isMaximized?: boolean,
+    isMaximized?: boolean
 }
 
 let windowState: IWindowState = {
@@ -68,33 +82,33 @@ let mainWindow: BrowserWindow = null
 
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
-if (!isDevelopment && !isDebug) {
-
-    let processArgs = process.argv || []
-
-    // If running from spectron, ignore the arguments
-    if (processArgs.find((f) => f.indexOf("--test-type=webdriver") >= 0)) {
-        Log.warn("Clearing arguments because running from automation!")
-        processArgs = []
-    }
-
+if (!isDevelopment && !isDebug && !isAutomation) {
     const currentOptions = {
         args: processArgs,
         workingDirectory: process.env["ONI_CWD"] || process.cwd(), // tslint:disable-line no-string-literal
     }
 
     Log.info("Making single instance...")
-    makeSingleInstance(currentOptions, (options) => {
+    makeSingleInstance(currentOptions, options => {
         Log.info("Creating single instance")
         loadFileFromArguments(process.platform, options.args, options.workingDirectory)
     })
 } else {
+    // If running from spectron, ignore the arguments
+    let argsToUse = processArgs
+    if (isAutomation) {
+        Log.warn("Clearing arguments because running from automation!")
+        argsToUse = []
+    }
+
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
     app.on("ready", async () => {
-        await addDevExtensions()
-        loadFileFromArguments(process.platform, process.argv, process.cwd())
+        if (isAutomation) {
+            await addDevExtensions()
+        }
+        loadFileFromArguments(process.platform, argsToUse, process.env.ONI_CWD || process.cwd())
     })
 }
 
@@ -108,17 +122,22 @@ export function createWindow(
     workingDirectory,
     delayedEvent: IDelayedEvent = null,
 ) {
-    Log.info(`Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`)
+    Log.info(
+        `Creating window with arguments: ${commandLineArguments} and working directory: ${workingDirectory}`,
+    )
     const webPreferences = {
         blinkFeatures: "ResizeObserver,Accelerated2dCanvas,Canvas2dFixedRenderingMode",
     }
 
-    const backgroundColor = (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
+    const backgroundColor =
+        (PersistentSettings.get("_internal.lastBackgroundColor") as string) || "#1E2127"
 
     try {
         const internalWindowState = PersistentSettings.get("_internal.windowState") as IWindowState
-        if (internalWindowState &&
-            (internalWindowState.bounds || internalWindowState.isMaximized)) {
+        if (
+            internalWindowState &&
+            (internalWindowState.bounds || internalWindowState.isMaximized)
+        ) {
             windowState = internalWindowState
         }
     } catch (e) {
@@ -135,7 +154,7 @@ export function createWindow(
         webPreferences,
         backgroundColor,
         titleBarStyle: "hidden",
-        x:  windowState.bounds.x,
+        x: windowState.bounds.x,
         y: windowState.bounds.y,
         height: windowState.bounds.height,
         width: windowState.bounds.width,
@@ -153,7 +172,7 @@ export function createWindow(
         })
     })
 
-    ipcMain.once("Oni.started", (evt) => {
+    ipcMain.once("Oni.started", evt => {
         Log.info("Oni started")
 
         if (delayedEvent) {
@@ -207,8 +226,8 @@ app.on("open-file", (event, filePath) => {
     if (mainWindow) {
         mainWindow.webContents.send("open-file", filePath)
     } else if (process.platform.includes("darwin")) {
-        const processArgs = [...process.argv, filePath]
-        createWindow(processArgs, process.cwd())
+        const argsToUse = [...process.argv, filePath]
+        createWindow(argsToUse, process.cwd())
     }
 })
 
@@ -216,7 +235,7 @@ app.on("open-file", (event, filePath) => {
 app.on("window-all-closed", () => {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== "darwin") {
+    if (process.platform !== "darwin" || isAutomation) {
         app.quit()
     }
 })

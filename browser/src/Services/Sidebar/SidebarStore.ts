@@ -7,6 +7,10 @@
 import { Reducer, Store } from "redux"
 import { createStore as createReduxStore } from "./../../Redux"
 
+import { WindowManager, WindowSplitHandle } from "./../WindowManager"
+import { SidebarContentSplit } from "./SidebarContentSplit"
+import { SidebarSplit } from "./SidebarSplit"
+
 import * as Oni from "oni-api"
 
 export interface ISidebarState {
@@ -15,9 +19,7 @@ export interface ISidebarState {
     // Active means that the tab is currently selected
     activeEntryId: string
 
-    // Focused means that there is keyboard focus,
-    // like 'hover' but for keyboard accessibility
-    focusedEntryId: string
+    isActive: boolean
 }
 
 export type SidebarIcon = string
@@ -38,8 +40,10 @@ export interface SidebarPane extends Oni.IWindowSplit {
 }
 
 export class SidebarManager {
-
     private _store: Store<ISidebarState>
+
+    private _iconSplit: WindowSplitHandle
+    private _contentSplit: WindowSplitHandle
 
     public get activeEntryId(): string {
         return this._store.getState().activeEntryId
@@ -53,22 +57,55 @@ export class SidebarManager {
         return this._store
     }
 
-    constructor() {
+    constructor(private _windowManager: WindowManager = null) {
         this._store = createStore()
+
+        if (_windowManager) {
+            this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
+            this._contentSplit = this._windowManager.createSplit(
+                "left",
+                new SidebarContentSplit(this),
+            )
+        }
     }
 
-    public setFocusedEntry(id: string): void {
-        this._store.dispatch({
-            type: "SET_FOCUSED_ID",
-            focusedEntryId: id,
-        })
-
+    public setActiveEntry(id: string): void {
         if (id) {
             this._store.dispatch({
                 type: "SET_ACTIVE_ID",
                 activeEntryId: id,
             })
+
+            if (!this._contentSplit.isVisible) {
+                this._contentSplit.show()
+            }
         }
+    }
+
+    public focusContents(): void {
+        if (this._contentSplit.isVisible) {
+            this._contentSplit.focus()
+        }
+    }
+
+    public toggleSidebarVisibility(): void {
+        if (this._contentSplit.isVisible) {
+            this._contentSplit.hide()
+
+            if (this._contentSplit.isFocused) {
+                this._iconSplit.focus()
+            }
+        } else {
+            this._contentSplit.show()
+        }
+    }
+
+    public enter(): void {
+        this._store.dispatch({ type: "ENTER" })
+    }
+
+    public leave(): void {
+        this._store.dispatch({ type: "LEAVE" })
     }
 
     public add(icon: SidebarIcon, pane: SidebarPane): void {
@@ -87,36 +124,45 @@ export class SidebarManager {
 const DefaultSidebarState: ISidebarState = {
     entries: [],
     activeEntryId: null,
-    focusedEntryId: null,
+    isActive: false,
 }
 
-export type SidebarActions = {
-    type: "SET_ACTIVE_ID",
-    activeEntryId: string,
-} | {
-    type: "SET_FOCUSED_ID",
-    focusedEntryId: string,
-} | {
-    type: "ADD_ENTRY",
-    entry: ISidebarEntry,
-}
+export type SidebarActions =
+    | {
+          type: "SET_ACTIVE_ID"
+          activeEntryId: string
+      }
+    | {
+          type: "ADD_ENTRY"
+          entry: ISidebarEntry
+      }
+    | {
+          type: "ENTER"
+      }
+    | {
+          type: "LEAVE"
+      }
 
 export const sidebarReducer: Reducer<ISidebarState> = (
     state: ISidebarState = DefaultSidebarState,
     action: SidebarActions,
 ) => {
     switch (action.type) {
+        case "ENTER":
+            return {
+                ...state,
+                isActive: true,
+            }
+        case "LEAVE":
+            return {
+                ...state,
+                isActive: false,
+            }
         case "SET_ACTIVE_ID":
             return {
                 ...state,
                 activeEntryId: action.activeEntryId,
             }
-        case "SET_FOCUSED_ID":
-            return {
-                ...state,
-                focusedEntryId: action.focusedEntryId,
-            }
-
         case "ADD_ENTRY":
             if (!state.activeEntryId) {
                 return {

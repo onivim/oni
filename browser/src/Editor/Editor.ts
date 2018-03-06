@@ -7,10 +7,14 @@
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
+import * as types from "vscode-languageserver-types"
+
 export interface IEditor extends Oni.Editor {
     // Methods
     init(filesToOpen: string[]): void
     render(): JSX.Element
+
+    setSelection(selectionRange: types.Range): Promise<void>
 }
 
 /**
@@ -63,7 +67,20 @@ export class Editor implements Oni.Editor {
         return this._onBufferScrolledEvent
     }
 
-    public /* virtual */ openFile(filePath: string): Promise<Oni.Buffer> {
+    public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
+        return []
+    }
+
+    public /* virtual */ openFile(
+        filePath: string,
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
+        return Promise.reject("Not implemented")
+    }
+
+    public async blockInput(
+        inputFunction: (input: Oni.InputCallbackFunction) => Promise<void>,
+    ): Promise<void> {
         return Promise.reject("Not implemented")
     }
 

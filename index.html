@@ -21,6 +21,15 @@
         script {
             display: none;
         }
+
+        @keyframes spinner-rotate {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        .webpack-loading-image {
+            animation: spinner-rotate 2s linear infinite;
+        }
     </style>
   </head>
   <body>
@@ -28,11 +37,8 @@
       <script>
         console.timeStamp("browser.domloaded")
         var path = "lib/browser/bundle.js"
-        if(process.env.NODE_ENV === "development") {
-            path = "http://localhost:8191/bundle.js";
-            const hotReloadElement = document.createElement("div");
-            hotReloadElement.textContent = "Waiting for webpack compilation... You may need to reload the browser once webpack finishes compiling."
-            document.body.appendChild(hotReloadElement)
+        if(process.env.ONI_WEBPACK_LOAD) {
+            path = "scripts/dev_webpack_loader.js"
         }
         var scriptTag = document.createElement("script");
         scriptTag.src = path

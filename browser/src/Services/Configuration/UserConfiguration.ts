@@ -19,6 +19,13 @@ export const getUserConfigFilePath = (): string => {
 }
 
 export const getUserConfigFolderPath = (): string => {
-    return Platform.isWindows() ? path.join(Platform.getUserHome(), "oni") :
-                                  path.join(Platform.getUserHome(), ".oni")
+    const configFileFromEnv = process.env["ONI_CONFIG_FILE"] as string // tslint:disable-line
+
+    if (configFileFromEnv) {
+        return path.dirname(configFileFromEnv)
+    }
+
+    return Platform.isWindows()
+        ? path.join(Platform.getUserHome(), "oni")
+        : path.join(Platform.getUserHome(), ".oni")
 }

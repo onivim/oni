@@ -44,7 +44,7 @@
 
         .label {
             flex: 1 0 auto;
-            min-width:100px;
+            min-width: 100px;
             margin-left: 8px;
 
             .highlight {
@@ -61,7 +61,7 @@
             text-overflow: ellipsis;
             overflow: hidden;
             white-space: nowrap;
-            margin-left: 16px;
+            margin: 0 5px 0 16px;
 
             font-size: 0.8em;
             opacity: 0.8;
@@ -79,7 +79,10 @@
 }
 
 @keyframes appear {
-    from {opacity: 0;}
-    to {opacity: 1;}
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
-

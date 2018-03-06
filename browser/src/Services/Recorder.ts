@@ -10,6 +10,8 @@ import { clipboard, desktopCapturer } from "electron"
 import * as fs from "fs"
 import * as path from "path"
 
+import * as Oni from "oni-api"
+
 import * as Log from "./../Log"
 
 import { configuration } from "./Configuration"
@@ -27,7 +29,7 @@ const toBuffer = (ab: ArrayBuffer) => {
     return buffer
 }
 
-class Recorder {
+class Recorder implements Oni.Recorder {
     private _recorder: any = null
     private _blobs: Blob[] = []
 
@@ -36,27 +38,38 @@ class Recorder {
         document.title = ONI_RECORDER_TITLE
 
         desktopCapturer.getSources({ types: ["window", "screen"] }, (error, sources) => {
-            if (error) { throw error }
-            for (let i = 0; i < sources.length; i++) { // tslint:disable-line prefer-for-of
+            if (error) {
+                throw error
+            }
+            // tslint:disable-next-line prefer-for-of
+            for (let i = 0; i < sources.length; i++) {
                 const src = sources[i]
                 if (src.name === ONI_RECORDER_TITLE) {
                     document.title = title
 
                     const size = getDimensions()
-                    navigator["webkitGetUserMedia"]({ // tslint:disable-line no-string-literal
-                        audio: false,
-                        video: {
-                            mandatory: {
-                                chromeMediaSource: "desktop",
-                                chromeMediaSourceId: src.id,
-                                minWidth: 320,
-                                maxWidth: size.width,
-                                minHeight: 240,
-                                maxHeight: size.height,
+                    // tslint:disable-next-line no-string-literal
+                    navigator["webkitGetUserMedia"](
+                        {
+                            audio: false,
+                            video: {
+                                mandatory: {
+                                    chromeMediaSource: "desktop",
+                                    chromeMediaSourceId: src.id,
+                                    minWidth: 320,
+                                    maxWidth: size.width,
+                                    minHeight: 240,
+                                    maxHeight: size.height,
+                                },
                             },
                         },
-                    }, (stream: any) => { this._handleStream(stream) },
-                        (err: Error) => { this._handleUserMediaError(err) })
+                        (stream: any) => {
+                            this._handleStream(stream)
+                        },
+                        (err: Error) => {
+                            this._handleUserMediaError(err)
+                        },
+                    )
                     return
                 }
             }
@@ -70,7 +83,7 @@ class Recorder {
     public async stopRecording(fileName?: string): Promise<void> {
         this._recorder.stop()
 
-        const arrayBuffer = await toArrayBuffer(new Blob(this._blobs, {type: "video/webm"}))
+        const arrayBuffer = await toArrayBuffer(new Blob(this._blobs, { type: "video/webm" }))
 
         const buffer = toBuffer(arrayBuffer)
         fileName = fileName || getFileName("oni-video", "webm")
@@ -90,8 +103,8 @@ class Recorder {
 
     public takeScreenshot(fileName?: string, scale: number = 1): void {
         const webContents = require("electron").remote.getCurrentWebContents()
-        webContents.capturePage((image) => {
-            const pngBuffer = image.toPNG({ scaleFactor: scale})
+        webContents.capturePage(image => {
+            const pngBuffer = image.toPNG({ scaleFactor: scale })
 
             fileName = fileName || getFileName("oni-screenshot", "png")
             const screenshotPath = getOutputPath(fileName)
@@ -106,14 +119,15 @@ class Recorder {
     private _handleStream(stream: any) {
         this._recorder = new MediaRecorder(stream)
         this._blobs = []
-        this._recorder.ondataavailable = (evt: any) => { this._blobs.push(evt.data) }
+        this._recorder.ondataavailable = (evt: any) => {
+            this._blobs.push(evt.data)
+        }
         this._recorder.start(100 /* ms */)
     }
 
     private _handleUserMediaError(err: Error) {
         Log.error(err)
     }
-
 }
 
 // Some of this code was adapted and modified from this stackoverflow post:
@@ -130,7 +144,9 @@ const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
 }
 
 const getDimensions = () => {
-    const size = require("electron").remote.getCurrentWindow().getSize()
+    const size = require("electron")
+        .remote.getCurrentWindow()
+        .getSize()
     return {
         width: size[0],
         height: size[1],
