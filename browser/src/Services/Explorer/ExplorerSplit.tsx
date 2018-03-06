@@ -3,6 +3,8 @@
  *
  */
 
+import { capitalize } from "lodash"
+import * as path from "path"
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
@@ -12,8 +14,9 @@ import { Event } from "oni-types"
 // import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
-// import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
+// import { Configuration } from "./../../Services/Configuration"
+import { getInstance as NotificationsInstance } from "./../../Services/Notifications"
 import { windowManager } from "./../../Services/WindowManager"
 import { IWorkspace } from "./../../Services/Workspace"
 
@@ -22,11 +25,15 @@ import { createStore, IExplorerState } from "./ExplorerStore"
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
 
-import { rm } from "shelljs"
+import { mv, rm } from "shelljs"
+
+type Node = ExplorerSelectors.ExplorerNode
+type File = ExplorerSelectors.IFileNode
 
 export class ExplorerSplit {
     private _onEnterEvent: Event<void> = new Event<void>()
     private _selectedId: string = null
+    private _notifications = NotificationsInstance()
 
     private _store: Store<IExplorerState>
 
@@ -59,13 +66,6 @@ export class ExplorerSplit {
                 rootPath: this._workspace.activeWorkspace,
             })
         }
-
-        this._editorManager.allEditors.onBufferEnter.subscribe(args => {
-            this._store.dispatch({
-                type: "BUFFER_OPENED",
-                filePath: args.filePath,
-            })
-        })
     }
 
     public enter(): void {
@@ -81,12 +81,81 @@ export class ExplorerSplit {
         this._store.dispatch({ type: "LEAVE" })
     }
 
+    public sendExplorerNotification({ title, details }: { title: string; details: string }) {
+        const notification = this._notifications.createItem()
+        notification.setContents(title, details)
+        notification.setLevel("success")
+        notification.setExpiration(8000)
+        notification.show()
+    }
+
+    public moveFileOrFolder = (source: Node, dest: Node): void => {
+        if (!source || !dest) {
+            return
+        }
+
+        let folderPath
+        let sourcePath
+
+        if (source.type === "folder" && dest.type === "folder") {
+            return this.moveFolder(source, dest)
+        }
+
+        if (dest.type === "file") {
+            const parent = this.findParentDir(dest.id)
+            folderPath = parent
+        } else if (dest.type === "container") {
+            folderPath = dest.name
+        } else {
+            folderPath = dest.folderPath
+        }
+
+        if (folderPath && source.type === "file" && source.filePath) {
+            sourcePath = source.filePath
+        } else if (source.type === "folder" && folderPath) {
+            sourcePath = source.folderPath
+        }
+
+        mv(sourcePath, folderPath)
+        this._store.dispatch({ type: "REFRESH" })
+        if (dest.type === "folder") {
+            this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: dest.folderPath })
+        }
+        this.sendExplorerNotification({
+            title: `${capitalize(source.type)} Moved`,
+            details: `Successfully moved ${source.name} to ${folderPath}`,
+        })
+    }
+
+    public moveFolder = (
+        source: ExplorerSelectors.IFolderNode,
+        destination: ExplorerSelectors.IFolderNode,
+    ) => {
+        if (source.folderPath === destination.folderPath) {
+            return
+        }
+        mv(source.folderPath, destination.folderPath)
+        this._store.dispatch({ type: "REFRESH" })
+        this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: destination.folderPath })
+        this.sendExplorerNotification({
+            title: `${capitalize(source.type)} Moved`,
+            details: `Successfully moved ${source.name} to ${destination.folderPath}`,
+        })
+    }
+
+    public findParentDir = (fileId: string): string => {
+        const { filePath } = this._getSelectedItem(fileId) as File
+        const folder = path.dirname(filePath)
+        return folder
+    }
+
     public render(): JSX.Element {
         return (
             <Provider store={this._store}>
                 <Explorer
                     onSelectionChanged={id => this._onSelectionChanged(id)}
                     onClick={id => this._onOpenItem(id)}
+                    moveFileOrFolder={this.moveFileOrFolder}
                 />
             </Provider>
         )

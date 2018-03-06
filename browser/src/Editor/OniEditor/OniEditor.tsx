@@ -6,6 +6,7 @@
  * Extends the capabilities of the NeovimEditor
  */
 
+import * as path from "path"
 import * as React from "react"
 
 import * as types from "vscode-languageserver-types"
@@ -18,15 +19,18 @@ import * as Log from "./../../Log"
 import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { IColors } from "./../../Services/Colors"
+import { commandManager } from "./../../Services/CommandManager"
 import { CompletionProviders } from "./../../Services/Completion"
 import { Configuration } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 
+import { editorManager } from "./../../Services/EditorManager"
 import { LanguageManager } from "./../../Services/Language"
 
 import { MenuManager } from "./../../Services/Menu"
 import { OverlayManager } from "./../../Services/Overlay"
 
+import { SnippetManager } from "./../../Services/Snippets"
 import { ISyntaxHighlighter } from "./../../Services/SyntaxHighlighting"
 
 import { Tasks } from "./../../Services/Tasks"
@@ -42,11 +46,15 @@ import { ErrorsContainer } from "./containers/ErrorsContainer"
 
 import { NeovimEditor } from "./../NeovimEditor"
 
+import { SplitDirection, windowManager } from "./../../Services/WindowManager"
+
+import { ImageBufferLayer } from "./ImageBufferLayer"
+
 // Helper method to wrap a react component into a layer
-const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.EditorLayer => {
+const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.BufferLayer => {
     return {
         id,
-        render: (context: Oni.EditorLayerRenderContext) => (context.isActive ? component : null),
+        render: (context: Oni.BufferLayerRenderContext) => (context.isActive ? component : null),
     }
 }
 
@@ -99,32 +107,34 @@ export class OniEditor implements IEditor {
     }
 
     constructor(
-        colors: IColors,
-        completionProviders: CompletionProviders,
-        configuration: Configuration,
-        diagnostics: IDiagnosticsDataSource,
-        languageManager: LanguageManager,
-        menuManager: MenuManager,
-        overlayManager: OverlayManager,
-        pluginManager: PluginManager,
-        tasks: Tasks,
-        themeManager: ThemeManager,
-        tokenColors: TokenColors,
-        workspace: Workspace,
+        private _colors: IColors,
+        private _completionProviders: CompletionProviders,
+        private _configuration: Configuration,
+        private _diagnostics: IDiagnosticsDataSource,
+        private _languageManager: LanguageManager,
+        private _menuManager: MenuManager,
+        private _overlayManager: OverlayManager,
+        private _pluginManager: PluginManager,
+        private _snippetManager: SnippetManager,
+        private _tasks: Tasks,
+        private _themeManager: ThemeManager,
+        private _tokenColors: TokenColors,
+        private _workspace: Workspace,
     ) {
         this._neovimEditor = new NeovimEditor(
-            colors,
-            completionProviders,
-            configuration,
-            diagnostics,
-            languageManager,
-            menuManager,
-            overlayManager,
-            pluginManager,
-            tasks,
-            themeManager,
-            tokenColors,
-            workspace,
+            this._colors,
+            this._completionProviders,
+            this._configuration,
+            this._diagnostics,
+            this._languageManager,
+            this._menuManager,
+            this._overlayManager,
+            this._pluginManager,
+            this._snippetManager,
+            this._tasks,
+            this._themeManager,
+            this._tokenColors,
+            this._workspace,
         )
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
@@ -135,6 +145,12 @@ export class OniEditor implements IEditor {
         )
         this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
             wrapReactComponentWithLayer("oni.layer.errors", <ErrorsContainer />),
+        )
+
+        const extensions = this._configuration.getValue("editor.imageLayerExtensions")
+        this._neovimEditor.bufferLayers.addBufferLayer(
+            buf => extensions.includes(path.extname(buf.filePath)),
+            buf => new ImageBufferLayer(buf),
         )
     }
 
@@ -148,6 +164,24 @@ export class OniEditor implements IEditor {
     public enter(): void {
         Log.info("[OniEditor::enter]")
         this._neovimEditor.enter()
+
+        editorManager.setActiveEditor(this)
+
+        commandManager.registerCommand({
+            command: "editor.split.horizontal",
+            execute: () => this._split("horizontal"),
+            enabled: () => editorManager.activeEditor === this,
+            name: null,
+            detail: null,
+        })
+
+        commandManager.registerCommand({
+            command: "editor.split.vertical",
+            execute: () => this._split("vertical"),
+            enabled: () => editorManager.activeEditor === this,
+            name: null,
+            detail: null,
+        })
     }
 
     public leave(): void {
@@ -155,16 +189,42 @@ export class OniEditor implements IEditor {
         this._neovimEditor.leave()
     }
 
-    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
-        return this._neovimEditor.openFile(file, method)
+    public async openFile(
+        file: string,
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
+        const openMode = openOptions.openMode
+        if (this._configuration.getValue("editor.split.mode") === "oni") {
+            if (
+                openMode === Oni.FileOpenMode.HorizontalSplit ||
+                openMode === Oni.FileOpenMode.VerticalSplit
+            ) {
+                const splitDirection =
+                    openMode === Oni.FileOpenMode.HorizontalSplit ? "horizontal" : "vertical"
+                const newEditor = await this._split(splitDirection)
+                return newEditor.openFile(file, { openMode: Oni.FileOpenMode.Edit })
+            }
+        }
+
+        return this._neovimEditor.openFile(file, openOptions)
     }
 
     public async newFile(filePath: string): Promise<Oni.Buffer> {
         return this._neovimEditor.newFile(filePath)
     }
 
+    public async clearSelection(): Promise<void> {
+        return this._neovimEditor.clearSelection()
+    }
+
     public async setSelection(range: types.Range): Promise<void> {
         return this._neovimEditor.setSelection(range)
+    }
+
+    public async blockInput(
+        inputFunction: (input: Oni.InputCallbackFunction) => Promise<void>,
+    ): Promise<void> {
+        return this._neovimEditor.blockInput(inputFunction)
     }
 
     public executeCommand(command: string): void {
@@ -191,5 +251,37 @@ export class OniEditor implements IEditor {
 
     public render(): JSX.Element {
         return this._neovimEditor.render()
+    }
+
+    private async _split(direction: SplitDirection): Promise<OniEditor> {
+        if (this._configuration.getValue("editor.split.mode") !== "oni") {
+            if (direction === "horizontal") {
+                await this._neovimEditor.neovim.command(":sp")
+            } else {
+                await this._neovimEditor.neovim.command(":vsp")
+            }
+
+            return this
+        }
+
+        const newEditor = new OniEditor(
+            this._colors,
+            this._completionProviders,
+            this._configuration,
+            this._diagnostics,
+            this._languageManager,
+            this._menuManager,
+            this._overlayManager,
+            this._pluginManager,
+            this._snippetManager,
+            this._tasks,
+            this._themeManager,
+            this._tokenColors,
+            this._workspace,
+        )
+
+        windowManager.createSplit(direction, newEditor, this)
+        await newEditor.init([])
+        return newEditor
     }
 }

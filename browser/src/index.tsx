@@ -23,6 +23,7 @@ const start = async (args: string[]): Promise<void> => {
     Shell.activate()
 
     const configurationPromise = import("./Services/Configuration")
+    const configurationCommandsPromise = import("./Services/Configuration/ConfigurationCommands")
     const pluginManagerPromise = import("./Plugins/PluginManager")
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
@@ -45,8 +46,11 @@ const start = async (args: string[]): Promise<void> => {
     const languageManagerPromise = import("./Services/Language")
     const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
+    const keyDisplayerPromise = import("./Services/KeyDisplayer")
+    const quickOpenPromise = import("./Services/QuickOpen")
     const taksPromise = import("./Services/Tasks")
     const workspacePromise = import("./Services/Workspace")
+    const workspaceCommandsPromise = import("./Services/Workspace/WorkspaceCommands")
 
     const themePickerPromise = import("./Services/Themes/ThemePicker")
     const cssPromise = import("./CSS")
@@ -74,11 +78,6 @@ const start = async (args: string[]): Promise<void> => {
             Shell.Actions.setConfigValue(prop, newConfigValues[prop])
         }
     }
-
-    configuration.onConfigurationError.subscribe(err => {
-        // TODO: Better / nicer handling of error:
-        alert(err)
-    })
 
     configuration.start()
 
@@ -136,8 +135,22 @@ const start = async (args: string[]): Promise<void> => {
     Menu.activate(configuration, overlayManager)
     const menuManager = Menu.getInstance()
 
+    const QuickOpen = await quickOpenPromise
+    QuickOpen.activate(commandManager, menuManager, editorManager, workspace)
+
     const Notifications = await notificationsPromise
     Notifications.activate(configuration, overlayManager)
+
+    configuration.onConfigurationError.subscribe(err => {
+        const notifications = Notifications.getInstance()
+        const notification = notifications.createItem()
+        notification.setContents("Error Loading Configuration", err.toString())
+        notification.setLevel("error")
+        notification.onClick.subscribe(() =>
+            commandManager.executeCommand("oni.config.openConfigJs"),
+        )
+        notification.show()
+    })
 
     UnhandledErrorMonitor.start(Notifications.getInstance())
 
@@ -146,7 +159,7 @@ const start = async (args: string[]): Promise<void> => {
     const tasks = Tasks.getInstance()
 
     const LanguageManager = await languageManagerPromise
-    LanguageManager.activate(configuration, editorManager, statusBar, workspace)
+    LanguageManager.activate(configuration, editorManager, pluginManager, statusBar, workspace)
     const languageManager = LanguageManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Editors")
@@ -155,6 +168,9 @@ const start = async (args: string[]): Promise<void> => {
 
     const CSS = await cssPromise
     CSS.activate()
+
+    const Snippets = await snippetPromise
+    Snippets.activate(commandManager)
 
     Shell.Actions.setLoadingComplete()
 
@@ -175,6 +191,7 @@ const start = async (args: string[]): Promise<void> => {
             menuManager,
             overlayManager,
             pluginManager,
+            Snippets.getInstance(),
             tasks,
             Themes.getThemeManagerInstance(),
             TokenColors.getInstance(),
@@ -189,6 +206,7 @@ const start = async (args: string[]): Promise<void> => {
 
     Performance.startMeasure("Oni.Start.Sidebar")
     const Sidebar = await sidebarPromise
+    const Learning = await import("./Services/Learning")
     const Explorer = await import("./Services/Explorer")
     const Search = await import("./Services/Search")
 
@@ -197,6 +215,7 @@ const start = async (args: string[]): Promise<void> => {
 
     Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
+    Learning.activate(configuration, editorManager, Sidebar.getInstance())
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =
@@ -211,11 +230,16 @@ const start = async (args: string[]): Promise<void> => {
     const api = pluginManager.startApi()
     configuration.activate(api)
 
+    Snippets.activateCompletionProvider(CompletionProviders.getInstance(), pluginManager)
+
     createLanguageClientsFromConfiguration(configuration.getValues())
 
     const { inputManager } = await inputManagerPromise
 
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
+
+    const ConfigurationCommands = await configurationCommandsPromise
+    ConfigurationCommands.activate(commandManager, configuration, editorManager)
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
@@ -223,8 +247,16 @@ const start = async (args: string[]): Promise<void> => {
     const GlobalCommands = await globalCommandsPromise
     GlobalCommands.activate(commandManager, menuManager, tasks)
 
-    const Snippets = await snippetPromise
-    Snippets.activate()
+    const WorkspaceCommands = await workspaceCommandsPromise
+    WorkspaceCommands.activateCommands(
+        configuration,
+        editorManager,
+        Snippets.getInstance(),
+        workspace,
+    )
+
+    const KeyDisplayer = await keyDisplayerPromise
+    KeyDisplayer.activate(commandManager, inputManager, overlayManager)
 
     const ThemePicker = await themePickerPromise
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())

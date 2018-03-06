@@ -24,8 +24,8 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     if (Platform.isMac()) {
         input.bind("<m-q>", "oni.quit")
-        input.bind("<m-p>", "quickOpen.show")
-        input.bind("<m-s-p>", "commands.show")
+        input.bind("<m-p>", "quickOpen.show", () => isNormalMode() && !isMenuOpen())
+        input.bind("<m-s-p>", "commands.show", isNormalMode)
         input.bind("<m-enter>", "language.codeAction.expand")
         input.bind("<m-t>", "language.symbols.workspace", () => !menu.isMenuOpen())
         input.bind("<s-m-t>", "language.symbols.document")
@@ -84,12 +84,18 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     // QuickOpen
     input.bind("<C-/>", "quickOpen.showBufferLines", isNormalMode)
-    input.bind(["<c-enter", "<C-v>"], "quickOpen.openFileVertical")
-    input.bind(["<s-enter", "<C-s>"], "quickOpen.openFileHorizontal")
+    input.bind(["<C-v>"], "quickOpen.openFileVertical")
+    input.bind(["<C-s>"], "quickOpen.openFileHorizontal")
     input.bind("<C-t>", "quickOpen.openFileNewTab")
+    input.bind(["<C-enter>"], "quickOpen.openFileExistingTab")
+
+    // Snippets
+    input.bind("<tab>", "snippet.nextPlaceholder")
+    input.bind("<s-tab>", "snippet.previousPlaceholder")
+    input.bind("<esc>", "snippet.cancel")
 
     // Completion
-    input.bind(["<enter>", "<tab>"], "contextMenu.select")
+    input.bind(["<enter>"], "contextMenu.select")
     input.bind(["<down>", "<C-n>"], "contextMenu.next")
     input.bind(["<up>", "<C-p>"], "contextMenu.previous")
     input.bind(

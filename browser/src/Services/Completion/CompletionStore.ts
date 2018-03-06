@@ -16,6 +16,7 @@ import { createStore as oniCreateStore } from "./../../Redux"
 
 import { Configuration } from "./../Configuration"
 import { LanguageManager } from "./../Language"
+import { SnippetManager } from "./../Snippets"
 
 import * as CompletionSelects from "./CompletionSelectors"
 import { ICompletionsRequestor } from "./CompletionsRequestor"
@@ -56,7 +57,7 @@ export type CompletionAction =
           meetBase: string
           meetLine: number
           meetPosition: number
-          completionText: string
+          completion: types.CompletionItem
       }
     | {
           type: "MEET_CHANGED"
@@ -181,7 +182,7 @@ export const lastCompletionInfoReducer: Reducer<ILastCompletionInfo> = (
             return {
                 meetLine: action.meetLine,
                 meetPosition: action.meetPosition,
-                completedText: action.completionText,
+                completion: action.completion,
             }
         default:
             return state
@@ -245,10 +246,10 @@ const createGetCompletionMeetEpic = (
             } as CompletionAction
         })
 
-const commitCompletionEpic = (editor: Oni.Editor): Epic<CompletionAction, ICompletionState> => (
-    action$,
-    store,
-) =>
+const commitCompletionEpic = (
+    editor: Oni.Editor,
+    snippetManager: SnippetManager,
+): Epic<CompletionAction, ICompletionState> => (action$, store) =>
     action$
         .ofType("COMMIT_COMPLETION")
         .do(async (action: CompletionAction) => {
@@ -260,7 +261,8 @@ const commitCompletionEpic = (editor: Oni.Editor): Epic<CompletionAction, ICompl
                 editor.activeBuffer,
                 action.meetLine,
                 action.meetPosition,
-                action.completionText,
+                action.completion,
+                snippetManager,
             )
         })
         .map(_ => nullAction)
@@ -409,6 +411,7 @@ export const createStore = (
     languageManager: LanguageManager,
     configuration: Configuration,
     completionsRequestor: ICompletionsRequestor,
+    snippetManager: SnippetManager,
 ): Store<ICompletionState> => {
     return oniCreateStore(
         "COMPLETION_STORE",
@@ -424,7 +427,7 @@ export const createStore = (
         [
             createEpicMiddleware(
                 combineEpics(
-                    commitCompletionEpic(editor),
+                    commitCompletionEpic(editor, snippetManager),
                     createGetCompletionMeetEpic(languageManager, configuration),
                     createGetCompletionsEpic(completionsRequestor),
                     createGetCompletionDetailsEpic(completionsRequestor),

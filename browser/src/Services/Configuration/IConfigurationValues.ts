@@ -30,12 +30,21 @@ export interface IConfigurationValues {
     "debug.detailedSessionLogging": boolean
     "debug.showTypingPrediction": boolean
 
+    "browser.defaultUrl": string
+
     // Simulate slow language server, for debugging
     "debug.fakeLag.languageServer": number | null
     "debug.fakeLag.neovimInput": number | null
 
+    "editor.split.mode": string
+
+    "configuration.editor": string
+
     // - textMateHighlighting
-    "experimental.editor.textMateHighlighting.enabled": boolean
+    "editor.textMateHighlighting.enabled": boolean
+
+    // Whether or not the learning pane is available
+    "experimental.learning.enabled": boolean
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
@@ -152,6 +161,9 @@ export interface IConfigurationValues {
     // (and available in terminal integration, later)
     "environment.additionalPaths": string[]
 
+    // User configurable array of files for which
+    // the image layer opens
+    "editor.imageLayerExtensions": string[]
     // Command to list files for 'quick open'
     // For example, to use 'ag': ag --nocolor -l .
     //

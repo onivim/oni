@@ -34,6 +34,10 @@ const BaseConfiguration: IConfigurationValues = {
 
     "autoUpdate.enabled": false,
 
+    "browser.defaultUrl": "https://duckduckgo.com",
+
+    "configuration.editor": "javascript",
+
     "debug.fixedSize": null,
     "debug.neovimPath": null,
     "debug.persistOnNeovimExit": false,
@@ -43,10 +47,10 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.fakeLag.languageServer": null,
     "debug.fakeLag.neovimInput": null,
 
-    "experimental.editor.textMateHighlighting.enabled": false,
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
+    "experimental.learning.enabled": false,
     "experimental.welcome.enabled": false,
 
     "experimental.neovim.transport": "stdio",
@@ -54,6 +58,7 @@ const BaseConfiguration: IConfigurationValues = {
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
     "editor.maxLinesForLanguageServices": 2500,
+    "editor.textMateHighlighting.enabled": true,
 
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
@@ -100,6 +105,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickOpen.execCommand": null,
     "editor.quickOpen.filterStrategy": "fuse",
 
+    "editor.split.mode": "native",
+
     "editor.typingPrediction": true,
 
     "editor.scrollBar.visible": true,
@@ -116,6 +123,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumnOpacity": 0.1,
 
     "editor.tokenColors": [],
+
+    "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
 
     "environment.additionalPaths": [],
 
@@ -217,9 +226,7 @@ const BaseConfiguration: IConfigurationValues = {
     "menu.rowHeight": 40,
     "menu.maxItemsToShow": 8,
 
-    // TEMPORARY - Since notifications came late in the cycle for this release,
-    // temporarily disabling it so that we have a bit more time to stabilize.
-    "notifications.enabled": process.env.NODE_ENV !== "production",
+    "notifications.enabled": true,
 
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
@@ -257,7 +264,7 @@ const BaseConfiguration: IConfigurationValues = {
         allowedFiletypes: [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json"],
     },
 
-    "tabs.mode": "buffers",
+    "tabs.mode": "tabs",
     "tabs.height": "2.5em",
     "tabs.highlight": true,
     "tabs.maxWidth": "30em",

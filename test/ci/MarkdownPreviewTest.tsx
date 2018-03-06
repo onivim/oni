@@ -7,14 +7,6 @@ import { getTemporaryFilePath, navigateToFile } from "./Common"
 
 import * as Oni from "oni-api"
 
-interface IPluginManager {
-    getPlugin(name: string): any
-}
-
-interface IOniWithPluginApi {
-    plugins: IPluginManager
-}
-
 interface IMarkdownPreviewPlugin {
     isPaneOpen(): boolean
     getUnrenderedContent(): string
@@ -22,35 +14,32 @@ interface IMarkdownPreviewPlugin {
 }
 
 export const settings = {
-    configPath: "MarkdownPreviewTest.config.js",
+    config: {
+        "experimental.markdownPreview.enabled": true,
+    },
 }
 
-export async function test(typedOni: Oni.Plugin.Api) {
+export async function test(oni: Oni.Plugin.Api) {
     const assert = new Assertor("Markdown-preview")
 
-    const typelessOni = typedOni as any
-    const oni = typelessOni as IOniWithPluginApi
+    await oni.automation.waitForEditors()
 
-    await typedOni.automation.waitForEditors()
-
-    const plugins = oni.plugins
-    const typelessPluginsManager = plugins as any
-    await typedOni.automation.waitFor(() => typelessPluginsManager.loaded)
-    const markdownPlugin = plugins.getPlugin(
+    await oni.automation.waitFor(() => oni.plugins.loaded)
+    const markdownPlugin = oni.plugins.getPlugin(
         "oni-plugin-markdown-preview",
     ) as IMarkdownPreviewPlugin
     assert.defined(markdownPlugin, "plugin instance")
 
     assert.assert(!markdownPlugin.isPaneOpen(), "Preview pane is not initially closed")
 
-    await navigateToFile(getTemporaryFilePath("md"), typedOni)
-    await typedOni.automation.waitFor(() => markdownPlugin.isPaneOpen())
+    await navigateToFile(getTemporaryFilePath("md"), oni)
+    await oni.automation.waitFor(() => markdownPlugin.isPaneOpen())
     assert.isEmpty(
         markdownPlugin.getUnrenderedContent().trim(),
         "Preview pane for empty Markdown buffer",
     )
 
-    await insertText(typedOni, "# Title 1")
+    await insertText(oni, "# Title 1")
     assert.contains(
         markdownPlugin.getRenderedContent(),
         ">Title 1</h1>",

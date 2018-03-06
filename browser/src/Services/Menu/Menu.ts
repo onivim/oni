@@ -4,7 +4,7 @@
  * Implements API surface area for working with the status bar
  */
 
-import { applyMiddleware, bindActionCreators, createStore } from "redux"
+import { bindActionCreators } from "redux"
 import thunk from "redux-thunk"
 
 import * as Oni from "oni-api"
@@ -20,6 +20,8 @@ import { MenuContainer } from "./MenuComponent"
 import { Configuration } from "./../Configuration"
 import { Overlay, OverlayManager } from "./../Overlay"
 
+import { createStore } from "./../../Redux"
+
 export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
     labelHighlights: number[]
     detailHighlights: number[]
@@ -30,9 +32,10 @@ export type MenuState = State.IMenus<Oni.Menu.MenuOption, IMenuOptionWithHighlig
 const reducer = createReducer<Oni.Menu.MenuOption, IMenuOptionWithHighlights>()
 
 export const menuStore = createStore<MenuState>(
+    "MenuStore",
     reducer,
     State.createDefaultState<Oni.Menu.MenuOption, IMenuOptionWithHighlights>(),
-    applyMiddleware(thunk),
+    [thunk],
 )
 
 export const menuActions: typeof ActionCreators = bindActionCreators(

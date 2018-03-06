@@ -8,6 +8,10 @@
  */
 
 import * as Snippets from "vscode-snippet-parser/lib"
+import { normalizeNewLines } from "./../../Utility"
+
+export type VariableResolver = Snippets.VariableResolver
+export type Variable = Snippets.Variable
 
 export interface OniSnippetPlaceholder {
     index: number
@@ -28,7 +32,7 @@ export const getLineCharacterFromOffset = (
     let idx = 0
     let currentOffset = 0
     while (idx < lines.length) {
-        if (offset >= currentOffset && offset < currentOffset + lines[idx].length) {
+        if (offset >= currentOffset && offset <= currentOffset + lines[idx].length) {
             return { line: idx, character: offset - currentOffset }
         }
 
@@ -42,11 +46,18 @@ export const getLineCharacterFromOffset = (
 export class OniSnippet {
     private _parser: Snippets.SnippetParser = new Snippets.SnippetParser()
     private _placeholderValues: { [index: number]: string } = {}
+    private _snippetString: string
 
-    constructor(private _snippetString: string) {}
+    constructor(snippet: string, private _variableResolver?: VariableResolver) {
+        this._snippetString = normalizeNewLines(snippet)
+    }
 
     public setPlaceholder(index: number, newValue: string): void {
         this._placeholderValues[index] = newValue
+    }
+
+    public getPlaceholderValue(index: number): string {
+        return this._placeholderValues[index] || ""
     }
 
     public getPlaceholders(): OniSnippetPlaceholder[] {
@@ -78,6 +89,10 @@ export class OniSnippet {
     private _getSnippetWithFilledPlaceholders(): Snippets.TextmateSnippet {
         const snippet = this._parser.parse(this._snippetString)
 
+        if (this._variableResolver) {
+            snippet.resolveVariables(this._variableResolver)
+        }
+
         Object.keys(this._placeholderValues).forEach((key: string) => {
             const val = this._placeholderValues[key]
             const snip = this._parser.parse(val)
@@ -87,7 +102,9 @@ export class OniSnippet {
             )
 
             placeholderToReplace.forEach(rep => {
-                snippet.replace(rep, snip.children)
+                const placeHolder = new Snippets.Placeholder(rep.index)
+                placeHolder.appendChild(snip)
+                snippet.replace(rep, [placeHolder])
             })
         })
 

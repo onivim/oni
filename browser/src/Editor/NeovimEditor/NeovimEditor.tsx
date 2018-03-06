@@ -42,8 +42,10 @@ import { commandManager } from "./../../Services/CommandManager"
 import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
+import { editorManager } from "./../../Services/EditorManager"
 import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
+import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
 
 import * as Shell from "./../../UI/Shell"
@@ -84,7 +86,7 @@ import { BufferLayerManager } from "./BufferLayerManager"
 import { Definition } from "./Definition"
 import * as ActionCreators from "./NeovimEditorActions"
 import { NeovimEditorCommands } from "./NeovimEditorCommands"
-import { createStore, IState } from "./NeovimEditorStore"
+import { createStore, IState, ITab } from "./NeovimEditorStore"
 import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvider"
@@ -94,6 +96,8 @@ import ExternalMenus from "./../../UI/components/ExternalMenus"
 import WildMenu from "./../../UI/components/WildMenu"
 
 import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
+
+import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 
 export class NeovimEditor extends Editor implements IEditor {
     private _bufferManager: BufferManager
@@ -165,6 +169,7 @@ export class NeovimEditor extends Editor implements IEditor {
         private _menuManager: MenuManager,
         private _overlayManager: OverlayManager,
         private _pluginManager: PluginManager,
+        private _snippetManager: SnippetManager,
         private _tasks: Tasks,
         private _themeManager: ThemeManager,
         private _tokenColors: TokenColors,
@@ -225,6 +230,18 @@ export class NeovimEditor extends Editor implements IEditor {
             this._toolTipsProvider,
         )
 
+        this._neovimInstance.onMessage.subscribe(messageInfo => {
+            // TODO: Hook up real notifications
+            const notificationManager = getNotificationsInstance()
+            const notification = notificationManager.createItem()
+            notification.setLevel("error")
+            notification.setContents(messageInfo.title, messageInfo.details)
+            notification.onClick.subscribe(() =>
+                commandManager.executeCommand("oni.config.openInitVim"),
+            )
+            notification.show()
+        })
+
         this._renderer = new CanvasRenderer()
 
         this._rename = new Rename(
@@ -242,7 +259,6 @@ export class NeovimEditor extends Editor implements IEditor {
             this._contextMenuManager,
             this._definition,
             this._languageIntegration,
-            this._menuManager,
             this._neovimInstance,
             this._rename,
             this._symbols,
@@ -386,6 +402,13 @@ export class NeovimEditor extends Editor implements IEditor {
         this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: BufferEventContext) =>
             this._onBufEnter(evt),
         )
+        this._neovimInstance.autoCommands.onBufWinEnter.subscribe((evt: BufferEventContext) =>
+            this._onBufEnter(evt),
+        )
+
+        this._neovimInstance.autoCommands.onFileTypeChanged.subscribe((evt: EventContext) =>
+            this._onFileTypeChanged(evt),
+        )
 
         this._neovimInstance.autoCommands.onBufWipeout.subscribe((evt: BufferEventContext) =>
             this._onBufWipeout(evt),
@@ -404,8 +427,20 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.setNeovimError(true)
         })
 
+        // These functions are mirrors of each other if vim changes dir then oni responds
+        // and if oni initiates the dir change then we inform vim
+        // NOTE: the gates to check that the dirs being passed aren't already set prevent
+        // an infinite loop!!
         this._neovimInstance.onDirectoryChanged.subscribe(async newDirectory => {
-            await this._workspace.changeDirectory(newDirectory)
+            if (newDirectory !== this._workspace.activeWorkspace) {
+                await this._workspace.changeDirectory(newDirectory)
+            }
+        })
+
+        this._workspace.onDirectoryChanged.subscribe(async newDirectory => {
+            if (newDirectory !== this._neovimInstance.currentVimDirectory) {
+                await this._neovimInstance.chdir(newDirectory)
+            }
         })
 
         this._neovimInstance.on("action", (action: any) => {
@@ -431,7 +466,17 @@ export class NeovimEditor extends Editor implements IEditor {
             }
         })
 
-        this._neovimInstance.on("tabline-update", (currentTabId: number, tabs: any[]) => {
+        this._neovimInstance.on("tabline-update", async (currentTabId: number, tabs: ITab[]) => {
+            const atomicCalls = tabs.map((tab: ITab) => {
+                return ["nvim_call_function", ["tabpagebuflist", [tab.id]]]
+            })
+
+            const response = await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
+
+            tabs.map((tab: ITab, index: number) => {
+                tab.buffersInTab = response[0][index] instanceof Array ? response[0][index] : []
+            })
+
             this._actions.setTabs(currentTabId, tabs)
         })
 
@@ -491,7 +536,7 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         const textMateHighlightingEnabled = this._configuration.getValue(
-            "experimental.editor.textMateHighlighting.enabled",
+            "editor.textMateHighlighting.enabled",
         )
         this._syntaxHighlighter = textMateHighlightingEnabled
             ? new SyntaxHighlighter(this, this._tokenColors)
@@ -502,6 +547,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._configuration,
             this._completionProviders,
             this._languageManager,
+            this._snippetManager,
         )
         this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
 
@@ -527,9 +573,14 @@ export class NeovimEditor extends Editor implements IEditor {
             this._languageManager,
         )
 
-        this._languageIntegration.onShowHover.subscribe(hover => {
+        this._languageIntegration.onShowHover.subscribe(async hover => {
             const { cursorPixelX, cursorPixelY } = this._store.getState()
-            this._hoverRenderer.showQuickInfo(cursorPixelX, cursorPixelY, hover.hover, hover.errors)
+            await this._hoverRenderer.showQuickInfo(
+                cursorPixelX,
+                cursorPixelY,
+                hover.hover,
+                hover.errors,
+            )
         })
 
         this._languageIntegration.onHideHover.subscribe(() => {
@@ -585,22 +636,30 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         // enable opening a file via drag-drop
-        document.ondragover = ev => {
+        document.body.ondragover = ev => {
             ev.preventDefault()
         }
         document.body.ondrop = ev => {
             ev.preventDefault()
 
-            const files = ev.dataTransfer.files
+            const { files } = ev.dataTransfer
             // open first file in current editor
-            this._neovimInstance.open(normalizePath(files[0].path))
-            // open any subsequent files in new tabs
-            for (let i = 1; i < files.length; i++) {
-                this._neovimInstance.command(
-                    'exec ":tabe ' + normalizePath(files.item(i).path) + '"',
-                )
+            if (files.length) {
+                this._neovimInstance.open(normalizePath(files[0].path))
+                // open any subsequent files in new tabs
+                for (let i = 1; i < files.length; i++) {
+                    this._neovimInstance.command(
+                        'exec ":tabe ' + normalizePath(files.item(i).path) + '"',
+                    )
+                }
             }
         }
+    }
+
+    public async blockInput(
+        inputFunction: (inputCallback: Oni.InputCallbackFunction) => Promise<void>,
+    ): Promise<void> {
+        return this._neovimInstance.blockInput(inputFunction)
     }
 
     public dispose(): void {
@@ -628,6 +687,7 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public enter(): void {
+        editorManager.setActiveEditor(this)
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
         this._actions.setHasFocus(true)
@@ -640,9 +700,33 @@ export class NeovimEditor extends Editor implements IEditor {
         this._commands.deactivate()
     }
 
+    public async clearSelection(): Promise<void> {
+        await this._neovimInstance.input("<esc>")
+        await this._neovimInstance.input("a")
+    }
+
     public async setSelection(range: types.Range): Promise<void> {
         await this._neovimInstance.input("<esc>")
 
+        // Clear out any pending block selection
+        // Without this, if there was a line-wise visual selection,
+        // range selection would not work correctly.
+        const atomicCallsVisualMode = [
+            [
+                "nvim_call_function",
+                ["setpos", [".", [0, range.start.line + 1, range.start.character + 1]]],
+            ],
+            ["nvim_command", ["normal! v"]],
+            [
+                "nvim_call_function",
+                ["setpos", [".", [0, range.end.line + 1, range.end.character + 1]]],
+            ],
+        ]
+        await this._neovimInstance.request("nvim_call_atomic", [atomicCallsVisualMode])
+        await this._neovimInstance.input("<esc>")
+
+        // Re-select the selection and switch to 'select' mode so that typing
+        // overwrites the selection
         const atomicCalls = [
             [
                 "nvim_call_function",
@@ -652,6 +736,7 @@ export class NeovimEditor extends Editor implements IEditor {
                 "nvim_call_function",
                 ["setpos", ["'>", [0, range.end.line + 1, range.end.character + 1]]],
             ],
+            // ["nvim_command", ["normal! v"]],
             ["nvim_command", ["set selectmode=cmd"]],
             ["nvim_command", ["normal! gv"]],
             ["nvim_command", ["set selectmode="]],
@@ -660,13 +745,18 @@ export class NeovimEditor extends Editor implements IEditor {
         await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
     }
 
-    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
+    public async openFile(
+        file: string,
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
+        const tabsMode = this._configuration.getValue("tabs.mode") === "tabs"
         const cmd = new Proxy(
             {
-                tab: "taball!",
-                horizontal: "sp!",
-                vertical: "vsp!",
-                edit: "e!",
+                [Oni.FileOpenMode.NewTab]: "tabnew!",
+                [Oni.FileOpenMode.HorizontalSplit]: "sp!",
+                [Oni.FileOpenMode.VerticalSplit]: "vsp!",
+                [Oni.FileOpenMode.Edit]: tabsMode ? "tab drop" : "e!",
+                [Oni.FileOpenMode.ExistingTab]: "e!",
             },
             {
                 get: (target: { [cmd: string]: string }, name: string) =>
@@ -674,7 +764,9 @@ export class NeovimEditor extends Editor implements IEditor {
             },
         )
 
-        await this._neovimInstance.command(`:${cmd[method]} ${file}`)
+        await this._neovimInstance.command(
+            `:${cmd[openOptions.openMode]} ${this._escapeSpaces(file)}`,
+        )
         return this.activeBuffer
     }
 
@@ -854,12 +946,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._actions.setMode(newMode)
         this.setMode(newMode as Oni.Vim.Mode)
-
-        if (newMode === "insert") {
-            this._syntaxHighlighter.notifyStartInsertMode(this.activeBuffer)
-        } else {
-            this._syntaxHighlighter.notifyEndInsertMode(this.activeBuffer)
-        }
     }
 
     private _updateWindow(currentBuffer: EventContext) {
@@ -874,6 +960,11 @@ export class NeovimEditor extends Editor implements IEditor {
             currentBuffer.windowTopLine - 1,
             currentBuffer.windowBottomLine - 1,
         )
+    }
+
+    private _onFileTypeChanged(evt: EventContext): void {
+        const buf = this._bufferManager.updateBufferFromEvent(evt)
+        this._bufferLayerManager.notifyBufferFileTypeChanged(buf)
     }
 
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
@@ -900,6 +991,10 @@ export class NeovimEditor extends Editor implements IEditor {
         const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
 
         this._actions.bufferEnter(buffers)
+    }
+
+    private _escapeSpaces(str: string): string {
+        return str.split(" ").join("\\ ")
     }
 
     private _onImeStart(): void {

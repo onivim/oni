@@ -72,6 +72,18 @@ describe("OniSnippet", () => {
                 value: "b",
             })
         })
+
+        it("gets placeholder at end of line", () => {
+            const oniSnippet = new OniSnippet("foo\nbar${0}") // tslint:disable-line
+            const placeholders = oniSnippet.getPlaceholders()
+
+            assert.deepEqual(placeholders[0], {
+                index: 0,
+                line: 1,
+                character: 3,
+                value: "",
+            })
+        })
     })
 
     describe("setPlaceholder", () => {
@@ -85,6 +97,14 @@ describe("OniSnippet", () => {
             oniSnippet.setPlaceholder(1, "test2")
 
             assert.deepEqual(oniSnippet.getLines(), ["test2test2test2"])
+        })
+    })
+
+    describe("variableResolvers", () => {
+        it("simple variable resolution", () => {
+            const oniSnippet = new OniSnippet("$CURRENT_YEAR", { resolve: variableName => "2018" })
+
+            assert.deepEqual(oniSnippet.getLines(), ["2018"])
         })
     })
 })
