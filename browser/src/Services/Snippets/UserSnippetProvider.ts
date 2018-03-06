@@ -21,10 +21,23 @@ import * as Log from "./../../Log"
 
 import { promisify } from "util"
 
-const fileExists = promisify(fs.exists)
 const readFile = promisify(fs.readFile)
 
 const GLOBAL_SNIPPET_NAME = "global_snippets"
+
+const SnippetTemplate = [
+    "{",
+    '   "For_Loop": {',
+    '       "prefix": "for",',
+    '       "body": [',
+    '         "for (const ${2:element} of ${1:array}) {",',
+    '         "\t$0",',
+    '         "}"',
+    "       ],",
+    '       "description": "For Loop"',
+    "   },",
+    "}",
+]
 
 export class UserSnippetProvider implements ISnippetProvider {
     private _snippetCache: { [language: string]: ISnippet[] } = {}
@@ -85,9 +98,15 @@ export class UserSnippetProvider implements ISnippetProvider {
         mkdirp.sync(snippetFolder)
         this._startWatchingSnippetsFolderIfExists()
 
-        await this._editorManager.activeEditor.openFile(snippetFilePath, {
+        const isNewFile = !fs.existsSync(snippetFilePath)
+
+        const buf = await this._editorManager.activeEditor.openFile(snippetFilePath, {
             openMode: Oni.FileOpenMode.VerticalSplit,
         })
+
+        if (isNewFile) {
+            await buf.setLines(0, 1, SnippetTemplate)
+        }
     }
 
     private _startWatchingSnippetsFolderIfExists(): void {
@@ -122,12 +141,17 @@ export class UserSnippetProvider implements ISnippetProvider {
         }
 
         const filePath = this.getUserSnippetFilePath(language)
-        const exists = await fileExists(filePath)
+        const exists = fs.existsSync(filePath)
 
-        let snippets = []
+        let snippets: ISnippet[] = []
         if (exists) {
-            const contents = await readFile(filePath)
-            snippets = JSON.parse(contents.toString())
+            try {
+                const contents = await readFile(filePath)
+                snippets = Object.values(JSON.parse(contents.toString())) as ISnippet[]
+            } catch (ex) {
+                Log.error(ex)
+                snippets = []
+            }
         }
 
         this._snippetCache[language] = snippets
