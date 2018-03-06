@@ -25,6 +25,8 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     await waitForCommand("oni.config.openUserConfig", oni)
 
+    oni.commands.executeCommand("oni.config.openUserConfig")
+
     await oni.automation.waitFor(() => {
         return oni.editors.activeEditor.activeBuffer.language === "typescript"
     }, 10000)
