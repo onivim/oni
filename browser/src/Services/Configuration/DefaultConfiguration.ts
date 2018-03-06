@@ -33,6 +33,9 @@ const BaseConfiguration: IConfigurationValues = {
     deactivate: noop,
 
     "autoUpdate.enabled": false,
+
+    "browser.defaultUrl": "https://duckduckgo.com",
+
     "configuration.editor": "javascript",
 
     "debug.fixedSize": null,
@@ -47,7 +50,7 @@ const BaseConfiguration: IConfigurationValues = {
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
-    "experimental.learning.enabled": true,
+    "experimental.learning.enabled": false,
     "experimental.welcome.enabled": false,
 
     "experimental.neovim.transport": "stdio",
@@ -120,6 +123,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumnOpacity": 0.1,
 
     "editor.tokenColors": [],
+
+    "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
 
     "environment.additionalPaths": [],
 
@@ -245,7 +250,7 @@ const BaseConfiguration: IConfigurationValues = {
         "oni.status.git": 3,
     },
 
-    "tabs.mode": "buffers",
+    "tabs.mode": "tabs",
     "tabs.height": "2.5em",
     "tabs.highlight": true,
     "tabs.maxWidth": "30em",

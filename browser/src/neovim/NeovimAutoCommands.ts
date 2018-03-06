@@ -14,7 +14,7 @@ export interface INeovimAutoCommands {
     // Autocommands
     onBufEnter: IEvent<BufferEventContext>
     onBufWipeout: IEvent<BufferEventContext>
-    onBufWinEnter: IEvent<EventContext>
+    onBufWinEnter: IEvent<BufferEventContext>
     onBufDelete: IEvent<BufferEventContext>
     onBufUnload: IEvent<BufferEventContext>
     onBufWritePost: IEvent<EventContext>
@@ -35,7 +35,7 @@ export class NeovimAutoCommands {
     private _onBufWipeoutEvent = new Event<BufferEventContext>()
     private _onBufDeleteEvent = new Event<BufferEventContext>()
     private _onBufUnloadEvent = new Event<BufferEventContext>()
-    private _onBufWinEnterEvent = new Event<EventContext>()
+    private _onBufWinEnterEvent = new Event<BufferEventContext>()
     private _onFileTypeChangedEvent = new Event<EventContext>()
     private _onWinEnterEvent = new Event<EventContext>()
     private _onCursorMovedEvent = new Event<EventContext>()
@@ -58,7 +58,7 @@ export class NeovimAutoCommands {
         return this._onBufWritePostEvent
     }
 
-    public get onBufWinEnter(): IEvent<EventContext> {
+    public get onBufWinEnter(): IEvent<BufferEventContext> {
         return this._onBufWinEnterEvent
     }
 

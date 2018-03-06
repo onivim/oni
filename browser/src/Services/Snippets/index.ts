@@ -1,5 +1,7 @@
+export * from "./OniSnippet"
 export * from "./SnippetManager"
 export * from "./SnippetSession"
+export * from "./SnippetVariableResolver"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 

@@ -63,7 +63,9 @@ export class NeovimWindowManager {
         const updateScroll = (evt: EventContext) => this._scrollObservable.next(evt)
         // First element of the BufEnter event is the current buffer
         this._neovimInstance.autoCommands.onBufEnter.subscribe(bufs => updateScroll(bufs.current))
-        this._neovimInstance.autoCommands.onBufWinEnter.subscribe(updateScroll)
+        this._neovimInstance.autoCommands.onBufWinEnter.subscribe(bufs =>
+            updateScroll(bufs.current),
+        )
         this._neovimInstance.onBufferUpdate.subscribe(buf => updateScroll(buf.eventContext))
         this._neovimInstance.autoCommands.onWinEnter.subscribe(updateScroll)
         this._neovimInstance.autoCommands.onCursorMoved.subscribe(updateScroll)

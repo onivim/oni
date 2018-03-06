@@ -9,6 +9,8 @@ import { OverlayManager } from "./../Overlay"
 
 import { Sneak } from "./Sneak"
 
+export * from "./SneakStore"
+
 let _sneak: Sneak
 
 export const activate = (commandManager: CommandManager, overlayManager: OverlayManager) => {
