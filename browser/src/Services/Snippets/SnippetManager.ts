@@ -103,9 +103,11 @@ export class SnippetManager {
         return !!this._activeSession
     }
 
-    public cancel(): void {
+    public async cancel(): Promise<void> {
         if (this._activeSession) {
             this._cleanupAfterSession()
+            await (this._editorManager.activeEditor as any).clearSelection()
+            await this._editorManager.activeEditor.neovim.command("stopinsert")
         }
 
         if (this._currentLayer) {
