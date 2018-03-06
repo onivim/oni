@@ -7,6 +7,7 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { CommandManager } from "./../CommandManager"
 import { CompletionProviders } from "./../Completion"
+import { Configuration } from "./../Configuration"
 import { editorManager } from "./../EditorManager"
 
 import { SnippetCompletionProvider } from "./SnippetCompletionProvider"
@@ -15,8 +16,8 @@ import { PluginSnippetProvider } from "./SnippetProvider"
 
 let _snippetManager: SnippetManager
 
-export const activate = (commandManager: CommandManager) => {
-    _snippetManager = new SnippetManager(editorManager)
+export const activate = (commandManager: CommandManager, configuration: Configuration) => {
+    _snippetManager = new SnippetManager(configuration, editorManager)
 
     commandManager.registerCommand({
         command: "snippet.nextPlaceholder",
