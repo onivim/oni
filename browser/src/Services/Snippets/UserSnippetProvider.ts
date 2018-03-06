@@ -11,13 +11,11 @@ import * as mkdirp from "mkdirp"
 import * as Oni from "oni-api"
 
 import { ISnippet } from "./ISnippet"
-import { ISnippetProvider } from "./SnippetProvider"
+import { ISnippetProvider, loadSnippetsFromFile } from "./SnippetProvider"
 
 import { CommandManager } from "./../CommandManager"
 import { Configuration, getUserConfigFolderPath } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
-
-import { loadSnippetsFromFile } from "./SnippetProvider"
 
 import * as Log from "./../../Log"
 
