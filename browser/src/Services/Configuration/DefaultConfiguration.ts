@@ -260,6 +260,8 @@ const BaseConfiguration: IConfigurationValues = {
     "language.haskell.languageServer.rootFiles": [".git"],
     "language.haskell.languageServer.configuration": {},
 
+    "language.typescript.languageServer.command": "typescript-language-server",
+    "language.typescript.languageServer.arguments": ["--stdio"],
     "language.typescript.completionTriggerCharacters": [".", "/", "\\"],
     "language.typescript.textMateGrammar": {
         ".ts": path.join(
