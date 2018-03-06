@@ -7,6 +7,9 @@
 import * as fs from "fs"
 import * as path from "path"
 
+import * as mkdirp from "mkdirp"
+import * as Oni from "oni-api"
+
 import { ISnippet } from "./ISnippet"
 import { ISnippetProvider } from "./SnippetProvider"
 
@@ -25,25 +28,26 @@ const GLOBAL_SNIPPET_NAME = "global_snippets"
 
 export class UserSnippetProvider implements ISnippetProvider {
     private _snippetCache: { [language: string]: ISnippet[] } = {}
+    private _isWatching: boolean = false
+
+    private _fileTypesToEditSnippets: Set<string> = new Set<string>()
 
     constructor(
         private _commandManager: CommandManager,
         private _configuration: Configuration,
         private _editorManager: EditorManager,
     ) {
-        this._editorManager.anyEditor.onBufferSaved.subscribe(saveEvent => {
-            // Invalidate snippet cache if the snippets were saved
-            if (saveEvent.filePath.indexOf(this._getSnippetFolder()) >= 0) {
-                Log.info("UserSnippetProvider - invalidating cache.")
-                this._snippetCache = {}
-            }
+        this._startWatchingSnippetsFolderIfExists()
+
+        this._editorManager.anyEditor.onBufferEnter.subscribe(bufEnter => {
+            this._addCommandForLanguage(bufEnter.language)
         })
 
         this._commandManager.registerCommand({
             command: "userSnippets.editGlobal",
             name: "Snippets: Edit User Snippets (global)",
             detail: "Edit user snippet definitions for all files.",
-            execute: () => alert("edit definitions"),
+            execute: () => this._editSnippetFile(GLOBAL_SNIPPET_NAME),
         })
     }
 
@@ -57,6 +61,52 @@ export class UserSnippetProvider implements ISnippetProvider {
     public getUserSnippetFilePath(language: string): string {
         const snippetPath = this._getSnippetFolder()
         return path.join(snippetPath, language + ".json")
+    }
+
+    private _addCommandForLanguage(language: string): void {
+        if (!this._fileTypesToEditSnippets.has(language)) {
+            this._commandManager.registerCommand({
+                command: `userSnippets.edit.${language}`,
+                name: `Snippets: Edit User Snippets (${language})`,
+                detail: `Edit user snippet definitions for ${language} files.`,
+                execute: () => this._editSnippetFile(language),
+                enabled: () => this._editorManager.activeEditor.activeBuffer.language === language,
+            })
+
+            this._fileTypesToEditSnippets.add(language)
+        }
+    }
+
+    private async _editSnippetFile(language: string): Promise<void> {
+        // Make sure snippet folder exists
+        const snippetFilePath = this.getUserSnippetFilePath(language)
+        const snippetFolder = path.dirname(snippetFilePath)
+
+        mkdirp.sync(snippetFolder)
+        this._startWatchingSnippetsFolderIfExists()
+
+        await this._editorManager.activeEditor.openFile(snippetFilePath, {
+            openMode: Oni.FileOpenMode.VerticalSplit,
+        })
+    }
+
+    private _startWatchingSnippetsFolderIfExists(): void {
+        if (this._isWatching) {
+            return
+        }
+
+        if (!fs.existsSync(this._getSnippetFolder())) {
+            return
+        }
+
+        Log.info("UserSnippetProvider - installing watcher...")
+
+        this._isWatching = true
+
+        fs.watch(this._getSnippetFolder(), (evt, filename) => {
+            Log.info("UserSnippetProvider - invalidating cache because a change was detected.")
+            this._snippetCache = {}
+        })
     }
 
     private _getSnippetFolder(): string {
