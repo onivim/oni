@@ -26,8 +26,8 @@ const SnippetTemplate = [
     '   "For_Loop": {',
     '       "prefix": "for",',
     '       "body": [',
-    '         "for (const ${2:element} of ${1:array}) {",',
-    '         "\\t$0",',
+    '         "for (const ${2:element} of ${1:array}) {",', // tslint:disable-line
+    '         "\\t$0",', //tslint:disable-line
     '         "}"',
     "       ],",
     '       "description": "For Loop"',
