@@ -135,8 +135,14 @@ export class UserSnippetProvider implements ISnippetProvider {
         if (this._snippetCache[language]) {
             return this._snippetCache[language]
         }
+
         const filePath = this.getUserSnippetFilePath(language)
-        const snippets = await loadSnippetsFromFile(filePath)
+
+        let snippets: ISnippet[] = []
+        if (fs.existsSync(filePath)) {
+            snippets = await loadSnippetsFromFile(filePath)
+        }
+
         this._snippetCache[language] = snippets
         return snippets
     }
