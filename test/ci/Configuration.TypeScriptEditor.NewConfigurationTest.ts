@@ -16,14 +16,14 @@ import * as path from "path"
 
 import * as Oni from "oni-api"
 
-import { createNewFile, getTemporaryFolder } from "./Common"
+import { createNewFile, getTemporaryFolder, waitForCommand } from "./Common"
 
 const emptyConfigPath = path.join(getTemporaryFolder(), "config.js")
 
 export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitForEditors()
 
-    oni.commands.executeCommand("oni.config.openUserConfig")
+    await waitForCommand("oni.config.openUserConfig", oni)
 
     await oni.automation.waitFor(() => {
         return oni.editors.activeEditor.activeBuffer.language === "typescript"

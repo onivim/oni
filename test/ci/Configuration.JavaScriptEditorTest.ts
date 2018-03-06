@@ -14,11 +14,12 @@ import * as path from "path"
 
 import * as Oni from "oni-api"
 
-import { createNewFile } from "./Common"
+import { createNewFile, waitForCommand } from "./Common"
 
 export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitForEditors()
 
+    await waitForCommand("oni.config.openUserConfig", oni)
     oni.commands.executeCommand("oni.config.openUserConfig")
 
     await oni.automation.waitFor(() => {
