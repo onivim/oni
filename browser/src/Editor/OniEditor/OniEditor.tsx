@@ -19,6 +19,7 @@ import * as Log from "./../../Log"
 import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { IColors } from "./../../Services/Colors"
+import { commandManager } from "./../../Services/CommandManager"
 import { CompletionProviders } from "./../../Services/Completion"
 import { Configuration } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
@@ -45,7 +46,7 @@ import { ErrorsContainer } from "./containers/ErrorsContainer"
 
 import { NeovimEditor } from "./../NeovimEditor"
 
-import { windowManager } from "./../../Services/WindowManager"
+import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 
 import { ImageBufferLayer } from "./ImageBufferLayer"
 
@@ -165,6 +166,22 @@ export class OniEditor implements IEditor {
         this._neovimEditor.enter()
 
         editorManager.setActiveEditor(this)
+
+        commandManager.registerCommand({
+            command: "editor.split.horizontal",
+            execute: () => this._split("horizontal"),
+            enabled: () => editorManager.activeEditor === this,
+            name: null,
+            detail: null,
+        })
+
+        commandManager.registerCommand({
+            command: "editor.split.vertical",
+            execute: () => this._split("vertical"),
+            enabled: () => editorManager.activeEditor === this,
+            name: null,
+            detail: null,
+        })
     }
 
     public leave(): void {
@@ -182,25 +199,9 @@ export class OniEditor implements IEditor {
                 openMode === Oni.FileOpenMode.HorizontalSplit ||
                 openMode === Oni.FileOpenMode.VerticalSplit
             ) {
-                const newEditor = new OniEditor(
-                    this._colors,
-                    this._completionProviders,
-                    this._configuration,
-                    this._diagnostics,
-                    this._languageManager,
-                    this._menuManager,
-                    this._overlayManager,
-                    this._pluginManager,
-                    this._snippetManager,
-                    this._tasks,
-                    this._themeManager,
-                    this._tokenColors,
-                    this._workspace,
-                )
-
-                // TODO
-                windowManager.createSplit("vertical", newEditor)
-                await newEditor.init([])
+                const splitDirection =
+                    openMode === Oni.FileOpenMode.HorizontalSplit ? "horizontal" : "vertical"
+                const newEditor = await this._split(splitDirection)
                 return newEditor.openFile(file, { openMode: Oni.FileOpenMode.Edit })
             }
         }
@@ -250,5 +251,37 @@ export class OniEditor implements IEditor {
 
     public render(): JSX.Element {
         return this._neovimEditor.render()
+    }
+
+    private async _split(direction: SplitDirection): Promise<OniEditor> {
+        if (this._configuration.getValue("editor.split.mode") !== "oni") {
+            if (direction === "horizontal") {
+                await this._neovimEditor.neovim.command(":sp")
+            } else {
+                await this._neovimEditor.neovim.command(":vsp")
+            }
+
+            return this
+        }
+
+        const newEditor = new OniEditor(
+            this._colors,
+            this._completionProviders,
+            this._configuration,
+            this._diagnostics,
+            this._languageManager,
+            this._menuManager,
+            this._overlayManager,
+            this._pluginManager,
+            this._snippetManager,
+            this._tasks,
+            this._themeManager,
+            this._tokenColors,
+            this._workspace,
+        )
+
+        windowManager.createSplit(direction, newEditor, this)
+        await newEditor.init([])
+        return newEditor
     }
 }
