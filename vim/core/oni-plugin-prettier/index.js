@@ -83,15 +83,6 @@ const activate = async Oni => {
             const outputLine = beginningLines.length
             const outputColumn = beginningLines[beginningLines.length - 1].length
 
-            // console.group('CURSOR===========')
-            // console.log('Cursor last position', bufferString.substring(0, charactersTillCursor))
-            // console.log('outputLine: ', outputLine)
-            // console.log('outputColumn: ', outputColumn)
-            // console.log('beginning: ', beginning)
-            // console.log('beginningLines: ', beginningLines)
-            // console.log('last : ', beginningLines[beginningLines.length - 1])
-            // console.groupEnd()
-
             await activeBuffer.setCursorPosition(outputLine - 1, outputColumn)
         }
     }
