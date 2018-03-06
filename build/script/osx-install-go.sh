@@ -20,7 +20,4 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
     echo "Checking go bin directory..."
     ls -a ~/go/bin
-
-    echo "Checking go-langserver path..."
-    which go-langserver
 fi
