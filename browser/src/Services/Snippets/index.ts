@@ -23,7 +23,7 @@ export const activate = (commandManager: CommandManager, configuration: Configur
         command: "snippet.nextPlaceholder",
         name: null,
         detail: null,
-        enabled: () => _snippetManager.isSnippetActive(),
+        enabled: () => _snippetManager.isSnippetActive,
         execute: () => _snippetManager.nextPlaceholder(),
     })
 
@@ -31,7 +31,7 @@ export const activate = (commandManager: CommandManager, configuration: Configur
         command: "snippet.previousPlaceholder",
         name: null,
         detail: null,
-        enabled: () => _snippetManager.isSnippetActive(),
+        enabled: () => _snippetManager.isSnippetActive,
         execute: () => _snippetManager.previousPlaceholder(),
     })
 
@@ -39,7 +39,7 @@ export const activate = (commandManager: CommandManager, configuration: Configur
         command: "snippet.cancel",
         name: null,
         detail: null,
-        enabled: () => _snippetManager.isSnippetActive(),
+        enabled: () => _snippetManager.isSnippetActive,
         execute: () => _snippetManager.cancel(),
     })
 }

@@ -4,6 +4,7 @@
  * Manages snippet integration
  */
 
+import * as Oni from "oni-api"
 import { IDisposable } from "oni-types"
 
 import * as Log from "./../../Log"
@@ -15,18 +16,20 @@ import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 
 import { SnippetBufferLayer } from "./SnippetBufferLayer"
-import { CompositeSnippetProvider, ISnippetProvider } from "./SnippetProvider"
+import { CompositeSnippetProvider } from "./SnippetProvider"
 import { SnippetSession } from "./SnippetSession"
 
-import { ISnippet } from "./ISnippet"
-
-export class SnippetManager {
+export class SnippetManager implements Oni.Snippets.SnippetManager {
     private _activeSession: SnippetSession
     private _disposables: IDisposable[] = []
     private _currentLayer: SnippetBufferLayer = null
 
     private _snippetProvider: CompositeSnippetProvider
     private _synchronizeSnippetObservable: Subject<void> = new Subject<void>()
+
+    public get isSnippetActive(): boolean {
+        return !!this._activeSession
+    }
 
     constructor(private _configuration: Configuration, private _editorManager: EditorManager) {
         this._snippetProvider = new CompositeSnippetProvider(this._configuration)
@@ -41,11 +44,11 @@ export class SnippetManager {
         })
     }
 
-    public async getSnippetsForLanguage(language: string): Promise<ISnippet[]> {
+    public async getSnippetsForLanguage(language: string): Promise<Oni.Snippets.Snippet[]> {
         return this._snippetProvider.getSnippets(language)
     }
 
-    public registerSnippetProvider(snippetProvider: ISnippetProvider): void {
+    public registerSnippetProvider(snippetProvider: Oni.Snippets.SnippetProvider): void {
         this._snippetProvider.registerProvider(snippetProvider)
     }
 
@@ -64,13 +67,13 @@ export class SnippetManager {
         this._currentLayer = new SnippetBufferLayer(buffer, snippetSession)
 
         const s1 = activeEditor.onCursorMoved.subscribe(() => {
-            if (this.isSnippetActive()) {
+            if (this.isSnippetActive) {
                 this._activeSession.updateCursorPosition()
             }
         })
 
         const s2 = activeEditor.onModeChanged.subscribe(() => {
-            if (this.isSnippetActive()) {
+            if (this.isSnippetActive) {
                 this._activeSession.updateCursorPosition()
             }
         })
@@ -89,22 +92,18 @@ export class SnippetManager {
     }
 
     public async nextPlaceholder(): Promise<void> {
-        if (this.isSnippetActive()) {
+        if (this.isSnippetActive) {
             return this._activeSession.nextPlaceholder()
         }
     }
 
     public async previousPlaceholder(): Promise<void> {
-        if (this.isSnippetActive()) {
+        if (this.isSnippetActive) {
             return this._activeSession.previousPlaceholder()
         }
     }
 
-    public isSnippetActive(): boolean {
-        return !!this._activeSession
-    }
-
-    public cancel(): void {
+    public async cancel(): Promise<void> {
         if (this._activeSession) {
             this._cleanupAfterSession()
         }
