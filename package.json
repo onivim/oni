@@ -187,7 +187,7 @@
         "install-global": "npm install -g oni-vim",
         "install:plugins": "npm run install:plugins:oni-plugin-markdown-preview && npm run install:plugins:oni-plugin-prettier",
         "install:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm install --prod",
-        "install:plugins:oni-plugin-prettier": "cd extensions/oni-plugin-prettier && npm install --prod",
+        "install:plugins:oni-plugin-prettier": "cd ../oni-plugin-prettier && npm install --prod",
         "postinstall": "npm run install:plugins && electron-rebuild && opencollective postinstall",
         "profile:webpack": "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
     },
