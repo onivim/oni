@@ -130,14 +130,14 @@ export class UserSnippetProvider implements Oni.Snippets.SnippetProvider {
         )
     }
 
-    private async _getSnippetForLanguage(language: string): Promise<ISnippet[]> {
+    private async _getSnippetForLanguage(language: string): Promise<Oni.Snippets.Snippet[]> {
         if (this._snippetCache[language]) {
             return this._snippetCache[language]
         }
 
         const filePath = this.getUserSnippetFilePath(language)
 
-        let snippets: ISnippet[] = []
+        let snippets: Oni.Snippets.ISnippet[] = []
         if (fs.existsSync(filePath)) {
             snippets = await loadSnippetsFromFile(filePath)
         }
