@@ -39,15 +39,15 @@ const activate = async Oni => {
         const { line, character } = cursorPosition
         const bufferString = arrayOfLines.join(os.EOL)
 
-        let charactersTillCursor = 0
-        for (let i = 0; i < line + 1; i += 1) {
-            if (i === line) {
-                charactersTillCursor += arrayOfLines[i].substring(0, character + 1).length
-                break
-            }
-            charactersTillCursor += arrayOfLines[i].length
-        }
-
+        // let charactersTillCursor = 0
+        // for (let i = 0; i < line + 1; i += 1) {
+        //     if (i === line) {
+        //         charactersTillCursor += arrayOfLines[i].substring(0, character + 1).length
+        //         break
+        //     }
+        //     charactersTillCursor += arrayOfLines[i].length
+        // }
+        //
         let prettierCode
 
         try {
@@ -55,7 +55,7 @@ const activate = async Oni => {
             const prettierConfig = prettierrc || config.settings
             prettierCode = prettier.formatWithCursor(
                 bufferString,
-                Object.assign(prettierConfig, { cursorOffset: charactersTillCursor }),
+                Object.assign(prettierConfig, { cursorOffset: activeBuffer.getCursorOffset() }),
             )
             if (!prettierCode.formatted) {
                 throw new Error("Couldn't format the buffer")
@@ -78,10 +78,10 @@ const activate = async Oni => {
 
             // Find position of the cursor which is prettierCode.cursorOffset i.e position in the string
             // slice up the character and count number of lines
-            const beginning = prettierCode.formatted.substring(0, prettierCode.cursorOffset + 1)
-            const beginningLines = beginning.split(os.EOL)
-            const outputLine = beginningLines.length
-            const outputColumn = beginningLines[beginningLines.length - 1].length
+            // const beginning = prettierCode.formatted.substring(0, prettierCode.cursorOffset + 1)
+            // const beginningLines = beginning.split(os.EOL)
+            // const outputLine = beginningLines.length
+            // const outputColumn = beginningLines[beginningLines.length - 1].length
 
             await activeBuffer.setCursorPosition(outputLine - 1, outputColumn)
         }

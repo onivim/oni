@@ -77,6 +77,7 @@ export class Buffer implements IBuffer {
     private _filePath: string
     private _language: string
     private _cursor: Oni.Cursor
+    private _cursorOffset: number
     private _version: number
     private _modified: boolean
     private _lineCount: number
@@ -133,7 +134,18 @@ export class Buffer implements IBuffer {
      * getCursorOffset
      */
     public getCursorOffset() {
-        // TODO Implement
+        return this._cursorOffset
+    }
+
+    /**
+     * convertOffsetToLineColumn
+     */
+    public async convertOffsetToLineColumn(cursorOffset = this._cursorOffset) {
+        const line = await this._neovimInstance.callFunction("byte2line", [cursorOffset])
+        const column = await this._neovimInstance.callFunction("line2byte", line)
+        // console.log("line: ", line)
+        // console.log('column: ', column);
+        return { line, column }
     }
 
     public async getCursorPosition(): Promise<types.Position> {
@@ -378,6 +390,7 @@ export class Buffer implements IBuffer {
         this._version = evt.version
         this._modified = evt.modified
         this._lineCount = evt.bufferTotalLines
+        this._cursorOffset = evt.byte
 
         this._cursor = {
             line: evt.line - 1,
