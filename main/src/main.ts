@@ -1,7 +1,7 @@
 import * as minimist from "minimist"
 import * as path from "path"
 
-import { app, BrowserWindow, ipcMain, Menu } from "electron"
+import { app, BrowserWindow, ipcMain, Menu, Rectangle } from "electron"
 
 import * as PersistentSettings from "electron-settings"
 
@@ -291,6 +291,7 @@ function focusNextInstance(direction) {
 
 function moveToNextOniInstance(direction) {
     const currentFocusedWindows = windows.filter(f => f.isFocused())
+    console.log(currentFocusedWindows)
 
     if (currentFocusedWindows.length === 0) {
         Log.info("No window currently focused")
@@ -301,79 +302,102 @@ function moveToNextOniInstance(direction) {
     }
 
     const currentFocusedWindow = currentFocusedWindows[0]
+    console.log(currentFocusedWindow)
     const windowsToCheck = windows.filter(x => x != currentFocusedWindow)
+    console.log(windowsToCheck)
 
-    const windowToSwapTo = windowsToCheck.reduce<BrowserWindow>((prev, curr) => {
-        let shouldSwap = false
-        switch (direction) {
-            case "right":
-                shouldSwap = dealWithMove(
-                    currentFocusedWindow.getBounds().x,
-                    curr.getBounds().x,
-                    prev.getBounds().x,
-                    true,
-                )
-                break
-            case "left":
-                shouldSwap = dealWithMove(
-                    currentFocusedWindow.getBounds().x,
-                    curr.getBounds().x,
-                    prev.getBounds().x,
-                    false,
-                )
-                break
-            case "down":
-                shouldSwap = dealWithMove(
-                    currentFocusedWindow.getBounds().y,
-                    curr.getBounds().y,
-                    prev.getBounds().y,
-                    true,
-                )
-                break
-            case "up":
-                shouldSwap = dealWithMove(
-                    currentFocusedWindow.getBounds().y,
-                    curr.getBounds().y,
-                    prev.getBounds().y,
-                    false,
-                )
-                break
-            default:
-                break
-        }
+    const validWindows = windowsToCheck.filter(window => {
+        const isInTheRightDirection = checkMoveDirection(
+            direction,
+            currentFocusedWindow.getBounds(),
+            window.getBounds(),
+        )
 
-        if (shouldSwap) {
+        return isInTheRightDirection
+    })
+
+    console.log(validWindows)
+
+    if (!validWindows) {
+        return
+    }
+
+    const windowToSwapTo = validWindows.reduce<BrowserWindow>((curr, prev) => {
+        const isCurrentWindowIsBetter = checkWindowToFindBest(
+            currentFocusedWindow,
+            curr,
+            prev,
+            direction,
+        )
+
+        if (isCurrentWindowIsBetter) {
             return curr
         } else {
             return prev
         }
-    }, windowsToCheck[0])
+    }, validWindows[0])
+
+    console.log(windowToSwapTo)
 
     windows[windows.indexOf(windowToSwapTo)].focus()
 }
 
-function dealWithMove(
-    currentPos: number,
-    testPos: number,
-    bestPos: number,
-    shouldBeBigger: boolean,
-) {
-    // Is the test position between the current and the best found so far?
-    // If it is, we want to make that our new best, since it is a closer
-    // window along.
-    // shouldBeBigger is used for moving to the right or up, since the X/Y values increase.
+function checkMoveDirection(direction: string, currentPos: Rectangle, testPos: Rectangle) {
+    let valuesIncrease = false
+    let coord = "x"
+
+    switch (direction) {
+        case "left":
+            valuesIncrease = false
+            break
+        case "right":
+            valuesIncrease = true
+            break
+        case "up":
+            valuesIncrease = false
+            coord = "y"
+            break
+        case "down":
+            valuesIncrease = true
+            coord = "y"
+            break
+        default:
+            return false
+    }
+
+    // Check if the screen we are testing is in the right direction.
+    // shouldBeBigger is used for moving to the right or down, since the X/Y values increase.
     // Othewise, we want the value that decreases (i.e. for left or up)
-    if (shouldBeBigger) {
-        if (testPos > currentPos && testPos < bestPos) {
+    if (valuesIncrease) {
+        if (testPos[coord] > currentPos[coord]) {
             return true
         }
     } else {
-        if (testPos < currentPos && testPos > bestPos) {
+        if (testPos[coord] < currentPos[coord]) {
             return true
         }
     }
 
     return false
+}
+
+function checkWindowToFindBest(
+    currentWindow: BrowserWindow,
+    testWindow: BrowserWindow,
+    currentBest: BrowserWindow,
+    direction: string,
+) {
+    const differenceInX = Math.abs(currentWindow.getBounds().x - testWindow.getBounds().x)
+    const differenceInY = Math.abs(currentWindow.getBounds().y - testWindow.getBounds().y)
+
+    const bestDiffInX = Math.abs(currentWindow.getBounds().x - currentBest.getBounds().x)
+    const bestDiffInY = Math.abs(currentWindow.getBounds().y - currentBest.getBounds().y)
+
+    if (differenceInX < bestDiffInX || differenceInY < bestDiffInY) {
+        return true
+    } else {
+        return false
+    }
 }
 
 function loadFileFromArguments(platform, args, workingDirectory) {
