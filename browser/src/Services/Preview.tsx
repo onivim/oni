@@ -18,7 +18,6 @@ export interface IPreviewer {
 
 export type IdToPreviewer = { [id: string]: IPreviewer }
 
-
 const PreviewWrapper = styled.div`
     position: absolute;
     top: 0px;
@@ -32,8 +31,7 @@ const PreviewWrapper = styled.div`
     align-items: center;
 `
 
-
-export class PreviewLayer implements Oni.EditorLayer {
+export class PreviewLayer implements Oni.BufferLayer {
     public get id(): string {
         return "oni.layer.preview"
     }
@@ -48,8 +46,7 @@ export interface PreviewViewState {
 }
 
 export class PreviewView extends React.PureComponent<{}, PreviewViewState> {
-
-    private _filePath =  "E:/oni/lib_test/browser/src/UI/components/Arrow"
+    private _filePath = "E:/oni/lib_test/browser/src/UI/components/Arrow"
 
     constructor(props: any) {
         super(props)
@@ -60,32 +57,28 @@ export class PreviewView extends React.PureComponent<{}, PreviewViewState> {
 
     public componentDidMount(): void {
         window.setInterval(() => {
-                delete global["require"].cache[global["require"].resolve(this._filePath)] // tslint:disable-line no-string-literal
+            delete global["require"].cache[global["require"].resolve(this._filePath)] // tslint:disable-line no-string-literal
 
-        const script = global["require"](this._filePath)
+            const script = global["require"](this._filePath)
 
-        console.log("SETTING STATE")
+            console.log("SETTING STATE")
 
-        const preview = script.preview
+            const preview = script.preview
             this.setState({
-                element: preview()
+                element: preview(),
             })
         }, 200)
     }
-    
+
     public render(): JSX.Element {
         return <PreviewWrapper>{this.state.element}</PreviewWrapper>
     }
 }
 
 export class Preview {
-
     private _previewers: IdToPreviewer = {}
 
-    constructor(
-    private _editorManager: EditorManager
-    ) {  }
-    
+    constructor(private _editorManager: EditorManager) {}
 
     public async openPreview(): Promise<void> {
         const activeEditor: any = this._editorManager.activeEditor
@@ -97,7 +90,6 @@ export class Preview {
     public registerPreviewer(id: string, previewer: IPreviewer): void {
         this._previewers[id] = previewer
     }
-
 }
 
 let _preview: Preview
@@ -105,11 +97,9 @@ let _preview: Preview
 export const activate = (commandManager: CommandManager, editorManager: EditorManager) => {
     _preview = new Preview(editorManager)
 
-    commandManager.registerCommand(new CallbackCommand(
-        "preview.open",
-        "Preview: Open",
-        "Open preview pane",
-        () => _preview.openPreview(),
-    ))
+    commandManager.registerCommand(
+        new CallbackCommand("preview.open", "Preview: Open", "Open preview pane", () =>
+            _preview.openPreview(),
+        ),
+    )
 }
-
