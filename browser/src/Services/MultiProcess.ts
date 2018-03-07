@@ -14,6 +14,10 @@ export class MultiProcess {
     public focusNextInstance(): void {
         ipcRenderer.send("focus-next-instance")
     }
+
+    public moveToNextOniInstance(direction: string): void {
+        ipcRenderer.send("move-to-next-oni-instance", direction)
+    }
 }
 
 export const multiProcess = new MultiProcess()

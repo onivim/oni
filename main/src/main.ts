@@ -75,6 +75,11 @@ ipcMain.on("focus-previous-instance", () => {
     focusNextInstance(-1)
 })
 
+ipcMain.on("move-to-next-oni-instance", (direction: string) => {
+    Log.info(`Attempting to swap to Oni instance on the ${direction}.`)
+    moveToNextOniInstance(direction)
+})
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let windows: BrowserWindow[] = []
@@ -282,6 +287,93 @@ function focusNextInstance(direction) {
 
     Log.info(`Focusing index: ${newFocusWindowIdx}`)
     windows[newFocusWindowIdx].focus()
+}
+
+function moveToNextOniInstance(direction) {
+    const currentFocusedWindows = windows.filter(f => f.isFocused())
+
+    if (currentFocusedWindows.length === 0) {
+        Log.info("No window currently focused")
+        return
+    } else if (windows.length === 1) {
+        Log.info("No where to swap to")
+        return
+    }
+
+    const currentFocusedWindow = currentFocusedWindows[0]
+    const windowsToCheck = windows.filter(x => x != currentFocusedWindow)
+
+    const windowToSwapTo = windowsToCheck.reduce<BrowserWindow>((prev, curr) => {
+        let shouldSwap = false
+        switch (direction) {
+            case "right":
+                shouldSwap = dealWithMove(
+                    currentFocusedWindow.getBounds().x,
+                    curr.getBounds().x,
+                    prev.getBounds().x,
+                    true,
+                )
+                break
+            case "left":
+                shouldSwap = dealWithMove(
+                    currentFocusedWindow.getBounds().x,
+                    curr.getBounds().x,
+                    prev.getBounds().x,
+                    false,
+                )
+                break
+            case "down":
+                shouldSwap = dealWithMove(
+                    currentFocusedWindow.getBounds().y,
+                    curr.getBounds().y,
+                    prev.getBounds().y,
+                    true,
+                )
+                break
+            case "up":
+                shouldSwap = dealWithMove(
+                    currentFocusedWindow.getBounds().y,
+                    curr.getBounds().y,
+                    prev.getBounds().y,
+                    false,
+                )
+                break
+            default:
+                break
+        }
+
+        if (shouldSwap) {
+            return curr
+        } else {
+            return prev
+        }
+    }, windowsToCheck[0])
+
+    windows[windows.indexOf(windowToSwapTo)].focus()
+}
+
+function dealWithMove(
+    currentPos: number,
+    testPos: number,
+    bestPos: number,
+    shouldBeBigger: boolean,
+) {
+    // Is the test position between the current and the best found so far?
+    // If it is, we want to make that our new best, since it is a closer
+    // window along.
+    // shouldBeBigger is used for moving to the right or up, since the X/Y values increase.
+    // Othewise, we want the value that decreases (i.e. for left or up)
+    if (shouldBeBigger) {
+        if (testPos > currentPos && testPos < bestPos) {
+            return true
+        }
+    } else {
+        if (testPos < currentPos && testPos > bestPos) {
+            return true
+        }
+    }
+
+    return false
 }
 
 function loadFileFromArguments(platform, args, workingDirectory) {
