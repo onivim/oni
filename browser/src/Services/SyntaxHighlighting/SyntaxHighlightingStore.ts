@@ -93,6 +93,7 @@ export type ISyntaxHighlightAction =
           lineNumber: number
           tokens: ISyntaxHighlightTokenInfo[]
           ruleStack: StackElement
+          version: number
       }
     | {
           type: "SYNTAX_UPDATE_TOKENS_FOR_LINE_INSERT_MODE"
