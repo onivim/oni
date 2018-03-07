@@ -23,6 +23,8 @@ export interface OniSnippetPlaceholder {
     character: number
 
     value: string
+
+    isFinalTabstop: boolean
 }
 
 export const getLineCharacterFromOffset = (
@@ -74,6 +76,7 @@ export class OniSnippet {
                 ...position,
                 index: p.index,
                 value: p.toString(),
+                isFinalTabstop: p.isFinalTabstop,
             }
         })
 
