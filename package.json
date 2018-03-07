@@ -185,7 +185,7 @@
         "watch:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && tsc --watch",
         "uninstall-global": "npm rm -g oni-vim",
         "install-global": "npm install -g oni-vim",
-        "install:plugins": "npm run install:plugins:oni-plugin-markdown-preview",
+        "install:plugins": "npm run install:plugins:oni-plugin-markdown-preview && npm run install:plugins:oni-plugin-prettier",
         "install:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm install --prod",
         "install:plugins:oni-plugin-prettier": "cd extensions/oni-plugin-prettier && npm install --prod",
         "postinstall": "npm run install:plugins && electron-rebuild && opencollective postinstall",
