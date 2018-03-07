@@ -12,9 +12,7 @@
         ]
     },
     "dependencies": {
-        "prettier": "^1.10.2",
-        "react": "^16.2.0",
-        "styled-components": "^3.1.6"
+        "prettier": "^1.11.1"
     },
     "devDependencies": {}
 }
