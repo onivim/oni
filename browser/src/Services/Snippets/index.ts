@@ -18,8 +18,8 @@ import { UserSnippetProvider } from "./UserSnippetProvider"
 
 let _snippetManager: SnippetManager
 
-export const activate = (commandManager: CommandManager) => {
-    _snippetManager = new SnippetManager(editorManager)
+export const activate = (commandManager: CommandManager, configuration: Configuration) => {
+    _snippetManager = new SnippetManager(configuration, editorManager)
 
     commandManager.registerCommand({
         command: "snippet.nextPlaceholder",

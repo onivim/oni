@@ -9,6 +9,8 @@ import * as os from "os"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
+import { Configuration } from "./../Configuration"
+
 import * as Log from "./../../Log"
 import { flatMap } from "./../../Utility"
 
@@ -21,11 +23,17 @@ export interface ISnippetProvider {
 export class CompositeSnippetProvider implements ISnippetProvider {
     private _providers: ISnippetProvider[] = []
 
+    constructor(private _configuration: Configuration) {}
+
     public registerProvider(provider: ISnippetProvider): void {
         this._providers.push(provider)
     }
 
     public async getSnippets(language: string): Promise<ISnippet[]> {
+        if (!this._configuration.getValue("snippets.enabled")) {
+            return []
+        }
+
         const snippets = this._providers.map(p => p.getSnippets(language))
 
         const allSnippets = await Promise.all(snippets)

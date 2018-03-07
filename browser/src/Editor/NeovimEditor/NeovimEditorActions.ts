@@ -529,10 +529,23 @@ export const setWindowState = (
 ) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { fontPixelWidth, fontPixelHeight } = getState()
 
-    const screenToPixel = (screenSpace: Oni.Coordinates.ScreenSpacePoint) => ({
-        pixelX: screenSpace.screenX * fontPixelWidth,
-        pixelY: screenSpace.screenY * fontPixelHeight,
-    })
+    const screenToPixel = (screenSpace: Oni.Coordinates.ScreenSpacePoint) => {
+        if (
+            !screenSpace ||
+            typeof screenSpace.screenX !== "number" ||
+            typeof screenSpace.screenY !== "number"
+        ) {
+            return {
+                pixelX: NaN,
+                pixelY: NaN,
+            }
+        }
+
+        return {
+            pixelX: screenSpace.screenX * fontPixelWidth,
+            pixelY: screenSpace.screenY * fontPixelHeight,
+        }
+    }
 
     dispatch({
         type: "SET_WINDOW_STATE",

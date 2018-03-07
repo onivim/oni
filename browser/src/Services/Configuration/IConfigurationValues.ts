@@ -217,6 +217,7 @@ export interface IConfigurationValues {
     "sidebar.marks.enabled": boolean
     "sidebar.plugins.enabled": boolean
 
+    "snippets.enabled": boolean
     "snippets.userSnippetFolder": string
 
     "statusbar.enabled": boolean

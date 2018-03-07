@@ -548,6 +548,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._completionProviders,
             this._languageManager,
             this._snippetManager,
+            this._syntaxHighlighter,
         )
         this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
 
@@ -636,20 +637,22 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         // enable opening a file via drag-drop
-        document.ondragover = ev => {
+        document.body.ondragover = ev => {
             ev.preventDefault()
         }
         document.body.ondrop = ev => {
             ev.preventDefault()
 
-            const files = ev.dataTransfer.files
+            const { files } = ev.dataTransfer
             // open first file in current editor
-            this._neovimInstance.open(normalizePath(files[0].path))
-            // open any subsequent files in new tabs
-            for (let i = 1; i < files.length; i++) {
-                this._neovimInstance.command(
-                    'exec ":tabe ' + normalizePath(files.item(i).path) + '"',
-                )
+            if (files.length) {
+                this._neovimInstance.open(normalizePath(files[0].path))
+                // open any subsequent files in new tabs
+                for (let i = 1; i < files.length; i++) {
+                    this._neovimInstance.command(
+                        'exec ":tabe ' + normalizePath(files.item(i).path) + '"',
+                    )
+                }
             }
         }
     }

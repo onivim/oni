@@ -8,7 +8,7 @@ import * as types from "vscode-languageserver-types"
 
 import * as Log from "./../../Log"
 
-import { ICompletionsRequestor } from "./../Completion"
+import { CompletionsRequestContext, ICompletionsRequestor } from "./../Completion"
 import { ISnippet } from "./ISnippet"
 import { SnippetManager } from "./SnippetManager"
 
@@ -25,14 +25,18 @@ export class SnippetCompletionProvider implements ICompletionsRequestor {
     constructor(private _snippetManager: SnippetManager) {}
 
     public async getCompletions(
-        fileLanguage: string,
-        filePath: string,
-        line: number,
-        column: number,
+        context: CompletionsRequestContext,
     ): Promise<types.CompletionItem[]> {
         Log.verbose("[SnippetCompletionProvider::getCompletions] Starting...")
 
-        const snippets = await this._snippetManager.getSnippetsForLanguage(fileLanguage)
+        const commentsOrQuotedStrings = context.textMateScopes.filter(
+            f => f.indexOf("comment.") === 0 || f.indexOf("string.quoted.") === 0,
+        )
+        if (commentsOrQuotedStrings.length) {
+            return []
+        }
+
+        const snippets = await this._snippetManager.getSnippetsForLanguage(context.language)
         Log.verbose(
             "[SnippetCompletionProvider::getCompletions] Got " + snippets.length + " snippets.",
         )

@@ -237,6 +237,7 @@ const BaseConfiguration: IConfigurationValues = {
     "sidebar.marks.enabled": false,
     "sidebar.plugins.enabled": false,
 
+    "snippets.enabled": true,
     "snippets.userSnippetFolder": null,
 
     "statusbar.enabled": true,

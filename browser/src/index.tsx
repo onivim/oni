@@ -170,7 +170,7 @@ const start = async (args: string[]): Promise<void> => {
     CSS.activate()
 
     const Snippets = await snippetPromise
-    Snippets.activate(commandManager)
+    Snippets.activate(commandManager, configuration)
 
     Shell.Actions.setLoadingComplete()
 
