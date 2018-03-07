@@ -1,12 +1,13 @@
 /**
- * ${0}.ts
+ * ${TM_FILENAME_BASE}.ts
  */
 
 import * as assert from "assert"
 
-describe("${0}", () => {
+describe("${TM_FILENAME_BASE}", () => {
     it("${1:tests}", async () => {
         ${2:assert.ok(false, "fail")}
+        ${0}
     })
 })
 
