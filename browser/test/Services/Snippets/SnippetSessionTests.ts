@@ -158,11 +158,25 @@ describe("SnippetSession", () => {
             await snippetSession.start() // Placeholder 1
             await snippetSession.nextPlaceholder() // Placeholder 0
 
-            let selection = await mockEditor.getSelection()
+            const selection = await mockEditor.getSelection()
 
             assert.strictEqual(selection.start.line, placeholder0Range.start.line)
             assert.strictEqual(selection.start.character, placeholder0Range.start.character)
             assert.strictEqual(selection.end.character, placeholder0Range.end.character)
+        })
+
+        it("triggers finish event after last placeholder", async () => {
+            snippetSession = new SnippetSession(mockEditor as any, "${0:test}")
+
+            let cancelHit = 0
+            snippetSession.onCancel.subscribe(() => {
+                cancelHit++
+            })
+
+            await snippetSession.start()
+            await snippetSession.nextPlaceholder()
+
+            assert.strictEqual(cancelHit, 1, "Verify onCancel event was fired")
         })
     })
 
