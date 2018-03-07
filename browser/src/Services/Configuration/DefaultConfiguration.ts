@@ -35,8 +35,7 @@ const BaseConfiguration: IConfigurationValues = {
     "autoUpdate.enabled": false,
 
     "browser.defaultUrl": "https://duckduckgo.com",
-
-    "configuration.editor": "javascript",
+    "configuration.editor": "typescript",
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
