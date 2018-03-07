@@ -64,10 +64,11 @@ const activate = async Oni => {
             prettierItem.setContents(successElement)
             await setTimeout(() => prettierItem.setContents(prettierElement), 3500)
 
+            const formattedWithoutLastCR = prettierCode.formatted.replace(/\n$/, "")
             await activeBuffer.setLines(
                 0,
                 arrayOfLines.length,
-                prettierCode.formatted.split(os.EOL),
+                formattedWithoutLastCR.split(os.EOL),
             )
 
             const { character, line } = await activeBuffer.convertOffsetToLineColumn(
