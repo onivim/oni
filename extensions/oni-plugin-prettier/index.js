@@ -44,9 +44,12 @@ const activate = async Oni => {
             const prettierrc = await checkPrettierrc(activeBuffer.filePath)
             const prettierConfig = prettierrc || config.settings
             const cursorOffset = activeBuffer.getCursorOffset()
+            // Pass in the file path so prettier can infer the correct parser to use
             prettierCode = prettier.formatWithCursor(
                 bufferString,
-                Object.assign(prettierConfig, { cursorOffset }),
+                Object.assign({ filepath: activeBuffer.filePath }, prettierConfig, {
+                    cursorOffset,
+                }),
             )
             if (!prettierCode.formatted) {
                 throw new Error("Couldn't format the buffer")
@@ -105,7 +108,7 @@ function createPrettierComponent(Oni, onClick) {
         backgroundColor: foreground,
     }
 
-    const prettierIcon = (type = "indent") =>
+    const prettierIcon = (type = "magic") =>
         Oni.ui.createIcon({
             name: type,
             size: Oni.ui.iconSize.Default,
