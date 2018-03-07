@@ -50,6 +50,7 @@ describe("SyntaxHighlightReconciler", () => {
             ruleStack: null,
             tokens: tokenInfo,
             dirty: false,
+            version: 1,
         }
 
         const lines = {
