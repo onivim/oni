@@ -9,7 +9,7 @@ import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 import { Observable } from "rxjs"
 import { createStore as createReduxStore } from "./../../Redux"
 
-export type NotificationLevel = "info" | "warn" | "error"
+export type NotificationLevel = "info" | "warn" | "error" | "success"
 
 export interface IdToNotification {
     [key: string]: INotification
