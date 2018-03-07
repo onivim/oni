@@ -19,6 +19,7 @@ export interface ICompletionMeetInfo {
     queryPosition: number
     meetBase: string
     shouldExpand: boolean
+    textMateScopes: string[]
 }
 
 export const DefaultMeetInfo: ICompletionMeetInfo = {
@@ -27,16 +28,19 @@ export const DefaultMeetInfo: ICompletionMeetInfo = {
     queryPosition: -1,
     meetBase: "",
     shouldExpand: false,
+    textMateScopes: [],
 }
 
 export interface ICompletionBufferInfo {
     language: string
     filePath: string
+    bufferId: string
 }
 
 export const DefaultCompletionBufferInfo: ICompletionBufferInfo = {
     language: null,
     filePath: null,
+    bufferId: null,
 }
 
 export interface ILastCompletionInfo {

@@ -170,7 +170,7 @@ const start = async (args: string[]): Promise<void> => {
     CSS.activate()
 
     const Snippets = await snippetPromise
-    Snippets.activate(commandManager)
+    Snippets.activate(commandManager, configuration)
 
     Shell.Actions.setLoadingComplete()
 
@@ -230,7 +230,12 @@ const start = async (args: string[]): Promise<void> => {
     const api = pluginManager.startApi()
     configuration.activate(api)
 
-    Snippets.activateCompletionProvider(CompletionProviders.getInstance(), pluginManager)
+    Snippets.activateProviders(
+        commandManager,
+        CompletionProviders.getInstance(),
+        configuration,
+        pluginManager,
+    )
 
     createLanguageClientsFromConfiguration(configuration.getValues())
 

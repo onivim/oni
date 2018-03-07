@@ -129,6 +129,13 @@ export class Buffer implements IBuffer {
         this._actions.removeBufferLayer(parseInt(this._id, 10), layer)
     }
 
+    /**
+     * getCursorOffset
+     */
+    public getCursorOffset() {
+        // TODO Implement
+    }
+
     public async getCursorPosition(): Promise<types.Position> {
         const pos = await this._neovimInstance.callFunction("getpos", ["."])
         const [, oneBasedLine, oneBasedColumn] = pos

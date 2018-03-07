@@ -11,13 +11,16 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import { LanguageManager } from "./../Language"
 
+export interface CompletionsRequestContext {
+    language: string
+    filePath: string
+    line: number
+    column: number
+    textMateScopes: string[]
+}
+
 export interface ICompletionsRequestor {
-    getCompletions(
-        fileLanguage: string,
-        filePath: string,
-        line: number,
-        column: number,
-    ): Promise<types.CompletionItem[]>
+    getCompletions(completionContext: CompletionsRequestContext): Promise<types.CompletionItem[]>
     getCompletionDetails(
         fileLanguage: string,
         filePath: string,
@@ -29,29 +32,30 @@ export class LanguageServiceCompletionsRequestor implements ICompletionsRequesto
     constructor(private _languageManager: LanguageManager) {}
 
     public async getCompletions(
-        language: string,
-        filePath: string,
-        line: number,
-        column: number,
+        context: CompletionsRequestContext,
     ): Promise<types.CompletionItem[]> {
         if (Log.isDebugLoggingEnabled()) {
-            Log.debug(`[COMPLETION] Requesting completions at line ${line} and character ${column}`)
+            Log.debug(
+                `[COMPLETION] Requesting completions at line ${context.line} and character ${
+                    context.column
+                }`,
+            )
         }
 
         const args = {
             textDocument: {
-                uri: Helpers.wrapPathInFileUri(filePath),
+                uri: Helpers.wrapPathInFileUri(context.filePath),
             },
             position: {
-                line,
-                character: column,
+                line: context.line,
+                character: context.column,
             },
         }
         let result = null
         try {
             result = await this._languageManager.sendLanguageServerRequest(
-                language,
-                filePath,
+                context.language,
+                context.filePath,
                 "textDocument/completion",
                 args,
             )
