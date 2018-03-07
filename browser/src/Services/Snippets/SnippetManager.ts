@@ -107,6 +107,8 @@ export class SnippetManager {
         if (this._activeSession) {
             this._cleanupAfterSession()
             await (this._editorManager.activeEditor as any).clearSelection()
+
+            // TODO: Add 'stopInsert' and 'startInsert' methods on editor
             await this._editorManager.activeEditor.neovim.command("stopinsert")
         }
 
