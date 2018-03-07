@@ -30,6 +30,9 @@ export interface ISyntaxHighlightLineInfo {
     ruleStack: StackElement
     tokens: ISyntaxHighlightTokenInfo[]
     dirty: boolean
+
+    // The last version of the line that was 'tokenized'
+    version?: number
 }
 
 export interface SyntaxHighlightLines {
