@@ -258,6 +258,8 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.showIndex": false,
     "tabs.wrap": false,
 
+    "terminal.shellCommand": os.platform() === "win32" ? "cmd" : "bash",
+
     "ui.animations.enabled": true,
     "ui.colorscheme": "nord",
     "ui.iconTheme": "theme-icons-seti",
