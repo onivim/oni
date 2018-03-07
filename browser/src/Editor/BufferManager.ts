@@ -140,12 +140,13 @@ export class Buffer implements IBuffer {
     /**
      * convertOffsetToLineColumn
      */
-    public async convertOffsetToLineColumn(cursorOffset = this._cursorOffset) {
-        const line = await this._neovimInstance.callFunction("byte2line", [cursorOffset])
-        const column = await this._neovimInstance.callFunction("line2byte", line)
-        // console.log("line: ", line)
-        // console.log('column: ', column);
-        return { line, column }
+    public async convertOffsetToLineColumn(
+        cursorOffset = this._cursorOffset,
+    ): Promise<types.Position> {
+        const line: number = await this._neovimInstance.callFunction("byte2line", [cursorOffset])
+        const countFromLine: number = await this._neovimInstance.callFunction("line2byte", [line])
+        const column = cursorOffset - countFromLine - 1
+        return types.Position.create(line, column - 1)
     }
 
     public async getCursorPosition(): Promise<types.Position> {

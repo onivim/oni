@@ -219,12 +219,12 @@ export interface IConfigurationValues {
 
     "oni.plugins.prettier": {
         settings: {
-            noSemi: boolean
+            semi: boolean
             tabWidth: number
             useTabs: boolean
             singleQuote: boolean
             trailingComma: "es5" | "all" | "none"
-            noBracketSpacing: boolean
+            bracketSpacing: boolean
             jsxBracketSameLine: boolean
             arrowParens: "avoid" | "always"
         }
