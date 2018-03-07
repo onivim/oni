@@ -137,7 +137,7 @@ export class UserSnippetProvider implements Oni.Snippets.SnippetProvider {
 
         const filePath = this.getUserSnippetFilePath(language)
 
-        let snippets: Oni.Snippets.ISnippet[] = []
+        let snippets: Oni.Snippets.Snippet[] = []
         if (fs.existsSync(filePath)) {
             snippets = await loadSnippetsFromFile(filePath)
         }
