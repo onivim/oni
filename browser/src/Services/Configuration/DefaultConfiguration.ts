@@ -237,6 +237,7 @@ const BaseConfiguration: IConfigurationValues = {
     "sidebar.plugins.enabled": false,
 
     "snippets.enabled": true,
+    "snippets.userSnippetFolder": null,
 
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
