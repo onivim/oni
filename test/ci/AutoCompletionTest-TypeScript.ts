@@ -13,7 +13,8 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     await createNewFile("ts", oni)
 
-    oni.automation.sendKeys("i")
+    oni.automation.sendKeys(":7")
+    oni.automation.sendKeys(":7")
     await oni.automation.sleep(500)
     oni.automation.sendKeys("window.a")
 
