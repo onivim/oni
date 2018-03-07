@@ -10,8 +10,7 @@ import * as path from "path"
 import * as mkdirp from "mkdirp"
 import * as Oni from "oni-api"
 
-import { ISnippet } from "./ISnippet"
-import { ISnippetProvider, loadSnippetsFromFile } from "./SnippetProvider"
+import { loadSnippetsFromFile } from "./SnippetProvider"
 
 import { CommandManager } from "./../CommandManager"
 import { Configuration, getUserConfigFolderPath } from "./../Configuration"
@@ -35,8 +34,8 @@ const SnippetTemplate = [
     "}",
 ]
 
-export class UserSnippetProvider implements ISnippetProvider {
-    private _snippetCache: { [language: string]: ISnippet[] } = {}
+export class UserSnippetProvider implements Oni.Snippets.SnippetProvider {
+    private _snippetCache: { [language: string]: Oni.Snippets.Snippet[] } = {}
     private _isWatching: boolean = false
 
     private _fileTypesToEditSnippets: Set<string> = new Set<string>()
@@ -60,7 +59,7 @@ export class UserSnippetProvider implements ISnippetProvider {
         })
     }
 
-    public async getSnippets(language: string): Promise<ISnippet[]> {
+    public async getSnippets(language: string): Promise<Oni.Snippets.Snippet[]> {
         const globalSnippets = await this._getSnippetForLanguage(GLOBAL_SNIPPET_NAME)
         const languageSnippets = await this._getSnippetForLanguage(language)
 
