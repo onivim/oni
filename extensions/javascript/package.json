@@ -1,0 +1,21 @@
+{
+    "name": "JavaScript",
+    "version": "0.0.1",
+    "description": "JavaScript extension for Oni",
+    "engines": {
+        "oni": "0.2.18"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "contributes": {
+        "snippets": [
+            {
+                "language": "javascript",
+                "path": "snippets/javascript.json"
+            }
+        ]
+    },
+    "author": "",
+    "license": "MIT"
+}

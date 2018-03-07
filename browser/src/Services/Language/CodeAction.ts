@@ -48,7 +48,6 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 // }
 
 export const getCodeActions = async (): Promise<types.Command[]> => {
-
     const buffer = editorManager.activeEditor.activeBuffer
 
     const { language, filePath } = buffer
@@ -62,9 +61,15 @@ export const getCodeActions = async (): Promise<types.Command[]> => {
     if (languageManager.isLanguageServerAvailable(language)) {
         let result: types.Command[] = null
         try {
-            result = await languageManager.sendLanguageServerRequest(language, filePath, "textDocument/codeAction",
-            Helpers.eventContextToCodeActionParams(filePath, range))
-        } catch (ex) { Log.verbose(ex) }
+            result = await languageManager.sendLanguageServerRequest(
+                language,
+                filePath,
+                "textDocument/codeAction",
+                Helpers.eventContextToCodeActionParams(filePath, range),
+            )
+        } catch (ex) {
+            Log.verbose(ex)
+        }
 
         if (!result) {
             return null

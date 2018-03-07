@@ -15,7 +15,6 @@ import * as Mocks from "./../../Mocks"
 import * as TestHelpers from "./../../TestHelpers"
 
 export class MockLanguageClient implements Language.ILanguageClient {
-
     public serverCapabilities: any = {}
 
     public subscribe(notificationName: string, evt: Event<any>): void {
@@ -26,11 +25,19 @@ export class MockLanguageClient implements Language.ILanguageClient {
         // tslint: disable-line
     }
 
-    public sendRequest<T>(fileName: string, requestName: string, protocolArguments: Language.NotificationValueOrThunk): Promise<T> {
+    public sendRequest<T>(
+        fileName: string,
+        requestName: string,
+        protocolArguments: Language.NotificationValueOrThunk,
+    ): Promise<T> {
         return Promise.resolve(null)
     }
 
-    public sendNotification(fileName: string, notificationName: string, protocolArguments: Language.NotificationValueOrThunk): void {
+    public sendNotification(
+        fileName: string,
+        notificationName: string,
+        protocolArguments: Language.NotificationValueOrThunk,
+    ): void {
         // tslint: disable-line
     }
 }
@@ -65,7 +72,13 @@ describe("LanguageManager", () => {
 
         const mockStatusBar = new Mocks.MockStatusBar()
 
-        languageManager = new Language.LanguageManager(mockConfiguration as any, editorManager, mockStatusBar, mockWorkspace)
+        languageManager = new Language.LanguageManager(
+            mockConfiguration as any,
+            editorManager,
+            new Mocks.MockPluginManager() as any,
+            mockStatusBar,
+            mockWorkspace,
+        )
     })
 
     it("sends didOpen request if language server is registered after enter event", async () => {

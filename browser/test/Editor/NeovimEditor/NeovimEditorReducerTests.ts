@@ -3,20 +3,23 @@ import * as assert from "assert"
 import * as Oni from "oni-api"
 
 import * as Actions from "./../../../src/Editor/NeovimEditor/NeovimEditorActions"
-import { layersReducer, windowStateReducer } from "./../../../src/Editor/NeovimEditor/NeovimEditorReducer"
+import {
+    layersReducer,
+    windowStateReducer,
+} from "./../../../src/Editor/NeovimEditor/NeovimEditorReducer"
 import * as State from "./../../../src/Editor/NeovimEditor/NeovimEditorStore"
 
 describe("NeovimEditorReducer", () => {
     describe("layersReducer", () => {
-        it("Adds layer via 'ADD_BUFFER_LAYER'", () => {
-            const simpleLayer: Oni.EditorLayer = {
-                id: "test",
-                friendlyName: "Test",
-                render(): JSX.Element {
-                    return null
-                },
-            }
+        const simpleLayer: Oni.BufferLayer = {
+            id: "test",
+            friendlyName: "Test",
+            render(): JSX.Element {
+                return null
+            },
+        }
 
+        it("Adds layer via 'ADD_BUFFER_LAYER'", () => {
             const addLayerAction = Actions.addBufferLayer(1, simpleLayer)
 
             const newState = layersReducer({}, addLayerAction)
@@ -24,11 +27,23 @@ describe("NeovimEditorReducer", () => {
             const layers = newState[1]
             assert.deepEqual(layers, [simpleLayer], "Verify layer was added")
         })
+
+        it("Removes layer via 'REMOVE_BUFFER_LAYER'", () => {
+            const stateWithLayer: State.Layers = {
+                1: [simpleLayer],
+            }
+
+            const removeLayerAction = Actions.removeBufferLayer(1, simpleLayer)
+            const stateWithoutLayer = layersReducer(stateWithLayer, removeLayerAction)
+
+            const layers = stateWithoutLayer[1]
+
+            assert.deepEqual(layers, [], "Verify layer was removed")
+        })
     })
 
     describe("windowStateReducer", () => {
         it("Sets inactive window state via 'SET_INACTIVE_WINDOW_STATE'", () => {
-
             const windowState: State.IWindowState = {
                 activeWindow: -1,
                 windows: {},

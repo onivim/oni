@@ -29,6 +29,7 @@ export function nodeRequire(moduleName: string): any {
 }
 
 export const EmptyArray: any[] = []
+export const noop = () => {} // tslint:disable-line
 
 export const normalizePath = (fileName: string) => fileName.split("\\").join("/")
 
@@ -39,27 +40,38 @@ export const normalizePath = (fileName: string) => fileName.split("\\").join("/"
 export const replaceAll = (str: string, wordsToReplace: { [key: string]: string }) => {
     const re = new RegExp(Object.keys(wordsToReplace).join("|"), "gi")
 
-    return str.replace(re, (matched) => wordsToReplace[matched.toLowerCase()])
+    return str.replace(re, matched => wordsToReplace[matched.toLowerCase()])
 }
+
+export const flatMap = <T, U>(xs: T[], f: (item: T) => U[]): U[] =>
+    xs.reduce((x: U[], y: T) => [...x, ...f(y)], [])
 
 export const diff = (newObject: any, oldObject: any) => {
     // Return changed properties between newObject and oldObject
-    const updatedProperties = reduce(newObject, (result, value, key) => {
-        return isEqual(value, oldObject[key]) ? result : [...result, key]
-    }, [])
+    const updatedProperties = reduce(
+        newObject,
+        (result, value, key) => {
+            return isEqual(value, oldObject[key]) ? result : [...result, key]
+        },
+        [],
+    )
 
     const keysInNewObject = Object.keys(newObject)
-    const deletedProperties = Object.keys(oldObject).filter((key) => keysInNewObject.indexOf(key) === -1)
+    const deletedProperties = Object.keys(oldObject).filter(
+        key => keysInNewObject.indexOf(key) === -1,
+    )
 
     return [...updatedProperties, ...deletedProperties]
 }
 
 export const delay = (timeoutInMs: number = 100): Promise<void> => {
-    return new Promise<void>((r) => window.setTimeout(() => r(), timeoutInMs))
+    return new Promise<void>(r => window.setTimeout(() => r(), timeoutInMs))
 }
 
-export const doesFileNameMatchGlobPatterns = (fileName: string, globPatterns: string[]): boolean => {
-
+export const doesFileNameMatchGlobPatterns = (
+    fileName: string,
+    globPatterns: string[],
+): boolean => {
     if (!fileName) {
         return false
     }
@@ -78,7 +90,6 @@ export const doesFileNameMatchGlobPatterns = (fileName: string, globPatterns: st
 }
 
 export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
-
     const getFilesForDirectory = (fullPath: string): Promise<string[]> => {
         return new Promise((res, rej) => {
             fs.readdir(fullPath, (err, files) => {
@@ -92,7 +103,6 @@ export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
     }
 
     const getRootProjectFile = async (fullPath: string): Promise<string> => {
-
         const parentDir = path.dirname(fullPath)
 
         // Test for root folder
@@ -101,7 +111,7 @@ export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
         }
 
         const files = await getFilesForDirectory(fullPath)
-        const proj = find(files, (f) =>  doesFileNameMatchGlobPatterns(f, patternsToMatch))
+        const proj = find(files, f => doesFileNameMatchGlobPatterns(f, patternsToMatch))
 
         if (proj) {
             return fullPath
@@ -114,12 +124,16 @@ export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
 }
 
 export const isInRange = (line: number, column: number, range: types.Range): boolean => {
-    return (line >= range.start.line && column >= range.start.character
-        && line <= range.end.line && column <= range.end.character)
+    return (
+        line >= range.start.line &&
+        column >= range.start.character &&
+        line <= range.end.line &&
+        column <= range.end.character
+    )
 }
 
 export const sleep = async (timeInMilliseconds: number): Promise<void> => {
-    return new Promise<void>((res) => {
+    return new Promise<void>(res => {
         window.setTimeout(() => res(), timeInMilliseconds)
     })
 }
@@ -146,13 +160,19 @@ export const createCompletablePromise = <T>(): ICompletablePromise<T> => {
     }
 }
 
+export const normalizeNewLines = (str: string): string => {
+    return str.split("\r\n").join("\n")
+}
+
 /**
  * Helper function to ignore incoming values while a promise is waiting to complete
  * This is lossy, in that any input that comes in will be dropped while the promise
  * is in-progress.
  */
-export function ignoreWhilePendingPromise<T, U>(observable$: Observable<T>, promiseFunction: (input: T) => Promise<U>): Observable<U> {
-
+export function ignoreWhilePendingPromise<T, U>(
+    observable$: Observable<T>,
+    promiseFunction: (input: T) => Promise<U>,
+): Observable<U> {
     // There must be a more 'RxJS' way to do this with `buffer` and `switchMap`,
     // but I'm still amateur with this :)
 
@@ -162,36 +182,38 @@ export function ignoreWhilePendingPromise<T, U>(observable$: Observable<T>, prom
     let isPromiseInFlight = false
 
     const promiseExecutor = () => {
-
         if (pendingInputs.length > 0) {
             const latestValue = pendingInputs[pendingInputs.length - 1]
             pendingInputs = []
 
             isPromiseInFlight = true
-            promiseFunction(latestValue)
-                .then((v) => {
+            promiseFunction(latestValue).then(
+                v => {
                     ret.next(v)
 
                     isPromiseInFlight = false
                     promiseExecutor()
-                }, (err) => {
-                     isPromiseInFlight = false
-                     promiseExecutor()
-                     throw err
-                })
-
+                },
+                err => {
+                    isPromiseInFlight = false
+                    promiseExecutor()
+                    throw err
+                },
+            )
         }
     }
 
-    observable$.subscribe((val: T) => {
-        pendingInputs.push(val)
+    observable$.subscribe(
+        (val: T) => {
+            pendingInputs.push(val)
 
-        if (!isPromiseInFlight) {
-            promiseExecutor()
-        }
-    },
-    (err) => ret.error(err),
-    () => ret.complete())
+            if (!isPromiseInFlight) {
+                promiseExecutor()
+            }
+        },
+        err => ret.error(err),
+        () => ret.complete(),
+    )
 
     return ret
 }

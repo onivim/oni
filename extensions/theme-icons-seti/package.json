@@ -1,19 +1,19 @@
 {
-	"name": "theme-icons-seti",
-	"private": true,
-	"version": "0.0.1",
+    "name": "theme-icons-seti",
+    "private": true,
+    "version": "0.0.1",
     "description": "A file icon theme made out of the Seti UI file icons",
-	"publisher": "onivim",
-  "engines": {
-      "oni": "0.2.19"
-  },
-	"contributes": {
-		"iconThemes": [
-			{
-				"id": "theme-icons-seti",
-				"label": "Seti (Oni)",
-				"path": "./icons/seti-icon-theme.json"
-			}
-		]
-	}
+    "publisher": "onivim",
+    "engines": {
+        "oni": "0.2.19"
+    },
+    "contributes": {
+        "iconThemes": [
+            {
+                "id": "theme-icons-seti",
+                "label": "Seti (Oni)",
+                "path": "./icons/seti-icon-theme.json"
+            }
+        ]
+    }
 }

@@ -7,6 +7,10 @@
 import { Reducer, Store } from "redux"
 import { createStore as createReduxStore } from "./../../Redux"
 
+import { WindowManager, WindowSplitHandle } from "./../WindowManager"
+import { SidebarContentSplit } from "./SidebarContentSplit"
+import { SidebarSplit } from "./SidebarSplit"
+
 import * as Oni from "oni-api"
 
 export interface ISidebarState {
@@ -36,8 +40,10 @@ export interface SidebarPane extends Oni.IWindowSplit {
 }
 
 export class SidebarManager {
-
     private _store: Store<ISidebarState>
+
+    private _iconSplit: WindowSplitHandle
+    private _contentSplit: WindowSplitHandle
 
     public get activeEntryId(): string {
         return this._store.getState().activeEntryId
@@ -51,8 +57,16 @@ export class SidebarManager {
         return this._store
     }
 
-    constructor() {
+    constructor(private _windowManager: WindowManager = null) {
         this._store = createStore()
+
+        if (_windowManager) {
+            this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
+            this._contentSplit = this._windowManager.createSplit(
+                "left",
+                new SidebarContentSplit(this),
+            )
+        }
     }
 
     public setActiveEntry(id: string): void {
@@ -61,6 +75,28 @@ export class SidebarManager {
                 type: "SET_ACTIVE_ID",
                 activeEntryId: id,
             })
+
+            if (!this._contentSplit.isVisible) {
+                this._contentSplit.show()
+            }
+        }
+    }
+
+    public focusContents(): void {
+        if (this._contentSplit.isVisible) {
+            this._contentSplit.focus()
+        }
+    }
+
+    public toggleSidebarVisibility(): void {
+        if (this._contentSplit.isVisible) {
+            this._contentSplit.hide()
+
+            if (this._contentSplit.isFocused) {
+                this._iconSplit.focus()
+            }
+        } else {
+            this._contentSplit.show()
         }
     }
 
@@ -91,17 +127,21 @@ const DefaultSidebarState: ISidebarState = {
     isActive: false,
 }
 
-export type SidebarActions = {
-    type: "SET_ACTIVE_ID",
-    activeEntryId: string,
-} | {
-    type: "ADD_ENTRY",
-    entry: ISidebarEntry,
-} | {
-    type: "ENTER",
-} | {
-    type: "LEAVE",
-}
+export type SidebarActions =
+    | {
+          type: "SET_ACTIVE_ID"
+          activeEntryId: string
+      }
+    | {
+          type: "ADD_ENTRY"
+          entry: ISidebarEntry
+      }
+    | {
+          type: "ENTER"
+      }
+    | {
+          type: "LEAVE"
+      }
 
 export const sidebarReducer: Reducer<ISidebarState> = (
     state: ISidebarState = DefaultSidebarState,

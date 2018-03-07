@@ -20,196 +20,206 @@ import { IConfigurationValues } from "./../../Services/Configuration"
 import { Errors } from "./../../Services/Diagnostics"
 import { IThemeColors } from "./../../Services/Themes"
 
+import { IBufferLayer } from "./../NeovimEditor/BufferLayerManager"
+
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
 
 export interface ISetHasFocusAction {
-    type: "SET_HAS_FOCUS",
+    type: "SET_HAS_FOCUS"
     payload: {
-        hasFocus: boolean,
+        hasFocus: boolean
     }
 }
 
 export interface ISetLoadingCompleteAction {
-    type: "SET_LOADING_COMPLETE",
+    type: "SET_LOADING_COMPLETE"
 }
 
 export interface ISetColorsAction {
-    type: "SET_COLORS",
+    type: "SET_COLORS"
     payload: {
-        colors: IThemeColors,
+        colors: IThemeColors
     }
 }
 
 export interface IAddBufferLayerAction {
-    type: "ADD_BUFFER_LAYER",
+    type: "ADD_BUFFER_LAYER"
     payload: {
-        bufferId: number,
-        layer: Oni.EditorLayer,
+        bufferId: number
+        layer: IBufferLayer
+    }
+}
+
+export interface IRemoveBufferLayerAction {
+    type: "REMOVE_BUFFER_LAYER"
+    payload: {
+        bufferId: number
+        layer: IBufferLayer
     }
 }
 
 export interface ISetViewportAction {
-    type: "SET_VIEWPORT",
+    type: "SET_VIEWPORT"
     payload: {
-        width: number,
-        height: number,
+        width: number
+        height: number
     }
 }
 
 export interface ISetCommandLinePosition {
-    type: "SET_COMMAND_LINE_POSITION",
+    type: "SET_COMMAND_LINE_POSITION"
     payload: {
-        position: number,
-        level: number,
-    },
+        position: number
+        level: number
+    }
 }
 
 export interface IHideCommandLineAction {
-    type: "HIDE_COMMAND_LINE",
+    type: "HIDE_COMMAND_LINE"
 }
 
 export interface IShowCommandLineAction {
-    type: "SHOW_COMMAND_LINE",
+    type: "SHOW_COMMAND_LINE"
     payload: {
-        content: Array<[any, string]>,
-        position: number,
-        firstchar: string,
-        prompt: string,
-        indent: number,
-        level: number,
-    },
+        content: Array<[any, string]>
+        position: number
+        firstchar: string
+        prompt: string
+        indent: number
+        level: number
+    }
 }
 
 export interface IWildMenuSelectedAction {
-    type: "WILDMENU_SELECTED",
+    type: "WILDMENU_SELECTED"
     payload: {
-        selected: number,
+        selected: number
     }
 }
 
 export interface IShowWildMenuAction {
-    type: "SHOW_WILDMENU",
+    type: "SHOW_WILDMENU"
     payload: {
-        options: string[],
+        options: string[]
     }
 }
 
 export interface IHideWildMenuAction {
-    type: "HIDE_WILDMENU",
+    type: "HIDE_WILDMENU"
 }
 
 export interface ISetNeovimErrorAction {
-    type: "SET_NEOVIM_ERROR",
+    type: "SET_NEOVIM_ERROR"
     payload: {
-        neovimError: boolean,
+        neovimError: boolean
     }
 }
 
 export interface ISetCursorScaleAction {
-    type: "SET_CURSOR_SCALE",
+    type: "SET_CURSOR_SCALE"
     payload: {
-        cursorScale: number,
+        cursorScale: number
     }
 }
 
 export interface ISetCurrentBuffersAction {
-    type: "SET_CURRENT_BUFFERS",
+    type: "SET_CURRENT_BUFFERS"
     payload: {
-        bufferIds: number[],
+        bufferIds: number[]
     }
 }
 
 export interface ISetImeActive {
-    type: "SET_IME_ACTIVE",
+    type: "SET_IME_ACTIVE"
     payload: {
-        imeActive: boolean,
+        imeActive: boolean
     }
 }
 
 export interface ISetFont {
-    type: "SET_FONT",
+    type: "SET_FONT"
     payload: {
-        fontFamily: string,
-        fontSize: string,
+        fontFamily: string
+        fontSize: string
     }
 }
 
 export interface IBufferEnterAction {
-    type: "BUFFER_ENTER",
+    type: "BUFFER_ENTER"
     payload: {
-        buffers: State.IBuffer[],
+        buffers: State.IBuffer[]
     }
 }
 
 export interface IShowToolTipAction {
-    type: "SHOW_TOOL_TIP",
+    type: "SHOW_TOOL_TIP"
     payload: {
-        id: string,
-        element: JSX.Element,
-        options?: Oni.ToolTip.ToolTipOptions,
+        id: string
+        element: JSX.Element
+        options?: Oni.ToolTip.ToolTipOptions
     }
 }
 
 export interface IHideToolTipAction {
-    type: "HIDE_TOOL_TIP",
+    type: "HIDE_TOOL_TIP"
     payload: {
-        id: string,
+        id: string
     }
 }
 
 export interface IBufferUpdateAction {
-    type: "BUFFER_UPDATE",
+    type: "BUFFER_UPDATE"
     payload: {
-        id: number,
-        modified: boolean,
-        version: number,
-        totalLines: number,
+        id: number
+        modified: boolean
+        version: number
+        totalLines: number
     }
 }
 
 export interface IBufferSaveAction {
-    type: "BUFFER_SAVE",
+    type: "BUFFER_SAVE"
     payload: {
-        id: number,
-        modified: boolean,
-        version: number,
+        id: number
+        modified: boolean
+        version: number
     }
 }
 
 export interface ISetTabs {
-    type: "SET_TABS",
+    type: "SET_TABS"
     payload: {
         selectedTabId: number
-        tabs: State.ITab[],
+        tabs: State.ITab[]
     }
 }
 
 export interface ISetActiveVimTabPage {
-    type: "SET_ACTIVE_VIM_TAB_PAGE",
+    type: "SET_ACTIVE_VIM_TAB_PAGE"
     payload: {
-        id: number,
-        windowIds: number[],
+        id: number
+        windowIds: number[]
     }
 }
 
 export interface ISetWindowCursor {
-    type: "SET_WINDOW_CURSOR",
+    type: "SET_WINDOW_CURSOR"
     payload: {
-        windowId: number,
-        line: number,
-        column: number,
-    },
+        windowId: number
+        line: number
+        column: number
+    }
 }
 
 export interface ISetWindowState {
-    type: "SET_WINDOW_STATE",
+    type: "SET_WINDOW_STATE"
     payload: {
-        windowId: number,
-        bufferId: number,
-        file: string,
-        column: number,
-        line: number,
+        windowId: number
+        bufferId: number
+        file: string
+        column: number
+        line: number
 
         dimensions: Oni.Shapes.Rectangle
 
@@ -217,102 +227,101 @@ export interface ISetWindowState {
         screenToPixel: Oni.Coordinates.ScreenToPixel
 
         topBufferLine: number
-        bottomBufferLine: number,
+        bottomBufferLine: number
     }
 }
 
 export interface ISetInactiveWindowState {
-    type: "SET_INACTIVE_WINDOW_STATE",
+    type: "SET_INACTIVE_WINDOW_STATE"
     payload: {
-        windowId: number,
-        dimensions: Oni.Shapes.Rectangle,
+        windowId: number
+        dimensions: Oni.Shapes.Rectangle
     }
 }
 
 export interface ISetErrorsAction {
-    type: "SET_ERRORS",
+    type: "SET_ERRORS"
     payload: {
-        errors: Errors,
+        errors: Errors
     }
 }
 
 export interface ISetCursorPositionAction {
-    type: "SET_CURSOR_POSITION",
+    type: "SET_CURSOR_POSITION"
     payload: {
-        pixelX: number,
-        pixelY: number,
-        fontPixelWidth: number,
-        fontPixelHeight: number,
-        cursorCharacter: string,
-        cursorPixelWidth: number,
+        pixelX: number
+        pixelY: number
+        fontPixelWidth: number
+        fontPixelHeight: number
+        cursorCharacter: string
+        cursorPixelWidth: number
     }
 }
 
 export interface ISetModeAction {
-    type: "SET_MODE",
+    type: "SET_MODE"
     payload: {
-        mode: string,
+        mode: string
     }
 }
 
 export interface IShowDefinitionAction {
-    type: "SHOW_DEFINITION",
+    type: "SHOW_DEFINITION"
     payload: {
-        token: Oni.IToken,
-        definitionLocation: types.Location,
+        token: Oni.IToken
+        definitionLocation: types.Location
     }
 }
 
 export interface IHideDefinitionAction {
-    type: "HIDE_DEFINITION",
+    type: "HIDE_DEFINITION"
 }
 
 export interface ISetConfigurationValue<K extends keyof IConfigurationValues> {
     type: "SET_CONFIGURATION_VALUE"
     payload: {
-        key: K,
-        value: IConfigurationValues[K],
+        key: K
+        value: IConfigurationValues[K]
     }
 }
 
-export type Action<K extends keyof IConfigurationValues> =
-    SimpleAction | ActionWithGeneric<K>
+export type Action<K extends keyof IConfigurationValues> = SimpleAction | ActionWithGeneric<K>
 
 export type SimpleAction =
-    IAddBufferLayerAction |
-    IBufferEnterAction |
-    IBufferSaveAction |
-    IBufferUpdateAction |
-    ISetColorsAction |
-    ISetCursorPositionAction |
-    ISetImeActive |
-    ISetFont |
-    IHideToolTipAction |
-    IShowToolTipAction |
-    IHideDefinitionAction |
-    IShowDefinitionAction |
-    ISetModeAction |
-    ISetCursorScaleAction |
-    ISetErrorsAction |
-    ISetCurrentBuffersAction |
-    ISetHasFocusAction |
-    ISetNeovimErrorAction |
-    ISetTabs |
-    ISetActiveVimTabPage |
-    ISetLoadingCompleteAction |
-    ISetViewportAction |
-    ISetWindowCursor |
-    ISetWindowState |
-    ISetInactiveWindowState |
-    IShowCommandLineAction |
-    IHideCommandLineAction |
-    ISetCommandLinePosition |
-    IHideWildMenuAction |
-    IShowWildMenuAction |
-    IWildMenuSelectedAction
+    | IAddBufferLayerAction
+    | IRemoveBufferLayerAction
+    | IBufferEnterAction
+    | IBufferSaveAction
+    | IBufferUpdateAction
+    | ISetColorsAction
+    | ISetCursorPositionAction
+    | ISetImeActive
+    | ISetFont
+    | IHideToolTipAction
+    | IShowToolTipAction
+    | IHideDefinitionAction
+    | IShowDefinitionAction
+    | ISetModeAction
+    | ISetCursorScaleAction
+    | ISetErrorsAction
+    | ISetCurrentBuffersAction
+    | ISetHasFocusAction
+    | ISetNeovimErrorAction
+    | ISetTabs
+    | ISetActiveVimTabPage
+    | ISetLoadingCompleteAction
+    | ISetViewportAction
+    | ISetWindowCursor
+    | ISetWindowState
+    | ISetInactiveWindowState
+    | IShowCommandLineAction
+    | IHideCommandLineAction
+    | ISetCommandLinePosition
+    | IHideWildMenuAction
+    | IShowWildMenuAction
+    | IWildMenuSelectedAction
 
-export type ActionWithGeneric<K extends keyof IConfigurationValues> =
-    ISetConfigurationValue<K>
+export type ActionWithGeneric<K extends keyof IConfigurationValues> = ISetConfigurationValue<K>
 
 export const setHasFocus = (hasFocus: boolean) => {
     return {
@@ -339,10 +348,10 @@ export const setColors = (colors: IThemeColors) => ({
 export const setCommandLinePosition = ({
     pos: position,
     level,
-    }: {
-        pos: number,
-        level: number,
-    }) => ({
+}: {
+    pos: number
+    level: number
+}) => ({
     type: "SET_COMMAND_LINE_POSITION",
     payload: {
         position,
@@ -417,10 +426,14 @@ const formatBuffers = (buffer: InactiveBufferContext & EventContext) => {
         language: buffer.filetype,
         hidden: buffer.hidden,
         listed: buffer.listed,
+        modified: buffer.modified,
     }
 }
 
-export const addBufferLayer = (bufferId: number, layer: Oni.EditorLayer): IAddBufferLayerAction => ({
+export const addBufferLayer = (
+    bufferId: number,
+    layer: Oni.BufferLayer,
+): IAddBufferLayerAction => ({
     type: "ADD_BUFFER_LAYER",
     payload: {
         bufferId,
@@ -428,7 +441,18 @@ export const addBufferLayer = (bufferId: number, layer: Oni.EditorLayer): IAddBu
     },
 })
 
-export const bufferEnter = (buffers: (Array<InactiveBufferContext | EventContext>)) => ({
+export const removeBufferLayer = (
+    bufferId: number,
+    layer: Oni.BufferLayer,
+): IRemoveBufferLayerAction => ({
+    type: "REMOVE_BUFFER_LAYER",
+    payload: {
+        bufferId,
+        layer,
+    },
+})
+
+export const bufferEnter = (buffers: Array<InactiveBufferContext | EventContext>) => ({
     type: "BUFFER_ENTER",
     payload: {
         buffers: buffers.map(formatBuffers),
@@ -492,22 +516,36 @@ export const setWindowCursor = (windowId: number, line: number, column: number) 
     },
 })
 
-export const setWindowState = (windowId: number,
-                               bufferId: number,
-                               file: string,
-                               column: number,
-                               line: number,
-                               bottomBufferLine: number,
-                               topBufferLine: number,
-                               dimensions: Oni.Shapes.Rectangle,
-                               bufferToScreen: Oni.Coordinates.BufferToScreen) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
-
+export const setWindowState = (
+    windowId: number,
+    bufferId: number,
+    file: string,
+    column: number,
+    line: number,
+    bottomBufferLine: number,
+    topBufferLine: number,
+    dimensions: Oni.Shapes.Rectangle,
+    bufferToScreen: Oni.Coordinates.BufferToScreen,
+) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { fontPixelWidth, fontPixelHeight } = getState()
 
-    const screenToPixel = (screenSpace: Oni.Coordinates.ScreenSpacePoint) => ({
+    const screenToPixel = (screenSpace: Oni.Coordinates.ScreenSpacePoint) => {
+        if (
+            !screenSpace ||
+            typeof screenSpace.screenX !== "number" ||
+            typeof screenSpace.screenY !== "number"
+        ) {
+            return {
+                pixelX: NaN,
+                pixelY: NaN,
+            }
+        }
+
+        return {
             pixelX: screenSpace.screenX * fontPixelWidth,
             pixelY: screenSpace.screenY * fontPixelHeight,
-    })
+        }
+    }
 
     dispatch({
         type: "SET_WINDOW_STATE",
@@ -526,7 +564,10 @@ export const setWindowState = (windowId: number,
     })
 }
 
-export const setInactiveWindowState = (windowId: number, dimensions: Oni.Shapes.Rectangle): ISetInactiveWindowState => ({
+export const setInactiveWindowState = (
+    windowId: number,
+    dimensions: Oni.Shapes.Rectangle,
+): ISetInactiveWindowState => ({
     type: "SET_INACTIVE_WINDOW_STATE",
     payload: {
         windowId,
@@ -534,7 +575,11 @@ export const setInactiveWindowState = (windowId: number, dimensions: Oni.Shapes.
     },
 })
 
-export const showToolTip = (id: string, element: JSX.Element, options?: Oni.ToolTip.ToolTipOptions) => ({
+export const showToolTip = (
+    id: string,
+    element: JSX.Element,
+    options?: Oni.ToolTip.ToolTipOptions,
+) => ({
     type: "SHOW_TOOL_TIP",
     payload: {
         id,
@@ -560,7 +605,16 @@ export const setErrors = (errors: Errors) => ({
 export const setCursorPosition = (screen: IScreen) => (dispatch: DispatchFunction) => {
     const cell = screen.getCell(screen.cursorColumn, screen.cursorRow)
 
-    dispatch(_setCursorPosition(screen.cursorColumn * screen.fontWidthInPixels, screen.cursorRow * screen.fontHeightInPixels, screen.fontWidthInPixels, screen.fontHeightInPixels, cell.character, cell.characterWidth * screen.fontWidthInPixels))
+    dispatch(
+        _setCursorPosition(
+            screen.cursorColumn * screen.fontWidthInPixels,
+            screen.cursorRow * screen.fontHeightInPixels,
+            screen.fontWidthInPixels,
+            screen.fontHeightInPixels,
+            cell.character,
+            cell.characterWidth * screen.fontWidthInPixels,
+        ),
+    )
 }
 
 export const setMode = (mode: string) => ({
@@ -568,7 +622,10 @@ export const setMode = (mode: string) => ({
     payload: { mode },
 })
 
-export const setDefinition = (token: Oni.IToken, definitionLocation: types.Location): IShowDefinitionAction => ({
+export const setDefinition = (
+    token: Oni.IToken,
+    definitionLocation: types.Location,
+): IShowDefinitionAction => ({
     type: "SHOW_DEFINITION",
     payload: {
         token,
@@ -602,7 +659,10 @@ export const setActiveVimTabPage = (tabId: number, windowIds: number[]): ISetAct
     },
 })
 
-export function setConfigValue<K extends keyof IConfigurationValues>(k: K, v: IConfigurationValues[K]): ISetConfigurationValue<K> {
+export function setConfigValue<K extends keyof IConfigurationValues>(
+    k: K,
+    v: IConfigurationValues[K],
+): ISetConfigurationValue<K> {
     return {
         type: "SET_CONFIGURATION_VALUE",
         payload: {
@@ -612,7 +672,14 @@ export function setConfigValue<K extends keyof IConfigurationValues>(k: K, v: IC
     }
 }
 
-const _setCursorPosition = (cursorPixelX: any, cursorPixelY: any, fontPixelWidth: any, fontPixelHeight: any, cursorCharacter: string, cursorPixelWidth: number) => ({
+const _setCursorPosition = (
+    cursorPixelX: any,
+    cursorPixelY: any,
+    fontPixelWidth: any,
+    fontPixelHeight: any,
+    cursorCharacter: string,
+    cursorPixelWidth: number,
+) => ({
     type: "SET_CURSOR_POSITION",
     payload: {
         pixelX: cursorPixelX,

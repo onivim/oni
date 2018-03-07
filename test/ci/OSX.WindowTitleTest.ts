@@ -16,6 +16,9 @@ export const test = async (oni: any) => {
     // Validate that the titlebar element eventually shows ONI + the file name
     await oni.automation.waitFor(() => {
         const titleBar = document.getElementById("oni-titlebar")
-        return titleBar.textContent.indexOf("ONI") >= 0 && titleBar.textContent.indexOf("test_file") >= 0
+        return (
+            titleBar.textContent.indexOf("ONI") >= 0 &&
+            titleBar.textContent.indexOf("test_file") >= 0
+        )
     })
 }

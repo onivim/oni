@@ -23,26 +23,35 @@ import { getQuickInfo } from "./QuickInfo"
 import { doRename } from "./Rename"
 import { getSignatureHelp } from "./SignatureHelp"
 import { getDocumentSymbols, getWorkspaceSymbols } from "./Symbols"
+import { TypeScriptConfigurationEditor } from "./TypeScriptConfigurationEditor"
 import { TypeScriptServerHost } from "./TypeScriptServerHost"
 import * as Utility from "./Utility"
 
 export const activate = (oni: Oni.Plugin.Api) => {
-
     let _host: TypeScriptServerHost = null
 
+    const anyConfig = oni.configuration as any
+    const anyProcess = oni.process as any
+
+    // Add typescript as an editor
+    anyConfig.registerEditor(
+        "typescript",
+        new TypeScriptConfigurationEditor(anyProcess.getDirname()),
+    )
+
     const initializeHost = (host: TypeScriptServerHost) => {
-        host.on("semanticDiag", (diagnostics) => {
+        host.on("semanticDiag", diagnostics => {
             const fileName = diagnostics.file
 
             const diags = diagnostics.diagnostics || []
 
-            const errors = diags.map((d) => {
+            const errors = diags.map(d => {
                 // Convert lines to zero-based to accomodate protocol
                 const startPosition = types.Position.create(d.start.line - 1, d.start.offset - 1)
                 const endPosition = types.Position.create(d.end.line - 1, d.end.offset - 1)
                 const range = types.Range.create(startPosition, endPosition)
 
-                const ret: types.Diagnostic =  {
+                const ret: types.Diagnostic = {
                     // type: null,
                     code: d.code,
                     message: d.text,
@@ -68,14 +77,17 @@ export const activate = (oni: Oni.Plugin.Api) => {
         connection.subscribeToRequest("textDocument/completion", getCompletions(oni, host))
         connection.subscribeToRequest("textDocument/codeAction", getCodeActions(oni, host))
         connection.subscribeToRequest("textDocument/definition", getDefinition(oni, host))
-        connection.subscribeToRequest("textDocument/hover",  getQuickInfo(oni, host))
+        connection.subscribeToRequest("textDocument/hover", getQuickInfo(oni, host))
         connection.subscribeToRequest("textDocument/rangeFormatting", formatRange(oni, host))
-        connection.subscribeToRequest("textDocument/references",  findAllReferences(oni, host))
-        connection.subscribeToRequest("textDocument/rename",  doRename(oni, host))
-        connection.subscribeToRequest("textDocument/signatureHelp",  getSignatureHelp(oni, host))
+        connection.subscribeToRequest("textDocument/references", findAllReferences(oni, host))
+        connection.subscribeToRequest("textDocument/rename", doRename(oni, host))
+        connection.subscribeToRequest("textDocument/signatureHelp", getSignatureHelp(oni, host))
         connection.subscribeToRequest("textDocument/documentSymbol", getDocumentSymbols(oni, host))
 
-        connection.subscribeToRequest("workspace/executeCommand", executeCommand(connection, oni, host))
+        connection.subscribeToRequest(
+            "workspace/executeCommand",
+            executeCommand(connection, oni, host),
+        )
         connection.subscribeToRequest("workspace/symbol", getWorkspaceSymbols(oni, host))
     }
 
@@ -117,12 +129,15 @@ export const activate = (oni: Oni.Plugin.Api) => {
     connection.subscribeToNotification("textDocument/didOpen", protocolOpenFile)
 
     const isSingleLineChange = (range: types.Range): boolean => {
-
         if (range.start.line === range.end.line) {
             return true
         }
 
-        if (range.start.character === 0 && range.end.character === 0 && range.start.line + 1 === range.end.line) {
+        if (
+            range.start.character === 0 &&
+            range.end.character === 0 &&
+            range.start.line + 1 === range.end.line
+        ) {
             return true
         }
 
@@ -133,8 +148,10 @@ export const activate = (oni: Oni.Plugin.Api) => {
         return str.replace(/(\r\n|\n|\r)/gm, "")
     }
 
-    const protocolChangeFile = (host: TypeScriptServerHost) => async (message: string, payload: any) => {
-
+    const protocolChangeFile = (host: TypeScriptServerHost) => async (
+        message: string,
+        payload: any,
+    ) => {
         const textDocument: types.TextDocumentIdentifier = payload.textDocument
         const contentChanges: types.TextDocumentContentChangeEvent[] = payload.contentChanges
 
@@ -152,7 +169,11 @@ export const activate = (oni: Oni.Plugin.Api) => {
         if (!change.range) {
             host.updateFile(filePath, change.text)
         } else if (isSingleLineChange(change.range) && change.text) {
-            host.changeLineInFile(filePath, change.range.start.line + 1, removeNewLines(change.text))
+            host.changeLineInFile(
+                filePath,
+                change.range.start.line + 1,
+                removeNewLines(change.text),
+            )
         } else {
             oni.log.warn("Unhandled change request!")
         }
@@ -171,5 +192,4 @@ export const activate = (oni: Oni.Plugin.Api) => {
         const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
         host.getErrorsAcrossProject(filePath)
     }
-
 }

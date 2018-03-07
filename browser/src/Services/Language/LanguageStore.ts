@@ -76,35 +76,39 @@ export const DefaultLanguageState: ILanguageState = {
     definitionResult: DefaultLocationBasedResult,
 }
 
-export type LanguageAction = {
-    type: "MODE_CHANGED",
-    mode: string,
-} | {
-        type: "CURSOR_MOVED",
-        line: number,
-        column: number,
-    } | {
-        type: "BUFFER_ENTER",
-        filePath: string,
-        language: string,
-    } | {
-        type: "HOVER_QUERY",
-        location: ILocation,
-    } | {
-        type: "DEFINITION_QUERY",
-        location: ILocation,
-    } | {
-        type: "HOVER_QUERY_RESULT",
-        result: ILocationBasedResult<IHoverResult>,
-    } | {
-        type: "DEFINITION_QUERY_RESULT",
-        result: ILocationBasedResult<IDefinitionResult>,
-    }
+export type LanguageAction =
+    | {
+          type: "MODE_CHANGED"
+          mode: string
+      }
+    | {
+          type: "CURSOR_MOVED"
+          line: number
+          column: number
+      }
+    | {
+          type: "BUFFER_ENTER"
+          filePath: string
+          language: string
+      }
+    | {
+          type: "HOVER_QUERY"
+          location: ILocation
+      }
+    | {
+          type: "DEFINITION_QUERY"
+          location: ILocation
+      }
+    | {
+          type: "HOVER_QUERY_RESULT"
+          result: ILocationBasedResult<IHoverResult>
+      }
+    | {
+          type: "DEFINITION_QUERY_RESULT"
+          result: ILocationBasedResult<IDefinitionResult>
+      }
 
-export const modeReducer: Reducer<string> = (
-    state: string = null,
-    action: LanguageAction,
-) => {
+export const modeReducer: Reducer<string> = (state: string = null, action: LanguageAction) => {
     switch (action.type) {
         case "MODE_CHANGED":
             return action.mode
@@ -185,24 +189,37 @@ export const languageStateReducer = combineReducers<ILanguageState>({
     hoverResult: hoverResultReducer,
 })
 
-export const createStore = (configuration: Configuration, hoverRequestor: IHoverRequestor, definitionRequestor: IDefinitionRequestor): Store<ILanguageState> => {
+export const createStore = (
+    configuration: Configuration,
+    hoverRequestor: IHoverRequestor,
+    definitionRequestor: IDefinitionRequestor,
+): Store<ILanguageState> => {
+    const epicMiddleware = createEpicMiddleware(
+        combineEpics(
+            queryForDefinitionEpic(configuration),
+            queryForHoverEpic(configuration),
+            queryDefinitionEpic(definitionRequestor),
+            queryHoverEpic(hoverRequestor),
+        ),
+    )
 
-    const epicMiddleware = createEpicMiddleware(combineEpics(
-        queryForDefinitionEpic(configuration),
-        queryForHoverEpic(configuration),
-        queryDefinitionEpic(definitionRequestor),
-        queryHoverEpic(hoverRequestor),
-    ))
-
-    return oniCreateStore<ILanguageState>("LANGUAGE", languageStateReducer, DefaultLanguageState, [epicMiddleware])
+    return oniCreateStore<ILanguageState>("LANGUAGE", languageStateReducer, DefaultLanguageState, [
+        epicMiddleware,
+    ])
 }
-export const queryForHoverEpic = (configuration: Configuration): Epic<LanguageAction, ILanguageState> => (action$, store) =>
-    action$.ofType("CURSOR_MOVED")
-        .filter(() => store.getState().mode === "normal" && configuration.getValue("editor.quickInfo.enabled"))
+export const queryForHoverEpic = (
+    configuration: Configuration,
+): Epic<LanguageAction, ILanguageState> => (action$, store) =>
+    action$
+        .ofType("CURSOR_MOVED")
+        .filter(
+            () =>
+                store.getState().mode === "normal" &&
+                configuration.getValue("editor.quickInfo.enabled"),
+        )
         .debounceTime(configuration.getValue("editor.quickInfo.delay"))
         .filter(() => store.getState().mode === "normal")
         .map((action: LanguageAction) => {
-
             const currentState = store.getState()
             const filePath = currentState.activeBuffer.filePath
             const language = currentState.activeBuffer.language
@@ -222,11 +239,19 @@ export const queryForHoverEpic = (configuration: Configuration): Epic<LanguageAc
             } as LanguageAction
         })
 
-export const queryForDefinitionEpic = (configuration: Configuration): Epic<LanguageAction, ILanguageState> => (action$, store) =>
-    action$.ofType("CURSOR_MOVED")
-        .filter(() => store.getState().mode === "normal" && configuration.getValue("editor.definition.enabled"))
+export const queryForDefinitionEpic = (
+    configuration: Configuration,
+): Epic<LanguageAction, ILanguageState> => (action$, store) =>
+    action$
+        .ofType("CURSOR_MOVED")
+        .debounceTime(configuration.getValue("editor.quickInfo.delay"))
+        .filter(() => store.getState().mode === "normal")
+        .filter(
+            () =>
+                store.getState().mode === "normal" &&
+                configuration.getValue("editor.definition.enabled"),
+        )
         .map((action: LanguageAction) => {
-
             const currentState = store.getState()
             const filePath = currentState.activeBuffer.filePath
             const language = currentState.activeBuffer.language
@@ -248,25 +273,36 @@ export const queryForDefinitionEpic = (configuration: Configuration): Epic<Langu
 
 export const NullAction = { type: null } as LanguageAction
 
-export const doesLocationBasedResultMatchCursorPosition = (result: ILocationBasedResult<any>, state: ILanguageState) => {
-    return result.filePath === state.activeBuffer.filePath
-    && result.line === state.cursor.line
-    && result.column === state.cursor.column
-    && state.mode === "normal"
+export const doesLocationBasedResultMatchCursorPosition = (
+    result: ILocationBasedResult<any>,
+    state: ILanguageState,
+) => {
+    return (
+        result.filePath === state.activeBuffer.filePath &&
+        result.line === state.cursor.line &&
+        result.column === state.cursor.column &&
+        state.mode === "normal"
+    )
 }
 
-export const queryDefinitionEpic = (definitionRequestor: IDefinitionRequestor): Epic<LanguageAction, ILanguageState> => (action$, store) =>
-    action$.ofType("DEFINITION_QUERY")
+export const queryDefinitionEpic = (
+    definitionRequestor: IDefinitionRequestor,
+): Epic<LanguageAction, ILanguageState> => (action$, store) =>
+    action$
+        .ofType("DEFINITION_QUERY")
         .switchMap(() => {
-
             const state = store.getState()
 
             const { filePath, language } = state.activeBuffer
             const { line, column } = state.cursor
 
             return Observable.defer(async () => {
-
-                const result = await definitionRequestor.getDefinition(language, filePath, line, column)
+                const result = await definitionRequestor.getDefinition(
+                    language,
+                    filePath,
+                    line,
+                    column,
+                )
                 return {
                     type: "DEFINITION_QUERY_RESULT",
                     result: {
@@ -279,7 +315,7 @@ export const queryDefinitionEpic = (definitionRequestor: IDefinitionRequestor): 
                 } as LanguageAction
             })
         })
-        .filter((action) => {
+        .filter(action => {
             if (action.type !== "DEFINITION_QUERY_RESULT") {
                 return false
             }
@@ -287,8 +323,11 @@ export const queryDefinitionEpic = (definitionRequestor: IDefinitionRequestor): 
             return doesLocationBasedResultMatchCursorPosition(action.result, store.getState())
         })
 
-export const queryHoverEpic = (hoverRequestor: IHoverRequestor): Epic<LanguageAction, ILanguageState> => (action$, store) =>
-    action$.ofType("HOVER_QUERY")
+export const queryHoverEpic = (
+    hoverRequestor: IHoverRequestor,
+): Epic<LanguageAction, ILanguageState> => (action$, store) =>
+    action$
+        .ofType("HOVER_QUERY")
         .switchMap(() => {
             const state = store.getState()
 
@@ -309,7 +348,7 @@ export const queryHoverEpic = (hoverRequestor: IHoverRequestor): Epic<LanguageAc
                 } as LanguageAction
             })
         })
-        .filter((action) => {
+        .filter(action => {
             if (action.type !== "HOVER_QUERY_RESULT") {
                 return false
             }

@@ -10,7 +10,6 @@ import * as TestHelpers from "./../../TestHelpers"
 const MemoryFileSystem = require("memory-fs") // tslint:disable-line
 
 describe("WorkspaceConfiguration", () => {
-
     let mockConfiguration: Mocks.MockConfiguration
     let mockWorkspace: Mocks.MockWorkspace
     let fileSystem: typeof fs | any
@@ -28,8 +27,12 @@ describe("WorkspaceConfiguration", () => {
         workspace1WithConfigPath = path.join(TestHelpers.getRootDirectory(), "workspace1")
         workspace2WithConfigPath = path.join(TestHelpers.getRootDirectory(), "workspace2")
 
-        const dirsToCreate = [workspace1WithConfigPath, workspace2WithConfigPath, workspaceWithNoConfigPath]
-        dirsToCreate.forEach((p) => fileSystem.mkdirpSync(p))
+        const dirsToCreate = [
+            workspace1WithConfigPath,
+            workspace2WithConfigPath,
+            workspaceWithNoConfigPath,
+        ]
+        dirsToCreate.forEach(p => fileSystem.mkdirpSync(p))
 
         const createConfig = (workspacePath: string): string => {
             const configFolderPath = path.join(workspacePath, ".oni")
@@ -42,17 +45,24 @@ describe("WorkspaceConfiguration", () => {
         workspace1ConfigFilePath = createConfig(workspace1WithConfigPath)
         workspace2ConfigFilePath = createConfig(workspace2WithConfigPath)
 
-        mockConfiguration =  new Mocks.MockConfiguration()
+        mockConfiguration = new Mocks.MockConfiguration()
         mockWorkspace = new Mocks.MockWorkspace()
-
     })
 
     it("setting directory before WorkspaceConfiguration is initialized loads configuration", () => {
         mockWorkspace.changeDirectory(workspace1WithConfigPath)
 
         const ws = new WorkspaceConfiguration(mockConfiguration as any, mockWorkspace, fileSystem)
-        assert.strictEqual(ws.activeWorkspaceConfiguration, workspace1ConfigFilePath, "Validate correct workspace is picked up")
-        assert.deepEqual(mockConfiguration.currentConfigurationFiles, [workspace1ConfigFilePath], "Validate configuration file was added")
+        assert.strictEqual(
+            ws.activeWorkspaceConfiguration,
+            workspace1ConfigFilePath,
+            "Validate correct workspace is picked up",
+        )
+        assert.deepEqual(
+            mockConfiguration.currentConfigurationFiles,
+            [workspace1ConfigFilePath],
+            "Validate configuration file was added",
+        )
     })
 
     it("changing from one workspace to another causes first config to be removed", () => {
@@ -61,8 +71,16 @@ describe("WorkspaceConfiguration", () => {
         mockWorkspace.changeDirectory(workspace1WithConfigPath)
         mockWorkspace.changeDirectory(workspace2WithConfigPath)
 
-        assert.strictEqual(ws.activeWorkspaceConfiguration, workspace2ConfigFilePath, "Validate correct workspace is picked up")
-        assert.deepEqual(mockConfiguration.currentConfigurationFiles, [workspace2ConfigFilePath], "Validate configuration file was added")
+        assert.strictEqual(
+            ws.activeWorkspaceConfiguration,
+            workspace2ConfigFilePath,
+            "Validate correct workspace is picked up",
+        )
+        assert.deepEqual(
+            mockConfiguration.currentConfigurationFiles,
+            [workspace2ConfigFilePath],
+            "Validate configuration file was added",
+        )
     })
 
     it("changing directory causes new config to be loaded", () => {
@@ -70,7 +88,15 @@ describe("WorkspaceConfiguration", () => {
 
         mockWorkspace.changeDirectory(workspace1WithConfigPath)
 
-        assert.strictEqual(ws.activeWorkspaceConfiguration, workspace1ConfigFilePath, "Validate correct workspace is picked up")
-        assert.deepEqual(mockConfiguration.currentConfigurationFiles, [workspace1ConfigFilePath], "Validate configuration file was added")
+        assert.strictEqual(
+            ws.activeWorkspaceConfiguration,
+            workspace1ConfigFilePath,
+            "Validate correct workspace is picked up",
+        )
+        assert.deepEqual(
+            mockConfiguration.currentConfigurationFiles,
+            [workspace1ConfigFilePath],
+            "Validate configuration file was added",
+        )
     })
 })

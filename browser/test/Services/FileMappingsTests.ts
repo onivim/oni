@@ -7,41 +7,64 @@ const MemoryFileSystem = require("memory-fs") // tslint:disable-line
 import * as FileMappings from "./../../src/Services/FileMappings"
 
 describe("FileMappings", () => {
-
     let rootPath: string
     let srcPath: string
     let testPath: string
     let fileSystem: any
 
     beforeEach(() => {
+        rootPath = path.join("C:/", "oni-unit-test-container")
+        srcPath = path.join(rootPath, "browser", "src")
+        testPath = path.join(rootPath, "browser", "test")
 
-            rootPath = path.join("C:/", "oni-unit-test-container")
-            srcPath = path.join(rootPath, "browser", "src")
-            testPath = path.join(rootPath, "browser", "test")
-
-            fileSystem = new MemoryFileSystem()
-            fileSystem.mkdirpSync(srcPath)
-            fileSystem.mkdirpSync(testPath)
+        fileSystem = new MemoryFileSystem()
+        fileSystem.mkdirpSync(srcPath)
+        fileSystem.mkdirpSync(testPath)
     })
 
     describe("getMappedFile", () => {
-        it("returns null if no mapped file exists", () => {
+        it("returns null for template file if template file doesn't exist", () => {
             const srcFile = path.join(srcPath, "source.ts")
-            fileSystem.writeFileSync(srcFile, " ")
 
             const mapping: FileMappings.IFileMapping = {
                 sourceFolder: "browser/src",
 
                 mappedFolder: "browser/test",
-                mappedFileName: "${fileName}Test.${ext}", // tslint:disable-line
+                mappedFileName: "${fileName}Test.ts", // tslint:disable-line
             }
 
-            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping, fileSystem)
-            assert.strictEqual(mappedFile, null, "Validate mapping returned null since there was no test file")
+            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, [mapping])
+
+            assert.strictEqual(
+                mappedFile.templateFileFullPath,
+                null,
+                "`templateFileFullPath` should be null since there is no template file specified.",
+            )
         })
 
-        it("returns simple mapping", () => {
+        it("returns a template file if template file exists", () => {
+            const srcFile = path.join(srcPath, "source.ts")
 
+            const mapping: FileMappings.IFileMapping = {
+                sourceFolder: "browser/src",
+
+                mappedFolder: "browser/test",
+                mappedFileName: "${fileName}Test.ts", // tslint:disable-line
+
+                templateFilePath: "templates/template.ts",
+            }
+
+            const mappedFile = FileMappings.getMappedFile(rootPath, srcFile, [mapping])
+
+            assert.strictEqual(
+                mappedFile.templateFileFullPath,
+                path.join(rootPath, mapping.templateFilePath),
+            )
+        })
+    })
+
+    describe("getMappedFileFromMapping", () => {
+        it("returns simple mapping", () => {
             const srcFile = path.join(srcPath, "source.ts")
             const testFile = path.join(testPath, "sourceTest.ts")
 
@@ -52,10 +75,10 @@ describe("FileMappings", () => {
                 sourceFolder: "browser/src",
 
                 mappedFolder: "browser/test",
-                mappedFileName: "sourceTest.ts",
+                mappedFileName: "${fileName}Test.ts", // tslint:disable-line
             }
 
-            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping, fileSystem)
+            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping)
             assert.strictEqual(mappedFile, testFile, "Validate mapping worked correctly")
         })
 
@@ -67,7 +90,7 @@ describe("FileMappings", () => {
             fileSystem.mkdirpSync(nestedTestFolder)
 
             const srcFile = path.join(nestedSrcFolder, "source.ts")
-            const testFile = path.join(nestedTestFolder, "sourceTest.ts")
+            const testFile = path.join(nestedTestFolder, "source.test.ts")
 
             fileSystem.writeFileSync(srcFile, " ")
             fileSystem.writeFileSync(testFile, " ")
@@ -76,10 +99,10 @@ describe("FileMappings", () => {
                 sourceFolder: "browser/src",
 
                 mappedFolder: "browser/test",
-                mappedFileName: "sourceTest.ts",
+                mappedFileName: "${fileName}.test.ts", // tslint:disable-line
             }
 
-            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping, fileSystem)
+            const mappedFile = FileMappings.getMappedFileFromMapping(rootPath, srcFile, mapping)
             assert.strictEqual(mappedFile, testFile, "Validate mapping worked correctly")
         })
     })

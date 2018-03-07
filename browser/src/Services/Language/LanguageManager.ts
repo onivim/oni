@@ -8,6 +8,7 @@
  */
 
 import * as os from "os"
+import * as path from "path"
 
 import * as Oni from "oni-api"
 import { Event, IDisposable } from "oni-types"
@@ -18,6 +19,8 @@ import { ILanguageClient } from "./LanguageClient"
 import * as LanguageClientTypes from "./LanguageClientTypes"
 import { IServerCapabilities } from "./ServerCapabilities"
 
+import * as Capabilities from "./../../Plugins/Api/Capabilities"
+import { PluginManager } from "./../../Plugins/PluginManager"
 import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
 
 import { listenForWorkspaceEdits } from "./Workspace"
@@ -34,7 +37,6 @@ export interface ILanguageServerNotificationResponse {
 }
 
 export class LanguageManager {
-
     private _languageServerInfo: { [language: string]: ILanguageClient } = {}
     private _notificationSubscriptions: { [notificationMessage: string]: Event<any> } = {}
     private _requestHandlers: { [request: string]: LanguageClientTypes.RequestHandler } = {}
@@ -44,86 +46,106 @@ export class LanguageManager {
     constructor(
         private _configuration: Oni.Configuration,
         private _editorManager: Oni.EditorManager,
+        private _pluginManager: PluginManager,
         private _statusBar: Oni.StatusBar,
         private _workspace: IWorkspace,
     ) {
-
         this._languageClientStatusBar = new LanguageClientStatusBar(this._statusBar)
 
-        this._editorManager.allEditors.onBufferEnter.subscribe(async () => this._onBufferEnter())
+        this._editorManager.anyEditor.onBufferEnter.subscribe(async () => this._onBufferEnter())
 
-        this._editorManager.allEditors.onBufferLeave.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
-            const { language, filePath } = bufferInfo
+        this._editorManager.anyEditor.onBufferLeave.subscribe(
+            (bufferInfo: Oni.EditorBufferEventArgs) => {
+                const { language, filePath } = bufferInfo
 
-            if (this._currentTrackedFile !== filePath) {
-                return
-            }
-
-            this.sendLanguageServerNotification(language, filePath, "textDocument/didClose", Helpers.pathToTextDocumentIdentifierParms(filePath))
-        })
-
-        this._editorManager.allEditors.onBufferChanged.subscribe(async (change: Oni.EditorBufferChangedEventArgs) => {
-
-            const { language, filePath } = change.buffer
-
-            if (this._currentTrackedFile !== filePath) {
-                return
-            }
-
-            const sendBufferThunk = async (capabilities: IServerCapabilities) => {
-                const textDocument = {
-                    uri: Helpers.wrapPathInFileUri(filePath),
-                    version: change.buffer.version,
+                if (this._currentTrackedFile !== filePath) {
+                    return
                 }
 
-                // If the service supports incremental capabilities, just pass it directly
-                if (capabilities.textDocumentSync === 2) {
-                    return {
-                        textDocument,
-                        contentChanges: change.contentChanges,
-                    }
-                    // Otherwise, get the whole buffer and send it up
-                } else {
-                    const allBufferLines = await change.buffer.getLines()
+                this.sendLanguageServerNotification(
+                    language,
+                    filePath,
+                    "textDocument/didClose",
+                    Helpers.pathToTextDocumentIdentifierParms(filePath),
+                )
+            },
+        )
 
-                    return {
-                        textDocument,
-                        contentChanges: [{ text: allBufferLines.join(os.EOL) }],
+        this._editorManager.anyEditor.onBufferChanged.subscribe(
+            async (change: Oni.EditorBufferChangedEventArgs) => {
+                const { language, filePath } = change.buffer
+
+                if (this._currentTrackedFile !== filePath) {
+                    return
+                }
+
+                const sendBufferThunk = async (capabilities: IServerCapabilities) => {
+                    const textDocument = {
+                        uri: Helpers.wrapPathInFileUri(filePath),
+                        version: change.buffer.version,
+                    }
+
+                    // If the service supports incremental capabilities, just pass it directly
+                    if (capabilities.textDocumentSync === 2) {
+                        return {
+                            textDocument,
+                            contentChanges: change.contentChanges,
+                        }
+                        // Otherwise, get the whole buffer and send it up
+                    } else {
+                        const allBufferLines = await change.buffer.getLines()
+
+                        return {
+                            textDocument,
+                            contentChanges: [{ text: allBufferLines.join(os.EOL) }],
+                        }
                     }
                 }
-            }
 
-            this.sendLanguageServerNotification(language, filePath, "textDocument/didChange", sendBufferThunk)
-        })
+                this.sendLanguageServerNotification(
+                    language,
+                    filePath,
+                    "textDocument/didChange",
+                    sendBufferThunk,
+                )
+            },
+        )
 
-        this._editorManager.allEditors.onBufferSaved.subscribe((bufferInfo: Oni.EditorBufferEventArgs) => {
-            const { language, filePath } = bufferInfo
+        this._editorManager.anyEditor.onBufferSaved.subscribe(
+            (bufferInfo: Oni.EditorBufferEventArgs) => {
+                const { language, filePath } = bufferInfo
 
-            if (this._currentTrackedFile !== filePath) {
-                return
-            }
+                if (this._currentTrackedFile !== filePath) {
+                    return
+                }
 
-            this.sendLanguageServerNotification(language, filePath, "textDocument/didSave", Helpers.pathToTextDocumentIdentifierParms(filePath))
-        })
+                this.sendLanguageServerNotification(
+                    language,
+                    filePath,
+                    "textDocument/didSave",
+                    Helpers.pathToTextDocumentIdentifierParms(filePath),
+                )
+            },
+        )
 
-        this.subscribeToLanguageServerNotification("window/showMessage", (args) => {
+        this.subscribeToLanguageServerNotification("window/showMessage", args => {
             Log.warn("window/showMessage not implemented: " + JSON.stringify(args.toString()))
         })
 
-        this.subscribeToLanguageServerNotification("window/logMessage", (args) => {
+        this.subscribeToLanguageServerNotification("window/logMessage", args => {
             logVerbose(args)
         })
 
-        this.subscribeToLanguageServerNotification("telemetry/event", (args) => {
+        this.subscribeToLanguageServerNotification("telemetry/event", args => {
             logDebug(args)
         })
 
-        this.handleLanguageServerRequest("workspace/configuration", async (req) => {
+        this.handleLanguageServerRequest("workspace/configuration", async req => {
             Log.warn("workspace/configuration not implemented: " + JSON.stringify(req.toString()))
             return null
         })
 
-        this.handleLanguageServerRequest("window/showMessageRequest", async (req) => {
+        this.handleLanguageServerRequest("window/showMessageRequest", async req => {
             logVerbose(req)
             return null
         })
@@ -142,7 +164,9 @@ export class LanguageManager {
     }
 
     public getTokenRegex(language: string): RegExp {
-        const languageSpecificTokenRegex = this._configuration.getValue(`language.${language}.tokenRegex`) as RegExp
+        const languageSpecificTokenRegex = this._configuration.getValue(
+            `language.${language}.tokenRegex`,
+        ) as RegExp
 
         if (languageSpecificTokenRegex) {
             return RegExp(languageSpecificTokenRegex, "i")
@@ -156,7 +180,9 @@ export class LanguageManager {
     }
 
     public getCompletionTriggerCharacters(language: string): string[] {
-        const languageSpecificTriggerChars = this._configuration.getValue(`language.${language}.completionTriggerCharacters`) as string[]
+        const languageSpecificTriggerChars = this._configuration.getValue(
+            `language.${language}.completionTriggerCharacters`,
+        ) as string[]
 
         if (languageSpecificTriggerChars) {
             return languageSpecificTriggerChars
@@ -169,7 +195,12 @@ export class LanguageManager {
         return !!this._getLanguageClient(language)
     }
 
-    public async sendLanguageServerNotification(language: string, filePath: string, protocolMessage: string, protocolPayload: LanguageClientTypes.NotificationValueOrThunk): Promise<void> {
+    public async sendLanguageServerNotification(
+        language: string,
+        filePath: string,
+        protocolMessage: string,
+        protocolPayload: LanguageClientTypes.NotificationValueOrThunk,
+    ): Promise<void> {
         const languageClient = this._getLanguageClient(language)
 
         await this._simulateFakeLag()
@@ -181,16 +212,30 @@ export class LanguageManager {
         }
     }
 
-    public async sendLanguageServerRequest(language: string, filePath: string, protocolMessage: string, protocolPayload: LanguageClientTypes.NotificationValueOrThunk): Promise<any> {
+    public async sendLanguageServerRequest(
+        language: string,
+        filePath: string,
+        protocolMessage: string,
+        protocolPayload: LanguageClientTypes.NotificationValueOrThunk,
+    ): Promise<any> {
         const languageClient = this._getLanguageClient(language)
 
-        Log.verbose("[LANGUAGE] Sending request: " + protocolMessage + "|" + JSON.stringify(protocolPayload))
+        Log.verbose(
+            "[LANGUAGE] Sending request: " +
+                protocolMessage +
+                "|" +
+                JSON.stringify(protocolPayload),
+        )
 
         await this._simulateFakeLag()
 
         if (languageClient) {
             try {
-                const result = await languageClient.sendRequest(filePath, protocolMessage, protocolPayload)
+                const result = await languageClient.sendRequest(
+                    filePath,
+                    protocolMessage,
+                    protocolPayload,
+                )
                 this._setStatus(protocolMessage, LanguageClientState.Active)
                 return result
             } catch (ex) {
@@ -204,8 +249,10 @@ export class LanguageManager {
     }
 
     // Register a handler for requests incoming from the language server
-    public handleLanguageServerRequest(protocolMessage: string, callback: (args: ILanguageServerNotificationResponse) => Promise<any>): void {
-
+    public handleLanguageServerRequest(
+        protocolMessage: string,
+        callback: (args: ILanguageServerNotificationResponse) => Promise<any>,
+    ): void {
         const currentHandler = this._requestHandlers[protocolMessage]
 
         if (currentHandler) {
@@ -215,13 +262,15 @@ export class LanguageManager {
         this._requestHandlers[protocolMessage] = callback
 
         const languageClients = Object.values(this._languageServerInfo)
-        languageClients.forEach((ls) => {
+        languageClients.forEach(ls => {
             ls.handleRequest(protocolMessage, callback)
         })
     }
 
-    public subscribeToLanguageServerNotification(protocolMessage: string, callback: (args: ILanguageServerNotificationResponse) => void): IDisposable {
-
+    public subscribeToLanguageServerNotification(
+        protocolMessage: string,
+        callback: (args: ILanguageServerNotificationResponse) => void,
+    ): IDisposable {
         const currentSubscription = this._notificationSubscriptions[protocolMessage]
 
         if (!currentSubscription) {
@@ -229,13 +278,13 @@ export class LanguageManager {
             this._notificationSubscriptions[protocolMessage] = evt
 
             const languageClients = Object.values(this._languageServerInfo)
-            languageClients.forEach((ls) => {
+            languageClients.forEach(ls => {
                 ls.subscribe(protocolMessage, evt)
             })
 
-            return evt.subscribe((args) => callback(args))
+            return evt.subscribe(args => callback(args))
         } else {
-            return currentSubscription.subscribe((args) => callback(args))
+            return currentSubscription.subscribe(args => callback(args))
         }
     }
 
@@ -253,11 +302,11 @@ export class LanguageManager {
             return
         }
 
-        Object.keys(this._notificationSubscriptions).forEach((notification) => {
+        Object.keys(this._notificationSubscriptions).forEach(notification => {
             languageClient.subscribe(notification, this._notificationSubscriptions[notification])
         })
 
-        Object.keys(this._requestHandlers).forEach((request) => {
+        Object.keys(this._requestHandlers).forEach(request => {
             languageClient.handleRequest(request, this._requestHandlers[request])
         })
 
@@ -265,13 +314,15 @@ export class LanguageManager {
 
         // If there is already a buffer open matching this language,
         // we should send a buffer open event
-        if (this._editorManager.activeEditor.activeBuffer
-            && this._editorManager.activeEditor.activeBuffer.language === language) {
+        if (
+            this._editorManager.activeEditor.activeBuffer &&
+            this._editorManager.activeEditor.activeBuffer.language === language
+        ) {
             this._onBufferEnter()
         }
     }
 
-    private _onBufferEnter(): void {
+    private async _onBufferEnter(): Promise<void> {
         if (!this._editorManager.activeEditor.activeBuffer) {
             Log.warn("[LanguageManager] No active buffer on buffer enter")
             return
@@ -279,6 +330,24 @@ export class LanguageManager {
 
         const buffer = this._editorManager.activeEditor.activeBuffer
         const { language, filePath } = buffer
+
+        if (!language && filePath) {
+            const languages = this._pluginManager.getAllContributionsOfType<
+                Capabilities.ILanguageContribution
+            >(contributes => contributes.languages)
+            const extension = path.extname(filePath)
+            const matchingLanguages = languages.filter(
+                l => l.extensions.indexOf(extension) && extension && extension.length > 0,
+            )
+            if (matchingLanguages.length > 0) {
+                Log.info(
+                    `[LanguageManager::_onBufferEnter] Setting language for file ${filePath} to ${
+                        matchingLanguages[0].id
+                    }`,
+                )
+                await (buffer as any).setLanguage(matchingLanguages[0].id)
+            }
+        }
 
         if (language) {
             this._languageClientStatusBar.show(language)
@@ -292,18 +361,25 @@ export class LanguageManager {
 
         if (buffer.lineCount > this._configuration.getValue("editor.maxLinesForLanguageServices")) {
             this._languageClientStatusBar.setStatus(LanguageClientState.NotAvailable)
-            Log.info("[LanguageManager] Not sending 'didOpen' because file line count exceeds limit.")
+            Log.info(
+                "[LanguageManager] Not sending 'didOpen' because file line count exceeds limit.",
+            )
             return
         }
 
-        this.sendLanguageServerNotification(language, filePath, "textDocument/didOpen", async () => {
-            this._currentTrackedFile = filePath
-            const lines = await this._editorManager.activeEditor.activeBuffer.getLines()
-            const text = lines.join(os.EOL)
-            const version = this._editorManager.activeEditor.activeBuffer.version
-            this._languageClientStatusBar.setStatus(LanguageClientState.Active)
-            return Helpers.pathToTextDocumentItemParams(filePath, language, text, version)
-        })
+        await this.sendLanguageServerNotification(
+            language,
+            filePath,
+            "textDocument/didOpen",
+            async () => {
+                this._currentTrackedFile = filePath
+                const lines = await this._editorManager.activeEditor.activeBuffer.getLines()
+                const text = lines.join(os.EOL)
+                const version = this._editorManager.activeEditor.activeBuffer.version
+                this._languageClientStatusBar.setStatus(LanguageClientState.Active)
+                return Helpers.pathToTextDocumentItemParams(filePath, language, text, version)
+            },
+        )
     }
 
     private _getLanguageClient(language: string): ILanguageClient {
@@ -323,7 +399,6 @@ export class LanguageManager {
     }
 
     private _setStatus(protocolMessage: string, status: LanguageClientState): void {
-
         switch (protocolMessage) {
             case "textDocument/didOpen":
             case "textDocument/didChange":
@@ -358,8 +433,20 @@ const logDebug = (args: any) => {
 
 let _languageManager: LanguageManager = null
 
-export const activate = (configuration: Oni.Configuration, editorManager: Oni.EditorManager, statusBar: Oni.StatusBar, workspace: IWorkspace): void => {
-    _languageManager = new LanguageManager(configuration, editorManager, statusBar, workspace)
+export const activate = (
+    configuration: Oni.Configuration,
+    editorManager: Oni.EditorManager,
+    pluginManager: PluginManager,
+    statusBar: Oni.StatusBar,
+    workspace: IWorkspace,
+): void => {
+    _languageManager = new LanguageManager(
+        configuration,
+        editorManager,
+        pluginManager,
+        statusBar,
+        workspace,
+    )
 }
 
 export const getInstance = (): LanguageManager => {
