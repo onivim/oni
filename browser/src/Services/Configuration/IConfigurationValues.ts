@@ -218,6 +218,7 @@ export interface IConfigurationValues {
     "sidebar.plugins.enabled": boolean
 
     "snippets.enabled": boolean
+    "snippets.userSnippetFolder": string
 
     "statusbar.enabled": boolean
     "statusbar.fontSize": string

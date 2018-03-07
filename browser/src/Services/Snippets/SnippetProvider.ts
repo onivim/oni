@@ -80,34 +80,38 @@ export class PluginSnippetProvider implements Oni.Snippets.SnippetProvider {
     }
 
     private async _loadSnippetsFromFile(snippetFilePath: string): Promise<Oni.Snippets.Snippet[]> {
-        const contents = await new Promise<string>((resolve, reject) => {
-            fs.readFile(snippetFilePath, "utf8", (err, data) => {
-                if (err) {
-                    reject(err)
-                    return
-                }
-
-                resolve(data)
-            })
-        })
-
-        const snippets = Object.values(JSON.parse(contents)) as ISnippetPluginContribution[]
-        Log.verbose(
-            `[PluginSnippetProvider._loadSnippetsFromFile] - Loaded ${
-                snippets.length
-            } snippets from ${snippetFilePath}`,
-        )
-
-        const normalizedSnippets = snippets.map(
-            (snip: ISnippetPluginContribution): Oni.Snippets.Snippet => {
-                return {
-                    prefix: snip.prefix,
-                    description: snip.description,
-                    body: snip.body.join(os.EOL),
-                }
-            },
-        )
-
-        return normalizedSnippets
+        return loadSnippetsFromFile(snippetFilePath)
     }
+}
+
+export const loadSnippetsFromFile = async (
+    snippetFilePath: string,
+): Promise<Oni.Snippets.Snippet[]> => {
+    const contents = await new Promise<string>((resolve, reject) => {
+        fs.readFile(snippetFilePath, "utf8", (err, data) => {
+            if (err) {
+                reject(err)
+                return
+            }
+
+            resolve(data)
+        })
+    })
+
+    const snippets = Object.values(JSON.parse(contents)) as ISnippetPluginContribution[]
+    Log.verbose(
+        `[loadSnippetsFromFile] - Loaded ${snippets.length} snippets from ${snippetFilePath}`,
+    )
+
+    const normalizedSnippets = snippets.map(
+        (snip: ISnippetPluginContribution): Oni.Snippets.Snippet => {
+            return {
+                prefix: snip.prefix,
+                description: snip.description,
+                body: snip.body.join(os.EOL),
+            }
+        },
+    )
+
+    return normalizedSnippets
 }
