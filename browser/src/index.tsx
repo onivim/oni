@@ -49,6 +49,7 @@ const start = async (args: string[]): Promise<void> => {
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
     const quickOpenPromise = import("./Services/QuickOpen")
     const taksPromise = import("./Services/Tasks")
+    const terminalPromise = import("./Services/Terminal")
     const workspacePromise = import("./Services/Workspace")
     const workspaceCommandsPromise = import("./Services/Workspace/WorkspaceCommands")
 
@@ -271,6 +272,9 @@ const start = async (args: string[]): Promise<void> => {
 
     const PluginsSidebarPane = await import("./Plugins/PluginSidebarPane")
     PluginsSidebarPane.activate(configuration, pluginManager, sidebarManager)
+
+    const Terminal = await terminalPromise
+    Terminal.activate(commandManager, configuration, editorManager)
 
     Performance.endMeasure("Oni.Start.Activate")
 
