@@ -291,7 +291,6 @@ function focusNextInstance(direction) {
 
 function moveToNextOniInstance(direction) {
     const currentFocusedWindows = windows.filter(f => f.isFocused())
-    console.log(currentFocusedWindows)
 
     if (currentFocusedWindows.length === 0) {
         Log.info("No window currently focused")
@@ -302,9 +301,7 @@ function moveToNextOniInstance(direction) {
     }
 
     const currentFocusedWindow = currentFocusedWindows[0]
-    console.log(currentFocusedWindow)
-    const windowsToCheck = windows.filter(x => x != currentFocusedWindow)
-    console.log(windowsToCheck)
+    const windowsToCheck = windows.filter(x => x !== currentFocusedWindow)
 
     const validWindows = windowsToCheck.filter(window => {
         const isInTheRightDirection = checkMoveDirection(
@@ -315,8 +312,6 @@ function moveToNextOniInstance(direction) {
 
         return isInTheRightDirection
     })
-
-    console.log(validWindows)
 
     if (!validWindows) {
         return
@@ -336,8 +331,6 @@ function moveToNextOniInstance(direction) {
             return prev
         }
     }, validWindows[0])
-
-    console.log(windowToSwapTo)
 
     windows[windows.indexOf(windowToSwapTo)].focus()
 }
