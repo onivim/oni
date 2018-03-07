@@ -88,15 +88,15 @@ export class SnippetManager {
         this._activeSession = snippetSession
     }
 
-    public nextPlaceholder(): void {
+    public async nextPlaceholder(): Promise<void> {
         if (this.isSnippetActive()) {
-            this._activeSession.nextPlaceholder()
+            return this._activeSession.nextPlaceholder()
         }
     }
 
-    public previousPlaceholder(): void {
+    public async previousPlaceholder(): Promise<void> {
         if (this.isSnippetActive()) {
-            this._activeSession.previousPlaceholder()
+            return this._activeSession.previousPlaceholder()
         }
     }
 
