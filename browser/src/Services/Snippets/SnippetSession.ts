@@ -24,15 +24,15 @@ export const splitLineAtPosition = (line: string, position: number): [string, st
     return [prefix, post]
 }
 
-export const getSmallestPlaceholder = (
+export const getFirstPlaceholder = (
     placeholders: OniSnippetPlaceholder[],
 ): OniSnippetPlaceholder => {
     return placeholders.reduce((prev: OniSnippetPlaceholder, curr: OniSnippetPlaceholder) => {
-        if (!prev) {
+        if (!prev || prev.isFinalTabstop) {
             return curr
         }
 
-        if (curr.index < prev.index) {
+        if (curr.index < prev.index && !curr.isFinalTabstop) {
             return curr
         }
         return prev
@@ -44,6 +44,18 @@ export const getPlaceholderByIndex = (
     index: number,
 ): OniSnippetPlaceholder | null => {
     const matchingPlaceholders = placeholders.filter(p => p.index === index)
+
+    if (matchingPlaceholders.length === 0) {
+        return null
+    }
+
+    return matchingPlaceholders[0]
+}
+
+export const getFinalPlaceholder = (
+    placeholders: OniSnippetPlaceholder[],
+): OniSnippetPlaceholder | null => {
+    const matchingPlaceholders = placeholders.filter(p => p.isFinalTabstop)
 
     if (matchingPlaceholders.length === 0) {
         return null
@@ -146,14 +158,19 @@ export class SnippetSession {
         const placeholders = this._snippet.getPlaceholders()
 
         if (!this._currentPlaceholder) {
-            const newPlaceholder = getSmallestPlaceholder(placeholders)
+            const newPlaceholder = getFirstPlaceholder(placeholders)
             this._currentPlaceholder = newPlaceholder
         } else {
+            if (this._currentPlaceholder.isFinalTabstop) {
+                this._finish()
+                return
+            }
+
             const nextPlaceholder = getPlaceholderByIndex(
                 placeholders,
                 this._currentPlaceholder.index + 1,
             )
-            this._currentPlaceholder = nextPlaceholder || getSmallestPlaceholder(placeholders)
+            this._currentPlaceholder = nextPlaceholder || getFinalPlaceholder(placeholders)
         }
 
         await this._highlightPlaceholder(this._currentPlaceholder)
@@ -166,7 +183,7 @@ export class SnippetSession {
             placeholders,
             this._currentPlaceholder.index - 1,
         )
-        this._currentPlaceholder = nextPlaceholder || getSmallestPlaceholder(placeholders)
+        this._currentPlaceholder = nextPlaceholder || getFirstPlaceholder(placeholders)
 
         await this._highlightPlaceholder(this._currentPlaceholder)
     }

@@ -9,6 +9,8 @@ import * as os from "os"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
+import { Configuration } from "./../Configuration"
+
 import * as Log from "./../../Log"
 import { flatMap } from "./../../Utility"
 
@@ -21,11 +23,17 @@ export interface ISnippetProvider {
 export class CompositeSnippetProvider implements ISnippetProvider {
     private _providers: ISnippetProvider[] = []
 
+    constructor(private _configuration: Configuration) {}
+
     public registerProvider(provider: ISnippetProvider): void {
         this._providers.push(provider)
     }
 
     public async getSnippets(language: string): Promise<ISnippet[]> {
+        if (!this._configuration.getValue("snippets.enabled")) {
+            return []
+        }
+
         const snippets = this._providers.map(p => p.getSnippets(language))
 
         const allSnippets = await Promise.all(snippets)
@@ -76,32 +84,34 @@ export class PluginSnippetProvider implements ISnippetProvider {
     }
 
     private async _loadSnippetsFromFile(snippetFilePath: string): Promise<ISnippet[]> {
-        const contents = await new Promise<string>((resolve, reject) => {
-            fs.readFile(snippetFilePath, "utf8", (err, data) => {
-                if (err) {
-                    reject(err)
-                    return
-                }
-
-                resolve(data)
-            })
-        })
-
-        const snippets = Object.values(JSON.parse(contents)) as ISnippetPluginContribution[]
-        Log.verbose(
-            `[PluginSnippetProvider._loadSnippetsFromFile] - Loaded ${
-                snippets.length
-            } snippets from ${snippetFilePath}`,
-        )
-
-        const normalizedSnippets = snippets.map((snip: ISnippetPluginContribution): ISnippet => {
-            return {
-                prefix: snip.prefix,
-                description: snip.description,
-                body: snip.body.join(os.EOL),
-            }
-        })
-
-        return normalizedSnippets
+        return loadSnippetsFromFile(snippetFilePath)
     }
+}
+
+export const loadSnippetsFromFile = async (snippetFilePath: string): Promise<ISnippet[]> => {
+    const contents = await new Promise<string>((resolve, reject) => {
+        fs.readFile(snippetFilePath, "utf8", (err, data) => {
+            if (err) {
+                reject(err)
+                return
+            }
+
+            resolve(data)
+        })
+    })
+
+    const snippets = Object.values(JSON.parse(contents)) as ISnippetPluginContribution[]
+    Log.verbose(
+        `[loadSnippetsFromFile] - Loaded ${snippets.length} snippets from ${snippetFilePath}`,
+    )
+
+    const normalizedSnippets = snippets.map((snip: ISnippetPluginContribution): ISnippet => {
+        return {
+            prefix: snip.prefix,
+            description: snip.description,
+            body: snip.body.join(os.EOL),
+        }
+    })
+
+    return normalizedSnippets
 }

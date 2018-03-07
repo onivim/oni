@@ -6,7 +6,11 @@ import * as types from "vscode-languageserver-types"
 
 import { LanguageManager } from "./../Language"
 
-import { ICompletionsRequestor, LanguageServiceCompletionsRequestor } from "./CompletionsRequestor"
+import {
+    CompletionsRequestContext,
+    ICompletionsRequestor,
+    LanguageServiceCompletionsRequestor,
+} from "./CompletionsRequestor"
 
 export interface ICompletionProviderInfo {
     id: string
@@ -28,14 +32,10 @@ export class CompletionProviders implements ICompletionsRequestor {
     }
 
     public async getCompletions(
-        language: string,
-        filePath: string,
-        line: number,
-        column: number,
+        context: CompletionsRequestContext,
     ): Promise<types.CompletionItem[]> {
         const completionItemsPromise = this._completionProviders.map(async prov => {
-            const items =
-                (await prov.provider.getCompletions(language, filePath, line, column)) || []
+            const items = (await prov.provider.getCompletions(context)) || []
 
             // Tag the items with the provider id, so we know who to ask for details
             const augmentedItems = items.map(item => {

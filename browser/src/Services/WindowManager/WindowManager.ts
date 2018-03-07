@@ -80,6 +80,10 @@ export class AugmentedWindow implements IAugmentedSplitInfo {
 
     constructor(private _id: string, private _innerSplit: Oni.IWindowSplit | any) {}
 
+    public get innerSplit(): Oni.IWindowSplit {
+        return this._innerSplit
+    }
+
     public render(): JSX.Element {
         return this._innerSplit.render()
     }
@@ -146,27 +150,10 @@ export class WindowManager {
         this._rootNavigator.setRelationship(this._leftDock, this._primarySplit, "right")
     }
 
-    // public split(
-    //     direction: SplitDirection,
-    //     newSplit: Oni.IWindowSplit,
-    //     referenceSplit?: Oni.IWindowSplit,
-    // ) {
-
-    //     this._primarySplit.split(augmentedWindow, direction, referenceSplit)
-    //     const newState = this._primarySplit.getState() as ISplitInfo<Oni.IWindowSplit>
-
-    //     this._store.dispatch({
-    //         type: "SET_PRIMARY_SPLITS",
-    //         splits: newState,
-    //     })
-
-    //     this._focusNewSplit(newSplit)
-    // }
-
     public createSplit(
         splitLocation: Direction | SplitDirection,
         newSplit: Oni.IWindowSplit,
-        referenceSplit?: any,
+        referenceSplit?: Oni.IWindowSplit,
     ): WindowSplitHandle {
         const nextId = this._lastId++
         const windowId = "oni.window." + nextId.toString()
@@ -189,7 +176,8 @@ export class WindowManager {
             }
             case "horizontal":
             case "vertical":
-                this._primarySplit.split(augmentedWindow, splitLocation, referenceSplit)
+                const augmentedRefSplit = this._getAugmentedWindowSplitFromSplit(referenceSplit)
+                this._primarySplit.split(augmentedWindow, splitLocation, augmentedRefSplit)
                 const newState = this._primarySplit.getState() as ISplitInfo<Oni.IWindowSplit>
 
                 this._store.dispatch({
@@ -201,6 +189,11 @@ export class WindowManager {
         }
 
         return new WindowSplitHandle(this._store, this, windowId)
+    }
+
+    public getSplitHandle(split: Oni.IWindowSplit): WindowSplitHandle {
+        const augmentedSplit = this._getAugmentedWindowSplitFromSplit(split)
+        return new WindowSplitHandle(this._store, this, augmentedSplit.id)
     }
 
     public move(direction: Direction): void {
@@ -257,6 +250,11 @@ export class WindowManager {
     public focusSplit(splitId: string): void {
         const split = this._idToSplit[splitId]
         this._focusNewSplit(split)
+    }
+
+    private _getAugmentedWindowSplitFromSplit(split: Oni.IWindowSplit): IAugmentedSplitInfo {
+        const augmentedWindows = Object.values(this._idToSplit)
+        return augmentedWindows.find(aw => aw.innerSplit === split) || null
     }
 
     private _focusNewSplit(newSplit: any): void {

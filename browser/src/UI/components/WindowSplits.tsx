@@ -5,14 +5,15 @@
  */
 
 import * as React from "react"
-
 import { connect } from "react-redux"
+import { AutoSizer } from "react-virtualized"
 
 import { WindowSplitHost } from "./WindowSplitHost"
 
 import {
     IAugmentedSplitInfo,
     ISplitInfo,
+    layoutFromSplitInfo,
     leftDockSelector,
     WindowManager,
     WindowState,
@@ -62,53 +63,58 @@ export interface IWindowSplitViewProps {
     windowManager: WindowManager
 }
 
+const px = (num: number): string => num.toString() + "px"
+
+const rectangleToStyleProperties = (
+    rect: Oni.Shapes.Rectangle,
+    totalHeight: number,
+): React.CSSProperties => {
+    const halfPadding = 3
+    const topPosition = rect.y === 0 ? 0 : Math.ceil(rect.y) + halfPadding
+
+    const bottomPadding = Math.ceil(rect.y + rect.height) >= totalHeight ? 0 : halfPadding * 2
+    return {
+        position: "absolute",
+        top: px(topPosition),
+        left: px(Math.ceil(rect.x) + halfPadding),
+        width: px(Math.floor(rect.width) - halfPadding * 2),
+        height: px(Math.floor(rect.height) - bottomPadding),
+    }
+}
+import * as Oni from "oni-api"
+
 export class WindowSplitView extends React.PureComponent<IWindowSplitViewProps, {}> {
     public render(): JSX.Element {
-        const className =
-            this.props.split.direction === "horizontal"
-                ? "container horizontal full"
-                : "container vertical full"
-        const dividerClassName =
-            this.props.split.direction === "horizontal"
-                ? "split-spacer vertical"
-                : "split-spacer horizontal"
+        const className = "container horizontal full"
 
-        const splits = this.props.split.splits
-        const editors = splits.map((splitNode, i) => {
-            if (splitNode.type === "Split") {
-                return (
-                    <WindowSplitView
-                        split={splitNode}
-                        activeSplitId={this.props.activeSplitId}
-                        windowManager={this.props.windowManager}
-                    />
-                )
-            } else {
-                const split: IAugmentedSplitInfo = splitNode.contents
-
-                if (!split) {
-                    return null
-                } else {
-                    const divider = i !== 0 ? <div className={dividerClassName} /> : null
-                    return (
-                        <div className={className}>
-                            {divider}
-                            <WindowSplitHost
-                                containerClassName={"editor"}
-                                key={i}
-                                split={split}
-                                isFocused={split.id === this.props.activeSplitId}
-                                onClick={() => {
-                                    this.props.windowManager.focusSplit(split.id)
-                                }}
-                            />
-                        </div>
-                    )
-                }
-            }
-        })
-
-        return <div className={className}>{editors}</div>
+        // TODO: Add drag handles here to allow for resizing!
+        return (
+            <div className={className}>
+                <AutoSizer>
+                    {({ height, width }) => {
+                        // return <div>{width}{height}</div>
+                        const items = layoutFromSplitInfo(this.props.split, width, height)
+                        const vals: JSX.Element[] = Object.values(items).map(item => {
+                            const style = rectangleToStyleProperties(item.rectangle, height)
+                            return (
+                                <div style={style}>
+                                    <WindowSplitHost
+                                        key={item.split.id}
+                                        containerClassName="editor"
+                                        split={item.split}
+                                        isFocused={this.props.activeSplitId === item.split.id}
+                                        onClick={() => {
+                                            this.props.windowManager.focusSplit(item.split.id)
+                                        }}
+                                    />
+                                </div>
+                            )
+                        })
+                        return <div style={{ position: "relative" }}>{vals}</div>
+                    }}
+                </AutoSizer>
+            </div>
+        )
     }
 }
 

@@ -14,8 +14,8 @@ export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiase
 export type DetectionSettings = "always" | "noworkspace" | "never"
 
 export interface IConfigurationValues {
-    activate: (oni: Oni.Plugin.Api) => void
-    deactivate: () => void
+    activate?: (oni: Oni.Plugin.Api) => void
+    deactivate?: () => void
 
     // Debug settings
     "debug.fixedSize": {
@@ -216,6 +216,9 @@ export interface IConfigurationValues {
 
     "sidebar.marks.enabled": boolean
     "sidebar.plugins.enabled": boolean
+
+    "snippets.enabled": boolean
+    "snippets.userSnippetFolder": string
 
     "statusbar.enabled": boolean
     "statusbar.fontSize": string

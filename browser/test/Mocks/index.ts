@@ -163,6 +163,10 @@ export class MockEditor extends Editor {
         return this._currentSelection
     }
 
+    public async clearSelection(): Promise<void> {
+        // tslint:disable-line
+    }
+
     public setActiveBufferLine(line: number, lineContents: string): void {
         this._activeBuffer.setLineSync(line, lineContents)
 

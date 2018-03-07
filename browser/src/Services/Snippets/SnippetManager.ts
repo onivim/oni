@@ -11,6 +11,7 @@ import * as Log from "./../../Log"
 import "rxjs/add/operator/auditTime"
 import { Subject } from "rxjs/Subject"
 
+import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 
 import { SnippetBufferLayer } from "./SnippetBufferLayer"
@@ -27,8 +28,8 @@ export class SnippetManager {
     private _snippetProvider: CompositeSnippetProvider
     private _synchronizeSnippetObservable: Subject<void> = new Subject<void>()
 
-    constructor(private _editorManager: EditorManager) {
-        this._snippetProvider = new CompositeSnippetProvider()
+    constructor(private _configuration: Configuration, private _editorManager: EditorManager) {
+        this._snippetProvider = new CompositeSnippetProvider(this._configuration)
 
         this._synchronizeSnippetObservable.auditTime(50).subscribe(() => {
             const activeEditor = this._editorManager.activeEditor as any
@@ -103,9 +104,13 @@ export class SnippetManager {
         return !!this._activeSession
     }
 
-    public cancel(): void {
+    public async cancel(): Promise<void> {
         if (this._activeSession) {
             this._cleanupAfterSession()
+            await (this._editorManager.activeEditor as any).clearSelection()
+
+            // TODO: Add 'stopInsert' and 'startInsert' methods on editor
+            await this._editorManager.activeEditor.neovim.command("stopinsert")
         }
 
         if (this._currentLayer) {

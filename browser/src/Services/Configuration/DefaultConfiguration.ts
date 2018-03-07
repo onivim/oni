@@ -35,8 +35,7 @@ const BaseConfiguration: IConfigurationValues = {
     "autoUpdate.enabled": false,
 
     "browser.defaultUrl": "https://duckduckgo.com",
-
-    "configuration.editor": "javascript",
+    "configuration.editor": "typescript",
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
@@ -236,6 +235,9 @@ const BaseConfiguration: IConfigurationValues = {
 
     "sidebar.marks.enabled": false,
     "sidebar.plugins.enabled": false,
+
+    "snippets.enabled": true,
+    "snippets.userSnippetFolder": null,
 
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
