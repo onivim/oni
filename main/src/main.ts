@@ -75,7 +75,7 @@ ipcMain.on("focus-previous-instance", () => {
     focusNextInstance(-1)
 })
 
-ipcMain.on("move-to-next-oni-instance", (direction: string) => {
+ipcMain.on("move-to-next-oni-instance", (event, direction: string) => {
     Log.info(`Attempting to swap to Oni instance on the ${direction}.`)
     moveToNextOniInstance(direction)
 })
@@ -296,36 +296,30 @@ function moveToNextOniInstance(direction) {
         Log.info("No window currently focused")
         return
     } else if (windows.length === 1) {
-        Log.info("No where to swap to")
+        Log.info("No window to swap to")
         return
     }
 
     const currentFocusedWindow = currentFocusedWindows[0]
     const windowsToCheck = windows.filter(x => x !== currentFocusedWindow)
 
-    const validWindows = windowsToCheck.filter(window => {
-        const isInTheRightDirection = checkMoveDirection(
-            direction,
-            currentFocusedWindow.getBounds(),
-            window.getBounds(),
-        )
+    const validWindows = windowsToCheck.filter(window =>
+        windowIsInValidDirection(direction, currentFocusedWindow.getBounds(), window.getBounds()),
+    )
 
-        return isInTheRightDirection
-    })
-
-    if (!validWindows) {
+    if (validWindows.length === 0) {
         return
     }
 
     const windowToSwapTo = validWindows.reduce<BrowserWindow>((curr, prev) => {
-        const isCurrentWindowIsBetter = checkWindowToFindBest(
+        const isCurrentWindowBetter = checkWindowToFindBest(
             currentFocusedWindow,
             curr,
             prev,
             direction,
         )
 
-        if (isCurrentWindowIsBetter) {
+        if (isCurrentWindowBetter) {
             return curr
         } else {
             return prev
@@ -335,7 +329,7 @@ function moveToNextOniInstance(direction) {
     windows[windows.indexOf(windowToSwapTo)].focus()
 }
 
-function checkMoveDirection(direction: string, currentPos: Rectangle, testPos: Rectangle) {
+function windowIsInValidDirection(direction: string, currentPos: Rectangle, testPos: Rectangle) {
     let valuesIncrease = false
     let coord = "x"
 
