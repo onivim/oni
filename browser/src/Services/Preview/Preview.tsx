@@ -11,8 +11,7 @@ import styled from "styled-components"
 
 import JSONTree from "react-json-tree"
 
-import { CallbackCommand, CommandManager } from "./../Services/CommandManager"
-import { EditorManager } from "./../Services/EditorManager"
+import { EditorManager } from "./../EditorManager"
 
 export interface IPreviewer {
     render(): JSX.Element
@@ -91,16 +90,4 @@ export class Preview {
     public registerPreviewer(id: string, previewer: IPreviewer): void {
         this._previewers[id] = previewer
     }
-}
-
-let _preview: Preview
-
-export const activate = (commandManager: CommandManager, editorManager: EditorManager) => {
-    _preview = new Preview(editorManager)
-
-    commandManager.registerCommand(
-        new CallbackCommand("preview.open", "Preview: Open", "Open preview pane", () =>
-            _preview.openPreview(),
-        ),
-    )
 }
