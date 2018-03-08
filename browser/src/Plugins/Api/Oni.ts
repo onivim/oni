@@ -6,7 +6,6 @@
  */
 
 import * as ChildProcess from "child_process"
-import { EventEmitter } from "events"
 
 import * as OniApi from "oni-api"
 
@@ -55,7 +54,7 @@ const helpers = {
 /**
  * API instance for interacting with OniApi (and vim)
  */
-export class Oni extends EventEmitter implements OniApi.Plugin.Api {
+export class Oni implements OniApi.Plugin.Api {
     private _dependencies: Dependencies
     private _ui: Ui
     private _services: Services
@@ -170,7 +169,6 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     constructor() {
-        super()
         this._colors = getColors()
 
         this._dependencies = new Dependencies()
