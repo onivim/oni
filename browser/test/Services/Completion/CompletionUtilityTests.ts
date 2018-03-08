@@ -9,10 +9,11 @@ import { SnippetManager } from "./../../../src/Services/Snippets"
 const DefaultCursorMatchRegEx = /[a-z]/i
 const DefaultTriggerCharacters = ["."]
 
-import { MockBuffer, MockEditor } from "./../../Mocks"
+import { MockBuffer, MockConfiguration, MockEditor } from "./../../Mocks"
 
 describe("CompletionUtility", () => {
     describe("commitCompletion", () => {
+        let mockConfiguration: MockConfiguration
         let editorManager: EditorManager
         let mockEditor: MockEditor
         let snippetManager: SnippetManager
@@ -21,7 +22,8 @@ describe("CompletionUtility", () => {
             editorManager = new EditorManager()
             mockEditor = new MockEditor()
             editorManager.setActiveEditor(mockEditor)
-            snippetManager = new SnippetManager(editorManager)
+            mockConfiguration = new MockConfiguration({})
+            snippetManager = new SnippetManager(mockConfiguration as any, editorManager)
         })
 
         it("handles basic completion", async () => {

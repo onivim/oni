@@ -168,6 +168,11 @@ export const layersReducer = (s: State.Layers, a: Actions.SimpleAction) => {
     switch (a.type) {
         case "ADD_BUFFER_LAYER": {
             const currentLayers = s[a.payload.bufferId] || []
+
+            if (currentLayers.find(layer => layer.id === a.payload.layer.id)) {
+                return s
+            }
+
             return {
                 ...s,
                 [a.payload.bufferId]: [...currentLayers, a.payload.layer],

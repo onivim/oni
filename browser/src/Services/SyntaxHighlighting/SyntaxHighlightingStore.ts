@@ -30,6 +30,9 @@ export interface ISyntaxHighlightLineInfo {
     ruleStack: StackElement
     tokens: ISyntaxHighlightTokenInfo[]
     dirty: boolean
+
+    // The last version of the line that was 'tokenized'
+    version?: number
 }
 
 export interface SyntaxHighlightLines {
@@ -90,6 +93,7 @@ export type ISyntaxHighlightAction =
           lineNumber: number
           tokens: ISyntaxHighlightTokenInfo[]
           ruleStack: StackElement
+          version: number
       }
     | {
           type: "SYNTAX_UPDATE_TOKENS_FOR_LINE_INSERT_MODE"

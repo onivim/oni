@@ -47,7 +47,9 @@ const start = async (args: string[]): Promise<void> => {
     const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
+    const quickOpenPromise = import("./Services/QuickOpen")
     const taksPromise = import("./Services/Tasks")
+    const terminalPromise = import("./Services/Terminal")
     const workspacePromise = import("./Services/Workspace")
     const workspaceCommandsPromise = import("./Services/Workspace/WorkspaceCommands")
 
@@ -134,6 +136,9 @@ const start = async (args: string[]): Promise<void> => {
     Menu.activate(configuration, overlayManager)
     const menuManager = Menu.getInstance()
 
+    const QuickOpen = await quickOpenPromise
+    QuickOpen.activate(commandManager, menuManager, editorManager, workspace)
+
     const Notifications = await notificationsPromise
     Notifications.activate(configuration, overlayManager)
 
@@ -166,7 +171,7 @@ const start = async (args: string[]): Promise<void> => {
     CSS.activate()
 
     const Snippets = await snippetPromise
-    Snippets.activate(commandManager)
+    Snippets.activate(commandManager, configuration)
 
     Shell.Actions.setLoadingComplete()
 
@@ -226,7 +231,12 @@ const start = async (args: string[]): Promise<void> => {
     const api = pluginManager.startApi()
     configuration.activate(api)
 
-    Snippets.activateCompletionProvider(CompletionProviders.getInstance(), pluginManager)
+    Snippets.activateProviders(
+        commandManager,
+        CompletionProviders.getInstance(),
+        configuration,
+        pluginManager,
+    )
 
     createLanguageClientsFromConfiguration(configuration.getValues())
 
@@ -262,6 +272,9 @@ const start = async (args: string[]): Promise<void> => {
 
     const PluginsSidebarPane = await import("./Plugins/PluginSidebarPane")
     PluginsSidebarPane.activate(configuration, pluginManager, sidebarManager)
+
+    const Terminal = await terminalPromise
+    Terminal.activate(commandManager, configuration, editorManager)
 
     Performance.endMeasure("Oni.Start.Activate")
 
