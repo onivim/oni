@@ -59,6 +59,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.maxLinesForLanguageServices": 2500,
     "editor.textMateHighlighting.enabled": true,
 
+    "experimental.achievements.enabled": false,
+
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
         { open: "{", close: "}" },
