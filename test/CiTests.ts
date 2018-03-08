@@ -20,6 +20,7 @@ const CiTests = [
 
     "Configuration.JavaScriptEditorTest",
     "Configuration.TypeScriptEditor.NewConfigurationTest",
+    "Configuration.TypeScriptEditor.CompletionTest",
 
     "Editor.ExternalCommandLineTest",
     "Editor.BufferModifiedState",

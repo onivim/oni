@@ -34,9 +34,14 @@
             "!examples",
             "!lib_test",
             "!test",
+            "!node_modules/oni-api",
             "!node_modules/typescript"
         ],
         "extraResources": [
+            {
+                "from": "node_modules/oni-api",
+                "to": "app/node_modules/oni-api"
+            },
             {
                 "from": "node_modules/typescript",
                 "to": "app/node_modules/typescript"
