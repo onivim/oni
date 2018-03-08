@@ -1,4 +1,5 @@
 import * as React from "react"
+import * as ReactDOM from "react-dom"
 import { connect, Provider } from "react-redux"
 
 import styled from "styled-components"
@@ -27,6 +28,7 @@ export interface IMenuProps {
     filterText: string
     onChangeFilterText: (text: string) => void
     onSelect: (selectedIndex?: number) => void
+    onHide: () => void
     items: IMenuOptionWithHighlights[]
     isLoading: boolean
 
@@ -46,6 +48,7 @@ const MenuStyleWrapper = styled.div`
 
 export class MenuView extends React.PureComponent<IMenuProps, {}> {
     private _inputElement: HTMLInputElement = null
+    private _popupBody: Element = null
 
     public componentWillUpdate(newProps: Readonly<IMenuProps>): void {
         if (newProps.visible !== this.props.visible && !newProps.visible && this._inputElement) {
@@ -79,8 +82,13 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
             Math.min(this.props.items.length, this.props.maxItemsToShow) * this.props.rowHeight
 
         return (
-            <div className="menu-background enable-mouse">
-                <MenuStyleWrapper className="menu">
+            <div className="menu-background enable-mouse" onClick={this.handleHide}>
+                <MenuStyleWrapper
+                    className="menu"
+                    innerRef={elem => {
+                        this._popupBody = elem
+                    }}
+                >
                     <TextInputView onChange={evt => this._onChange(evt)} />
                     <div className="items">
                         <div>
@@ -115,6 +123,16 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
     private _onChange(evt: React.FormEvent<HTMLInputElement>) {
         const target: any = evt.target
         this.props.onChangeFilterText(target.value)
+    }
+
+    /**
+     * Hide the popup if a click event was registered outside of it
+     */
+    private handleHide = (event: any) => {
+        const node = ReactDOM.findDOMNode(this._popupBody)
+        if (!node.contains(event.target as Node)) {
+            this.props.onHide()
+        }
     }
 }
 
@@ -151,14 +169,9 @@ const mapStateToProps = (
     }
 }
 
-const mapDispatchToProps = (dispatch: any): any => {
-    const dispatchFilterText = (text: string) => {
-        dispatch(ActionCreators.filterMenu(text))
-    }
-
-    return {
-        onChangeFilterText: dispatchFilterText,
-    }
+const mapDispatchToProps = {
+    onChangeFilterText: ActionCreators.filterMenu,
+    onHide: ActionCreators.hidePopupMenu,
 }
 
 export const ConnectedMenu: any = connect(mapStateToProps, mapDispatchToProps)(MenuView)
