@@ -123,6 +123,11 @@ export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
     return getRootProjectFile
 }
 
+export const requestIdleCallback = (fn: () => void): number => {
+    // tslint:disable-next-line
+    return window["requestIdleCallback"](fn)
+}
+
 export const isInRange = (line: number, column: number, range: types.Range): boolean => {
     return (
         line >= range.start.line &&

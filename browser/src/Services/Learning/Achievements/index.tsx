@@ -8,6 +8,8 @@ import { OverlayManager } from "./../../Overlay"
 
 import { AchievementNotificationRenderer } from "./AchievementNotificationRenderer"
 
+export * from "./AchievementsManager"
+
 export const activate = (
     // configuration: Configuration,
     // editorManager: EditorManager,
