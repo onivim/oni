@@ -128,7 +128,9 @@ export class AchievementsManager {
     }
 }
 
-export type GoalCounts = { [goalId: string]: number }
+export interface GoalCounts {
+    [goalId: string]: number
+}
 
 export interface IPersistedAchievementState {
     goalCounts: GoalCounts

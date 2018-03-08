@@ -7,10 +7,10 @@
 import { Overlay, OverlayManager } from "./../../Overlay"
 
 import * as React from "react"
-import styled, { keyframes } from "styled-components"
 import { CSSTransition, TransitionGroup } from "react-transition-group"
+import styled, { keyframes } from "styled-components"
 
-import { withProps, boxShadow } from "./../../../UI/components/common"
+import { boxShadow, withProps } from "./../../../UI/components/common"
 
 export class AchievementNotificationRenderer {
     private _overlay: Overlay
@@ -66,8 +66,8 @@ const AchievementWrapper = withProps<{}>(styled.div)`
     justify-content: center;
     align-items: center;
 
-    background-color: ${props => props.theme["background"]};
-    color: ${props => props.theme["foreground"]};
+    background-color: ${props => props.theme.background};
+    color: ${props => props.theme.foreground};
 
     border-radius: 3em;
     padding: 2em;

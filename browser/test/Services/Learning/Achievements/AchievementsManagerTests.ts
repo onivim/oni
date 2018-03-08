@@ -48,7 +48,7 @@ describe("AchievementsManagerTests", () => {
         await achievementsManager.start()
 
         let hitCount = 0
-        achievementsManager.onAchievementAccomplished.subscribe(achievement => {
+        achievementsManager.onAchievementAccomplished.subscribe(() => {
             hitCount++
         })
 
@@ -70,7 +70,7 @@ describe("AchievementsManagerTests", () => {
         await achievementsManager.start()
 
         let hitCount = 0
-        achievementsManager.onAchievementAccomplished.subscribe(achievement => {
+        achievementsManager.onAchievementAccomplished.subscribe(() => {
             hitCount++
         })
 
@@ -89,7 +89,7 @@ describe("AchievementsManagerTests", () => {
         await achievementsManager.start()
 
         let hitCount = 0
-        achievementsManager.onAchievementAccomplished.subscribe(achievement => {
+        achievementsManager.onAchievementAccomplished.subscribe(() => {
             hitCount++
         })
 

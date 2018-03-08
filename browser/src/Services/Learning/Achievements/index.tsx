@@ -24,7 +24,7 @@ export const activate = (
 
     const renderer = new AchievementNotificationRenderer(overlays)
 
-    window["addAchievement"] = () => {
+    window.addAchievement = () => {
         renderer.showAchievement({
             title: "Not your daddy's vim",
             description: "Use all of the new functionality that Oni provides.",
