@@ -4,7 +4,7 @@
  * Entry point for the 'achievements' feature
  */
 
-import { Configuration } from "./../Configuratoin"
+import { Configuration } from "./../../Configuration"
 import { OverlayManager } from "./../../Overlay"
 
 // import { AchievementNotificationRenderer } from "./AchievementNotificationRenderer"
