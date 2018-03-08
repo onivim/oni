@@ -16,7 +16,7 @@ export interface ITutorialContext {
 export interface ITutorialStage {
     goalName?: string
     tickFunction: (context: ITutorialContext) => Promise<boolean>
-    render: (renderContext: Oni.EditorLayerRenderContext) => JSX.Element
+    render: (renderContext: Oni.BufferLayerRenderContext) => JSX.Element
 }
 
 export interface ITutorial {
@@ -55,7 +55,7 @@ export class BasicMovementTutorial implements ITutorial {
 
                     return true
                 },
-                render: (context: Oni.EditorLayerRenderContext) => {
+                render: (context: Oni.BufferLayerRenderContext) => {
                     return null
                 },
             },
@@ -68,7 +68,7 @@ export class BasicMovementTutorial implements ITutorial {
 
                     return false
                 },
-                render: (context: Oni.EditorLayerRenderContext) => {
+                render: (context: Oni.BufferLayerRenderContext) => {
                     return null
                 },
             },
@@ -77,7 +77,7 @@ export class BasicMovementTutorial implements ITutorial {
 }
 
 export interface ITutorialState {
-    renderFunc: (context: Oni.EditorLayerRenderContext) => JSX.Element
+    renderFunc: (context: Oni.BufferLayerRenderContext) => JSX.Element
     activeGoalIndex: number
     goals: string[]
 }
@@ -130,10 +130,11 @@ export class TutorialStateManager {
         this._editor.onBufferChanged.subscribe(() => {
             this._tick()
         })
-
         ;(this._editor as any).onCursorMoved.subscribe(() => {
             this._tick()
         })
+
+        this._tick()
     }
 
     private async _tick(): Promise<void> {
@@ -162,7 +163,7 @@ export class TutorialStateManager {
         const newState: ITutorialState = {
             goals: [],
             activeGoalIndex: -1,
-            renderFunc: (context: Oni.EditorLayerRenderContext) =>
+            renderFunc: (context: Oni.BufferLayerRenderContext) =>
                 this.currentStage.render(context),
         }
         this._currentState = newState
