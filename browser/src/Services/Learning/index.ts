@@ -27,5 +27,5 @@ export const activate = (
 
     sidebarManager.add("trophy", new LearningPane())
 
-    Achievements.activate(overlayManager)
+    Achievements.activate(configuration, overlayManager)
 }
