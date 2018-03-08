@@ -67,6 +67,8 @@ export const Arrow = withProps<IArrowProps>(styled.div)`
     ${props => arrowCSS(props)}
     `
 
+export const derp = () => {}
+
 export const preview = () => {
     return <Arrow size={100} color="yellow" direction={ArrowDirection.Left} />
 }

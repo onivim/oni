@@ -9,6 +9,8 @@ import * as Oni from "oni-api"
 
 import styled from "styled-components"
 
+import JSONTree from "react-json-tree"
+
 import { CallbackCommand, CommandManager } from "./../Services/CommandManager"
 import { EditorManager } from "./../Services/EditorManager"
 
@@ -63,9 +65,8 @@ export class PreviewView extends React.PureComponent<{}, PreviewViewState> {
 
             console.log("SETTING STATE")
 
-            const preview = script.preview
             this.setState({
-                element: preview(),
+                element: <JSONTree data={script} />,
             })
         }, 200)
     }
