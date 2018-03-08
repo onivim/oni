@@ -49,3 +49,5 @@ export class Icon extends React.PureComponent<IconProps, {}> {
         }
     }
 }
+
+export const preview = () => <Icon name="box" size={IconSize.Large} />

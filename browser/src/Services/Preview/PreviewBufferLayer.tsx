@@ -46,7 +46,7 @@ export interface PreviewViewState {
 }
 
 export class PreviewView extends React.PureComponent<PreviewViewProps, PreviewViewState> {
-    // private _filePath = "E:/oni/lib_test/browser/src/UI/components/Arrow"
+    private _filePath = "E:/oni/lib_test/browser/src/UI/Icon"
 
     constructor(props: PreviewViewProps) {
         super(props)
@@ -56,23 +56,25 @@ export class PreviewView extends React.PureComponent<PreviewViewProps, PreviewVi
     }
 
     public componentDidMount(): void {
-        this.props.editorManager.anyEditor.onBufferEnter.subscribe(bufEvent => {
-            this.setState({
-                element: <JSONTree data={bufEvent.filePath} />,
-            })
-        })
-
-        // window.setInterval(() => {
-        //     delete global["require"].cache[global["require"].resolve(this._filePath)] // tslint:disable-line no-string-literal
-
-        //     const script = global["require"](this._filePath)
-
-        //     console.log("SETTING STATE")
-
+        // this.props.editorManager.anyEditor.onBufferEnter.subscribe(bufEvent => {
         //     this.setState({
-        //         element: <JSONTree data={script} />,
+        //         element: <JSONTree data={bufEvent.filePath} />,
         //     })
-        // }, 200)
+        // })
+
+        window.setInterval(() => {
+            delete global["require"].cache[global["require"].resolve(this._filePath)] // tslint:disable-line no-string-literal
+
+            const script = global["require"](this._filePath)
+
+            const elem = script && script.preview ? script.preview() : <JSONTree data={script} />
+
+            console.log("SETTING STATE")
+
+            this.setState({
+                element: elem,
+            })
+        }, 200)
     }
 
     public render(): JSX.Element {
