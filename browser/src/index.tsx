@@ -267,6 +267,9 @@ const start = async (args: string[]): Promise<void> => {
     const PluginsSidebarPane = await import("./Plugins/PluginSidebarPane")
     PluginsSidebarPane.activate(configuration, pluginManager, sidebarManager)
 
+    const Achievements = await import("./Services/Learning/Achievements")
+    Achievements.activate(overlayManager)
+
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()
