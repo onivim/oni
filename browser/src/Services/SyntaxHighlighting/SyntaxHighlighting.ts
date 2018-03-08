@@ -28,6 +28,7 @@ import {
 
 import { ISyntaxHighlighter } from "./ISyntaxHighlighter"
 import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
+import { getLineFromBuffer } from "./SyntaxHighlightSelectors"
 
 import * as Log from "./../../Log"
 import * as Utility from "./../../Utility"
@@ -123,7 +124,7 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             return null
         }
 
-        const line = buffer.lines[position.line]
+        const line = getLineFromBuffer(buffer, position.line)
 
         if (!line) {
             return null

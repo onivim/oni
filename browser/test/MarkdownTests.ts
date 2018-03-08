@@ -1,4 +1,5 @@
 import * as assert from "assert"
+import { unescape } from "lodash"
 import { StackElement } from "vscode-textmate"
 import * as markdown from "./../../browser/src/Editor/NeovimEditor/markdown"
 
@@ -87,5 +88,19 @@ describe("Markdown Conversion Functions", () => {
             .trim()
 
         assert.ok(tag.replace("\n", "").trim() === expected)
+    })
+
+    it("should render safe jsx untouched ", () => {
+        const md = `### A title
+            <AReactComponent />`
+        const result = markdown.convertMarkdown({ markdown: md, tokens: null })
+        assert.ok(unescape(result).includes(`<AReactComponent />`))
+    })
+
+    it("should render safe html untouched ", () => {
+        const md = `### Another Title
+            <div></div>`
+        const result = markdown.convertMarkdown({ markdown: md, tokens: null })
+        assert.ok(unescape(result).includes(`<div></div>`))
     })
 })

@@ -113,6 +113,7 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
                 dirty: false,
                 tokens: action.tokens,
                 ruleStack: action.ruleStack,
+                version: action.version,
             }
 
             const nextLine = newState[action.lineNumber + 1]
