@@ -216,7 +216,13 @@ const start = async (args: string[]): Promise<void> => {
 
     Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
-    Learning.activate(configuration, editorManager, overlayManager, Sidebar.getInstance())
+    Learning.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        overlayManager,
+        Sidebar.getInstance(),
+    )
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =
