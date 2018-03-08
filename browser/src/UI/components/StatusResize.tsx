@@ -26,10 +26,8 @@ interface State {
         [id: string]: {
             id: string
             width: number
-            alignment: number
             hide?: boolean
             priority: number
-            passWidth: PassWidth
         }
     }
 }
