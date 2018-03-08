@@ -78,7 +78,7 @@ const activate = async Oni => {
         }
     }
 
-    const defaultFiletypes = [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json"]
+    const defaultFiletypes = [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json", ".graphql"]
     const allowedFiletypes = Array.isArray(config.allowedFiletypes)
         ? config.allowedFiletypes
         : defaultFiletypes

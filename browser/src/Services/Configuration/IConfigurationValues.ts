@@ -227,6 +227,7 @@ export interface IConfigurationValues {
             bracketSpacing: boolean
             jsxBracketSameLine: boolean
             arrowParens: "avoid" | "always"
+            printWidth: number
         }
         formatOnSave: boolean
         enabled: boolean
