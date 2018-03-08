@@ -61,9 +61,9 @@ export class SidebarManager {
         this._store = createStore()
 
         if (_windowManager) {
-            this._iconSplit = this._windowManager.createSplit("right", new SidebarSplit(this))
+            this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
             this._contentSplit = this._windowManager.createSplit(
-                "right",
+                "left",
                 new SidebarContentSplit(this),
             )
         }
