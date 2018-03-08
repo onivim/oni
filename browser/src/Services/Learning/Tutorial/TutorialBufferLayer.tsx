@@ -35,7 +35,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         return "Tutorial"
     }
 
-    constructor(private _buffer: Oni.Buffer, private _tutorialStateManager: TutorialStateManager) {
+    constructor(private _tutorialStateManager: TutorialStateManager) {
         // TODO: Streamline dependences for NeovimEditor, so it's easier just to spin one up..
         this._editor = new NeovimEditor(
             getColorsInstance(),

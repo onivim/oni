@@ -179,20 +179,18 @@ export interface ITutorialMetadata {
 import { TutorialBufferLayer } from "./TutorialBufferLayer"
 
 export class TutorialManager {
-    constructor(private _editorManager: EditorManager) {
-        window.derp = () => this.startTutorial(null)
-    }
+    constructor(private _editorManager: EditorManager) {}
 
     public getTutorialInfo(): ITutorialMetadata[] {
         return []
     }
 
     public async startTutorial(id: string): Promise<void> {
-        const tutorial = this._getTutorialById(id)
+        // const tutorial = this._getTutorialById(id)
         const buf = await this._editorManager.activeEditor.openFile("Tutorial")
         const tutorialStateManager = new TutorialStateManager(this._editorManager.activeEditor, buf)
         tutorialStateManager.start(new BasicMovementTutorial())
-        buf.addLayer(new TutorialBufferLayer(buf, tutorialStateManager))
+        buf.addLayer(new TutorialBufferLayer(tutorialStateManager))
     }
 
     private _getTutorialById(id: string): ITutorialMetadata {
