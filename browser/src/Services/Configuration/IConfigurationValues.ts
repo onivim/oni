@@ -30,6 +30,8 @@ export interface IConfigurationValues {
     "debug.detailedSessionLogging": boolean
     "debug.showTypingPrediction": boolean
 
+    "experimental.achievements.enabled": boolean
+
     "browser.defaultUrl": string
 
     // Simulate slow language server, for debugging
