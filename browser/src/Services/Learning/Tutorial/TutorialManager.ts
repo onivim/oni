@@ -193,7 +193,7 @@ export class TutorialManager {
         buf.addLayer(new TutorialBufferLayer(tutorialStateManager))
     }
 
-    private _getTutorialById(id: string): ITutorialMetadata {
-        return null
-    }
+    // private _getTutorialById(id: string): ITutorialMetadata {
+    //     return null
+    // }
 }
