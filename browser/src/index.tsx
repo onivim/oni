@@ -276,9 +276,6 @@ const start = async (args: string[]): Promise<void> => {
     const Terminal = await terminalPromise
     Terminal.activate(commandManager, configuration, editorManager)
 
-    const Achievements = await import("./Services/Learning/Achievements")
-    Achievements.activate(configuration, overlayManager)
-
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()
