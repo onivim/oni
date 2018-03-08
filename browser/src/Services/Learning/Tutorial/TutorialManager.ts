@@ -64,8 +64,6 @@ export class BasicMovementTutorial implements ITutorial {
                 tickFunction: async (tutorialContext: ITutorialContext): Promise<boolean> => {
                     this._idx = this._idx || 0
                     this._idx++
-                    console.log(this._idx)
-
                     return false
                 },
                 render: (context: Oni.BufferLayerRenderContext) => {
@@ -182,7 +180,7 @@ import { TutorialBufferLayer } from "./TutorialBufferLayer"
 
 export class TutorialManager {
     constructor(private _editorManager: EditorManager) {
-        window["derp"] = () => this.startTutorial(null)
+        window.derp = () => this.startTutorial(null)
     }
 
     public getTutorialInfo(): ITutorialMetadata[] {
@@ -191,7 +189,6 @@ export class TutorialManager {
 
     public async startTutorial(id: string): Promise<void> {
         const tutorial = this._getTutorialById(id)
-        console.log(tutorial)
         const buf = await this._editorManager.activeEditor.openFile("Tutorial")
         const tutorialStateManager = new TutorialStateManager(this._editorManager.activeEditor, buf)
         tutorialStateManager.start(new BasicMovementTutorial())

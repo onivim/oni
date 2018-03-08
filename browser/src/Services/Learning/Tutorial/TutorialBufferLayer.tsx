@@ -10,6 +10,7 @@ import { ITutorialState, TutorialStateManager } from "./TutorialManager"
 
 import { NeovimEditor } from "./../../../Editor/NeovimEditor"
 
+import { getInstance as getPluginManagerInstance } from "./../../../Plugins/PluginManager"
 import { getInstance as getColorsInstance } from "./../../Colors"
 import { getInstance as getCompletionProvidersInstance } from "./../../Completion"
 import { configuration } from "./../../Configuration"
@@ -17,7 +18,6 @@ import { getInstance as getDiagnosticsInstance } from "./../../Diagnostics"
 import { getInstance as getLanguageManagerInstance } from "./../../Language"
 import { getInstance as getMenuManagerInstance } from "./../../Menu"
 import { getInstance as getOverlayInstance } from "./../../Overlay"
-import { getInstance as getPluginManagerInstance } from "./../../../Plugins/PluginManager"
 import { getInstance as getSnippetManagerInstance } from "./../../Snippets"
 import { getInstance as getTasksInstance } from "./../../Tasks"
 import { getThemeManagerInstance } from "./../../Themes"
@@ -36,8 +36,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
     }
 
     constructor(private _buffer: Oni.Buffer, private _tutorialStateManager: TutorialStateManager) {
-        console.log(this._buffer)
-
+        // TODO: Streamline dependences for NeovimEditor, so it's easier just to spin one up..
         this._editor = new NeovimEditor(
             getColorsInstance(),
             getCompletionProvidersInstance(),
@@ -85,8 +84,8 @@ const TutorialWrapper = withProps<{}>(styled.div)`
     position: relative;
     width: 100%;
     height: 100%;
-    background-color: ${p => p.theme["background"]};
-    color: ${p => p.theme["foreground"]};
+    background-color: ${p => p.theme.background};
+    color: ${p => p.theme.foreground};
 
     display: flex;
     flex-direction: column;
