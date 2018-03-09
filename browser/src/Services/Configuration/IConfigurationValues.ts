@@ -38,6 +38,8 @@ export interface IConfigurationValues {
     "debug.fakeLag.languageServer": number | null
     "debug.fakeLag.neovimInput": number | null
 
+    "debug.showNotificationOnError": boolean
+
     "editor.split.mode": string
 
     "configuration.editor": string

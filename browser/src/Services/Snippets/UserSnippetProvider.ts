@@ -30,7 +30,7 @@ const SnippetTemplate = [
     '         "}"',
     "       ],",
     '       "description": "For Loop"',
-    "   },",
+    "   }",
     "}",
 ]
 
