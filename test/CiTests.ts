@@ -33,6 +33,9 @@ const CiTests = [
     "Neovim.InvalidInitVimHandlingTest",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
+
+    "Snippets.BasicInsertTest",
+
     "WindowManager.ErrorBoundary",
     "Workspace.ConfigurationTest",
     // Regression Tests
