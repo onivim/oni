@@ -191,12 +191,21 @@ export class Tab extends React.Component<ITabPropsWithClick> {
     }
 }
 
-const getTabName = (name: string): string => {
+export const getTabName = (name: string, isDuplicate?: boolean): string => {
     if (!name) {
         return "[No Name]"
     }
 
-    return path.basename(name)
+    const filename = path.basename(name)
+    if (isDuplicate) {
+        const folderAndFile = name
+            .split(path.sep)
+            .slice(-2)
+            .join(path.sep)
+        return folderAndFile
+    }
+
+    return filename
 }
 
 import { createSelector } from "reselect"
@@ -234,6 +243,15 @@ export const shouldShowFileIcon = (state: State.IState): boolean => {
     return state.configuration["tabs.showFileIcon"]
 }
 
+export const checkTabBuffers = (buffersInTabs: number[], buffers: State.IBuffer[]): boolean => {
+    const tabBufs = buffers.filter(buf => buffersInTabs.find(tabBuf => tabBuf === buf.id))
+
+    return tabBufs.some(buf => buf.modified)
+}
+
+export const checkDuplicate = (current: string, names: string[]) =>
+    names.filter((name: string) => path.basename(name) === path.basename(current)).length > 1
+
 const getTabsFromBuffers = createSelector(
     [
         BufferSelectors.getBufferMetadata,
@@ -250,12 +268,14 @@ const getTabsFromBuffers = createSelector(
         showFileIcon: boolean,
     ) => {
         const bufferCount = allBuffers.length
-        const tabs = allBuffers.map((buf: any): ITabProps => {
+        const names = allBuffers.map((b: any) => b.file)
+        const tabs = allBuffers.map((buf: any, idx: number, buffers: any): ITabProps => {
+            const isDuplicate = checkDuplicate(buf.file, names)
             const isActive =
                 (activeBufferId !== null && buf.id === activeBufferId) || bufferCount === 1
             return {
                 id: buf.id,
-                name: getIdPrefix(buf.id, shouldShowId) + getTabName(buf.file),
+                name: getIdPrefix(buf.id, shouldShowId) + getTabName(buf.file, isDuplicate),
                 iconFileName: showFileIcon ? getTabName(buf.file) : "",
                 highlightColor: isActive ? color : "transparent",
                 isSelected: isActive,
@@ -268,15 +288,27 @@ const getTabsFromBuffers = createSelector(
 )
 
 const getTabsFromVimTabs = createSelector(
-    [getTabState, getHighlightColor, showTabId, shouldShowFileIcon],
-    (tabState: any, color: any, shouldShowId: boolean, showFileIcon: boolean) => {
-        return tabState.tabs.map((t: any, idx: number) => ({
+    [
+        getTabState,
+        getHighlightColor,
+        showTabId,
+        shouldShowFileIcon,
+        BufferSelectors.getBufferMetadata,
+    ],
+    (
+        tabState: State.ITabState,
+        color: any,
+        shouldShowId: boolean,
+        showFileIcon: boolean,
+        allBuffers: State.IBuffer[],
+    ) => {
+        return tabState.tabs.map((t: State.ITab, idx: number) => ({
             id: t.id,
             name: getIdPrefix((idx + 1).toString(), shouldShowId) + getTabName(t.name),
             highlightColor: t.id === tabState.selectedTabId ? color : "transparent",
             iconFileName: showFileIcon ? getTabName(t.name) : "",
             isSelected: t.id === tabState.selectedTabId,
-            isDirty: false,
+            isDirty: checkTabBuffers(t.buffersInTab, allBuffers),
             description: t.name,
         }))
     },

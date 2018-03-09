@@ -3,9 +3,8 @@ dist: trusty
 language: node_js
 
 cache:
-    yarn: true
-    directories:
-        - node_modules
+  directories:
+  - .oni_build_cache
 matrix:
   include:
   - os: linux
@@ -28,6 +27,7 @@ install:
 - npm install -g yarn
 - yarn install
 script:
+- npm run check-cached-binaries
 - ./build/script/travis-build.sh
 deploy:
     - provider: s3

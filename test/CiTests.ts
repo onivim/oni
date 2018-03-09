@@ -17,21 +17,35 @@ const CiTests = [
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
+
+    "Configuration.JavaScriptEditorTest",
+    "Configuration.TypeScriptEditor.NewConfigurationTest",
+    "Configuration.TypeScriptEditor.CompletionTest",
+
     "Editor.ExternalCommandLineTest",
-    "LargeFileTest",
+    "Editor.BufferModifiedState",
+    "Editor.OpenFile.PathWithSpacesTest",
+    "Editor.TabModifiedState",
     "MarkdownPreviewTest",
     "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
+    "Neovim.InvalidInitVimHandlingTest",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
+
+    "Snippets.BasicInsertTest",
+
     "WindowManager.ErrorBoundary",
     "Workspace.ConfigurationTest",
-
     // Regression Tests
     "Regression.1251.NoAdditionalProcessesOnStartup",
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
+    "TextmateHighlighting.ScopesOnEnterTest",
+
+    // This test occasionally hangs and breaks tests after - trying to move it later...
+    "LargeFileTest",
 ]
 
 const WindowsOnlyTests = [

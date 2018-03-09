@@ -131,7 +131,7 @@ augroup OniEventListeners
     autocmd! BufWritePost * :call OniNotifyEvent("BufWritePost")
     autocmd! BufEnter * :call OniNotifyWithBuffers("BufEnter")
     autocmd! BufRead * :call OniNotifyWithBuffers("BufRead")
-    autocmd! BufWinEnter * :call OniNotifyEvent("BufWinEnter")
+    autocmd! BufWinEnter * :call OniNotifyWithBuffers("BufWinEnter")
     autocmd! ColorScheme * :call OniNotifyEvent("ColorScheme")
     autocmd! FileType * :call OniNotifyEvent("FileType")
     autocmd! WinEnter * :call OniNotifyEvent("WinEnter")
@@ -149,6 +149,7 @@ augroup END
 
 augroup OniNotifyBufferUpdates
     autocmd!
+    autocmd! BufEnter * :call OniNotifyBufferUpdate()
     autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
     autocmd! CursorMoved * :call OniNotifyBufferUpdate()
     autocmd! InsertLeave * :call OniNotifyBufferUpdate()
@@ -242,3 +243,8 @@ nnoremap <silent> <C-w><C-h> :<C-u>call OniNextWindow('h')<CR>
 nnoremap <silent> <C-w><C-j> :<C-u>call OniNextWindow('j')<CR>
 nnoremap <silent> <C-w><C-k> :<C-u>call OniNextWindow('k')<CR>
 nnoremap <silent> <C-w><C-l> :<C-u>call OniNextWindow('l')<CR>
+
+nnoremap <silent> <C-w><s> :<C-u>call OniCommand('editor.split.horizontal')<CR>)
+nnoremap <silent> <C-w><C-s> :<C-u>call OniCommand('editor.split.horizontal')<CR>)
+nnoremap <silent> <C-w><v> :<C-u>call OniCommand('editor.split.vertical')<CR>)
+nnoremap <silent> <C-w><C-v> :<C-u>call OniCommand('editor.split.vertical')<CR>)

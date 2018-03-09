@@ -6,6 +6,7 @@ import * as assert from "assert"
 import * as types from "vscode-languageserver-types"
 
 import * as Completion from "./../../../src/Services/Completion"
+import * as SyntaxHighlighting from "./../../../src/Services/SyntaxHighlighting"
 
 import * as Mocks from "./../../Mocks"
 import * as TestHelpers from "./../../TestHelpers"
@@ -27,12 +28,14 @@ export class MockCompletionRequestor implements Completion.ICompletionsRequestor
     }
 
     public getCompletions(
-        fileLanguage: string,
-        filePath: string,
-        line: number,
-        column: number,
+        context: Completion.CompletionsRequestContext,
     ): Promise<types.CompletionItem[]> {
-        return this._completionsRequestor.get(fileLanguage, filePath, line, column)
+        return this._completionsRequestor.get(
+            context.language,
+            context.filePath,
+            context.line,
+            context.column,
+        )
     }
 
     public getCompletionDetails(
@@ -75,6 +78,8 @@ describe("Completion", () => {
             mockConfiguration as any,
             mockCompletionRequestor,
             mockLanguageManager as any,
+            null /* snippet manager */,
+            new SyntaxHighlighting.NullSyntaxHighlighter(),
         )
     })
 

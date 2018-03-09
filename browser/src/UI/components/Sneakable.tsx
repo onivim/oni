@@ -11,8 +11,10 @@ import { IDisposable } from "oni-types"
 
 import { /* SneakProvider, Sneak,*/ getInstance as getSneak } from "./../../Services/Sneak"
 
+import { EmptyArray } from "./../../Utility"
+
 export interface ISneakableProps {
-    callback?: () => void
+    callback?: (evt?: any) => void
 }
 
 export class Sneakable extends React.PureComponent<ISneakableProps, {}> {
@@ -22,7 +24,7 @@ export class Sneakable extends React.PureComponent<ISneakableProps, {}> {
     public componentDidMount() {
         this._cleanupSubscription()
 
-        this._subscription = getSneak().addSneakProvider(() => {
+        this._subscription = getSneak().addSneakProvider(async () => {
             if (this._element) {
                 const rect = this._element.getBoundingClientRect()
 
@@ -40,7 +42,7 @@ export class Sneakable extends React.PureComponent<ISneakableProps, {}> {
                     },
                 ]
             } else {
-                return null
+                return EmptyArray
             }
         })
     }

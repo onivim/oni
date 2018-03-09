@@ -12,10 +12,10 @@ import { Colors } from "./Services/Colors"
 import { CompletionProviders } from "./Services/Completion"
 import { Configuration } from "./Services/Configuration"
 import { IDiagnosticsDataSource } from "./Services/Diagnostics"
-import { editorManager } from "./Services/EditorManager"
 import { LanguageManager } from "./Services/Language"
 import { MenuManager } from "./Services/Menu"
 import { OverlayManager } from "./Services/Overlay"
+import { SnippetManager } from "./Services/Snippets"
 import { Tasks } from "./Services/Tasks"
 import { ThemeManager } from "./Services/Themes"
 import { TokenColors } from "./Services/TokenColors"
@@ -32,6 +32,7 @@ export const startEditors = async (
     menuManager: MenuManager,
     overlayManager: OverlayManager,
     pluginManager: PluginManager,
+    snippetManager: SnippetManager,
     tasks: Tasks,
     themeManager: ThemeManager,
     tokenColors: TokenColors,
@@ -46,12 +47,12 @@ export const startEditors = async (
         menuManager,
         overlayManager,
         pluginManager,
+        snippetManager,
         tasks,
         themeManager,
         tokenColors,
         workspace,
     )
-    editorManager.setActiveEditor(editor)
     windowManager.createSplit("horizontal", editor)
 
     await editor.init(args)

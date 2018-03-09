@@ -1,0 +1,13 @@
+/**
+ * ${TM_FILENAME_BASE}.ts
+ */
+
+import * as assert from "assert"
+
+describe("${TM_FILENAME_BASE}", () => {
+    it("${1:tests}", async () => {
+        ${2:assert.ok(false, "fail")}
+        ${0}
+    })
+})
+

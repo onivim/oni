@@ -24,7 +24,7 @@ import { LanguageClientLogger } from "./../../Plugins/Api/LanguageClient/Languag
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import * as Process from "./../../Plugins/Api/Process"
+import Process from "./../../Plugins/Api/Process"
 
 import { IServerCapabilities } from "./ServerCapabilities"
 
@@ -182,7 +182,7 @@ export class LanguageClientProcess {
                     completion: {
                         dynamicRegistration: false,
                         completionItem: {
-                            snippetSupport: false,
+                            snippetSupport: true,
                             commitCharactersSupport: true,
                             documentationFormat: SupportedMarkup,
                         },

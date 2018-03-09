@@ -4,6 +4,7 @@
 
 import * as Oni from "oni-api"
 
+import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 
@@ -21,8 +22,17 @@ export const getElementByClassName = (className: string) => {
     }
 }
 
-export const createNewFile = async (fileExtension: string, oni: Oni.Plugin.Api): Promise<void> => {
+export const createNewFile = async (
+    fileExtension: string,
+    oni: Oni.Plugin.Api,
+    contents?: string,
+): Promise<void> => {
     const tempFilePath = getTemporaryFilePath(fileExtension)
+
+    if (contents) {
+        fs.writeFileSync(tempFilePath, contents)
+    }
+
     await navigateToFile(tempFilePath, oni)
 }
 
@@ -47,4 +57,11 @@ export const navigateToFile = async (filePath: string, oni: Oni.Plugin.Api): Pro
         () => oni.editors.activeEditor.activeBuffer.filePath === filePath,
         10000,
     )
+}
+
+export const waitForCommand = async (command: string, oni: Oni.Plugin.Api): Promise<void> => {
+    return oni.automation.waitFor(() => {
+        const anyCommands = oni.commands as any
+        return anyCommands.hasCommand(command)
+    }, 10000)
 }

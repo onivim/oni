@@ -2,8 +2,9 @@
 
 ### Modern Modal Editing
 
-[![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)[![Coverage Status](https://img.shields.io/coveralls/onivim/oni/master.svg)](https://coveralls.io/github/onivim/oni?branch=master)
-[![Join the chat at https://gitter.im/onivim/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
+[![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)[![codecov](https://codecov.io/gh/onivim/oni/branch/master/graph/badge.svg)](https://codecov.io/gh/onivim/oni)
+[![Join the chat on discord!](https://img.shields.io/discord/417774914645262338.svg)](https://discord.gg/7maEAxV)
+[![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 [![Total Downloads](https://img.shields.io/github/downloads/onivim/oni/total.svg)](https://github.com/onivim/oni/releases)
 
 <h2 align="center">Supporting Oni</h2>
@@ -52,7 +53,7 @@ Oni is a new kind of editor, focused on maximizing productivity - combining _mod
 The vision of Oni is to build an editor that allows you to go from _thought to code_ as easily as possible - bringing together the raw editing power of Vim, the feature capabilities of Atom/VSCode, and a powerful and intuitive extensibility model - wrapped up in a beautiful package.
 
 <p align="center">
-    <img src="https://s3-us-west-2.amazonaws.com/oni-media/screenshot-darwin.png"/>
+    <img src="https://user-images.githubusercontent.com/13532591/36127305-9c7b6b80-1011-11e8-85dd-0345788c0b56.png"/>
 </p>
 
 This repository is under **active development**, and until 1.0 please consider everything unstable.
@@ -113,7 +114,7 @@ There many ways to get involved & contribute to Oni:
 * Support Oni financially by making a donation via [OpenCollective](https://opencollective.com/oni) or [Bountysource](https://salt.bountysource.com/teams/oni)
 * Thumbs up existing [issues](https://github.com/onivim/oni/issues) if they impact you.
 * [Create an issue](https://github.com/onivim/oni/issues) for bugs or new features.
-* Review and upate our [documentation](https://github.com/onivim/oni/wiki).
+* Review and update our [documentation](https://github.com/onivim/oni/wiki).
 * Try out the latest [released build](https://github.com/onivim/oni/releases).
 * Help us [develop](https://github.com/onivim/oni/wiki/Development):
     * Review [PRs](https://github.com/onivim/oni/pulls)

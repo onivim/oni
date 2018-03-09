@@ -8,6 +8,7 @@
  * to the active editor, and managing transitions between editors.
  */
 
+export * from "./layoutFromSplitInfo"
 export * from "./LinearSplitProvider"
 export * from "./RelationalSplitNavigator"
 export * from "./SingleSplitProvider"

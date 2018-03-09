@@ -34,19 +34,23 @@ const BaseConfiguration: IConfigurationValues = {
 
     "autoUpdate.enabled": false,
 
+    "browser.defaultUrl": "https://duckduckgo.com",
+    "configuration.editor": "typescript",
+
     "debug.fixedSize": null,
     "debug.neovimPath": null,
     "debug.persistOnNeovimExit": false,
     "debug.detailedSessionLogging": false,
     "debug.showTypingPrediction": false,
+    "debug.showNotificationOnError": process.env.NODE_ENV !== "production",
 
     "debug.fakeLag.languageServer": null,
     "debug.fakeLag.neovimInput": null,
 
-    "experimental.editor.textMateHighlighting.enabled": false,
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
+    "experimental.learning.enabled": false,
     "experimental.welcome.enabled": false,
 
     "experimental.neovim.transport": "stdio",
@@ -54,6 +58,9 @@ const BaseConfiguration: IConfigurationValues = {
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
     "editor.maxLinesForLanguageServices": 2500,
+    "editor.textMateHighlighting.enabled": true,
+
+    "experimental.achievements.enabled": false,
 
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
@@ -100,6 +107,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickOpen.execCommand": null,
     "editor.quickOpen.filterStrategy": "fuse",
 
+    "editor.split.mode": "native",
+
     "editor.typingPrediction": true,
 
     "editor.scrollBar.visible": true,
@@ -116,6 +125,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.cursorColumnOpacity": 0.1,
 
     "editor.tokenColors": [],
+
+    "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
 
     "environment.additionalPaths": [],
 
@@ -217,9 +228,7 @@ const BaseConfiguration: IConfigurationValues = {
     "menu.rowHeight": 40,
     "menu.maxItemsToShow": 8,
 
-    // TEMPORARY - Since notifications came late in the cycle for this release,
-    // temporarily disabling it so that we have a bit more time to stabilize.
-    "notifications.enabled": process.env.NODE_ENV !== "production",
+    "notifications.enabled": true,
 
     "recorder.copyScreenshotToClipboard": false,
     "recorder.outputPath": os.tmpdir(),
@@ -229,6 +238,9 @@ const BaseConfiguration: IConfigurationValues = {
 
     "sidebar.marks.enabled": false,
     "sidebar.plugins.enabled": false,
+
+    "snippets.enabled": true,
+    "snippets.userSnippetFolder": null,
 
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
@@ -241,13 +253,15 @@ const BaseConfiguration: IConfigurationValues = {
         "oni.status.git": 3,
     },
 
-    "tabs.mode": "buffers",
+    "tabs.mode": "tabs",
     "tabs.height": "2.5em",
     "tabs.highlight": true,
     "tabs.maxWidth": "30em",
     "tabs.showFileIcon": true,
     "tabs.showIndex": false,
     "tabs.wrap": false,
+
+    "terminal.shellCommand": os.platform() === "win32" ? "cmd" : "bash",
 
     "ui.animations.enabled": true,
     "ui.colorscheme": "nord",
