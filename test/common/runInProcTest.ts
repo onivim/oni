@@ -46,7 +46,11 @@ const getConfigPath = (settings: any, rootPath: string) => {
     settings = settings || {}
 
     if (settings.configPath) {
-        return normalizePath(path.join(rootPath, settings.configPath))
+        if (!path.isAbsolute(settings.configPath)) {
+            return normalizePath(path.join(rootPath, settings.configPath))
+        } else {
+            return settings.configPath
+        }
     } else if (settings.config) {
         return normalizePath(serializeConfig(settings.config))
     } else {

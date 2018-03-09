@@ -182,7 +182,7 @@ export class LanguageClientProcess {
                     completion: {
                         dynamicRegistration: false,
                         completionItem: {
-                            snippetSupport: false,
+                            snippetSupport: true,
                             commitCharactersSupport: true,
                             documentationFormat: SupportedMarkup,
                         },

@@ -17,6 +17,11 @@ const CiTests = [
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
+
+    "Configuration.JavaScriptEditorTest",
+    "Configuration.TypeScriptEditor.NewConfigurationTest",
+    "Configuration.TypeScriptEditor.CompletionTest",
+
     "Editor.ExternalCommandLineTest",
     "Editor.BufferModifiedState",
     "Editor.OpenFile.PathWithSpacesTest",

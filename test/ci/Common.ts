@@ -58,3 +58,10 @@ export const navigateToFile = async (filePath: string, oni: Oni.Plugin.Api): Pro
         10000,
     )
 }
+
+export const waitForCommand = async (command: string, oni: Oni.Plugin.Api): Promise<void> => {
+    return oni.automation.waitFor(() => {
+        const anyCommands = oni.commands as any
+        return anyCommands.hasCommand(command)
+    }, 10000)
+}

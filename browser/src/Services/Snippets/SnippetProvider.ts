@@ -7,25 +7,29 @@
 import * as fs from "fs"
 import * as os from "os"
 
+import * as Oni from "oni-api"
+
 import { PluginManager } from "./../../Plugins/PluginManager"
+
+import { Configuration } from "./../Configuration"
 
 import * as Log from "./../../Log"
 import { flatMap } from "./../../Utility"
 
-import { ISnippet } from "./ISnippet"
+export class CompositeSnippetProvider implements Oni.Snippets.SnippetProvider {
+    private _providers: Oni.Snippets.SnippetProvider[] = []
 
-export interface ISnippetProvider {
-    getSnippets(language: string): Promise<ISnippet[]>
-}
+    constructor(private _configuration: Configuration) {}
 
-export class CompositeSnippetProvider implements ISnippetProvider {
-    private _providers: ISnippetProvider[] = []
-
-    public registerProvider(provider: ISnippetProvider): void {
+    public registerProvider(provider: Oni.Snippets.SnippetProvider): void {
         this._providers.push(provider)
     }
 
-    public async getSnippets(language: string): Promise<ISnippet[]> {
+    public async getSnippets(language: string): Promise<Oni.Snippets.Snippet[]> {
+        if (!this._configuration.getValue("snippets.enabled")) {
+            return []
+        }
+
         const snippets = this._providers.map(p => p.getSnippets(language))
 
         const allSnippets = await Promise.all(snippets)
@@ -42,12 +46,12 @@ export interface ISnippetPluginContribution {
     description: string
 }
 
-export class PluginSnippetProvider implements ISnippetProvider {
-    private _snippetCache: { [language: string]: ISnippet[] } = {}
+export class PluginSnippetProvider implements Oni.Snippets.SnippetProvider {
+    private _snippetCache: { [language: string]: Oni.Snippets.Snippet[] } = {}
 
     constructor(private _pluginManager: PluginManager) {}
 
-    public async getSnippets(language: string): Promise<ISnippet[]> {
+    public async getSnippets(language: string): Promise<Oni.Snippets.Snippet[]> {
         // If we have existing snippets, we'll use those...
         const currentSnippets = this._snippetCache[language]
         if (currentSnippets) {
@@ -67,7 +71,7 @@ export class PluginSnippetProvider implements ISnippetProvider {
         const snippetLoadPromises = snippets.map(s => this._loadSnippetsFromFile(s.path))
         const loadedSnippets = await Promise.all(snippetLoadPromises)
         const flattenedSnippets = loadedSnippets.reduce(
-            (x: ISnippet[], y: ISnippet[]) => [...x, ...y],
+            (x: Oni.Snippets.Snippet[], y: Oni.Snippets.Snippet[]) => [...x, ...y],
             [],
         )
 
@@ -75,33 +79,39 @@ export class PluginSnippetProvider implements ISnippetProvider {
         return flattenedSnippets
     }
 
-    private async _loadSnippetsFromFile(snippetFilePath: string): Promise<ISnippet[]> {
-        const contents = await new Promise<string>((resolve, reject) => {
-            fs.readFile(snippetFilePath, "utf8", (err, data) => {
-                if (err) {
-                    reject(err)
-                    return
-                }
+    private async _loadSnippetsFromFile(snippetFilePath: string): Promise<Oni.Snippets.Snippet[]> {
+        return loadSnippetsFromFile(snippetFilePath)
+    }
+}
 
-                resolve(data)
-            })
+export const loadSnippetsFromFile = async (
+    snippetFilePath: string,
+): Promise<Oni.Snippets.Snippet[]> => {
+    const contents = await new Promise<string>((resolve, reject) => {
+        fs.readFile(snippetFilePath, "utf8", (err, data) => {
+            if (err) {
+                reject(err)
+                return
+            }
+
+            resolve(data)
         })
+    })
 
-        const snippets = Object.values(JSON.parse(contents)) as ISnippetPluginContribution[]
-        Log.verbose(
-            `[PluginSnippetProvider._loadSnippetsFromFile] - Loaded ${
-                snippets.length
-            } snippets from ${snippetFilePath}`,
-        )
+    const snippets = Object.values(JSON.parse(contents)) as ISnippetPluginContribution[]
+    Log.verbose(
+        `[loadSnippetsFromFile] - Loaded ${snippets.length} snippets from ${snippetFilePath}`,
+    )
 
-        const normalizedSnippets = snippets.map((snip: ISnippetPluginContribution): ISnippet => {
+    const normalizedSnippets = snippets.map(
+        (snip: ISnippetPluginContribution): Oni.Snippets.Snippet => {
             return {
                 prefix: snip.prefix,
                 description: snip.description,
                 body: snip.body.join(os.EOL),
             }
-        })
+        },
+    )
 
-        return normalizedSnippets
-    }
+    return normalizedSnippets
 }

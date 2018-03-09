@@ -78,6 +78,13 @@ export class Process implements Oni.Process {
     }
 
     /**
+     * Get the __dirname of currently executing file
+     */
+    public getDirname = () => {
+        return __dirname
+    }
+
+    /**
      * Wrapper around `child_process.exec` to run using electron as opposed to node
      */
     public spawnNodeScript = async (
