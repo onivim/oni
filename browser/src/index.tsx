@@ -153,7 +153,7 @@ const start = async (args: string[]): Promise<void> => {
         notification.show()
     })
 
-    UnhandledErrorMonitor.start(Notifications.getInstance())
+    UnhandledErrorMonitor.start(configuration, Notifications.getInstance())
 
     const Tasks = await taksPromise
     Tasks.activate(menuManager)
