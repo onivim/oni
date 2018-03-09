@@ -42,7 +42,6 @@ const activate = async Oni => {
         const { line, character } = await activeBuffer.getCursorPosition()
         const bufferString = arrayOfLines.join(os.EOL)
         if (lastBufferState === bufferString) {
-            console.log("Did not format")
             return
         }
 
