@@ -32,11 +32,19 @@ const activate = async Oni => {
         }
     }
 
+    // Track the buffer state if the buffer as a string is the same
+    // as the last state do no format because nothing has changed
+    let lastBufferState = null
+
     async function applyPrettier() {
         const { activeBuffer } = Oni.editors.activeEditor
         const arrayOfLines = await activeBuffer.getLines()
         const { line, character } = await activeBuffer.getCursorPosition()
         const bufferString = arrayOfLines.join(os.EOL)
+        if (lastBufferState === bufferString) {
+            console.log("Did not format")
+            return
+        }
 
         let prettierCode
 
@@ -65,6 +73,7 @@ const activate = async Oni => {
             await setTimeout(() => prettierItem.setContents(prettierElement), 3500)
 
             const formattedWithoutLastCR = prettierCode.formatted.replace(/\n$/, "")
+            lastBufferState = formattedWithoutLastCR
             await activeBuffer.setLines(
                 0,
                 arrayOfLines.length,
@@ -115,8 +124,8 @@ function createPrettierComponent(Oni, onClick) {
             size: Oni.ui.iconSize.Default,
         })
 
-    const iconContainer = type =>
-        React.createElement("div", { style: { padding: "0 6px 0 0" } }, prettierIcon(type))
+    const iconContainer = (type, color = "white") =>
+        React.createElement("div", { style: { padding: "0 6px 0 0", color } }, prettierIcon(type))
 
     const prettierElement = React.createElement(
         "div",
@@ -128,14 +137,14 @@ function createPrettierComponent(Oni, onClick) {
     const errorElement = React.createElement(
         "div",
         { style, className: "prettier" },
-        iconContainer("exclamation-triangle"),
+        iconContainer("exclamation-triangle", "yellow"),
         "Prettier",
     )
 
     const successElement = React.createElement(
         "div",
         { style, className: "prettier" },
-        iconContainer("check"),
+        iconContainer("check", "#5AB379"),
         "Prettier",
     )
 
