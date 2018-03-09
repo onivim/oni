@@ -159,6 +159,9 @@ export interface IConfigurationValues {
     // Allow overriding token colors for specific textmate scopes
     "editor.tokenColors": TokenColor[]
 
+    // Whether to enable auto-detecting and setting of indentation
+    "editor.detectIndentation": boolean
+
     // The number of spaces a tab is equal to.
     "editor.tabSize": number | null
 

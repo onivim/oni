@@ -45,6 +45,7 @@ import { DefinitionContainer } from "./containers/DefinitionContainer"
 import { ErrorsContainer } from "./containers/ErrorsContainer"
 
 import { NeovimEditor } from "./../NeovimEditor"
+import { IBuffer } from "./../BufferManager"
 
 import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 
@@ -193,6 +194,7 @@ export class OniEditor implements IEditor {
         file: string,
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
     ): Promise<Oni.Buffer> {
+        let ret: IBuffer = null
         const openMode = openOptions.openMode
         if (this._configuration.getValue("editor.split.mode") === "oni") {
             if (
@@ -202,11 +204,19 @@ export class OniEditor implements IEditor {
                 const splitDirection =
                     openMode === Oni.FileOpenMode.HorizontalSplit ? "horizontal" : "vertical"
                 const newEditor = await this._split(splitDirection)
-                return newEditor.openFile(file, { openMode: Oni.FileOpenMode.Edit })
+                ret = newEditor.openFile(file, { openMode: Oni.FileOpenMode.Edit }) as IBuffer
             }
         }
 
-        return this._neovimEditor.openFile(file, openOptions)
+        ret = this._neovimEditor.openFile(file, openOptions) as IBuffer
+
+        // TODO: Move this to a more general place - this codepath wouldn't be hit in all cases (like :e)
+        if (this._configuration.getValue("editor.detectIndentation")) {
+            const indentationSettings = await ret.detectIndentation()
+            if (indentationSettings && indentationSettings.type) {
+                // TODO: Set settings
+            }
+        }
     }
 
     public async newFile(filePath: string): Promise<Oni.Buffer> {
