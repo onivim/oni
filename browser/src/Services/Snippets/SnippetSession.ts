@@ -123,6 +123,14 @@ export class SnippetSession {
         )
         this._snippet = new OniSnippet(normalizedSnippet, new SnippetVariableResolver(this._buffer))
 
+        // If there are no placeholders, add an implicit one at the end
+        if (this._snippet.getPlaceholders().length === 0) {
+            this._snippet = new OniSnippet(
+                normalizedSnippet + "${0}",
+                new SnippetVariableResolver(this._buffer),
+            ) // tslint:disable-line
+        }
+
         const cursorPosition = await this._buffer.getCursorPosition()
         const [currentLine] = await this._buffer.getLines(
             cursorPosition.line,
@@ -263,6 +271,10 @@ export class SnippetSession {
     public async synchronizeUpdatedPlaceholders(): Promise<void> {
         // Get current cursor position
         const cursorPosition = await this._buffer.getCursorPosition()
+
+        if (!this._currentPlaceholder) {
+            return
+        }
 
         const bounds = this._getBoundsForPlaceholder()
 
