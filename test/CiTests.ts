@@ -71,7 +71,7 @@ describe("ci tests", function() {
         : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
 
     const testFailures: IFailedTest[] = []
-    CiTests.forEach(test => {
+    tests.forEach(test => {
         runInProcTest(path.join(__dirname, "ci"), test, 5000, testFailures)
     })
 
