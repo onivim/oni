@@ -41,16 +41,24 @@ export interface IIconInfo extends IIconDefinition {
     size: string
 }
 
-export interface IconDefinitions { [key: string]: IIconDefinition }
+export interface IconDefinitions {
+    [key: string]: IIconDefinition
+}
 
 // File extension -> icon definition key
-export interface FileDefinitions { [extension: string]: string }
+export interface FileDefinitions {
+    [extension: string]: string
+}
 
 // File name -> icon definition key
-export interface FileNames { [fileName: string]: string }
+export interface FileNames {
+    [fileName: string]: string
+}
 
 // Language id -> icon definition key
-export interface Language { [language: string]: string }
+export interface Language {
+    [language: string]: string
+}
 
 export interface IIconTheme {
     fonts: IIconFont[]
@@ -63,7 +71,6 @@ export interface IIconTheme {
 }
 
 export class Icons {
-
     private _activeIconTheme: IIconTheme = null
     private _onIconThemeChangedEvent: Event<void> = new Event<void>()
 
@@ -75,12 +82,9 @@ export class Icons {
         return this._onIconThemeChangedEvent
     }
 
-    constructor(
-        private _pluginManager: PluginManager,
-    ) { }
+    constructor(private _pluginManager: PluginManager) {}
 
     public getIconClassForFile(fileName: string, language?: string): string {
-
         if (!this._activeIconTheme) {
             return null
         }
@@ -103,7 +107,9 @@ export class Icons {
             if (extension && extension.length > 1) {
                 const extensionWithoutPeriod = extension.substring(1, extension.length)
 
-                const matchingExtension = this._activeIconTheme.fileExtensions[extensionWithoutPeriod]
+                const matchingExtension = this._activeIconTheme.fileExtensions[
+                    extensionWithoutPeriod
+                ]
                 if (matchingExtension) {
                     return classBase + matchingExtension
                 }
@@ -127,7 +133,6 @@ export class Icons {
     }
 
     public async applyIconTheme(themeName: string): Promise<void> {
-
         const iconThemeLoader = new PluginIconThemeLoader(this._pluginManager)
 
         const loadResults = await iconThemeLoader.loadIconTheme(themeName)
@@ -143,13 +148,15 @@ export class Icons {
 
         const fonts = this._activeIconTheme.fonts || []
 
-        fonts.forEach((font) => {
+        fonts.forEach(font => {
             if (!font.src || !font.src.length) {
                 return
             }
 
             const fontSrc = font.src[0]
-            const fontPath = Utility.normalizePath(path.join(path.dirname(loadResults.filePath), fontSrc.path))
+            const fontPath = Utility.normalizePath(
+                path.join(path.dirname(loadResults.filePath), fontSrc.path),
+            )
             const fontFormat = fontSrc.format
 
             styleWriter.writeFontFace(font.id, fontPath, fontFormat)
@@ -159,7 +166,11 @@ export class Icons {
         if (iconDefinitions) {
             Object.keys(iconDefinitions).forEach((definitionName: string) => {
                 const definitionContents = iconDefinitions[definitionName]
-                styleWriter.writeIcon(definitionName, definitionContents.fontColor, definitionContents.fontCharacter)
+                styleWriter.writeIcon(
+                    definitionName,
+                    definitionContents.fontColor,
+                    definitionContents.fontCharacter,
+                )
             })
         }
 

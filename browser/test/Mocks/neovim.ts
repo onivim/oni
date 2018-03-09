@@ -7,27 +7,15 @@
 
 import * as Neovim from "./../../src/neovim"
 
-export class MockNeovimInstance {
-
-    private _commands: string[] = []
-
-    public get commandsSentToNeovim(): string[] {
-        return this._commands
-    }
-
-    public async command(command: string): Promise<void> {
-        this._commands.push(command)
-    }
-}
+export * from "./neovim/MockNeovimInstance"
 
 export class MockScreen implements Neovim.IScreen {
-
     public backgroundColor: string
     public foregroundColor: string
     public cursorColumn: number = 0
     public cursorRow: number = 0
 
-    private _cells: { [row: number]: { [col: number]: Neovim.ICell }} = { }
+    private _cells: { [row: number]: { [col: number]: Neovim.ICell } } = {}
 
     public get currentBackgroundColor(): string {
         return null
@@ -78,7 +66,7 @@ export class MockScreen implements Neovim.IScreen {
     }
 
     public setCell(x: number, y: number, cell: Neovim.ICell): void {
-        const row = this._cells[y] || { }
+        const row = this._cells[y] || {}
 
         const updatedRow = {
             ...row,

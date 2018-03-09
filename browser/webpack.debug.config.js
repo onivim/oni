@@ -1,66 +1,26 @@
-var path = require("path");
-var webpack = require("webpack");
+const path = require("path")
 
-module.exports = {
-    entry: [
-        path.join(__dirname, "src/index.tsx")
-    ],
-    target: "electron-renderer",
-    externals: {
-        "vscode-jsonrpc": "require('vscode-jsonrpc')",
-        "vscode-textmate": "require('vscode-textmate')",
-        "vscode-languageserver-types": "require('vscode-languageserver-types')",
-        "keyboard-layout": "require('keyboard-layout')",
-        "gifshot": "require('gifshot')",
-        "msgpack-lite": "require('msgpack-lite')",
-        "react": "require('react')",
-        "react-dom": "require('react-dom')",
-        "styled-components": "require('styled-components')",
-    },
-    resolve: {
-        extensions: [".tsx", ".ts", ".js", ".less"]
-    },
-    devtool: "cheap-module-eval-source-map",
-    module: {
-        rules: [
-            {
-                test: /\.less$/,
-                use: [{
-                    loader: "style-loader" // creates style nodes from JS strings
-                }, {
-                    loader: "css-loader" // translates CSS into CommonJS
-                }, {
-                    loader: "less-loader" // compiles Less to CSS
-                }]
-            },
-            {
-                test: /\.css$/,
-                use: [
-                    'style-loader',
-                    'css-loader'
-                ],
-                exclude: /node_modules/
-            },
-            {
-                test: /\.tsx?$/,
-                use: 'ts-loader',
-                exclude: /node_modules/
-            }
-        ]
-    },
+const webpack = require("webpack")
+
+// Override 'development' settings
+const baseConfig = require("./webpack.development.config.js")
+
+const debugConfig = Object.assign({}, baseConfig, {
     plugins: [
         new webpack.DefinePlugin({
-            "process.env.NODE_ENV":'"development"'
+            "process.env.NODE_ENV": '"development"',
+        }),
+        new webpack.optimize.CommonsChunkPlugin({
+            async: true,
+            minChunks: 2,
         }),
     ],
     output: {
         path: path.join(__dirname, "..", "lib", "browser"),
-        publicPath: "http://localhost:8191/",
+        publicPath: "lib/browser/",
         filename: "bundle.js",
-        chunkFilename: "[name].bundle.js"
+        chunkFilename: "[name].bundle.js",
     },
-    node: {
-        process: false,
-        __dirname: false
-    }
-};
+})
+
+module.exports = debugConfig

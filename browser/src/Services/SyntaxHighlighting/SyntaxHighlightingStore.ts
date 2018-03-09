@@ -29,112 +29,196 @@ export interface ISyntaxHighlightLineInfo {
     line: string
     ruleStack: StackElement
     tokens: ISyntaxHighlightTokenInfo[]
-    dirty: boolean,
+    dirty: boolean
+
+    // The last version of the line that was 'tokenized'
+    version?: number
 }
 
-export interface SyntaxHighlightLines {[key: number]: ISyntaxHighlightLineInfo}
+export interface SyntaxHighlightLines {
+    [key: number]: ISyntaxHighlightLineInfo
+}
+
+// This tracks the last insert-mode line modified
+export interface InsertModeLineState {
+    version: number
+    lineNumber: number
+    info: ISyntaxHighlightLineInfo
+}
 
 export interface IBufferSyntaxHighlightState {
     bufferId: string
     language: string
     extension: string
+    version: number
 
     // This doesn't work quite right if we have a buffer open in a separate window...
     topVisibleLine: number
     bottomVisibleLine: number
 
-    // When in insert mode, we'll just syntax highlight that line
-    // Upon leaving insert mode, we'll refresh the whole view
-    activeInsertModeLine: number
+    insertModeLine: InsertModeLineState | null
 
     lines: SyntaxHighlightLines
 }
 
 export interface ISyntaxHighlightState {
-    isInsertMode: boolean
     bufferToHighlights: {
-        [bufferId: string]: IBufferSyntaxHighlightState,
+        [bufferId: string]: IBufferSyntaxHighlightState
     }
 }
 
 export const DefaultSyntaxHighlightState: ISyntaxHighlightState = {
-    isInsertMode: false,
     bufferToHighlights: {},
 }
 
-export type ISyntaxHighlightAction = {
-    type: "SYNTAX_UPDATE_BUFFER",
-    language: string,
-    extension: string,
-    bufferId: string,
-    lines: string[],
-} | {
-        type: "SYNTAX_UPDATE_BUFFER_LINE",
-        bufferId: string,
-        lineNumber: number,
-        line: string,
-    } | {
-        type: "SYNTAX_UPDATE_TOKENS_FOR_LINE",
-        bufferId: string,
-        lineNumber: number,
-        tokens: ISyntaxHighlightTokenInfo[],
-        ruleStack: StackElement,
-    } | {
-        type: "SYNTAX_UPDATE_BUFFER_VIEWPORT",
-        bufferId: string,
-        topVisibleLine: number,
-        bottomVisibleLine: number,
-    } | {
-        type: "START_INSERT_MODE",
-        bufferId: string,
-    } | {
-        type: "END_INSERT_MODE",
-        bufferId: string,
-    }
+export type ISyntaxHighlightAction =
+    | {
+          type: "SYNTAX_UPDATE_BUFFER"
+          language: string
+          extension: string
+          bufferId: string
+          lines: string[]
+          version: number
+      }
+    | {
+          type: "SYNTAX_UPDATE_BUFFER_LINE"
+          bufferId: string
+          lineNumber: number
+          line: string
+          version: number
+      }
+    | {
+          type: "SYNTAX_UPDATE_TOKENS_FOR_LINE"
+          bufferId: string
+          lineNumber: number
+          tokens: ISyntaxHighlightTokenInfo[]
+          ruleStack: StackElement
+          version: number
+      }
+    | {
+          type: "SYNTAX_UPDATE_TOKENS_FOR_LINE_INSERT_MODE"
+          bufferId: string
+          line: string
+          lineNumber: number
+          tokens: ISyntaxHighlightTokenInfo[]
+          ruleStack: StackElement
+          version: number
+      }
+    | {
+          type: "SYNTAX_UPDATE_BUFFER_VIEWPORT"
+          bufferId: string
+          topVisibleLine: number
+          bottomVisibleLine: number
+      }
 
 const grammarLoader = new GrammarLoader()
+
+// Middleware that handles insert-mode updates
+// For insert-mode updates, we'll resolve them immediately and apply them ephemerally
+const updateBufferLineMiddleware = (store: any) => (next: any) => (action: any) => {
+    const result: ISyntaxHighlightAction = next(action)
+
+    if (action.type === "SYNTAX_UPDATE_BUFFER_LINE") {
+        const state: ISyntaxHighlightState = store.getState()
+        const bufferId = action.bufferId
+
+        if (!state.bufferToHighlights[bufferId]) {
+            return result
+        }
+
+        const buffer = state.bufferToHighlights[bufferId]
+
+        const language = buffer.language
+        const extension = buffer.extension
+
+        if (!language || !extension) {
+            return result
+        }
+
+        if (buffer.version > action.version) {
+            return result
+        }
+
+        grammarLoader.getGrammarForLanguage(language, extension).then(grammar => {
+            if (!grammar) {
+                return
+            }
+
+            // We'll resolve the tokens for
+            const previousRuleStack =
+                action.lineNumber === 0 ? null : buffer.lines[action.lineNumber - 1].ruleStack
+            const tokenizeResult = grammar.tokenizeLine(action.line, previousRuleStack)
+
+            const tokens = tokenizeResult.tokens.map((t: any) => ({
+                range: types.Range.create(
+                    action.lineNumber,
+                    t.startIndex,
+                    action.lineNumber,
+                    t.endIndex,
+                ),
+                scopes: t.scopes,
+            }))
+
+            const updateInsertLineAction: ISyntaxHighlightAction = {
+                type: "SYNTAX_UPDATE_TOKENS_FOR_LINE_INSERT_MODE",
+                line: action.line,
+                lineNumber: action.lineNumber,
+                bufferId: buffer.bufferId,
+                version: action.version,
+                ruleStack: tokenizeResult.ruleStack,
+                tokens,
+            }
+
+            store.dispatch(updateInsertLineAction)
+        })
+    }
+
+    return result
+}
 
 const updateTokenMiddleware = (store: any) => (next: any) => (action: any) => {
     const result: ISyntaxHighlightAction = next(action)
 
-    if (action.type === "SYNTAX_UPDATE_BUFFER"
-        || action.type === "SYNTAX_UPDATE_BUFFER_LINE"
-        || action.type === "SYNTAX_UPDATE_BUFFER_VIEWPORT") {
+    if (action.type === "SYNTAX_UPDATE_BUFFER" || action.type === "SYNTAX_UPDATE_BUFFER_VIEWPORT") {
+        const state: ISyntaxHighlightState = store.getState()
+        const bufferId = action.bufferId
 
-            const state = store.getState()
-            const bufferId = action.bufferId
+        const language = state.bufferToHighlights[bufferId].language
+        const extension = state.bufferToHighlights[bufferId].extension
 
-            const language = state.bufferToHighlights[bufferId].language
-            const extension = state.bufferToHighlights[bufferId].extension
+        if (!language || !extension) {
+            return result
+        }
 
-            if (!language || !extension) {
-                return result
+        grammarLoader.getGrammarForLanguage(language, extension).then(grammar => {
+            if (!grammar) {
+                return
             }
 
-            grammarLoader.getGrammarForLanguage(language, extension)
-            .then((grammar) => {
+            const buffer = state.bufferToHighlights[bufferId]
 
-                if (!grammar) {
-                    return
-                }
+            if (
+                Object.keys(buffer.lines).length >=
+                configuration.getValue("editor.textMateHighlighting.maxLines")
+            ) {
+                Log.info(
+                    "[SyntaxHighlighting - fullBufferUpdateEpic]: Not applying syntax highlighting as the maxLines limit was exceeded",
+                )
+                return
+            }
 
-                const buffer = state.bufferToHighlights[bufferId]
+            const relevantRange = Selectors.getRelevantRange(state, bufferId)
 
-                if (Object.keys(buffer.lines).length >= configuration.getValue("experimental.editor.textMateHighlighting.maxLines")) {
-                    Log.info("[SyntaxHighlighting - fullBufferUpdateEpic]: Not applying syntax highlighting as the maxLines limit was exceeded")
-                    return
-                }
-
-                const relevantRange = Selectors.getRelevantRange(state, bufferId)
-
-                syntaxHighlightingJobs.startJob(new SyntaxHighlightingPeriodicJob(
+            syntaxHighlightingJobs.startJob(
+                new SyntaxHighlightingPeriodicJob(
                     store as any,
                     action.bufferId,
                     grammar,
                     relevantRange.top,
                     relevantRange.bottom,
-                ))
-            })
+                ),
+            )
+        })
     }
 
     return result
@@ -145,7 +229,7 @@ export const createSyntaxHighlightStore = (): Store<ISyntaxHighlightState> => {
         "SyntaxHighlighting",
         reducer,
         DefaultSyntaxHighlightState,
-        [updateTokenMiddleware],
+        [updateTokenMiddleware, updateBufferLineMiddleware],
     )
 
     return syntaxHighlightStore

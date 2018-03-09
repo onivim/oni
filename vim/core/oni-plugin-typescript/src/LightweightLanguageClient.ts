@@ -14,10 +14,7 @@ export type NotificationHandler = (notificationName: string, payload: any) => vo
 import { Event } from "oni-types"
 
 export class LanguageConnection {
-
-    constructor(private _client: LightweightLanguageClient) {
-
-    }
+    constructor(private _client: LightweightLanguageClient) {}
 
     public request(requestName: string, language: string, payload: any): Promise<any> {
         return this._client._getClientRequestHandler(requestName)({
@@ -30,7 +27,10 @@ export class LanguageConnection {
         this._client._notify(notificationName, language, payload)
     }
 
-    public subscribeToNotification(notificationName: string, notificationHandler: NotificationHandler): void {
+    public subscribeToNotification(
+        notificationName: string,
+        notificationHandler: NotificationHandler,
+    ): void {
         this._client._handleNotification(notificationName, notificationHandler)
     }
     public subscribeToRequest(requestName: string, handler: ServerRequestHandler): void {
@@ -39,16 +39,15 @@ export class LanguageConnection {
 }
 
 export class LightweightLanguageClient {
-
-    private _subscriptions: { [key: string]: Event<any> } = { }
+    private _subscriptions: { [key: string]: Event<any> } = {}
 
     // This is confusing because the requests are handled both ways...
     // This dictionary tracks handlers on the 'server' side
-    private _requestHandler: { [key: string]: ServerRequestHandler } = { }
+    private _requestHandler: { [key: string]: ServerRequestHandler } = {}
 
-    private _clientRequestHandler: { [key: string]: ClientRequestHandler } = { }
+    private _clientRequestHandler: { [key: string]: ClientRequestHandler } = {}
 
-    private _notificationHandler: { [key: string]: NotificationHandler } = { }
+    private _notificationHandler: { [key: string]: NotificationHandler } = {}
 
     public get connection(): LanguageConnection {
         return
@@ -83,8 +82,11 @@ export class LightweightLanguageClient {
         this._subscriptions[notificationName] = evt
     }
 
-    public async sendRequest<T>(fileName: string, requestName: string, protocolArguments: any): Promise<T> {
-
+    public async sendRequest<T>(
+        fileName: string,
+        requestName: string,
+        protocolArguments: any,
+    ): Promise<T> {
         const handler = this._requestHandler[requestName]
 
         const unwrappedValue = await this._unwrapThunk(protocolArguments)
@@ -96,8 +98,11 @@ export class LightweightLanguageClient {
         }
     }
 
-    public async sendNotification(fileName: string, notificationName: string, protocolArguments: any): Promise<void> {
-
+    public async sendNotification(
+        fileName: string,
+        notificationName: string,
+        protocolArguments: any,
+    ): Promise<void> {
         const notifier = this._notificationHandler[notificationName]
 
         const unwrappedValue = await this._unwrapThunk(protocolArguments)
@@ -119,7 +124,10 @@ export class LightweightLanguageClient {
         return this._clientRequestHandler[requestName]
     }
 
-    public _handleNotification(notificationName: string, notificationHandler: NotificationHandler): void {
+    public _handleNotification(
+        notificationName: string,
+        notificationHandler: NotificationHandler,
+    ): void {
         this._notificationHandler[notificationName] = notificationHandler
     }
 
@@ -127,7 +135,7 @@ export class LightweightLanguageClient {
         const notifierEvent = this._subscriptions[notificationName]
 
         if (notifierEvent) {
-            (notifierEvent as any).dispatch({
+            ;(notifierEvent as any).dispatch({
                 language, // TODO: Generalize for JS too
                 payload,
             })
@@ -135,14 +143,14 @@ export class LightweightLanguageClient {
     }
 
     private _unwrapThunk(valueOrThunk?: any): Promise<any> {
-        if (typeof(valueOrThunk) !== "function") {
+        if (typeof valueOrThunk !== "function") {
             return valueOrThunk
         } else {
             const val = valueOrThunk(this.serverCapabilities)
 
             if (!val) {
                 return Promise.resolve(val)
-            } else if (typeof(val.then) === "function") {
+            } else if (typeof val.then === "function") {
                 return val
             } else {
                 return Promise.resolve(val)

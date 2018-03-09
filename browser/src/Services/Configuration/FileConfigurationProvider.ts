@@ -42,7 +42,6 @@ export class FileConfigurationProvider implements IConfigurationProvider {
     }
 
     constructor(filePath: string) {
-
         this._configChangedObservable = new Subject<void>()
         this._configErrorObservable = new Subject<Error>()
 
@@ -69,8 +68,10 @@ export class FileConfigurationProvider implements IConfigurationProvider {
         // Unfortunately, this also means the 'change' event fires twice.
         // I could use watchFile() but that polls every 5 seconds.  Not ideal.
         fs.watch(this._containingFolder, (event, filename) => {
-            if ((event === "change" && filename === "config.js") ||
-                (event === "rename" && filename === "config.js")) {
+            if (
+                (event === "change" && filename === "config.js") ||
+                (event === "rename" && filename === "config.js")
+            ) {
                 // invalidate the Config currently stored in cache
                 delete global["require"].cache[global["require"].resolve(filePath)] // tslint:disable-line no-string-literal
                 this._getLatestConfig()
@@ -91,9 +92,14 @@ export class FileConfigurationProvider implements IConfigurationProvider {
     public activate(api: Oni.Plugin.Api): void {
         if (this._latestConfiguration && this._latestConfiguration.activate) {
             try {
-            this._latestConfiguration.activate(api)
+                this._latestConfiguration.activate(api)
             } catch (e) {
-                alert("[Config Error] Failed to activate " + this._configurationFilePath + ":\n" + (e as Error).message)
+                alert(
+                    "[Config Error] Failed to activate " +
+                        this._configurationFilePath +
+                        ":\n" +
+                        (e as Error).message,
+                )
             }
         }
     }
@@ -115,13 +121,18 @@ export class FileConfigurationProvider implements IConfigurationProvider {
     private _getLatestConfig(): void {
         this._lastError = null
 
-        let userRuntimeConfig: IConfigurationValues | null = null
+        let userRuntimeConfig: Partial<IConfigurationValues> | null = null
         let error: Error | null = null
         if (fs.existsSync(this._configurationFilePath)) {
             try {
-                userRuntimeConfig = global["require"](this._configurationFilePath) // tslint:disable-line no-string-literal
+                const loadedConfig = global["require"](this._configurationFilePath) // tslint:disable-line no-string-literal
+                userRuntimeConfig = promoteConfigurationToRootLevel(loadedConfig)
             } catch (e) {
-                e.message = "[Config Error] Failed to parse " + this._configurationFilePath + ":\n" + (e as Error).message
+                e.message =
+                    "[Config Error] Failed to parse " +
+                    this._configurationFilePath +
+                    ":\n" +
+                    (e as Error).message
                 error = e
 
                 this._lastError = e
@@ -130,7 +141,6 @@ export class FileConfigurationProvider implements IConfigurationProvider {
         }
 
         if (!error) {
-
             // If the configuration is null, but it had some value at some point,
             // we assume this is due to reading while the file write is still
             // in transition, and ignore it
@@ -151,4 +161,18 @@ export class FileConfigurationProvider implements IConfigurationProvider {
             }
         }
     }
+}
+
+export const promoteConfigurationToRootLevel = (
+    config: Partial<IConfigurationValues>,
+): Partial<IConfigurationValues> => {
+    if (config.configuration) {
+        const configurationValues = config.configuration
+        let mergedConfig = { ...config }
+        delete mergedConfig.configuration
+        mergedConfig = { ...mergedConfig, ...configurationValues }
+        return mergedConfig
+    }
+
+    return config
 }

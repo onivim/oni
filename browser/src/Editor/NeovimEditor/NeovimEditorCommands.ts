@@ -4,19 +4,22 @@
  * Contextual commands for NeovimEditor
  *
  */
+import * as os from "os"
 
+import { clipboard } from "electron"
 import * as Oni from "oni-api"
 
+import { NeovimInstance } from "./../../neovim"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 import { ContextMenuManager } from "./../../Services/ContextMenu"
-import { LanguageEditorIntegration } from "./../../Services/Language"
+import { findAllReferences, format, LanguageEditorIntegration } from "./../../Services/Language"
+import { replaceAll } from "./../../Utility"
 
 import { Definition } from "./Definition"
 import { Rename } from "./Rename"
 import { Symbols } from "./Symbols"
 
 export class NeovimEditorCommands {
-
     private _lastCommands: CallbackCommand[] = []
 
     constructor(
@@ -24,9 +27,10 @@ export class NeovimEditorCommands {
         private _contextMenuManager: ContextMenuManager,
         private _definition: Definition,
         private _languageEditorIntegration: LanguageEditorIntegration,
+        private _neovimInstance: NeovimInstance,
         private _rename: Rename,
         private _symbols: Symbols,
-    ) { }
+    ) {}
 
     public activate(): void {
         const isContextMenuOpen = () => this._contextMenuManager.isMenuOpen()
@@ -61,36 +65,116 @@ export class NeovimEditorCommands {
             this._contextMenuManager.previousMenuItem()
         })
 
-        const isRenameActive = () => this._rename.isRenameActive()
+        const pasteContents = async (neovimInstance: NeovimInstance) => {
+            const textToPaste = clipboard.readText()
+            const sanitizedText = replaceAll(textToPaste, { "<": "<lt>" })
+                .split(os.EOL)
+                .join("<cr>")
+
+            await neovimInstance.command("set paste")
+            await neovimInstance.input(sanitizedText)
+            await neovimInstance.command("set nopaste")
+        }
+
         const commands = [
-            new CallbackCommand("contextMenu.select", null, null, selectContextMenuItem, isContextMenuOpen),
-            new CallbackCommand("contextMenu.next", null, null, nextContextMenuItem, isContextMenuOpen),
-            new CallbackCommand("contextMenu.previous", null, null, previousContextMenuItem, isContextMenuOpen),
-            new CallbackCommand("contextMenu.close", null, null, closeContextMenu, isContextMenuOpen),
+            new CallbackCommand(
+                "contextMenu.select",
+                null,
+                null,
+                selectContextMenuItem,
+                isContextMenuOpen,
+            ),
+            new CallbackCommand(
+                "contextMenu.next",
+                null,
+                null,
+                nextContextMenuItem,
+                isContextMenuOpen,
+            ),
+            new CallbackCommand(
+                "contextMenu.previous",
+                null,
+                null,
+                previousContextMenuItem,
+                isContextMenuOpen,
+            ),
+            new CallbackCommand(
+                "contextMenu.close",
+                null,
+                null,
+                closeContextMenu,
+                isContextMenuOpen,
+            ),
+
+            new CallbackCommand(
+                "editor.clipboard.paste",
+                "Clipboard: Paste",
+                "Paste clipboard contents into active text",
+                () => pasteContents(this._neovimInstance),
+            ),
+            new CallbackCommand(
+                "editor.clipboard.yank",
+                "Clipboard: Yank",
+                "Yank contents to clipboard",
+                () => this._neovimInstance.input("y"),
+            ),
+            new CallbackCommand("oni.editor.findAllReferences", null, null, () =>
+                findAllReferences(),
+            ),
+            new CallbackCommand(
+                "language.findAllReferences",
+                "Find All References",
+                "Find all references using a language service",
+                () => findAllReferences(),
+            ),
+
+            new CallbackCommand("language.format", null, null, () => format()),
 
             // TODO: Deprecate
-            new CallbackCommand("oni.editor.gotoDefinition", null, null, () => this._definition.gotoDefinitionUnderCursor()),
-            new CallbackCommand("language.gotoDefinition", "Goto Definition", "Goto definition using a language service", () => this._definition.gotoDefinitionUnderCursor()),
-            new CallbackCommand("language.gotoDefinition.openVertical", null, null, () => this._definition.gotoDefinitionUnderCursor(1)),
-            new CallbackCommand("language.gotoDefinition.openHorizontal", null, null, () => this._definition.gotoDefinitionUnderCursor(2)),
+            new CallbackCommand("oni.editor.gotoDefinition", null, null, () =>
+                this._definition.gotoDefinitionUnderCursor(),
+            ),
+            new CallbackCommand(
+                "language.gotoDefinition",
+                "Goto Definition",
+                "Goto definition using a language service",
+                () => this._definition.gotoDefinitionUnderCursor(),
+            ),
+            new CallbackCommand("language.gotoDefinition.openVertical", null, null, () =>
+                this._definition.gotoDefinitionUnderCursor(1),
+            ),
+            new CallbackCommand("language.gotoDefinition.openHorizontal", null, null, () =>
+                this._definition.gotoDefinitionUnderCursor(2),
+            ),
 
-            new CallbackCommand("editor.rename", "Rename", "Rename an item", () => this._rename.startRename()),
-            new CallbackCommand("editor.rename.commit", null, null, () => this._rename.commitRename(), isRenameActive),
-            new CallbackCommand("editor.rename.cancel", null, null, () => this._rename.cancelRename(), isRenameActive),
+            new CallbackCommand("editor.rename", "Rename", "Rename an item", () =>
+                this._rename.startRename(),
+            ),
 
-            new CallbackCommand("editor.quickInfo.show", null, null, () => this._languageEditorIntegration.showHover()),
+            new CallbackCommand("editor.quickInfo.show", null, null, () =>
+                this._languageEditorIntegration.showHover(),
+            ),
 
-            new CallbackCommand("language.symbols.document", null, null, () => this._symbols.openDocumentSymbolsMenu()),
-            new CallbackCommand("language.symbols.workspace", null, null, () => this._symbols.openWorkspaceSymbolsMenu()),
-
+            new CallbackCommand("language.symbols.document", null, null, () =>
+                this._symbols.openDocumentSymbolsMenu(),
+            ),
+            new CallbackCommand("language.symbols.workspace", null, null, () =>
+                this._symbols.openWorkspaceSymbolsMenu(),
+            ),
+            new CallbackCommand(
+                "oni.config.openInitVim",
+                "Configuration: Edit Neovim Config",
+                "Edit configuration file ('init.vim') for Neovim",
+                () => this._neovimInstance.openInitVim(),
+            ),
         ]
 
         this._lastCommands = commands
-        commands.forEach((c) => this._commandManager.registerCommand(c))
+        commands.forEach(c => this._commandManager.registerCommand(c))
     }
 
     public deactivate(): void {
-        this._lastCommands.forEach((c) => this._commandManager.unregisterCommand(c.command))
+        this._lastCommands.forEach(c => this._commandManager.unregisterCommand(c.command))
         this._lastCommands = []
     }
 }

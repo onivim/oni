@@ -1,5 +1,5 @@
 /**
- * Test scripts for QuickOpen
+ * Test scripts for Auto Complete for a HTML file.
  */
 
 import * as assert from "assert"

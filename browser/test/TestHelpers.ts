@@ -11,6 +11,10 @@ export const runAllTimers = (): void => {
     global["clock"].runAll() // tslint:disable-line
 }
 
+export const tick = (timeInMilliseconds: number): void => {
+    global["clock"].tick(timeInMilliseconds) // tslint:disable-line
+}
+
 /**
  * Wait for pending promise calls - needed for any code paths that have an asynchronous timer or use `Promise.resolve`
  */
@@ -21,4 +25,11 @@ export const waitForPromiseResolution = async (): Promise<void> => {
 export const waitForAllAsyncOperations = async (): Promise<void> => {
     await waitForPromiseResolution()
     runAllTimers()
+}
+
+import * as os from "os"
+
+export const getRootDirectory = (): string => {
+    const top = os.platform() === "win32" ? "C:/" : "/top"
+    return top
 }

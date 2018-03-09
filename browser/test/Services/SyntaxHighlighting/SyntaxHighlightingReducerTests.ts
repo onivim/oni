@@ -3,11 +3,8 @@ import * as assert from "assert"
 import * as SyntaxHighlighting from "./../../../src/Services/SyntaxHighlighting"
 
 describe("SyntaxHighlightingReducer", () => {
-
     describe("linesReducer", () => {
-
         describe("SYNTAX_UPDATE_BUFFER", () => {
-
             it("sets buffer lines if they don't exist yet", () => {
                 const originalState: SyntaxHighlighting.SyntaxHighlightLines = {}
 
@@ -16,10 +13,8 @@ describe("SyntaxHighlightingReducer", () => {
                     extension: "ts",
                     language: "any",
                     bufferId: "1",
-                    lines: [
-                        "line1",
-                        "line2",
-                    ],
+                    lines: ["line1", "line2"],
+                    version: 1,
                 }
 
                 const newState = SyntaxHighlighting.linesReducer(originalState, updateBufferAction)
@@ -60,10 +55,8 @@ describe("SyntaxHighlightingReducer", () => {
                     extension: "ts",
                     language: "any",
                     bufferId: "1",
-                    lines: [
-                        "line1",
-                        "line2_update",
-                    ],
+                    lines: ["line1", "line2_update"],
+                    version: 1,
                 }
 
                 const newState = SyntaxHighlighting.linesReducer(originalState, updateBufferAction)

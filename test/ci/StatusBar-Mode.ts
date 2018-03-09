@@ -19,5 +19,8 @@ export const test = async (oni: Oni.Plugin.Api) => {
     const statusBarModeElement = getElementByClassName("mode")
     const textContent = statusBarModeElement.textContent
 
-    assert.ok(textContent.indexOf("normal") >= 0, "Verify 'normal' was present in the statusbar mode item")
+    assert.ok(
+        textContent.indexOf("normal") >= 0,
+        "Verify 'normal' was present in the statusbar mode item",
+    )
 }

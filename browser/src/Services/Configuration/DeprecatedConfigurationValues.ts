@@ -13,19 +13,24 @@ export interface IDeprecatedConfigurationInfo {
     documentationUrl: string
 }
 
-const deprecatedSettings: { [deprecatedConfigurationName: string]: IDeprecatedConfigurationInfo } = {
+const deprecatedSettings: {
+    [deprecatedConfigurationName: string]: IDeprecatedConfigurationInfo
+} = {
     "editor.completions.enabled": {
         replacementConfigurationName: "editor.completions.mode",
         documentationUrl: "https://github.com/onivim/oni/wiki/Configuration#editor",
     },
 }
 
-export const checkDeprecatedSettings = (config: {[key: string]: any}): void => {
-    Object.keys(config).forEach((configurationName) => {
+export const checkDeprecatedSettings = (config: { [key: string]: any }): void => {
+    Object.keys(config).forEach(configurationName => {
         if (deprecatedSettings[configurationName]) {
-
             const deprecationInfo = deprecatedSettings[configurationName]
-            Log.warn(`Configuration setting '${configurationName}' is deprecated and will be replaced with '${deprecationInfo.replacementConfigurationName}'. See more info at: ${deprecationInfo.documentationUrl}`)
+            Log.warn(
+                `Configuration setting '${configurationName}' is deprecated and will be replaced with '${
+                    deprecationInfo.replacementConfigurationName
+                }'. See more info at: ${deprecationInfo.documentationUrl}`,
+            )
         }
     })
 }

@@ -2,17 +2,20 @@
  * Configuration.ts
  */
 
+import { merge } from "lodash"
 import * as Oni from "oni-api"
-import { Event, IEvent } from "oni-types"
+import { Event, IDisposable, IEvent } from "oni-types"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
 import * as Log from "./../../Log"
 import * as Performance from "./../../Performance"
 import { diff } from "./../../Utility"
 
+import { IConfigurationEditor, JavaScriptConfigurationEditor } from "./ConfigurationEditor"
 import { DefaultConfiguration } from "./DefaultConfiguration"
 import { checkDeprecatedSettings } from "./DeprecatedConfigurationValues"
 import { FileConfigurationProvider } from "./FileConfigurationProvider"
 import { IConfigurationValues } from "./IConfigurationValues"
+import { PersistedConfiguration } from "./PersistentSettings"
 import * as UserConfiguration from "./UserConfiguration"
 
 export interface IConfigurationProvider {
@@ -26,17 +29,42 @@ export interface IConfigurationProvider {
     deactivate(): void
 }
 
-export interface GenericConfigurationValues { [configKey: string]: any }
+export interface GenericConfigurationValues {
+    [configKey: string]: any
+}
+
+interface ConfigurationProviderInfo {
+    disposables: IDisposable[]
+}
+
+/**
+ * Interface describing persistence layer for configuration
+ */
+export interface IPersistedConfiguration {
+    getPersistedValues(): GenericConfigurationValues
+    setPersistedValues(configurationValues: GenericConfigurationValues): void
+}
 
 export class Configuration implements Oni.Configuration {
     private _configurationProviders: IConfigurationProvider[] = []
-    private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<Partial<IConfigurationValues>>()
+    private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<
+        Partial<IConfigurationValues>
+    >()
     private _onConfigurationErrorEvent: Event<Error> = new Event<Error>()
 
     private _oniApi: Oni.Plugin.Api = null
-    private _config: GenericConfigurationValues = { }
+    private _config: GenericConfigurationValues = {}
 
-    private _setValues: { [configValue: string]: any } = { }
+    private _setValues: { [configValue: string]: any } = {}
+    private _fileToProvider: { [key: string]: IConfigurationProvider } = {}
+    private _configProviderInfo = new Map<IConfigurationProvider, ConfigurationProviderInfo>()
+
+    private _configurationEditors: { [key: string]: IConfigurationEditor } = {}
+
+    public get editor(): IConfigurationEditor {
+        const val = this.getValue("configuration.editor")
+        return this._configurationEditors[val] || new JavaScriptConfigurationEditor()
+    }
 
     public get onConfigurationError(): IEvent<Error> {
         return this._onConfigurationErrorEvent
@@ -48,6 +76,7 @@ export class Configuration implements Oni.Configuration {
 
     constructor(
         private _defaultConfiguration: GenericConfigurationValues = DefaultConfiguration,
+        private _persistedConfiguration: IPersistedConfiguration = new PersistedConfiguration(),
     ) {
         this._updateConfig()
     }
@@ -60,25 +89,59 @@ export class Configuration implements Oni.Configuration {
         Performance.mark("Config.load.end")
     }
 
+    public registerEditor(id: string, editor: IConfigurationEditor): void {
+        this._configurationEditors[id] = editor
+    }
+
     public addConfigurationFile(filePath: string): void {
-        this.addConfigurationProvider(new FileConfigurationProvider(filePath))
+        Log.info("[Configuration] Adding file: " + filePath)
+        const fp = new FileConfigurationProvider(filePath)
+        this.addConfigurationProvider(fp)
+        this._fileToProvider[filePath] = fp
+    }
+
+    public removeConfigurationFile(filePath: string): void {
+        Log.info("[Configuration] Removing file: " + filePath)
+        const configProvider = this._fileToProvider[filePath]
+
+        if (configProvider) {
+            this.removeConfigurationProvider(configProvider)
+            this._fileToProvider[filePath] = null
+        }
     }
 
     public getErrors(): Error[] {
-        return this._configurationProviders.map((cfp) => cfp.getLastError())
+        return this._configurationProviders.map(cfp => cfp.getLastError())
     }
 
     public addConfigurationProvider(configurationProvider: IConfigurationProvider): void {
         this._configurationProviders.push(configurationProvider)
 
-        configurationProvider.onConfigurationChanged.subscribe(() => {
+        const d1 = configurationProvider.onConfigurationChanged.subscribe(() => {
             Log.info("[Configuration] Got update.")
             this._updateConfig()
         })
 
-        configurationProvider.onConfigurationError.subscribe((error) => {
+        const d2 = configurationProvider.onConfigurationError.subscribe(error => {
             this._onConfigurationErrorEvent.dispatch(error)
         })
+
+        this._configProviderInfo.set(configurationProvider, {
+            disposables: [d1, d2],
+        })
+
+        this._updateConfig()
+    }
+
+    public removeConfigurationProvider(configurationProvider: IConfigurationProvider): void {
+        this._configurationProviders = this._configurationProviders.filter(
+            prov => prov !== configurationProvider,
+        )
+
+        const configurationInfo = this._configProviderInfo.get(configurationProvider)
+        configurationInfo.disposables.forEach(dispose => dispose.dispose())
+
+        this._configProviderInfo.delete(configurationProvider)
 
         this._updateConfig()
     }
@@ -87,13 +150,16 @@ export class Configuration implements Oni.Configuration {
         return !!this.getValue(configValue)
     }
 
-    public setValues(configValues: { [configValue: string]: any }): void {
-
+    public setValues(configValues: { [configValue: string]: any }, persist: boolean = false): void {
         this._setValues = configValues
 
         this._config = {
             ...this._config,
             ...configValues,
+        }
+
+        if (persist) {
+            this._persistedConfiguration.setPersistedValues(configValues)
         }
 
         this._onConfigurationChangedEvent.dispatch(configValues)
@@ -119,13 +185,15 @@ export class Configuration implements Oni.Configuration {
 
     private _updateConfig(): void {
         const previousConfig = this._config
+        // Need a deep merge here to recursively update the config
+        let currentConfig = merge(
+            this._defaultConfiguration,
+            this._persistedConfiguration.getPersistedValues(),
+            this._setValues,
+        )
 
-        let currentConfig = { ...this._defaultConfiguration, ...this._setValues }
-
-        this._configurationProviders.forEach((configProvider) => {
-
+        this._configurationProviders.forEach(configProvider => {
             const configurationValues = configProvider.getValues()
-
             currentConfig = { ...currentConfig, ...configurationValues }
         })
 
@@ -142,12 +210,16 @@ export class Configuration implements Oni.Configuration {
     private _activateIfOniObjectIsAvailable(): void {
         if (this._oniApi) {
             applyDefaultKeyBindings(this._oniApi, this)
-            this._configurationProviders.forEach((configurationProvider) => configurationProvider.activate(this._oniApi))
+            this._configurationProviders.forEach(configurationProvider =>
+                configurationProvider.activate(this._oniApi),
+            )
         }
     }
 
     private _deactivate(): void {
-        this._configurationProviders.forEach((configurationProvider) => configurationProvider.deactivate())
+        this._configurationProviders.forEach(configurationProvider =>
+            configurationProvider.deactivate(),
+        )
         if (this._config && this._config.deactivate) {
             this._config.deactivate()
         }
@@ -158,20 +230,22 @@ export class Configuration implements Oni.Configuration {
 
         const changedValues = diff(this._config, previousConfig)
 
-        const diffObject = changedValues.reduce((previous: Partial<IConfigurationValues>, current: string) => {
+        const diffObject = changedValues.reduce(
+            (previous: Partial<IConfigurationValues>, current: string) => {
+                const currentValue = this._config[current]
 
-            const currentValue = this._config[current]
+                // Skip functions, because those will always be different
+                if (currentValue && typeof currentValue === "function") {
+                    return previous
+                }
 
-            // Skip functions, because those will always be different
-            if (currentValue && typeof currentValue === "function") {
-                return previous
-            }
-
-            return {
-                ...previous,
-                [current]: this._config[current],
-            }
-        }, {})
+                return {
+                    ...previous,
+                    [current]: this._config[current],
+                }
+            },
+            {},
+        )
 
         this._onConfigurationChangedEvent.dispatch(diffObject)
     }

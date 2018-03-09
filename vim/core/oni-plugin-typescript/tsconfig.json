@@ -7,12 +7,6 @@
         "sourceMap": true,
         "target": "ES5"
     },
-    "include": [
-        "src/**/*.ts"
-    ],
-    "exclude": [
-        "node_modules",
-        "typings/browser.d.ts",
-        "typings/browser"
-    ]
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules", "typings/browser.d.ts", "typings/browser"]
 }

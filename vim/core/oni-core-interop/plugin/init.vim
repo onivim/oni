@@ -53,8 +53,13 @@ function OniNotifyEvent(eventName)
     call OniNotify(["event", a:eventName, context])
 endfunction
 
+
+function! s:filter_buffer(i)
+  return bufexists(a:i) && buflisted(a:i) && "quickfix" !=? getbufvar(a:i, "&buftype")
+endfunction
+
 function User_buffers() " help buffers are always unlisted, but quickfix buffers are not
-  return filter(range(1,bufnr('$')),'buflisted(v:val) && "quickfix" !=? getbufvar(v:val, "&buftype")')
+  return filter(range(1,bufnr('$')),'s:filter_buffer(v:val)')
 endfunction
 
 function OniGetAllBuffers()
@@ -126,11 +131,12 @@ augroup OniEventListeners
     autocmd! BufWritePost * :call OniNotifyEvent("BufWritePost")
     autocmd! BufEnter * :call OniNotifyWithBuffers("BufEnter")
     autocmd! BufRead * :call OniNotifyWithBuffers("BufRead")
-    autocmd! BufWinEnter * :call OniNotifyEvent("BufWinEnter")
+    autocmd! BufWinEnter * :call OniNotifyWithBuffers("BufWinEnter")
     autocmd! ColorScheme * :call OniNotifyEvent("ColorScheme")
     autocmd! FileType * :call OniNotifyEvent("FileType")
     autocmd! WinEnter * :call OniNotifyEvent("WinEnter")
     autocmd! BufDelete * :call OniNotifyWithBuffers("BufDelete")
+    autocmd! BufUnload * :call OniNotifyWithBuffers("BufUnload")
     autocmd! BufWipeout * :call OniNotifyWithBuffers("BufWipeout")
     autocmd! CursorMoved * :call OniNotifyEvent("CursorMoved")
     autocmd! CursorMovedI * :call OniNotifyEvent("CursorMovedI")
@@ -143,6 +149,7 @@ augroup END
 
 augroup OniNotifyBufferUpdates
     autocmd!
+    autocmd! BufEnter * :call OniNotifyBufferUpdate()
     autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
     autocmd! CursorMoved * :call OniNotifyBufferUpdate()
     autocmd! InsertLeave * :call OniNotifyBufferUpdate()
@@ -208,6 +215,25 @@ function! OniNextWindow( direction )
   endif
 endfunction
 
+function! OniSetMarkAndReport(mark)
+     execute 'normal! m' . a:mark
+    call OniCommand("_internal.notifyMarksChanged")
+endfunction
+
+let s:all_marks = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+function! OniListenForMarks()
+
+    let n = 0
+    let s:maxmarks = strlen(s:all_marks)
+    while n < s:maxmarks
+        let c = strpart(s:all_marks, n, 1)
+        execute "nnoremap <silent> m" . c . " :<C-u> call OniSetMarkAndReport('" . c . "')<CR>"
+        let n = n + 1
+    endwhile
+    call OniCommand("_internal.notifyMarksChanged")
+endfunction
+
 nnoremap <silent> gd :<C-u>call OniCommand("language.gotoDefinition")<CR>
 nnoremap <silent> <C-w>h :<C-u>call OniNextWindow('h')<CR>
 nnoremap <silent> <C-w>j :<C-u>call OniNextWindow('j')<CR>
@@ -217,3 +243,8 @@ nnoremap <silent> <C-w><C-h> :<C-u>call OniNextWindow('h')<CR>
 nnoremap <silent> <C-w><C-j> :<C-u>call OniNextWindow('j')<CR>
 nnoremap <silent> <C-w><C-k> :<C-u>call OniNextWindow('k')<CR>
 nnoremap <silent> <C-w><C-l> :<C-u>call OniNextWindow('l')<CR>
+
+nnoremap <silent> <C-w><s> :<C-u>call OniCommand('editor.split.horizontal')<CR>)
+nnoremap <silent> <C-w><C-s> :<C-u>call OniCommand('editor.split.horizontal')<CR>)
+nnoremap <silent> <C-w><v> :<C-u>call OniCommand('editor.split.vertical')<CR>)
+nnoremap <silent> <C-w><C-v> :<C-u>call OniCommand('editor.split.vertical')<CR>)

@@ -20,34 +20,34 @@ import * as Log from "./../../Log"
 export const SYNTAX_JOB_BUDGET = 10 // Budget in milliseconds - time to allow the job to run for
 
 export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
-
     constructor(
         private _store: Store<SyntaxHighlighting.ISyntaxHighlightState>,
         private _bufferId: string,
         private _grammar: IGrammar,
         private _topLine: number,
         private _bottomLine: number,
-    ) {
-    }
+    ) {}
 
     public execute(): boolean {
-
         const start = new Date().getTime()
 
         // If the window has changed, we should bail
         const currentWindow = Selectors.getRelevantRange(this._store.getState(), this._bufferId)
 
         if (currentWindow.top !== this._topLine || currentWindow.bottom !== this._bottomLine) {
-            Log.verbose("[SyntaxHighlightingPeriodicJob.execute] Completing without doing work, as window size has changed.")
+            Log.verbose(
+                "[SyntaxHighlightingPeriodicJob.execute] Completing without doing work, as window size has changed.",
+            )
             return true
         }
 
         while (true) {
-
             const current = new Date().getTime()
 
             if (current - start > SYNTAX_JOB_BUDGET) {
-                Log.verbose("[SyntaxHighlightingPeriodicJob.execute] Pending due to exceeding budget.")
+                Log.verbose(
+                    "[SyntaxHighlightingPeriodicJob.execute] Pending due to exceeding budget.",
+                )
                 return false
             }
 
@@ -66,12 +66,12 @@ export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
         }
     }
 
-    private _tokenizeFirstDirtyLine(state: SyntaxHighlighting.IBufferSyntaxHighlightState): boolean {
-
+    private _tokenizeFirstDirtyLine(
+        state: SyntaxHighlighting.IBufferSyntaxHighlightState,
+    ): boolean {
         let index = this._topLine
 
         while (index <= this._bottomLine) {
-
             const line = state.lines[index]
 
             if (!line) {
@@ -99,6 +99,7 @@ export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
                 lineNumber: index,
                 tokens,
                 ruleStack,
+                version: state.version,
             })
 
             return true

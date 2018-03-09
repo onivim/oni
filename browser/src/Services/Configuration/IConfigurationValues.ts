@@ -8,24 +8,19 @@
 
 import * as Oni from "oni-api"
 
-import { IHighlight } from "./../SyntaxHighlighting"
-
-export interface ITokenColorsSetting {
-    scope: string
-    settings: IHighlight | string
-}
+import { TokenColor } from "./../TokenColors"
 
 export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiased" | "none"
+export type DetectionSettings = "always" | "noworkspace" | "never"
 
 export interface IConfigurationValues {
-
-    "activate": (oni: Oni.Plugin.Api) => void
-    "deactivate": () => void
+    activate?: (oni: Oni.Plugin.Api) => void
+    deactivate?: () => void
 
     // Debug settings
     "debug.fixedSize": {
-        rows: number,
-        columns: number,
+        rows: number
+        columns: number
     } | null
 
     // Option to override neovim path. Used for testing new versions before bringing them in.
@@ -35,20 +30,32 @@ export interface IConfigurationValues {
     "debug.detailedSessionLogging": boolean
     "debug.showTypingPrediction": boolean
 
+    "experimental.achievements.enabled": boolean
+
+    "browser.defaultUrl": string
+
     // Simulate slow language server, for debugging
     "debug.fakeLag.languageServer": number | null
     "debug.fakeLag.neovimInput": number | null
 
-        // - textMateHighlighting
-    "experimental.editor.textMateHighlighting.enabled": boolean
+    "editor.split.mode": string
 
-    "experimental.sidebar.enabled": boolean
+    "configuration.editor": string
+
+    // - textMateHighlighting
+    "editor.textMateHighlighting.enabled": boolean
+
+    // Whether or not the learning pane is available
+    "experimental.learning.enabled": boolean
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
-    "experimental.commandline.mode": boolean,
-    "experimental.commandline.icons": boolean,
+    "wildmenu.mode": boolean
+    "commandline.mode": boolean
+    "commandline.icons": boolean
+
+    "experimental.welcome.enabled": boolean
 
     "autoClosingPairs.enabled": boolean
     "autoClosingPairs.default": any
@@ -100,6 +107,17 @@ export interface IConfigurationValues {
     // in paste from clipboard in insert mode.
     "editor.clipboard.enabled": boolean
 
+    // When true (default), and `editor.clipboard.enabled` is `true`,
+    // yanks will be sent to the clipboard.
+    "editor.clipboard.synchronizeYank": boolean
+
+    // When true (not default), and `editor.clipboard.enabled` is `true`,
+    // deletes will be sent to the clipboard.
+    "editor.clipboard.synchronizeDelete": boolean
+
+    // Whether the 'go-to definition' language feature is enabled
+    "editor.definition.enabled": boolean
+
     "editor.quickInfo.enabled": boolean
     // Delay (in ms) for showing QuickInfo, when the cursor is on a term
     "editor.quickInfo.delay": number
@@ -130,7 +148,7 @@ export interface IConfigurationValues {
 
     // Maximum supported file size (by lines)
     // to include language services/completion/syntax highlight/etc
-    "editor.maxLinesForLanguageServices": 2500,
+    "editor.maxLinesForLanguageServices": 2500
 
     // If true (default), the buffer scroll bar will be visible
     "editor.scrollBar.visible": boolean
@@ -139,7 +157,7 @@ export interface IConfigurationValues {
     "editor.scrollBar.cursorTick.visible": boolean
 
     // Allow overriding token colors for specific textmate scopes
-    "editor.tokenColors": ITokenColorsSetting[]
+    "editor.tokenColors": TokenColor[]
 
     // The number of spaces a tab is equal to.
     "editor.tabSize": number | null
@@ -152,6 +170,9 @@ export interface IConfigurationValues {
     // (and available in terminal integration, later)
     "environment.additionalPaths": string[]
 
+    // User configurable array of files for which
+    // the image layer opens
+    "editor.imageLayerExtensions": string[]
     // Command to list files for 'quick open'
     // For example, to use 'ag': ag --nocolor -l .
     //
@@ -186,6 +207,10 @@ export interface IConfigurationValues {
     // - if `'smart'`, is case sensitive if the query string
     //   contains uppercase characters
     "menu.caseSensitive": string | boolean
+    "menu.rowHeight": number
+    "menu.maxItemsToShow": number
+
+    "notifications.enabled": boolean
 
     // Output path to save screenshots and recordings
     "recorder.outputPath": string
@@ -195,18 +220,25 @@ export interface IConfigurationValues {
     // of saving to file
     "recorder.copyScreenshotToClipboard": boolean
 
+    "sidebar.enabled": boolean
     "sidebar.width": string
+
+    "sidebar.marks.enabled": boolean
+    "sidebar.plugins.enabled": boolean
+
+    "snippets.enabled": boolean
+    "snippets.userSnippetFolder": string
 
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
 
     "statusbar.priority": {
-        "oni.status.filetype": number,
-        "oni.status.workingDirectory": number,
-        "oni.status.git": number,
-        "oni.status.gitHubRepo": number,
-        "oni.status.linenumber": number,
-        "oni.status.mode": number,
+        "oni.status.filetype": number
+        "oni.status.workingDirectory": number
+        "oni.status.git": number
+        "oni.status.gitHubRepo": number
+        "oni.status.linenumber": number
+        "oni.status.mode": number
     }
 
     "tabs.mode": string
@@ -221,10 +253,19 @@ export interface IConfigurationValues {
     // Maximum width of a tab
     "tabs.maxWidth": string
 
+    // Whether or not to show the index alongside the tab
+    "tabs.showIndex": boolean
+
     // Whether or not tabs should wrap.
     // If `false`, a scrollbar will be shown.
     // If `true`, will wrap the tabs.
     "tabs.wrap": boolean
+
+    // Whether or not the file icon
+    // should be shown in the tab
+    "tabs.showFileIcon": boolean
+
+    "terminal.shellCommand": string
 
     "ui.animations.enabled": boolean
     "ui.iconTheme": string
@@ -232,6 +273,12 @@ export interface IConfigurationValues {
     "ui.fontFamily": string
     "ui.fontSize": string
     "ui.fontSmoothing": FontSmoothingOptions
+
+    // Path to the default workspace. The default workspace
+    // will be opened if no workspace is specified in configuration.
+    "workspace.defaultWorkspace": string
+    "workspace.autoDetectWorkspace": DetectionSettings
+    "workspace.autoDetectRootFiles": string[]
 
     // Handle other, non-predefined configuration keys
     [configurationKey: string]: any

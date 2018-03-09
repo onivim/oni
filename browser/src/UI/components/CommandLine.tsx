@@ -42,10 +42,6 @@ const Cursor = styled.span`
     height: 1.3em;
 `
 
-const IconContainer = styled.span`
-    margin-right: 0.5em;
-`
-
 const ArrowContainer = styled.span`
     font-size: 0.7em;
     margin-right: 0.6em;
@@ -113,12 +109,6 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
                         key={`${character}-arrow-right`}
                     />,
                 ]
-            case ":":
-                return (
-                    <IconContainer>
-                        <CommandLineIcon iconName="file-code-o" />
-                    </IconContainer>
-                )
             case "?":
                 return [
                     <CommandLineIcon iconName="search" key={`${character}-search`} />,
@@ -147,7 +137,7 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
         return (
             !waiting &&
             visible && (
-                <CommandLineBox>
+                <CommandLineBox className="command-line">
                     <CommandLineOutput innerRef={e => (this._inputElement = e)}>
                         {this.renderIconOrChar(firstchar)}
                         {this.props.prompt}

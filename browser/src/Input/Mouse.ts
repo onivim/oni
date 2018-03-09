@@ -5,12 +5,9 @@ import { IScreen } from "./../neovim"
 // TODO
 // Handle modifier keys
 export class Mouse extends EventEmitter {
-
     private _isDragging = false
 
-    constructor(
-        private _editorElement: HTMLDivElement,
-        private _screen: IScreen) {
+    constructor(private _editorElement: HTMLDivElement, private _screen: IScreen) {
         super()
 
         this._editorElement.addEventListener("mousedown", (evt: MouseEvent) => {
@@ -56,7 +53,6 @@ export class Mouse extends EventEmitter {
             }
 
             this._isDragging = false
-
         })
     }
 
