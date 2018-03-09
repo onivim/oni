@@ -40,6 +40,7 @@ const createContext = (language: string, filePath: string, line: number, column:
     filePath,
     line,
     column,
+    meetCharacter: "",
     textMateScopes: [] as string[],
 })
 
