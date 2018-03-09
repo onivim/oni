@@ -42,6 +42,7 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.persistOnNeovimExit": false,
     "debug.detailedSessionLogging": false,
     "debug.showTypingPrediction": false,
+    "debug.showNotificationOnError": process.env.NODE_ENV !== "production",
 
     "debug.fakeLag.languageServer": null,
     "debug.fakeLag.neovimInput": null,
