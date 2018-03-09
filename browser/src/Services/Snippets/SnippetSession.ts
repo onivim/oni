@@ -126,9 +126,10 @@ export class SnippetSession {
         // If there are no placeholders, add an implicit one at the end
         if (this._snippet.getPlaceholders().length === 0) {
             this._snippet = new OniSnippet(
+                // tslint:disable-next-line
                 normalizedSnippet + "${0}",
                 new SnippetVariableResolver(this._buffer),
-            ) // tslint:disable-line
+            )
         }
 
         const cursorPosition = await this._buffer.getCursorPosition()
