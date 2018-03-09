@@ -87,6 +87,7 @@ export class PluginSnippetProvider implements Oni.Snippets.SnippetProvider {
 export const loadSnippetsFromFile = async (
     snippetFilePath: string,
 ): Promise<Oni.Snippets.Snippet[]> => {
+    Log.verbose("[loadSnippetsFromFile] Trying to load snippets from: " + snippetFilePath)
     const contents = await new Promise<string>((resolve, reject) => {
         fs.readFile(snippetFilePath, "utf8", (err, data) => {
             if (err) {
@@ -98,7 +99,14 @@ export const loadSnippetsFromFile = async (
         })
     })
 
-    const snippets = Object.values(JSON.parse(contents)) as ISnippetPluginContribution[]
+    let snippets: ISnippetPluginContribution[] = []
+    try {
+        snippets = Object.values(JSON.parse(contents)) as ISnippetPluginContribution[]
+    } catch (ex) {
+        Log.error(ex)
+        snippets = []
+    }
+
     Log.verbose(
         `[loadSnippetsFromFile] - Loaded ${snippets.length} snippets from ${snippetFilePath}`,
     )
