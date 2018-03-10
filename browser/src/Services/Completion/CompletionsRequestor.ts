@@ -16,6 +16,7 @@ export interface CompletionsRequestContext {
     filePath: string
     line: number
     column: number
+    meetCharacter: string
     textMateScopes: string[]
 }
 

@@ -99,6 +99,7 @@ export class SyntaxHighlightingPeriodicJob implements IPeriodicJob {
                 lineNumber: index,
                 tokens,
                 ruleStack,
+                version: state.version,
             })
 
             return true

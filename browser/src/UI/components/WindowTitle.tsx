@@ -8,6 +8,7 @@ import * as React from "react"
 
 import { connect } from "react-redux"
 
+import { commandManager } from "./../../Services/CommandManager"
 import * as State from "./../Shell/ShellState"
 
 export interface IWindowTitleViewProps {
@@ -32,13 +33,18 @@ export class WindowTitleView extends React.PureComponent<IWindowTitleViewProps, 
             textAlign: "center",
             WebkitAppRegion: "drag",
             WebkitUserSelect: "none",
+            pointerEvents: "all",
         }
 
         return (
-            <div id={"oni-titlebar"} style={style}>
+            <div id={"oni-titlebar"} style={style} onDoubleClick={this.onDoubleClick}>
                 {this.props.title}
             </div>
         )
+    }
+
+    private onDoubleClick() {
+        commandManager.executeCommand("oni.editor.maximize")
     }
 }
 

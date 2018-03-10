@@ -303,7 +303,7 @@ const getTabsFromVimTabs = createSelector(
         allBuffers: State.IBuffer[],
     ) => {
         return tabState.tabs.map((t: State.ITab, idx: number) => ({
-            id: t.id,
+            id: idx + 1,
             name: getIdPrefix((idx + 1).toString(), shouldShowId) + getTabName(t.name),
             highlightColor: t.id === tabState.selectedTabId ? color : "transparent",
             iconFileName: showFileIcon ? getTabName(t.name) : "",

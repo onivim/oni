@@ -49,6 +49,7 @@ const start = async (args: string[]): Promise<void> => {
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
     const quickOpenPromise = import("./Services/QuickOpen")
     const taksPromise = import("./Services/Tasks")
+    const terminalPromise = import("./Services/Terminal")
     const workspacePromise = import("./Services/Workspace")
     const workspaceCommandsPromise = import("./Services/Workspace/WorkspaceCommands")
 
@@ -152,7 +153,7 @@ const start = async (args: string[]): Promise<void> => {
         notification.show()
     })
 
-    UnhandledErrorMonitor.start(Notifications.getInstance())
+    UnhandledErrorMonitor.start(configuration, Notifications.getInstance())
 
     const Tasks = await taksPromise
     Tasks.activate(menuManager)
@@ -215,7 +216,7 @@ const start = async (args: string[]): Promise<void> => {
 
     Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
-    Learning.activate(configuration, editorManager, Sidebar.getInstance())
+    Learning.activate(configuration, editorManager, overlayManager, Sidebar.getInstance())
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =
@@ -271,6 +272,9 @@ const start = async (args: string[]): Promise<void> => {
 
     const PluginsSidebarPane = await import("./Plugins/PluginSidebarPane")
     PluginsSidebarPane.activate(configuration, pluginManager, sidebarManager)
+
+    const Terminal = await terminalPromise
+    Terminal.activate(commandManager, configuration, editorManager)
 
     Performance.endMeasure("Oni.Start.Activate")
 

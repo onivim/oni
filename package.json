@@ -3,7 +3,7 @@
     "author": "",
     "email": "bryphe@outlook.com",
     "homepage": "https://www.onivim.io",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "description": "Code editor with a modern twist on modal editing - powered by neovim.",
     "keywords": [
         "vim",
@@ -34,9 +34,14 @@
             "!examples",
             "!lib_test",
             "!test",
+            "!node_modules/oni-api",
             "!node_modules/typescript"
         ],
         "extraResources": [
+            {
+                "from": "node_modules/oni-api",
+                "to": "app/node_modules/oni-api"
+            },
             {
                 "from": "node_modules/typescript",
                 "to": "app/node_modules/typescript"
@@ -204,7 +209,7 @@
         "minimist": "1.2.0",
         "msgpack-lite": "0.1.26",
         "ocaml-language-server": "^1.0.27",
-        "oni-api": "^0.0.37",
+        "oni-api": "^0.0.39",
         "oni-neovim-binaries": "0.1.0",
         "oni-ripgrep": "0.0.3",
         "oni-types": "0.0.4",
@@ -225,10 +230,6 @@
         "vscode-textmate": "3.2.0"
     },
     "devDependencies": {
-        "@types/marked": "^0.3.0",
-        "@types/react-dnd": "^2.0.34",
-        "@types/react-dnd-html5-backend": "^2.1.8",
-        "@types/redux-batched-subscribe": "^0.1.2",
         "@types/classnames": "0.0.32",
         "@types/color": "2.0.0",
         "@types/detect-indent": "^5.0.0",
@@ -245,6 +246,8 @@
         "@types/mocha": "2.2.33",
         "@types/msgpack-lite": "0.1.4",
         "@types/node": "8.0.53",
+        "@types/react-dnd": "^2.0.34",
+        "@types/react-dnd-html5-backend": "^2.1.8",
         "@types/react-dom": "16.0.3",
         "@types/react-motion": "0.0.23",
         "@types/react-redux": "5.0.12",
@@ -255,7 +258,7 @@
         "@types/sinon": "1.16.32",
         "autoprefixer": "6.4.0",
         "babili-webpack-plugin": "0.1.2",
-        "bs-platform": "1.8.0",
+        "bs-platform": "2.1.0",
         "classnames": "2.2.5",
         "codecov": "^3.0.0",
         "color": "2.0.0",
