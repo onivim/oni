@@ -22,6 +22,11 @@ export const getElementByClassName = (className: string) => {
     }
 }
 
+export const getElementsBySelector = (selector: string) => {
+    const elements = document.body.querySelectorAll(selector)
+    return elements || []
+}
+
 export const createNewFile = async (
     fileExtension: string,
     oni: Oni.Plugin.Api,

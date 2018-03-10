@@ -26,6 +26,7 @@ const CiTests = [
     "Editor.BufferModifiedState",
     "Editor.OpenFile.PathWithSpacesTest",
     "Editor.TabModifiedState",
+    "Editor.CloseTabWithTabModesTabsTest",
     "MarkdownPreviewTest",
     "PaintPerformanceTest",
     "QuickOpenTest",
