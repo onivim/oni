@@ -28,17 +28,6 @@ npm run pack
 echo Using neovim path: "$ONI_NEOVIM_PATH"
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-   echo Installing reason CLI tools...
-   npm install -g https://github.com/reasonml/reason-cli/archive/3.0.4-bin-darwin.tar.gz
-   echo Reason CLI tools installed successfully.
-
-   echo NVIM_DIR: $NVIM_DIR
-   echo NODE_VERSION: $NODE_VERSION
-
-   which ocamlmerlin
-   ocamlmerlin -version
-   PATH=$PATH:~/.nvm/versions/node/$NODE_VERSION/bin
-
    npm run demo:screenshot
 fi
 
