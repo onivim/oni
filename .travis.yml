@@ -31,6 +31,7 @@ install:
 - yarn install
 script:
 - npm run check-cached-binaries
+- ./build/script/osx-install-go.sh
 - ./build/script/travis-build.sh
 deploy:
     - provider: s3
