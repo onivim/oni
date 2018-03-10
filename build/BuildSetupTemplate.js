@@ -9,7 +9,6 @@ const _ = require("lodash")
 const shelljs = require("shelljs")
 
 const sourceFile = path.join(__dirname, "setup.template.iss")
-console.log(sourceFile)
 const destFile = path.join(__dirname, "..", "dist", "setup.iss")
 
 shelljs.rm(destFile)
