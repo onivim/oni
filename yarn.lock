@@ -1103,9 +1103,9 @@ browserslist@~1.3.5:
   dependencies:
     caniuse-db "^1.0.30000525"
 
-bs-platform@1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-1.8.0.tgz#d376f5fa2ebfe04451930633f0733f82ea39fbde"
+bs-platform@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-2.1.0.tgz#63560ff8f7142c9c0631559df1c35590b9f6d8b2"
 
 buffer-crc32@^0.2.1:
   version "0.2.13"

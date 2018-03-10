@@ -48,13 +48,9 @@ const CiTests = [
     "LargeFileTest",
 ]
 
-const WindowsOnlyTests = [
-    // For some reason, the `beginFrameSubscription` call doesn't seem to work on OSX,
-    // so we can't properly validate that case on that platform...
-    "PaintPerformanceTest",
-]
+const WindowsOnlyTests = []
 
-const OSXOnlyTests = ["OSX.WindowTitleTest"]
+const OSXOnlyTests = ["AutoCompletionTest-Reason", "OSX.WindowTitleTest"]
 
 // tslint:disable:no-console
 
@@ -78,7 +74,7 @@ describe("ci tests", function() {
         : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
 
     const testFailures: IFailedTest[] = []
-    CiTests.forEach(test => {
+    tests.forEach(test => {
         runInProcTest(path.join(__dirname, "ci"), test, 5000, testFailures)
     })
 
