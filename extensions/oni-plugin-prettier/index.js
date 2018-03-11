@@ -136,21 +136,21 @@ function createPrettierComponent(Oni, onClick) {
         "div",
         { className: "prettier", style, onClick },
         iconContainer(),
-        "Prettier",
+        "prettier",
     )
 
     const errorElement = React.createElement(
         "div",
         { style, className: "prettier" },
         iconContainer("exclamation-triangle", "yellow"),
-        "Prettier",
+        "prettier",
     )
 
     const successElement = React.createElement(
         "div",
         { style, className: "prettier" },
         iconContainer("check", "#5AB379"),
-        "Prettier",
+        "prettier",
     )
 
     return {
