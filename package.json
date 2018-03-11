@@ -135,6 +135,18 @@
                 "name": "CSS",
                 "role": "Editor",
                 "isPackage": true
+            },
+            {
+                "ext": "txt",
+                "name": "Text",
+                "role": "Editor",
+                "isPackage": true
+            },
+            {
+                "ext": "md",
+                "name": "Markdown",
+                "role": "Editor",
+                "isPackage": true
             }
         ]
     },
