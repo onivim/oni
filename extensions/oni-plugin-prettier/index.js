@@ -16,7 +16,6 @@ const activate = async Oni => {
     const { errorElement, successElement, prettierElement } = createPrettierComponent(Oni, callback)
 
     prettierItem.setContents(prettierElement)
-    prettierItem.show()
 
     Oni.commands.registerCommand({
         command: "autoformat.prettier",
@@ -86,15 +85,22 @@ const activate = async Oni => {
         }
     }
 
-    const defaultFiletypes = [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json", ".graphql"]
-    const allowedFiletypes = Array.isArray(config.allowedFiletypes)
-        ? config.allowedFiletypes
-        : defaultFiletypes
-
-    Oni.editors.activeEditor.onBufferSaved.subscribe(async buffer => {
+    const isCompatible = buffer => {
+        const defaultFiletypes = [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json", ".graphql"]
+        const allowedFiletypes = Array.isArray(config.allowedFiletypes)
+            ? config.allowedFiletypes
+            : defaultFiletypes
         const extension = path.extname(buffer.filePath)
         const isCompatible = allowedFiletypes.includes(extension)
-        if (config.formatOnSave && config.enabled && isCompatible) {
+        return isCompatible
+    }
+
+    Oni.editors.activeEditor.onBufferEnter.subscribe(buffer => {
+        return isCompatible(buffer) ? prettierItem.show() : prettierItem.hide()
+    })
+
+    Oni.editors.activeEditor.onBufferSaved.subscribe(async buffer => {
+        if (config.formatOnSave && config.enabled && isCompatible(buffer)) {
             await applyPrettier()
         }
     })
