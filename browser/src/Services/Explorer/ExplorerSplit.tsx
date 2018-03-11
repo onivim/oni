@@ -68,10 +68,24 @@ export class ExplorerSplit {
         }
     }
 
+    public yank(target: Node): void {
+        this._store.dispatch({ type: "YANK", target })
+    }
+
+    public paste(target: Node): void {
+        this._store.dispatch({ type: "PASTE", target })
+    }
+
     public enter(): void {
         this._store.dispatch({ type: "ENTER" })
         this._commandManager.registerCommand(
             new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
+        )
+        this._commandManager.registerCommand(
+            new CallbackCommand("explorer.move", null, null, () => {
+                const { yank, paste } = this._store.getState()
+                return this.moveFileOrFolder(yank.target, paste.target)
+            }),
         )
 
         this._onEnterEvent.dispatch()

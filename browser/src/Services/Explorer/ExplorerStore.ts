@@ -11,6 +11,7 @@ import { Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
 import { createStore as createReduxStore } from "./../../Redux"
+import { ExplorerNode } from "./ExplorerSelectors"
 
 import { FileSystem, IFileSystem } from "./ExplorerFileSystem"
 
@@ -49,6 +50,11 @@ export interface IFileSystem {
     delete(fullPath: string): Promise<void>
 }
 
+interface ITargetNode {
+    target: ExplorerNode
+    path: string
+}
+
 export interface IExplorerState {
     // Open workspace
     rootFolder: IFolderState
@@ -56,12 +62,16 @@ export interface IExplorerState {
     expandedFolders: ExpandedFolders
 
     hasFocus: boolean
+    yank: ITargetNode
+    paste: ITargetNode
 }
 
 export const DefaultExplorerState: IExplorerState = {
     rootFolder: null,
     expandedFolders: {},
     hasFocus: false,
+    yank: { path: "", target: null },
+    paste: { path: "", target: null },
 }
 
 export type ExplorerAction =
@@ -91,6 +101,16 @@ export type ExplorerAction =
     | {
           type: "REFRESH"
       }
+    | {
+          type: "YANK"
+          path: string
+          target: ExplorerNode
+      }
+    | {
+          type: "PASTE"
+          path: string
+          target: ExplorerNode
+      }
 
 export const rootFolderReducer: Reducer<IFolderState> = (
     state: IFolderState = DefaultFolderState,
@@ -104,6 +124,32 @@ export const rootFolderReducer: Reducer<IFolderState> = (
                 fullPath: action.rootPath,
             }
 
+        default:
+            return state
+    }
+}
+
+export const yankAndPasteReducer: Reducer<IExplorerState> = (
+    state: IExplorerState = DefaultExplorerState,
+    action: ExplorerAction,
+) => {
+    switch (action.type) {
+        case "YANK":
+            return {
+                ...state,
+                yank: {
+                    path: action.path,
+                    target: action.target,
+                },
+            }
+        case "PASTE":
+            return {
+                ...state,
+                paste: {
+                    path: action.path,
+                    target: action.target,
+                },
+            }
         default:
             return state
     }
@@ -151,6 +197,7 @@ export const reducer: Reducer<IExplorerState> = (
         hasFocus: hasFocusReducer(state.hasFocus, action),
         rootFolder: rootFolderReducer(state.rootFolder, action),
         expandedFolders: expandedFolderReducer(state.expandedFolders, action),
+        yankAndPaste: yankAndPasteReducer(state, action),
     }
 }
 
