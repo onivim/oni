@@ -32,6 +32,17 @@ describe("processSearchTerm", () => {
 
         assert.deepEqual(result, expectedResult)
     })
+    it("Correctly returns no matches.", async () => {
+        const testString = "zzz"
+        const testList = [
+            { label: "index.ts", detail: "browser/src/index.ts" },
+            { label: "index.ts", detail: "browser/test/index.ts" },
+        ]
+
+        const result = processSearchTerm(testString, testList, false)
+
+        assert.deepEqual(result, [])
+    })
 })
 
 describe("regexFilter", () => {
@@ -96,5 +107,30 @@ describe("regexFilter", () => {
         ]
 
         assert.deepEqual(result, expectedResult)
+    })
+    it("Correctly doesn't match.", async () => {
+        const testString = "zzz"
+        const testList = [
+            { label: "index.ts", detail: "browser/src/services/menu/index.ts" },
+            { label: "index.ts", detail: "browser/src/services/quickopen/index.ts" },
+        ]
+
+        const result = regexFilter(testList, testString)
+
+        assert.deepEqual(result, [])
+    })
+    it("Correctly matches split string in turn.", async () => {
+        const testString = "index main"
+        const testList = [
+            { label: "index.ts", detail: "browser/src/services/config/index.ts" },
+            { label: "index.ts", detail: "browser/src/services/quickopen/index.ts" },
+            { label: "main.ts", detail: "browser/src/services/menu/main.ts" },
+        ]
+
+        // Should return no results, since the first term should restrict the second
+        // search to return no results.
+        const result = regexFilter(testList, testString)
+
+        assert.deepEqual(result, [])
     })
 })
