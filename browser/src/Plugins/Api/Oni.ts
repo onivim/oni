@@ -108,7 +108,7 @@ export class Oni implements OniApi.Plugin.Api {
         return editorManager
     }
 
-    public get input(): OniApi.InputManager {
+    public get input(): OniApi.Input.InputManager {
         return inputManager
     }
 
@@ -120,11 +120,11 @@ export class Oni implements OniApi.Plugin.Api {
         return getMenuManagerInstance()
     }
 
-    public get notifications(): any {
+    public get notifications(): OniApi.Notifications.Api {
         return getNotificationsInstance()
     }
 
-    public get overlays(): any /* TODO */ {
+    public get overlays(): OniApi.Overlays.Api {
         return getOverlayInstance()
     }
 
@@ -136,7 +136,7 @@ export class Oni implements OniApi.Plugin.Api {
         return getSidebarInstance()
     }
 
-    public get snippets(): any {
+    public get snippets(): OniApi.Snippets.SnippetManager {
         return getSnippetsInstance()
     }
 
