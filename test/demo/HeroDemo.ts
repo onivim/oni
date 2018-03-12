@@ -6,22 +6,24 @@ import * as assert from "assert"
 import * as os from "os"
 import * as path from "path"
 
-import { getCompletionElement } from "./../ci/Common"
+import { getCompletionElement, getTemporaryFolder } from "./../ci/Common"
 
 import { getDistPath } from "./DemoCommon"
 
 import { remote } from "electron"
 
-const BASEDELAY = 10
-const RANDOMDELAY = 10
+const EmptyConfigPath = path.join(getTemporaryFolder(), "config.js")
+
+const BASEDELAY = 15
+const RANDOMDELAY = 15
 
 export const test = async (oni: any) => {
     await oni.automation.waitForEditors()
 
     const isMac = process.platform === "darwin"
 
-    const shortDelay = async () => oni.automation.sleep(500)
-    const longDelay = async () => oni.automation.sleep(1000)
+    const shortDelay = async () => oni.automation.sleep(BASEDELAY * 25)
+    const longDelay = async () => oni.automation.sleep(BASEDELAY * 50)
 
     const simulateTyping = async (keys: string, baseDelay: number = BASEDELAY) => {
         for (const key of keys) {
@@ -174,15 +176,18 @@ export const test = async (oni: any) => {
             await simulateTyping("myArray.")
 
             await simulateTyping("m")
-            await shortDelay()
-            await simulateTyping("ap((val => { return val + 1 }")
+            await longDelay()
+            await simulateTyping("ap(")
+            await longDelay()
+            await simulateTyping("(val => { return val + 1 }")
 
             await pressEscape()
             await simulateTyping("o")
+            await pressEnter()
             await simulateTyping("// Enjoy snippets, too!")
-            oni.automation.sendKeysV2("<cr>")
+            await pressEnter()
             oni.automation.sendKeysV2("<c-w>")
-            oni.automation.sendKeysV2("<cr>")
+            await pressEnter()
 
             await simulateTyping("forsnip")
             await pressEnter()
@@ -197,20 +202,6 @@ export const test = async (oni: any) => {
             await pressTab()
             await pressEscape()
         })
-
-        await oni.automation.waitFor(() => getCompletionElement() != null)
-
-        await simulateTyping("sTou", 150)
-        await pressEnter()
-        await shortDelay()
-        oni.automation.sendKeysV2("(")
-        await longDelay()
-        await longDelay()
-        await pressEscape()
-
-        await longDelay()
-        await simulateTyping("gT")
-        await longDelay()
     }
 
     // Set window size
@@ -301,6 +292,9 @@ export const test = async (oni: any) => {
 
     // ---
     await showLanguageServices()
+    // ---
+
+    await simulateTyping("gT")
 
     await simulateTyping("o")
     await disableKeyDisplayer(async () => {
@@ -353,9 +347,5 @@ export const test = async (oni: any) => {
 }
 
 export const settings = {
-    config: {
-        "tabs.mode": "tabs",
-        "ui.colorscheme": "nord",
-        "editor.fontSize": "12px",
-    },
+    configPath: EmptyConfigPath,
 }
