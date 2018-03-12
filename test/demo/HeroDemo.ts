@@ -14,7 +14,7 @@ import { remote } from "electron"
 
 const EmptyConfigPath = path.join(getTemporaryFolder(), "config.js")
 
-const BASEDELAY = 15
+const BASEDELAY = 25
 const RANDOMDELAY = 15
 
 export const test = async (oni: any) => {
@@ -88,7 +88,7 @@ export const test = async (oni: any) => {
         await pressEscape()
         await openCommandPalette()
 
-        await simulateTyping("config")
+        await simulateTyping("configuser")
         await longDelay()
         await pressEnter()
 
@@ -100,18 +100,19 @@ export const test = async (oni: any) => {
         await shortDelay()
         oni.automation.sendKeysV2("<cr>")
 
-        await longDelay()
+        await shortDelay()
+        await simulateTyping("gcc")
+        await shortDelay
         await simulateTyping("fp")
         await longDelay()
         await simulateTyping("ciw")
         await longDelay()
-        await simulateTyping("14px")
+        await simulateTyping("15px")
         await pressEscape()
         await simulateTyping(":w")
         await pressEscape()
 
-        // HACK - since the test uses a different config,
-        // we'll directly set the config value...
+        // HACK - Configuration doesn't use the same file, so we need to set this directly here
         oni.configuration.setValues({ "editor.fontSize": "15px" })
 
         await longDelay()
@@ -122,10 +123,56 @@ export const test = async (oni: any) => {
         await simulateTyping("12px")
         await pressEscape()
         await simulateTyping(":w")
-        await pressEscape()
+        await pressEnter()
         oni.configuration.setValues({ "editor.fontSize": "12px" })
         await longDelay()
         await pressEscape()
+
+        await simulateTyping("gg")
+        oni.automation.sendKeysV2("/")
+        await shortDelay()
+        await simulateTyping("activate")
+        await pressEnter()
+        await simulateTyping("n")
+
+        await simulateTyping("o")
+        await pressEnter()
+        await simulateTyping("// We can also use Oni's extensibility API here!")
+        await pressEnter()
+        await simulateTyping("Let's add a status bar item")
+        await pressEnter()
+        oni.automation.sendKeysV2("<c-w>")
+        await pressEnter()
+
+        await simulateTyping("const statusBarItem = oni.s")
+        await shortDelay()
+        await simulateTyping("tatusBar.c")
+        await shortDelay()
+        await simulateTyping("reateItem(1)")
+        await pressEnter()
+        await simulateTyping("statusBarItem.s")
+        await shortDelay()
+        await simulateTyping("etContents(")
+        await shortDelay()
+        oni.automation.sendKeys("<lt>")
+        await simulateTyping("div>Hello World")
+        oni.automation.sendKeys("<lt>")
+        await simulateTyping("/div>)")
+        await pressEnter()
+        await simulateTyping("statusBarItem.")
+        await shortDelay()
+        await simulateTyping("show()")
+        await pressEnter()
+
+        await pressEscape()
+        await simulateTyping(":w")
+        await pressEnter()
+
+        const item = oni.statusBar.createItem(1)
+        item.setContents("Hello World")
+        item.show()
+
+        await longDelay()
     }
 
     const showComingSoon = async () => {
@@ -179,12 +226,12 @@ export const test = async (oni: any) => {
             await longDelay()
             await simulateTyping("ap(")
             await longDelay()
-            await simulateTyping("(val => { return val + 1 }")
+            await simulateTyping("(val => val + 1")
 
             await pressEscape()
             await simulateTyping("o")
             await pressEnter()
-            await simulateTyping("// Enjoy snippets, too!")
+            await simulateTyping("// Oni also has snippet support:")
             await pressEnter()
             oni.automation.sendKeysV2("<c-w>")
             await pressEnter()
@@ -328,6 +375,7 @@ export const test = async (oni: any) => {
     oni.automation.sendKeysV2("<c-o>")
     await shortDelay()
 
+    await simulateTyping("G")
     await simulateTyping("o")
     await disableKeyDisplayer(async () => {
         await simulateTyping("...use the built in command palette to discover functionality.")
