@@ -12,7 +12,8 @@ import { getDistPath } from "./DemoCommon"
 
 import { remote } from "electron"
 
-const BASEDELAY = 20
+const BASEDELAY = 10
+const RANDOMDDELAY = 10
 
 export const test = async (oni: any) => {
     await oni.automation.waitForEditors()
@@ -22,10 +23,10 @@ export const test = async (oni: any) => {
     const shortDelay = async () => oni.automation.sleep(500)
     const longDelay = async () => oni.automation.sleep(1000)
 
-    const simulateTyping = async (keys: string, baseDelay: number = 10) => {
+    const simulateTyping = async (keys: string, baseDelay: number = BASEDELAY) => {
         for (const key of keys) {
             oni.automation.sendKeysV2(key)
-            await oni.automation.sleep(baseDelay + Math.random() * 25)
+            await oni.automation.sleep(baseDelay + Math.random() * RANDOMDELAY)
         }
         await shortDelay()
     }
@@ -39,6 +40,18 @@ export const test = async (oni: any) => {
     const pressEscape = async () => {
         await shortDelay()
         oni.automation.sendKeysV2("<esc>")
+        await shortDelay()
+    }
+
+    const pressTab = async () => {
+        await shortDelay()
+        oni.automation.sendKeysV2("<tab>")
+        await shortDelay()
+    }
+
+    const pressShiftTab = async () => {
+        await shortDelay()
+        oni.automation.sendKeysV2("<s-tab>")
         await shortDelay()
     }
 
@@ -123,8 +136,6 @@ export const test = async (oni: any) => {
         await disableKeyDisplayer(async () => {
             await simulateTyping("Lots more coming...")
             await pressEnter()
-            await simulateTyping("Snippets")
-            await pressEnter()
             await simulateTyping("Live Preview")
             await pressEnter()
             await simulateTyping("Integrated Browser")
@@ -137,6 +148,69 @@ export const test = async (oni: any) => {
         })
 
         await pressEscape()
+    }
+
+    const showLanguageServices = async () => {
+        await simulateTyping(":tabnew test.js")
+        oni.automation.sendKeysV2("<cr>")
+
+        await simulateTyping("i")
+        await disableKeyDisplayer(async () => {
+            await simulateTyping("// Oni integrates with language servers, and includes several...")
+            oni.automation.sendKeysV2("<cr>")
+            await simulateTyping("...but you can hook up your own, too!")
+            await shortDelay()
+
+            oni.automation.sendKeysV2("<cr>")
+            oni.automation.sendKeysV2("<c-w>")
+            await shortDelay()
+            await simulateTyping("const myArray = [1, 2, 3]")
+
+            await pressEnter()
+            await pressEnter()
+            await pressEscape()
+
+            await simulateTyping("O")
+            await simulateTyping("myArray.")
+
+            await simulateTyping("m")
+            await shortDelay()
+            await simulateTyping("ap((val => { return val + 1 }")
+
+            await pressEscape()
+            await simulateTyping("o")
+            await simulateTyping("// Enjoy snippets, too!")
+            oni.automation.sendKeysV2("<cr>")
+            oni.automation.sendKeysV2("<c-w>")
+            oni.automation.sendKeysV2("<cr>")
+
+            await simulateTyping("forsnip")
+            await pressEnter()
+
+            await pressTab()
+            await pressShiftTab()
+
+            await simulateTyping("idx")
+            await pressTab()
+            await simulateTyping("myArray")
+            await pressTab()
+            await pressTab()
+            await pressEsc()
+        })
+
+        await oni.automation.waitFor(() => getCompletionElement() != null)
+
+        await simulateTyping("sTou", 150)
+        await pressEnter()
+        await shortDelay()
+        oni.automation.sendKeysV2("(")
+        await longDelay()
+        await longDelay()
+        await pressEscape()
+
+        await longDelay()
+        await simulateTyping("gT")
+        await longDelay()
     }
 
     // Set window size
@@ -225,35 +299,8 @@ export const test = async (oni: any) => {
     await simulateTyping(":close")
     oni.automation.sendKeysV2("<cr>")
 
-    await simulateTyping(":tabnew test.js")
-    oni.automation.sendKeysV2("<cr>")
-
-    await simulateTyping("i")
-    await disableKeyDisplayer(async () => {
-        await simulateTyping("// Oni is integrated with language services for web dev,")
-        oni.automation.sendKeysV2("<cr>")
-        await simulateTyping("but you can hook up your own, too!")
-        await shortDelay()
-
-        oni.automation.sendKeysV2("<cr>")
-        oni.automation.sendKeysV2("<c-w>")
-        await shortDelay()
-        await simulateTyping("window.", 100)
-    })
-
-    await oni.automation.waitFor(() => getCompletionElement() != null)
-
-    await simulateTyping("sTou", 150)
-    await pressEnter()
-    await shortDelay()
-    oni.automation.sendKeysV2("(")
-    await longDelay()
-    await longDelay()
-    await pressEscape()
-
-    await longDelay()
-    await simulateTyping("gT")
-    await longDelay()
+    // ---
+    await showLanguageServices()
 
     await simulateTyping("o")
     await disableKeyDisplayer(async () => {
