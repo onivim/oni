@@ -1,7 +1,7 @@
 import * as minimist from "minimist"
 import * as path from "path"
 
-import { app, BrowserWindow, ipcMain, Menu, Rectangle } from "electron"
+import { app, BrowserWindow, ipcMain, Menu } from "electron"
 
 import * as PersistentSettings from "electron-settings"
 
@@ -9,6 +9,7 @@ import addDevExtensions from "./installDevTools"
 import * as Log from "./Log"
 import { buildDockMenu, buildMenu } from "./menu"
 import { makeSingleInstance } from "./ProcessLifecycle"
+import { moveToNextOniInstance } from "./WindowManager"
 
 global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 
@@ -77,7 +78,7 @@ ipcMain.on("focus-previous-instance", () => {
 
 ipcMain.on("move-to-next-oni-instance", (event, direction: string) => {
     Log.info(`Attempting to swap to Oni instance on the ${direction}.`)
-    moveToNextOniInstance(direction)
+    moveToNextOniInstance(windows, direction)
 })
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -287,104 +288,6 @@ function focusNextInstance(direction) {
 
     Log.info(`Focusing index: ${newFocusWindowIdx}`)
     windows[newFocusWindowIdx].focus()
-}
-
-function moveToNextOniInstance(direction) {
-    const currentFocusedWindows = windows.filter(f => f.isFocused())
-
-    if (currentFocusedWindows.length === 0) {
-        Log.info("No window currently focused")
-        return
-    } else if (windows.length === 1) {
-        Log.info("No window to swap to")
-        return
-    }
-
-    const currentFocusedWindow = currentFocusedWindows[0]
-    const windowsToCheck = windows.filter(x => x !== currentFocusedWindow)
-
-    const validWindows = windowsToCheck.filter(window =>
-        windowIsInValidDirection(direction, currentFocusedWindow.getBounds(), window.getBounds()),
-    )
-
-    if (validWindows.length === 0) {
-        return
-    }
-
-    const windowToSwapTo = validWindows.reduce<BrowserWindow>((curr, prev) => {
-        const isCurrentWindowBetter = checkWindowToFindBest(
-            currentFocusedWindow,
-            curr,
-            prev,
-            direction,
-        )
-
-        if (isCurrentWindowBetter) {
-            return curr
-        } else {
-            return prev
-        }
-    }, validWindows[0])
-
-    windows[windows.indexOf(windowToSwapTo)].focus()
-}
-
-function windowIsInValidDirection(direction: string, currentPos: Rectangle, testPos: Rectangle) {
-    let valuesIncrease = false
-    let coord = "x"
-
-    switch (direction) {
-        case "left":
-            valuesIncrease = false
-            break
-        case "right":
-            valuesIncrease = true
-            break
-        case "up":
-            valuesIncrease = false
-            coord = "y"
-            break
-        case "down":
-            valuesIncrease = true
-            coord = "y"
-            break
-        default:
-            return false
-    }
-
-    // Check if the screen we are testing is in the right direction.
-    // shouldBeBigger is used for moving to the right or down, since the X/Y values increase.
-    // Othewise, we want the value that decreases (i.e. for left or up)
-    if (valuesIncrease) {
-        if (testPos[coord] > currentPos[coord]) {
-            return true
-        }
-    } else {
-        if (testPos[coord] < currentPos[coord]) {
-            return true
-        }
-    }
-
-    return false
-}
-
-function checkWindowToFindBest(
-    currentWindow: BrowserWindow,
-    testWindow: BrowserWindow,
-    currentBest: BrowserWindow,
-    direction: string,
-) {
-    const differenceInX = Math.abs(currentWindow.getBounds().x - testWindow.getBounds().x)
-    const differenceInY = Math.abs(currentWindow.getBounds().y - testWindow.getBounds().y)
-
-    const bestDiffInX = Math.abs(currentWindow.getBounds().x - currentBest.getBounds().x)
-    const bestDiffInY = Math.abs(currentWindow.getBounds().y - currentBest.getBounds().y)
-
-    if (differenceInX < bestDiffInX || differenceInY < bestDiffInY) {
-        return true
-    } else {
-        return false
-    }
 }
 
 function loadFileFromArguments(platform, args, workingDirectory) {
