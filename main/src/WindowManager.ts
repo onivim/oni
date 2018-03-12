@@ -2,7 +2,6 @@ import { Rectangle, BrowserWindow } from "electron"
 import * as Log from "./Log"
 
 // Function to process moving to the next Oni window, given a direction.
-// It will swap to the next available Oni window.
 export function moveToNextOniInstance(windows: BrowserWindow[], direction: string) {
     const currentFocusedWindows = windows.filter(f => f.isFocused())
 
@@ -15,7 +14,9 @@ export function moveToNextOniInstance(windows: BrowserWindow[], direction: strin
     }
 
     const currentFocusedWindow = currentFocusedWindows[0]
-    const windowsToCheck = windows.filter(x => x !== currentFocusedWindow)
+    const windowsToCheck = windows.filter(
+        window => window !== currentFocusedWindow && !window.isMinimized(),
+    )
 
     const validWindows = windowsToCheck.filter(window =>
         windowIsInValidDirection(direction, currentFocusedWindow.getBounds(), window.getBounds()),
@@ -82,6 +83,8 @@ function windowIsInValidDirection(direction: string, currentPos: Rectangle, test
     return false
 }
 
+// Given a window, check if it is the best window seen so far.
+// This is determined by the difference in X and Y relative to the current window.
 function checkWindowToFindBest(
     currentWindow: BrowserWindow,
     testWindow: BrowserWindow,
