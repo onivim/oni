@@ -90,27 +90,6 @@ export const activate = (
             "Switch to the previous running instance of Oni",
             () => multiProcess.focusPreviousInstance(),
         ),
-        new CallbackCommand(
-            "oni.process.right",
-            "Move To Right Oni",
-            "Move direction across Oni",
-            () => multiProcess.moveToNextOniInstance("right"),
-        ),
-        new CallbackCommand(
-            "oni.process.left",
-            "Move To Left Oni",
-            "Move direction across Oni",
-            () => multiProcess.moveToNextOniInstance("left"),
-        ),
-        new CallbackCommand("oni.process.up", "Move To Up Oni", "Move direction across Oni", () =>
-            multiProcess.moveToNextOniInstance("up"),
-        ),
-        new CallbackCommand(
-            "oni.process.down",
-            "Move To Down Oni",
-            "Move direction across Oni",
-            () => multiProcess.moveToNextOniInstance("down"),
-        ),
 
         new CallbackCommand("commands.show", null, null, () => tasks.show()),
 
