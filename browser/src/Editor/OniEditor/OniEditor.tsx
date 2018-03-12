@@ -48,8 +48,8 @@ import { NeovimEditor } from "./../NeovimEditor"
 
 import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 
-import { ImageBufferLayer } from "./ImageBufferLayer"
 import { multiProcess } from "../../Services/MultiProcess"
+import { ImageBufferLayer } from "./ImageBufferLayer"
 
 // Helper method to wrap a react component into a layer
 const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.BufferLayer => {

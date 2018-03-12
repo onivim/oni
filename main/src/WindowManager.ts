@@ -1,4 +1,4 @@
-import { Rectangle, BrowserWindow } from "electron"
+import { BrowserWindow, Rectangle } from "electron"
 import * as Log from "./Log"
 
 // Function to process moving to the next Oni window, given a direction.
