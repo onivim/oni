@@ -34,9 +34,9 @@ export const test = async (oni: any) => {
     }
 
     const disableKeyDisplayer = async (func: () => Promise<void>) => {
-        oni.commands.executeCommand("keyDisplayer.hide")
+        // oni.commands.executeCommand("keyDisplayer.hide")
         await func()
-        oni.commands.executeCommand("keyDisplayer.show")
+        // oni.commands.executeCommand("keyDisplayer.show")
     }
 
     const pressEscape = async () => {
@@ -168,9 +168,9 @@ export const test = async (oni: any) => {
         await simulateTyping(":w")
         await pressEnter()
 
-        const item = oni.statusBar.createItem(1)
-        item.setContents("Hello World")
-        item.show()
+        // const item = oni.statusBar.createItem(1)
+        // item.setContents("Hello World")
+        // item.show()
 
         await longDelay()
     }
@@ -183,7 +183,7 @@ export const test = async (oni: any) => {
         await shortDelay()
         await simulateTyping("i")
         await disableKeyDisplayer(async () => {
-            await simulateTyping("Lots more coming...")
+            await simulateTyping("This is just the beginning - lots more to come:")
             await pressEnter()
             await simulateTyping("Live Preview")
             await pressEnter()
@@ -260,6 +260,7 @@ export const test = async (oni: any) => {
     oni.recorder.startRecording()
 
     oni.commands.executeCommand("keyDisplayer.show")
+    oni.configuration.setValues({ "keyDisplayer.showInInsertMode": false })
 
     await simulateTyping(":tabnew Hello.md")
     await pressEnter()
