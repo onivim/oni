@@ -13,7 +13,7 @@ import { getDistPath } from "./DemoCommon"
 import { remote } from "electron"
 
 const BASEDELAY = 10
-const RANDOMDDELAY = 10
+const RANDOMDELAY = 10
 
 export const test = async (oni: any) => {
     await oni.automation.waitForEditors()
@@ -195,7 +195,7 @@ export const test = async (oni: any) => {
             await simulateTyping("myArray")
             await pressTab()
             await pressTab()
-            await pressEsc()
+            await pressEscape()
         })
 
         await oni.automation.waitFor(() => getCompletionElement() != null)
