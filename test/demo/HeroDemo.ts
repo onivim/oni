@@ -212,13 +212,15 @@ export const test = async (oni: any) => {
         await pressEscape()
 
         await simulateTyping("O")
-        await simulateTyping("myArray.")
+        await simulateTyping("const newArray = my")
+        await shortDelay()
+        await simulateTyping("Array.")
 
         await simulateTyping("m")
         await longDelay()
         await simulateTyping("ap(")
         await longDelay()
-        await simulateTyping("(val => val + 1")
+        await simulateTyping("(val) => val + 1")
 
         await pressEscape()
         await simulateTyping("o")
@@ -256,21 +258,19 @@ export const test = async (oni: any) => {
     await simulateTyping(":tabnew Hello.md")
     await pressEnter()
 
-    await disableKeyDisplayer(async () => {
-        await simulateTyping("iHello and welcome to Oni!")
-        await pressEnter()
+    await simulateTyping("iHello and welcome to Oni!")
+    await pressEnter()
 
-        await simulateTyping(
-            "Oni is a new kind of editor: combining the best of Vim, Atom, and VSCode.",
-        )
-        await pressEnter()
-        await simulateTyping(
-            "Built with web tech, featuring a high performance canvas renderer, with (neo)vim handling the heavy lifting.",
-        )
-        await pressEnter()
-        await simulateTyping("Available for Windows, OSX, and Linux.")
-        await pressEnter()
-    })
+    await simulateTyping(
+        "Oni is a new kind of editor: combining the best of Vim, Atom, and VSCode.",
+    )
+    await pressEnter()
+    await simulateTyping(
+        "Built with web tech, featuring a high performance canvas renderer, with (neo)vim handling the heavy lifting.",
+    )
+    await pressEnter()
+    await simulateTyping("Available for Windows, OSX, and Linux.")
+    await pressEnter()
 
     await pressEscape()
     await simulateTyping(":sp VIM.md")
