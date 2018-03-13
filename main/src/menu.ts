@@ -750,7 +750,7 @@ export const buildMenu = (mainWindow, loadInit) => {
                 },
             },
             {
-                label: "Github",
+                label: "GitHub",
                 sublabel: "https://github.com/onivim/oni",
                 click(item, focusedWindow) {
                     openUrl(focusedWindow, "https://github.com/onivim/oni")
