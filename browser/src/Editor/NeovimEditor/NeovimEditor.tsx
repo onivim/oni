@@ -17,7 +17,7 @@ import * as types from "vscode-languageserver-types"
 import { Provider } from "react-redux"
 import { bindActionCreators, Store } from "redux"
 
-import { clipboard, ipcRenderer, remote } from "electron"
+import { clipboard, ipcRenderer } from "electron"
 
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
