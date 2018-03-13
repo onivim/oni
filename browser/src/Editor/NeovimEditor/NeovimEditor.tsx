@@ -43,7 +43,6 @@ import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { editorManager } from "./../../Services/EditorManager"
-import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
@@ -177,8 +176,6 @@ export class NeovimEditor extends Editor implements IEditor {
     ) {
         super()
 
-        const services: any[] = []
-
         this._store = createStore()
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
         this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
@@ -252,8 +249,6 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         // Services
-        const errorService = new Errors(this._neovimInstance)
-
         this._commands = new NeovimEditorCommands(
             commandManager,
             this._contextMenuManager,
@@ -265,9 +260,6 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         this._tasks.registerTaskProvider(commandManager)
-        this._tasks.registerTaskProvider(errorService)
-
-        services.push(errorService)
 
         const onColorsChanged = () => {
             const updatedColors: any = this._colors.getColors()
