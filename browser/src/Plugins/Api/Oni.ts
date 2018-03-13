@@ -160,7 +160,7 @@ export class Oni implements OniApi.Plugin.Api {
         return windowManager as any
     }
 
-    public get workspace(): OniApi.Workspace {
+    public get workspace(): OniApi.Workspace.Api {
         return getWorkspaceInstance()
     }
 
