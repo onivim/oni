@@ -139,6 +139,8 @@ export class OniEditor implements IEditor {
             this._workspace,
         )
 
+        editorManager.registerEditor(this)
+
         this._neovimEditor.onNeovimQuit.subscribe(() => {
             const isSplitModeOni = this._configuration.getValue("editor.split.mode") === "oni"
 
@@ -148,6 +150,8 @@ export class OniEditor implements IEditor {
                 const handle = windowManager.getSplitHandle(this)
                 handle.close()
                 editorManager.unregisterEditor(this)
+
+                this.dispose()
             }
         })
 

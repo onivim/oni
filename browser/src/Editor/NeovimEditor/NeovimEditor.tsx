@@ -42,7 +42,6 @@ import { commandManager } from "./../../Services/CommandManager"
 import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
-import { editorManager } from "./../../Services/EditorManager"
 import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
@@ -181,8 +180,6 @@ export class NeovimEditor extends Editor implements IEditor {
         private _workspace: Workspace,
     ) {
         super()
-
-        editorManager.registerEditor(this)
 
         const services: any[] = []
 
@@ -668,6 +665,11 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public dispose(): void {
+        if (this._neovimInstance) {
+            this._neovimInstance.dispose()
+            this._neovimInstance = null
+        }
+
         if (this._syntaxHighlighter) {
             this._syntaxHighlighter.dispose()
             this._syntaxHighlighter = null
@@ -692,7 +694,6 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public enter(): void {
-        editorManager.setActiveEditor(this)
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
         this._actions.setHasFocus(true)

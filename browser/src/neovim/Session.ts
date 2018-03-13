@@ -80,6 +80,18 @@ export class Session extends EventEmitter {
         })
     }
 
+    public dispose(): void {
+        if (this._encoder) {
+            this._encoder.destroy()
+            this._encoder = null
+        }
+
+        if (this._decoder) {
+            this._decoder.destroy()
+            this._decoder = null
+        }
+    }
+
     public request<T>(methodName: string, args: any): Promise<T> {
         this._requestId++
         let r = null

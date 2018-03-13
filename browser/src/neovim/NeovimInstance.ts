@@ -368,6 +368,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         })
     }
 
+    public dispose(): void {
+        if (this._neovim) {
+            this._neovim.dispose()
+            this._neovim = null
+        }
+    }
+
     public async chdir(directoryPath: string): Promise<void> {
         await this.command(`cd! ${directoryPath}`)
     }
