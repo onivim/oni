@@ -620,14 +620,6 @@ export class NeovimEditor extends Editor implements IEditor {
             (newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues),
         )
 
-        ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
-            if (message.startsWith(":")) {
-                this._neovimInstance.command('exec "' + message + '"')
-            } else {
-                this._neovimInstance.command('exec ":normal! ' + message + '"')
-            }
-        })
-
         ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
             this._openFiles(files, message)
         })
