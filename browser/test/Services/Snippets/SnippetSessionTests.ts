@@ -5,7 +5,10 @@
 import * as assert from "assert"
 import * as types from "vscode-languageserver-types"
 
-import { SnippetSession } from "./../../../src/Services/Snippets/SnippetSession"
+import {
+    IMirrorCursorUpdateEvent,
+    SnippetSession,
+} from "./../../../src/Services/Snippets/SnippetSession"
 
 import * as Mocks from "./../../Mocks"
 
@@ -77,6 +80,24 @@ describe("SnippetSession", () => {
 
             const [firstLine] = await mockBuffer.getLines(0, 1)
             assert.strictEqual(firstLine, "\t\tfoo")
+        })
+
+        it("mirrors cursor placeholders on insert", async () => {
+            snippetSession = new SnippetSession(mockEditor as any, "${1:test} ${1}") // tslint:idsable-line
+
+            let lastEvent: IMirrorCursorUpdateEvent = null
+            snippetSession.onCursorMoved.subscribe(evt => {
+                lastEvent = evt
+            })
+
+            await snippetSession.start()
+
+            assert.ok(lastEvent !== null, "Verify 'onCursorMoved' event was fired")
+
+            const firstCursor = types.Range.create(0, 0, 0, 3)
+            const secondCursor = types.Range.create(0, 5, 0, 8)
+
+            assert.deepEqual(lastEvent.cursors, [firstCursor, secondCursor], "Validate cursors")
         })
     })
 
