@@ -14,8 +14,8 @@ export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiase
 export type DetectionSettings = "always" | "noworkspace" | "never"
 
 export interface IConfigurationValues {
-    activate: (oni: Oni.Plugin.Api) => void
-    deactivate: () => void
+    activate?: (oni: Oni.Plugin.Api) => void
+    deactivate?: () => void
 
     // Debug settings
     "debug.fixedSize": {
@@ -30,11 +30,15 @@ export interface IConfigurationValues {
     "debug.detailedSessionLogging": boolean
     "debug.showTypingPrediction": boolean
 
+    "experimental.achievements.enabled": boolean
+
     "browser.defaultUrl": string
 
     // Simulate slow language server, for debugging
     "debug.fakeLag.languageServer": number | null
     "debug.fakeLag.neovimInput": number | null
+
+    "debug.showNotificationOnError": boolean
 
     "editor.split.mode": string
 
@@ -218,6 +222,7 @@ export interface IConfigurationValues {
     "sidebar.plugins.enabled": boolean
 
     "snippets.enabled": boolean
+    "snippets.userSnippetFolder": string
 
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
@@ -254,6 +259,8 @@ export interface IConfigurationValues {
     // Whether or not the file icon
     // should be shown in the tab
     "tabs.showFileIcon": boolean
+
+    "terminal.shellCommand": string
 
     "ui.animations.enabled": boolean
     "ui.iconTheme": string

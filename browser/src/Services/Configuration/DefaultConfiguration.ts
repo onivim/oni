@@ -35,14 +35,14 @@ const BaseConfiguration: IConfigurationValues = {
     "autoUpdate.enabled": false,
 
     "browser.defaultUrl": "https://duckduckgo.com",
-
-    "configuration.editor": "javascript",
+    "configuration.editor": "typescript",
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
     "debug.persistOnNeovimExit": false,
     "debug.detailedSessionLogging": false,
     "debug.showTypingPrediction": false,
+    "debug.showNotificationOnError": process.env.NODE_ENV !== "production",
 
     "debug.fakeLag.languageServer": null,
     "debug.fakeLag.neovimInput": null,
@@ -59,6 +59,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.maxLinesForLanguageServices": 2500,
     "editor.textMateHighlighting.enabled": true,
+
+    "experimental.achievements.enabled": false,
 
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
@@ -238,6 +240,7 @@ const BaseConfiguration: IConfigurationValues = {
     "sidebar.plugins.enabled": false,
 
     "snippets.enabled": true,
+    "snippets.userSnippetFolder": null,
 
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
@@ -257,6 +260,8 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.showFileIcon": true,
     "tabs.showIndex": false,
     "tabs.wrap": false,
+
+    "terminal.shellCommand": os.platform() === "win32" ? "cmd" : "bash",
 
     "ui.animations.enabled": true,
     "ui.colorscheme": "nord",

@@ -50,6 +50,7 @@ describe("SyntaxHighlightReconciler", () => {
             ruleStack: null,
             tokens: tokenInfo,
             dirty: false,
+            version: 1,
         }
 
         const lines = {
@@ -162,6 +163,58 @@ describe("SyntaxHighlightReconciler", () => {
                 },
             },
         ]
+
+        assert.deepEqual(
+            highlights,
+            expectedHighlights,
+            "Validate tokens set in insert mode are correct",
+        )
+    })
+
+    it("doesn't use insert mode line if version is earlier than latest tokenized version", () => {
+        // Simulate an empty state to start
+        const testState = createHighlightState(0, null, [])
+
+        syntaxHighlightReconciler.update(testState)
+
+        // And then we'll throw in an insert mode edit
+        const tokenInfo = {
+            scopes: ["scope.test"],
+            range: types.Range.create(0, 0, 0, 5),
+        }
+
+        const currentBufferInfo = testState.bufferToHighlights[mockBuffer.id]
+
+        // Bump version past the insert mode line
+        currentBufferInfo.lines[0].version = 3
+
+        const bufferInfoWithInsertUpdates = {
+            ...currentBufferInfo,
+            insertModeLine: {
+                lineNumber: 0,
+                version: 2,
+                info: {
+                    line: "token",
+                    ruleStack: null as any,
+                    tokens: [tokenInfo],
+                    dirty: false,
+                },
+            },
+        }
+
+        const updatedState: ISyntaxHighlightState = {
+            ...testState,
+            bufferToHighlights: {
+                ...testState.bufferToHighlights,
+                [mockBuffer.id]: bufferInfoWithInsertUpdates,
+            },
+        }
+
+        syntaxHighlightReconciler.update(updatedState)
+
+        const highlights = mockBuffer.mockHighlights.getHighlightsForLine(0)
+
+        const expectedHighlights: HighlightInfo[] = []
 
         assert.deepEqual(
             highlights,

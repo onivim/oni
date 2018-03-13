@@ -50,6 +50,7 @@ describe("OniSnippet", () => {
                 line: 0,
                 character: 3,
                 value: "index",
+                isFinalTabstop: false,
             })
         })
 
@@ -63,6 +64,7 @@ describe("OniSnippet", () => {
                 line: 0,
                 character: 3,
                 value: "a",
+                isFinalTabstop: false,
             })
 
             assert.deepEqual(placeholders[1], {
@@ -70,6 +72,7 @@ describe("OniSnippet", () => {
                 line: 1,
                 character: 3,
                 value: "b",
+                isFinalTabstop: false,
             })
         })
 
@@ -82,6 +85,7 @@ describe("OniSnippet", () => {
                 line: 1,
                 character: 3,
                 value: "",
+                isFinalTabstop: true,
             })
         })
     })

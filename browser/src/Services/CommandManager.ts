@@ -54,6 +54,10 @@ export class CommandManager implements ITaskProvider {
         this._commandDictionary[command.command] = command
     }
 
+    public hasCommand(commandName: string): boolean {
+        return !!this._commandDictionary[commandName]
+    }
+
     public unregisterCommand(commandName: string): void {
         delete this._commandDictionary[commandName]
     }
