@@ -78,6 +78,10 @@ export const test = async (oni: any) => {
         await shortDelay()
     }
 
+    const waitForCompletion = async () => {
+        return oni.automation.waitFor(() => !!getCompletionElement())
+    }
+
     const showConfig = async () => {
         await pressEscape()
         await openCommandPalette()
@@ -213,6 +217,7 @@ export const test = async (oni: any) => {
 
         await simulateTyping("O")
         await simulateTyping("const newArray = my")
+        await waitForCompletion()
         await shortDelay()
         await simulateTyping("Array.")
 
@@ -243,6 +248,20 @@ export const test = async (oni: any) => {
         await pressTab()
         await pressEscape()
     }
+
+    // Prime the typescript language service prior to recording
+    await simulateTyping(":tabnew")
+    await pressEnter()
+    await openQuickOpen()
+    await simulateTyping("NeovimInstance.ts")
+    await pressEnter()
+
+    await simulateTyping("owindow.")
+    await waitForCompletion()
+    await longDelay()
+    await pressEscape()
+    await simulateTyping(":q!")
+    await pressEnter()
 
     // Set window size
     remote.getCurrentWindow().setSize(1280, 720)
