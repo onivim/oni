@@ -20,7 +20,7 @@ import { bindActionCreators, Store } from "redux"
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import * as Oni from "oni-api"
-import { Event } from "oni-types"
+import { Event, IEvent } from "oni-types"
 
 import * as Log from "./../../Log"
 
@@ -42,7 +42,6 @@ import { commandManager } from "./../../Services/CommandManager"
 import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
-import { editorManager } from "./../../Services/EditorManager"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
@@ -139,8 +138,13 @@ export class NeovimEditor extends Editor implements IEditor {
     private _toolTipsProvider: IToolTipsProvider
     private _commands: NeovimEditorCommands
     private _externalMenuOverlay: Overlay
-
     private _bufferLayerManager: BufferLayerManager
+
+    private _onNeovimQuit: Event<void> = new Event<void>()
+
+    public get onNeovimQuit(): IEvent<void> {
+        return this._onNeovimQuit
+    }
 
     public get /* override */ activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
@@ -367,10 +371,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onLeave.subscribe(() => {
-            // TODO: Only leave if all editors are closed...
-            if (!this._configuration.getValue("debug.persistOnNeovimExit")) {
-                remote.getCurrentWindow().close()
-            }
+            this._onNeovimQuit.dispatch()
         })
 
         this._neovimInstance.onOniCommand.subscribe(command => {
@@ -612,14 +613,6 @@ export class NeovimEditor extends Editor implements IEditor {
             (newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues),
         )
 
-        ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
-            if (message.startsWith(":")) {
-                this._neovimInstance.command('exec "' + message + '"')
-            } else {
-                this._neovimInstance.command('exec ":normal! ' + message + '"')
-            }
-        })
-
         ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
             this._openFiles(files, message)
         })
@@ -656,6 +649,11 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public dispose(): void {
+        if (this._neovimInstance) {
+            this._neovimInstance.dispose()
+            this._neovimInstance = null
+        }
+
         if (this._syntaxHighlighter) {
             this._syntaxHighlighter.dispose()
             this._syntaxHighlighter = null
@@ -680,7 +678,6 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public enter(): void {
-        editorManager.setActiveEditor(this)
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
         this._actions.setHasFocus(true)
