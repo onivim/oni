@@ -11,6 +11,8 @@
 import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { remote } from "electron"
+
 export class EditorManager implements Oni.EditorManager {
     private _allEditors: Oni.Editor[] = []
     private _activeEditor: Oni.Editor = null
@@ -54,6 +56,7 @@ export class EditorManager implements Oni.EditorManager {
 
         if (this._allEditors.length === 0) {
             // Quit?
+            remote.getCurrentWindow().close()
         }
     }
 

@@ -20,7 +20,7 @@ import { bindActionCreators, Store } from "redux"
 import { clipboard, ipcRenderer, remote } from "electron"
 
 import * as Oni from "oni-api"
-import { Event } from "oni-types"
+import { Event, IEvent } from "oni-types"
 
 import * as Log from "./../../Log"
 
@@ -47,7 +47,6 @@ import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
-import { windowManager } from "./../../Services/WindowManager"
 
 import * as Shell from "./../../UI/Shell"
 
@@ -141,8 +140,13 @@ export class NeovimEditor extends Editor implements IEditor {
     private _toolTipsProvider: IToolTipsProvider
     private _commands: NeovimEditorCommands
     private _externalMenuOverlay: Overlay
-
     private _bufferLayerManager: BufferLayerManager
+
+    private _onNeovimQuit: Event<void> = new Event<void>()
+
+    public get onNeovimQuit(): IEvent<void> {
+        return this._onNeovimQuit
+    }
 
     public get /* override */ activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
@@ -378,15 +382,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onLeave.subscribe(() => {
-            const isSplitModeOni = this._configuration.getValue("editor.split.mode") === "oni"
-
-            if (!this._configuration.getValue("debug.persistOnNeovimExit") && !isSplitModeOni) {
-                remote.getCurrentWindow().close()
-            } else if (isSplitModeOni) {
-                const handle = windowManager.getSplitHandle(this)
-                handle.close()
-                editorManager.unregisterEditor(this)
-            }
+            this._onNeovimQuit.dispatch()
         })
 
         this._neovimInstance.onOniCommand.subscribe(command => {
