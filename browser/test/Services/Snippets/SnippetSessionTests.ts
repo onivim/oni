@@ -83,21 +83,24 @@ describe("SnippetSession", () => {
         })
 
         it("mirrors cursor placeholders on insert", async () => {
-            snippetSession = new SnippetSession(mockEditor as any, "${1:test} ${1}") // tslint:idsable-line
+            snippetSession = new SnippetSession(mockEditor as any, "${1:test} ${1} ${1}") // tslint:idsable-line
 
             let lastEvent: IMirrorCursorUpdateEvent = null
             snippetSession.onCursorMoved.subscribe(evt => {
                 lastEvent = evt
             })
 
+            // Set visual mode so that the range is blockwise
+            mockEditor.simulateModeChange("visual")
+
             await snippetSession.start()
 
             assert.ok(lastEvent !== null, "Verify 'onCursorMoved' event was fired")
 
-            const firstCursor = types.Range.create(0, 0, 0, 3)
-            const secondCursor = types.Range.create(0, 5, 0, 8)
+            const secondCursor = types.Range.create(0, 5, 0, 9)
+            const thirdCursor = types.Range.create(0, 10, 0, 14)
 
-            assert.deepEqual(lastEvent.cursors, [firstCursor, secondCursor], "Validate cursors")
+            assert.deepEqual(lastEvent.cursors, [secondCursor, thirdCursor], "Validate cursors")
         })
     })
 
