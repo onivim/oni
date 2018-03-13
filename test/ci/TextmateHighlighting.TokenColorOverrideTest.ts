@@ -32,7 +32,6 @@ export const test = async (oni: Oni.Plugin.Api) => {
     }, 10000)
 
     // Use an internal API to get the screen cell, and validate it is colored correctly
-
     // Note that the position has to include the line numbers
     const cell = editorAsAny._neovimEditor._screen.getCell(11 /*x, include line number */, 0)
 
