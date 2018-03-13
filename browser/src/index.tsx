@@ -251,7 +251,7 @@ const start = async (args: string[]): Promise<void> => {
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
 
     const GlobalCommands = await globalCommandsPromise
-    GlobalCommands.activate(commandManager, menuManager, tasks)
+    GlobalCommands.activate(commandManager, editorManager, menuManager, tasks)
 
     const WorkspaceCommands = await workspaceCommandsPromise
     WorkspaceCommands.activateCommands(
