@@ -196,6 +196,8 @@ export interface IConfigurationValues {
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
 
+    "keyDisplayer.showInInsertMode": boolean
+
     // Case-sensitivity strategy for menu filtering:
     // - if `true`, is case sensitive
     // - if `false`, is not case sensitive

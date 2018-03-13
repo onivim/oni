@@ -130,6 +130,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "environment.additionalPaths": [],
 
+    "keyDisplayer.showInInsertMode": false,
+
     "language.html.languageServer.command": htmlLanguageServerPath,
     "language.html.languageServer.arguments": ["--stdio"],
 

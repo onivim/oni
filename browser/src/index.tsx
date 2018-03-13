@@ -262,7 +262,13 @@ const start = async (args: string[]): Promise<void> => {
     )
 
     const KeyDisplayer = await keyDisplayerPromise
-    KeyDisplayer.activate(commandManager, inputManager, overlayManager)
+    KeyDisplayer.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        inputManager,
+        overlayManager,
+    )
 
     const ThemePicker = await themePickerPromise
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())
