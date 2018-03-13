@@ -138,7 +138,8 @@ export const test = async (oni: any) => {
         await simulateTyping("// We can also use Oni's extensibility API here!")
         await pressEnter()
         await simulateTyping("Let's add a status bar item")
-        await pressEnter()
+        await pressEscape()
+        await simulateTyping("o")
         oni.automation.sendKeysV2("<c-w>")
         await pressEnter()
 
@@ -181,7 +182,7 @@ export const test = async (oni: any) => {
         await shortDelay()
         await simulateTyping("i")
 
-        await simulateTyping("This is just the beginning - lots more to come:")
+        await simulateTyping("This is just the beginning! Lots more to come:")
         await pressEnter()
         await simulateTyping("Live Preview")
         await pressEnter()
