@@ -6,7 +6,6 @@
  */
 
 import * as ChildProcess from "child_process"
-import { EventEmitter } from "events"
 
 import * as OniApi from "oni-api"
 
@@ -55,7 +54,7 @@ const helpers = {
 /**
  * API instance for interacting with OniApi (and vim)
  */
-export class Oni extends EventEmitter implements OniApi.Plugin.Api {
+export class Oni implements OniApi.Plugin.Api {
     private _dependencies: Dependencies
     private _ui: Ui
     private _services: Services
@@ -109,7 +108,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return editorManager
     }
 
-    public get input(): OniApi.InputManager {
+    public get input(): OniApi.Input.InputManager {
         return inputManager
     }
 
@@ -121,11 +120,11 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return getMenuManagerInstance()
     }
 
-    public get notifications(): any {
+    public get notifications(): OniApi.Notifications.Api {
         return getNotificationsInstance()
     }
 
-    public get overlays(): any /* TODO */ {
+    public get overlays(): OniApi.Overlays.Api {
         return getOverlayInstance()
     }
 
@@ -137,7 +136,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return getSidebarInstance()
     }
 
-    public get snippets(): any {
+    public get snippets(): OniApi.Snippets.SnippetManager {
         return getSnippetsInstance()
     }
 
@@ -161,7 +160,7 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
         return windowManager as any
     }
 
-    public get workspace(): OniApi.Workspace {
+    public get workspace(): OniApi.Workspace.Api {
         return getWorkspaceInstance()
     }
 
@@ -170,7 +169,6 @@ export class Oni extends EventEmitter implements OniApi.Plugin.Api {
     }
 
     constructor() {
-        super()
         this._colors = getColors()
 
         this._dependencies = new Dependencies()

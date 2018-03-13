@@ -4,15 +4,18 @@
  * Integrates snippets with completion provider
  */
 
+import * as Oni from "oni-api"
+
 import * as types from "vscode-languageserver-types"
 
 import * as Log from "./../../Log"
 
 import { CompletionsRequestContext, ICompletionsRequestor } from "./../Completion"
-import { ISnippet } from "./ISnippet"
 import { SnippetManager } from "./SnippetManager"
 
-export const convertSnippetToCompletionItem = (snippet: ISnippet): types.CompletionItem => ({
+export const convertSnippetToCompletionItem = (
+    snippet: Oni.Snippets.Snippet,
+): types.CompletionItem => ({
     insertTextFormat: types.InsertTextFormat.Snippet,
     insertText: snippet.body,
     label: snippet.prefix + " (snippet)",
@@ -28,6 +31,10 @@ export class SnippetCompletionProvider implements ICompletionsRequestor {
         context: CompletionsRequestContext,
     ): Promise<types.CompletionItem[]> {
         Log.verbose("[SnippetCompletionProvider::getCompletions] Starting...")
+
+        if (!context.meetCharacter) {
+            return []
+        }
 
         const commentsOrQuotedStrings = context.textMateScopes.filter(
             f => f.indexOf("comment.") === 0 || f.indexOf("string.quoted.") === 0,

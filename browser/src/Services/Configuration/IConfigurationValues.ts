@@ -30,11 +30,15 @@ export interface IConfigurationValues {
     "debug.detailedSessionLogging": boolean
     "debug.showTypingPrediction": boolean
 
+    "experimental.achievements.enabled": boolean
+
     "browser.defaultUrl": string
 
     // Simulate slow language server, for debugging
     "debug.fakeLag.languageServer": number | null
     "debug.fakeLag.neovimInput": number | null
+
+    "debug.showNotificationOnError": boolean
 
     "editor.split.mode": string
 
@@ -192,6 +196,8 @@ export interface IConfigurationValues {
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
 
+    "keyDisplayer.showInInsertMode": boolean
+
     // Case-sensitivity strategy for menu filtering:
     // - if `true`, is case sensitive
     // - if `false`, is not case sensitive
@@ -255,6 +261,8 @@ export interface IConfigurationValues {
     // Whether or not the file icon
     // should be shown in the tab
     "tabs.showFileIcon": boolean
+
+    "terminal.shellCommand": string
 
     "ui.animations.enabled": boolean
     "ui.iconTheme": string

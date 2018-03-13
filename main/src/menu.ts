@@ -32,7 +32,10 @@ export const buildMenu = (mainWindow, loadInit) => {
     const normalizePath = fileName => fileName.split("\\").join("/")
 
     const executeVimCommand = (browserWindow: BrowserWindow, command: string) => {
-        executeMenuAction(browserWindow, { evt: "menu-item-click", cmd: [command] })
+        executeMenuAction(browserWindow, {
+            evt: "execute-command",
+            cmd: ["editor.executeVimCommand", command],
+        })
     }
 
     const executeVimCommandForMultipleFiles = (
@@ -750,7 +753,7 @@ export const buildMenu = (mainWindow, loadInit) => {
                 },
             },
             {
-                label: "Github",
+                label: "GitHub",
                 sublabel: "https://github.com/onivim/oni",
                 click(item, focusedWindow) {
                     openUrl(focusedWindow, "https://github.com/onivim/oni")
