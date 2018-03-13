@@ -1,7 +1,7 @@
 /**
- * TextmateHighlighting.ScopesOnEnterTest
+ * TextmateHighlighting.DebugScopesTest
  *
- * Validate that syntax tokens for text mate highlighting are available on etner
+ * Validate the 'editor.textMateHighlighting.debugScopes' functionality
  */
 
 import * as assert from "assert"
@@ -44,7 +44,10 @@ export const test = async (oni: Oni.Plugin.Api) => {
         return items.length > 0
     })
 
-    assert.ok(element.textContent.indexOf("DEBUG SCOPES") >= 0, "Validate debug scopes showed up")
+    assert.ok(
+        element.textContent.indexOf("DEBUG: TextMate Scopes") >= 0,
+        "Validate debug scopes showed up",
+    )
 }
 
 export const settings = {
