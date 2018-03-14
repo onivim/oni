@@ -5,11 +5,11 @@
 import * as assert from "assert"
 import * as os from "os"
 
+import { EventContext } from "./../../src/neovim"
 import {
     INeovimBufferUpdate,
     NeovimBufferUpdateManager,
 } from "./../../src/neovim/NeovimBufferUpdateManager"
-import { EventContext } from "./../../src/neovim"
 
 import { MockConfiguration, MockNeovimInstance } from "./../Mocks"
 import { waitForAllAsyncOperations } from "./../TestHelpers"
