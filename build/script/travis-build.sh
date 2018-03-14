@@ -27,11 +27,12 @@ npm run pack
 
 echo Using neovim path: "$ONI_NEOVIM_PATH"
 
-npm run test:integration
-
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
    npm run demo:screenshot
 fi
+
+npm run test:integration
+
 
 # We'll run code coverage only on Linux, for now
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then

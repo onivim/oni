@@ -9,7 +9,7 @@ import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
 
-import { getColorFromSeverity } from "./../../Services/Errors"
+import { getColorFromSeverity } from "./../../Services/Diagnostics"
 
 import { Icon } from "./../Icon"
 

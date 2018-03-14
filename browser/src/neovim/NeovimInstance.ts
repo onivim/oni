@@ -188,6 +188,7 @@ export interface INeovimInstance {
  */
 export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _neovim: Session
+    private _isDisposed: boolean = false
     private _initPromise: Promise<void>
     private _isLeaving: boolean
     private _currentVimDirectory: string
@@ -366,6 +367,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._onModeChanged.subscribe(newMode => {
             this._bufferUpdateManager.notifyModeChanged(newMode)
         })
+    }
+
+    public dispose(): void {
+        if (this._neovim) {
+            this._neovim.dispose()
+            this._neovim = null
+        }
     }
 
     public async chdir(directoryPath: string): Promise<void> {
@@ -662,6 +670,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     private _handleNotification(_method: any, args: any): void {
+        if (this._isDisposed) {
+            Log.warn(`[NeovimInstance] - ignoring ${_method} because disposed`)
+            return
+        }
+
         args.forEach((a: any[]) => {
             const command = a[0]
             a = a.slice(1)

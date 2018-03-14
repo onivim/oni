@@ -33,9 +33,7 @@ import { WorkspaceConfiguration } from "./WorkspaceConfiguration"
 const fsStat = promisify(stat)
 
 // Candidate interface to promote to Oni API
-export interface IWorkspace extends Oni.Workspace {
-    activeWorkspace: string
-
+export interface IWorkspace extends Oni.Workspace.Api {
     applyEdits(edits: types.WorkspaceEdit): Promise<void>
 }
 

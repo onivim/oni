@@ -38,6 +38,8 @@ export interface IConfigurationValues {
     "debug.fakeLag.languageServer": number | null
     "debug.fakeLag.neovimInput": number | null
 
+    "debug.showNotificationOnError": boolean
+
     "editor.split.mode": string
 
     "configuration.editor": string
@@ -193,6 +195,8 @@ export interface IConfigurationValues {
 
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
+
+    "keyDisplayer.showInInsertMode": boolean
 
     // Case-sensitivity strategy for menu filtering:
     // - if `true`, is case sensitive

@@ -12,14 +12,19 @@ export const getCompletionElement = () => {
     return getElementByClassName("autocompletion")
 }
 
-export const getElementByClassName = (className: string) => {
+export const getElementByClassName = (className: string): HTMLElement => {
     const elements = document.body.getElementsByClassName(className)
 
     if (!elements || !elements.length) {
         return null
     } else {
-        return elements[0]
+        return elements[0] as HTMLElement
     }
+}
+
+export const getElementsBySelector = (selector: string) => {
+    const elements = document.body.querySelectorAll(selector)
+    return elements || []
 }
 
 export const createNewFile = async (

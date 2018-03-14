@@ -153,7 +153,7 @@ const start = async (args: string[]): Promise<void> => {
         notification.show()
     })
 
-    UnhandledErrorMonitor.start(Notifications.getInstance())
+    UnhandledErrorMonitor.start(configuration, Notifications.getInstance())
 
     const Tasks = await taksPromise
     Tasks.activate(menuManager)
@@ -193,7 +193,6 @@ const start = async (args: string[]): Promise<void> => {
             overlayManager,
             pluginManager,
             Snippets.getInstance(),
-            tasks,
             Themes.getThemeManagerInstance(),
             TokenColors.getInstance(),
             workspace,
@@ -257,7 +256,7 @@ const start = async (args: string[]): Promise<void> => {
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
 
     const GlobalCommands = await globalCommandsPromise
-    GlobalCommands.activate(commandManager, menuManager, tasks)
+    GlobalCommands.activate(commandManager, editorManager, menuManager, tasks)
 
     const WorkspaceCommands = await workspaceCommandsPromise
     WorkspaceCommands.activateCommands(
@@ -268,7 +267,13 @@ const start = async (args: string[]): Promise<void> => {
     )
 
     const KeyDisplayer = await keyDisplayerPromise
-    KeyDisplayer.activate(commandManager, inputManager, overlayManager)
+    KeyDisplayer.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        inputManager,
+        overlayManager,
+    )
 
     const ThemePicker = await themePickerPromise
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())

@@ -42,6 +42,7 @@ const BaseConfiguration: IConfigurationValues = {
     "debug.persistOnNeovimExit": false,
     "debug.detailedSessionLogging": false,
     "debug.showTypingPrediction": false,
+    "debug.showNotificationOnError": process.env.NODE_ENV !== "production",
 
     "debug.fakeLag.languageServer": null,
     "debug.fakeLag.neovimInput": null,
@@ -104,7 +105,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
-    "editor.quickOpen.filterStrategy": "fuse",
+    "editor.quickOpen.filterStrategy": "regex",
 
     "editor.split.mode": "native",
 
@@ -128,6 +129,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
 
     "environment.additionalPaths": [],
+
+    "keyDisplayer.showInInsertMode": false,
 
     "language.html.languageServer.command": htmlLanguageServerPath,
     "language.html.languageServer.arguments": ["--stdio"],
