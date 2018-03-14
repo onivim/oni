@@ -15,7 +15,6 @@ import { Ui } from "./Ui"
 
 import { getInstance as getPluginsManagerInstance } from "./../PluginManager"
 
-import { getInstance as getAchievementsInstance } from "./../../Services/Learning/Achievements"
 import { automation } from "./../../Services/Automation"
 import { Colors, getInstance as getColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
@@ -25,6 +24,7 @@ import { getInstance as getDiagnosticsInstance } from "./../../Services/Diagnost
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
+import { getInstance as getAchievementsInstance } from "./../../Services/Learning/Achievements"
 import { getInstance as getMenuManagerInstance } from "./../../Services/Menu"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 import { getInstance as getOverlayInstance } from "./../../Services/Overlay"

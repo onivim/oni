@@ -6,6 +6,8 @@
 
 import { remote } from "electron"
 
+import * as Log from "./Log"
+
 // We need to use the 'main process' version of electron-settings.
 // See: https://github.com/nathanbuchar/electron-settings/wiki/FAQs
 const PersistentSettings = remote.require("electron-settings")
@@ -36,7 +38,14 @@ export class Store<T> implements IStore<T> {
         private _defaultValue: T,
         private _currentVersion: number,
     ) {
-        this._currentValue = PersistentSettings.get(this._storeKey)
+        let val = null
+        try {
+            val = JSON.parse(PersistentSettings.get(this._storeKey))
+        } catch (ex) {
+            Log.warn("Error deserializing from store: " + ex)
+        }
+
+        this._currentValue = val
 
         if (!this._currentValue) {
             this._currentValue = {
@@ -59,6 +68,6 @@ export class Store<T> implements IStore<T> {
             schemaVersion: this._currentVersion,
         }
 
-        PersistentSettings.set(this._storeKey, this._currentValue)
+        PersistentSettings.set(this._storeKey, JSON.stringify(this._currentValue))
     }
 }
