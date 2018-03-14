@@ -15,6 +15,7 @@ import { Ui } from "./Ui"
 
 import { getInstance as getPluginsManagerInstance } from "./../PluginManager"
 
+import { getInstance as getAchievementsInstance } from "./../../Services/Learning/Achievements"
 import { automation } from "./../../Services/Automation"
 import { Colors, getInstance as getColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
@@ -59,6 +60,10 @@ export class Oni implements OniApi.Plugin.Api {
     private _ui: Ui
     private _services: Services
     private _colors: Colors
+
+    public get achievements(): any /* TODO: Promote to API */ {
+        return getAchievementsInstance()
+    }
 
     public get automation(): OniApi.Automation.Api {
         return automation

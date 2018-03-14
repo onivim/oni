@@ -89,9 +89,9 @@ export class AchievementsManager {
             return
         }
 
-        // if (this._hasAchievementBeenAchieved(definition.uniqueId)) {
-        //     return
-        // }
+        if (this._hasAchievementBeenAchieved(definition.uniqueId)) {
+            return
+        }
 
         const areAllGoalsSatisfied = definition.goals.reduce((prev: boolean, goal) => {
             const hitCount = this._goalState.goalCounts[goal.goalId] || 0
