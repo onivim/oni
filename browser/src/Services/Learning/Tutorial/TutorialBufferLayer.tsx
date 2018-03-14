@@ -19,7 +19,6 @@ import { getInstance as getLanguageManagerInstance } from "./../../Language"
 import { getInstance as getMenuManagerInstance } from "./../../Menu"
 import { getInstance as getOverlayInstance } from "./../../Overlay"
 import { getInstance as getSnippetManagerInstance } from "./../../Snippets"
-import { getInstance as getTasksInstance } from "./../../Tasks"
 import { getThemeManagerInstance } from "./../../Themes"
 import { getInstance as getTokenColorsInstance } from "./../../TokenColors"
 import { getInstance as getWorkspaceInstance } from "./../../Workspace"
@@ -47,7 +46,6 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
             getOverlayInstance(),
             getPluginManagerInstance(),
             getSnippetManagerInstance(),
-            getTasksInstance(),
             getThemeManagerInstance(),
             getTokenColorsInstance(),
             getWorkspaceInstance(),
