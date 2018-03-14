@@ -28,9 +28,9 @@ export function moveToNextOniInstance(windows: BrowserWindow[], direction: strin
 
     const windowToSwapTo = validWindows.reduce<BrowserWindow>((curr, prev) => {
         const isCurrentWindowBetter = checkWindowToFindBest(
-            currentFocusedWindow,
-            curr,
-            prev,
+            currentFocusedWindow.getBounds(),
+            curr.getBounds(),
+            prev.getBounds(),
             direction,
         )
 
@@ -44,7 +44,11 @@ export function moveToNextOniInstance(windows: BrowserWindow[], direction: strin
     windows[windows.indexOf(windowToSwapTo)].focus()
 }
 
-function windowIsInValidDirection(direction: string, currentPos: Rectangle, testPos: Rectangle) {
+export function windowIsInValidDirection(
+    direction: string,
+    currentPos: Rectangle,
+    testPos: Rectangle,
+) {
     let valuesIncrease = false
     let coord = "x"
 
@@ -85,17 +89,17 @@ function windowIsInValidDirection(direction: string, currentPos: Rectangle, test
 
 // Given a window, check if it is the best window seen so far.
 // This is determined by the difference in X and Y relative to the current window.
-function checkWindowToFindBest(
-    currentWindow: BrowserWindow,
-    testWindow: BrowserWindow,
-    currentBest: BrowserWindow,
+export function checkWindowToFindBest(
+    currentWindow: Rectangle,
+    testWindow: Rectangle,
+    currentBest: Rectangle,
     direction: string,
 ) {
-    const differenceInX = Math.abs(currentWindow.getBounds().x - testWindow.getBounds().x)
-    const differenceInY = Math.abs(currentWindow.getBounds().y - testWindow.getBounds().y)
+    const differenceInX = Math.abs(currentWindow.x - testWindow.x)
+    const differenceInY = Math.abs(currentWindow.y - testWindow.y)
 
-    const bestDiffInX = Math.abs(currentWindow.getBounds().x - currentBest.getBounds().x)
-    const bestDiffInY = Math.abs(currentWindow.getBounds().y - currentBest.getBounds().y)
+    const bestDiffInX = Math.abs(currentWindow.x - currentBest.x)
+    const bestDiffInY = Math.abs(currentWindow.y - currentBest.y)
 
     // Use the main axis such that we always move to the closest window in the
     // direction we are moving.
@@ -140,7 +144,7 @@ enum DistanceComparison {
 
 // Helper function to compare the distances and return how the values
 // compare.
-function compareDistances(currentDifference: number, bestDifference: number) {
+export function compareDistances(currentDifference: number, bestDifference: number) {
     if (currentDifference === bestDifference) {
         return DistanceComparison.equal
     } else if (currentDifference < bestDifference) {
