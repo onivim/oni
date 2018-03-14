@@ -97,9 +97,55 @@ function checkWindowToFindBest(
     const bestDiffInX = Math.abs(currentWindow.getBounds().x - currentBest.getBounds().x)
     const bestDiffInY = Math.abs(currentWindow.getBounds().y - currentBest.getBounds().y)
 
-    if (differenceInX < bestDiffInX || differenceInY < bestDiffInY) {
+    // Use the main axis such that we always move to the closest window in the
+    // direction we are moving.
+    let mainAxisDiff = DistanceComparison.larger
+    let secondAxisDiff = DistanceComparison.larger
+
+    switch (direction) {
+        case "left":
+        case "right":
+            mainAxisDiff = compareDistances(differenceInX, bestDiffInX)
+            secondAxisDiff = compareDistances(differenceInY, bestDiffInY)
+            break
+        case "up":
+        case "down":
+            mainAxisDiff = compareDistances(differenceInY, bestDiffInY)
+            secondAxisDiff = compareDistances(differenceInX, bestDiffInX)
+            break
+        default:
+            return false
+    }
+
+    // If an equal distance away, we should check the other axis and
+    // take the one that is closer in that axis.
+    // If they are both the same? Just use the current one.
+    if (mainAxisDiff == DistanceComparison.smaller) {
+        return true
+    } else if (
+        mainAxisDiff == DistanceComparison.equal &&
+        secondAxisDiff == DistanceComparison.smaller
+    ) {
         return true
     } else {
         return false
+    }
+}
+
+enum DistanceComparison {
+    smaller,
+    larger,
+    equal,
+}
+
+// Helper function to compare the distances and return how the values
+// compare.
+function compareDistances(currentDifference: number, bestDifference: number) {
+    if (currentDifference == bestDifference) {
+        return DistanceComparison.equal
+    } else if (currentDifference < bestDifference) {
+        return DistanceComparison.smaller
+    } else {
+        return DistanceComparison.larger
     }
 }
