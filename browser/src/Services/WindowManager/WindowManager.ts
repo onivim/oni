@@ -8,6 +8,8 @@
  * to the active editor, and managing transitions between editors.
  */
 
+import { remote } from "electron"
+
 import { Store } from "redux"
 
 import * as Oni from "oni-api"
@@ -143,6 +145,20 @@ export class WindowManager {
 
     constructor() {
         this._rootNavigator = new RelationalSplitNavigator()
+
+        const browserWindow = remote.getCurrentWindow()
+
+        browserWindow.on("blur", () => {
+            if (this.activeSplit) {
+                this.activeSplit.leave()
+            }
+        })
+
+        browserWindow.on("focus", () => {
+            if (this.activeSplit) {
+                this.activeSplit.enter()
+            }
+        })
 
         this._store = createStore()
         this._leftDock = new WindowDockNavigator(() => leftDockSelector(this._store.getState()))
