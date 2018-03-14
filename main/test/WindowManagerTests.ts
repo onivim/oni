@@ -1,5 +1,5 @@
 /**
- * RegExFilterTests.ts
+ * WindowManagerTests.ts
  */
 
 import * as assert from "assert"
@@ -72,7 +72,7 @@ describe("compareDistance", () => {
         assert.equal(result, DistanceComparison.equal)
     })
 })
-describe("checkWindowToFindBest", () => {
+describe("windowIsInValidDirection", () => {
     it("Correctly accepts window in X axis.", async () => {
         const currentWindow = { x: 0, y: 0 } as Rectangle
         const testWindow = { x: 100, y: 0 } as Rectangle
