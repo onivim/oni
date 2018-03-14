@@ -61,7 +61,6 @@ import {
 } from "./../../Services/SyntaxHighlighting"
 
 import { MenuManager } from "./../../Services/Menu"
-import { Tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 import { Workspace } from "./../../Services/Workspace"
@@ -173,7 +172,6 @@ export class NeovimEditor extends Editor implements IEditor {
         private _overlayManager: OverlayManager,
         private _pluginManager: PluginManager,
         private _snippetManager: SnippetManager,
-        private _tasks: Tasks,
         private _themeManager: ThemeManager,
         private _tokenColors: TokenColors,
         private _workspace: Workspace,
@@ -262,8 +260,6 @@ export class NeovimEditor extends Editor implements IEditor {
             this._rename,
             this._symbols,
         )
-
-        this._tasks.registerTaskProvider(commandManager)
 
         const onColorsChanged = () => {
             const updatedColors: any = this._colors.getColors()

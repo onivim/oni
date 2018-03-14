@@ -16,7 +16,6 @@ import { LanguageManager } from "./Services/Language"
 import { MenuManager } from "./Services/Menu"
 import { OverlayManager } from "./Services/Overlay"
 import { SnippetManager } from "./Services/Snippets"
-import { Tasks } from "./Services/Tasks"
 import { ThemeManager } from "./Services/Themes"
 import { TokenColors } from "./Services/TokenColors"
 import { windowManager } from "./Services/WindowManager"
@@ -33,7 +32,6 @@ export const startEditors = async (
     overlayManager: OverlayManager,
     pluginManager: PluginManager,
     snippetManager: SnippetManager,
-    tasks: Tasks,
     themeManager: ThemeManager,
     tokenColors: TokenColors,
     workspace: Workspace,
@@ -48,7 +46,6 @@ export const startEditors = async (
         overlayManager,
         pluginManager,
         snippetManager,
-        tasks,
         themeManager,
         tokenColors,
         workspace,

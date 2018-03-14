@@ -28,6 +28,8 @@ export const activate = (
     menuManager: MenuManager,
     tasks: Tasks,
 ) => {
+    tasks.registerTaskProvider(commandManager)
+
     const popupMenuCommand = (innerCommand: Oni.Commands.CommandCallback) => {
         return () => {
             if (menuManager.isMenuOpen()) {

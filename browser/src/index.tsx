@@ -193,7 +193,6 @@ const start = async (args: string[]): Promise<void> => {
             overlayManager,
             pluginManager,
             Snippets.getInstance(),
-            tasks,
             Themes.getThemeManagerInstance(),
             TokenColors.getInstance(),
             workspace,

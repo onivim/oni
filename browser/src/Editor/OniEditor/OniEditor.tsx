@@ -35,7 +35,6 @@ import { OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
 import { ISyntaxHighlighter } from "./../../Services/SyntaxHighlighting"
 
-import { Tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { TokenColors } from "./../../Services/TokenColors"
 import { Workspace } from "./../../Services/Workspace"
@@ -118,7 +117,6 @@ export class OniEditor implements IEditor {
         private _overlayManager: OverlayManager,
         private _pluginManager: PluginManager,
         private _snippetManager: SnippetManager,
-        private _tasks: Tasks,
         private _themeManager: ThemeManager,
         private _tokenColors: TokenColors,
         private _workspace: Workspace,
@@ -133,7 +131,6 @@ export class OniEditor implements IEditor {
             this._overlayManager,
             this._pluginManager,
             this._snippetManager,
-            this._tasks,
             this._themeManager,
             this._tokenColors,
             this._workspace,
@@ -292,7 +289,6 @@ export class OniEditor implements IEditor {
             this._overlayManager,
             this._pluginManager,
             this._snippetManager,
-            this._tasks,
             this._themeManager,
             this._tokenColors,
             this._workspace,
