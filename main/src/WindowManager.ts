@@ -120,11 +120,11 @@ function checkWindowToFindBest(
     // If an equal distance away, we should check the other axis and
     // take the one that is closer in that axis.
     // If they are both the same? Just use the current one.
-    if (mainAxisDiff == DistanceComparison.smaller) {
+    if (mainAxisDiff === DistanceComparison.smaller) {
         return true
     } else if (
-        mainAxisDiff == DistanceComparison.equal &&
-        secondAxisDiff == DistanceComparison.smaller
+        mainAxisDiff === DistanceComparison.equal &&
+        secondAxisDiff === DistanceComparison.smaller
     ) {
         return true
     } else {
@@ -141,7 +141,7 @@ enum DistanceComparison {
 // Helper function to compare the distances and return how the values
 // compare.
 function compareDistances(currentDifference: number, bestDifference: number) {
-    if (currentDifference == bestDifference) {
+    if (currentDifference === bestDifference) {
         return DistanceComparison.equal
     } else if (currentDifference < bestDifference) {
         return DistanceComparison.smaller
