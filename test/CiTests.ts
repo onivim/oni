@@ -43,8 +43,10 @@ const CiTests = [
     "Regression.1251.NoAdditionalProcessesOnStartup",
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
-    "TextmateHighlighting.ScopesOnEnterTest",
+
     "TextmateHighlighting.DebugScopesTest",
+    "TextmateHighlighting.ScopesOnEnterTest",
+    "TextmateHighlighting.TokenColorOverrideTest",
 
     // This test occasionally hangs and breaks tests after - trying to move it later...
     "LargeFileTest",

@@ -17,7 +17,7 @@ import * as types from "vscode-languageserver-types"
 import { Provider } from "react-redux"
 import { bindActionCreators, Store } from "redux"
 
-import { clipboard, ipcRenderer, remote } from "electron"
+import { clipboard, ipcRenderer } from "electron"
 
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
@@ -42,7 +42,6 @@ import { commandManager } from "./../../Services/CommandManager"
 import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
-import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
@@ -181,8 +180,6 @@ export class NeovimEditor extends Editor implements IEditor {
     ) {
         super()
 
-        const services: any[] = []
-
         this._store = createStore()
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
         this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
@@ -256,8 +253,6 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         // Services
-        const errorService = new Errors(this._neovimInstance)
-
         this._commands = new NeovimEditorCommands(
             commandManager,
             this._contextMenuManager,
@@ -269,9 +264,6 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         this._tasks.registerTaskProvider(commandManager)
-        this._tasks.registerTaskProvider(errorService)
-
-        services.push(errorService)
 
         const onColorsChanged = () => {
             const updatedColors: any = this._colors.getColors()
@@ -599,23 +591,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._render()
 
-        const browserWindow = remote.getCurrentWindow()
-
-        browserWindow.on("blur", () => {
-            this._neovimInstance.autoCommands.executeAutoCommand("FocusLost")
-        })
-
-        browserWindow.on("focus", () => {
-            this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
-
-            // If the user has autoread enabled, we should run ":checktime" on
-            // focus, as this is needed to get the file to auto-update.
-            // https://github.com/neovim/neovim/issues/1936
-            if (_configuration.getValue("vim.setting.autoread")) {
-                this._neovimInstance.command(":checktime")
-            }
-        })
-
         this._onConfigChanged(this._configuration.getValues())
         this._configuration.onConfigurationChanged.subscribe(
             (newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues),
@@ -690,12 +665,15 @@ export class NeovimEditor extends Editor implements IEditor {
         this._onEnterEvent.dispatch()
         this._actions.setHasFocus(true)
         this._commands.activate()
+
+        this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
     }
 
     public leave(): void {
         Log.info("[NeovimEditor::leave]")
         this._actions.setHasFocus(false)
         this._commands.deactivate()
+        this._neovimInstance.autoCommands.executeAutoCommand("FocusLost")
     }
 
     public async clearSelection(): Promise<void> {
