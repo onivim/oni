@@ -44,6 +44,7 @@ const CiTests = [
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
 
+    "TextmateHighlighting.DebugScopesTest",
     "TextmateHighlighting.ScopesOnEnterTest",
     "TextmateHighlighting.TokenColorOverrideTest",
 
