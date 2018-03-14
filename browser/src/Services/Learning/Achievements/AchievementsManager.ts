@@ -8,6 +8,8 @@ import { Event, IEvent } from "oni-types"
 
 import * as Utility from "./../../../Utility"
 
+import { IStore } from "./../../../Store"
+
 export interface AchievementDefinition {
     uniqueId: string
     name: string
@@ -34,7 +36,7 @@ export class AchievementsManager {
         return this._onAchievementAccomplishedEvent
     }
 
-    constructor(private _persistentStore: IAchievementsPersistentStore) {}
+    constructor(private _persistentStore: IStore<IPersistedAchievementState>) {}
 
     public notifyGoal(goalId: string): void {
         if (!this._isInitialized()) {
@@ -144,11 +146,6 @@ export interface IPersistedAchievementState {
 //     goalCounts: {}
 //     achievedIds: []
 // }
-
-export interface IAchievementsPersistentStore {
-    store(state: IPersistedAchievementState): Promise<void>
-    get(): Promise<IPersistedAchievementState>
-}
 
 // export class AchievementsPersistentFileStore {
 

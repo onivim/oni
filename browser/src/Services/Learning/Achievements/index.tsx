@@ -7,7 +7,11 @@
 import { Configuration } from "./../../Configuration"
 import { OverlayManager } from "./../../Overlay"
 
-// import { AchievementNotificationRenderer } from "./AchievementNotificationRenderer"
+import { AchievementNotificationRenderer } from "./AchievementNotificationRenderer"
+
+import { AchievementsManager, IPersistedAchievementState } from "./AchievementsManager"
+
+import { getStore, IStore } from "./../../../Store"
 
 export * from "./AchievementsManager"
 
@@ -23,5 +27,18 @@ export const activate = (
         return
     }
 
-    // const renderer = new AchievementNotificationRenderer(overlays)
+    const store: IStore<IPersistedAchievementState> = getStore("oni-achievements", {
+        goalCounts: {},
+        achievedIds: [],
+    })
+
+    const manager = new AchievementsManager(store)
+    const renderer = new AchievementNotificationRenderer(overlays)
+
+    manager.onAchievementAccomplished.subscribe(achievement => {
+        renderer.showAchievement({
+            title: achievement.name,
+            description: achievement.description,
+        })
+    })
 }
