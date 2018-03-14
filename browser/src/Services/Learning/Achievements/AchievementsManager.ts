@@ -124,7 +124,7 @@ export class AchievementsManager {
         }
 
         this._currentIdleCallback = Utility.requestIdleCallback(() => {
-            this._persistentStore.store(this._goalState)
+            // this._persistentStore.set(this._goalState)
             this._currentIdleCallback = null
         })
     }

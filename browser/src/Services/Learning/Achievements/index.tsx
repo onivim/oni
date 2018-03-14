@@ -41,4 +41,21 @@ export const activate = (
             description: achievement.description,
         })
     })
+
+    manager.registerAchievement({
+        uniqueId: "oni.achievement.welcome",
+        name: "Welcome to Oni!",
+        description: "Launch Oni for the first time",
+        goals: [
+            {
+                name: "Launch Oni",
+                goalId: "oni.goal.launch",
+                count: 1,
+            },
+        ],
+    })
+
+    manager.start()
+
+    window["achievements"] = manager
 }
