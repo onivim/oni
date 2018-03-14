@@ -85,7 +85,9 @@ export class NeovimTokenColorSynchronizer {
     }
 
     private _getOrCreateHighlightGroup(tokenColor: TokenColor): string {
-        const existingGroup = this._tokenScopeSelectorToHighlightName[tokenColor.scope]
+        const existingGroup = this._tokenScopeSelectorToHighlightName[
+            this._getKeyFromTokenColor(tokenColor)
+        ]
         if (existingGroup) {
             return existingGroup
         } else {
@@ -95,8 +97,16 @@ export class NeovimTokenColorSynchronizer {
                 "[NeovimTokenColorSynchronizer::_getOrCreateHighlightGroup] Creating new highlight group - " +
                     newHighlightGroupName,
             )
-            this._tokenScopeSelectorToHighlightName[tokenColor.scope] = newHighlightGroupName
+            this._tokenScopeSelectorToHighlightName[
+                this._getKeyFromTokenColor(tokenColor)
+            ] = newHighlightGroupName
             return newHighlightGroupName
         }
+    }
+
+    private _getKeyFromTokenColor(tokenColor: TokenColor): string {
+        return `${tokenColor.scope}_${tokenColor.settings.backgroundColor}_${
+            tokenColor.settings.foregroundColor
+        }_${tokenColor.settings.bold}_${tokenColor.settings.italic}`
     }
 }

@@ -35,7 +35,18 @@ export interface IDiagnosticsDataSource {
     start(languageManager: LanguageManager): void
 }
 
-// export const getErrors = (state: State.IState) => state.errors
+export const getColorFromSeverity = (severity: types.DiagnosticSeverity): string => {
+    switch (severity) {
+        case types.DiagnosticSeverity.Error:
+            return "red"
+        case types.DiagnosticSeverity.Warning:
+            return "yellow"
+        case types.DiagnosticSeverity.Information:
+        case types.DiagnosticSeverity.Hint:
+        default:
+            return "gray"
+    }
+}
 
 export const getAllErrorsForFile = (fileName: string, errors: Errors): types.Diagnostic[] => {
     if (!fileName || !errors) {

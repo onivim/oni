@@ -17,10 +17,10 @@ import * as types from "vscode-languageserver-types"
 import { Provider } from "react-redux"
 import { bindActionCreators, Store } from "redux"
 
-import { clipboard, ipcRenderer, remote } from "electron"
+import { clipboard, ipcRenderer } from "electron"
 
 import * as Oni from "oni-api"
-import { Event } from "oni-types"
+import { Event, IEvent } from "oni-types"
 
 import * as Log from "./../../Log"
 
@@ -42,8 +42,6 @@ import { commandManager } from "./../../Services/CommandManager"
 import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
-import { editorManager } from "./../../Services/EditorManager"
-import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
@@ -139,8 +137,13 @@ export class NeovimEditor extends Editor implements IEditor {
     private _toolTipsProvider: IToolTipsProvider
     private _commands: NeovimEditorCommands
     private _externalMenuOverlay: Overlay
-
     private _bufferLayerManager: BufferLayerManager
+
+    private _onNeovimQuit: Event<void> = new Event<void>()
+
+    public get onNeovimQuit(): IEvent<void> {
+        return this._onNeovimQuit
+    }
 
     public get /* override */ activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
@@ -174,8 +177,6 @@ export class NeovimEditor extends Editor implements IEditor {
         private _workspace: Workspace,
     ) {
         super()
-
-        const services: any[] = []
 
         this._store = createStore()
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
@@ -250,8 +251,6 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         // Services
-        const errorService = new Errors(this._neovimInstance)
-
         this._commands = new NeovimEditorCommands(
             commandManager,
             this._contextMenuManager,
@@ -261,8 +260,6 @@ export class NeovimEditor extends Editor implements IEditor {
             this._rename,
             this._symbols,
         )
-
-        services.push(errorService)
 
         const onColorsChanged = () => {
             const updatedColors: any = this._colors.getColors()
@@ -370,10 +367,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._neovimInstance.onLeave.subscribe(() => {
-            // TODO: Only leave if all editors are closed...
-            if (!this._configuration.getValue("debug.persistOnNeovimExit")) {
-                remote.getCurrentWindow().close()
-            }
+            this._onNeovimQuit.dispatch()
         })
 
         this._neovimInstance.onOniCommand.subscribe(command => {
@@ -593,35 +587,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._render()
 
-        const browserWindow = remote.getCurrentWindow()
-
-        browserWindow.on("blur", () => {
-            this._neovimInstance.autoCommands.executeAutoCommand("FocusLost")
-        })
-
-        browserWindow.on("focus", () => {
-            this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
-
-            // If the user has autoread enabled, we should run ":checktime" on
-            // focus, as this is needed to get the file to auto-update.
-            // https://github.com/neovim/neovim/issues/1936
-            if (_configuration.getValue("vim.setting.autoread")) {
-                this._neovimInstance.command(":checktime")
-            }
-        })
-
         this._onConfigChanged(this._configuration.getValues())
         this._configuration.onConfigurationChanged.subscribe(
             (newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues),
         )
-
-        ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
-            if (message.startsWith(":")) {
-                this._neovimInstance.command('exec "' + message + '"')
-            } else {
-                this._neovimInstance.command('exec ":normal! ' + message + '"')
-            }
-        })
 
         ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
             this._openFiles(files, message)
@@ -659,6 +628,11 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public dispose(): void {
+        if (this._neovimInstance) {
+            this._neovimInstance.dispose()
+            this._neovimInstance = null
+        }
+
         if (this._syntaxHighlighter) {
             this._syntaxHighlighter.dispose()
             this._syntaxHighlighter = null
@@ -683,17 +657,19 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public enter(): void {
-        editorManager.setActiveEditor(this)
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
         this._actions.setHasFocus(true)
         this._commands.activate()
+
+        this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
     }
 
     public leave(): void {
         Log.info("[NeovimEditor::leave]")
         this._actions.setHasFocus(false)
         this._commands.deactivate()
+        this._neovimInstance.autoCommands.executeAutoCommand("FocusLost")
     }
 
     public async clearSelection(): Promise<void> {

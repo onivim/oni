@@ -9,6 +9,7 @@ import { remote } from "electron"
 
 import * as Oni from "oni-api"
 
+import { EditorManager } from "./../../Services/EditorManager"
 import { MenuManager } from "./../../Services/Menu"
 import { showAboutMessage } from "./../../Services/Metadata"
 import { multiProcess } from "./../../Services/MultiProcess"
@@ -23,6 +24,7 @@ import * as Platform from "./../../Platform"
 
 export const activate = (
     commandManager: CommandManager,
+    editorManager: EditorManager,
     menuManager: MenuManager,
     tasks: Tasks,
 ) => {
@@ -44,6 +46,14 @@ export const activate = (
     const popupMenuSelect = popupMenuCommand(() => menuManager.selectMenuItem())
 
     const commands = [
+        new CallbackCommand("editor.executeVimCommand", null, null, (message: string) => {
+            const neovim = editorManager.activeEditor.neovim
+            if (message.startsWith(":")) {
+                neovim.command('exec "' + message + '"')
+            } else {
+                neovim.command('exec ":normal! ' + message + '"')
+            }
+        }),
         new CallbackCommand("oni.about", null, null, () => showAboutMessage()),
 
         new CallbackCommand("oni.quit", null, null, () => remote.app.quit()),
