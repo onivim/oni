@@ -17,7 +17,7 @@ import * as types from "vscode-languageserver-types"
 import { Provider } from "react-redux"
 import { bindActionCreators, Store } from "redux"
 
-import { clipboard, ipcRenderer, remote } from "electron"
+import { clipboard, ipcRenderer } from "electron"
 
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
@@ -599,23 +599,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._render()
 
-        const browserWindow = remote.getCurrentWindow()
-
-        browserWindow.on("blur", () => {
-            this._neovimInstance.autoCommands.executeAutoCommand("FocusLost")
-        })
-
-        browserWindow.on("focus", () => {
-            this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
-
-            // If the user has autoread enabled, we should run ":checktime" on
-            // focus, as this is needed to get the file to auto-update.
-            // https://github.com/neovim/neovim/issues/1936
-            if (_configuration.getValue("vim.setting.autoread")) {
-                this._neovimInstance.command(":checktime")
-            }
-        })
-
         this._onConfigChanged(this._configuration.getValues())
         this._configuration.onConfigurationChanged.subscribe(
             (newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues),
@@ -690,12 +673,15 @@ export class NeovimEditor extends Editor implements IEditor {
         this._onEnterEvent.dispatch()
         this._actions.setHasFocus(true)
         this._commands.activate()
+
+        this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
     }
 
     public leave(): void {
         Log.info("[NeovimEditor::leave]")
         this._actions.setHasFocus(false)
         this._commands.deactivate()
+        this._neovimInstance.autoCommands.executeAutoCommand("FocusLost")
     }
 
     public async clearSelection(): Promise<void> {
