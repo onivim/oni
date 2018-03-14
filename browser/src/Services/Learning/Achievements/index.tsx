@@ -15,6 +15,8 @@ import { getStore, IStore } from "./../../../Store"
 
 export * from "./AchievementsManager"
 
+let _achievements: AchievementsManager = null
+
 export const activate = (
     configuration: Configuration,
     // editorManager: EditorManager,
@@ -55,7 +57,23 @@ export const activate = (
         ],
     })
 
-    manager.start()
+    manager.registerAchievement({
+        uniqueId: "oni.achievement.dedication",
+        name: "Dedication",
+        description: "Launch Oni 25 times",
+        goals: [
+            {
+                name: "Launch Oni",
+                goalId: "oni.goal.launch",
+                count: 25,
+            },
+        ],
+    })
 
-    window["achievements"] = manager
+    manager.start()
+    _achievements = manager
+}
+
+export const getInstance = (): AchievementsManager => {
+    return _achievements
 }

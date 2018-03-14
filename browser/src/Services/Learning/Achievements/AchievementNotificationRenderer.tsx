@@ -56,11 +56,6 @@ const ExitKeyframes = keyframes`
     100% { opacity: 0; transform: translateY(-32px) rotateX(30deg); }
 `
 
-// const EnterIconKeyFrames = keyframes`
-//     0% { opacity: 0; transform: rotateY(0deg); }
-//     100% { opacity: 1.0; transform: rotateY(180deg); }
-// `
-
 const AnimationDuration = "0.25s"
 
 const AchievementWrapper = withProps<{}>(styled.div)`
@@ -139,19 +134,15 @@ export interface IAchievementsViewProps {
     achievements: IAchievement[]
 }
 
-export class AchievementsView extends React.PureComponent<IAchievementsViewProps, {}> {
-    public render(): null | JSX.Element {
-        const achievements = this.props.achievements.map(a => (
-            <AchievementView key={a.title} {...a} />
-        ))
-        return (
-            <AchievementsWrapper className={"stack layer"}>
-                <TransitionGroup className="achievements" appear={true}>
-                    {achievements}
-                </TransitionGroup>
-            </AchievementsWrapper>
-        )
-    }
+export const AchievementsView = (props: IAchievementsViewProps) => {
+    const achievements = props.achievements.map(a => <AchievementView key={a.title} {...a} />)
+    return (
+        <AchievementsWrapper className={"stack layer"}>
+            <TransitionGroup className="achievements" appear={true}>
+                {achievements}
+            </TransitionGroup>
+        </AchievementsWrapper>
+    )
 }
 
 export interface AchievementViewState {

@@ -67,6 +67,13 @@ export class AchievementsManager {
         })
     }
 
+    public clearAchievements(): void {
+        this._persistentStore.set({
+            goalCounts: {},
+            achievedIds: [],
+        })
+    }
+
     public registerAchievement(definition: AchievementDefinition): void {
         this._achievements[definition.uniqueId] = definition
         this._checkIfShouldTrackAchievement(definition)
@@ -124,7 +131,7 @@ export class AchievementsManager {
         }
 
         this._currentIdleCallback = Utility.requestIdleCallback(() => {
-            // this._persistentStore.set(this._goalState)
+            this._persistentStore.set(this._goalState)
             this._currentIdleCallback = null
         })
     }
@@ -141,12 +148,3 @@ export interface IPersistedAchievementState {
     // - no need to bother tracking these.
     achievedIds: string[]
 }
-
-// const DefaultGoalState: IPersistedAchievementState = {
-//     goalCounts: {}
-//     achievedIds: []
-// }
-
-// export class AchievementsPersistentFileStore {
-
-// }
