@@ -136,7 +136,7 @@ export function checkWindowToFindBest(
     }
 }
 
-enum DistanceComparison {
+export enum DistanceComparison {
     smaller,
     larger,
     equal,
