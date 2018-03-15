@@ -9,7 +9,6 @@ import * as types from "vscode-languageserver-types"
 
 import getTokens from "./../../Services/SyntaxHighlighting/TokenGenerator"
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
-import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
 import QuickInfoWithTheme from "./../../UI/components/QuickInfoContainer"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
@@ -74,13 +73,14 @@ export class HoverRenderer {
         }
 
         const errorElements = getErrorElements(errors, customErrorStyle)
-
-        // Remove falsy values as check below [null] is truthy
-        const elements = [...errorElements, quickInfoElement].filter(Boolean)
+        let debugScopeElement: JSX.Element = null
 
         if (this._configuration.getValue("editor.textMateHighlighting.debugScopes")) {
-            elements.push(this._getDebugScopesElement())
+            debugScopeElement = this._getDebugScopesElement()
         }
+
+        // Remove falsy values as check below [null] is truthy
+        const elements = [...errorElements, quickInfoElement, debugScopeElement].filter(Boolean)
 
         if (!elements.length) {
             return null
@@ -115,10 +115,14 @@ export class HoverRenderer {
         }
         const items = scopeInfo.scopes.map((si: string) => <li>{si}</li>)
         return (
-            <QuickInfoDocumentation key="quickInfo.debugScopes">
+            <div
+                className="quick-info-debug-scopes"
+                key="quickInfo.debugScopes"
+                style={{ margin: "16px" }}
+            >
                 <div>DEBUG: TextMate Scopes:</div>
-                <ul>{items}</ul>
-            </QuickInfoDocumentation>
+                <ul style={{ webkitPaddingStart: "20px" }}>{items}</ul>
+            </div>
         )
     }
 }

@@ -28,6 +28,16 @@ export class MockNeovimInstance {
         return this._requests
     }
 
+    public flushFirstRequest(val: any) {
+        const [firstPromise, ...remainingPromises] = this._pendingPromises
+        const [, ...remainingRequests] = this._requests
+
+        firstPromise.resolve(val)
+
+        this._pendingPromises = remainingPromises
+        this._requests = remainingRequests
+    }
+
     public flushPendingRequests(): void {
         this._pendingPromises.forEach(p => p.resolve())
         this._requests = []

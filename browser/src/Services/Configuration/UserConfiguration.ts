@@ -36,5 +36,5 @@ export const getUserConfigFolderPath = (): string => {
 
     return Platform.isWindows()
         ? path.join(Platform.getUserHome(), "oni")
-        : path.join(Platform.getUserHome(), ".oni")
+        : path.join(Platform.getUserHome(), ".config/oni") // XDG-compliant
 }

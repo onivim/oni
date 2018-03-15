@@ -193,7 +193,6 @@ const start = async (args: string[]): Promise<void> => {
             overlayManager,
             pluginManager,
             Snippets.getInstance(),
-            tasks,
             Themes.getThemeManagerInstance(),
             TokenColors.getInstance(),
             workspace,
@@ -216,7 +215,13 @@ const start = async (args: string[]): Promise<void> => {
 
     Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
-    Learning.activate(configuration, editorManager, overlayManager, Sidebar.getInstance())
+    Learning.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        overlayManager,
+        Sidebar.getInstance(),
+    )
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =
@@ -251,7 +256,7 @@ const start = async (args: string[]): Promise<void> => {
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
 
     const GlobalCommands = await globalCommandsPromise
-    GlobalCommands.activate(commandManager, menuManager, tasks)
+    GlobalCommands.activate(commandManager, editorManager, menuManager, tasks)
 
     const WorkspaceCommands = await workspaceCommandsPromise
     WorkspaceCommands.activateCommands(
@@ -262,7 +267,13 @@ const start = async (args: string[]): Promise<void> => {
     )
 
     const KeyDisplayer = await keyDisplayerPromise
-    KeyDisplayer.activate(commandManager, inputManager, overlayManager)
+    KeyDisplayer.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        inputManager,
+        overlayManager,
+    )
 
     const ThemePicker = await themePickerPromise
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())
@@ -282,6 +293,10 @@ const start = async (args: string[]): Promise<void> => {
 
     Performance.endMeasure("Oni.Start")
     ipcRenderer.send("Oni.started", "started")
+
+    const Achievements = await import("./Services/Learning/Achievements")
+    const achievements = Achievements.getInstance()
+    achievements.notifyGoal("oni.goal.launch")
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {
