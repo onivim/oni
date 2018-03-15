@@ -115,7 +115,12 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
                         <SidebarItemView
                             indentationLevel={1}
                             isFocused={selectedId === item}
-                            text={item}
+                            text={
+                                <div>
+                                    <div>line1</div>
+                                    <div>{item}</div>
+                                </div>
+                            }
                         />
                     ))
 
