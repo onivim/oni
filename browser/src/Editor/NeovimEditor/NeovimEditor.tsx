@@ -648,6 +648,11 @@ export class NeovimEditor extends Editor implements IEditor {
             this._completion = null
         }
 
+        if (this._externalMenuOverlay) {
+            this._externalMenuOverlay.hide()
+            this._externalMenuOverlay = null
+        }
+
         // TODO: Implement full disposal logic
         this._popupMenu.dispose()
         this._popupMenu = null
