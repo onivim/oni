@@ -293,10 +293,6 @@ const start = async (args: string[]): Promise<void> => {
 
     Performance.endMeasure("Oni.Start")
     ipcRenderer.send("Oni.started", "started")
-
-    const Achievements = await import("./Services/Learning/Achievements")
-    const achievements = Achievements.getInstance()
-    achievements.notifyGoal("oni.goal.launch")
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {

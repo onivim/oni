@@ -22,13 +22,14 @@ export const activate = (
 ) => {
     const learningEnabled = configuration.getValue("experimental.learning.enabled")
 
+    Achievements.activate(configuration, overlayManager)
+
     if (!learningEnabled) {
         return
     }
 
     const tutorialManager = new TutorialManager(editorManager)
     sidebarManager.add("trophy", new LearningPane(tutorialManager))
-    Achievements.activate(configuration, overlayManager)
 
     commandManager.registerCommand({
         command: "experimental.tutorial.start",

@@ -35,6 +35,8 @@ export const activate = (
     })
 
     const manager = new AchievementsManager(store)
+    _achievements = manager
+
     const renderer = new AchievementNotificationRenderer(overlays)
 
     manager.onAchievementAccomplished.subscribe(achievement => {
@@ -70,8 +72,9 @@ export const activate = (
         ],
     })
 
-    manager.start()
-    _achievements = manager
+    manager.start().then(() => {
+        manager.notifyGoal("oni.goal.launch")
+    })
 }
 
 export const getInstance = (): AchievementsManager => {
