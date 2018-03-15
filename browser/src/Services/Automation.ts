@@ -202,7 +202,11 @@ export class Automation implements OniApi.Automation.Api {
         // Close all Neovim instances, but don't close the browser window... let Spectron
         // take care of that.
         editorManager.setCloseWhenNoEditors(false)
-        await App.quit()
+        try {
+            await App.quit()
+        } catch (ex) {
+            console.error(ex)
+        }
         Log.info("[AUTOMATION] Quit successfully")
 
         const resultElement = this._createElement(
