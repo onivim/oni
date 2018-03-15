@@ -10,8 +10,8 @@ import * as React from "react"
 import { CSSTransition, TransitionGroup } from "react-transition-group"
 import styled, { keyframes } from "styled-components"
 
-import { FlipCard } from "./../../../UI/components/FlipCard"
 import { boxShadow, withProps } from "./../../../UI/components/common"
+import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
 export class AchievementNotificationRenderer {
