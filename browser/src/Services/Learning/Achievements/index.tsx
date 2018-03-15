@@ -25,6 +25,10 @@ export const activate = (
 ) => {
     const achievementsEnabled = configuration.getValue("experimental.achievements.enabled")
 
+    if (!achievementsEnabled) {
+        return
+    }
+
     const store: IStore<IPersistedAchievementState> = getStore("oni-achievements", {
         goalCounts: {},
         achievedIds: [],
@@ -33,9 +37,6 @@ export const activate = (
     const manager = new AchievementsManager(store)
     _achievements = manager
 
-    if (!achievementsEnabled) {
-        return
-    }
     const renderer = new AchievementNotificationRenderer(overlays)
 
     manager.onAchievementAccomplished.subscribe(achievement => {
@@ -71,7 +72,9 @@ export const activate = (
         ],
     })
 
-    manager.start()
+    manager.start().then(() => {
+        manager.notifyGoal("oni.goal.launch")
+    })
 }
 
 export const getInstance = (): AchievementsManager => {
