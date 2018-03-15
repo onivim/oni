@@ -12,6 +12,10 @@ export const getCompletionElement = () => {
     return getElementByClassName("autocompletion")
 }
 
+export const getCollateralPath = () => {
+    return path.join(__dirname, "..", "..", "..", "test", "collateral")
+}
+
 export const getElementByClassName = (className: string): HTMLElement => {
     const elements = document.body.getElementsByClassName(className)
 
