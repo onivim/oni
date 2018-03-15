@@ -63,16 +63,16 @@ export class BasicMovementTutorial implements ITutorial {
                 goalName: "Init",
                 tickFunction: async (context: ITutorialContext): Promise<boolean> => {
                     await context.buffer.setLines(0, 9, [
-                        "....................",
-                        "....................",
-                        "....................",
-                        "....................",
-                        "....................",
-                        "....................",
-                        "....................",
-                        "....................",
-                        "....................",
-                        "....................",
+                        "                    ",
+                        "                    ",
+                        "                    ",
+                        "                    ",
+                        "                    ",
+                        "                    ",
+                        "                    ",
+                        "                    ",
+                        "                    ",
+                        "                    ",
                     ])
 
                     return true
