@@ -12,6 +12,8 @@ import styled from "styled-components"
 // import { inputManager, InputManager } from "./../../Services/InputManager"
 
 import { boxShadow, withProps } from "./../../../UI/components/common"
+import { Icon, IconSize } from "./../../../UI/Icon"
+import { BufferLayerHeader } from "./../../../UI/components/BufferLayerHeader"
 
 import * as Oni from "oni-api"
 
@@ -44,35 +46,79 @@ export const Container = withProps<ContainerProps>(styled.div)`
 
 export const TrophyCaseViewWrapper = withProps<{}>(styled.div)`
     background-color: ${p => p.theme["background"]};
+    color: ${p => p.theme["foreground"]};
     width: 100%;
     height: 100%;
 
     display: flex;
     flex-direction: column;
 
-    justify-content: center;
+    justify-content: flex-start;
 `
 
 export const TrophyCaseItemViewWrapper = withProps<{}>(styled.div)`
     ${boxShadow}
     background-color: ${p => p.theme["editor.background"]};
     margin: 1em;
-    padding: 1em;
-
+    position: relative;
 
     display: flex;
     flex-direction: horizontal;
+`
+
+export const TrophyCaseBackground = styled.div`
+    position: absolute;
+    color: black;
+    opacity: 0.1;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+export const TrophyItemIcon = styled.div`
+    width: 48px;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 1em;
+    margin: 0.5em;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 0.5);
+`
+
+export const TitleText = styled.div`
+    padding-bottom: 0.25em;
+    font-weight: bold;
+    opacity: 0.9;
+`
+
+export const DescriptionText = styled.div`
+    font-size: 0.9em;
 `
 
 export const TrophyCaseItemView = (props: { achievementInfo: AchievementWithProgressInfo }) => {
     return (
         <TrophyCaseItemViewWrapper>
             <Fixed>
-                <div>HI</div>
+                <TrophyItemIcon>
+                    <Icon name="trophy" size={IconSize.ThreeX} />
+                </TrophyItemIcon>
             </Fixed>
-            <Full>
-                <div>{props.achievementInfo.achievement.name}</div>
-                <div>{props.achievementInfo.achievement.description}</div>
+            <Full
+                style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    padding: "1em",
+                }}
+            >
+                <TitleText>{props.achievementInfo.achievement.name}</TitleText>
+                <DescriptionText>{props.achievementInfo.achievement.description}</DescriptionText>
             </Full>
         </TrophyCaseItemViewWrapper>
     )
@@ -94,7 +140,20 @@ export class TrophyCaseView extends React.PureComponent<
         const items = this.state.progressInfo.map(item => (
             <TrophyCaseItemView achievementInfo={item} />
         ))
-        return <TrophyCaseViewWrapper>{items}</TrophyCaseViewWrapper>
+        return (
+            <TrophyCaseViewWrapper>
+                <TrophyCaseBackground>
+                    <Icon name="trophy" size={IconSize.FiveX} style={{ fontSize: "20em" }} />
+                </TrophyCaseBackground>
+                <Fixed>
+                    <BufferLayerHeader
+                        title="Achievements"
+                        description="Discover new functionality by unlocking achievements"
+                    />
+                </Fixed>
+                <Full>{items}</Full>
+            </TrophyCaseViewWrapper>
+        )
     }
 }
 
