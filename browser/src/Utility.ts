@@ -15,6 +15,8 @@ import * as reduce from "lodash/reduce"
 import { Observable } from "rxjs/Observable"
 import { Subject } from "rxjs/Subject"
 
+import { IDisposable } from "oni-types"
+
 import * as types from "vscode-languageserver-types"
 
 /**
@@ -23,6 +25,25 @@ import * as types from "vscode-languageserver-types"
  * into the module. For most modules, we want the webpack behavior,
  * but for some (like node modules), we want to explicitly require them.
  */
+
+export class Disposable implements IDisposable {
+    private _disposables: IDisposable[] = []
+
+    public get isDisposed(): boolean {
+        return !!this._disposables
+    }
+
+    protected trackDisposable(disposable: IDisposable) {
+        this._disposables.push(disposable)
+    }
+
+    public dispose(): void {
+        if (!this.isDisposed) {
+            this._disposables.forEach(disposable => disposable.dispose())
+            this._disposables = null
+        }
+    }
+}
 
 export function nodeRequire(moduleName: string): any {
     return window["require"](moduleName) // tslint:disable-line
