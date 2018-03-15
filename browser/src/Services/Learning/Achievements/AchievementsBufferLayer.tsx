@@ -11,9 +11,9 @@ import styled from "styled-components"
 
 // import { inputManager, InputManager } from "./../../Services/InputManager"
 
+import { BufferLayerHeader } from "./../../../UI/components/BufferLayerHeader"
 import { boxShadow, withProps } from "./../../../UI/components/common"
 import { Icon, IconSize } from "./../../../UI/Icon"
-import { BufferLayerHeader } from "./../../../UI/components/BufferLayerHeader"
 
 import * as Oni from "oni-api"
 
@@ -45,8 +45,8 @@ export const Container = withProps<ContainerProps>(styled.div)`
 `
 
 export const TrophyCaseViewWrapper = withProps<{}>(styled.div)`
-    background-color: ${p => p.theme["background"]};
-    color: ${p => p.theme["foreground"]};
+    background-color: ${p => p.theme.background};
+    color: ${p => p.theme.foreground};
     width: 100%;
     height: 100%;
 

@@ -14,9 +14,9 @@ import { EditorManager } from "./../../EditorManager"
 
 export * from "./AchievementsManager"
 
+import { AchievementNotificationRenderer } from "./AchievementNotificationRenderer"
 import { AchievementsBufferLayer } from "./AchievementsBufferLayer"
 import { AchievementsManager, IPersistedAchievementState } from "./AchievementsManager"
-import { AchievementNotificationRenderer } from "./AchievementNotificationRenderer"
 
 let _achievements: AchievementsManager = null
 
