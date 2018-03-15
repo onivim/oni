@@ -19,22 +19,11 @@ import { IDisposable } from "oni-types"
 
 import * as types from "vscode-languageserver-types"
 
-/**
- * Use a `node` require instead of a `webpack` require
- * The difference is that `webpack` require will bake the javascript
- * into the module. For most modules, we want the webpack behavior,
- * but for some (like node modules), we want to explicitly require them.
- */
-
 export class Disposable implements IDisposable {
     private _disposables: IDisposable[] = []
 
     public get isDisposed(): boolean {
         return !!this._disposables
-    }
-
-    protected trackDisposable(disposable: IDisposable) {
-        this._disposables.push(disposable)
     }
 
     public dispose(): void {
@@ -43,7 +32,18 @@ export class Disposable implements IDisposable {
             this._disposables = null
         }
     }
+
+    protected trackDisposable(disposable: IDisposable) {
+        this._disposables.push(disposable)
+    }
 }
+
+/**
+ * Use a `node` require instead of a `webpack` require
+ * The difference is that `webpack` require will bake the javascript
+ * into the module. For most modules, we want the webpack behavior,
+ * but for some (like node modules), we want to explicitly require them.
+ */
 
 export function nodeRequire(moduleName: string): any {
     return window["require"](moduleName) // tslint:disable-line
