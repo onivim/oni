@@ -21,8 +21,8 @@ import { getThemeManagerInstance } from "./../../Themes"
 import { getInstance as getTokenColorsInstance } from "./../../TokenColors"
 import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
-import { TutorialGameplayManager, ITutorialState } from "./TutorialGameplayManager"
 import { ITutorial } from "./ITutorial"
+import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
 
 export class TutorialBufferLayer implements Oni.BufferLayer {
     private _editor: NeovimEditor

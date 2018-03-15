@@ -20,14 +20,12 @@ export class SwitchModeTutorial implements ITutorial {
             {
                 goalName: "Switch to insert mode by pressing 'i'",
                 tickFunction: async (context: ITutorialContext): Promise<boolean> => {
-                    console.log("TICK 1")
                     return context.editor.mode === "insert"
                 },
             },
             {
                 goalName: "Type some text!",
                 tickFunction: async (context: ITutorialContext): Promise<boolean> => {
-                    console.log("TICK 2")
                     const [line] = await context.buffer.getLines(
                         context.buffer.cursor.line,
                         context.buffer.cursor.line + 1,
@@ -39,7 +37,6 @@ export class SwitchModeTutorial implements ITutorial {
             {
                 goalName: "Switch back to normal mode pressing 'esc'",
                 tickFunction: async (context: ITutorialContext): Promise<boolean> => {
-                    console.log("TICK 3")
                     return context.editor.mode === "normal"
                 },
             },
@@ -86,7 +83,6 @@ export class BasicMovementTutorial implements ITutorial {
                 tickFunction: async (tutorialContext: ITutorialContext): Promise<boolean> => {
                     this._idx = this._idx || 0
                     this._idx++
-                    console.log("TEST: " + this._idx)
                     return false
                 },
                 render: (context: Oni.BufferLayerRenderContext) => {
