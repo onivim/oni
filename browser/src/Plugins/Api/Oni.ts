@@ -24,6 +24,7 @@ import { getInstance as getDiagnosticsInstance } from "./../../Services/Diagnost
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
+import { getInstance as getAchievementsInstance } from "./../../Services/Learning/Achievements"
 import { getInstance as getMenuManagerInstance } from "./../../Services/Menu"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
@@ -59,6 +60,10 @@ export class Oni implements OniApi.Plugin.Api {
     private _ui: Ui
     private _services: Services
     private _colors: Colors
+
+    public get achievements(): any /* TODO: Promote to API */ {
+        return getAchievementsInstance()
+    }
 
     public get automation(): OniApi.Automation.Api {
         return automation

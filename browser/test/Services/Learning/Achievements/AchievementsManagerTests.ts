@@ -6,9 +6,10 @@ import * as assert from "assert"
 
 import {
     AchievementsManager,
-    IAchievementsPersistentStore,
     IPersistedAchievementState,
 } from "./../../../../src/Services/Learning/Achievements"
+
+import { IStore } from "./../../../../src/Store"
 
 const createTestAchievement = (uniqueId: string, goalId: string) => ({
     uniqueId,
@@ -23,7 +24,7 @@ const createTestAchievement = (uniqueId: string, goalId: string) => ({
     ],
 })
 
-export class MockAchievementsPersistentStore implements IAchievementsPersistentStore {
+export class MockAchievementsPersistentStore implements IStore<IPersistedAchievementState> {
     private _state: IPersistedAchievementState
 
     constructor() {
@@ -33,7 +34,7 @@ export class MockAchievementsPersistentStore implements IAchievementsPersistentS
         }
     }
 
-    public async store(state: IPersistedAchievementState): Promise<void> {
+    public async set(state: IPersistedAchievementState): Promise<void> {
         this._state = state
     }
 
@@ -61,7 +62,7 @@ describe("AchievementsManagerTests", () => {
 
     it("doesn't fire onAchievementAccomplished if an achievement was already accomplished prior to tracking", async () => {
         const store = new MockAchievementsPersistentStore()
-        await store.store({
+        await store.set({
             goalCounts: {},
             achievedIds: ["test.achievement"],
         })
