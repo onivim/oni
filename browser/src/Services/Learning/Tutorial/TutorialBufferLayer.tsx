@@ -51,7 +51,18 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
             getWorkspaceInstance(),
         )
 
-        this._editor.init([])
+        this._editor.onNeovimQuit.subscribe(() => {
+            alert("quit!")
+        })
+
+        this._editor.init([]).then(() => {
+            this._editor.enter()
+        })
+    }
+
+    public handleInput(key: string): boolean {
+        this._editor.input(key)
+        return true
     }
 
     public render(context: Oni.BufferLayerRenderContext): JSX.Element {

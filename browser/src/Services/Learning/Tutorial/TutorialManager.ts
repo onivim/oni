@@ -192,8 +192,4 @@ export class TutorialManager {
         tutorialStateManager.start(new BasicMovementTutorial())
         buf.addLayer(new TutorialBufferLayer(tutorialStateManager))
     }
-
-    // private _getTutorialById(id: string): ITutorialMetadata {
-    //     return null
-    // }
 }
