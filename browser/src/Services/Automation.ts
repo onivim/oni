@@ -161,18 +161,12 @@ export class Automation implements OniApi.Automation.Api {
 
             await testCase.test(oni)
             Log.info("[AUTOMATION] Completed test: " + testPath)
-            this._reportResult(true)
+
+            await this._reportResult(true)
         } catch (ex) {
-            this._reportResult(false, ex)
+            await this._reportResult(false, ex)
         } finally {
             this._reportWindowSize()
-
-            Log.info("[AUTOMATION] Quitting...")
-            // Close all Neovim instances, but don't close the browser window... let Spectron
-            // take care of that.
-            editorManager.setCloseWhenNoEditors(false)
-            await App.quit()
-            Log.info("[AUTOMATION] Quit successfull")
         }
     }
 
@@ -203,7 +197,14 @@ export class Automation implements OniApi.Automation.Api {
         return container
     }
 
-    private _reportResult(passed: boolean, exception?: any): void {
+    private async _reportResult(passed: boolean, exception?: any): Promise<void> {
+        Log.info("[AUTOMATION] Quitting...")
+        // Close all Neovim instances, but don't close the browser window... let Spectron
+        // take care of that.
+        editorManager.setCloseWhenNoEditors(false)
+        await App.quit()
+        Log.info("[AUTOMATION] Quit successfully")
+
         const resultElement = this._createElement(
             "automated-test-result",
             this._getOrCreateTestContainer("automated-test-container"),
