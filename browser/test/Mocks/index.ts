@@ -31,11 +31,11 @@ export class MockWindowSplit {
         return null
     }
 
+    constructor(private _id: string = "mock.window") {}
+
     public render(): JSX.Element {
         return null
     }
-
-    constructor(private _id: string = "mock.window") {}
 }
 
 export class MockTokenColors {
