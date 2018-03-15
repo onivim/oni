@@ -628,7 +628,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public async quit(): Promise<void> {
-        await this.command(":q!")
+        await this.command(":qa!")
     }
 
     private async _checkAndFixIfBlocked(): Promise<void> {
