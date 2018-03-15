@@ -50,7 +50,6 @@ import { NeovimEditor } from "./../NeovimEditor"
 
 import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 
-import { multiProcess } from "../../Services/MultiProcess"
 import { ImageBufferLayer } from "./ImageBufferLayer"
 
 // Helper method to wrap a react component into a layer
@@ -171,10 +170,6 @@ export class OniEditor implements IEditor {
             buf => extensions.includes(path.extname(buf.filePath)),
             buf => new ImageBufferLayer(buf),
         )
-
-        windowManager.onUnhandledMove.subscribe((direction: string) => {
-            multiProcess.moveToNextOniInstance(direction)
-        })
     }
 
     public dispose(): void {
