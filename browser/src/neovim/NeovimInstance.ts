@@ -628,6 +628,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public async quit(): Promise<void> {
+        // This command won't return reliably,
+        // as the session gets killed
         this.command(":qa!")
     }
 
