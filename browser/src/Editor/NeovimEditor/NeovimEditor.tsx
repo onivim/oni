@@ -277,7 +277,9 @@ export class NeovimEditor extends Editor implements IEditor {
             }
         }
 
-        this._tokenColors.onTokenColorsChanged.subscribe(() => onTokenColorschanged())
+        this.trackDisposable(
+            this._tokenColors.onTokenColorsChanged.subscribe(() => onTokenColorschanged()),
+        )
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
@@ -397,11 +399,14 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         // TODO: Refactor to event and track disposable
-        this._neovimInstance.on("event", (eventName: string, evt: any) => {
-            const current = evt.current || evt
-            this._updateWindow(current)
-            this._bufferManager.updateBufferFromEvent(current)
-        })
+        this.trackDisposable(
+            this._neovimInstance.onVimEvent.subscribe(evt => {
+                if (evt.eventName !== "VimLeave") {
+                    this._updateWindow(evt.eventContext)
+                    this._bufferManager.updateBufferFromEvent(evt.eventContext)
+                }
+            }),
+        )
 
         this.trackDisposable(
             this._neovimInstance.autoCommands.onBufDelete.subscribe((evt: BufferEventContext) =>
