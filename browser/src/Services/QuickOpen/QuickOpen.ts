@@ -191,6 +191,10 @@ export class QuickOpen {
         selectedOption: Oni.Menu.MenuOption,
         openInSplit: Oni.FileOpenMode = Oni.FileOpenMode.Edit,
     ): Promise<void> {
+        if (!selectedOption) {
+            return
+        }
+
         const arg = selectedOption
 
         if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
