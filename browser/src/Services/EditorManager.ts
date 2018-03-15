@@ -19,6 +19,8 @@ export class EditorManager implements Oni.EditorManager {
     private _anyEditorProxy: AnyEditorProxy = new AnyEditorProxy()
     private _onActiveEditorChanged: Event<Oni.Editor> = new Event<Oni.Editor>()
 
+    private _closeWhenNoEditors: boolean = true
+
     public get allEditors(): Oni.Editor[] {
         return this._allEditors
     }
@@ -45,6 +47,10 @@ export class EditorManager implements Oni.EditorManager {
         return this._activeEditor.openFile(filePath, openOptions)
     }
 
+    public setCloseWhenNoEditors(closeWhenNoEditors: boolean) {
+        this._closeWhenNoEditors = closeWhenNoEditors
+    }
+
     public registerEditor(editor: Oni.Editor) {
         if (this._allEditors.indexOf(editor) === -1) {
             this._allEditors.push(editor)
@@ -54,7 +60,7 @@ export class EditorManager implements Oni.EditorManager {
     public unregisterEditor(editor: Oni.Editor): void {
         this._allEditors = this._allEditors.filter(ed => ed !== editor)
 
-        if (this._allEditors.length === 0) {
+        if (this._allEditors.length === 0 && this._closeWhenNoEditors) {
             // Quit?
             remote.getCurrentWindow().close()
         }

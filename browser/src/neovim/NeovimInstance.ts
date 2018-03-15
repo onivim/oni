@@ -627,6 +627,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         })
     }
 
+    public async quit(): Promise<void> {
+        await this.command(":q!")
+    }
+
     private async _checkAndFixIfBlocked(): Promise<void> {
         Log.info("[NeovimInstance::_checkAndFixIfBlocked] checking mode...")
         const mode: any = await this._neovim.request("nvim_get_mode", [])

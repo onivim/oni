@@ -268,6 +268,10 @@ export class OniEditor implements IEditor {
         return this._neovimEditor.render()
     }
 
+    public async quit(): Promise<void> {
+        return this._neovimEditor.quit()
+    }
+
     private async _split(direction: SplitDirection): Promise<OniEditor> {
         if (this._configuration.getValue("editor.split.mode") !== "oni") {
             if (direction === "horizontal") {

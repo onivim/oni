@@ -970,6 +970,10 @@ export class NeovimEditor extends Editor implements IEditor {
         await this._neovimInstance.input(key)
     }
 
+    public async quit(): Promise<void> {
+        return this._neovimInstance.quit()
+    }
+
     private _onBounceStart(): void {
         this._actions.setCursorScale(1.1)
     }

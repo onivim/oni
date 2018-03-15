@@ -164,6 +164,10 @@ class SharedNeovimInstance implements SharedNeovimInstance {
         await this._neovimInstance.start(startOptions)
         Log.info("[SharedNeovimInstance::start] Started successfully!")
     }
+
+    public async quit(): Promise<void> {
+        return this._neovimInstance.quit()
+    }
 }
 
 let _sharedInstance: SharedNeovimInstance = null

@@ -8,6 +8,7 @@ import { remote } from "electron"
 
 import * as OniApi from "oni-api"
 
+import * as App from "./../App"
 import * as Utility from "./../Utility"
 
 import { getInstance as getSharedNeovimInstance } from "./../neovim/SharedNeovimInstance"
@@ -165,6 +166,13 @@ export class Automation implements OniApi.Automation.Api {
             this._reportResult(false, ex)
         } finally {
             this._reportWindowSize()
+
+            Log.info("[AUTOMATION] Quitting...")
+            // Close all Neovim instances, but don't close the browser window... let Spectron
+            // take care of that.
+            editorManager.setCloseWhenNoEditors(false)
+            await App.quit()
+            Log.info("[AUTOMATION] Quit successfull")
         }
     }
 
