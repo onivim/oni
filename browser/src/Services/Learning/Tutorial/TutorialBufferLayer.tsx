@@ -6,8 +6,6 @@ import * as React from "react"
 
 import * as Oni from "oni-api"
 
-import { ITutorialState, TutorialStateManager } from "./TutorialManager"
-
 import { NeovimEditor } from "./../../../Editor/NeovimEditor"
 
 import { getInstance as getPluginManagerInstance } from "./../../../Plugins/PluginManager"
@@ -23,8 +21,13 @@ import { getThemeManagerInstance } from "./../../Themes"
 import { getInstance as getTokenColorsInstance } from "./../../TokenColors"
 import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
+import { ITutorial } from "./ITutorial"
+import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
+
 export class TutorialBufferLayer implements Oni.BufferLayer {
     private _editor: NeovimEditor
+    private _tutorialGameplayManager: TutorialGameplayManager
+    private _initPromise: Promise<void>
 
     public get id(): string {
         return "oni.tutorial"
@@ -34,7 +37,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         return "Tutorial"
     }
 
-    constructor(private _tutorialStateManager: TutorialStateManager) {
+    constructor() {
         // TODO: Streamline dependences for NeovimEditor, so it's easier just to spin one up..
         this._editor = new NeovimEditor(
             getColorsInstance(),
@@ -51,7 +54,20 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
             getWorkspaceInstance(),
         )
 
-        this._editor.init([])
+        this._editor.onNeovimQuit.subscribe(() => {
+            alert("quit!")
+        })
+
+        this._initPromise = this._editor.init([]).then(() => {
+            this._editor.enter()
+        })
+
+        this._tutorialGameplayManager = new TutorialGameplayManager(this._editor)
+    }
+
+    public handleInput(key: string): boolean {
+        this._editor.input(key)
+        return true
     }
 
     public render(context: Oni.BufferLayerRenderContext): JSX.Element {
@@ -59,15 +75,20 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
             <TutorialBufferLayerView
                 editor={this._editor}
                 renderContext={context}
-                tutorialManager={this._tutorialStateManager}
+                tutorialManager={this._tutorialGameplayManager}
             />
         )
+    }
+
+    public async startTutorial(tutorial: ITutorial): Promise<void> {
+        await this._initPromise
+        this._tutorialGameplayManager.start(tutorial, this._editor.activeBuffer)
     }
 }
 
 export interface ITutorialBufferLayerViewProps {
     renderContext: Oni.BufferLayerRenderContext
-    tutorialManager: TutorialStateManager
+    tutorialManager: TutorialGameplayManager
     editor: NeovimEditor
 }
 
@@ -132,7 +153,10 @@ export class TutorialBufferLayerView extends React.PureComponent<
         super(props)
 
         this.state = {
-            tutorialState: null,
+            tutorialState: {
+                goals: [],
+                activeGoalIndex: -1,
+            },
         }
     }
 
@@ -143,6 +167,18 @@ export class TutorialBufferLayerView extends React.PureComponent<
     }
 
     public render(): JSX.Element {
+        const goals = this.state.tutorialState.goals.map((goal, idx) => {
+            const activeIndex = this.state.tutorialState.activeGoalIndex
+
+            if (idx < activeIndex) {
+                return <li style={{ opacity: 0.5 }}>{goal}</li>
+            } else if (idx === activeIndex) {
+                return <li style={{ fontWeight: "bold" }}>{goal}</li>
+            } else {
+                return <li>{goal}</li>
+            }
+        })
+
         return (
             <TutorialWrapper>
                 <TutorialSectionWrapper>
@@ -168,11 +204,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
                     </Section>
                     <SectionHeader>Goals:</SectionHeader>
                     <Section>
-                        <ul>
-                            <li>Press `i` to enter insert mode</li>
-                            <li>Type some text</li>
-                            <li>Press 'escape' to return to normal mode.</li>
-                        </ul>
+                        <ul>{goals}</ul>
                     </Section>
                     <Section />
                 </TutorialSectionWrapper>
