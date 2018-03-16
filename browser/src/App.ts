@@ -22,6 +22,7 @@ const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
 export type QuitHook = () => Promise<void>
 
 let _quitHooks: QuitHook[] = []
+let _initializePromise: Utility.ICompletablePromise<void> = Utility.createCompletablePromise<void>()
 
 export const registerQuitHook = (quitHook: QuitHook): IDisposable => {
     _quitHooks.push(quitHook)
@@ -44,6 +45,10 @@ export const quit = async (): Promise<void> => {
     })
     await Promise.all([promises])
     Log.info("[App::quit] completed")
+}
+
+export const waitForStart = (): Promise<void> => {
+    return _initializePromise.promise
 }
 
 export const start = async (args: string[]): Promise<void> => {
@@ -333,6 +338,7 @@ export const start = async (args: string[]): Promise<void> => {
 
     Performance.endMeasure("Oni.Start")
     ipcRenderer.send("Oni.started", "started")
+    _initializePromise.resolve()
 }
 
 const checkForUpdates = async (): Promise<void> => {

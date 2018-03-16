@@ -114,34 +114,9 @@ export class Automation implements OniApi.Automation.Api {
     }
 
     public async waitForEditors(): Promise<void> {
-        // Add explicit wait for Neovim to be initialized
-        // The CI machines can often be slow, so we need a longer timout for it
-        // TODO: Replace with a more explicit condition, once our startup
-        // path is well-defined (#89, #355, #372)
-
-        // Add explicit wait for Neovim to be initialized
-        // The CI machines can often be slow, so we need a longer timout for it
-        // TODO: Replace with a more explicit condition, once our startup
-        // path is well-defined (#89, #355, #372)
         Log.info("[AUTOMATION] Waiting for startup...")
-        await this.waitFor(() => (Shell.store.getState() as any).isLoaded, 30000)
+        await App.waitForStart()
         Log.info("[AUTOMATION] Startup complete!")
-
-        Log.info("[AUTOMATION] Waiting for neovim to attach to editor...")
-        await this.waitFor(
-            () =>
-                editorManager.activeEditor.neovim &&
-                (editorManager.activeEditor as any).neovim.isInitialized,
-            30000,
-        )
-        Log.info("[AUTOMATION] Neovim initialized!")
-
-        Log.info("[AUTOMATION] Waiting for shared neovim instance...")
-        await this.waitFor(
-            () => getSharedNeovimInstance() && getSharedNeovimInstance().isInitialized,
-            30000,
-        )
-        Log.info("[AUTOMATION] Shared neovim instance initialized!")
     }
 
     public async runTest(testPath: string): Promise<void> {
