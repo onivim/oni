@@ -20,14 +20,14 @@ export const quit = async (): Promise<void> => {
     const sharedNeovimInstance = await sharedNeovimInstancePromise
     const p1 = sharedNeovimInstance.getInstance().quit()
 
-    const { editorManager } = await editorManagerPromise
-    const promises = editorManager.allEditors.map(async (editor: any): Promise<void> => {
-        if (editor.quit) {
-            return editor.quit() as Promise<void>
-        }
-    })
+    // const { editorManager } = await editorManagerPromise
+    // const promises = editorManager.allEditors.map(async (editor: any): Promise<void> => {
+    //     if (editor.quit) {
+    //         return editor.quit() as Promise<void>
+    //     }
+    // })
 
-    await Promise.all([p1, ...promises])
+    await Promise.all([p1])
 }
 
 export const start = async (args: string[]): Promise<void> => {
