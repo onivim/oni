@@ -60,6 +60,10 @@ export class EditorManager implements Oni.EditorManager {
     public unregisterEditor(editor: Oni.Editor): void {
         this._allEditors = this._allEditors.filter(ed => ed !== editor)
 
+        if (this._activeEditor === editor) {
+            this.setActiveEditor(null)
+        }
+
         if (this._allEditors.length === 0 && this._closeWhenNoEditors) {
             // Quit?
             remote.getCurrentWindow().close()
@@ -179,7 +183,13 @@ class AnyEditorProxy implements Oni.Editor {
 
     public setActiveEditor(newEditor: Oni.Editor) {
         this._activeEditor = newEditor
+
         this._subscriptions.forEach(d => d.dispose())
+
+        if (!newEditor) {
+            return
+        }
+
         this._subscriptions = [
             newEditor.onModeChanged.subscribe(val => this._onModeChanged.dispatch(val)),
             newEditor.onBufferEnter.subscribe(val => this._onBufferEnter.dispatch(val)),
