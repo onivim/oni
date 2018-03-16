@@ -45,6 +45,8 @@ export class Automation implements OniApi.Automation.Api {
 
         const convertCharacter = (key: string) => {
             switch (key.toLowerCase()) {
+                case "lt":
+                    return "<"
                 case "cr":
                     return "enter"
                 default:

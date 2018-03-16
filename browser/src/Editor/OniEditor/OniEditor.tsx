@@ -14,6 +14,8 @@ import * as types from "vscode-languageserver-types"
 import * as Oni from "oni-api"
 import { IEvent } from "oni-types"
 
+import { remote } from "electron"
+
 import * as Log from "./../../Log"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
@@ -33,7 +35,6 @@ import { OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
 import { ISyntaxHighlighter } from "./../../Services/SyntaxHighlighting"
 
-import { Tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { TokenColors } from "./../../Services/TokenColors"
 import { Workspace } from "./../../Services/Workspace"
@@ -116,7 +117,6 @@ export class OniEditor implements IEditor {
         private _overlayManager: OverlayManager,
         private _pluginManager: PluginManager,
         private _snippetManager: SnippetManager,
-        private _tasks: Tasks,
         private _themeManager: ThemeManager,
         private _tokenColors: TokenColors,
         private _workspace: Workspace,
@@ -131,11 +131,26 @@ export class OniEditor implements IEditor {
             this._overlayManager,
             this._pluginManager,
             this._snippetManager,
-            this._tasks,
             this._themeManager,
             this._tokenColors,
             this._workspace,
         )
+
+        editorManager.registerEditor(this)
+
+        this._neovimEditor.onNeovimQuit.subscribe(() => {
+            const isSplitModeOni = this._configuration.getValue("editor.split.mode") === "oni"
+
+            if (!this._configuration.getValue("debug.persistOnNeovimExit") && !isSplitModeOni) {
+                remote.getCurrentWindow().close()
+            } else if (isSplitModeOni) {
+                const handle = windowManager.getSplitHandle(this)
+                handle.close()
+                editorManager.unregisterEditor(this)
+
+                this.dispose()
+            }
+        })
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
             wrapReactComponentWithLayer("oni.layer.scrollbar", <BufferScrollBarContainer />),
@@ -274,7 +289,6 @@ export class OniEditor implements IEditor {
             this._overlayManager,
             this._pluginManager,
             this._snippetManager,
-            this._tasks,
             this._themeManager,
             this._tokenColors,
             this._workspace,

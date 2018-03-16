@@ -12,7 +12,7 @@ import * as React from "react"
 
 import { Event } from "oni-types"
 
-// import { TutorialManager } from "./Tutorial/TutorialManager"
+import { TutorialManager } from "./Tutorial/TutorialManager"
 
 import { SidebarPane } from "./../Sidebar"
 // import { IBookmark, IBookmarksProvider } from "./index"
@@ -25,6 +25,8 @@ export class LearningPane implements SidebarPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
 
+    constructor(private _tutorialManager: TutorialManager) {}
+
     public get id(): string {
         return "oni.sidebar.learning"
     }
@@ -34,7 +36,7 @@ export class LearningPane implements SidebarPane {
     }
 
     public enter(): void {
-        // this._tutorialManager.startTutorial(null)
+        this._tutorialManager.startTutorial(null)
         this._onEnter.dispatch()
     }
 
@@ -48,7 +50,7 @@ export class LearningPane implements SidebarPane {
                 ids={[]}
                 active={false}
                 render={() => {
-                    return <div>Coming soon!</div>
+                    return <div>{JSON.stringify(this._tutorialManager.getTutorialInfo())}</div>
                 }}
             />
         )

@@ -138,7 +138,14 @@ export class Tab extends React.Component<ITabPropsWithClick> {
     private _tab: HTMLDivElement
     public componentWillReceiveProps(next: ITabPropsWithClick) {
         if (next.isSelected && this._tab) {
-            this._tab.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
+            const anyTab = this._tab as any
+            if (anyTab.scrollIntoViewIfNeeded) {
+                anyTab.scrollIntoViewIfNeeded({
+                    behavior: "smooth",
+                    block: "center",
+                    inline: "center",
+                })
+            }
         }
     }
     public render() {

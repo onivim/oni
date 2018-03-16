@@ -135,6 +135,18 @@
                 "name": "CSS",
                 "role": "Editor",
                 "isPackage": true
+            },
+            {
+                "ext": "txt",
+                "name": "Text",
+                "role": "Editor",
+                "isPackage": true
+            },
+            {
+                "ext": "md",
+                "name": "Markdown",
+                "role": "Editor",
+                "isPackage": true
             }
         ]
     },
@@ -209,7 +221,7 @@
         "minimist": "1.2.0",
         "msgpack-lite": "0.1.26",
         "ocaml-language-server": "^1.0.27",
-        "oni-api": "^0.0.39",
+        "oni-api": "^0.0.41",
         "oni-neovim-binaries": "0.1.0",
         "oni-ripgrep": "0.0.3",
         "oni-types": "0.0.4",
@@ -266,7 +278,7 @@
         "cross-env": "3.1.3",
         "css-loader": "0.28.4",
         "detect-indent": "^5.0.0",
-        "electron": "^1.8.2-beta.5",
+        "electron": "^1.8.3",
         "electron-builder": "19.46.4",
         "electron-devtools-installer": "^2.2.3",
         "electron-mocha": "5.0.0",

@@ -30,8 +30,6 @@ export interface IConfigurationValues {
     "debug.detailedSessionLogging": boolean
     "debug.showTypingPrediction": boolean
 
-    "experimental.achievements.enabled": boolean
-
     "browser.defaultUrl": string
 
     // Simulate slow language server, for debugging
@@ -48,6 +46,7 @@ export interface IConfigurationValues {
     "editor.textMateHighlighting.enabled": boolean
 
     // Whether or not the learning pane is available
+    "experimental.achievements.enabled": boolean
     "experimental.learning.enabled": boolean
 
     // The transport to use for Neovim
@@ -195,6 +194,8 @@ export interface IConfigurationValues {
 
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
+
+    "keyDisplayer.showInInsertMode": boolean
 
     // Case-sensitivity strategy for menu filtering:
     // - if `true`, is case sensitive

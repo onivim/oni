@@ -110,6 +110,11 @@ export const MAX_LINES_FOR_BUFFER_UPDATE = 5000
 
 export type NeovimEventHandler = (...args: any[]) => void
 
+export interface INeovimEvent {
+    eventName: string
+    eventContext: EventContext
+}
+
 export interface INeovimInstance {
     cursorPosition: IPosition
     quickFix: IQuickFixList
@@ -138,6 +143,8 @@ export interface INeovimInstance {
     onCommandLineSetCursorPosition: IEvent<INeovimCommandLineSetCursorPosition>
 
     onMessage: IEvent<IMessageInfo>
+
+    onVimEvent: IEvent<INeovimEvent>
 
     autoCommands: INeovimAutoCommands
     marks: INeovimMarks
@@ -188,6 +195,7 @@ export interface INeovimInstance {
  */
 export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _neovim: Session
+    private _isDisposed: boolean = false
     private _initPromise: Promise<void>
     private _isLeaving: boolean
     private _currentVimDirectory: string
@@ -231,6 +239,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onCommandLineShowEvent = new Event<INeovimCommandLineShowEvent>()
     private _onCommandLineHideEvent = new Event<void>()
     private _onCommandLineSetCursorPositionEvent = new Event<INeovimCommandLineSetCursorPosition>()
+    private _onVimEvent = new Event<INeovimEvent>()
     private _onWildMenuHideEvent = new Event<void>()
     private _onWildMenuSelectEvent = new Event<IWildMenuSelectEvent>()
     private _onWildMenuShowEvent = new Event<IWildMenuShowEvent>()
@@ -315,6 +324,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._onCommandLineSetCursorPositionEvent
     }
 
+    public get onVimEvent(): IEvent<INeovimEvent> {
+        return this._onVimEvent
+    }
+
     public get onWildMenuShow(): IEvent<IWildMenuShowEvent> {
         return this._onWildMenuShowEvent
     }
@@ -366,6 +379,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._onModeChanged.subscribe(newMode => {
             this._bufferUpdateManager.notifyModeChanged(newMode)
         })
+    }
+
+    public dispose(): void {
+        if (this._neovim) {
+            this._neovim.dispose()
+            this._neovim = null
+        }
     }
 
     public async chdir(directoryPath: string): Promise<void> {
@@ -662,6 +682,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     private _handleNotification(_method: any, args: any): void {
+        if (this._isDisposed) {
+            Log.warn(`[NeovimInstance] - ignoring ${_method} because disposed`)
+            return
+        }
+
         args.forEach((a: any[]) => {
             const command = a[0]
             a = a.slice(1)
@@ -860,7 +885,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                 this._autoCommands.notifyAutocommand(eventName, eventContext)
 
-                this.emit("event", eventName, eventContext)
+                this._dispatchEvent(eventName, eventContext)
             } else if (pluginMethod === "incremental_buffer_update") {
                 const eventContext = args[0][0]
                 const lineContents = args[0][1]
@@ -877,6 +902,17 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         } else {
             Log.warn("Unknown notification: " + method)
         }
+    }
+
+    private _dispatchEvent(eventName: string, context: any): void {
+        const eventContext: EventContext = context.current || context
+        this._onVimEvent.dispatch({
+            eventName,
+            eventContext,
+        })
+
+        // TODO: Remove this
+        this.emit("event", eventName, eventContext)
     }
 
     private async _updateProcessDirectory(): Promise<void> {
