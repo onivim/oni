@@ -22,7 +22,9 @@ const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
 export type QuitHook = () => Promise<void>
 
 let _quitHooks: QuitHook[] = []
-let _initializePromise: Utility.ICompletablePromise<void> = Utility.createCompletablePromise<void>()
+const _initializePromise: Utility.ICompletablePromise<void> = Utility.createCompletablePromise<
+    void
+>()
 
 export const registerQuitHook = (quitHook: QuitHook): IDisposable => {
     _quitHooks.push(quitHook)
