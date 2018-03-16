@@ -12,8 +12,8 @@ import styled from "styled-components"
 // import { inputManager, InputManager } from "./../../Services/InputManager"
 
 import { BufferLayerHeader } from "./../../../UI/components/BufferLayerHeader"
-import { FlipCard } from "./../../../UI/components/FlipCard"
 import { boxShadow, withProps } from "./../../../UI/components/common"
+import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
 import * as Oni from "oni-api"
