@@ -14,10 +14,11 @@ import * as types from "vscode-languageserver-types"
 import * as Oni from "oni-api"
 import { IEvent } from "oni-types"
 
-import { remote } from "electron"
+// import { remote } from "electron"
 
 import * as App from "./../../App"
 import * as Log from "./../../Log"
+import * as Utility from "./../../Utility"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
@@ -60,7 +61,7 @@ const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.Bu
     }
 }
 
-export class OniEditor implements IEditor {
+export class OniEditor extends Utility.Disposable implements IEditor {
     private _neovimEditor: NeovimEditor
 
     public get mode(): string {
@@ -122,6 +123,8 @@ export class OniEditor implements IEditor {
         private _tokenColors: TokenColors,
         private _workspace: Workspace,
     ) {
+        super()
+
         this._neovimEditor = new NeovimEditor(
             this._colors,
             this._completionProviders,
@@ -139,12 +142,23 @@ export class OniEditor implements IEditor {
 
         editorManager.registerEditor(this)
 
-        this._neovimEditor.onNeovimQuit.subscribe(() => {
-            const handle = windowManager.getSplitHandle(this)
-            handle.close()
-            editorManager.unregisterEditor(this)
-            this.dispose()
-        })
+        this.trackDisposable(
+            this._neovimEditor.onNeovimQuit.subscribe(() => {
+                const handle = windowManager.getSplitHandle(this)
+                handle.close()
+                editorManager.unregisterEditor(this)
+
+                this.dispose()
+            }),
+        )
+
+        this.trackDisposable(
+            App.registerQuitHook(async () => {
+                if (!this.isDisposed) {
+                    this.quit()
+                }
+            }),
+        )
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
             wrapReactComponentWithLayer("oni.layer.scrollbar", <BufferScrollBarContainer />),
@@ -164,6 +178,8 @@ export class OniEditor implements IEditor {
     }
 
     public dispose(): void {
+        super.dispose()
+
         if (this._neovimEditor) {
             this._neovimEditor.dispose()
             this._neovimEditor = null

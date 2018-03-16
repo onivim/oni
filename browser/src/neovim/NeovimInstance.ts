@@ -628,8 +628,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     public async quit(): Promise<void> {
-        // This command won't return reliably,
-        // as the session gets killed
+        // This command won't resolve the promise (since it's quitting),
+        // so we're not awaiting..
+        // TODO: Is there a way we can deterministically resolve the promise? Like use the `VimLeave` event?
         this.command(":qa!")
     }
 

@@ -36,9 +36,17 @@ export const registerQuitHook = (quitHook: QuitHook): IDisposable => {
 }
 
 export const quit = async (): Promise<void> => {
-    const promises = _quitHooks.map(qh => qh())
+    Log.info(`[App::quit] called with ${_quitHooks.length} quitHooks`)
+    const promises = _quitHooks.map(async qh => {
+        Log.info("[App.quit] Waiting for quit hook...")
+        await qh()
+        Log.info("[App.quit] Quit hook completed successfully")
+    })
     await Promise.all([promises])
+    Log.info("[App::quit] completed")
 }
+
+window["derp"] = quit
 
 export const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
