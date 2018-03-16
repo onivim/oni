@@ -5,6 +5,7 @@
  */
 
 import { ipcRenderer } from "electron"
+
 import * as App from "./App"
 
 ipcRenderer.on("init", (_evt: any, message: any) => {
