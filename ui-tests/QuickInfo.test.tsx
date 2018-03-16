@@ -9,7 +9,7 @@ import {
 } from "./../browser/src/UI/components/QuickInfo"
 
 describe("<QuickInfo />", () => {
-    it("renders a shallow instance of component", () => {
+    it("renders a shallow instance of the component", () => {
         const wrapper = shallow(<QuickInfoTitle />)
         expect(wrapper.length).toEqual(1)
     })
