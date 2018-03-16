@@ -8,13 +8,13 @@ import * as React from "react"
 
 import { Event, IEvent } from "oni-types"
 
-import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { PureComponentWithDisposeTracking } from "./../../UI/components/PureComponentWithDisposeTracking"
+import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 
 import { SidebarPane } from "./../Sidebar"
 
-import { TutorialManager, ITutorialMetadataWithProgress } from "./Tutorial/TutorialManager"
+import { ITutorialMetadataWithProgress, TutorialManager } from "./Tutorial/TutorialManager"
 
 export class LearningPane implements SidebarPane {
     private _onEnter = new Event<void>()

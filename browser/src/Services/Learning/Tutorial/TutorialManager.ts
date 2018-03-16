@@ -4,8 +4,8 @@
 
 import { EditorManager } from "./../../EditorManager"
 
-import * as Tutorials from "./Tutorials"
 import { ITutorial, ITutorialMetadata } from "./ITutorial"
+import * as Tutorials from "./Tutorials"
 
 import { TutorialBufferLayer } from "./TutorialBufferLayer"
 

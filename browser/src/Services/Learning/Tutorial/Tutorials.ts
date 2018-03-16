@@ -4,7 +4,7 @@
 
 import * as Oni from "oni-api"
 
-import { ITutorial, ITutorialContext, ITutorialStage, ITutorialMetadata } from "./ITutorial"
+import { ITutorial, ITutorialContext, ITutorialMetadata, ITutorialStage } from "./ITutorial"
 
 export class SwitchModeTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
