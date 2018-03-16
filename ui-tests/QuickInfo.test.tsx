@@ -11,6 +11,7 @@ import {
 describe("<QuickInfo />", () => {
     it("renders a shallow instance of the component", () => {
         const wrapper = shallow(<QuickInfoTitle />)
+        expect(shallowToJson(wrapper)).toMatchSnapshot()
         expect(wrapper.length).toEqual(1)
     })
 
