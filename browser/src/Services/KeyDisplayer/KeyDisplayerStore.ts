@@ -24,12 +24,12 @@ export const WindowToShowInMilliseconds = 1000
 // This is the size to 'group' key presses - any keys pressed
 // within this timeframe will be grouped together in a box,
 // instead of having their own box
-export const WindowToGroupInMilliseconds = 250
+export const WindowToGroupInMilliseconds = 200
 
 // Keys coming quicker than the 'DupWindow' will be removed
 // This is somewhat of a hack, as there is a bug in the input
 // resolver pipeline where they can be called multiple times
-export const DupWindow = 5
+export const DupWindow = 10
 
 export interface KeyDisplayerState {
     keys: IKeyPressInfo[]

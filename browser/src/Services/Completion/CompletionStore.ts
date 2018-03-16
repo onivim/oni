@@ -324,6 +324,7 @@ const createGetCompletionsEpic = (
                     filePath: state.bufferInfo.filePath,
                     line: action.currentMeet.meetLine,
                     column: action.currentMeet.queryPosition,
+                    meetCharacter: action.currentMeet.meetBase,
                     textMateScopes: action.currentMeet.textMateScopes,
                 })
                 const completions = results || []

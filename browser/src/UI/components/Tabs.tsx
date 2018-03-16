@@ -138,7 +138,14 @@ export class Tab extends React.Component<ITabPropsWithClick> {
     private _tab: HTMLDivElement
     public componentWillReceiveProps(next: ITabPropsWithClick) {
         if (next.isSelected && this._tab) {
-            this._tab.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
+            const anyTab = this._tab as any
+            if (anyTab.scrollIntoViewIfNeeded) {
+                anyTab.scrollIntoViewIfNeeded({
+                    behavior: "smooth",
+                    block: "center",
+                    inline: "center",
+                })
+            }
         }
     }
     public render() {
@@ -303,7 +310,7 @@ const getTabsFromVimTabs = createSelector(
         allBuffers: State.IBuffer[],
     ) => {
         return tabState.tabs.map((t: State.ITab, idx: number) => ({
-            id: t.id,
+            id: idx + 1,
             name: getIdPrefix((idx + 1).toString(), shouldShowId) + getTabName(t.name),
             highlightColor: t.id === tabState.selectedTabId ? color : "transparent",
             iconFileName: showFileIcon ? getTabName(t.name) : "",

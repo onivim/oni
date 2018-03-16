@@ -20,6 +20,7 @@ const log = (msg: string) => {
  * Session is responsible for the Neovim msgpack session
  */
 export class Session extends EventEmitter {
+    private _isDisposed: boolean = false
     private _encoder: msgpackLite.EncodeStream
     private _decoder: msgpackLite.DecodeStream
     private _requestId: number = 0
@@ -80,7 +81,25 @@ export class Session extends EventEmitter {
         })
     }
 
+    public dispose(): void {
+        if (this._encoder) {
+            this._encoder.destroy()
+            this._encoder = null
+        }
+
+        if (this._decoder) {
+            this._decoder.destroy()
+            this._decoder = null
+        }
+
+        this._isDisposed = true
+    }
+
     public request<T>(methodName: string, args: any): Promise<T> {
+        if (this._isDisposed) {
+            Log.warn(`[Session] Ignoring request: ${methodName} because session is disposed.`)
+        }
+
         this._requestId++
         let r = null
         const promise = new Promise<T>(resolve => {

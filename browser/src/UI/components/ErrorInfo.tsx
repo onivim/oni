@@ -3,7 +3,7 @@ import * as types from "vscode-languageserver-types"
 
 import { ErrorIcon } from "./Error"
 
-import { getColorFromSeverity } from "./../../Services/Errors"
+import { getColorFromSeverity } from "./../../Services/Diagnostics"
 
 export interface IErrorInfoProps {
     style: React.CSSProperties

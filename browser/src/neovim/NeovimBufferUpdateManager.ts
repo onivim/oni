@@ -24,6 +24,9 @@ export class NeovimBufferUpdateManager {
     private _lastEventContext: EventContext
     private _lastMode: string
 
+    private _isRequestInProgress: boolean = false
+    private _queuedRequest: EventContext
+
     public get onBufferUpdate(): IEvent<INeovimBufferUpdate> {
         return this._onBufferUpdateEvent
     }
@@ -87,12 +90,19 @@ export class NeovimBufferUpdateManager {
     }
 
     private async _doFullUpdate(eventContext: EventContext): Promise<void> {
+        if (this._isRequestInProgress) {
+            this._queuedRequest = eventContext
+            return
+        }
+
+        this._isRequestInProgress = true
         const bufferLines = await this._neovimInstance.request<string[]>("nvim_buf_get_lines", [
             eventContext.bufferNumber,
             0,
             eventContext.bufferTotalLines,
             false,
         ])
+        this._isRequestInProgress = false
 
         const update: INeovimBufferUpdate = {
             eventContext,
@@ -101,6 +111,13 @@ export class NeovimBufferUpdateManager {
 
         this._lastEventContext = eventContext
         this._onBufferUpdateEvent.dispatch(update)
+
+        // Is there a queued request?
+        if (this._queuedRequest) {
+            const req = this._queuedRequest
+            this._queuedRequest = null
+            this._doFullUpdate(req)
+        }
     }
 
     private _shouldDoFullUpdate(
