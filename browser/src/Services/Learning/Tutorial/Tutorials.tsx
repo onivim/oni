@@ -9,8 +9,7 @@ import * as types from "vscode-languageserver-types"
 
 import styled, { keyframes } from "styled-components"
 
-import { ITutorial, ITutorialContext, ITutorialStage } from "./ITutorial"
-import { ITutorialMetadata } from "./TutorialManager"
+import { ITutorial, ITutorialContext, ITutorialStage, ITutorialMetadata } from "./ITutorial"
 
 export class SwitchModeTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
@@ -203,3 +202,5 @@ export class InitializeBufferStage implements ITutorialStage {
         return null
     }
 }
+
+export const AllTutorials: ITutorial[] = [new SwitchModeTutorial(), new BasicMovementTutorial()]

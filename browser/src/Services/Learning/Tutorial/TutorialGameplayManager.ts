@@ -6,8 +6,7 @@ import * as Oni from "oni-api"
 
 import { Event, IEvent } from "oni-types"
 
-import { ITutorial, ITutorialStage } from "./ITutorial"
-import { ITutorialMetadata } from "./TutorialManager"
+import { ITutorial, ITutorialStage, ITutorialMetadata } from "./ITutorial"
 
 export interface ITutorialState {
     metadata: ITutorialMetadata
