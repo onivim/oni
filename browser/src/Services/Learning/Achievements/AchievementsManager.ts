@@ -24,6 +24,11 @@ export interface AchievementGoalDefinition {
     count: number
 }
 
+export interface AchievementWithProgressInfo {
+    achievement: AchievementDefinition
+    completed: boolean
+}
+
 export class AchievementsManager {
     private _goalState: IPersistedAchievementState
     private _achievements: { [achievementId: string]: AchievementDefinition } = {}
@@ -64,6 +69,19 @@ export class AchievementsManager {
         Object.values(this._achievements).forEach(achievement => {
             this._checkIfShouldTrackAchievement(achievement)
             this._checkVictoryCondition(achievement)
+        })
+    }
+
+    public getAchievements(): AchievementWithProgressInfo[] {
+        const allAchievements = Object.values(this._achievements)
+
+        return allAchievements.map(achievement => {
+            const completed = this._goalState.achievedIds.indexOf(achievement.uniqueId) >= 0
+
+            return {
+                achievement,
+                completed,
+            }
         })
     }
 

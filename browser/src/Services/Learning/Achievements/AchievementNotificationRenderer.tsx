@@ -11,6 +11,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group"
 import styled, { keyframes } from "styled-components"
 
 import { boxShadow, withProps } from "./../../../UI/components/common"
+import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
 export class AchievementNotificationRenderer {
@@ -89,30 +90,11 @@ const AchievementWrapper = withProps<{}>(styled.div)`
     }
 `
 
-const AchievementImageWrapper = styled.div`
+const FlipCardWrapper = styled.div`
     width: 48px;
     height: 48px;
     margin: 8px;
-    position: relative;
     flex: 0 0 auto;
-    transform-style: preserve-3d;
-
-    & .front,
-    & .back {
-        margin: 0;
-        display: block;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        backface-visibility: hidden;
-    }
-
-    & .back {
-        transform: rotateY(180deg);
-    }
-
-    transition-duration: 1s;
-    transition-property: transform;
 `
 
 const AchievementIconWrapper = withProps<{}>(styled.div)`
@@ -168,23 +150,22 @@ export class AchievementView extends React.PureComponent<IAchievement, Achieveme
         return (
             <CSSTransition {...this.props} timeout={2500} classNames="animate" appear={true}>
                 <AchievementWrapper className="achievement" key={this.props.title}>
-                    <AchievementImageWrapper
-                        style={{
-                            transform: this.state.flipCard ? "rotateY(180deg)" : "rotateY(0deg)",
-                        }}
-                    >
-                        <div className="front">
-                            <img
-                                src="images/256x256.png"
-                                style={{ width: "100%", height: "100%" }}
-                            />
-                        </div>
-                        <div className="back">
-                            <AchievementIconWrapper>
-                                <Icon name="trophy" size={IconSize.TwoX} />
-                            </AchievementIconWrapper>
-                        </div>
-                    </AchievementImageWrapper>
+                    <FlipCardWrapper>
+                        <FlipCard
+                            isFlipped={this.state.flipCard}
+                            front={
+                                <img
+                                    src="images/256x256.png"
+                                    style={{ width: "100%", height: "100%" }}
+                                />
+                            }
+                            back={
+                                <AchievementIconWrapper>
+                                    <Icon name="trophy" size={IconSize.TwoX} />
+                                </AchievementIconWrapper>
+                            }
+                        />
+                    </FlipCardWrapper>
                     <div className="container vertical full" style={{ padding: "0em 1em" }}>
                         <div style={{ fontWeight: "bold", paddingBottom: "0.25em" }}>
                             Achievement Unlocked

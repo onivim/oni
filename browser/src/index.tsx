@@ -215,7 +215,13 @@ const start = async (args: string[]): Promise<void> => {
 
     Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
-    Learning.activate(configuration, editorManager, overlayManager, Sidebar.getInstance())
+    Learning.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        overlayManager,
+        Sidebar.getInstance(),
+    )
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =
@@ -287,10 +293,6 @@ const start = async (args: string[]): Promise<void> => {
 
     Performance.endMeasure("Oni.Start")
     ipcRenderer.send("Oni.started", "started")
-
-    const Achievements = await import("./Services/Learning/Achievements")
-    const achievements = Achievements.getInstance()
-    achievements.notifyGoal("oni.goal.launch")
 }
 
 ipcRenderer.on("init", (_evt: any, message: any) => {
