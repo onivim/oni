@@ -6,21 +6,7 @@ import * as assert from "assert"
 
 import { ISplitInfo, ISplitLeaf, LinearSplitProvider } from "./../../../src/Services/WindowManager"
 
-export class MockWindowSplit {
-    constructor(private _id: string = "mock.window") {}
-
-    public get id(): string {
-        return this._id
-    }
-
-    public get innerSplit(): any {
-        return null
-    }
-
-    public render(): JSX.Element {
-        return null
-    }
-}
+import { MockWindowSplit } from "./../../Mocks"
 
 describe("LinearSplitProviderTests", () => {
     let split1: MockWindowSplit
