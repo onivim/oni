@@ -2,14 +2,14 @@
  * TutorialManager
  */
 
-import * as React from "react"
 import * as Oni from "oni-api"
+import * as React from "react"
 
 import * as types from "vscode-languageserver-types"
 
 import styled, { keyframes } from "styled-components"
 
-import { ITutorial, ITutorialContext, ITutorialStage, ITutorialMetadata } from "./ITutorial"
+import { ITutorial, ITutorialContext, ITutorialMetadata, ITutorialStage } from "./ITutorial"
 
 export class SwitchModeTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
