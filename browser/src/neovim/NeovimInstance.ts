@@ -3,7 +3,7 @@ import * as path from "path"
 
 import * as mkdirp from "mkdirp"
 import * as Oni from "oni-api"
-import { Event, IEvent, IDisposable } from "oni-types"
+import { Event, IDisposable, IEvent } from "oni-types"
 
 import * as Log from "./../Log"
 import * as Performance from "./../Performance"

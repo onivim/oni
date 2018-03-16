@@ -46,8 +46,6 @@ export const quit = async (): Promise<void> => {
     Log.info("[App::quit] completed")
 }
 
-window["derp"] = quit
-
 export const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
 
