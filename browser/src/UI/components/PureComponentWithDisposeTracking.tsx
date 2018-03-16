@@ -6,6 +6,8 @@
 
 import * as React from "react"
 
+import { IDisposable } from "oni-types"
+
 export class PureComponentWithDisposeTracking<TProps, TState> extends React.PureComponent<
     TProps,
     TState
