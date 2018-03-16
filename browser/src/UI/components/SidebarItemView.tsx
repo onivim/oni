@@ -14,7 +14,7 @@ export interface ISidebarItemViewProps {
     didDrop?: boolean
     text: string | JSX.Element
     isFocused: boolean
-    isContainer: boolean
+    isContainer?: boolean
     indentationLevel: number
     icon?: JSX.Element
 }
