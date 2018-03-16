@@ -7,8 +7,8 @@
 import * as React from "react"
 
 import styled from "styled-components"
+import { boxShadow, withProps } from "./../../UI/components/common"
 import { TextInputView } from "./../../UI/components/LightweightText"
-import { withProps, boxShadow } from "./../../UI/components/common"
 
 export interface ISearchTextBoxProps {
     isActive: boolean
@@ -36,7 +36,7 @@ const SearchTextBoxWrapper = withProps<ISearchTextBoxProps>(styled.div)`
             ? "2px solid " + props.theme["highlight.mode.normal.background"]
             : "1px solid " + props.theme["editor.foreground"]};
     margin: 8px;
-    background-color: ${props => props.theme["background"]};
+    background-color: ${props => props.theme.background};
 
     ${props => (props.isActive ? boxShadow : "")};
 

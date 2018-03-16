@@ -205,7 +205,7 @@ export class Automation implements OniApi.Automation.Api {
         try {
             await App.quit()
         } catch (ex) {
-            console.error(ex)
+            Log.error(ex)
         }
         Log.info("[AUTOMATION] Quit successfully")
 

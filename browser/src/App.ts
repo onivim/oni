@@ -52,7 +52,6 @@ export const start = async (args: string[]): Promise<void> => {
 
     const menuPromise = import("./Services/Menu")
 
-    const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
     const browserWindowConfigurationSynchronizerPromise = import("./Services/BrowserWindowConfigurationSynchronizer")
     const colorsPromise = import("./Services/Colors")
     const tokenColorsPromise = import("./Services/TokenColors")
@@ -92,7 +91,9 @@ export const start = async (args: string[]): Promise<void> => {
     const configChange = (newConfigValues: Partial<IConfigurationValues>) => {
         let prop: keyof IConfigurationValues
         for (prop in newConfigValues) {
-            Shell.Actions.setConfigValue(prop, newConfigValues[prop])
+            if (newConfigValues[prop]) {
+                Shell.Actions.setConfigValue(prop, newConfigValues[prop])
+            }
         }
     }
 
