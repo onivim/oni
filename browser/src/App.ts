@@ -7,6 +7,9 @@
 import { ipcRenderer } from "electron"
 import * as minimist from "minimist"
 import * as path from "path"
+
+import { IDisposable } from "oni-types"
+
 import * as Log from "./Log"
 import * as Performance from "./Performance"
 import * as Utility from "./Utility"
@@ -16,18 +19,25 @@ import { IConfigurationValues } from "./Services/Configuration/IConfigurationVal
 const editorManagerPromise = import("./Services/EditorManager")
 const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")
 
+export type QuitHook = () => Promise<void>
+
+let _quitHooks: QuitHook[] = []
+
+export const registerQuitHook = (quitHook: QuitHook): IDisposable => {
+    _quitHooks.push(quitHook)
+
+    const dispose = () => {
+        _quitHooks = _quitHooks.filter(qh => qh !== quitHook)
+    }
+
+    return {
+        dispose,
+    }
+}
+
 export const quit = async (): Promise<void> => {
-    const sharedNeovimInstance = await sharedNeovimInstancePromise
-    const p1 = sharedNeovimInstance.getInstance().quit()
-
-    const { editorManager } = await editorManagerPromise
-    const promises = editorManager.allEditors.map(async (editor: any): Promise<void> => {
-        if (editor.quit) {
-            return editor.quit() as Promise<void>
-        }
-    })
-
-    await Promise.all([p1, ...promises])
+    const promises = _quitHooks.map(qh => qh())
+    await Promise.all([promises])
 }
 
 export const start = async (args: string[]): Promise<void> => {

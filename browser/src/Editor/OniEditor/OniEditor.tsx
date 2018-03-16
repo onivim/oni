@@ -16,6 +16,7 @@ import { IEvent } from "oni-types"
 
 import { remote } from "electron"
 
+import * as App from "./../../App"
 import * as Log from "./../../Log"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
@@ -139,17 +140,10 @@ export class OniEditor implements IEditor {
         editorManager.registerEditor(this)
 
         this._neovimEditor.onNeovimQuit.subscribe(() => {
-            const isSplitModeOni = this._configuration.getValue("editor.split.mode") === "oni"
-
-            if (!this._configuration.getValue("debug.persistOnNeovimExit") && !isSplitModeOni) {
-                remote.getCurrentWindow().close()
-            } else if (isSplitModeOni) {
-                const handle = windowManager.getSplitHandle(this)
-                handle.close()
-                editorManager.unregisterEditor(this)
-
-                this.dispose()
-            }
+            const handle = windowManager.getSplitHandle(this)
+            handle.close()
+            editorManager.unregisterEditor(this)
+            this.dispose()
         })
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
