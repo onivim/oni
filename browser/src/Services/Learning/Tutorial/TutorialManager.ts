@@ -2,31 +2,36 @@
  * TutorialManager
  */
 
-import * as Oni from "oni-api"
-
 import { EditorManager } from "./../../EditorManager"
 
+import { ITutorial, ITutorialMetadata } from "./ITutorial"
 import * as Tutorials from "./Tutorials"
-
-export interface ITutorialState {
-    renderFunc: (context: Oni.BufferLayerRenderContext) => JSX.Element
-    activeGoalIndex: number
-    goals: string[]
-}
-
-export interface ITutorialMetadata {
-    id: string
-    name: string
-    description: string
-}
 
 import { TutorialBufferLayer } from "./TutorialBufferLayer"
 
+export interface ITutorialPersistedState {
+    completedTutorialIds: string[]
+}
+
+export interface ITutorialMetadataWithProgress {
+    tutorialInfo: ITutorialMetadata
+    completed: boolean
+}
+
 export class TutorialManager {
+    private _tutorials: ITutorial[] = []
+
     constructor(private _editorManager: EditorManager) {}
 
-    public getTutorialInfo(): ITutorialMetadata[] {
-        return []
+    public getTutorialInfo(): ITutorialMetadataWithProgress[] {
+        return this._tutorials.map(tut => ({
+            tutorialInfo: tut.metadata,
+            completed: false,
+        }))
+    }
+
+    public registerTutorial(tutorial: ITutorial): void {
+        this._tutorials.push(tutorial)
     }
 
     public async startTutorial(id: string): Promise<void> {

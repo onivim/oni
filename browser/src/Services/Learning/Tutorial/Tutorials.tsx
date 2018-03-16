@@ -19,6 +19,7 @@ export class SwitchModeTutorial implements ITutorial {
             name: "Switching Modes: Insert and Normal",
             description:
                 "Oni is a modal editor, which means the editor works in different modes. This can seem strange coming from other editors - where the only mode is inserting text. However, when working with text, you'll find that only a small percentage of the time you are typing - the majority of the time, you are navigating and editing, which is where normal mode is used. Let's practice switching to and from insert mode!",
+            level: 100,
         }
     }
 
@@ -109,6 +110,7 @@ export class BasicMovementTutorial implements ITutorial {
             name: "Normal Mode Motion: h/j/k/l",
             description:
                 "To use Oni effectively in normal mode, you'll need to learn to move the cursor around! There are many ways to move the cursor, but the most basic is to use `h`, `j`, `k`, and `l`. These keys might seem strange at first, but they allow you to move the cursor without your fingers leaving the home row.",
+            level: 110,
         }
     }
 
