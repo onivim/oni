@@ -8,11 +8,14 @@ import * as React from "react"
 
 import { Event, IEvent } from "oni-types"
 
+import { CommandManager } from "./../CommandManager"
+
 import { PureComponentWithDisposeTracking } from "./../../UI/components/PureComponentWithDisposeTracking"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { SidebarButton } from "./../../UI/components/SidebarButton"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 
+import { Container, Full, Fixed } from "./../../UI/components/common"
 import { SidebarPane } from "./../Sidebar"
 
 import { ITutorialMetadataWithProgress, TutorialManager } from "./Tutorial/TutorialManager"
@@ -21,7 +24,10 @@ export class LearningPane implements SidebarPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
 
-    constructor(private _tutorialManager: TutorialManager) {}
+    constructor(
+        private _tutorialManager: TutorialManager,
+        private _commandManager: CommandManager,
+    ) {}
 
     public get id(): string {
         return "oni.sidebar.learning"
@@ -47,7 +53,7 @@ export class LearningPane implements SidebarPane {
                 onLeave={this._onLeave}
                 tutorialManager={this._tutorialManager}
                 onStartTutorial={id => this._tutorialManager.startTutorial(id)}
-                onOpenAchievements={() => alert("open achievements")}
+                onOpenAchievements={() => this._commandManager.executeCommand("achievements.show")}
             />
         )
     }
@@ -112,22 +118,39 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
                 render={selectedId => {
                     const items = tutorialItems(selectedId)
                     return (
-                        <div>
-                            <SidebarContainerView
-                                indentationLevel={0}
-                                isFocused={selectedId === "tutorial_container"}
-                                text={"Tutorials"}
-                                isContainer={true}
-                                isExpanded={true}
-                            >
-                                {items}
-                            </SidebarContainerView>
-                            <SidebarButton
-                                text={"Trophy Case"}
-                                focused={selectedId === "trophy_case"}
-                                onClick={() => this._onSelect("trophy_case")}
-                            />
-                        </div>
+                        <Container
+                            fullHeight={true}
+                            fullWidth={true}
+                            direction="vertical"
+                            style={{
+                                position: "absolute",
+                                top: "0px",
+                                left: "0px",
+                                right: "0px",
+                                bottom: "0px",
+                            }}
+                        >
+                            <Full style={{ height: "100%" }}>
+                                <SidebarContainerView
+                                    indentationLevel={0}
+                                    isFocused={selectedId === "tutorial_container"}
+                                    text={"Tutorials"}
+                                    isContainer={true}
+                                    isExpanded={true}
+                                >
+                                    {items}
+                                </SidebarContainerView>
+                            </Full>
+                            <Fixed>
+                                <div style={{ marginBottom: "2em", marginTop: "2em" }}>
+                                    <SidebarButton
+                                        text={"Trophy Case"}
+                                        focused={selectedId === "trophy_case"}
+                                        onClick={() => this._onSelect("trophy_case")}
+                                    />
+                                </div>
+                            </Fixed>
+                        </Container>
                     )
                 }}
             />
