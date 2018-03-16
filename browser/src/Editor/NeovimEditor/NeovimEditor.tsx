@@ -738,12 +738,15 @@ export class NeovimEditor extends Editor implements IEditor {
             this._externalMenuOverlay = null
         }
 
-        // TODO: Implement full disposal logic
-        this._popupMenu.dispose()
-        this._popupMenu = null
+        if (this._popupMenu) {
+            this._popupMenu.dispose()
+            this._popupMenu = null
+        }
 
-        this._windowManager.dispose()
-        this._windowManager = null
+        if (this._windowManager) {
+            this._windowManager.dispose()
+            this._windowManager = null
+        }
     }
 
     public enter(): void {
@@ -971,6 +974,11 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public async quit(): Promise<void> {
+        if (this._windowManager) {
+            this._windowManager.dispose()
+            this._windowManager = null
+        }
+
         return this._neovimInstance.quit()
     }
 
