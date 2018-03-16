@@ -6,28 +6,21 @@
 
 import * as React from "react"
 
-// import styled from "styled-components"
+import { Event, IEvent } from "oni-types"
 
-// import * as path from "path"
-
-import { Event, IEvent, IDisposable } from "oni-types"
-
-import { TutorialManager } from "./Tutorial/TutorialManager"
+import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
+import { PureComponentWithDisposeTracking } from "./../../UI/components/PureComponentWithDisposeTracking"
+import { VimNavigator } from "./../../UI/components/VimNavigator"
 
 import { SidebarPane } from "./../Sidebar"
-// import { IBookmark, IBookmarksProvider } from "./index"
 
-// import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
-import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
-import { VimNavigator } from "./../../UI/components/VimNavigator"
+import { TutorialManager, ITutorialMetadataWithProgress } from "./Tutorial/TutorialManager"
 
 export class LearningPane implements SidebarPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
 
-    constructor(private _tutorialManager: TutorialManager) {
-        console.log(this._tutorialManager)
-    }
+    constructor(private _tutorialManager: TutorialManager) {}
 
     public get id(): string {
         return "oni.sidebar.learning"
@@ -47,41 +40,29 @@ export class LearningPane implements SidebarPane {
     }
 
     public render(): JSX.Element {
-        return <LearningPaneView onEnter={this._onEnter} onLeave={this._onLeave} />
+        return (
+            <LearningPaneView
+                onEnter={this._onEnter}
+                onLeave={this._onLeave}
+                tutorialManager={this._tutorialManager}
+            />
+        )
     }
 }
 
 export interface ILearningPaneViewProps {
     onEnter: IEvent<void>
     onLeave: IEvent<void>
+    tutorialManager: TutorialManager
 }
 
 export interface ILearningPaneViewState {
     isActive: boolean
+    tutorialInfo: ITutorialMetadataWithProgress[]
 }
 
-export class PureComponentWithDisposeTracking<TProps, TState> extends React.PureComponent<
-    TProps,
-    TState
-> {
-    private _subscriptions: IDisposable[] = []
-
-    public componentDidMount(): void {
-        this._cleanExistingSubscriptions()
-    }
-
-    public componentWillUnmount(): void {
-        this._cleanExistingSubscriptions()
-    }
-
-    protected trackDisposable(disposable: IDisposable): void {
-        this._subscriptions.push(disposable)
-    }
-
-    private _cleanExistingSubscriptions(): void {
-        this._subscriptions.forEach(s => s.dispose())
-        this._subscriptions = []
-    }
+export const TutorialItemView = (props: { info: ITutorialMetadataWithProgress }): JSX.Element => {
+    return <div>{props.info.tutorialInfo.name}</div>
 }
 
 export class LearningPaneView extends PureComponentWithDisposeTracking<
@@ -93,6 +74,7 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
 
         this.state = {
             isActive: false,
+            tutorialInfo: this.props.tutorialManager.getTutorialInfo(),
         }
     }
 
@@ -104,26 +86,24 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
     }
 
     public render(): JSX.Element {
-        const ids = ["tutorial_container", "a", "b", "c"]
+        const tutorialIds = this.state.tutorialInfo.map(t => t.tutorialInfo.id)
+        const ids = ["tutorial_container", ...tutorialIds]
+
+        const tutorialItems = (selectedId: string) =>
+            this.state.tutorialInfo.map(t => (
+                <SidebarItemView
+                    indentationLevel={1}
+                    isFocused={selectedId === t.tutorialInfo.id}
+                    text={<TutorialItemView info={t} />}
+                />
+            ))
 
         return (
             <VimNavigator
                 ids={ids}
                 active={this.state.isActive}
                 render={selectedId => {
-                    const items = ["a", "b", "c"].map(item => (
-                        <SidebarItemView
-                            indentationLevel={1}
-                            isFocused={selectedId === item}
-                            text={
-                                <div>
-                                    <div>line1</div>
-                                    <div>{item}</div>
-                                </div>
-                            }
-                        />
-                    ))
-
+                    const items = tutorialItems(selectedId)
                     return (
                         <SidebarContainerView
                             indentationLevel={0}
