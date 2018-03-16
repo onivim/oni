@@ -163,7 +163,7 @@
             "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
         "test": "npm run test:unit && npm run test:integration",
         "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js",
-        "test:unit": "npm run test:unit:browser",
+        "test:unit": "npm run test:unit:browser && npm run test:react",
         "test:react": "jest ./ui-tests",
         "test:react:watch": "jest ./ui-tests --watch",
         "test:react:coverage": "jest ./ui-tests --coverage",
