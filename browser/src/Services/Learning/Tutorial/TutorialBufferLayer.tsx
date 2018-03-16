@@ -83,6 +83,66 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
     public async startTutorial(tutorial: ITutorial): Promise<void> {
         await this._initPromise
         this._tutorialGameplayManager.start(tutorial, this._editor.activeBuffer)
+        this._editor.activeBuffer.addLayer(new GameplayBufferLayer(this._tutorialGameplayManager))
+    }
+}
+
+export class GameplayBufferLayer implements Oni.BufferLayer {
+    public get id(): string {
+        return "oni.layer.gameplay"
+    }
+
+    public get friendlyName(): string {
+        return "Gameplay"
+    }
+
+    constructor(private _tutorialGameplayManager: TutorialGameplayManager) {}
+
+    public render(context: Oni.BufferLayerRenderContext): JSX.Element {
+        return (
+            <GameplayBufferLayerView
+                context={context}
+                tutorialGameplay={this._tutorialGameplayManager}
+            />
+        )
+    }
+}
+
+export interface IGameplayBufferLayerViewProps {
+    tutorialGameplay: TutorialGameplayManager
+    context: Oni.BufferLayerRenderContext
+}
+
+export interface IGameplayBufferLayerViewState {
+    renderFunction: (context: Oni.BufferLayerRenderContext) => JSX.Element
+}
+
+export class GameplayBufferLayerView extends React.PureComponent<
+    IGameplayBufferLayerViewProps,
+    IGameplayBufferLayerViewState
+> {
+    constructor(props: IGameplayBufferLayerViewProps) {
+        super(props)
+
+        this.state = {
+            renderFunction: () => null,
+        }
+    }
+
+    public componentDidMount(): void {
+        this.props.tutorialGameplay.onStateChanged.subscribe(newState => {
+            this.setState({
+                renderFunction: newState.renderFunc,
+            })
+        })
+    }
+
+    public render(): JSX.Element {
+        if (this.state.renderFunction) {
+            return this.state.renderFunction(this.props.context)
+        }
+
+        return null
     }
 }
 
