@@ -11,13 +11,11 @@ import * as OniApi from "oni-api"
 import * as App from "./../App"
 import * as Utility from "./../Utility"
 
-import { getInstance as getSharedNeovimInstance } from "./../neovim/SharedNeovimInstance"
 import { getUserConfigFilePath } from "./Configuration"
 import { editorManager } from "./EditorManager"
 import { inputManager } from "./InputManager"
 
 import * as Log from "./../Log"
-import * as Shell from "./../UI/Shell"
 
 import { IKey, parseKeysFromVimString } from "./../Input/KeyParser"
 
