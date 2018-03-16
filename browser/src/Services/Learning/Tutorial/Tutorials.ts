@@ -4,14 +4,14 @@
 
 import * as Oni from "oni-api"
 
-import { ITutorial, ITutorialContext, ITutorialStage } from "./ITutorial"
-import { ITutorialMetadata } from "./TutorialManager"
+import { ITutorial, ITutorialContext, ITutorialMetadata, ITutorialStage } from "./ITutorial"
 
 export class SwitchModeTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
             id: "oni.tutorial.switch_modes",
             name: "Switching Modes",
+            level: 110,
         }
     }
 
@@ -51,6 +51,7 @@ export class BasicMovementTutorial implements ITutorial {
         return {
             id: "basic_movement",
             name: "h, j, k, l movement",
+            level: 100,
         }
     }
 
@@ -92,3 +93,5 @@ export class BasicMovementTutorial implements ITutorial {
         ]
     }
 }
+
+export const AllTutorials: ITutorial[] = [new SwitchModeTutorial(), new BasicMovementTutorial()]

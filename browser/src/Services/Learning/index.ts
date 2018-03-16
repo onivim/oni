@@ -12,6 +12,8 @@ import { LearningPane } from "./LearningPane"
 import { TutorialManager } from "./Tutorial/TutorialManager"
 
 import * as Achievements from "./Achievements"
+import { ITutorial } from "./Tutorial/ITutorial"
+import { AllTutorials } from "./Tutorial/Tutorials"
 
 export const activate = (
     commandManager: CommandManager,
@@ -30,6 +32,8 @@ export const activate = (
 
     const tutorialManager = new TutorialManager(editorManager)
     sidebarManager.add("trophy", new LearningPane(tutorialManager))
+
+    AllTutorials.forEach((tut: ITutorial) => tutorialManager.registerTutorial(tut))
 
     commandManager.registerCommand({
         command: "experimental.tutorial.start",

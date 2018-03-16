@@ -756,6 +756,19 @@ export class NeovimEditor extends Editor implements IEditor {
         this._commands.activate()
 
         this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
+        this.checkAutoRead()
+    }
+
+    public checkAutoRead(): void {
+        // If the user has autoread enabled, we should run ":checktime" on
+        // focus, as this is needed to get the file to auto-update.
+        // https://github.com/neovim/neovim/issues/1936
+        if (
+            this._neovimInstance.isInitialized &&
+            this._configuration.getValue("vim.setting.autoread")
+        ) {
+            this._neovimInstance.command(":checktime")
+        }
     }
 
     public leave(): void {
