@@ -5,14 +5,16 @@
  */
 
 import * as React from "react"
-import styled from "styled-components"
 
-import { withProps } from "./common"
+import { styled, withProps } from "./common"
 
 export interface ISidebarItemViewProps {
+    isOver?: boolean
+    canDrop?: boolean
+    didDrop?: boolean
     text: string | JSX.Element
     isFocused: boolean
-    isContainer: boolean
+    isContainer?: boolean
     indentationLevel: number
     icon?: JSX.Element
 }
@@ -26,6 +28,7 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
             ? "4px solid " + props.theme["highlight.mode.normal.background"]
             : "4px solid transparent"};
 
+    ${p => p.isOver && `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -83,13 +86,23 @@ export class SidebarItemView extends React.PureComponent<ISidebarItemViewProps, 
     }
 }
 
-export interface ISidebarContainerViewProps {
+export interface ISidebarContainerViewProps extends IContainerProps {
+    didDrop?: boolean
     text: string
     isExpanded: boolean
     isFocused: boolean
     indentationLevel?: number
     isContainer?: boolean
 }
+
+interface IContainerProps {
+    isOver?: boolean
+    canDrop?: boolean
+}
+
+const SidebarContainer = withProps<IContainerProps>(styled.div)`
+    ${p => p.isOver && `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
+`
 
 export class SidebarContainerView extends React.PureComponent<ISidebarContainerViewProps, {}> {
     public render(): JSX.Element {
@@ -101,8 +114,9 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
         const indentationlevel = this.props.indentationLevel || 0
 
         return (
-            <div>
+            <SidebarContainer canDrop={this.props.canDrop} isOver={this.props.isOver}>
                 <SidebarItemView
+                    didDrop={this.props.didDrop}
                     indentationLevel={indentationlevel}
                     icon={icon}
                     text={this.props.text}
@@ -110,7 +124,7 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
                     isContainer={this.props.isContainer}
                 />
                 {this.props.isExpanded ? this.props.children : null}
-            </div>
+            </SidebarContainer>
         )
     }
 }

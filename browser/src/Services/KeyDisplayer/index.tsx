@@ -5,6 +5,8 @@
  */
 
 import { CommandManager } from "./../CommandManager"
+import { Configuration } from "./../Configuration"
+import { EditorManager } from "./../EditorManager"
 import { InputManager } from "./../InputManager"
 import { OverlayManager } from "./../Overlay"
 
@@ -17,10 +19,17 @@ import { KeyDisplayer } from "./KeyDisplayer"
 
 export const activate = (
     commandManager: CommandManager,
+    configuration: Configuration,
+    editorManager: EditorManager,
     inputManager: InputManager,
     overlayManager: OverlayManager,
 ) => {
-    const keyDisplayer = new KeyDisplayer(inputManager, overlayManager)
+    const keyDisplayer = new KeyDisplayer(
+        configuration,
+        editorManager,
+        inputManager,
+        overlayManager,
+    )
 
     commandManager.registerCommand({
         command: "keyDisplayer.show",

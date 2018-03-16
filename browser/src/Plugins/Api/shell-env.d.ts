@@ -1,4 +1,6 @@
 declare module "shell-env" {
-    const shellEnv = any
-    export = shellEnv
+    export namespace shellEnv {
+        export function sync(shell?: string): NodeJS.Env
+        export default function(shell?: string): Promise<NodeJS.Env>
+    }
 }

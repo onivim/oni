@@ -4,6 +4,7 @@
  * Manages snippet integration
  */
 
+import * as Oni from "oni-api"
 import { IDisposable } from "oni-types"
 
 import * as Log from "./../../Log"
@@ -11,25 +12,29 @@ import * as Log from "./../../Log"
 import "rxjs/add/operator/auditTime"
 import { Subject } from "rxjs/Subject"
 
+import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 
-import { OniSnippet } from "./OniSnippet"
-import { CompositeSnippetProvider, ISnippetProvider } from "./SnippetProvider"
+import { SnippetBufferLayer } from "./SnippetBufferLayer"
+import { CompositeSnippetProvider } from "./SnippetProvider"
 import { SnippetSession } from "./SnippetSession"
 
-import { ISnippet } from "./ISnippet"
-
-export class SnippetManager {
+export class SnippetManager implements Oni.Snippets.SnippetManager {
     private _activeSession: SnippetSession
     private _disposables: IDisposable[] = []
+    private _currentLayer: SnippetBufferLayer = null
 
     private _snippetProvider: CompositeSnippetProvider
-    private _synchronizeSnippetObseravble: Subject<void> = new Subject<void>()
+    private _synchronizeSnippetObservable: Subject<void> = new Subject<void>()
 
-    constructor(private _editorManager: EditorManager) {
-        this._snippetProvider = new CompositeSnippetProvider()
+    public get isSnippetActive(): boolean {
+        return !!this._activeSession
+    }
 
-        this._synchronizeSnippetObseravble.auditTime(50).subscribe(() => {
+    constructor(private _configuration: Configuration, private _editorManager: EditorManager) {
+        this._snippetProvider = new CompositeSnippetProvider(this._configuration)
+
+        this._synchronizeSnippetObservable.auditTime(50).subscribe(() => {
             const activeEditor = this._editorManager.activeEditor as any
             const activeSession = this._activeSession
 
@@ -39,11 +44,11 @@ export class SnippetManager {
         })
     }
 
-    public async getSnippetsForLanguage(language: string): Promise<ISnippet[]> {
+    public async getSnippetsForLanguage(language: string): Promise<Oni.Snippets.Snippet[]> {
         return this._snippetProvider.getSnippets(language)
     }
 
-    public registerSnippetProvider(snippetProvider: ISnippetProvider): void {
+    public registerSnippetProvider(snippetProvider: Oni.Snippets.SnippetProvider): void {
         this._snippetProvider.registerProvider(snippetProvider)
     }
 
@@ -54,44 +59,61 @@ export class SnippetManager {
         this.cancel()
         Log.info("[SnippetManager::insertSnippet]")
 
-        const snip = new OniSnippet(snippet)
-
         const activeEditor = this._editorManager.activeEditor as any
-        const snippetSession = new SnippetSession(activeEditor as any, snip)
+        const snippetSession = new SnippetSession(activeEditor as any, snippet)
         await snippetSession.start()
 
-        const s2 = activeEditor.onBufferChanged.subscribe(() => {
-            this._synchronizeSnippetObseravble.next()
+        const buffer = this._editorManager.activeEditor.activeBuffer
+        this._currentLayer = new SnippetBufferLayer(buffer, snippetSession)
+
+        const s1 = activeEditor.onCursorMoved.subscribe(() => {
+            if (this.isSnippetActive) {
+                this._activeSession.updateCursorPosition()
+            }
         })
 
-        const s3 = snippetSession.onCancel.subscribe(() => {
+        const s2 = activeEditor.onModeChanged.subscribe(() => {
+            if (this.isSnippetActive) {
+                this._activeSession.updateCursorPosition()
+            }
+        })
+
+        const s3 = activeEditor.onBufferChanged.subscribe(() => {
+            this._synchronizeSnippetObservable.next()
+        })
+
+        const s4 = snippetSession.onCancel.subscribe(() => {
             this.cancel()
         })
 
-        this._disposables = [s2, s3]
+        this._disposables = [s1, s2, s3, s4]
 
         this._activeSession = snippetSession
     }
 
-    public nextPlaceholder(): void {
-        if (this.isSnippetActive()) {
-            this._activeSession.nextPlaceholder()
+    public async nextPlaceholder(): Promise<void> {
+        if (this.isSnippetActive) {
+            return this._activeSession.nextPlaceholder()
         }
     }
 
-    public previousPlaceholder(): void {
-        if (this.isSnippetActive()) {
-            this._activeSession.previousPlaceholder()
+    public async previousPlaceholder(): Promise<void> {
+        if (this.isSnippetActive) {
+            return this._activeSession.previousPlaceholder()
         }
     }
 
-    public isSnippetActive(): boolean {
-        return !!this._activeSession
-    }
-
-    public cancel(): void {
+    public async cancel(): Promise<void> {
         if (this._activeSession) {
             this._cleanupAfterSession()
+            await (this._editorManager.activeEditor as any).clearSelection()
+
+            // TODO: Add 'stopInsert' and 'startInsert' methods on editor
+            await this._editorManager.activeEditor.neovim.command("stopinsert")
+        }
+
+        if (this._currentLayer) {
+            this._currentLayer.dispose()
         }
     }
 

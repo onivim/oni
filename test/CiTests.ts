@@ -17,10 +17,16 @@ const CiTests = [
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
+
+    "Configuration.JavaScriptEditorTest",
+    "Configuration.TypeScriptEditor.NewConfigurationTest",
+    "Configuration.TypeScriptEditor.CompletionTest",
+
     "Editor.ExternalCommandLineTest",
     "Editor.BufferModifiedState",
+    "Editor.OpenFile.PathWithSpacesTest",
     "Editor.TabModifiedState",
-    "LargeFileTest",
+    "Editor.CloseTabWithTabModesTabsTest",
     "MarkdownPreviewTest",
     "PaintPerformanceTest",
     "QuickOpenTest",
@@ -28,22 +34,28 @@ const CiTests = [
     "Neovim.InvalidInitVimHandlingTest",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
+
+    "Snippets.BasicInsertTest",
+
     "WindowManager.ErrorBoundary",
     "Workspace.ConfigurationTest",
     // Regression Tests
     "Regression.1251.NoAdditionalProcessesOnStartup",
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
+    "Regression.1799.MacroApplicationTest",
+
+    "TextmateHighlighting.DebugScopesTest",
     "TextmateHighlighting.ScopesOnEnterTest",
+    "TextmateHighlighting.TokenColorOverrideTest",
+
+    // This test occasionally hangs and breaks tests after - trying to move it later...
+    "LargeFileTest",
 ]
 
-const WindowsOnlyTests = [
-    // For some reason, the `beginFrameSubscription` call doesn't seem to work on OSX,
-    // so we can't properly validate that case on that platform...
-    "PaintPerformanceTest",
-]
+const WindowsOnlyTests = []
 
-const OSXOnlyTests = ["OSX.WindowTitleTest"]
+const OSXOnlyTests = ["AutoCompletionTest-Reason", "OSX.WindowTitleTest"]
 
 // tslint:disable:no-console
 
@@ -67,7 +79,7 @@ describe("ci tests", function() {
         : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
 
     const testFailures: IFailedTest[] = []
-    CiTests.forEach(test => {
+    tests.forEach(test => {
         runInProcTest(path.join(__dirname, "ci"), test, 5000, testFailures)
     })
 

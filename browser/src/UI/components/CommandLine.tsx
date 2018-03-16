@@ -157,7 +157,7 @@ export class CommandLine extends React.PureComponent<ICommandLineRendererProps, 
 const mapStateToProps = ({ commandLine, configuration }: State.IState) => {
     const { visible, position, content, firstchar, level, prompt } = commandLine
     return {
-        showIcons: configuration["experimental.commandline.icons"],
+        showIcons: configuration["commandline.icons"],
         visible,
         content,
         firstchar,

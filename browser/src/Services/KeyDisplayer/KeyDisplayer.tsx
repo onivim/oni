@@ -10,6 +10,8 @@ import { Store } from "redux"
 
 import { IDisposable } from "oni-types"
 
+import { Configuration } from "./../Configuration"
+import { EditorManager } from "./../EditorManager"
 import { InputManager } from "./../InputManager"
 import { Overlay, OverlayManager } from "./../Overlay"
 
@@ -21,7 +23,12 @@ export class KeyDisplayer {
     private _currentResolveSubscription: IDisposable = null
     private _store: Store<KeyDisplayerState>
 
-    constructor(private _inputManager: InputManager, private _overlayManager: OverlayManager) {
+    constructor(
+        private _configuration: Configuration,
+        private _editorManager: EditorManager,
+        private _inputManager: InputManager,
+        private _overlayManager: OverlayManager,
+    ) {
         this._store = createStore()
     }
 
@@ -34,6 +41,14 @@ export class KeyDisplayer {
             (evt, resolution) => {
                 if (this._activeOverlay) {
                     this._activeOverlay.hide()
+                    this._activeOverlay = null
+                }
+
+                if (
+                    !this._configuration.getValue("keyDisplayer.showInInsertMode") &&
+                    this._editorManager.activeEditor.mode === "insert"
+                ) {
+                    return resolution
                 }
 
                 this._store.dispatch({

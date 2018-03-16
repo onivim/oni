@@ -75,6 +75,7 @@ describe("LanguageManager", () => {
         languageManager = new Language.LanguageManager(
             mockConfiguration as any,
             editorManager,
+            new Mocks.MockPluginManager() as any,
             mockStatusBar,
             mockWorkspace,
         )

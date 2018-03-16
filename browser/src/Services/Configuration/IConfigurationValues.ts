@@ -14,8 +14,8 @@ export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiase
 export type DetectionSettings = "always" | "noworkspace" | "never"
 
 export interface IConfigurationValues {
-    activate: (oni: Oni.Plugin.Api) => void
-    deactivate: () => void
+    activate?: (oni: Oni.Plugin.Api) => void
+    deactivate?: () => void
 
     // Debug settings
     "debug.fixedSize": {
@@ -30,16 +30,24 @@ export interface IConfigurationValues {
     "debug.detailedSessionLogging": boolean
     "debug.showTypingPrediction": boolean
 
+    "browser.defaultUrl": string
+
     // Simulate slow language server, for debugging
     "debug.fakeLag.languageServer": number | null
     "debug.fakeLag.neovimInput": number | null
+
+    "debug.showNotificationOnError": boolean
 
     "editor.split.mode": string
 
     "configuration.editor": string
 
     // - textMateHighlighting
-    "experimental.editor.textMateHighlighting.enabled": boolean
+    "editor.textMateHighlighting.enabled": boolean
+
+    // Whether or not the learning pane is available
+    "experimental.achievements.enabled": boolean
+    "experimental.learning.enabled": boolean
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
@@ -156,6 +164,9 @@ export interface IConfigurationValues {
     // (and available in terminal integration, later)
     "environment.additionalPaths": string[]
 
+    // User configurable array of files for which
+    // the image layer opens
+    "editor.imageLayerExtensions": string[]
     // Command to list files for 'quick open'
     // For example, to use 'ag': ag --nocolor -l .
     //
@@ -184,6 +195,8 @@ export interface IConfigurationValues {
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
 
+    "keyDisplayer.showInInsertMode": boolean
+
     // Case-sensitivity strategy for menu filtering:
     // - if `true`, is case sensitive
     // - if `false`, is not case sensitive
@@ -208,6 +221,9 @@ export interface IConfigurationValues {
 
     "sidebar.marks.enabled": boolean
     "sidebar.plugins.enabled": boolean
+
+    "snippets.enabled": boolean
+    "snippets.userSnippetFolder": string
 
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
@@ -244,6 +260,8 @@ export interface IConfigurationValues {
     // Whether or not the file icon
     // should be shown in the tab
     "tabs.showFileIcon": boolean
+
+    "terminal.shellCommand": string
 
     "ui.animations.enabled": boolean
     "ui.iconTheme": string

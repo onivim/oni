@@ -3,7 +3,7 @@ import * as types from "vscode-languageserver-types"
 import { connect } from "react-redux"
 import { createSelector } from "reselect"
 
-import { getColorFromSeverity } from "./../../../Services/Errors"
+import { getColorFromSeverity } from "./../../../Services/Diagnostics"
 import {
     BufferScrollBar,
     IBufferScrollBarProps,

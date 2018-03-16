@@ -14,6 +14,7 @@ import * as Log from "./../../Log"
 import { EditorManager } from "./../EditorManager"
 
 import { Configuration } from "./Configuration"
+import { DefaultConfiguration } from "./DefaultConfiguration"
 
 // For configuring Oni, JavaScript is the de-facto language, and the configuration
 // today will _always_ happen through `config.js`
@@ -88,6 +89,7 @@ export class ConfigurationEditManager {
     }
 
     public async editConfiguration(configFile: string): Promise<void> {
+        Log.info("[ConfigurationEditManager::editConfiguration]: " + configFile)
         const editor = this._configuration.editor
         const editFile = await editor.editConfiguration(configFile)
 
@@ -105,7 +107,24 @@ export class ConfigurationEditManager {
             }
         }
 
-        this._editorManager.activeEditor.openFile(normalizedEditFile)
+        // Create the buffer with the list of all the available options
+        await this._createReadonlyReferenceBuffer()
+
+        // Open the actual configuration file
+        await this._editorManager.activeEditor.openFile(normalizedEditFile, {
+            openMode: Oni.FileOpenMode.VerticalSplit,
+        })
+    }
+
+    private async _createReadonlyReferenceBuffer() {
+        const referenceBuffer = await this._editorManager.activeEditor.openFile("", {
+            openMode: Oni.FileOpenMode.NewTab,
+        })
+
+        // Format the default configuration values as a pretty JSON object, then
+        // set it as the reference buffer content
+        const referenceContent = JSON.stringify(DefaultConfiguration, null, "  ")
+        await referenceBuffer.setLines(0, 1, referenceContent.split("\n"))
     }
 
     private async _transpileConfiguration(

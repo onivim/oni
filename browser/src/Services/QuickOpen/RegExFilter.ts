@@ -37,16 +37,12 @@ export const regexFilter = (
         searchString = searchString.toLowerCase()
     }
 
-    const filterRegExp = new RegExp(".*" + searchString.split("").join(".*") + ".*")
+    const listOfSearchTerms = searchString.split(" ").filter(x => x)
 
-    const filteredOptions = options.filter(f => {
-        let textToFilterOn = f.detail + f.label
+    let filteredOptions = options
 
-        if (!isCaseSensitive) {
-            textToFilterOn = textToFilterOn.toLowerCase()
-        }
-
-        return textToFilterOn.match(filterRegExp)
+    listOfSearchTerms.map(searchTerm => {
+        filteredOptions = processSearchTerm(searchTerm, filteredOptions, isCaseSensitive)
     })
 
     const ret = filteredOptions.map(fo => {
@@ -63,6 +59,24 @@ export const regexFilter = (
     })
 
     return ret
+}
+
+export const processSearchTerm = (
+    searchString: string,
+    options: Oni.Menu.MenuOption[],
+    isCaseSensitive: boolean,
+): Oni.Menu.MenuOption[] => {
+    const filterRegExp = new RegExp(".*" + searchString.split("").join(".*") + ".*")
+
+    return options.filter(f => {
+        let textToFilterOn = f.detail + f.label
+
+        if (!isCaseSensitive) {
+            textToFilterOn = textToFilterOn.toLowerCase()
+        }
+
+        return textToFilterOn.match(filterRegExp)
+    })
 }
 
 export const getHighlightsFromString = (

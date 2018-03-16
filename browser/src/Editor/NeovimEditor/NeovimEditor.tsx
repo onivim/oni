@@ -17,10 +17,10 @@ import * as types from "vscode-languageserver-types"
 import { Provider } from "react-redux"
 import { bindActionCreators, Store } from "redux"
 
-import { clipboard, ipcRenderer, remote } from "electron"
+import { clipboard, ipcRenderer } from "electron"
 
 import * as Oni from "oni-api"
-import { Event } from "oni-types"
+import { Event, IEvent } from "oni-types"
 
 import * as Log from "./../../Log"
 
@@ -42,8 +42,6 @@ import { commandManager } from "./../../Services/CommandManager"
 import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
-import { editorManager } from "./../../Services/EditorManager"
-import { Errors } from "./../../Services/Errors"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
@@ -63,7 +61,6 @@ import {
 } from "./../../Services/SyntaxHighlighting"
 
 import { MenuManager } from "./../../Services/Menu"
-import { Tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 import { Workspace } from "./../../Services/Workspace"
@@ -140,8 +137,13 @@ export class NeovimEditor extends Editor implements IEditor {
     private _toolTipsProvider: IToolTipsProvider
     private _commands: NeovimEditorCommands
     private _externalMenuOverlay: Overlay
-
     private _bufferLayerManager: BufferLayerManager
+
+    private _onNeovimQuit: Event<void> = new Event<void>()
+
+    public get onNeovimQuit(): IEvent<void> {
+        return this._onNeovimQuit
+    }
 
     public get /* override */ activeBuffer(): Oni.Buffer {
         return this._bufferManager.getBufferById(this._lastBufferId)
@@ -170,14 +172,11 @@ export class NeovimEditor extends Editor implements IEditor {
         private _overlayManager: OverlayManager,
         private _pluginManager: PluginManager,
         private _snippetManager: SnippetManager,
-        private _tasks: Tasks,
         private _themeManager: ThemeManager,
         private _tokenColors: TokenColors,
         private _workspace: Workspace,
     ) {
         super()
-
-        const services: any[] = []
 
         this._store = createStore()
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
@@ -252,23 +251,15 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         // Services
-        const errorService = new Errors(this._neovimInstance)
-
         this._commands = new NeovimEditorCommands(
             commandManager,
             this._contextMenuManager,
             this._definition,
             this._languageIntegration,
-            this._menuManager,
             this._neovimInstance,
             this._rename,
             this._symbols,
         )
-
-        this._tasks.registerTaskProvider(commandManager)
-        this._tasks.registerTaskProvider(errorService)
-
-        services.push(errorService)
 
         const onColorsChanged = () => {
             const updatedColors: any = this._colors.getColors()
@@ -286,145 +277,213 @@ export class NeovimEditor extends Editor implements IEditor {
             }
         }
 
-        this._tokenColors.onTokenColorsChanged.subscribe(() => onTokenColorschanged())
+        this.trackDisposable(
+            this._tokenColors.onTokenColorsChanged.subscribe(() => onTokenColorschanged()),
+        )
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
         // explicit window management: #362
         this._windowManager = new NeovimWindowManager(this._neovimInstance)
-        this._neovimInstance.onCommandLineShow.subscribe(showCommandLineInfo => {
-            this._actions.showCommandLine(
-                showCommandLineInfo.content,
-                showCommandLineInfo.pos,
-                showCommandLineInfo.firstc,
-                showCommandLineInfo.prompt,
-                showCommandLineInfo.indent,
-                showCommandLineInfo.level,
-            )
-            this._externalMenuOverlay.show()
-        })
-
-        this._neovimInstance.onWildMenuShow.subscribe(wildMenuInfo => {
-            this._actions.showWildMenu(wildMenuInfo)
-        })
-
-        this._neovimInstance.onWildMenuSelect.subscribe(wildMenuInfo => {
-            this._actions.wildMenuSelect(wildMenuInfo)
-        })
-
-        this._neovimInstance.onWildMenuHide.subscribe(() => {
-            this._actions.hideWildMenu()
-        })
-
-        this._neovimInstance.onCommandLineHide.subscribe(() => {
-            this._actions.hideCommandLine()
-            this._externalMenuOverlay.hide()
-        })
-
-        this._neovimInstance.onCommandLineSetCursorPosition.subscribe(commandLinePos => {
-            this._actions.setCommandLinePosition(commandLinePos)
-        })
-
-        this._windowManager.onWindowStateChanged.subscribe(tabPageState => {
-            const filteredTabState = tabPageState.inactiveWindows.filter(w => !!w)
-            const inactiveIds = filteredTabState.map(w => w.windowNumber)
-
-            this._actions.setActiveVimTabPage(tabPageState.tabId, [
-                tabPageState.activeWindow.windowNumber,
-                ...inactiveIds,
-            ])
-
-            const { activeWindow } = tabPageState
-            if (activeWindow) {
-                this._actions.setWindowState(
-                    activeWindow.windowNumber,
-                    activeWindow.bufferId,
-                    activeWindow.bufferFullPath,
-                    activeWindow.column,
-                    activeWindow.line,
-                    activeWindow.bottomBufferLine,
-                    activeWindow.topBufferLine,
-                    activeWindow.dimensions,
-                    activeWindow.bufferToScreen,
+        this.trackDisposable(
+            this._neovimInstance.onCommandLineShow.subscribe(showCommandLineInfo => {
+                this._actions.showCommandLine(
+                    showCommandLineInfo.content,
+                    showCommandLineInfo.pos,
+                    showCommandLineInfo.firstc,
+                    showCommandLineInfo.prompt,
+                    showCommandLineInfo.indent,
+                    showCommandLineInfo.level,
                 )
-            }
+                this._externalMenuOverlay.show()
+            }),
+        )
 
-            filteredTabState.map(w => {
-                this._actions.setInactiveWindowState(w.windowNumber, w.dimensions)
-            })
-        })
+        this.trackDisposable(
+            this._neovimInstance.onWildMenuShow.subscribe(wildMenuInfo => {
+                this._actions.showWildMenu(wildMenuInfo)
+            }),
+        )
 
-        this._neovimInstance.onYank.subscribe(yankInfo => {
-            if (this._configuration.getValue("editor.clipboard.enabled")) {
-                const isYankAndAllowed =
-                    yankInfo.operator === "y" &&
-                    this._configuration.getValue("editor.clipboard.synchronizeYank")
-                const isDeleteAndAllowed =
-                    yankInfo.operator === "d" &&
-                    this._configuration.getValue("editor.clipboard.synchronizeDelete")
-                const isAllowed = isYankAndAllowed || isDeleteAndAllowed
+        this.trackDisposable(
+            this._neovimInstance.onWildMenuSelect.subscribe(wildMenuInfo => {
+                this._actions.wildMenuSelect(wildMenuInfo)
+            }),
+        )
 
-                if (isAllowed) {
-                    clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+        this.trackDisposable(
+            this._neovimInstance.onWildMenuHide.subscribe(() => {
+                this._actions.hideWildMenu()
+            }),
+        )
+
+        this.trackDisposable(
+            this._neovimInstance.onCommandLineHide.subscribe(() => {
+                this._actions.hideCommandLine()
+                this._externalMenuOverlay.hide()
+            }),
+        )
+
+        this.trackDisposable(
+            this._neovimInstance.onCommandLineSetCursorPosition.subscribe(commandLinePos => {
+                this._actions.setCommandLinePosition(commandLinePos)
+            }),
+        )
+
+        this.trackDisposable(
+            this._windowManager.onWindowStateChanged.subscribe(tabPageState => {
+                const filteredTabState = tabPageState.inactiveWindows.filter(w => !!w)
+                const inactiveIds = filteredTabState.map(w => w.windowNumber)
+
+                this._actions.setActiveVimTabPage(tabPageState.tabId, [
+                    tabPageState.activeWindow.windowNumber,
+                    ...inactiveIds,
+                ])
+
+                const { activeWindow } = tabPageState
+                if (activeWindow) {
+                    this._actions.setWindowState(
+                        activeWindow.windowNumber,
+                        activeWindow.bufferId,
+                        activeWindow.bufferFullPath,
+                        activeWindow.column,
+                        activeWindow.line,
+                        activeWindow.bottomBufferLine,
+                        activeWindow.topBufferLine,
+                        activeWindow.dimensions,
+                        activeWindow.bufferToScreen,
+                    )
                 }
-            }
-        })
 
-        this._neovimInstance.onTitleChanged.subscribe(newTitle => {
-            const title = newTitle.replace(" - NVIM", " - ONI")
-            Shell.Actions.setWindowTitle(title)
-        })
-
-        this._neovimInstance.onLeave.subscribe(() => {
-            // TODO: Only leave if all editors are closed...
-            if (!this._configuration.getValue("debug.persistOnNeovimExit")) {
-                remote.getCurrentWindow().close()
-            }
-        })
-
-        this._neovimInstance.onOniCommand.subscribe(command => {
-            commandManager.executeCommand(command)
-        })
-
-        this._neovimInstance.on("event", (eventName: string, evt: any) => {
-            const current = evt.current || evt
-            this._updateWindow(current)
-            this._bufferManager.updateBufferFromEvent(current)
-        })
-
-        this._neovimInstance.autoCommands.onBufDelete.subscribe((evt: BufferEventContext) =>
-            this._onBufDelete(evt),
+                filteredTabState.map(w => {
+                    this._actions.setInactiveWindowState(w.windowNumber, w.dimensions)
+                })
+            }),
         )
 
-        this._neovimInstance.autoCommands.onBufUnload.subscribe((evt: BufferEventContext) =>
-            this._onBufUnload(evt),
+        this.trackDisposable(
+            this._neovimInstance.onYank.subscribe(yankInfo => {
+                if (this._configuration.getValue("editor.clipboard.enabled")) {
+                    const isYankAndAllowed =
+                        yankInfo.operator === "y" &&
+                        this._configuration.getValue("editor.clipboard.synchronizeYank")
+                    const isDeleteAndAllowed =
+                        yankInfo.operator === "d" &&
+                        this._configuration.getValue("editor.clipboard.synchronizeDelete")
+                    const isAllowed = isYankAndAllowed || isDeleteAndAllowed
+
+                    if (isAllowed) {
+                        clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+                    }
+                }
+            }),
         )
 
-        this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: BufferEventContext) =>
-            this._onBufEnter(evt),
+        this.trackDisposable(
+            this._neovimInstance.onTitleChanged.subscribe(newTitle => {
+                const title = newTitle.replace(" - NVIM", " - ONI")
+                Shell.Actions.setWindowTitle(title)
+            }),
         )
 
-        this._neovimInstance.autoCommands.onBufWipeout.subscribe((evt: BufferEventContext) =>
-            this._onBufWipeout(evt),
+        this.trackDisposable(
+            this._neovimInstance.onLeave.subscribe(() => {
+                this._onNeovimQuit.dispatch()
+            }),
         )
 
-        this._neovimInstance.autoCommands.onBufWritePost.subscribe((evt: EventContext) =>
-            this._onBufWritePost(evt),
+        this.trackDisposable(
+            this._neovimInstance.onOniCommand.subscribe(command => {
+                commandManager.executeCommand(command)
+            }),
         )
 
-        this._neovimInstance.onColorsChanged.subscribe(() => {
-            this._onColorsChanged()
-        })
+        // TODO: Refactor to event and track disposable
+        this.trackDisposable(
+            this._neovimInstance.onVimEvent.subscribe(evt => {
+                if (evt.eventName !== "VimLeave") {
+                    this._updateWindow(evt.eventContext)
+                    this._bufferManager.updateBufferFromEvent(evt.eventContext)
+                }
+            }),
+        )
 
-        this._neovimInstance.onError.subscribe(err => {
-            this._errorInitializing = true
-            this._actions.setNeovimError(true)
-        })
+        this.trackDisposable(
+            this._neovimInstance.autoCommands.onBufDelete.subscribe((evt: BufferEventContext) =>
+                this._onBufDelete(evt),
+            ),
+        )
 
-        this._neovimInstance.onDirectoryChanged.subscribe(async newDirectory => {
-            await this._workspace.changeDirectory(newDirectory)
-        })
+        this.trackDisposable(
+            this._neovimInstance.autoCommands.onBufUnload.subscribe((evt: BufferEventContext) =>
+                this._onBufUnload(evt),
+            ),
+        )
 
+        this.trackDisposable(
+            this._neovimInstance.autoCommands.onBufEnter.subscribe((evt: BufferEventContext) =>
+                this._onBufEnter(evt),
+            ),
+        )
+
+        this.trackDisposable(
+            this._neovimInstance.autoCommands.onBufWinEnter.subscribe((evt: BufferEventContext) =>
+                this._onBufEnter(evt),
+            ),
+        )
+
+        this.trackDisposable(
+            this._neovimInstance.autoCommands.onFileTypeChanged.subscribe((evt: EventContext) =>
+                this._onFileTypeChanged(evt),
+            ),
+        )
+
+        this.trackDisposable(
+            this._neovimInstance.autoCommands.onBufWipeout.subscribe((evt: BufferEventContext) =>
+                this._onBufWipeout(evt),
+            ),
+        )
+
+        this.trackDisposable(
+            this._neovimInstance.autoCommands.onBufWritePost.subscribe((evt: EventContext) =>
+                this._onBufWritePost(evt),
+            ),
+        )
+
+        this.trackDisposable(
+            this._neovimInstance.onColorsChanged.subscribe(() => {
+                this._onColorsChanged()
+            }),
+        )
+
+        this.trackDisposable(
+            this._neovimInstance.onError.subscribe(err => {
+                this._errorInitializing = true
+                this._actions.setNeovimError(true)
+            }),
+        )
+
+        // These functions are mirrors of each other if vim changes dir then oni responds
+        // and if oni initiates the dir change then we inform vim
+        // NOTE: the gates to check that the dirs being passed aren't already set prevent
+        // an infinite loop!!
+        this.trackDisposable(
+            this._neovimInstance.onDirectoryChanged.subscribe(async newDirectory => {
+                if (newDirectory !== this._workspace.activeWorkspace) {
+                    await this._workspace.changeDirectory(newDirectory)
+                }
+            }),
+        )
+
+        this.trackDisposable(
+            this._workspace.onDirectoryChanged.subscribe(async newDirectory => {
+                if (newDirectory !== this._neovimInstance.currentVimDirectory) {
+                    await this._neovimInstance.chdir(newDirectory)
+                }
+            }),
+        )
+
+        // TODO: Add first class event for this
         this._neovimInstance.on("action", (action: any) => {
             this._renderer.onAction(action)
             this._screen.dispatch(action)
@@ -432,22 +491,25 @@ export class NeovimEditor extends Editor implements IEditor {
             this._scheduleRender()
         })
 
-        this._neovimInstance.onRedrawComplete.subscribe(() => {
-            const isCursorInCommandRow = this._screen.cursorRow === this._screen.height - 1
-            const isCommandLineMode = this.mode && this.mode.indexOf("cmdline") === 0
+        this.trackDisposable(
+            this._neovimInstance.onRedrawComplete.subscribe(() => {
+                const isCursorInCommandRow = this._screen.cursorRow === this._screen.height - 1
+                const isCommandLineMode = this.mode && this.mode.indexOf("cmdline") === 0
 
-            // In some cases, during redraw, Neovim will actually set the cursor position
-            // to the command line when rendering. This can happen when 'echo'ing or
-            // when a popumenu is enabled, and text is writing.
-            //
-            // We should ignore those cases, and only set the cursor in the command row
-            // when we're actually in command line mode. See #1265 for more context.
-            if (!isCursorInCommandRow || (isCursorInCommandRow && isCommandLineMode)) {
-                this._actions.setCursorPosition(this._screen)
-                this._typingPredictionManager.setCursorPosition(this._screen)
-            }
-        })
+                // In some cases, during redraw, Neovim will actually set the cursor position
+                // to the command line when rendering. This can happen when 'echo'ing or
+                // when a popumenu is enabled, and text is writing.
+                //
+                // We should ignore those cases, and only set the cursor in the command row
+                // when we're actually in command line mode. See #1265 for more context.
+                if (!isCursorInCommandRow || (isCursorInCommandRow && isCommandLineMode)) {
+                    this._actions.setCursorPosition(this._screen)
+                    this._typingPredictionManager.setCursorPosition(this._screen)
+                }
+            }),
+        )
 
+        // TODO: Add first class event for this
         this._neovimInstance.on("tabline-update", async (currentTabId: number, tabs: ITab[]) => {
             const atomicCalls = tabs.map((tab: ITab) => {
                 return ["nvim_call_function", ["tabpagebuflist", [tab.id]]]
@@ -462,6 +524,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._actions.setTabs(currentTabId, tabs)
         })
 
+        // TODO: Does any disposal need to happen for the observables?
         this._cursorMoved$ = this._neovimInstance.autoCommands.onCursorMoved
             .asObservable()
             .map((evt): Oni.Cursor => ({
@@ -481,35 +544,42 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._modeChanged$ = this._neovimInstance.onModeChanged.asObservable()
-        this._neovimInstance.onModeChanged.subscribe(newMode => this._onModeChanged(newMode))
 
-        this._neovimInstance.onBufferUpdate.subscribe(update => {
-            const buffer = this._bufferManager.updateBufferFromEvent(update.eventContext)
+        this.trackDisposable(
+            this._neovimInstance.onModeChanged.subscribe(newMode => this._onModeChanged(newMode)),
+        )
 
-            const bufferUpdate = {
-                context: update.eventContext,
-                buffer,
-                contentChanges: update.contentChanges,
-            }
+        this.trackDisposable(
+            this._neovimInstance.onBufferUpdate.subscribe(update => {
+                const buffer = this._bufferManager.updateBufferFromEvent(update.eventContext)
 
-            this.notifyBufferChanged(bufferUpdate)
-            this._actions.bufferUpdate(
-                parseInt(bufferUpdate.buffer.id, 10),
-                bufferUpdate.buffer.modified,
-                bufferUpdate.buffer.lineCount,
-            )
+                const bufferUpdate = {
+                    context: update.eventContext,
+                    buffer,
+                    contentChanges: update.contentChanges,
+                }
 
-            this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
-        })
+                this.notifyBufferChanged(bufferUpdate)
+                this._actions.bufferUpdate(
+                    parseInt(bufferUpdate.buffer.id, 10),
+                    bufferUpdate.buffer.modified,
+                    bufferUpdate.buffer.lineCount,
+                )
 
-        this._neovimInstance.onScroll.subscribe((args: EventContext) => {
-            const convertedArgs: Oni.EditorBufferScrolledEventArgs = {
-                bufferTotalLines: args.bufferTotalLines,
-                windowTopLine: args.windowTopLine,
-                windowBottomLine: args.windowBottomLine,
-            }
-            this.notifyBufferScrolled(convertedArgs)
-        })
+                this._syntaxHighlighter.notifyBufferUpdate(bufferUpdate)
+            }),
+        )
+
+        this.trackDisposable(
+            this._neovimInstance.onScroll.subscribe((args: EventContext) => {
+                const convertedArgs: Oni.EditorBufferScrolledEventArgs = {
+                    bufferTotalLines: args.bufferTotalLines,
+                    windowTopLine: args.windowTopLine,
+                    windowBottomLine: args.windowBottomLine,
+                }
+                this.notifyBufferScrolled(convertedArgs)
+            }),
+        )
 
         addInsertModeLanguageFunctionality(
             this._cursorMovedI$,
@@ -518,7 +588,7 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         const textMateHighlightingEnabled = this._configuration.getValue(
-            "experimental.editor.textMateHighlighting.enabled",
+            "editor.textMateHighlighting.enabled",
         )
         this._syntaxHighlighter = textMateHighlightingEnabled
             ? new SyntaxHighlighter(this, this._tokenColors)
@@ -530,24 +600,33 @@ export class NeovimEditor extends Editor implements IEditor {
             this._completionProviders,
             this._languageManager,
             this._snippetManager,
+            this._syntaxHighlighter,
         )
         this._completionMenu = new CompletionMenu(this._contextMenuManager.create())
 
-        this._completion.onShowCompletionItems.subscribe(completions => {
-            this._completionMenu.show(completions.filteredCompletions, completions.base)
-        })
+        this.trackDisposable(
+            this._completion.onShowCompletionItems.subscribe(completions => {
+                this._completionMenu.show(completions.filteredCompletions, completions.base)
+            }),
+        )
 
-        this._completion.onHideCompletionItems.subscribe(completions => {
-            this._completionMenu.hide()
-        })
+        this.trackDisposable(
+            this._completion.onHideCompletionItems.subscribe(completions => {
+                this._completionMenu.hide()
+            }),
+        )
 
-        this._completionMenu.onItemFocused.subscribe(item => {
-            this._completion.resolveItem(item)
-        })
+        this.trackDisposable(
+            this._completionMenu.onItemFocused.subscribe(item => {
+                this._completion.resolveItem(item)
+            }),
+        )
 
-        this._completionMenu.onItemSelected.subscribe(item => {
-            this._completion.commitItem(item)
-        })
+        this.trackDisposable(
+            this._completionMenu.onItemSelected.subscribe(item => {
+                this._completion.commitItem(item)
+            }),
+        )
 
         this._languageIntegration = new LanguageEditorIntegration(
             this,
@@ -555,60 +634,46 @@ export class NeovimEditor extends Editor implements IEditor {
             this._languageManager,
         )
 
-        this._languageIntegration.onShowHover.subscribe(async hover => {
-            const { cursorPixelX, cursorPixelY } = this._store.getState()
-            await this._hoverRenderer.showQuickInfo(
-                cursorPixelX,
-                cursorPixelY,
-                hover.hover,
-                hover.errors,
-            )
-        })
+        this.trackDisposable(
+            this._languageIntegration.onShowHover.subscribe(async hover => {
+                const { cursorPixelX, cursorPixelY } = this._store.getState()
+                await this._hoverRenderer.showQuickInfo(
+                    cursorPixelX,
+                    cursorPixelY,
+                    hover.hover,
+                    hover.errors,
+                )
+            }),
+        )
 
-        this._languageIntegration.onHideHover.subscribe(() => {
-            this._hoverRenderer.hideQuickInfo()
-        })
+        this.trackDisposable(
+            this._languageIntegration.onHideHover.subscribe(() => {
+                this._hoverRenderer.hideQuickInfo()
+            }),
+        )
 
-        this._languageIntegration.onShowDefinition.subscribe(definition => {
-            this._actions.setDefinition(definition.token, definition.location)
-        })
+        this.trackDisposable(
+            this._languageIntegration.onShowDefinition.subscribe(definition => {
+                this._actions.setDefinition(definition.token, definition.location)
+            }),
+        )
 
-        this._languageIntegration.onHideDefinition.subscribe(definition => {
-            this._actions.hideDefinition()
-        })
+        this.trackDisposable(
+            this._languageIntegration.onHideDefinition.subscribe(definition => {
+                this._actions.hideDefinition()
+            }),
+        )
 
         this._render()
 
-        const browserWindow = remote.getCurrentWindow()
-
-        browserWindow.on("blur", () => {
-            this._neovimInstance.autoCommands.executeAutoCommand("FocusLost")
-        })
-
-        browserWindow.on("focus", () => {
-            this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
-
-            // If the user has autoread enabled, we should run ":checktime" on
-            // focus, as this is needed to get the file to auto-update.
-            // https://github.com/neovim/neovim/issues/1936
-            if (_configuration.getValue("vim.setting.autoread")) {
-                this._neovimInstance.command(":checktime")
-            }
-        })
-
         this._onConfigChanged(this._configuration.getValues())
-        this._configuration.onConfigurationChanged.subscribe(
-            (newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues),
+        this.trackDisposable(
+            this._configuration.onConfigurationChanged.subscribe(
+                (newValues: Partial<IConfigurationValues>) => this._onConfigChanged(newValues),
+            ),
         )
 
-        ipcRenderer.on("menu-item-click", (_evt: any, message: string) => {
-            if (message.startsWith(":")) {
-                this._neovimInstance.command('exec "' + message + '"')
-            } else {
-                this._neovimInstance.command('exec ":normal! ' + message + '"')
-            }
-        })
-
+        // TODO: Factor these out to a place that isn't dependent on a single editor instance
         ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
             this._openFiles(files, message)
         })
@@ -617,26 +682,42 @@ export class NeovimEditor extends Editor implements IEditor {
             this._neovimInstance.command(`:e! ${path}`)
         })
 
+        // TODO: Factor this out to a react component
         // enable opening a file via drag-drop
-        document.ondragover = ev => {
+        document.body.ondragover = ev => {
             ev.preventDefault()
         }
         document.body.ondrop = ev => {
             ev.preventDefault()
 
-            const files = ev.dataTransfer.files
+            const { files } = ev.dataTransfer
             // open first file in current editor
-            this._neovimInstance.open(normalizePath(files[0].path))
-            // open any subsequent files in new tabs
-            for (let i = 1; i < files.length; i++) {
-                this._neovimInstance.command(
-                    'exec ":tabe ' + normalizePath(files.item(i).path) + '"',
-                )
+            if (files.length) {
+                this._neovimInstance.open(normalizePath(files[0].path))
+                // open any subsequent files in new tabs
+                for (let i = 1; i < files.length; i++) {
+                    this._neovimInstance.command(
+                        'exec ":tabe ' + normalizePath(files.item(i).path) + '"',
+                    )
+                }
             }
         }
     }
 
+    public async blockInput(
+        inputFunction: (inputCallback: Oni.InputCallbackFunction) => Promise<void>,
+    ): Promise<void> {
+        return this._neovimInstance.blockInput(inputFunction)
+    }
+
     public dispose(): void {
+        super.dispose()
+
+        if (this._neovimInstance) {
+            this._neovimInstance.dispose()
+            this._neovimInstance = null
+        }
+
         if (this._syntaxHighlighter) {
             this._syntaxHighlighter.dispose()
             this._syntaxHighlighter = null
@@ -652,6 +733,11 @@ export class NeovimEditor extends Editor implements IEditor {
             this._completion = null
         }
 
+        if (this._externalMenuOverlay) {
+            this._externalMenuOverlay.hide()
+            this._externalMenuOverlay = null
+        }
+
         // TODO: Implement full disposal logic
         this._popupMenu.dispose()
         this._popupMenu = null
@@ -661,17 +747,19 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public enter(): void {
-        editorManager.setActiveEditor(this)
         Log.info("[NeovimEditor::enter]")
         this._onEnterEvent.dispatch()
         this._actions.setHasFocus(true)
         this._commands.activate()
+
+        this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
     }
 
     public leave(): void {
         Log.info("[NeovimEditor::leave]")
         this._actions.setHasFocus(false)
         this._commands.deactivate()
+        this._neovimInstance.autoCommands.executeAutoCommand("FocusLost")
     }
 
     public async clearSelection(): Promise<void> {
@@ -682,6 +770,25 @@ export class NeovimEditor extends Editor implements IEditor {
     public async setSelection(range: types.Range): Promise<void> {
         await this._neovimInstance.input("<esc>")
 
+        // Clear out any pending block selection
+        // Without this, if there was a line-wise visual selection,
+        // range selection would not work correctly.
+        const atomicCallsVisualMode = [
+            [
+                "nvim_call_function",
+                ["setpos", [".", [0, range.start.line + 1, range.start.character + 1]]],
+            ],
+            ["nvim_command", ["normal! v"]],
+            [
+                "nvim_call_function",
+                ["setpos", [".", [0, range.end.line + 1, range.end.character + 1]]],
+            ],
+        ]
+        await this._neovimInstance.request("nvim_call_atomic", [atomicCallsVisualMode])
+        await this._neovimInstance.input("<esc>")
+
+        // Re-select the selection and switch to 'select' mode so that typing
+        // overwrites the selection
         const atomicCalls = [
             [
                 "nvim_call_function",
@@ -691,6 +798,7 @@ export class NeovimEditor extends Editor implements IEditor {
                 "nvim_call_function",
                 ["setpos", ["'>", [0, range.end.line + 1, range.end.character + 1]]],
             ],
+            // ["nvim_command", ["normal! v"]],
             ["nvim_command", ["set selectmode=cmd"]],
             ["nvim_command", ["normal! gv"]],
             ["nvim_command", ["set selectmode="]],
@@ -699,13 +807,18 @@ export class NeovimEditor extends Editor implements IEditor {
         await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
     }
 
-    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
+    public async openFile(
+        file: string,
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
+        const tabsMode = this._configuration.getValue("tabs.mode") === "tabs"
         const cmd = new Proxy(
             {
-                tab: "taball!",
-                horizontal: "sp!",
-                vertical: "vsp!",
-                edit: "e!",
+                [Oni.FileOpenMode.NewTab]: "tabnew!",
+                [Oni.FileOpenMode.HorizontalSplit]: "sp!",
+                [Oni.FileOpenMode.VerticalSplit]: "vsp!",
+                [Oni.FileOpenMode.Edit]: tabsMode ? "tab drop" : "e!",
+                [Oni.FileOpenMode.ExistingTab]: "e!",
             },
             {
                 get: (target: { [cmd: string]: string }, name: string) =>
@@ -713,7 +826,9 @@ export class NeovimEditor extends Editor implements IEditor {
             },
         )
 
-        await this._neovimInstance.command(`:${cmd[method]} ${file}`)
+        await this._neovimInstance.command(
+            `:${cmd[openOptions.openMode]} ${this._escapeSpaces(file)}`,
+        )
         return this.activeBuffer
     }
 
@@ -909,6 +1024,11 @@ export class NeovimEditor extends Editor implements IEditor {
         )
     }
 
+    private _onFileTypeChanged(evt: EventContext): void {
+        const buf = this._bufferManager.updateBufferFromEvent(evt)
+        this._bufferLayerManager.notifyBufferFileTypeChanged(buf)
+    }
+
     private async _onBufEnter(evt: BufferEventContext): Promise<void> {
         const buf = this._bufferManager.updateBufferFromEvent(evt.current)
         this._bufferManager.populateBufferList(evt)
@@ -933,6 +1053,10 @@ export class NeovimEditor extends Editor implements IEditor {
         const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
 
         this._actions.bufferEnter(buffers)
+    }
+
+    private _escapeSpaces(str: string): string {
+        return str.split(" ").join("\\ ")
     }
 
     private _onImeStart(): void {

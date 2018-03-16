@@ -6,16 +6,17 @@ import * as assert from "assert"
 
 import * as types from "vscode-languageserver-types"
 
-import { CompletionProviders, ICompletionsRequestor } from "./../../../src/Services/Completion"
+import {
+    CompletionProviders,
+    CompletionsRequestContext,
+    ICompletionsRequestor,
+} from "./../../../src/Services/Completion"
 
 export class MockCompletionsRequestor implements ICompletionsRequestor {
     constructor(private _hardcodedCompletions: types.CompletionItem[]) {}
 
     public async getCompletions(
-        fileLanguage: string,
-        filePath: string,
-        line: number,
-        column: number,
+        context: CompletionsRequestContext,
     ): Promise<types.CompletionItem[]> {
         return this._hardcodedCompletions
     }
@@ -34,6 +35,15 @@ const createCompletionItem = (item: string): types.CompletionItem => ({
     detail: item,
 })
 
+const createContext = (language: string, filePath: string, line: number, column: number) => ({
+    language,
+    filePath,
+    line,
+    column,
+    meetCharacter: "",
+    textMateScopes: [] as string[],
+})
+
 describe("CompletionProvider", () => {
     it("combines completions from multiple providers", async () => {
         const provider1 = new MockCompletionsRequestor([
@@ -49,7 +59,7 @@ describe("CompletionProvider", () => {
         completionProviders.registerCompletionProvider("provider1", provider1)
         completionProviders.registerCompletionProvider("provider2", provider2)
 
-        const result = await completionProviders.getCompletions("lang", "file", 0, 0)
+        const result = await completionProviders.getCompletions(createContext("lang", "file", 0, 0))
 
         const resultItems = result.map(i => i.label)
 
@@ -68,7 +78,7 @@ describe("CompletionProvider", () => {
         completionProviders.registerCompletionProvider("provider1", provider1)
         completionProviders.registerCompletionProvider("provider2", provider2)
 
-        const result = await completionProviders.getCompletions("lang", "file", 0, 0)
+        const result = await completionProviders.getCompletions(createContext("lang", "file", 0, 0))
 
         const resultItems = result.map(i => i.label)
 
