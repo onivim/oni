@@ -21,13 +21,15 @@ import * as types from "vscode-languageserver-types"
 
 export class Disposable implements IDisposable {
     private _disposables: IDisposable[] = []
+    private _isDisposed: boolean = false
 
     public get isDisposed(): boolean {
-        return !!this._disposables
+        return this._isDisposed
     }
 
     public dispose(): void {
         if (!this.isDisposed) {
+            this._isDisposed = true
             this._disposables.forEach(disposable => disposable.dispose())
             this._disposables = null
         }

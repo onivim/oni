@@ -14,8 +14,8 @@ export * from "./SearchProvider"
 
 import { ISearchOptions } from "./SearchProvider"
 
-import { SearchTextBox } from "./SearchTextBox"
 import styled from "styled-components"
+import { SearchTextBox } from "./SearchTextBox"
 
 import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
@@ -87,11 +87,6 @@ export class SearchPaneView extends React.PureComponent<
         this._cleanExistingSubscriptions()
     }
 
-    private _cleanExistingSubscriptions(): void {
-        this._subscriptions.forEach(s => s.dispose())
-        this._subscriptions = []
-    }
-
     public render(): JSX.Element {
         if (!this.state.activeWorkspace) {
             return (
@@ -138,6 +133,11 @@ export class SearchPaneView extends React.PureComponent<
                 }}
             />
         )
+    }
+
+    private _cleanExistingSubscriptions(): void {
+        this._subscriptions.forEach(s => s.dispose())
+        this._subscriptions = []
     }
 
     // private _onChangeFilesFilter(val: string): void {

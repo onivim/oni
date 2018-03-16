@@ -73,11 +73,6 @@ export class SearchResultSpinnerView extends React.PureComponent<
         this._cleanExistingSubscriptions()
     }
 
-    private _cleanExistingSubscriptions(): void {
-        this._subscriptions.forEach(s => s.dispose())
-        this._subscriptions = []
-    }
-
     public render(): JSX.Element {
         return (
             <SpinnerWrapper isActive={this.state.isActive}>
@@ -86,5 +81,10 @@ export class SearchResultSpinnerView extends React.PureComponent<
                 </SpinnerRotator>
             </SpinnerWrapper>
         )
+    }
+
+    private _cleanExistingSubscriptions(): void {
+        this._subscriptions.forEach(s => s.dispose())
+        this._subscriptions = []
     }
 }

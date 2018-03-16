@@ -28,6 +28,8 @@ export class PluginsSidebarPane implements SidebarPane {
         return "Plugins"
     }
 
+    constructor(private _pluginManager: PluginManager) {}
+
     public enter(): void {
         this._onEnter.dispatch()
     }
@@ -35,8 +37,6 @@ export class PluginsSidebarPane implements SidebarPane {
     public leave(): void {
         this._onLeave.dispatch()
     }
-
-    constructor(private _pluginManager: PluginManager) {}
 
     public render(): JSX.Element {
         return (
