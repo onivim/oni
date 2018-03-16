@@ -77,7 +77,9 @@ export class Session extends EventEmitter {
         })
 
         this._decoder.on("error", (err: Error) => {
-            Log.error("Decoder error:", err)
+            if (!this._isDisposed) {
+                Log.error("Decoder error:", err)
+            }
         })
     }
 

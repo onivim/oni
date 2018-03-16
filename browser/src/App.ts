@@ -20,15 +20,20 @@ export const quit = async (): Promise<void> => {
     const sharedNeovimInstance = await sharedNeovimInstancePromise
     const p1 = sharedNeovimInstance.getInstance().quit()
 
-    // const { editorManager } = await editorManagerPromise
-    // const promises = editorManager.allEditors.map(async (editor: any): Promise<void> => {
-    //     if (editor.quit) {
-    //         return editor.quit() as Promise<void>
-    //     }
-    // })
+    const { editorManager } = await editorManagerPromise
+    const promises = editorManager.allEditors.map(async (editor: any): Promise<void> => {
+        if (editor.quit) {
+            return editor.quit() as Promise<void>
+        } else {
+            return Promise.resolve(null)
+        }
+    })
 
-    await Promise.all([p1])
+    await Promise.all([p1, ...promises])
+    console.log("done!")
 }
+
+window["derp"] = quit
 
 export const start = async (args: string[]): Promise<void> => {
     Performance.startMeasure("Oni.Start")
