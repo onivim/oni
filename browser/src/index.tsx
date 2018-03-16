@@ -52,6 +52,8 @@ const start = async (args: string[]): Promise<void> => {
     const terminalPromise = import("./Services/Terminal")
     const workspacePromise = import("./Services/Workspace")
     const workspaceCommandsPromise = import("./Services/Workspace/WorkspaceCommands")
+    const windowManagerPromise = import("./Services/WindowManager")
+    const multiProcessPromise = import("./Services/MultiProcess")
 
     const themePickerPromise = import("./Services/Themes/ThemePicker")
     const cssPromise = import("./CSS")
@@ -120,6 +122,11 @@ const start = async (args: string[]): Promise<void> => {
     const Workspace = await workspacePromise
     Workspace.activate(configuration, editorManager)
     const workspace = Workspace.getInstance()
+
+    const WindowManager = await windowManagerPromise
+    const MultiProcess = await multiProcessPromise
+
+    MultiProcess.activate(WindowManager.windowManager)
 
     const StatusBar = await statusBarPromise
     StatusBar.activate(configuration)
