@@ -2,6 +2,8 @@ import { mount, shallow } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
 
+import * as os from "os"
+
 import {
     QuickInfoDocumentation,
     QuickInfoTitle,
@@ -21,7 +23,7 @@ describe("<QuickInfo />", () => {
     })
 
     it("renders the documentation correctly", () => {
-        const test = "line One\nline Two\nline Three"
+        const test = ["line One", "line Two", "line Three"].join(os.EOL)
         const wrapper = shallow(<QuickInfoDocumentation text={test} />)
         expect(wrapper.children()).toHaveLength(3)
     })
