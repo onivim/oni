@@ -17,6 +17,7 @@ export interface ITutorialState {
 export interface ITutorialMetadata {
     id: string
     name: string
+    description: string
 }
 
 import { TutorialBufferLayer } from "./TutorialBufferLayer"

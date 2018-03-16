@@ -7,8 +7,10 @@ import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 import { ITutorial, ITutorialStage } from "./ITutorial"
+import { ITutorialMetadata } from "./TutorialManager"
 
 export interface ITutorialState {
+    metadata: ITutorialMetadata
     renderFunc?: (context: Oni.BufferLayerRenderContext) => JSX.Element
     activeGoalIndex: number
     goals: string[]
@@ -100,6 +102,7 @@ export class TutorialGameplayManager {
         const goalsToSend = this._activeTutorial.stages.map(f => f.goalName)
 
         const newState: ITutorialState = {
+            metadata: this._activeTutorial.metadata,
             goals: goalsToSend,
             activeGoalIndex: this._currentStageIdx,
             renderFunc: (context: Oni.BufferLayerRenderContext) =>

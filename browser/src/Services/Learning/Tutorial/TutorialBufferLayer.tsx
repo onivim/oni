@@ -216,6 +216,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
             tutorialState: {
                 goals: [],
                 activeGoalIndex: -1,
+                metadata: null,
             },
         }
     }
@@ -227,6 +228,13 @@ export class TutorialBufferLayerView extends React.PureComponent<
     }
 
     public render(): JSX.Element {
+        if (!this.state.tutorialState || !this.state.tutorialState.metadata) {
+            return null
+        }
+
+        const title = this.state.tutorialState.metadata.name
+        const description = this.state.tutorialState.metadata.description
+
         const goals = this.state.tutorialState.goals.map((goal, idx) => {
             const activeIndex = this.state.tutorialState.activeGoalIndex
 
@@ -243,7 +251,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
             <TutorialWrapper>
                 <TutorialSectionWrapper>
                     <PrimaryHeader>Tutorial</PrimaryHeader>
-                    <SubHeader>Lesson 1: Test</SubHeader>
+                    <SubHeader>{title}</SubHeader>
                 </TutorialSectionWrapper>
                 <MainTutorialSectionWrapper>
                     <div
@@ -258,10 +266,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
                 </MainTutorialSectionWrapper>
                 <TutorialSectionWrapper>
                     <SectionHeader>Description:</SectionHeader>
-                    <Section>
-                        Oni is a modal editor, which means the editor can be in different modes. Oni
-                        starts in normal mode, but insert mode is how you enter text.
-                    </Section>
+                    <Section>{description}</Section>
                     <SectionHeader>Goals:</SectionHeader>
                     <Section>
                         <ul>{goals}</ul>
