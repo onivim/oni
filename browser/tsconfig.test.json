@@ -3,7 +3,6 @@
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "experimentalDecorators": true,
-        "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "jsx": "react",
         "lib": ["dom", "es2017"],
@@ -24,5 +23,5 @@
         "types": ["mocha"]
     },
     "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"],
-    "exclude": ["node_modules", "ui-tests"]
+    "exclude": ["node_modules"]
 }

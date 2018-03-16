@@ -26,6 +26,6 @@
         "sourceMap": true,
         "types": ["mocha"]
     },
-    "include": ["src/**/*.ts", "test/**/*.ts", "src/**/*.tsx"],
-    "exclude": ["node_modules", "**/*.test.tsx", "ui-tests"]
+    "include": ["src/**/*.ts", "test/**/*.ts"],
+    "exclude": ["node_modules"]
 }
