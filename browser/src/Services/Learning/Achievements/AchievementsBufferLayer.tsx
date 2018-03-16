@@ -12,6 +12,7 @@ import styled from "styled-components"
 // import { inputManager, InputManager } from "./../../Services/InputManager"
 
 import { BufferLayerHeader } from "./../../../UI/components/BufferLayerHeader"
+import { FlipCard } from "./../../../UI/components/FlipCard"
 import { boxShadow, withProps } from "./../../../UI/components/common"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
@@ -101,12 +102,38 @@ export const DescriptionText = styled.div`
     font-size: 0.9em;
 `
 
+export interface ICenteredIconProps {
+    isSuccess?: boolean
+}
+
+export const CenteredIcon = withProps<ICenteredIconProps>(styled.div)`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    ${p => (p.isSuccess ? "color: " + p.theme["highlight.mode.insert.background"] + ";" : "")}
+`
+
 export const TrophyCaseItemView = (props: { achievementInfo: AchievementWithProgressInfo }) => {
     return (
         <TrophyCaseItemViewWrapper>
             <Fixed>
                 <TrophyItemIcon>
-                    <Icon name="trophy" size={IconSize.ThreeX} />
+                    <FlipCard
+                        isFlipped={props.achievementInfo.completed}
+                        front={
+                            <CenteredIcon>
+                                <Icon name="trophy" size={IconSize.ThreeX} />
+                            </CenteredIcon>
+                        }
+                        back={
+                            <CenteredIcon isSuccess={true}>
+                                <Icon name="check" size={IconSize.ThreeX} />
+                            </CenteredIcon>
+                        }
+                    />
                 </TrophyItemIcon>
             </Fixed>
             <Full
