@@ -15,6 +15,7 @@ import { SidebarContainerView, SidebarItemView } from "./../../UI/components/Sid
 import { SidebarButton } from "./../../UI/components/SidebarButton"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 
+import { Icon, IconSize } from "./../../UI/Icon"
 import { Container, Full, Fixed } from "./../../UI/components/common"
 import { SidebarPane } from "./../Sidebar"
 
@@ -110,6 +111,30 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
                 />
             ))
 
+        const InnerTrophyButton: JSX.Element = (
+            <Container
+                direction="horizontal"
+                style={{ justifyContent: "center", alignItems: "center" }}
+            >
+                <Fixed>
+                    <Icon name="trophy" size={IconSize.Large} />
+                </Fixed>
+                <Full>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: "100%",
+                            height: "100%",
+                        }}
+                    >
+                        <div style={{ paddingLeft: "8px" }}>Achievements</div>
+                    </div>
+                </Full>
+            </Container>
+        )
+
         return (
             <VimNavigator
                 ids={ids}
@@ -144,7 +169,7 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
                             <Fixed>
                                 <div style={{ marginBottom: "2em", marginTop: "2em" }}>
                                     <SidebarButton
-                                        text={"Trophy Case"}
+                                        text={InnerTrophyButton}
                                         focused={selectedId === "trophy_case"}
                                         onClick={() => this._onSelect("trophy_case")}
                                     />
