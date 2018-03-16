@@ -100,6 +100,7 @@ export class Session extends EventEmitter {
     public request<T>(methodName: string, args: any): Promise<T> {
         if (this._isDisposed) {
             Log.warn(`[Session] Ignoring request: ${methodName} because session is disposed.`)
+            return Promise.reject(null)
         }
 
         this._requestId++
@@ -122,7 +123,11 @@ export class Session extends EventEmitter {
         return promise
     }
 
-    public notify(methodName: string, args: any) {
+    public notify(methodName: string, args: any): void {
+        if (this._isDisposed) {
+            Log.warn(`[Session] Ignoring notification: ${methodName} because session is disposed.`)
+            return
+        }
         log("Sending notification - " + methodName)
         this._writeImmediate([2, methodName, args])
     }
