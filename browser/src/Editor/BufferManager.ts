@@ -47,7 +47,7 @@ export interface IBuffer extends Oni.Buffer {
     detectIndentation(): Promise<BufferIndentationInfo>
 }
 
-type NvimError = [number, string]
+type NvimError = [1, string]
 
 const isStringArray = (value: NvimError | string[]): value is string[] => {
     if (value && Array.isArray(value)) {
