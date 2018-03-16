@@ -113,6 +113,10 @@ export class NeovimAutoCommands {
     }
 
     public async executeAutoCommand(autoCommand: string): Promise<void> {
+        if (!this._neovimInstance.isInitialized) {
+            return
+        }
+
         const doesAutoCommandExist = await this._neovimInstance.eval(`exists('#${autoCommand}')`)
 
         if (doesAutoCommandExist) {

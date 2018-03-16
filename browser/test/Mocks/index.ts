@@ -6,6 +6,7 @@
  */
 
 export * from "./MockBuffer"
+export * from "./neovim/MockNeovimInstance"
 export * from "./MockPluginManager"
 export * from "./MockThemeLoader"
 
@@ -161,6 +162,10 @@ export class MockEditor extends Editor {
 
     public async getSelection(): Promise<types.Range> {
         return this._currentSelection
+    }
+
+    public async clearSelection(): Promise<void> {
+        // tslint:disable-line
     }
 
     public setActiveBufferLine(line: number, lineContents: string): void {

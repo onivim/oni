@@ -16,21 +16,23 @@ import { OniSnippet, OniSnippetPlaceholder } from "./OniSnippet"
 import { BufferIndentationInfo, IBuffer } from "./../../Editor/BufferManager"
 import { IEditor } from "./../../Editor/Editor"
 
+import { SnippetVariableResolver } from "./SnippetVariableResolver"
+
 export const splitLineAtPosition = (line: string, position: number): [string, string] => {
     const prefix = line.substring(0, position)
     const post = line.substring(position, line.length)
     return [prefix, post]
 }
 
-export const getSmallestPlaceholder = (
+export const getFirstPlaceholder = (
     placeholders: OniSnippetPlaceholder[],
 ): OniSnippetPlaceholder => {
     return placeholders.reduce((prev: OniSnippetPlaceholder, curr: OniSnippetPlaceholder) => {
-        if (!prev) {
+        if (!prev || prev.isFinalTabstop) {
             return curr
         }
 
-        if (curr.index < prev.index) {
+        if (curr.index < prev.index && !curr.isFinalTabstop) {
             return curr
         }
         return prev
@@ -42,6 +44,18 @@ export const getPlaceholderByIndex = (
     index: number,
 ): OniSnippetPlaceholder | null => {
     const matchingPlaceholders = placeholders.filter(p => p.index === index)
+
+    if (matchingPlaceholders.length === 0) {
+        return null
+    }
+
+    return matchingPlaceholders[0]
+}
+
+export const getFinalPlaceholder = (
+    placeholders: OniSnippetPlaceholder[],
+): OniSnippetPlaceholder | null => {
+    const matchingPlaceholders = placeholders.filter(p => p.isFinalTabstop)
 
     if (matchingPlaceholders.length === 0) {
         return null
@@ -77,6 +91,11 @@ export class SnippetSession {
 
     private _currentPlaceholder: OniSnippetPlaceholder = null
 
+    private _lastCursorMovedEvent: IMirrorCursorUpdateEvent = {
+        mode: null,
+        cursors: [],
+    }
+
     public get buffer(): IBuffer {
         return this._buffer
     }
@@ -107,7 +126,16 @@ export class SnippetSession {
             this._snippetString,
             whitespaceSettings,
         )
-        this._snippet = new OniSnippet(normalizedSnippet)
+        this._snippet = new OniSnippet(normalizedSnippet, new SnippetVariableResolver(this._buffer))
+
+        // If there are no placeholders, add an implicit one at the end
+        if (this._snippet.getPlaceholders().length === 0) {
+            this._snippet = new OniSnippet(
+                // tslint:disable-next-line
+                normalizedSnippet + "${0}",
+                new SnippetVariableResolver(this._buffer),
+            )
+        }
 
         const cursorPosition = await this._buffer.getCursorPosition()
         const [currentLine] = await this._buffer.getLines(
@@ -138,20 +166,26 @@ export class SnippetSession {
         }
 
         await this.nextPlaceholder()
+        await this.updateCursorPosition()
     }
 
     public async nextPlaceholder(): Promise<void> {
         const placeholders = this._snippet.getPlaceholders()
 
         if (!this._currentPlaceholder) {
-            const newPlaceholder = getSmallestPlaceholder(placeholders)
+            const newPlaceholder = getFirstPlaceholder(placeholders)
             this._currentPlaceholder = newPlaceholder
         } else {
+            if (this._currentPlaceholder.isFinalTabstop) {
+                this._finish()
+                return
+            }
+
             const nextPlaceholder = getPlaceholderByIndex(
                 placeholders,
                 this._currentPlaceholder.index + 1,
             )
-            this._currentPlaceholder = nextPlaceholder || getSmallestPlaceholder(placeholders)
+            this._currentPlaceholder = nextPlaceholder || getFinalPlaceholder(placeholders)
         }
 
         await this._highlightPlaceholder(this._currentPlaceholder)
@@ -164,7 +198,7 @@ export class SnippetSession {
             placeholders,
             this._currentPlaceholder.index - 1,
         )
-        this._currentPlaceholder = nextPlaceholder || getSmallestPlaceholder(placeholders)
+        this._currentPlaceholder = nextPlaceholder || getFirstPlaceholder(placeholders)
 
         await this._highlightPlaceholder(this._currentPlaceholder)
     }
@@ -233,10 +267,16 @@ export class SnippetSession {
             }
         })
 
-        this._onCursorMovedEvent.dispatch({
+        this._lastCursorMovedEvent = {
             mode,
             cursors: cursorPositions,
-        })
+        }
+
+        this._onCursorMovedEvent.dispatch(this._lastCursorMovedEvent)
+    }
+
+    public getLatestCursors(): IMirrorCursorUpdateEvent {
+        return this._lastCursorMovedEvent
     }
 
     // Helper method to query the value of the current placeholder,
@@ -244,6 +284,10 @@ export class SnippetSession {
     public async synchronizeUpdatedPlaceholders(): Promise<void> {
         // Get current cursor position
         const cursorPosition = await this._buffer.getCursorPosition()
+
+        if (!this._currentPlaceholder) {
+            return
+        }
 
         const bounds = this._getBoundsForPlaceholder()
 

@@ -49,6 +49,7 @@ const start = async (args: string[]): Promise<void> => {
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
     const quickOpenPromise = import("./Services/QuickOpen")
     const taksPromise = import("./Services/Tasks")
+    const terminalPromise = import("./Services/Terminal")
     const workspacePromise = import("./Services/Workspace")
     const workspaceCommandsPromise = import("./Services/Workspace/WorkspaceCommands")
 
@@ -152,7 +153,7 @@ const start = async (args: string[]): Promise<void> => {
         notification.show()
     })
 
-    UnhandledErrorMonitor.start(Notifications.getInstance())
+    UnhandledErrorMonitor.start(configuration, Notifications.getInstance())
 
     const Tasks = await taksPromise
     Tasks.activate(menuManager)
@@ -170,7 +171,7 @@ const start = async (args: string[]): Promise<void> => {
     CSS.activate()
 
     const Snippets = await snippetPromise
-    Snippets.activate(commandManager)
+    Snippets.activate(commandManager, configuration)
 
     Shell.Actions.setLoadingComplete()
 
@@ -192,7 +193,6 @@ const start = async (args: string[]): Promise<void> => {
             overlayManager,
             pluginManager,
             Snippets.getInstance(),
-            tasks,
             Themes.getThemeManagerInstance(),
             TokenColors.getInstance(),
             workspace,
@@ -215,7 +215,13 @@ const start = async (args: string[]): Promise<void> => {
 
     Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
-    Learning.activate(configuration, editorManager, Sidebar.getInstance())
+    Learning.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        overlayManager,
+        Sidebar.getInstance(),
+    )
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =
@@ -230,7 +236,12 @@ const start = async (args: string[]): Promise<void> => {
     const api = pluginManager.startApi()
     configuration.activate(api)
 
-    Snippets.activateCompletionProvider(CompletionProviders.getInstance(), pluginManager)
+    Snippets.activateProviders(
+        commandManager,
+        CompletionProviders.getInstance(),
+        configuration,
+        pluginManager,
+    )
 
     createLanguageClientsFromConfiguration(configuration.getValues())
 
@@ -245,7 +256,7 @@ const start = async (args: string[]): Promise<void> => {
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
 
     const GlobalCommands = await globalCommandsPromise
-    GlobalCommands.activate(commandManager, menuManager, tasks)
+    GlobalCommands.activate(commandManager, editorManager, menuManager, tasks)
 
     const WorkspaceCommands = await workspaceCommandsPromise
     WorkspaceCommands.activateCommands(
@@ -256,7 +267,13 @@ const start = async (args: string[]): Promise<void> => {
     )
 
     const KeyDisplayer = await keyDisplayerPromise
-    KeyDisplayer.activate(commandManager, inputManager, overlayManager)
+    KeyDisplayer.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        inputManager,
+        overlayManager,
+    )
 
     const ThemePicker = await themePickerPromise
     ThemePicker.activate(configuration, menuManager, Themes.getThemeManagerInstance())
@@ -266,6 +283,9 @@ const start = async (args: string[]): Promise<void> => {
 
     const PluginsSidebarPane = await import("./Plugins/PluginSidebarPane")
     PluginsSidebarPane.activate(configuration, pluginManager, sidebarManager)
+
+    const Terminal = await terminalPromise
+    Terminal.activate(commandManager, configuration, editorManager)
 
     Performance.endMeasure("Oni.Start.Activate")
 

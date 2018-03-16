@@ -50,6 +50,7 @@ describe("OniSnippet", () => {
                 line: 0,
                 character: 3,
                 value: "index",
+                isFinalTabstop: false,
             })
         })
 
@@ -63,6 +64,7 @@ describe("OniSnippet", () => {
                 line: 0,
                 character: 3,
                 value: "a",
+                isFinalTabstop: false,
             })
 
             assert.deepEqual(placeholders[1], {
@@ -70,6 +72,7 @@ describe("OniSnippet", () => {
                 line: 1,
                 character: 3,
                 value: "b",
+                isFinalTabstop: false,
             })
         })
 
@@ -82,6 +85,7 @@ describe("OniSnippet", () => {
                 line: 1,
                 character: 3,
                 value: "",
+                isFinalTabstop: true,
             })
         })
     })
@@ -97,6 +101,14 @@ describe("OniSnippet", () => {
             oniSnippet.setPlaceholder(1, "test2")
 
             assert.deepEqual(oniSnippet.getLines(), ["test2test2test2"])
+        })
+    })
+
+    describe("variableResolvers", () => {
+        it("simple variable resolution", () => {
+            const oniSnippet = new OniSnippet("$CURRENT_YEAR", { resolve: variableName => "2018" })
+
+            assert.deepEqual(oniSnippet.getLines(), ["2018"])
         })
     })
 })

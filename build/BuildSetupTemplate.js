@@ -23,22 +23,13 @@ const prodName = packageMeta.build.productName
 // Replace template variables
 
 const valuesToReplace = {
-    "AppName": prodName,
-    "AppExecutableName": `${prodName}.exe`,
-    "AppSetupExecutableName": `${prodName}-${version}-ia32-win`,
-    "Version": version,
-    "SourcePath": path.join(__dirname, "..", "dist", "win-ia32-unpacked", "*"),
-    "WizardImageFilePath": path.join(__dirname, "setup", "Oni_128.bmp"),
-    "WizardSmallImageFilePath": path.join(__dirname, "setup", "Oni_54.bmp")
-}
-
-const fileExtensions = {
-    ".txt": "Text Files",
-    ".ts": "TypeScript Files",
-    ".js": "JavaScript Files",
-    ".tsx": "TypeScript Files",
-    ".jsx": "JavaScript Files",
-    ".md": "Markdown Files"
+    AppName: prodName,
+    AppExecutableName: `${prodName}.exe`,
+    AppSetupExecutableName: `${prodName}-${version}-ia32-win`,
+    Version: version,
+    SourcePath: path.join(__dirname, "..", "dist", "win-ia32-unpacked", "*"),
+    WizardImageFilePath: path.join(__dirname, "setup", "Oni_128.bmp"),
+    WizardSmallImageFilePath: path.join(__dirname, "setup", "Oni_54.bmp"),
 }
 
 const addToEnv = `
@@ -50,7 +41,6 @@ Root: HKCU; Subkey: "SOFTWARE\\Classes\\*\\shell\\${prodName}\\command"; ValueTy
 `
 
 function getFileRegKey(ext, desc) {
-
     return `
 Root: HKCR; Subkey: "${ext}\\OpenWithProgids"; ValueType: none; ValueName: "${prodName}"; Flags: deletevalue uninsdeletevalue; Tasks: registerAsEditor;
 Root: HKCR; Subkey: "${ext}\\OpenWithProgids"; ValueType: string; ValueName: "${prodName}${ext}"; ValueData: ""; Flags: uninsdeletevalue; Tasks: registerAsEditor;
@@ -60,14 +50,14 @@ Root: HKCR; Subkey: "${prodName}${ext}\\shell\\open\\command"; ValueType: string
 `
 }
 
-_.keys(valuesToReplace).forEach((key) => {
+_.keys(valuesToReplace).forEach(key => {
     shelljs.sed("-i", "{{" + key + "}}", valuesToReplace[key], destFile)
 })
 
 let allFilesToAddRegKeysFor = ""
 
-_.keys(fileExtensions).forEach((key) => {
-    allFilesToAddRegKeysFor += getFileRegKey(key, fileExtensions[key])
+packageMeta.build.fileAssociations.forEach(association => {
+    allFilesToAddRegKeysFor += getFileRegKey(`.${association.ext}`, association.name)
 })
 
 allFilesToAddRegKeysFor += addToEnv

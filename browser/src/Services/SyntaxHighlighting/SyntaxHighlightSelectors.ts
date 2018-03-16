@@ -35,14 +35,16 @@ export const getLineFromBuffer = (
     state: IBufferSyntaxHighlightState,
     lineNumber: number,
 ): ISyntaxHighlightLineInfo => {
+    const currentLine = state.lines[lineNumber]
+
     if (
         state.insertModeLine &&
         state.insertModeLine.info &&
-        state.insertModeLine.version > state.version &&
+        state.insertModeLine.version > currentLine.version &&
         state.insertModeLine.lineNumber === lineNumber
     ) {
         return state.insertModeLine.info
     }
 
-    return state.lines[lineNumber]
+    return currentLine
 }

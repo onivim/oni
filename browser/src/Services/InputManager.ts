@@ -27,7 +27,7 @@ import {
     remapResolver,
 } from "./../Input/Keyboard/Resolvers"
 
-export class InputManager implements Oni.InputManager {
+export class InputManager implements Oni.Input.InputManager {
     private _boundKeys: KeyBindingMap = {}
     private _resolver: KeyboardResolver
 

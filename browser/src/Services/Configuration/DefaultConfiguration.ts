@@ -33,13 +33,16 @@ const BaseConfiguration: IConfigurationValues = {
     deactivate: noop,
 
     "autoUpdate.enabled": false,
-    "configuration.editor": "javascript",
+
+    "browser.defaultUrl": "https://duckduckgo.com",
+    "configuration.editor": "typescript",
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
     "debug.persistOnNeovimExit": false,
     "debug.detailedSessionLogging": false,
     "debug.showTypingPrediction": false,
+    "debug.showNotificationOnError": process.env.NODE_ENV !== "production",
 
     "debug.fakeLag.languageServer": null,
     "debug.fakeLag.neovimInput": null,
@@ -56,6 +59,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.maxLinesForLanguageServices": 2500,
     "editor.textMateHighlighting.enabled": true,
+
+    "experimental.achievements.enabled": false,
 
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
@@ -100,7 +105,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
-    "editor.quickOpen.filterStrategy": "fuse",
+    "editor.quickOpen.filterStrategy": "regex",
 
     "editor.split.mode": "native",
 
@@ -121,7 +126,11 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.tokenColors": [],
 
+    "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
+
     "environment.additionalPaths": [],
+
+    "keyDisplayer.showInInsertMode": false,
 
     "language.html.languageServer.command": htmlLanguageServerPath,
     "language.html.languageServer.arguments": ["--stdio"],
@@ -232,6 +241,9 @@ const BaseConfiguration: IConfigurationValues = {
     "sidebar.marks.enabled": false,
     "sidebar.plugins.enabled": false,
 
+    "snippets.enabled": true,
+    "snippets.userSnippetFolder": null,
+
     "statusbar.enabled": true,
     "statusbar.fontSize": "0.9em",
     "statusbar.priority": {
@@ -250,6 +262,8 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.showFileIcon": true,
     "tabs.showIndex": false,
     "tabs.wrap": false,
+
+    "terminal.shellCommand": os.platform() === "win32" ? "cmd" : "bash",
 
     "ui.animations.enabled": true,
     "ui.colorscheme": "nord",

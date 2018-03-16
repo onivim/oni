@@ -12,14 +12,23 @@ export const getCompletionElement = () => {
     return getElementByClassName("autocompletion")
 }
 
-export const getElementByClassName = (className: string) => {
+export const getCollateralPath = () => {
+    return path.join(__dirname, "..", "..", "..", "test", "collateral")
+}
+
+export const getElementByClassName = (className: string): HTMLElement => {
     const elements = document.body.getElementsByClassName(className)
 
     if (!elements || !elements.length) {
         return null
     } else {
-        return elements[0]
+        return elements[0] as HTMLElement
     }
+}
+
+export const getElementsBySelector = (selector: string) => {
+    const elements = document.body.querySelectorAll(selector)
+    return elements || []
 }
 
 export const createNewFile = async (
@@ -57,4 +66,11 @@ export const navigateToFile = async (filePath: string, oni: Oni.Plugin.Api): Pro
         () => oni.editors.activeEditor.activeBuffer.filePath === filePath,
         10000,
     )
+}
+
+export const waitForCommand = async (command: string, oni: Oni.Plugin.Api): Promise<void> => {
+    return oni.automation.waitFor(() => {
+        const anyCommands = oni.commands as any
+        return anyCommands.hasCommand(command)
+    }, 10000)
 }

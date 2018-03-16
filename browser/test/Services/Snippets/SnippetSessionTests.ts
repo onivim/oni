@@ -5,7 +5,10 @@
 import * as assert from "assert"
 import * as types from "vscode-languageserver-types"
 
-import { SnippetSession } from "./../../../src/Services/Snippets/SnippetSession"
+import {
+    IMirrorCursorUpdateEvent,
+    SnippetSession,
+} from "./../../../src/Services/Snippets/SnippetSession"
 
 import * as Mocks from "./../../Mocks"
 
@@ -78,6 +81,27 @@ describe("SnippetSession", () => {
             const [firstLine] = await mockBuffer.getLines(0, 1)
             assert.strictEqual(firstLine, "\t\tfoo")
         })
+
+        it("mirrors cursor placeholders on insert", async () => {
+            snippetSession = new SnippetSession(mockEditor as any, "${1:test} ${1} ${1}") // tslint:idsable-line
+
+            let lastEvent: IMirrorCursorUpdateEvent = null
+            snippetSession.onCursorMoved.subscribe(evt => {
+                lastEvent = evt
+            })
+
+            // Set visual mode so that the range is blockwise
+            mockEditor.simulateModeChange("visual")
+
+            await snippetSession.start()
+
+            assert.ok(lastEvent !== null, "Verify 'onCursorMoved' event was fired")
+
+            const secondCursor = types.Range.create(0, 5, 0, 9)
+            const thirdCursor = types.Range.create(0, 10, 0, 14)
+
+            assert.deepEqual(lastEvent.cursors, [secondCursor, thirdCursor], "Validate cursors")
+        })
     })
 
     it("handles multiple lines", async () => {
@@ -113,7 +137,7 @@ describe("SnippetSession", () => {
 
     describe("next placeholder", () => {
         it("highlights correct placeholder after calling nextPlaceholder", async () => {
-            snippetSession = new SnippetSession(mockEditor as any, "${0:test} ${1:test2}")
+            snippetSession = new SnippetSession(mockEditor as any, "${1:test} ${0:test2}")
 
             await snippetSession.start()
 
@@ -128,7 +152,7 @@ describe("SnippetSession", () => {
         })
 
         it("traverses order correctly, when placeholders are reversed", async () => {
-            snippetSession = new SnippetSession(mockEditor as any, "${1:test} ${0:test2}")
+            snippetSession = new SnippetSession(mockEditor as any, "${0:test} ${1:test2}")
 
             await snippetSession.start()
 
@@ -154,24 +178,29 @@ describe("SnippetSession", () => {
             snippetSession = new SnippetSession(mockEditor as any, "${1:test} ${0:test2} ${1}")
 
             const placeholder0Range = types.Range.create(0, 5, 0, 9)
-            const placeholder1Range = types.Range.create(0, 0, 0, 3)
 
-            await snippetSession.start() // Placeholder 0
-            await snippetSession.nextPlaceholder() // Placeholder 1
+            await snippetSession.start() // Placeholder 1
+            await snippetSession.nextPlaceholder() // Placeholder 0
 
-            let selection = await mockEditor.getSelection()
+            const selection = await mockEditor.getSelection()
 
-            assert.strictEqual(selection.start.line, placeholder1Range.start.line)
-            assert.strictEqual(selection.start.character, placeholder1Range.start.character)
-            assert.strictEqual(selection.end.character, placeholder1Range.end.character)
-
-            await snippetSession.nextPlaceholder() // Wrap back to placeholder 0
-            selection = await mockEditor.getSelection()
-
-            // Validate we are highlighting the _second_ item now
             assert.strictEqual(selection.start.line, placeholder0Range.start.line)
             assert.strictEqual(selection.start.character, placeholder0Range.start.character)
             assert.strictEqual(selection.end.character, placeholder0Range.end.character)
+        })
+
+        it("triggers finish event after last placeholder", async () => {
+            snippetSession = new SnippetSession(mockEditor as any, "${0:test}")
+
+            let cancelHit = 0
+            snippetSession.onCancel.subscribe(() => {
+                cancelHit++
+            })
+
+            await snippetSession.start()
+            await snippetSession.nextPlaceholder()
+
+            assert.strictEqual(cancelHit, 1, "Verify onCancel event was fired")
         })
     })
 

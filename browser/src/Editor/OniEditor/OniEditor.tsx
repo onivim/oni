@@ -6,6 +6,7 @@
  * Extends the capabilities of the NeovimEditor
  */
 
+import * as path from "path"
 import * as React from "react"
 
 import * as types from "vscode-languageserver-types"
@@ -13,11 +14,14 @@ import * as types from "vscode-languageserver-types"
 import * as Oni from "oni-api"
 import { IEvent } from "oni-types"
 
+import { remote } from "electron"
+
 import * as Log from "./../../Log"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { IColors } from "./../../Services/Colors"
+import { commandManager } from "./../../Services/CommandManager"
 import { CompletionProviders } from "./../../Services/Completion"
 import { Configuration } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
@@ -31,7 +35,6 @@ import { OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
 import { ISyntaxHighlighter } from "./../../Services/SyntaxHighlighting"
 
-import { Tasks } from "./../../Services/Tasks"
 import { ThemeManager } from "./../../Services/Themes"
 import { TokenColors } from "./../../Services/TokenColors"
 import { Workspace } from "./../../Services/Workspace"
@@ -44,7 +47,7 @@ import { ErrorsContainer } from "./containers/ErrorsContainer"
 
 import { NeovimEditor } from "./../NeovimEditor"
 
-import { windowManager } from "./../../Services/WindowManager"
+import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 
 import { ImageBufferLayer } from "./ImageBufferLayer"
 
@@ -114,7 +117,6 @@ export class OniEditor implements IEditor {
         private _overlayManager: OverlayManager,
         private _pluginManager: PluginManager,
         private _snippetManager: SnippetManager,
-        private _tasks: Tasks,
         private _themeManager: ThemeManager,
         private _tokenColors: TokenColors,
         private _workspace: Workspace,
@@ -129,11 +131,26 @@ export class OniEditor implements IEditor {
             this._overlayManager,
             this._pluginManager,
             this._snippetManager,
-            this._tasks,
             this._themeManager,
             this._tokenColors,
             this._workspace,
         )
+
+        editorManager.registerEditor(this)
+
+        this._neovimEditor.onNeovimQuit.subscribe(() => {
+            const isSplitModeOni = this._configuration.getValue("editor.split.mode") === "oni"
+
+            if (!this._configuration.getValue("debug.persistOnNeovimExit") && !isSplitModeOni) {
+                remote.getCurrentWindow().close()
+            } else if (isSplitModeOni) {
+                const handle = windowManager.getSplitHandle(this)
+                handle.close()
+                editorManager.unregisterEditor(this)
+
+                this.dispose()
+            }
+        })
 
         this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
             wrapReactComponentWithLayer("oni.layer.scrollbar", <BufferScrollBarContainer />),
@@ -145,7 +162,11 @@ export class OniEditor implements IEditor {
             wrapReactComponentWithLayer("oni.layer.errors", <ErrorsContainer />),
         )
 
-        this._neovimEditor.bufferLayers.addBufferLayer("image", buf => new ImageBufferLayer(buf))
+        const extensions = this._configuration.getValue("editor.imageLayerExtensions")
+        this._neovimEditor.bufferLayers.addBufferLayer(
+            buf => extensions.includes(path.extname(buf.filePath)),
+            buf => new ImageBufferLayer(buf),
+        )
     }
 
     public dispose(): void {
@@ -160,6 +181,22 @@ export class OniEditor implements IEditor {
         this._neovimEditor.enter()
 
         editorManager.setActiveEditor(this)
+
+        commandManager.registerCommand({
+            command: "editor.split.horizontal",
+            execute: () => this._split("horizontal"),
+            enabled: () => editorManager.activeEditor === this,
+            name: null,
+            detail: null,
+        })
+
+        commandManager.registerCommand({
+            command: "editor.split.vertical",
+            execute: () => this._split("vertical"),
+            enabled: () => editorManager.activeEditor === this,
+            name: null,
+            detail: null,
+        })
     }
 
     public leave(): void {
@@ -177,25 +214,9 @@ export class OniEditor implements IEditor {
                 openMode === Oni.FileOpenMode.HorizontalSplit ||
                 openMode === Oni.FileOpenMode.VerticalSplit
             ) {
-                const newEditor = new OniEditor(
-                    this._colors,
-                    this._completionProviders,
-                    this._configuration,
-                    this._diagnostics,
-                    this._languageManager,
-                    this._menuManager,
-                    this._overlayManager,
-                    this._pluginManager,
-                    this._snippetManager,
-                    this._tasks,
-                    this._themeManager,
-                    this._tokenColors,
-                    this._workspace,
-                )
-
-                // TODO
-                windowManager.createSplit("vertical", newEditor)
-                await newEditor.init([])
+                const splitDirection =
+                    openMode === Oni.FileOpenMode.HorizontalSplit ? "horizontal" : "vertical"
+                const newEditor = await this._split(splitDirection)
                 return newEditor.openFile(file, { openMode: Oni.FileOpenMode.Edit })
             }
         }
@@ -245,5 +266,36 @@ export class OniEditor implements IEditor {
 
     public render(): JSX.Element {
         return this._neovimEditor.render()
+    }
+
+    private async _split(direction: SplitDirection): Promise<OniEditor> {
+        if (this._configuration.getValue("editor.split.mode") !== "oni") {
+            if (direction === "horizontal") {
+                await this._neovimEditor.neovim.command(":sp")
+            } else {
+                await this._neovimEditor.neovim.command(":vsp")
+            }
+
+            return this
+        }
+
+        const newEditor = new OniEditor(
+            this._colors,
+            this._completionProviders,
+            this._configuration,
+            this._diagnostics,
+            this._languageManager,
+            this._menuManager,
+            this._overlayManager,
+            this._pluginManager,
+            this._snippetManager,
+            this._themeManager,
+            this._tokenColors,
+            this._workspace,
+        )
+
+        windowManager.createSplit(direction, newEditor, this)
+        await newEditor.init([])
+        return newEditor
     }
 }

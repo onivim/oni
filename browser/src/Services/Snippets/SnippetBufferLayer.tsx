@@ -85,9 +85,10 @@ export class SnippetBufferLayerView extends React.PureComponent<
     constructor(props: ISnippetBufferLayerViewProps) {
         super(props)
 
+        const latestCursorState = props.snippetSession.getLatestCursors()
         this.state = {
-            mode: null,
-            cursors: [],
+            mode: latestCursorState.mode,
+            cursors: latestCursorState.cursors,
         }
     }
 
@@ -158,9 +159,7 @@ export class SnippetBufferLayerView extends React.PureComponent<
         const cursors = this.state.cursors.map(c => {
             const pos = this.props.context.screenToPixel(this.props.context.bufferToScreen(c.start))
 
-            const size = this.props.context.screenToPixel(
-                this.props.context.bufferToScreen(types.Position.create(1, c.end.character)),
-            )
+            const size = this.props.context.screenToPixel(this.props.context.bufferToScreen(c.end))
 
             const style: React.CSSProperties = {
                 top: pos.pixelY.toString() + "px",
@@ -170,7 +169,8 @@ export class SnippetBufferLayerView extends React.PureComponent<
                         ? (size.pixelX - pos.pixelX).toString() + "px"
                         : "2px",
                 opacity: this.state.mode === "visual" ? 0.2 : 0.8,
-                height: size.pixelY.toString() + "px",
+                // TODO: Add 'fontPixelWidth' and 'fontPixelHeight' as API methods
+                height: (this.props.context as any).fontPixelHeight.toString() + "px",
             }
 
             return <CursorWrapper style={style} />
