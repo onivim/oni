@@ -12,7 +12,7 @@ import styled from "styled-components"
 // import { inputManager, InputManager } from "./../../Services/InputManager"
 
 import { BufferLayerHeader } from "./../../../UI/components/BufferLayerHeader"
-import { boxShadow, withProps, Fixed, Full } from "./../../../UI/components/common"
+import { boxShadow, Fixed, Full, withProps } from "./../../../UI/components/common"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
 import * as Oni from "oni-api"

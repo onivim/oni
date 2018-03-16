@@ -11,12 +11,12 @@ import { Event, IEvent } from "oni-types"
 import { CommandManager } from "./../CommandManager"
 
 import { PureComponentWithDisposeTracking } from "./../../UI/components/PureComponentWithDisposeTracking"
-import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { SidebarButton } from "./../../UI/components/SidebarButton"
+import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 
+import { Container, Fixed, Full } from "./../../UI/components/common"
 import { Icon, IconSize } from "./../../UI/Icon"
-import { Container, Full, Fixed } from "./../../UI/components/common"
 import { SidebarPane } from "./../Sidebar"
 
 import { ITutorialMetadataWithProgress, TutorialManager } from "./Tutorial/TutorialManager"
