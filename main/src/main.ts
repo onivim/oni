@@ -9,6 +9,7 @@ import addDevExtensions from "./installDevTools"
 import * as Log from "./Log"
 import { buildDockMenu, buildMenu } from "./menu"
 import { makeSingleInstance } from "./ProcessLifecycle"
+import { moveToNextOniInstance } from "./WindowManager"
 
 global["getLogs"] = Log.getAllLogs // tslint:disable-line no-string-literal
 
@@ -75,10 +76,17 @@ ipcMain.on("focus-previous-instance", () => {
     focusNextInstance(-1)
 })
 
+ipcMain.on("move-to-next-oni-instance", (event, direction: string) => {
+    Log.info(`Attempting to swap to Oni instance on the ${direction}.`)
+    moveToNextOniInstance(windows, direction)
+})
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let windows: BrowserWindow[] = []
-let mainWindow: BrowserWindow = null
+const activeWindow = () => {
+    return windows.filter(w => w.isFocused())[0] || null
+}
 
 // Only enable 'single-instance' mode when we're not in the hot-reload mode
 // Otherwise, all other open instances will also pick up the webpack bundle
@@ -149,7 +157,7 @@ export function createWindow(
     const indexPath = path.join(rootPath, "index.html?react_perf")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
-    mainWindow = new BrowserWindow({
+    let currentWindow = new BrowserWindow({
         icon: iconPath,
         webPreferences,
         backgroundColor,
@@ -161,12 +169,12 @@ export function createWindow(
     })
 
     if (windowState.isMaximized) {
-        mainWindow.maximize()
+        currentWindow.maximize()
     }
 
-    updateMenu(mainWindow, false)
-    mainWindow.webContents.on("did-finish-load", () => {
-        mainWindow.webContents.send("init", {
+    updateMenu(currentWindow, false)
+    currentWindow.webContents.on("did-finish-load", () => {
+        currentWindow.webContents.send("init", {
             args: commandLineArguments,
             workingDirectory,
         })
@@ -176,55 +184,55 @@ export function createWindow(
         Log.info("Oni started")
 
         if (delayedEvent) {
-            mainWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
+            currentWindow.webContents.send(delayedEvent.evt, ...delayedEvent.cmd)
         }
     })
 
     ipcMain.on("rebuild-menu", (_evt, loadInit) => {
         // ipcMain is a singleton so if there are multiple Oni instances
         // we may receive an event from a different instance
-        if (mainWindow) {
-            updateMenu(mainWindow, loadInit)
+        if (currentWindow) {
+            updateMenu(currentWindow, loadInit)
         }
     })
 
     // and load the index.html of the app.
-    mainWindow.loadURL(`file://${indexPath}`)
+    currentWindow.loadURL(`file://${indexPath}`)
 
     // Open the DevTools.
     if (process.env.NODE_ENV === "development" || commandLineArguments.indexOf("--debug") >= 0) {
-        mainWindow.webContents.openDevTools()
+        currentWindow.webContents.openDevTools()
     }
 
-    mainWindow.on("move", () => {
-        storeWindowState(mainWindow)
+    currentWindow.on("move", () => {
+        storeWindowState(currentWindow)
     })
-    mainWindow.on("resize", () => {
-        storeWindowState(mainWindow)
+    currentWindow.on("resize", () => {
+        storeWindowState(currentWindow)
     })
-    mainWindow.on("close", () => {
-        storeWindowState(mainWindow)
+    currentWindow.on("close", () => {
+        storeWindowState(currentWindow)
     })
 
     // Emitted when the window is closed.
-    mainWindow.on("closed", () => {
+    currentWindow.on("closed", () => {
         // Dereference the window object, usually you would store windows
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
-        windows = windows.filter(m => m !== mainWindow)
-        mainWindow = null
+        windows = windows.filter(m => m !== currentWindow)
+        currentWindow = null
     })
 
-    windows.push(mainWindow)
+    windows.push(currentWindow)
 
-    return mainWindow
+    return currentWindow
 }
 
 app.on("open-file", (event, filePath) => {
     event.preventDefault()
     Log.info(`filePath to open: ${filePath}`)
-    if (mainWindow) {
-        mainWindow.webContents.send("open-file", filePath)
+    if (activeWindow()) {
+        activeWindow().webContents.send("open-file", filePath)
     } else if (process.platform.includes("darwin")) {
         const argsToUse = [...process.argv, filePath]
         createWindow(argsToUse, process.cwd())
@@ -246,8 +254,8 @@ app.on("activate", () => {
     if (!windows.length) {
         createWindow([], process.cwd())
     }
-    if (mainWindow) {
-        mainWindow.show()
+    if (activeWindow()) {
+        activeWindow().show()
     }
 })
 
