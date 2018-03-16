@@ -10,6 +10,8 @@ import * as path from "path"
 
 import { remote } from "electron"
 
+import * as ShellJS from "shelljs"
+
 import * as Oni from "oni-api"
 import { getTemporaryFilePath, navigateToFile } from "./Common"
 
@@ -29,15 +31,17 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     await navigateToFile(fileName, oni)
 
-    const win = remote.getCurrentWindow()
-
-    win.blur()
-
-    writeRevision()
+    const windowsAsAny = oni.windows as any
+    windowsAsAny.activeSplit.leave()
 
     await oni.automation.sleep(500)
 
-    win.focus()
+    writeRevision()
+    ShellJS.touch(fileName)
+
+    await oni.automation.sleep(500)
+
+    windowsAsAny.activeSplit.enter()
 
     const activeEditor = oni.editors.activeEditor
 
