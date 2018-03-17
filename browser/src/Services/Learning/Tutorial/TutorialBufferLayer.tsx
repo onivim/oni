@@ -21,9 +21,9 @@ import { getThemeManagerInstance } from "./../../Themes"
 import { getInstance as getTokenColorsInstance } from "./../../TokenColors"
 import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
+import { FlipCard } from "./../../../UI/components/FlipCard"
 import { ITutorial } from "./ITutorial"
 import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
-import { FlipCard } from "./../../../UI/components/FlipCard"
 
 import * as Tutorials from "./Tutorials"
 
