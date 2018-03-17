@@ -48,7 +48,9 @@ export const test = async (oni: Oni.Plugin.Api) => {
     let attempts = 0
     let editAccomplished = false
     while (attempts < 5) {
+        oni.log.info("Attempt: " + attempts)
         const [firstLine] = await activeEditor.activeBuffer.getLines(0, 1)
+        oni.log.info("read line: " + firstLine)
 
         if (firstLine.indexOf("Hello Again") === 0) {
             editAccomplished = true
@@ -59,6 +61,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
         attempts++
     }
 
+    oni.log.info("edit accomplished: " + editAccomplished)
     assert.ok(editAccomplished, "Validate the change was picked up")
 }
 //
