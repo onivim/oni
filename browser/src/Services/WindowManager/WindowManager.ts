@@ -113,6 +113,10 @@ export class WindowManager {
     private _primarySplit: LinearSplitProvider
     private _rootNavigator: RelationalSplitNavigator
 
+    // Queue of recently focused windows, to fall-back to
+    // when closing a window.
+    private _focusQueue: string[] = []
+
     private _store: Store<WindowState>
 
     public get onUnhandledMove(): IEvent<Direction> {
@@ -250,7 +254,23 @@ export class WindowManager {
         this.move("down")
     }
 
-    public close(splitId: any) {
+    public close(splitId: string) {
+        const currentActiveSplit = this.activeSplit
+
+        // Send focus back to most recently focused window
+        if (currentActiveSplit.id === splitId) {
+            const candidateSplits = this._focusQueue.filter(
+                f => f !== splitId && this._idToSplit[f],
+            )
+
+            this._focusQueue = candidateSplits
+
+            if (this._focusQueue.length > 0) {
+                const splitToFocus = this._focusQueue[0]
+                this._focusNewSplit(this._idToSplit[splitToFocus])
+            }
+        }
+
         const split = this._idToSplit[splitId]
         this._primarySplit.close(split)
 
@@ -282,6 +302,9 @@ export class WindowManager {
             type: "SET_FOCUSED_SPLIT",
             splitId: newSplit.id,
         })
+
+        const filteredSplits = this._focusQueue.filter(f => f !== newSplit.id)
+        this._focusQueue = [newSplit.id, ...filteredSplits]
 
         if (newSplit && newSplit.enter) {
             newSplit.enter()

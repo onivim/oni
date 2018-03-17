@@ -56,8 +56,6 @@ export const activate = (
         }),
         new CallbackCommand("oni.about", null, null, () => showAboutMessage()),
 
-        new CallbackCommand("oni.quit", null, null, () => remote.app.quit()),
-
         // Debug
         new CallbackCommand(
             "oni.debug.openDevTools",

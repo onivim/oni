@@ -6,6 +6,8 @@ import * as React from "react"
 
 import * as Oni from "oni-api"
 
+import styled from "styled-components"
+
 import { NeovimEditor } from "./../../../Editor/NeovimEditor"
 
 import { getInstance as getPluginManagerInstance } from "./../../../Plugins/PluginManager"
@@ -23,6 +25,10 @@ import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
 import { ITutorial } from "./ITutorial"
 import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
+
+import { boxShadow, withProps } from "./../../../UI/components/common"
+import { FlipCard } from "./../../../UI/components/FlipCard"
+import { Icon } from "./../../../UI/Icon"
 
 export class TutorialBufferLayer implements Oni.BufferLayer {
     private _editor: NeovimEditor
@@ -83,6 +89,66 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
     public async startTutorial(tutorial: ITutorial): Promise<void> {
         await this._initPromise
         this._tutorialGameplayManager.start(tutorial, this._editor.activeBuffer)
+        this._editor.activeBuffer.addLayer(new GameplayBufferLayer(this._tutorialGameplayManager))
+    }
+}
+
+export class GameplayBufferLayer implements Oni.BufferLayer {
+    public get id(): string {
+        return "oni.layer.gameplay"
+    }
+
+    public get friendlyName(): string {
+        return "Gameplay"
+    }
+
+    constructor(private _tutorialGameplayManager: TutorialGameplayManager) {}
+
+    public render(context: Oni.BufferLayerRenderContext): JSX.Element {
+        return (
+            <GameplayBufferLayerView
+                context={context}
+                tutorialGameplay={this._tutorialGameplayManager}
+            />
+        )
+    }
+}
+
+export interface IGameplayBufferLayerViewProps {
+    tutorialGameplay: TutorialGameplayManager
+    context: Oni.BufferLayerRenderContext
+}
+
+export interface IGameplayBufferLayerViewState {
+    renderFunction: (context: Oni.BufferLayerRenderContext) => JSX.Element
+}
+
+export class GameplayBufferLayerView extends React.PureComponent<
+    IGameplayBufferLayerViewProps,
+    IGameplayBufferLayerViewState
+> {
+    constructor(props: IGameplayBufferLayerViewProps) {
+        super(props)
+
+        this.state = {
+            renderFunction: () => null,
+        }
+    }
+
+    public componentDidMount(): void {
+        this.props.tutorialGameplay.onStateChanged.subscribe(newState => {
+            this.setState({
+                renderFunction: newState.renderFunc,
+            })
+        })
+    }
+
+    public render(): JSX.Element {
+        if (this.state.renderFunction) {
+            return this.state.renderFunction(this.props.context)
+        }
+
+        return null
     }
 }
 
@@ -95,9 +161,6 @@ export interface ITutorialBufferLayerViewProps {
 export interface ITutorialBufferLayerState {
     tutorialState: ITutorialState
 }
-
-import styled from "styled-components"
-import { withProps } from "./../../../UI/components/common"
 
 const TutorialWrapper = withProps<{}>(styled.div)`
     position: relative;
@@ -112,7 +175,8 @@ const TutorialWrapper = withProps<{}>(styled.div)`
     `
 
 const TutorialSectionWrapper = styled.div`
-    width: 100%;
+    width: 80%;
+    max-width: 1000px;
     flex: 0 0 auto;
 `
 
@@ -145,6 +209,62 @@ const Section = styled.div`
     padding-bottom: 2em;
 `
 
+export interface IGoalViewProps {
+    active: boolean
+    completed: boolean
+    description: string
+    visible: boolean
+}
+
+const GoalWrapper = withProps<IGoalViewProps>(styled.div)`
+    ${p => (p.active ? boxShadow : "")};
+    display: ${p => (p.visible ? "flex" : "none")};
+    background-color: ${p => p.theme["editor.background"]};
+    transition: all 0.5s linear;
+
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+
+    margin: 1em;
+`
+
+const IconWrapper = withProps<IGoalViewProps>(styled.div)`
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.2);
+
+    color: ${p => (p.completed ? p.theme["highlight.mode.insert.background"] : p.theme.foreground)};
+`
+
+export const GoalView = (props: IGoalViewProps): JSX.Element => {
+    return (
+        <GoalWrapper {...props} key={props.description}>
+            <div style={{ width: "48px", height: "48px", flex: "0 0 auto" }}>
+                <FlipCard
+                    isFlipped={props.completed}
+                    front={
+                        <IconWrapper {...props}>
+                            <Icon name="circle" />
+                        </IconWrapper>
+                    }
+                    back={
+                        <IconWrapper {...props}>
+                            <Icon name="check" />
+                        </IconWrapper>
+                    }
+                />
+            </div>
+            <div style={{ width: "100%", flex: "1 1 auto", padding: "1em" }}>
+                {props.description}
+            </div>
+        </GoalWrapper>
+    )
+}
+
 export class TutorialBufferLayerView extends React.PureComponent<
     ITutorialBufferLayerViewProps,
     ITutorialBufferLayerState
@@ -156,6 +276,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
             tutorialState: {
                 goals: [],
                 activeGoalIndex: -1,
+                metadata: null,
             },
         }
     }
@@ -167,23 +288,32 @@ export class TutorialBufferLayerView extends React.PureComponent<
     }
 
     public render(): JSX.Element {
-        const goals = this.state.tutorialState.goals.map((goal, idx) => {
-            const activeIndex = this.state.tutorialState.activeGoalIndex
+        if (!this.state.tutorialState || !this.state.tutorialState.metadata) {
+            return null
+        }
 
-            if (idx < activeIndex) {
-                return <li style={{ opacity: 0.5 }}>{goal}</li>
-            } else if (idx === activeIndex) {
-                return <li style={{ fontWeight: "bold" }}>{goal}</li>
-            } else {
-                return <li>{goal}</li>
-            }
+        const title = this.state.tutorialState.metadata.name
+        const description = this.state.tutorialState.metadata.description
+
+        const activeIndex = this.state.tutorialState.activeGoalIndex
+        const goals = this.state.tutorialState.goals.map((goal, idx) => {
+            const isCompleted = idx < activeIndex
+            const visible = Math.abs(idx - activeIndex) < 2
+            return (
+                <GoalView
+                    completed={isCompleted}
+                    description={goal}
+                    active={idx === activeIndex}
+                    visible={visible}
+                />
+            )
         })
 
         return (
             <TutorialWrapper>
                 <TutorialSectionWrapper>
                     <PrimaryHeader>Tutorial</PrimaryHeader>
-                    <SubHeader>Lesson 1: Test</SubHeader>
+                    <SubHeader>{title}</SubHeader>
                 </TutorialSectionWrapper>
                 <MainTutorialSectionWrapper>
                     <div
@@ -198,13 +328,10 @@ export class TutorialBufferLayerView extends React.PureComponent<
                 </MainTutorialSectionWrapper>
                 <TutorialSectionWrapper>
                     <SectionHeader>Description:</SectionHeader>
-                    <Section>
-                        Oni is a modal editor, which means the editor can be in different modes. Oni
-                        starts in normal mode, but insert mode is how you enter text.
-                    </Section>
+                    <Section>{description}</Section>
                     <SectionHeader>Goals:</SectionHeader>
                     <Section>
-                        <ul>{goals}</ul>
+                        <div>{goals}</div>
                     </Section>
                     <Section />
                 </TutorialSectionWrapper>

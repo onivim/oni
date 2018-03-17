@@ -38,7 +38,7 @@ export class TutorialManager {
         // const tutorial = this._getTutorialById(id)
         const buf = await this._editorManager.activeEditor.openFile("Tutorial")
         const layer = new TutorialBufferLayer()
-        layer.startTutorial(new Tutorials.SwitchModeTutorial())
+        layer.startTutorial(new Tutorials.BasicMovementTutorial())
         buf.addLayer(layer)
     }
 }
