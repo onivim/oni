@@ -15,8 +15,9 @@ import { IDisposable, IEvent } from "oni-types"
 import { Icon, IconSize } from "./../../UI/Icon"
 
 import { getInstance as getSneakInstance, ISneakInfo } from "./../../Services/Sneak"
+import { focusManager } from "./../../Services/FocusManager"
 
-import { TextInputView } from "./../../UI/components/LightweightText"
+// import { TextInputView } from "./../../UI/components/LightweightText";
 
 const Column = styled.div`
     pointer-events: auto;
@@ -164,14 +165,8 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
                         <Icon name="undo" size={IconSize.Large} />
                     </BrowserButton>
                     <AddressBar>
-                        <TextInputView
-                            defaultValue={this.props.url}
-                            onComplete={evt => {
-                                if (this._webviewElement) {
-                                    this._webviewElement.src = evt
-                                }
-                            }}
-                        />
+                        <span>{this.props.url}</span>
+                        {/*<TextInputView defaultValue={this.props.url} onComplete={(evt) => {if (this._webviewElement) {this._webviewElement.src=evt}}} />*/}
                     </AddressBar>
                     <BrowserButton onClick={() => this._openDebugger()}>
                         <Icon name="bug" size={IconSize.Large} />
@@ -225,6 +220,8 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
             elem.appendChild(webviewElement)
             this._webviewElement = webviewElement
             this._webviewElement.src = this.props.url
+
+            this._webviewElement.onfocus = () => focusManager.pushFocus(this._webviewElement)
         }
     }
 }
