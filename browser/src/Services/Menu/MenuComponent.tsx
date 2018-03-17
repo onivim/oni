@@ -225,6 +225,16 @@ const MenuItemWrapper = withProps<IMenuItemWrapperProps>(styled.div)`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    & .label .highlight {
+        font-weight: bold;
+        color: ${props => props.theme["highlight.mode.normal.background"]};
+    }
+
+    & .detail .highlight {
+        font-weight: bold;
+        color: #757575;
+    }
 `
 
 export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
