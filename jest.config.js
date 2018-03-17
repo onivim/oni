@@ -1,5 +1,7 @@
 module.exports = {
     verbose: true,
+    collectCoverage: true,
+    collectCoverageFrom: ["**/*.{tsx}", "!**/node_modules/**", "!**/dist/**"],
     setupFiles: ["<rootDir>/ui-tests/jestsetup.ts"],
     moduleNameMapper: {
         electron: "<rootDir>/ui-tests/mocks/electronMock.ts",
