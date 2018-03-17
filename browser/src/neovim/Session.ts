@@ -126,8 +126,8 @@ export class Session extends EventEmitter {
 
         this._requestId++
         let r = null
-        const promise = new Promise<T>(resolve => {
-            r = (val: any) => {
+        const promise = new Promise<T>((resolve, reject) => {
+            r = (val: T) => {
                 resolve(val)
             }
         })
