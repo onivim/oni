@@ -135,6 +135,11 @@ export class SearchPaneView extends React.PureComponent<
         )
     }
 
+    private _cleanExistingSubscriptions(): void {
+        this._subscriptions.forEach(s => s.dispose())
+        this._subscriptions = []
+    }
+
     // private _onChangeFilesFilter(val: string): void {
     //     this.setState({
     //         fileFilter: val,
@@ -142,11 +147,6 @@ export class SearchPaneView extends React.PureComponent<
 
     //     this._startSearch()
     // }
-
-    private _cleanExistingSubscriptions(): void {
-        this._subscriptions.forEach(s => s.dispose())
-        this._subscriptions = []
-    }
 
     private _onChangeSearchQuery(val: string): void {
         this.setState({

@@ -20,8 +20,6 @@ export class PluginsSidebarPane implements SidebarPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
 
-    constructor(private _pluginManager: PluginManager) {}
-
     public get id(): string {
         return "oni.sidebar.plugins"
     }
@@ -29,6 +27,8 @@ export class PluginsSidebarPane implements SidebarPane {
     public get title(): string {
         return "Plugins"
     }
+
+    constructor(private _pluginManager: PluginManager) {}
 
     public enter(): void {
         this._onEnter.dispatch()
