@@ -9,10 +9,8 @@ import * as React from "react"
 
 import styled from "styled-components"
 
-// import { inputManager, InputManager } from "./../../Services/InputManager"
-
 import { BufferLayerHeader } from "./../../../UI/components/BufferLayerHeader"
-import { boxShadow, withProps } from "./../../../UI/components/common"
+import { boxShadow, Fixed, Full, withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
@@ -27,23 +25,6 @@ export interface ITrophyCaseViewProps {
 export interface ITrophyCaseViewState {
     progressInfo: AchievementWithProgressInfo[]
 }
-
-export interface ContainerProps {
-    direction: "horizontal" | "vertical"
-}
-
-export const Fixed = styled.div`
-    flex: 0 0 auto;
-`
-
-export const Full = styled.div`
-    flex: 1 1 auto;
-`
-
-export const Container = withProps<ContainerProps>(styled.div)`
-    display: flex;
-    flex-direction: ${p => (p.direction === "vertical" ? "column" : "row")};
-`
 
 export const TrophyCaseViewWrapper = withProps<{}>(styled.div)`
     background-color: ${p => p.theme.background};

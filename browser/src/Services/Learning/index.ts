@@ -31,7 +31,7 @@ export const activate = (
     }
 
     const tutorialManager = new TutorialManager(editorManager)
-    sidebarManager.add("trophy", new LearningPane(tutorialManager))
+    sidebarManager.add("trophy", new LearningPane(tutorialManager, commandManager))
 
     AllTutorials.forEach((tut: ITutorial) => tutorialManager.registerTutorial(tut))
 
