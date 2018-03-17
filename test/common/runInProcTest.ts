@@ -175,6 +175,7 @@ export const runInProcTest = (
         afterEach(async () => {
             logWithTimeStamp("[AFTER EACH]: " + testName)
             await oni.close()
+            logWithTimeStamp("[AFTER EACH] Completed " + testName)
         })
 
         it("ci test: " + testName, async () => {
