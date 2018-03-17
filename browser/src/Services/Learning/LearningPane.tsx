@@ -8,10 +8,15 @@ import * as React from "react"
 
 import { Event, IEvent } from "oni-types"
 
+import { CommandManager } from "./../CommandManager"
+
 import { PureComponentWithDisposeTracking } from "./../../UI/components/PureComponentWithDisposeTracking"
+import { SidebarButton } from "./../../UI/components/SidebarButton"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 
+import { Container, Fixed, Full } from "./../../UI/components/common"
+import { Icon, IconSize } from "./../../UI/Icon"
 import { SidebarPane } from "./../Sidebar"
 
 import { ITutorialMetadataWithProgress, TutorialManager } from "./Tutorial/TutorialManager"
@@ -20,7 +25,10 @@ export class LearningPane implements SidebarPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
 
-    constructor(private _tutorialManager: TutorialManager) {}
+    constructor(
+        private _tutorialManager: TutorialManager,
+        private _commandManager: CommandManager,
+    ) {}
 
     public get id(): string {
         return "oni.sidebar.learning"
@@ -45,6 +53,8 @@ export class LearningPane implements SidebarPane {
                 onEnter={this._onEnter}
                 onLeave={this._onLeave}
                 tutorialManager={this._tutorialManager}
+                onStartTutorial={id => this._tutorialManager.startTutorial(id)}
+                onOpenAchievements={() => this._commandManager.executeCommand("achievements.show")}
             />
         )
     }
@@ -54,6 +64,9 @@ export interface ILearningPaneViewProps {
     onEnter: IEvent<void>
     onLeave: IEvent<void>
     tutorialManager: TutorialManager
+
+    onStartTutorial: (tutorialId: string) => void
+    onOpenAchievements: () => void
 }
 
 export interface ILearningPaneViewState {
@@ -87,7 +100,7 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
 
     public render(): JSX.Element {
         const tutorialIds = this.state.tutorialInfo.map(t => t.tutorialInfo.id)
-        const ids = ["tutorial_container", ...tutorialIds]
+        const ids = ["tutorial_container", ...tutorialIds, "trophy_case"]
 
         const tutorialItems = (selectedId: string) =>
             this.state.tutorialInfo.map(t => (
@@ -98,25 +111,84 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
                 />
             ))
 
+        const InnerTrophyButton: JSX.Element = (
+            <Container
+                direction="horizontal"
+                style={{ justifyContent: "center", alignItems: "center" }}
+            >
+                <Fixed>
+                    <Icon name="trophy" size={IconSize.Large} />
+                </Fixed>
+                <Full>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: "100%",
+                            height: "100%",
+                        }}
+                    >
+                        <div style={{ paddingLeft: "8px" }}>Achievements</div>
+                    </div>
+                </Full>
+            </Container>
+        )
+
         return (
             <VimNavigator
                 ids={ids}
                 active={this.state.isActive}
+                onSelected={id => this._onSelect(id)}
                 render={selectedId => {
                     const items = tutorialItems(selectedId)
                     return (
-                        <SidebarContainerView
-                            indentationLevel={0}
-                            isFocused={selectedId === "tutorial_container"}
-                            text={"Tutorials"}
-                            isContainer={true}
-                            isExpanded={true}
+                        <Container
+                            fullHeight={true}
+                            fullWidth={true}
+                            direction="vertical"
+                            style={{
+                                position: "absolute",
+                                top: "0px",
+                                left: "0px",
+                                right: "0px",
+                                bottom: "0px",
+                            }}
                         >
-                            {items}
-                        </SidebarContainerView>
+                            <Full style={{ height: "100%" }}>
+                                <SidebarContainerView
+                                    indentationLevel={0}
+                                    isFocused={selectedId === "tutorial_container"}
+                                    text={"Tutorials"}
+                                    isContainer={true}
+                                    isExpanded={true}
+                                >
+                                    {items}
+                                </SidebarContainerView>
+                            </Full>
+                            <Fixed>
+                                <div style={{ marginBottom: "2em", marginTop: "2em" }}>
+                                    <SidebarButton
+                                        text={InnerTrophyButton}
+                                        focused={selectedId === "trophy_case"}
+                                        onClick={() => this._onSelect("trophy_case")}
+                                    />
+                                </div>
+                            </Fixed>
+                        </Container>
                     )
                 }}
             />
         )
+    }
+
+    private _onSelect(selectedId: string) {
+        if (selectedId === "tutorial_container") {
+            // TODO: Handle expansion
+        } else if (selectedId === "trophy_case") {
+            this.props.onOpenAchievements()
+        } else {
+            this.props.onStartTutorial(selectedId)
+        }
     }
 }
