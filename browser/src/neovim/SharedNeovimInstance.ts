@@ -19,6 +19,7 @@ import { Configuration } from "./../Services/Configuration"
 
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
+import * as App from "./../App"
 import * as Log from "./../Log"
 
 export interface IBinding {
@@ -136,6 +137,7 @@ export class MenuBinding extends Binding implements IMenuBinding {
 
 class SharedNeovimInstance implements SharedNeovimInstance {
     private _neovimInstance: NeovimInstance
+    private _activeBinding: IBinding
 
     public get isInitialized(): boolean {
         return this._neovimInstance.isInitialized
@@ -147,10 +149,16 @@ class SharedNeovimInstance implements SharedNeovimInstance {
         this._neovimInstance.onOniCommand.subscribe((command: string) => {
             commandManager.executeCommand(command)
         })
+
+        App.registerQuitHook(async () => {
+            return this.quit()
+        })
     }
 
     public bindToMenu(): IMenuBinding {
-        return new MenuBinding(this._neovimInstance)
+        const menuBinding = new MenuBinding(this._neovimInstance)
+        this._activeBinding = menuBinding
+        return menuBinding
     }
 
     public async start(): Promise<void> {
@@ -163,6 +171,15 @@ class SharedNeovimInstance implements SharedNeovimInstance {
         Log.info("[SharedNeovimInstance::start] Starting...")
         await this._neovimInstance.start(startOptions)
         Log.info("[SharedNeovimInstance::start] Started successfully!")
+    }
+
+    public async quit(): Promise<void> {
+        if (this._activeBinding) {
+            this._activeBinding.release()
+            this._activeBinding = null
+        }
+
+        return this._neovimInstance.quit()
     }
 }
 

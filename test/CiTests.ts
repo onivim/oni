@@ -44,6 +44,7 @@ const CiTests = [
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
     "Regression.1799.MacroApplicationTest",
+    "Regression.1819.AutoReadCheckTimeTest",
 
     "TextmateHighlighting.DebugScopesTest",
     "TextmateHighlighting.ScopesOnEnterTest",

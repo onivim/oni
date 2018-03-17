@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "jsx": "react",
+        "lib": ["dom", "es2017"],
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "newLine": "LF",
+        "noEmitOnError": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "outDir": "../lib_test/main",
+        "pretty": true,
+        "removeComments": true,
+        "rootDir": ".",
+        "skipLibCheck": true,
+        "strictNullChecks": false,
+        "suppressImplicitAnyIndexErrors": true,
+        "target": "es2015",
+        "sourceMap": true
+    },
+    "include": ["test/**/*.ts"],
+    "exclude": ["node_modules"]
+}
