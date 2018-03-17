@@ -23,11 +23,16 @@ import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
 import { ITutorial } from "./ITutorial"
 import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
+import { FlipCard } from "./../../../UI/components/FlipCard"
+
+import * as Tutorials from "./Tutorials"
 
 export class TutorialBufferLayer implements Oni.BufferLayer {
     private _editor: NeovimEditor
     private _tutorialGameplayManager: TutorialGameplayManager
     private _initPromise: Promise<void>
+
+    private _isCompleted: boolean
 
     public get id(): string {
         return "oni.tutorial"
@@ -63,10 +68,23 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         })
 
         this._tutorialGameplayManager = new TutorialGameplayManager(this._editor)
+
+        this._tutorialGameplayManager.onCompleted.subscribe(() => {
+            this._isCompleted = true
+            alert("Completed!")
+        })
     }
 
     public handleInput(key: string): boolean {
-        this._editor.input(key)
+        if (this._isCompleted) {
+            this._isCompleted = false
+            this._tutorialGameplayManager.start(
+                new Tutorials.SwitchModeTutorial(),
+                this._editor.activeBuffer,
+            )
+        } else {
+            this._editor.input(key)
+        }
         return true
     }
 
@@ -217,6 +235,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
                 goals: [],
                 activeGoalIndex: -1,
                 metadata: null,
+                completionInfo: { completed: false },
             },
         }
     }
@@ -261,7 +280,21 @@ export class TutorialBufferLayerView extends React.PureComponent<
                             boxShadow: "3px 7px 10px 7px rgba(0, 0, 0, 0.2)",
                         }}
                     >
-                        {this.props.editor.render()}
+                        <FlipCard
+                            isFlipped={this.state.tutorialState.completionInfo.completed}
+                            front={this.props.editor.render()}
+                            back={
+                                <div
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        backgroundColor: "black",
+                                    }}
+                                >
+                                    Completed
+                                </div>
+                            }
+                        />
                     </div>
                 </MainTutorialSectionWrapper>
                 <TutorialSectionWrapper>

@@ -24,6 +24,7 @@ export class SwitchModeTutorial implements ITutorial {
 
     public get stages(): ITutorialStage[] {
         return [
+            new ClearBufferStage(),
             {
                 goalName: "Switch to insert mode by pressing 'i'",
                 tickFunction: async (context: ITutorialContext): Promise<boolean> => {
@@ -136,6 +137,22 @@ export class BasicMovementTutorial implements ITutorial {
                 this._positions[5],
             ),
         ]
+    }
+}
+
+export class ClearBufferStage implements ITutorialStage {
+    public get goalName(): string {
+        return null
+    }
+
+    public async tickFunction(context: ITutorialContext): Promise<boolean> {
+        const allLines = context.buffer.lineCount
+        await context.buffer.setLines(0, allLines, [])
+        return true
+    }
+
+    public render(): JSX.Element {
+        return null
     }
 }
 
