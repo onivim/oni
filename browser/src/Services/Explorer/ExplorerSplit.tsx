@@ -233,8 +233,14 @@ export class ExplorerSplit {
         if (!selectedItem) {
             return
         }
-        this._store.dispatch({ type: "YANK", target: selectedItem })
-        this._store.dispatch({ type: "REFRESH" })
+
+        const { register: { yank } } = this._store.getState()
+        const inYankRegister = yank.some(({ id }) => id === selectedItem.id)
+
+        if (!inYankRegister) {
+            this._store.dispatch({ type: "YANK", target: selectedItem })
+            this._store.dispatch({ type: "REFRESH" })
+        }
     }
 
     private _onPasteItem(): void {
@@ -246,8 +252,10 @@ export class ExplorerSplit {
         this._store.dispatch({ type: "PASTE", target: selectedItem })
         const { register: { yank, paste } } = this._store.getState()
         if (yank && paste) {
-            this.moveFileOrFolder(yank.target, paste.target)
-            this._store.dispatch({ type: "YANK", target: ExplorerSelectors.EmptyNode })
+            yank.forEach(node => {
+                this.moveFileOrFolder(node, paste)
+                this._store.dispatch({ type: "PASTED", id: node.id })
+            })
         }
     }
 

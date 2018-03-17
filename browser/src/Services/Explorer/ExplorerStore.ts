@@ -7,6 +7,7 @@
 import * as fs from "fs"
 
 import * as omit from "lodash/omit"
+
 import { Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
@@ -26,8 +27,8 @@ export const DefaultFolderState: IFolderState = {
 }
 
 export const DefaultRegisterState: IRegisterState = {
-    yank: { target: EmptyNode },
-    paste: { target: EmptyNode },
+    yank: [],
+    paste: EmptyNode,
 }
 
 export interface IFileState {
@@ -55,13 +56,9 @@ export interface IFileSystem {
     delete(fullPath: string): Promise<void>
 }
 
-interface ITargetNode {
-    target: ExplorerNode
-}
-
 interface IRegisterState {
-    yank: ITargetNode
-    paste: ITargetNode
+    yank: ExplorerNode[]
+    paste: ExplorerNode
 }
 
 export interface IExplorerState {
@@ -118,6 +115,10 @@ export type ExplorerAction =
           path: string
           target: ExplorerNode
       }
+    | {
+          type: "PASTED"
+          id: string
+      }
 
 export const rootFolderReducer: Reducer<IFolderState> = (
     state: IFolderState = DefaultFolderState,
@@ -136,6 +137,10 @@ export const rootFolderReducer: Reducer<IFolderState> = (
     }
 }
 
+const removePastedNode = (nodeArray: ExplorerNode[], id: string): ExplorerNode[] => {
+    return nodeArray.filter(node => node.id !== id)
+}
+
 export const yankRegisterReducer: Reducer<IRegisterState> = (
     state: IRegisterState = DefaultRegisterState,
     action: ExplorerAction,
@@ -144,17 +149,19 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
         case "YANK":
             return {
                 ...state,
-                yank: {
-                    target: action.target,
-                },
+                yank: [...state.yank, action.target],
             }
         case "PASTE":
             return {
                 ...state,
-                paste: {
-                    target: action.target,
-                },
+                paste: action.target,
             }
+        case "PASTED": {
+            return {
+                ...state,
+                yank: removePastedNode(state.yank, action.id),
+            }
+        }
         default:
             return state
     }

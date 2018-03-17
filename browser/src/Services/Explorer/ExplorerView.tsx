@@ -28,7 +28,7 @@ export interface INodeViewProps {
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
     onClick: () => void
-    yanked: string
+    yanked: string[]
     pasted: string
 }
 
@@ -82,7 +82,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 
     public getElement(): JSX.Element {
         const { node } = this.props
-        const yanked = this.props.yanked === node.id
+        const yanked = this.props.yanked.includes(node.id)
         const pasted = this.props.pasted === node.id
 
         switch (node.type) {
@@ -168,7 +168,7 @@ export interface IExplorerViewContainerProps {
     moveFileOrFolder: (source: Node, dest: Node) => void
     onSelectionChanged: (id: string) => void
     onClick: (id: string) => void
-    yanked?: string
+    yanked?: string[]
     pasted?: string
 }
 
@@ -232,12 +232,13 @@ const mapStateToProps = (
     state: IExplorerState,
     containerProps: IExplorerViewContainerProps,
 ): IExplorerViewProps => {
+    const yanked = state.register.yank.map(node => node.id)
     return {
         ...containerProps,
         isActive: state.hasFocus,
         nodes: ExplorerSelectors.mapStateToNodeList(state),
-        yanked: state.register.yank.target.id,
-        pasted: state.register.paste.target.id,
+        pasted: state.register.paste.id,
+        yanked,
     }
 }
 
