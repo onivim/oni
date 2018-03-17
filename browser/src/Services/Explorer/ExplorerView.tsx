@@ -28,6 +28,8 @@ export interface INodeViewProps {
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
     onClick: () => void
+    yanked: string
+    pasted: string
 }
 
 const NodeWrapper = styled.div`
@@ -80,6 +82,8 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
 
     public getElement(): JSX.Element {
         const { node } = this.props
+        const yanked = this.props.yanked === node.id
+        const pasted = this.props.pasted === node.id
 
         switch (node.type) {
             case "file":
@@ -93,6 +97,8 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         render={({ canDrop, isDragging, didDrop, isOver }) => {
                             return (
                                 <SidebarItemView
+                                    yanked={yanked}
+                                    pasted={pasted}
                                     isOver={isOver && canDrop}
                                     didDrop={didDrop}
                                     canDrop={canDrop}
@@ -115,6 +121,8 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         render={({ isOver }) => {
                             return (
                                 <SidebarContainerView
+                                    yanked={yanked}
+                                    pasted={pasted}
                                     isOver={isOver}
                                     isContainer={true}
                                     isExpanded={node.expanded}
@@ -136,6 +144,8 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         render={({ isOver, didDrop, canDrop }) => {
                             return (
                                 <SidebarContainerView
+                                    yanked={yanked}
+                                    pasted={pasted}
                                     didDrop={didDrop}
                                     isOver={isOver && canDrop}
                                     isContainer={false}
@@ -158,6 +168,8 @@ export interface IExplorerViewContainerProps {
     moveFileOrFolder: (source: Node, dest: Node) => void
     onSelectionChanged: (id: string) => void
     onClick: (id: string) => void
+    yanked?: string
+    pasted?: string
 }
 
 export interface IExplorerViewProps extends IExplorerViewContainerProps {
@@ -195,6 +207,8 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                     const nodes = this.props.nodes.map(node => (
                         <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
                             <NodeView
+                                yanked={this.props.yanked}
+                                pasted={this.props.pasted}
                                 moveFileOrFolder={this.props.moveFileOrFolder}
                                 node={node}
                                 isSelected={node.id === selectedId}
@@ -222,6 +236,8 @@ const mapStateToProps = (
         ...containerProps,
         isActive: state.hasFocus,
         nodes: ExplorerSelectors.mapStateToNodeList(state),
+        yanked: state.register.yank.target.id,
+        pasted: state.register.paste.target.id,
     }
 }
 

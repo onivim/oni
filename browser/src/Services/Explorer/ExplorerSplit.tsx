@@ -233,8 +233,7 @@ export class ExplorerSplit {
         if (!selectedItem) {
             return
         }
-        console.log("yanking selectedItem: ", selectedItem)
-        this._store.dispatch({ type: "YANK", node: selectedItem })
+        this._store.dispatch({ type: "YANK", target: selectedItem })
         this._store.dispatch({ type: "REFRESH" })
     }
 
@@ -244,9 +243,11 @@ export class ExplorerSplit {
             return
         }
 
-        const { yank, paste } = this._store.getState()
+        this._store.dispatch({ type: "PASTE", target: selectedItem })
+        const { register: { yank, paste } } = this._store.getState()
         if (yank && paste) {
-            return this.moveFileOrFolder(yank.target, paste.target)
+            this.moveFileOrFolder(yank.target, paste.target)
+            this._store.dispatch({ type: "YANK", target: ExplorerSelectors.EmptyNode })
         }
     }
 
