@@ -91,7 +91,10 @@ export const start = (configuration: Configuration, notifications: Notifications
 
     _unhandledErrorMonitor.onUnhandledError.subscribe(val => {
         const errorText = val ? val.toString() : "Open the debugger for more details."
-        showError("Unhandled Exception", errorText + "\nPlease report this error.")
+        showError(
+            "Unhandled Exception",
+            errorText + "\nPlease report this error. Callstack: " + val.stack,
+        )
     })
 
     _unhandledErrorMonitor.onUnhandledRejection.subscribe(val => {
