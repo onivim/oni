@@ -16,6 +16,8 @@ import { Icon, IconSize } from "./../../UI/Icon"
 
 import { getInstance as getSneakInstance, ISneakInfo } from "./../../Services/Sneak"
 
+import { TextInputView } from "./../../UI/components/LightweightText"
+
 const Column = styled.div`
     pointer-events: auto;
 
@@ -162,7 +164,14 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
                         <Icon name="undo" size={IconSize.Large} />
                     </BrowserButton>
                     <AddressBar>
-                        <span>{this.props.url}</span>
+                        <TextInputView
+                            defaultValue={this.props.url}
+                            onComplete={evt => {
+                                if (this._webviewElement) {
+                                    this._webviewElement.src = evt
+                                }
+                            }}
+                        />
                     </AddressBar>
                     <BrowserButton onClick={() => this._openDebugger()}>
                         <Icon name="bug" size={IconSize.Large} />
