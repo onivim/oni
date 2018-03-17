@@ -70,26 +70,7 @@ export class ExplorerSplit {
 
     public enter(): void {
         this._store.dispatch({ type: "ENTER" })
-        this._commandManager.registerCommand(
-            new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
-        )
-        this._commandManager.registerCommand(
-            new CallbackCommand(
-                "explorer.yank",
-                "Yank Selected Item",
-                "Select a file to move",
-                () => this._onYankItem(),
-            ),
-        )
-        this._commandManager.registerCommand(
-            new CallbackCommand(
-                "explorer.paste",
-                "Move/Paste Selected Item",
-                "Paste the last yanked item",
-                () => this._onPasteItem(),
-            ),
-        )
-
+        this._initialiseExplorerCommands()
         this._onEnterEvent.dispatch()
     }
 
@@ -177,6 +158,46 @@ export class ExplorerSplit {
         )
     }
 
+    private _initialiseExplorerCommands(): void {
+        this._commandManager.registerCommand(
+            new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
+        )
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.yank",
+                "Yank Selected Item",
+                "Select a file to move",
+                () => this._onYankItem(),
+            ),
+        )
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.paste",
+                "Move/Paste Selected Item",
+                "Paste the last yanked item",
+                () => this._onPasteItem(),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.expand.directory",
+                "Expand a selected directory",
+                null,
+                () => this._toggleDirectory("expand"),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.collapse.directory",
+                "Collapse selected directory",
+                null,
+                () => this._toggleDirectory("collapse"),
+            ),
+        )
+    }
+
     private _onSelectionChanged(id: string): void {
         this._selectedId = id
     }
@@ -226,6 +247,19 @@ export class ExplorerSplit {
         }
 
         return items[0]
+    }
+
+    // This is different from on openItem since it only activates if the target is a folder
+    // also it means that each bound key only does one thing aka "h" collapses and "l"
+    // expands they are not toggles
+    private _toggleDirectory(action: "expand" | "collapse"): void {
+        const selectedItem = this._getSelectedItem()
+        if (!selectedItem || selectedItem.type !== "folder") {
+            return
+        }
+
+        const type = action === "expand" ? "EXPAND_DIRECTORY" : "COLLAPSE_DIRECTORY"
+        this._store.dispatch({ type, directoryPath: selectedItem.folderPath })
     }
 
     private _onYankItem(): void {

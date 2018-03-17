@@ -126,4 +126,6 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("d", "explorer.delete", isExplorerActive)
     input.bind("y", "explorer.yank", isExplorerActive)
     input.bind("p", "explorer.paste", isExplorerActive)
+    input.bind("h", "explorer.collapse.directory", isExplorerActive)
+    input.bind("l", "explorer.expand.directory", isExplorerActive)
 }
