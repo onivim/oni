@@ -68,24 +68,26 @@ export class ExplorerSplit {
         }
     }
 
-    public yank(target: Node): void {
-        this._store.dispatch({ type: "YANK", target })
-    }
-
-    public paste(target: Node): void {
-        this._store.dispatch({ type: "PASTE", target })
-    }
-
     public enter(): void {
         this._store.dispatch({ type: "ENTER" })
         this._commandManager.registerCommand(
             new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
         )
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.move", null, null, () => {
-                const { yank, paste } = this._store.getState()
-                return this.moveFileOrFolder(yank.target, paste.target)
-            }),
+            new CallbackCommand(
+                "explorer.yank",
+                "Yank Selected Item",
+                "Select a file to move",
+                () => this._onYankItem(),
+            ),
+        )
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.paste",
+                "Move/Paste Selected Item",
+                "Paste the last yanked item",
+                () => this._onPasteItem(),
+            ),
         )
 
         this._onEnterEvent.dispatch()
@@ -224,6 +226,28 @@ export class ExplorerSplit {
         }
 
         return items[0]
+    }
+
+    private _onYankItem(): void {
+        const selectedItem = this._getSelectedItem()
+        if (!selectedItem) {
+            return
+        }
+        console.log("yanking selectedItem: ", selectedItem)
+        this._store.dispatch({ type: "YANK", node: selectedItem })
+        this._store.dispatch({ type: "REFRESH" })
+    }
+
+    private _onPasteItem(): void {
+        const selectedItem = this._getSelectedItem()
+        if (!selectedItem) {
+            return
+        }
+
+        const { yank, paste } = this._store.getState()
+        if (yank && paste) {
+            return this.moveFileOrFolder(yank.target, paste.target)
+        }
     }
 
     private _onDeleteItem(): void {

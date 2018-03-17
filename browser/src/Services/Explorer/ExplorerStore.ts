@@ -129,7 +129,7 @@ export const rootFolderReducer: Reducer<IFolderState> = (
     }
 }
 
-export const yankAndPasteReducer: Reducer<IExplorerState> = (
+export const yankRegisterReducer: Reducer<IExplorerState> = (
     state: IExplorerState = DefaultExplorerState,
     action: ExplorerAction,
 ) => {
@@ -197,7 +197,7 @@ export const reducer: Reducer<IExplorerState> = (
         hasFocus: hasFocusReducer(state.hasFocus, action),
         rootFolder: rootFolderReducer(state.rootFolder, action),
         expandedFolders: expandedFolderReducer(state.expandedFolders, action),
-        yankAndPaste: yankAndPasteReducer(state, action),
+        yankAndPaste: yankRegisterReducer(state, action),
     }
 }
 
