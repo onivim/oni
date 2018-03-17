@@ -9,8 +9,8 @@ import * as path from "path"
 import * as React from "react"
 import styled from "styled-components"
 
-import { IDisposable, IEvent } from "oni-types"
 import * as Oni from "oni-api"
+import { IDisposable, IEvent } from "oni-types"
 
 import { Icon, IconSize } from "./../../UI/Icon"
 

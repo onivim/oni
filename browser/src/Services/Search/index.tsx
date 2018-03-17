@@ -27,8 +27,8 @@ import {
     RipGrepSearchProvider,
 } from "./SearchProvider"
 
-import { SearchResultSpinnerView } from "./SearchResultsSpinnerView"
 import { SearchPaneView } from "./SearchPaneView"
+import { SearchResultSpinnerView } from "./SearchResultsSpinnerView"
 
 export class SearchPane {
     private _onEnter = new Event<void>()

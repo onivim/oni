@@ -20,6 +20,7 @@ export interface ITutorialStage {
 export interface ITutorialMetadata {
     id: string
     name: string
+    description: string
     level: number
 }
 

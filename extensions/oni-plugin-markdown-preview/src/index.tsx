@@ -51,6 +51,11 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
 
     public componentDidMount() {
         const activeEditor: Oni.Editor = this.props.oni.editors.activeEditor
+
+        if (!activeEditor) {
+            return
+        }
+
         this.subscribe(activeEditor.onBufferChanged, args => this.onBufferChanged(args))
         // TODO: Subscribe "onFocusChanged"
         this.subscribe(activeEditor.onBufferScrolled, args => this.onBufferScrolled(args))
