@@ -6,6 +6,8 @@ import * as React from "react"
 
 import * as Oni from "oni-api"
 
+import styled from "styled-components"
+
 import { NeovimEditor } from "./../../../Editor/NeovimEditor"
 
 import { getInstance as getPluginManagerInstance } from "./../../../Plugins/PluginManager"
@@ -23,6 +25,10 @@ import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
 import { ITutorial } from "./ITutorial"
 import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
+
+import { Icon } from "./../../../UI/Icon"
+import { FlipCard } from "./../../../UI/components/FlipCard"
+import { withProps, boxShadow } from "./../../../UI/components/common"
 
 export class TutorialBufferLayer implements Oni.BufferLayer {
     private _editor: NeovimEditor
@@ -156,9 +162,6 @@ export interface ITutorialBufferLayerState {
     tutorialState: ITutorialState
 }
 
-import styled from "styled-components"
-import { withProps } from "./../../../UI/components/common"
-
 const TutorialWrapper = withProps<{}>(styled.div)`
     position: relative;
     width: 100%;
@@ -172,7 +175,8 @@ const TutorialWrapper = withProps<{}>(styled.div)`
     `
 
 const TutorialSectionWrapper = styled.div`
-    width: 100%;
+    width: 80%;
+    max-width: 1000px;
     flex: 0 0 auto;
 `
 
@@ -205,6 +209,39 @@ const Section = styled.div`
     padding-bottom: 2em;
 `
 
+export interface IGoalViewProps {
+    active: boolean
+    completed: boolean
+    description: string
+}
+
+const GoalWrapper = withProps<IGoalViewProps>(styled.div)`
+    ${p => (p.active ? boxShadow : "")};
+    background-color: ${p => p.theme["editor.background"]};
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+
+    margin: 1em;
+`
+
+export const GoalView = (props: IGoalViewProps): JSX.Element => {
+    return (
+        <GoalWrapper {...props}>
+            <div style={{ width: "48px", height: "48px", flex: "0 0 auto" }}>
+                <FlipCard
+                    isFlipped={props.completed}
+                    front={<Icon name="circle" />}
+                    back={<Icon name="check" />}
+                />
+            </div>
+            <div style={{ width: "100%", flex: "1 1 auto" }}>{props.description}</div>
+        </GoalWrapper>
+    )
+}
+
 export class TutorialBufferLayerView extends React.PureComponent<
     ITutorialBufferLayerViewProps,
     ITutorialBufferLayerState
@@ -235,17 +272,16 @@ export class TutorialBufferLayerView extends React.PureComponent<
         const title = this.state.tutorialState.metadata.name
         const description = this.state.tutorialState.metadata.description
 
+        const activeIndex = this.state.tutorialState.activeGoalIndex
         const goals = this.state.tutorialState.goals.map((goal, idx) => {
-            const activeIndex = this.state.tutorialState.activeGoalIndex
-
-            if (idx < activeIndex) {
-                return <li style={{ opacity: 0.5 }}>{goal}</li>
-            } else if (idx === activeIndex) {
-                return <li style={{ fontWeight: "bold" }}>{goal}</li>
-            } else {
-                return <li>{goal}</li>
-            }
+            const isCompleted = idx < activeIndex
+            return (
+                <GoalView completed={isCompleted} description={goal} active={idx === activeIndex} />
+            )
         })
+
+        const startIndex = Math.max(activeIndex - 1, 0)
+        const localizedGoals = goals.slice(startIndex, startIndex + 3)
 
         return (
             <TutorialWrapper>
@@ -269,7 +305,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
                     <Section>{description}</Section>
                     <SectionHeader>Goals:</SectionHeader>
                     <Section>
-                        <ul>{goals}</ul>
+                        <div>{localizedGoals}</div>
                     </Section>
                     <Section />
                 </TutorialSectionWrapper>
