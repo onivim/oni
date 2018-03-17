@@ -10,6 +10,7 @@ import * as omit from "lodash/omit"
 
 import { Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
+import { Observable } from "rxjs"
 
 import { createStore as createReduxStore } from "./../../Redux"
 import { EmptyNode, ExplorerNode } from "./ExplorerSelectors"
@@ -78,6 +79,23 @@ export const DefaultExplorerState: IExplorerState = {
     register: DefaultRegisterState,
 }
 
+interface IYankAction {
+    type: "YANK"
+    path: string
+    target: ExplorerNode
+}
+
+interface IPasteAction {
+    type: "PASTE"
+    path: string
+    target: ExplorerNode
+}
+
+interface IClearRegisterAction {
+    type: "CLEAR_REGISTER"
+    id: string
+}
+
 export type ExplorerAction =
     | {
           type: "SET_ROOT_DIRECTORY"
@@ -105,20 +123,9 @@ export type ExplorerAction =
     | {
           type: "REFRESH"
       }
-    | {
-          type: "YANK"
-          path: string
-          target: ExplorerNode
-      }
-    | {
-          type: "PASTE"
-          path: string
-          target: ExplorerNode
-      }
-    | {
-          type: "PASTED"
-          id: string
-      }
+    | IYankAction
+    | IPasteAction
+    | IClearRegisterAction
 
 export const rootFolderReducer: Reducer<IFolderState> = (
     state: IFolderState = DefaultFolderState,
@@ -156,12 +163,13 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                 ...state,
                 paste: action.target,
             }
-        case "PASTED": {
+        case "CLEAR_REGISTER":
             return {
                 ...state,
                 yank: removePastedNode(state.yank, action.id),
             }
-        }
+        case "LEAVE":
+            return DefaultRegisterState
         default:
             return state
     }
@@ -245,6 +253,15 @@ const sortFilesAndFoldersFunc = (a: FolderOrFile, b: FolderOrFile) => {
     }
 }
 
+const clearYankRegisterEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
+    action$.ofType("YANK").mergeMap((action: IYankAction) => {
+        const oneMinute = 60000
+        return Observable.timer(oneMinute).mapTo({
+            type: "CLEAR_REGISTER",
+            id: action.target.id,
+        } as IClearRegisterAction)
+    })
+
 const refreshEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
     action$.ofType("REFRESH").mergeMap(() => {
         const state = store.getState()
@@ -284,7 +301,12 @@ export const createStore = (fileSystem?: IFileSystem): Store<IExplorerState> => 
 
     return createReduxStore("Explorer", reducer, DefaultExplorerState, [
         createEpicMiddleware(
-            combineEpics(setRootDirectoryEpic, expandDirectoryEpic(fileSystem), refreshEpic),
+            combineEpics(
+                setRootDirectoryEpic,
+                clearYankRegisterEpic,
+                expandDirectoryEpic(fileSystem),
+                refreshEpic,
+            ),
         ),
     ])
 }

@@ -240,6 +240,8 @@ export class ExplorerSplit {
         if (!inYankRegister) {
             this._store.dispatch({ type: "YANK", target: selectedItem })
             this._store.dispatch({ type: "REFRESH" })
+        } else {
+            this._store.dispatch({ type: "CLEAR_REGISTER", id: selectedItem.id })
         }
     }
 
@@ -254,7 +256,7 @@ export class ExplorerSplit {
         if (yank && paste) {
             yank.forEach(node => {
                 this.moveFileOrFolder(node, paste)
-                this._store.dispatch({ type: "PASTED", id: node.id })
+                this._store.dispatch({ type: "CLEAR_REGISTER", id: node.id })
             })
         }
     }
