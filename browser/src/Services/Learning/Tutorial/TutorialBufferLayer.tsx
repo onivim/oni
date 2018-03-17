@@ -213,13 +213,15 @@ export interface IGoalViewProps {
     active: boolean
     completed: boolean
     description: string
+    visible: boolean
 }
 
 const GoalWrapper = withProps<IGoalViewProps>(styled.div)`
     ${p => (p.active ? boxShadow : "")};
+    display: ${p => (p.visible ? "flex" : "none")};
     background-color: ${p => p.theme["editor.background"]};
+    transition: all 0.5s linear;
 
-    display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: row;
@@ -227,17 +229,39 @@ const GoalWrapper = withProps<IGoalViewProps>(styled.div)`
     margin: 1em;
 `
 
+const IconWrapper = withProps<IGoalViewProps>(styled.div)`
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.2);
+
+    color: ${p =>
+        p.completed ? p.theme["highlight.mode.insert.background"] : p.theme["foreground"]};
+`
+
 export const GoalView = (props: IGoalViewProps): JSX.Element => {
     return (
-        <GoalWrapper {...props}>
+        <GoalWrapper {...props} key={props.description}>
             <div style={{ width: "48px", height: "48px", flex: "0 0 auto" }}>
                 <FlipCard
                     isFlipped={props.completed}
-                    front={<Icon name="circle" />}
-                    back={<Icon name="check" />}
+                    front={
+                        <IconWrapper {...props}>
+                            <Icon name="circle" />
+                        </IconWrapper>
+                    }
+                    back={
+                        <IconWrapper {...props}>
+                            <Icon name="check" />
+                        </IconWrapper>
+                    }
                 />
             </div>
-            <div style={{ width: "100%", flex: "1 1 auto" }}>{props.description}</div>
+            <div style={{ width: "100%", flex: "1 1 auto", padding: "1em" }}>
+                {props.description}
+            </div>
         </GoalWrapper>
     )
 }
@@ -275,13 +299,16 @@ export class TutorialBufferLayerView extends React.PureComponent<
         const activeIndex = this.state.tutorialState.activeGoalIndex
         const goals = this.state.tutorialState.goals.map((goal, idx) => {
             const isCompleted = idx < activeIndex
+            const visible = Math.abs(idx - activeIndex) < 2
             return (
-                <GoalView completed={isCompleted} description={goal} active={idx === activeIndex} />
+                <GoalView
+                    completed={isCompleted}
+                    description={goal}
+                    active={idx === activeIndex}
+                    visible={visible}
+                />
             )
         })
-
-        const startIndex = Math.max(activeIndex - 1, 0)
-        const localizedGoals = goals.slice(startIndex, startIndex + 3)
 
         return (
             <TutorialWrapper>
@@ -305,7 +332,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
                     <Section>{description}</Section>
                     <SectionHeader>Goals:</SectionHeader>
                     <Section>
-                        <div>{localizedGoals}</div>
+                        <div>{goals}</div>
                     </Section>
                     <Section />
                 </TutorialSectionWrapper>
