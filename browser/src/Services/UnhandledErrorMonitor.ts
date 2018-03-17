@@ -74,7 +74,7 @@ import { remote } from "electron"
 export const start = (configuration: Configuration, notifications: Notifications) => {
     const showError = (title: string, errorText: string) => {
         if (!configuration.getValue("debug.showNotificationOnError")) {
-            Log.error("Received notification for: " + errorText)
+            Log.error("Received notification for - " + title + ":" + errorText)
             return
         }
 
