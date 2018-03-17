@@ -166,9 +166,9 @@
             "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
         "test": "npm run test:unit && npm run test:integration",
         "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js --bail",
-        "test:react": "jest ./ui-tests",
-        "test:react:watch": "jest ./ui-tests --watch",
-        "test:react:coverage": "jest ./ui-tests --coverage",
+        "test:react": "jest --config ./jest.config.js ./ui-tests",
+        "test:react:watch": "jest --config ./jest.config.js ./ui-tests --watch",
+        "test:react:coverage": "jest --config ./jest.config.js ./ui-tests --coverage",
         "test:unit:browser":
             "npm run build:test:unit && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
         "test:unit": "npm run test:unit:browser && npm run test:unit:main && npm run test:react",
@@ -219,34 +219,6 @@
         "postinstall": "npm run install:plugins && electron-rebuild && opencollective postinstall",
         "profile:webpack":
             "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
-    },
-    "jest": {
-        "setupFiles": ["./ui-tests/jestsetup.ts"],
-        "moduleNameMapper": {
-            "electron": "<rootDir>/ui-tests/mocks/electronMock.ts",
-            "PersistentSettings": "<rootDir>/ui-tests/mocks/PersistentSettings.ts",
-            "Utility": "<rootDir>/ui-tests/mocks/Utility.ts",
-            "Configuration": "<rootDir>/ui-tests/mocks/Configuration.ts"
-        },
-        "snapshotSerializers": ["enzyme-to-json/serializer"],
-        "transform": {
-            "^.+\\.tsx?$": "ts-jest"
-        },
-        "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-        "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
-        "modulePathIgnorePatterns": ["<rootDir>/dist/"],
-        "globals": {
-            "ts-jest": {
-                "babelConfig": {
-                    "env": {
-                        "test": {
-                            "plugins": ["dynamic-import-node"]
-                        }
-                    }
-                },
-                "tsConfigFile": "./ui-tests/tsconfig.react.json"
-            }
-        }
     },
     "repository": {
         "type": "git",
