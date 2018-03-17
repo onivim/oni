@@ -26,9 +26,9 @@ import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 import { ITutorial } from "./ITutorial"
 import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
 
-import { Icon } from "./../../../UI/Icon"
+import { boxShadow, withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
-import { withProps, boxShadow } from "./../../../UI/components/common"
+import { Icon } from "./../../../UI/Icon"
 
 export class TutorialBufferLayer implements Oni.BufferLayer {
     private _editor: NeovimEditor
@@ -237,8 +237,7 @@ const IconWrapper = withProps<IGoalViewProps>(styled.div)`
     align-items: center;
     background-color: rgba(0, 0, 0, 0.2);
 
-    color: ${p =>
-        p.completed ? p.theme["highlight.mode.insert.background"] : p.theme["foreground"]};
+    color: ${p => (p.completed ? p.theme["highlight.mode.insert.background"] : p.theme.foreground)};
 `
 
 export const GoalView = (props: IGoalViewProps): JSX.Element => {
