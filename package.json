@@ -290,7 +290,7 @@
         "css-loader": "0.28.4",
         "detect-indent": "^5.0.0",
         "electron": "^1.8.3",
-        "electron-builder": "19.46.4",
+        "electron-builder": "^20.5.1",
         "electron-devtools-installer": "^2.2.3",
         "electron-mocha": "5.0.0",
         "electron-rebuild": "1.6.0",
