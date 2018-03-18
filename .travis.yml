@@ -16,6 +16,8 @@ matrix:
     node_js: 8
   - os: osx
     node_js: 8
+env:
+  - DEBUG=electron-builder,electron-builder:*
 addons:
   apt:
     packages:
