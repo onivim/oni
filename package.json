@@ -337,7 +337,7 @@
         "reselect": "3.0.1",
         "rxjs": "5.5.0",
         "sinon": "1.17.6",
-        "spectron": "3.6.2",
+        "spectron": "^3.8.0",
         "style-loader": "0.18.2",
         "sudo-prompt": "7.1.1",
         "ts-jest": "^22.0.4",
