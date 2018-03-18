@@ -23,7 +23,8 @@ fi
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     # Set debug flag for electron-builder, 
     # to troubleshoot intermittent failures with building the dmg
-    export DEBUG=electron-builder,electron-builder:*
+    DEBUG=electron-builder,electron-builder:*
+    export DEBUG
 fi
 
 npm run build
