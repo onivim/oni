@@ -280,17 +280,17 @@ export class ExplorerSplit {
     }
 
     private _onPasteItem(): void {
-        const selectedItem = this._getSelectedItem()
-        if (!selectedItem) {
+        const pasteTarget = this._getSelectedItem()
+        if (!pasteTarget) {
             return
         }
 
-        this._store.dispatch({ type: "PASTE", target: selectedItem })
+        this._store.dispatch({ type: "PASTE", target: pasteTarget })
         const { register: { yank, paste } } = this._store.getState()
         if (yank && paste) {
-            yank.forEach(node => {
-                this.moveFileOrFolder(node, paste)
-                this._store.dispatch({ type: "CLEAR_REGISTER", id: node.id })
+            yank.forEach(yankedItem => {
+                this.moveFileOrFolder(yankedItem, paste)
+                this._store.dispatch({ type: "CLEAR_REGISTER", id: yankedItem.id })
             })
         }
     }

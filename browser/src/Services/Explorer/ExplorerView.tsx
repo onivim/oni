@@ -9,7 +9,7 @@ import HTML5Backend from "react-dnd-html5-backend"
 import { connect } from "react-redux"
 import { compose } from "redux"
 
-// import { Transition, TransitionGroup } from "react-transition-group"
+import { CSSTransition, TransitionGroup } from "react-transition-group"
 
 import { styled } from "./../../UI/components/common"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
@@ -59,6 +59,20 @@ interface IMoveNode {
     }
 }
 
+const NodeTransitionWrapper = styled.div`
+    transition: all 100ms 50ms ease-in;
+    &.move-appear.move-appear-active {
+        transform: scale(1.05);
+    }
+    &.move-enter.move-enter-active {
+        transform: scale(1.05);
+    }
+
+    &.move-exit.move-exit-active {
+        transform: scale(0.9);
+    }
+`
+
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     public moveFileOrFolder = ({ drag, drop }: IMoveNode) => {
         this.props.moveFileOrFolder(drag.node, drop.node)
@@ -84,6 +98,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
         const { node } = this.props
         const yanked = this.props.yanked.includes(node.id)
         const pasted = this.props.pasted === node.id
+        const didPasteNode = yanked && !!this.props.pasted
 
         switch (node.type) {
             case "file":
@@ -96,18 +111,22 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         node={node}
                         render={({ canDrop, isDragging, didDrop, isOver }) => {
                             return (
-                                <SidebarItemView
-                                    yanked={yanked}
-                                    pasted={pasted}
-                                    isOver={isOver && canDrop}
-                                    didDrop={didDrop}
-                                    canDrop={canDrop}
-                                    text={node.name}
-                                    isFocused={this.props.isSelected}
-                                    isContainer={false}
-                                    indentationLevel={node.indentationLevel}
-                                    icon={<FileIcon fileName={node.name} isLarge={true} />}
-                                />
+                                <CSSTransition in={didPasteNode} classNames="move" timeout={1000}>
+                                    <NodeTransitionWrapper className={didPasteNode ? "move" : ""}>
+                                        <SidebarItemView
+                                            yanked={yanked}
+                                            pasted={didPasteNode}
+                                            isOver={isOver && canDrop}
+                                            didDrop={didDrop}
+                                            canDrop={canDrop}
+                                            text={node.name}
+                                            isFocused={this.props.isSelected}
+                                            isContainer={false}
+                                            indentationLevel={node.indentationLevel}
+                                            icon={<FileIcon fileName={node.name} isLarge={true} />}
+                                        />
+                                    </NodeTransitionWrapper>
+                                </CSSTransition>
                             )
                         }}
                     />
@@ -120,15 +139,17 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         isValidDrop={() => true}
                         render={({ isOver }) => {
                             return (
-                                <SidebarContainerView
-                                    yanked={yanked}
-                                    pasted={pasted}
-                                    isOver={isOver}
-                                    isContainer={true}
-                                    isExpanded={node.expanded}
-                                    text={node.name}
-                                    isFocused={this.props.isSelected}
-                                />
+                                <TransitionGroup>
+                                    <SidebarContainerView
+                                        yanked={yanked}
+                                        pasted={pasted}
+                                        isOver={isOver}
+                                        isContainer={true}
+                                        isExpanded={node.expanded}
+                                        text={node.name}
+                                        isFocused={this.props.isSelected}
+                                    />
+                                </TransitionGroup>
                             )
                         }}
                     />
@@ -145,7 +166,6 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                             return (
                                 <SidebarContainerView
                                     yanked={yanked}
-                                    pasted={pasted}
                                     didDrop={didDrop}
                                     isOver={isOver && canDrop}
                                     isContainer={false}

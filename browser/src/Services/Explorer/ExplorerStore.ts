@@ -29,6 +29,7 @@ export const DefaultFolderState: IFolderState = {
 
 export const DefaultRegisterState: IRegisterState = {
     yank: [],
+    undo: [],
     paste: EmptyNode,
 }
 
@@ -57,9 +58,12 @@ export interface IFileSystem {
     delete(fullPath: string): Promise<void>
 }
 
+type RegisterAction = IPasteAction
+
 interface IRegisterState {
     yank: ExplorerNode[]
     paste: ExplorerNode
+    undo: RegisterAction[]
 }
 
 export interface IExplorerState {
@@ -162,14 +166,16 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
             return {
                 ...state,
                 paste: action.target,
+                undo: [...state.undo, action],
             }
         case "CLEAR_REGISTER":
             return {
                 ...state,
+                paste: EmptyNode,
                 yank: removePastedNode(state.yank, action.id),
             }
         case "LEAVE":
-            return DefaultRegisterState
+            return { ...DefaultRegisterState, undo: state.undo }
         default:
             return state
     }
