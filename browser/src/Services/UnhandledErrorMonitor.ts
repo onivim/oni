@@ -74,7 +74,7 @@ import { remote } from "electron"
 export const start = (configuration: Configuration, notifications: Notifications) => {
     const showError = (title: string, errorText: string) => {
         if (!configuration.getValue("debug.showNotificationOnError")) {
-            Log.error("Received notification for: " + errorText)
+            Log.error("Received notification for - " + title + ":" + errorText)
             return
         }
 
@@ -91,7 +91,10 @@ export const start = (configuration: Configuration, notifications: Notifications
 
     _unhandledErrorMonitor.onUnhandledError.subscribe(val => {
         const errorText = val ? val.toString() : "Open the debugger for more details."
-        showError("Unhandled Exception", errorText + "\nPlease report this error.")
+        showError(
+            "Unhandled Exception",
+            errorText + "\nPlease report this error. Callstack: " + val.stack,
+        )
     })
 
     _unhandledErrorMonitor.onUnhandledRejection.subscribe(val => {
