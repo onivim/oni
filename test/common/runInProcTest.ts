@@ -200,9 +200,9 @@ export const runInProcTest = (
             const isLogFailure = (log: any) => log.level === "SEVERE" && !testCase.allowLogFailures
             const anyLogFailure = (logs: any[]) => logs.filter(isLogFailure).length > 0
 
-            const writeLogs = (logs: any[]): void => {
+            const writeLogs = (logs: any[], forceWrite?: boolean): void => {
                 const anyFailures = anyLogFailure(logs)
-                const shouldWrite = !result || !result.passed || anyFailures
+                const shouldWrite = !result || !result.passed || anyFailures || forceWrite
 
                 logs.forEach(log => {
                     const logMessage = `[${log.level}] ${log.message}`
@@ -233,7 +233,9 @@ export const runInProcTest = (
 
             const mainProcessLogs: any[] = await oni.client.getMainProcessLogs()
             console.log("---LOGS (Main): " + testName)
-            writeLogs(mainProcessLogs)
+            mainProcessLogs.forEach(l => {
+                console.log(l)
+            })
             console.log("--- " + testName + " ---")
 
             console.log("")
