@@ -56,7 +56,7 @@ describe("<HighlightTextByIndex />", () => {
         // Check the structure is correct
         expect(component.text()).toHaveLength(17)
 
-        // Check only 4 chars were highlighed
+        // Check no chars were highlighed
         expect(component.find(".highlight-test")).toHaveLength(0)
     })
 
