@@ -33,6 +33,8 @@ fi
 
 npm run test:integration
 
+# Upload master bits
+npm run upload:dist
 
 # We'll run code coverage only on Linux, for now
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
