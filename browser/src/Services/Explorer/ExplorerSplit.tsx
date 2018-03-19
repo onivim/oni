@@ -170,6 +170,13 @@ export class ExplorerSplit {
                 () => this._onYankItem(),
             ),
         )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand("explorer.undo", "Undo last explorer action", null, () =>
+                this._onUndoItem(),
+            ),
+        )
+
         this._commandManager.registerCommand(
             new CallbackCommand(
                 "explorer.paste",
@@ -262,6 +269,11 @@ export class ExplorerSplit {
         this._store.dispatch({ type, directoryPath: selectedItem.folderPath })
     }
 
+    private _onUndoItem(): void {
+        this._store.dispatch({ type: "UNDO" })
+        this._store.dispatch({ type: "REFRESH" })
+    }
+
     private _onYankItem(): void {
         const selectedItem = this._getSelectedItem()
         if (!selectedItem) {
@@ -279,17 +291,40 @@ export class ExplorerSplit {
         }
     }
 
+    private _getPathForNode(node: Node) {
+        if (node.type === "file") {
+            return node.filePath
+        } else if (node.type === "folder") {
+            return node.folderPath
+        } else {
+            return node.name
+        }
+    }
+
     private _onPasteItem(): void {
         const pasteTarget = this._getSelectedItem()
         if (!pasteTarget) {
             return
         }
 
-        this._store.dispatch({ type: "PASTE", target: pasteTarget })
-        const { register: { yank, paste } } = this._store.getState()
-        if (yank && paste) {
+        const { register: { yank } } = this._store.getState()
+
+        if (yank.length && pasteTarget) {
+            const filesAndFolders = yank.map(file => {
+                const originalFolder = this.findParentDir(file.id)
+
+                const targetDirectory =
+                    pasteTarget.type === "file"
+                        ? path.dirname(pasteTarget.filePath)
+                        : this._getPathForNode(pasteTarget)
+
+                const fileOrFolderPath = this._getPathForNode(file)
+                const filename = path.basename(fileOrFolderPath)
+                return { file: `${targetDirectory}${path.sep}${filename}`, folder: originalFolder }
+            })
+            this._store.dispatch({ type: "PASTE", target: pasteTarget, moved: filesAndFolders })
             yank.forEach(yankedItem => {
-                this.moveFileOrFolder(yankedItem, paste)
+                this.moveFileOrFolder(yankedItem, pasteTarget)
                 this._store.dispatch({ type: "CLEAR_REGISTER", id: yankedItem.id })
             })
         }

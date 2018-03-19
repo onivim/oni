@@ -7,6 +7,7 @@
 import * as fs from "fs"
 
 import * as omit from "lodash/omit"
+import { mv } from "shelljs"
 
 import { Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
@@ -58,6 +59,11 @@ export interface IFileSystem {
     delete(fullPath: string): Promise<void>
 }
 
+interface PastedFiles {
+    file: string
+    folder: string
+}
+
 type RegisterAction = IPasteAction
 
 interface IRegisterState {
@@ -83,6 +89,16 @@ export const DefaultExplorerState: IExplorerState = {
     register: DefaultRegisterState,
 }
 
+interface IUndoAction {
+    type: "UNDO"
+}
+interface IUndoSuccessAction {
+    type: "UNDO_SUCCESS"
+}
+interface IUndoFailAction {
+    type: "UNDO_FAIL"
+}
+
 interface IYankAction {
     type: "YANK"
     path: string
@@ -93,6 +109,7 @@ interface IPasteAction {
     type: "PASTE"
     path: string
     target: ExplorerNode
+    moved: PastedFiles[]
 }
 
 interface IClearRegisterAction {
@@ -130,6 +147,9 @@ export type ExplorerAction =
     | IYankAction
     | IPasteAction
     | IClearRegisterAction
+    | IUndoAction
+    | IUndoSuccessAction
+    | IUndoFailAction
 
 export const rootFolderReducer: Reducer<IFolderState> = (
     state: IFolderState = DefaultFolderState,
@@ -167,6 +187,7 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                 ...state,
                 paste: action.target,
                 undo: [...state.undo, action],
+                // Add an undo action which takes action type and basically dispatches it in reverse
             }
         case "CLEAR_REGISTER":
             return {
@@ -259,6 +280,25 @@ const sortFilesAndFoldersFunc = (a: FolderOrFile, b: FolderOrFile) => {
     }
 }
 
+const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
+    action$.ofType("UNDO").mergeMap(action => {
+        const { register: { undo } } = store.getState()
+        const { type, moved } = undo[undo.length - 1]
+        switch (type) {
+            case "PASTE":
+                moved.forEach(pastedItems => {
+                    mv(pastedItems.file, pastedItems.folder)
+                })
+                return Observable.of({
+                    type: "UNDO_SUCCESS",
+                } as IUndoSuccessAction)
+            default:
+                return Observable.of({
+                    type: "UNDO_FAIL",
+                } as IUndoFailAction)
+        }
+    })
+
 const clearYankRegisterEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
     action$.ofType("YANK").mergeMap((action: IYankAction) => {
         const oneMinute = 60000
@@ -308,10 +348,11 @@ export const createStore = (fileSystem?: IFileSystem): Store<IExplorerState> => 
     return createReduxStore("Explorer", reducer, DefaultExplorerState, [
         createEpicMiddleware(
             combineEpics(
+                undoEpic,
+                refreshEpic,
                 setRootDirectoryEpic,
                 clearYankRegisterEpic,
                 expandDirectoryEpic(fileSystem),
-                refreshEpic,
             ),
         ),
     ])
