@@ -21,21 +21,46 @@ const initialState = {
 }
 
 describe("<HighlightTextByIndex />", () => {
-    const HighlightTextIndexComponent = <HighlightTextByIndex {...initialState} />
-
     it("renders a shallow instance of the component", () => {
-        const wrapper = shallow(<HighlightTextByIndex {...initialState} />)
-        expect(wrapper.length).toEqual(1)
+        const component = shallow(<HighlightTextByIndex {...initialState} />)
+
+        expect(component.length).toEqual(1)
     })
 
-    it("renders the correct text", () => {
-        const wrapper = mount(<HighlightTextByIndex {...initialState} />)
-        expect(wrapper.text()).toContain("highlight text")
-        expect(wrapper.text()).toHaveLength(14)
-        expect(wrapper.find("span")).toHaveLength(15)
+    it("renders the correct text with highlights", () => {
+        const component = mount(<HighlightTextByIndex {...initialState} />)
+
+        // Check the correct text is there
+        expect(component.text()).toContain("highlight text")
+
+        // Check the structure is correct
+        expect(component.text()).toHaveLength(14)
+
+        // Check only 4 chars were highlighed
+        expect(component.find(".highlight-test")).toHaveLength(4)
     })
 
-    it("renders non-string correcttly", () => {
+    it("renders the correct text with no highlights", () => {
+        const testState = {
+            highlightClassName: "highlight-test",
+            highlightIndices: [],
+            text: "no highlight text",
+            className: "test-class",
+        }
+
+        const component = mount(<HighlightTextByIndex {...testState} />)
+
+        // Check the correct text is there
+        expect(component.text()).toContain("no highlight text")
+
+        // Check the structure is correct
+        expect(component.text()).toHaveLength(17)
+
+        // Check only 4 chars were highlighed
+        expect(component.find(".highlight-test")).toHaveLength(0)
+    })
+
+    it("doesn't crash when passed a non-string", () => {
         const testState = {
             highlightClassName: "highlight-test",
             highlightIndices: [0, 1, 3, 4],
@@ -43,7 +68,12 @@ describe("<HighlightTextByIndex />", () => {
             className: "test-class",
         } as any
 
-        const wrapper = shallow(<HighlightTextByIndex {...testState} />)
-        expect(wrapper.find("span")).toHaveLength(1)
+        const component = mount(<HighlightTextByIndex {...testState} />)
+
+        // Should be length one, as only the out span is returned
+        // due to no inner text.
+        expect(component.find("span")).toHaveLength(1)
+        expect(component.text() === "")
+        expect(component.hasClass("highlight-test") === false)
     })
 })
