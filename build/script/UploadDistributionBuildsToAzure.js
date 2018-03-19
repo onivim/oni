@@ -18,7 +18,12 @@ const blobService = azure.createBlobService(AZURE_STORAGE_NAME, AZURE_STORAGE_KE
 
 const getBranch = () => process.env["APPVEYOR_REPO_BRANCH"] || process.env["TRAVIS_BRANCH"]
 
-console.log("Uploading for branch: " + getBranch())
+const branchName = getBranch()
+
+if (branchName !== "master") {
+    console.log("Skipping upload since this is not the master branch")
+    process.exit(0)
+}
 
 const getDistFolder = () => path.join(__dirname, "..", "..", "dist")
 
