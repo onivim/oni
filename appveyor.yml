@@ -77,6 +77,8 @@ test_script:
   # run integration tests
   - npm run test:integration
   - npm run demo:screenshot
+  # Upload bits to azure
+  - npm run upload:dist
 
 # Don't actually build.
 build: off

@@ -1,6 +1,7 @@
 const azure = require("azure-storage")
 const util = require("util")
 const path = require("path")
+const fs = require("fs")
 const os = require("os")
 
 const AZURE_STORAGE_NAME = process.env["AZURE_STORAGE_NAME"]
@@ -15,13 +16,18 @@ if (!COMMIT_ID || !AZURE_STORAGE_NAME || !AZURE_STORAGE_KEY) {
 
 const blobService = azure.createBlobService(AZURE_STORAGE_NAME, AZURE_STORAGE_KEY)
 
-// TODO:
-const getBranch = () => "master"
+const getBranch = () => process.env["APPVEYOR_REPO_BRANCH"] || process.env["TRAVIS_BRANCH"]
 
-// TODO:
-const getVersion = () => "0.3.2"
+console.log("Uploading for branch: " + getBranch())
 
 const getDistFolder = () => path.join(__dirname, "..", "..", "dist")
+
+const getVersion = () => {
+    const packageJsonPath = path.join(getDistFolder(), "..", "package.json")
+    const packageInfo = JSON.parse(fs.readFileSync(packageJsonPath))
+    const version = packageInfo.version
+    return version
+}
 
 const getBuildsForPlatform = version => {
     const platform = os.platform()

@@ -42,5 +42,3 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     npm run ccov:clean
     npm run ccov:upload
 fi
-
-npm run copy-dist-to-s3
