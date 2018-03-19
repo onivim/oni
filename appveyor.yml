@@ -50,17 +50,6 @@ deploy:
       on:
           appveyor_repo_tag: true
 
-    - provider: S3
-      access_key_id: AKIAIYMATI2CEFTHPBOQ
-      secret_access_key:
-          secure: brqAO0yA6DSxwRbf7IbbmhvyEoQqSeetdrq4mutR2aaeLJBQu6by4u1Td+wq5Msc
-      bucket: oni-builds
-      region: us-west-2
-      unzip: false
-      set_public: true
-      folder: $(APPVEYOR_REPO_BRANCH)
-      artifact: SetupExe, ProductZip
-
 # Post-install test scripts.
 test_script:
   # Output useful info for debugging.
