@@ -24,6 +24,7 @@ export class SwitchModeTutorial implements ITutorial {
 
     public get stages(): ITutorialStage[] {
         return [
+            new ClearBufferStage(),
             {
                 goalName: "Switch to insert mode by pressing 'i'",
                 tickFunction: async (context: ITutorialContext): Promise<boolean> => {
@@ -92,7 +93,7 @@ export class BasicMovementTutorial implements ITutorial {
     private _positions: number[] = []
 
     constructor() {
-        const randomPosition = () => Math.round(Math.random() * 10)
+        const randomPosition = () => Math.round(Math.random() * 8)
         this._positions = [
             randomPosition(),
             randomPosition(),
@@ -139,6 +140,22 @@ export class BasicMovementTutorial implements ITutorial {
     }
 }
 
+export class ClearBufferStage implements ITutorialStage {
+    public get goalName(): string {
+        return null
+    }
+
+    public async tickFunction(context: ITutorialContext): Promise<boolean> {
+        const allLines = context.buffer.lineCount
+        await context.buffer.setLines(0, allLines, [])
+        return true
+    }
+
+    public render(): JSX.Element {
+        return null
+    }
+}
+
 export class MoveToGoalStage implements ITutorialStage {
     public get goalName(): string {
         return this._goalName
@@ -147,10 +164,8 @@ export class MoveToGoalStage implements ITutorialStage {
     constructor(private _goalName: string, private _line: number, private _column: number) {}
 
     public async tickFunction(context: ITutorialContext): Promise<boolean> {
-        return (
-            context.buffer.cursor.line === this._line &&
-            context.buffer.cursor.column === this._column
-        )
+        const cursorPosition = await (context.buffer as any).getCursorPosition()
+        return cursorPosition.line === this._line && cursorPosition.character === this._column
     }
 
     public render(context: Oni.BufferLayerRenderContext): JSX.Element {
@@ -166,6 +181,8 @@ export class MoveToGoalStage implements ITutorialStage {
                     position: "absolute",
                     top: pixelPosition.pixelY.toString() + "px",
                     left: pixelPosition.pixelX.toString() + "px",
+                    marginTop: "2px",
+                    marginLeft: "-4px",
                 }}
             />
         )

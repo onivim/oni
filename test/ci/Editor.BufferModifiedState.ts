@@ -47,3 +47,10 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     assert.ok(tabState, "Check buffer still has modified icon after swapping")
 }
+
+// Bring in custom config.
+export const settings = {
+    config: {
+        "tabs.mode": "buffers",
+    },
+}

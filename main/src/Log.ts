@@ -6,10 +6,17 @@
 
 const logs = []
 
-const isVerbose = process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0
+let _isVerbose = false
+
+const isVerbose = () =>
+    process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0 || _isVerbose
+
+export const setVerbose = (verbose: boolean) => {
+    _isVerbose = verbose
+}
 
 export const info = (msg: string): void => {
-    if (isVerbose) {
+    if (isVerbose()) {
         console.log(msg) // tslint:disable-line no-console
     }
 
@@ -17,7 +24,7 @@ export const info = (msg: string): void => {
 }
 
 export const warn = (msg: string): void => {
-    if (isVerbose) {
+    if (isVerbose()) {
         console.warn(msg) // tslint:disable-line no-console
     }
 
