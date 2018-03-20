@@ -8,7 +8,7 @@ import * as React from "react"
 
 import styled from "styled-components"
 
-import { withProps, boxShadow } from "./../../../UI/components/common"
+import { boxShadow, withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon } from "./../../../UI/Icon"
 
