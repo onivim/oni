@@ -23,7 +23,7 @@ fi
 npm run build
 npm run test:unit
 npm run lint
-npm run pack
+travis_wait npm run pack
 
 echo Using neovim path: "$ONI_NEOVIM_PATH"
 
