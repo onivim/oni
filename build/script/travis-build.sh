@@ -40,6 +40,8 @@ fi
 
 npm run test:integration
 
+# Upload master bits
+npm run upload:dist
 
 # We'll run code coverage only on Linux, for now
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
@@ -49,5 +51,3 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     npm run ccov:clean
     npm run ccov:upload
 fi
-
-npm run copy-dist-to-s3
