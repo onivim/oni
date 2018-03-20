@@ -11,13 +11,18 @@
 import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { remote } from "electron"
+
 export class EditorManager implements Oni.EditorManager {
+    private _allEditors: Oni.Editor[] = []
     private _activeEditor: Oni.Editor = null
     private _anyEditorProxy: AnyEditorProxy = new AnyEditorProxy()
     private _onActiveEditorChanged: Event<Oni.Editor> = new Event<Oni.Editor>()
 
+    private _closeWhenNoEditors: boolean = true
+
     public get allEditors(): Oni.Editor[] {
-        return []
+        return this._allEditors
     }
 
     /**
@@ -40,6 +45,29 @@ export class EditorManager implements Oni.EditorManager {
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
     ): Promise<Oni.Buffer> {
         return this._activeEditor.openFile(filePath, openOptions)
+    }
+
+    public setCloseWhenNoEditors(closeWhenNoEditors: boolean) {
+        this._closeWhenNoEditors = closeWhenNoEditors
+    }
+
+    public registerEditor(editor: Oni.Editor) {
+        if (this._allEditors.indexOf(editor) === -1) {
+            this._allEditors.push(editor)
+        }
+    }
+
+    public unregisterEditor(editor: Oni.Editor): void {
+        this._allEditors = this._allEditors.filter(ed => ed !== editor)
+
+        if (this._activeEditor === editor) {
+            this.setActiveEditor(null)
+        }
+
+        if (this._allEditors.length === 0 && this._closeWhenNoEditors) {
+            // Quit?
+            remote.getCurrentWindow().close()
+        }
     }
 
     /**
@@ -155,7 +183,13 @@ class AnyEditorProxy implements Oni.Editor {
 
     public setActiveEditor(newEditor: Oni.Editor) {
         this._activeEditor = newEditor
+
         this._subscriptions.forEach(d => d.dispose())
+
+        if (!newEditor) {
+            return
+        }
+
         this._subscriptions = [
             newEditor.onModeChanged.subscribe(val => this._onModeChanged.dispatch(val)),
             newEditor.onBufferEnter.subscribe(val => this._onBufferEnter.dispatch(val)),

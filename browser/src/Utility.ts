@@ -15,7 +15,30 @@ import * as reduce from "lodash/reduce"
 import { Observable } from "rxjs/Observable"
 import { Subject } from "rxjs/Subject"
 
+import { IDisposable } from "oni-types"
+
 import * as types from "vscode-languageserver-types"
+
+export class Disposable implements IDisposable {
+    private _disposables: IDisposable[] = []
+    private _isDisposed: boolean = false
+
+    public get isDisposed(): boolean {
+        return this._isDisposed
+    }
+
+    public dispose(): void {
+        if (!this.isDisposed) {
+            this._isDisposed = true
+            this._disposables.forEach(disposable => disposable.dispose())
+            this._disposables = null
+        }
+    }
+
+    protected trackDisposable(disposable: IDisposable) {
+        this._disposables.push(disposable)
+    }
+}
 
 /**
  * Use a `node` require instead of a `webpack` require
@@ -121,6 +144,11 @@ export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
     }
 
     return getRootProjectFile
+}
+
+export const requestIdleCallback = (fn: () => void): number => {
+    // tslint:disable-next-line
+    return window["requestIdleCallback"](fn)
 }
 
 export const isInRange = (line: number, column: number, range: types.Range): boolean => {

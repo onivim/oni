@@ -100,6 +100,8 @@ export class Oni {
 
     public async close(): Promise<void> {
         log("Closing Oni...")
+        const windowCount = await this.client.getWindowCount()
+        log(`- current window count: ${windowCount}`)
         if (this._app) {
             let attempts = 1
             while (attempts < 5) {
@@ -109,12 +111,22 @@ export class Oni {
                 }
 
                 log("- Calling _app.stop")
-                await this._app.stop()
+                this._app.stop()
                 log("- _app.stop call completed")
+
+                log("- Sleeping...")
+                await sleep()
+                log("- Sleep complete")
 
                 attempts++
             }
         }
         log("Oni closed.")
     }
+}
+
+const sleep = () => {
+    return new Promise(resolve => {
+        setTimeout(resolve, 1000)
+    })
 }

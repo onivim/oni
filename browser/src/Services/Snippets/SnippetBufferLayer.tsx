@@ -85,9 +85,10 @@ export class SnippetBufferLayerView extends React.PureComponent<
     constructor(props: ISnippetBufferLayerViewProps) {
         super(props)
 
+        const latestCursorState = props.snippetSession.getLatestCursors()
         this.state = {
-            mode: null,
-            cursors: [],
+            mode: latestCursorState.mode,
+            cursors: latestCursorState.cursors,
         }
     }
 

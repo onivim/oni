@@ -91,7 +91,16 @@ const activate = Oni => {
 
         const element = React.createElement(
             "div",
-            { style: { color: "rgb(140, 140, 140)" }, onClick: openFolderCommand },
+            {
+                style: {
+                    color: "rgb(140, 140, 140)",
+                    maxWidth: "25rem",
+                    textOverflow: "ellipsis",
+                    whitespace: "nowrap",
+                    overflow: "hidden",
+                },
+                onClick: openFolderCommand,
+            },
             workingDirectory,
         )
         workingDirectoryItem.setContents(element)

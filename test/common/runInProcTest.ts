@@ -150,7 +150,11 @@ export const runInProcTest = (
     timeout: number = 5000,
     failures: IFailedTest[] = null,
 ) => {
-    describe(testName, () => {
+    // tslint:disable-next-line
+    describe(testName, function() {
+        // TODO: See if we can remove this to stabilize tests.
+        this.retries(2)
+
         let testCase: ITestCase
         let oni: Oni
 
@@ -175,6 +179,7 @@ export const runInProcTest = (
         afterEach(async () => {
             logWithTimeStamp("[AFTER EACH]: " + testName)
             await oni.close()
+            logWithTimeStamp("[AFTER EACH] Completed " + testName)
         })
 
         it("ci test: " + testName, async () => {
@@ -195,35 +200,47 @@ export const runInProcTest = (
             logWithTimeStamp("waitForExist for 'automated-test-result' complete: " + value)
 
             console.log("Retrieving logs...")
-            const writeLogs = (logs: any[]): void => {
+
+            const isLogFailure = (log: any) => log.level === "SEVERE" && !testCase.allowLogFailures
+            const anyLogFailure = (logs: any[]) => logs.filter(isLogFailure).length > 0
+
+            const writeLogs = (logs: any[], forceWrite?: boolean): void => {
+                const anyFailures = anyLogFailure(logs)
+                const shouldWrite = !result || !result.passed || anyFailures || forceWrite
+
                 logs.forEach(log => {
                     const logMessage = `[${log.level}] ${log.message}`
-                    console.log(logMessage)
 
-                    if (log.level === "SEVERE" && !testCase.allowLogFailures) {
+                    if (shouldWrite) {
+                        console.log(logMessage)
+                    }
+
+                    if (isLogFailure(log)) {
                         assert.ok(false, logMessage)
                     }
                 })
+
+                if (!shouldWrite) {
+                    console.log("Skipping log output since test passed.")
+                }
             }
 
             console.log("Getting result...")
             const resultText = await oni.client.getText(".automated-test-result")
             const result = JSON.parse(resultText)
 
-            if (!result || !result.passed) {
-                const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
-                console.log("")
-                console.log("---LOGS (Renderer): " + testName)
-                writeLogs(rendererLogs)
-                console.log("--- " + testName + " ---")
+            const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
+            console.log("")
+            console.log("---LOGS (Renderer): " + testName)
+            writeLogs(rendererLogs)
+            console.log("--- " + testName + " ---")
 
-                const mainProcessLogs: any[] = await oni.client.getMainProcessLogs()
-                console.log("---LOGS (Main): " + testName)
-                writeLogs(mainProcessLogs)
-                console.log("--- " + testName + " ---")
-            } else {
-                console.log("-- LOGS: Skipped writing logs because the test passed.")
-            }
+            const mainProcessLogs: any[] = await oni.client.getMainProcessLogs()
+            console.log("---LOGS (Main): " + testName)
+            mainProcessLogs.forEach(l => {
+                console.log(l)
+            })
+            console.log("--- " + testName + " ---")
 
             console.log("")
             logWithTimeStamp("---RESULT: " + testName)
