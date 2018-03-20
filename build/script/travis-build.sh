@@ -20,13 +20,6 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
   export ONI_NEOVIM_PATH
 fi
 
-if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    # Set debug flag for electron-builder, 
-    # to troubleshoot intermittent failures with building the dmg
-    DEBUG=electron-builder,electron-builder:*
-    export DEBUG
-fi
-
 npm run build
 npm run test:unit
 npm run lint
