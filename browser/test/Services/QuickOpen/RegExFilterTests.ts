@@ -3,7 +3,12 @@
  */
 
 import * as assert from "assert"
-import { processSearchTerm, regexFilter } from "./../../../src/Services/QuickOpen/RegExFilter"
+import { createLetterCountDictionary } from "../../../src/UI/components/HighlightText"
+import {
+    getHighlightsFromString,
+    processSearchTerm,
+    regexFilter,
+} from "./../../../src/Services/QuickOpen/RegExFilter"
 
 describe("processSearchTerm", () => {
     it("Correctly matches word.", async () => {
@@ -132,5 +137,38 @@ describe("regexFilter", () => {
         const result = regexFilter(testList, testString)
 
         assert.deepEqual(result, [])
+    })
+})
+
+describe("getHighlightsFromString", () => {
+    it("Correctly highlights a match when case is similar", () => {
+        const match = "foobar"
+        const searchString = "foob"
+
+        const highlights = getHighlightsFromString(match, createLetterCountDictionary(searchString))
+
+        assert.deepEqual([0, 1, 2, 3], highlights)
+    })
+
+    it("Correctly highlights a search match when case is not similar (in case INSENSITIVE mode)", () => {
+        const match = "FooBar"
+        const searchString = "foob"
+
+        const highlights = getHighlightsFromString(match, createLetterCountDictionary(searchString))
+
+        assert.deepEqual([0, 1, 2, 3], highlights)
+    })
+
+    it("Correctly highlights a search match when case is not similar (in case SENSITIVE mode)", () => {
+        const match = "FooBar"
+        const searchString = "foob"
+
+        const highlights = getHighlightsFromString(
+            match,
+            createLetterCountDictionary(searchString),
+            true,
+        )
+
+        assert.deepEqual([1, 2], highlights)
     })
 })

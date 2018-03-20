@@ -3,6 +3,7 @@
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "jsx": "react",
         "lib": ["dom", "es2017"],
@@ -14,14 +15,13 @@
         "noImplicitReturns": true,
         "noImplicitThis": true,
         "noUnusedLocals": true,
-        "outDir": "../lib_test/browser",
         "skipLibCheck": true,
         "strictNullChecks": false,
         "suppressImplicitAnyIndexErrors": true,
         "target": "es2015",
         "sourceMap": true,
-        "types": ["mocha"]
+        "types": ["jest", "electron", "react"]
     },
-    "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"],
+    "include": ["**/*.tsx", "**/*.ts", "../browser/**/*.ts", "../browser/**/*.tsx"],
     "exclude": ["node_modules"]
 }

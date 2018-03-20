@@ -18,6 +18,11 @@ const isAutomation = processArgs.find(f => f.indexOf("--test-type=webdriver") >=
 const isDevelopment = process.env.NODE_ENV === "development" || process.env.ONI_WEBPACK_LOAD === "1"
 const isDebug = process.argv.filter(arg => arg.indexOf("--debug") >= 0).length > 0
 
+if (isAutomation) {
+    Log.setVerbose(true)
+    Log.info("Verbose flag set since running automation")
+}
+
 // We want to check for the 'help' flag before initializing electron
 const argv = minimist(process.argv.slice(1))
 const version = require(path.join(__dirname, "..", "..", "..", "package.json")).version // tslint:disable-line no-var-requires
@@ -50,9 +55,11 @@ let windowState: IWindowState = {
 }
 
 function storeWindowState(main) {
+    Log.info("storeWindowState called")
     if (!main) {
         return
     }
+
     windowState.isMaximized = main.isMaximized()
 
     if (!windowState.isMaximized) {
@@ -60,7 +67,9 @@ function storeWindowState(main) {
         windowState.bounds = main.getBounds()
     }
     try {
+        Log.info("Starting to persist settings...")
         PersistentSettings.set("_internal.windowState", windowState as any)
+        Log.info("Completed setting persisted settings")
     } catch (e) {
         Log.info(`error setting window state: ${e.message}`)
     }
@@ -174,6 +183,7 @@ export function createWindow(
 
     updateMenu(currentWindow, false)
     currentWindow.webContents.on("did-finish-load", () => {
+        Log.info("did-finish-load event received")
         currentWindow.webContents.send("init", {
             args: commandLineArguments,
             workingDirectory,
@@ -211,16 +221,20 @@ export function createWindow(
         storeWindowState(currentWindow)
     })
     currentWindow.on("close", () => {
+        Log.info("close event...")
         storeWindowState(currentWindow)
+        Log.info("...close event completed")
     })
 
     // Emitted when the window is closed.
     currentWindow.on("closed", () => {
+        Log.info("closed event...")
         // Dereference the window object, usually you would store windows
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
         windows = windows.filter(m => m !== currentWindow)
         currentWindow = null
+        Log.info("...closed event completed")
     })
 
     windows.push(currentWindow)
@@ -241,9 +255,11 @@ app.on("open-file", (event, filePath) => {
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
+    Log.info("window-all-closed event")
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== "darwin" || isAutomation) {
+        Log.info("quitting app")
         app.quit()
     }
 })
