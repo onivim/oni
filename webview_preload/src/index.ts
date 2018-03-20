@@ -55,10 +55,10 @@
             })
         }
 
-        const tagsToCollect = ["a", "input", "textarea"]
+        const tagsToCollect = ["a"]
 
         tagsToCollect.forEach(tag => {
-            const elems = document.getElementsByTagName(tag) as NodeListOf<HTMLElement>
+            const elems = document.getElementsByTagName("a")
 
             for (let i = 0; i < elems.length; i++) {
                 addElement(elems[i])
