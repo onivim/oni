@@ -32,7 +32,7 @@ install:
 script:
 - npm run check-cached-binaries
 - ./build/script/install-reason.sh
-- ./build/script/travis-build.sh
+- travis_wait 30 ./build/script/travis-build.sh
 deploy:
     - provider: s3
       access_key_id: AKIAIYMATI2CEFTHPBOQ
