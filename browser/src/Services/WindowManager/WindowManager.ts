@@ -280,7 +280,7 @@ export class WindowManager {
             splits: state,
         })
 
-        this._idToSplit[splitId] = null
+        delete this._idToSplit[splitId]
     }
 
     public focusSplit(splitId: string): void {
