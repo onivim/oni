@@ -53,6 +53,10 @@ export class SidebarManager {
         return this._store.getState().entries
     }
 
+    get isFocused(): boolean {
+        return this._contentSplit.isFocused
+    }
+
     public get store(): Store<ISidebarState> {
         return this._store
     }
