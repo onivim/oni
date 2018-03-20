@@ -150,7 +150,11 @@ export const runInProcTest = (
     timeout: number = 5000,
     failures: IFailedTest[] = null,
 ) => {
-    describe(testName, () => {
+    // tslint:disable-next-line
+    describe(testName, function() {
+        // TODO: See if we can remove this to stabilize tests.
+        this.retries(2)
+
         let testCase: ITestCase
         let oni: Oni
 
