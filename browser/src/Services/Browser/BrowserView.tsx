@@ -12,9 +12,9 @@ import styled from "styled-components"
 import * as Oni from "oni-api"
 import { IDisposable, IEvent } from "oni-types"
 
-import { Icon, IconSize } from "./../../UI/Icon"
-
 import { getInstance as getSneakInstance, ISneakInfo } from "./../../Services/Sneak"
+
+import { BrowserButtonView } from "./BrowserButtonView"
 
 const Column = styled.div`
     pointer-events: auto;
@@ -48,22 +48,6 @@ const BrowserViewWrapper = styled.div`
     webview {
         height: 100%;
         width: 100%;
-    }
-`
-
-const BrowserButton = styled.div`
-    width: 2.5em;
-    height: 2.5em;
-    flex: 0 0 auto;
-    opacity: 0.9;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    &:hover {
-        opacity: 1;
-        box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
     }
 `
 
@@ -152,21 +136,13 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
         return (
             <Column key={"test2"}>
                 <BrowserControlsWrapper>
-                    <BrowserButton onClick={() => this._goBack()}>
-                        <Icon name="chevron-left" size={IconSize.Large} />
-                    </BrowserButton>
-                    <BrowserButton onClick={() => this._goForward()}>
-                        <Icon name="chevron-right" size={IconSize.Large} />
-                    </BrowserButton>
-                    <BrowserButton onClick={() => this._reload()}>
-                        <Icon name="undo" size={IconSize.Large} />
-                    </BrowserButton>
+                    <BrowserButtonView icon={"chevron-left"} onClick={() => this._goBack()} />
+                    <BrowserButtonView icon={"chevron-right"} onClick={() => this._goForward()} />
+                    <BrowserButtonView icon={"undo"} onClick={() => this._reload()} />
                     <AddressBar>
                         <span>{this.props.url}</span>
                     </AddressBar>
-                    <BrowserButton onClick={() => this._openDebugger()}>
-                        <Icon name="bug" size={IconSize.Large} />
-                    </BrowserButton>
+                    <BrowserButtonView icon={"bug"} onClick={() => this._openDebugger()} />
                 </BrowserControlsWrapper>
                 <BrowserViewWrapper>
                     <div
