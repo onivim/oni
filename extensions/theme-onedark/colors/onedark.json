@@ -5,7 +5,7 @@
         "background": "#1E2127",
         "foreground": "#ABB2BF",
 
-        "title.background": "#1F1F1F",
+        "title.background": "#1E2127",
         "title.foreground": "#ABB2BF",
 
         "editor.background": "#282C34",
