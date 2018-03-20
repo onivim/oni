@@ -24,9 +24,6 @@ npm run build
 npm run test:unit
 npm run lint
 
-# Increase the timeout from 10minutes -> 20minutes for packing the dmg
-travis_wait npm run pack
-
 echo Using neovim path: "$ONI_NEOVIM_PATH"
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
