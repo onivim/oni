@@ -149,8 +149,17 @@ export const runInProcTest = (
     testName: string,
     timeout: number = 5000,
     failures: IFailedTest[] = null,
+    isFlaky: boolean = false,
 ) => {
-    describe(testName, () => {
+    // tslint:disable-next-line
+    describe(testName, function() {
+        if (isFlaky) {
+            logWithTimeStamp(
+                `${testName} is marked as a FLAKY TEST. Allowing retries for this test.`,
+            )
+            this.retries(2)
+        }
+
         let testCase: ITestCase
         let oni: Oni
 

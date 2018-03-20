@@ -60,6 +60,10 @@ const WindowsOnlyTests = [
 
 const OSXOnlyTests = ["AutoCompletionTest-Reason", "OSX.WindowTitleTest"]
 
+// Flaky tests are tests that fail intermittently, and are not reliable.
+// TODO: We should invest in making these more reliable.
+const FlakyTests = ["Regression.1799.MacroApplicationTest"]
+
 // tslint:disable:no-console
 
 import * as Platform from "./../browser/src/Platform"
@@ -83,7 +87,8 @@ describe("ci tests", function() {
 
     const testFailures: IFailedTest[] = []
     tests.forEach(test => {
-        runInProcTest(path.join(__dirname, "ci"), test, 5000, testFailures)
+        const isFlaky = !!FlakyTests.find(t => test === t)
+        runInProcTest(path.join(__dirname, "ci"), test, 5000, testFailures, isFlaky)
     })
 
     // After all of the tests are completed display failures
