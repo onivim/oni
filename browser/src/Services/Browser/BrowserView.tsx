@@ -166,7 +166,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
                         <Icon name="undo" size={IconSize.Large} />
                     </BrowserButton>
                     <AddressBarView
-                        url={this.props.initialUrl}
+                        url={this.state.url}
                         onAddressChanged={url => this._navigate(url)}
                     />
                     <BrowserButton onClick={() => this._openDebugger()}>
@@ -193,6 +193,10 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
     private _navigate(url: string): void {
         if (this._webviewElement) {
             this._webviewElement.src = url
+
+            this.setState({
+                url,
+            })
         }
     }
 
@@ -228,9 +232,9 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
             this._webviewElement = webviewElement
             this._webviewElement.src = this.props.initialUrl
 
-            this._webviewElement.addEventListener("did-navigate", (url: string) => {
+            this._webviewElement.addEventListener("did-navigate", (evt: any) => {
                 this.setState({
-                    url,
+                    url: evt.url,
                 })
             })
         }
