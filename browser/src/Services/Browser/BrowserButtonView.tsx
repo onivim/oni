@@ -1,7 +1,7 @@
 /**
- * oni-layer-browser/index.ts
+ * BrowserButtonView.tsx
  *
- * Entry point for browser integration plugin
+ * Component for the browser buttons on the address bar of the integrated browser
  */
 
 import * as React from "react"
