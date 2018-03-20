@@ -127,6 +127,6 @@ export class Oni {
 
 const sleep = () => {
     return new Promise(resolve => {
-        window.setTimeout(resolve, 1000)
+        setTimeout(resolve, 1000)
     })
 }
