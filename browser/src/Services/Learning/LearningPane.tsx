@@ -15,7 +15,7 @@ import { SidebarButton } from "./../../UI/components/SidebarButton"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 
-import { Container, Fixed, Full, Bold, Center } from "./../../UI/components/common"
+import { Bold, Center, Container, Fixed, Full } from "./../../UI/components/common"
 import { Icon, IconSize } from "./../../UI/Icon"
 import { SidebarPane } from "./../Sidebar"
 
