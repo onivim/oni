@@ -1,5 +1,8 @@
 /**
  * TutorialBufferLayer.tsx
+ *
+ * Layer that handles the top-level rendering of the tutorial UI,
+ * including the nested `NeovimEditor`, description, goals, etc.
  */
 
 import * as React from "react"
@@ -23,13 +26,16 @@ import { getThemeManagerInstance } from "./../../Themes"
 import { getInstance as getTokenColorsInstance } from "./../../TokenColors"
 import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
-import { boxShadow, withProps } from "./../../../UI/components/common"
+import { withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
-import { Icon } from "./../../../UI/Icon"
 
 import { ITutorial } from "./ITutorial"
 import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
 import * as Tutorials from "./Tutorials"
+
+import { CompletionView } from "./CompletionView"
+import { GameplayBufferLayer } from "./GameplayBufferLayer"
+import { GoalView } from "./GoalView"
 
 export class TutorialBufferLayer implements Oni.BufferLayer {
     private _editor: NeovimEditor
@@ -109,65 +115,6 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
     }
 }
 
-export class GameplayBufferLayer implements Oni.BufferLayer {
-    public get id(): string {
-        return "oni.layer.gameplay"
-    }
-
-    public get friendlyName(): string {
-        return "Gameplay"
-    }
-
-    constructor(private _tutorialGameplayManager: TutorialGameplayManager) {}
-
-    public render(context: Oni.BufferLayerRenderContext): JSX.Element {
-        return (
-            <GameplayBufferLayerView
-                context={context}
-                tutorialGameplay={this._tutorialGameplayManager}
-            />
-        )
-    }
-}
-
-export interface IGameplayBufferLayerViewProps {
-    tutorialGameplay: TutorialGameplayManager
-    context: Oni.BufferLayerRenderContext
-}
-
-export interface IGameplayBufferLayerViewState {
-    renderFunction: (context: Oni.BufferLayerRenderContext) => JSX.Element
-}
-
-export class GameplayBufferLayerView extends React.PureComponent<
-    IGameplayBufferLayerViewProps,
-    IGameplayBufferLayerViewState
-> {
-    constructor(props: IGameplayBufferLayerViewProps) {
-        super(props)
-
-        this.state = {
-            renderFunction: () => null,
-        }
-    }
-
-    public componentDidMount(): void {
-        this.props.tutorialGameplay.onStateChanged.subscribe(newState => {
-            this.setState({
-                renderFunction: newState.renderFunc,
-            })
-        })
-    }
-
-    public render(): JSX.Element {
-        if (this.state.renderFunction) {
-            return this.state.renderFunction(this.props.context)
-        }
-
-        return null
-    }
-}
-
 export interface ITutorialBufferLayerViewProps {
     renderContext: Oni.BufferLayerRenderContext
     tutorialManager: TutorialGameplayManager
@@ -182,8 +129,10 @@ const TutorialWrapper = withProps<{}>(styled.div)`
     position: relative;
     width: 100%;
     height: 100%;
-    background-color: ${p => p.theme.background};
-    color: ${p => p.theme.foreground};
+    background-color: ${p => p.theme["editor.background"]};
+    color: ${p => p.theme["editor.foreground"]};
+
+    max-width: 1000px;
 
     display: flex;
     flex-direction: column;
@@ -224,62 +173,6 @@ const Section = styled.div`
     padding-top: 1em;
     padding-bottom: 2em;
 `
-
-export interface IGoalViewProps {
-    active: boolean
-    completed: boolean
-    description: string
-    visible: boolean
-}
-
-const GoalWrapper = withProps<IGoalViewProps>(styled.div)`
-    ${p => (p.active ? boxShadow : "")};
-    display: ${p => (p.visible ? "flex" : "none")};
-    background-color: ${p => p.theme["editor.background"]};
-    transition: all 0.5s linear;
-
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-
-    margin: 1em;
-`
-
-const IconWrapper = withProps<IGoalViewProps>(styled.div)`
-    display: flex;
-    width: 100%;
-    height: 100%;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.2);
-
-    color: ${p => (p.completed ? p.theme["highlight.mode.insert.background"] : p.theme.foreground)};
-`
-
-export const GoalView = (props: IGoalViewProps): JSX.Element => {
-    return (
-        <GoalWrapper {...props} key={props.description}>
-            <div style={{ width: "48px", height: "48px", flex: "0 0 auto" }}>
-                <FlipCard
-                    isFlipped={props.completed}
-                    front={
-                        <IconWrapper {...props}>
-                            <Icon name="circle" />
-                        </IconWrapper>
-                    }
-                    back={
-                        <IconWrapper {...props}>
-                            <Icon name="check" />
-                        </IconWrapper>
-                    }
-                />
-            </div>
-            <div style={{ width: "100%", flex: "1 1 auto", padding: "1em" }}>
-                {props.description}
-            </div>
-        </GoalWrapper>
-    )
-}
 
 export class TutorialBufferLayerView extends React.PureComponent<
     ITutorialBufferLayerViewProps,
@@ -343,17 +236,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
                         <FlipCard
                             isFlipped={this.state.tutorialState.completionInfo.completed}
                             front={this.props.editor.render()}
-                            back={
-                                <div
-                                    style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        backgroundColor: "black",
-                                    }}
-                                >
-                                    Completed
-                                </div>
-                            }
+                            back={<CompletionView keyStrokes={10} time={1.52} />}
                         />
                     </div>
                 </MainTutorialSectionWrapper>
