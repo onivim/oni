@@ -38,6 +38,18 @@ export const Container = withProps<ContainerProps>(styled.div)`
     ${p => (p.fullWidth ? "width: 100%;" : "")}
 `
 
+export const Bold = styled.span`
+    font-weight: bold;
+`
+
+export const Center = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
 export type StyledFunction<T> = styledComponents.ThemedStyledFunction<T, IThemeColors>
 
 export function withProps<T, U extends HTMLElement = HTMLElement>(

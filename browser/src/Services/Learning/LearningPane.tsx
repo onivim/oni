@@ -15,7 +15,7 @@ import { SidebarButton } from "./../../UI/components/SidebarButton"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 
-import { Container, Fixed, Full } from "./../../UI/components/common"
+import { Container, Fixed, Full, Bold, Center } from "./../../UI/components/common"
 import { Icon, IconSize } from "./../../UI/Icon"
 import { SidebarPane } from "./../Sidebar"
 
@@ -74,8 +74,67 @@ export interface ILearningPaneViewState {
     tutorialInfo: ITutorialMetadataWithProgress[]
 }
 
+import styled from "styled-components"
+
+const TutorialItemViewIconContainer = styled.div`
+    width: 2em;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const TutorialItemTitleWrapper = styled.div`
+    font-size: 0.9em;
+`
+
+const TutorialResultsWrapper = styled.div`
+    font-size: 0.8em;
+`
+
 export const TutorialItemView = (props: { info: ITutorialMetadataWithProgress }): JSX.Element => {
-    return <div>{props.info.tutorialInfo.name}</div>
+    const isCompleted = !!props.info.completionInfo
+
+    const icon = isCompleted ? <Icon name={"check"} /> : <Icon name={"circle-o"} />
+
+    const results = isCompleted ? (
+        <div style={{ margin: "0.25em" }}>
+            <TutorialResultsWrapper>
+                <Bold>Keys:</Bold>
+                {props.info.completionInfo.keyStrokes}
+            </TutorialResultsWrapper>
+            <TutorialResultsWrapper>
+                <Bold>Time:</Bold>
+                {props.info.completionInfo.time}s
+            </TutorialResultsWrapper>
+        </div>
+    ) : (
+        <div style={{ margin: "0.25em" }}>--</div>
+    )
+
+    return (
+        <Container
+            direction="horizontal"
+            fullWidth={true}
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}
+        >
+            <Fixed>
+                <TutorialItemViewIconContainer>{icon}</TutorialItemViewIconContainer>
+            </Fixed>
+            <Full style={{ margin: "0.5em", whiteSpace: "pre-wrap" }}>
+                <Center>
+                    <TutorialItemTitleWrapper>
+                        {props.info.tutorialInfo.name}
+                    </TutorialItemTitleWrapper>
+                </Center>
+            </Full>
+            <Fixed>
+                <Center style={{ flexDirection: "column" }}>{results}</Center>
+            </Fixed>
+        </Container>
+    )
 }
 
 export class LearningPaneView extends PureComponentWithDisposeTracking<
@@ -105,7 +164,7 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
         const tutorialItems = (selectedId: string) =>
             this.state.tutorialInfo.map(t => (
                 <SidebarItemView
-                    indentationLevel={1}
+                    indentationLevel={0}
                     isFocused={selectedId === t.tutorialInfo.id}
                     text={<TutorialItemView info={t} />}
                 />
