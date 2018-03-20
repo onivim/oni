@@ -7,6 +7,7 @@
 import * as fs from "fs"
 
 import * as omit from "lodash/omit"
+import * as path from "path"
 import { mv } from "shelljs"
 
 import { Reducer, Store } from "redux"
@@ -59,11 +60,6 @@ export interface IFileSystem {
     delete(fullPath: string): Promise<void>
 }
 
-interface PastedFiles {
-    file: string
-    folder: string
-}
-
 type RegisterAction = IPasteAction
 
 interface IRegisterState {
@@ -109,7 +105,7 @@ interface IPasteAction {
     type: "PASTE"
     path: string
     target: ExplorerNode
-    moved: PastedFiles[]
+    pasted: ExplorerNode[]
 }
 
 interface IClearRegisterAction {
@@ -168,9 +164,11 @@ export const rootFolderReducer: Reducer<IFolderState> = (
     }
 }
 
-const removePastedNode = (nodeArray: ExplorerNode[], id: string): ExplorerNode[] => {
-    return nodeArray.filter(node => node.id !== id)
-}
+const removePastedNode = (nodeArray: ExplorerNode[], id: string): ExplorerNode[] =>
+    nodeArray.filter(node => node.id !== id)
+
+const removeUndoItem = (undoArray: RegisterAction[]): RegisterAction[] =>
+    undoArray.slice(0, undoArray.length - 1)
 
 export const yankRegisterReducer: Reducer<IRegisterState> = (
     state: IRegisterState = DefaultRegisterState,
@@ -187,7 +185,11 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                 ...state,
                 paste: action.target,
                 undo: [...state.undo, action],
-                // Add an undo action which takes action type and basically dispatches it in reverse
+            }
+        case "UNDO_SUCCESS":
+            return {
+                ...state,
+                undo: removeUndoItem(state.undo),
             }
         case "CLEAR_REGISTER":
             return {
@@ -280,13 +282,40 @@ const sortFilesAndFoldersFunc = (a: FolderOrFile, b: FolderOrFile) => {
     }
 }
 
+const getPathForNode = (node: ExplorerNode) => {
+    if (node.type === "file") {
+        return node.filePath
+    } else if (node.type === "folder") {
+        return node.folderPath
+    } else {
+        return node.name
+    }
+}
+
+const undoPaste = (file: ExplorerNode, pasteTarget: ExplorerNode) => {
+    const originalFolder = path.dirname(getPathForNode(file))
+
+    const targetDirectory =
+        pasteTarget.type === "file"
+            ? path.dirname(pasteTarget.filePath)
+            : getPathForNode(pasteTarget)
+
+    const fileOrFolderPath = getPathForNode(file)
+    const filename = path.basename(fileOrFolderPath)
+    return {
+        file: `${targetDirectory}${path.sep}${filename}`,
+        folder: originalFolder,
+    }
+}
+
 const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
     action$.ofType("UNDO").mergeMap(action => {
         const { register: { undo } } = store.getState()
-        const { type, moved } = undo[undo.length - 1]
+        const { type, pasted, target: pasteTarget } = undo[undo.length - 1]
         switch (type) {
             case "PASTE":
-                moved.forEach(pastedItems => {
+                const filesAndFolders = pasted.map(file => undoPaste(file, pasteTarget))
+                filesAndFolders.forEach(pastedItems => {
                     mv(pastedItems.file, pastedItems.folder)
                 })
                 return Observable.of({
