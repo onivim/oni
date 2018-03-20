@@ -121,7 +121,9 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     // Explorer
     // FIXME: this needs to be added to the Oni.Plugin.Api
-    const oniWithSidebar = oni as Oni.Plugin.Api & { sidebar: { activeEntryId: string } }
+    const oniWithSidebar = oni as Oni.Plugin.Api & {
+        sidebar: { activeEntryId: string; isFocused: boolean }
+    }
     const isExplorerActive = () => oniWithSidebar.sidebar.activeEntryId === "oni.sidebar.explorer"
     input.bind("d", "explorer.delete", isExplorerActive)
     input.bind("y", "explorer.yank", isExplorerActive)
