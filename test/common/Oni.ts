@@ -111,12 +111,22 @@ export class Oni {
                 }
 
                 log("- Calling _app.stop")
-                await this._app.stop()
+                this._app.stop()
                 log("- _app.stop call completed")
+
+                log("- Sleeping...")
+                await sleep()
+                log("- Sleep complete")
 
                 attempts++
             }
         }
         log("Oni closed.")
     }
+}
+
+const sleep = () => {
+    return new Promise(resolve => {
+        setTimeout(resolve, 1000)
+    })
 }
