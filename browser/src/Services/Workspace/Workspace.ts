@@ -130,16 +130,11 @@ export class Workspace implements IWorkspace {
 
     public navigateToProjectRoot = async (bufferPath: string) => {
         const projectMarkers = this._configuration.getValue("workspace.autoDetectRootFiles")
-        let cwd = ""
 
         // If the supplied path is a folder, we should use that instead of
         // moving up a folder again.
         // Helps when calling Oni from the CLI with "oni ."
-        if (await this.pathIsDir(bufferPath)) {
-            cwd = bufferPath
-        } else {
-            cwd = path.dirname(bufferPath)
-        }
+        const cwd = (await this.pathIsDir(bufferPath)) ? bufferPath : path.dirname(bufferPath)
 
         const filePath = await findup(projectMarkers, { cwd })
         if (filePath) {
