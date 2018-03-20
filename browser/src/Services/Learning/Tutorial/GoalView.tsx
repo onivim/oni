@@ -22,7 +22,7 @@ export interface IGoalViewProps {
 const GoalWrapper = withProps<IGoalViewProps>(styled.div)`
     ${p => (p.active ? boxShadow : "")};
     display: ${p => (p.visible ? "flex" : "none")};
-    background-color: ${p => p.theme["editor.background"]};
+    background-color: ${p => p.theme["background"]};
     transition: all 0.5s linear;
 
     justify-content: center;
