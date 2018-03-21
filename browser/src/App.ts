@@ -337,6 +337,9 @@ export const start = async (args: string[]): Promise<void> => {
     const Terminal = await terminalPromise
     Terminal.activate(commandManager, configuration, editorManager)
 
+    const Particles = await import("./Services/Particles")
+    Particles.activate(commandManager, configuration, editorManager, overlayManager)
+
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()

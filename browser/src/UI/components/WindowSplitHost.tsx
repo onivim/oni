@@ -12,6 +12,7 @@ import { RedErrorScreenView } from "./../components/RedErrorScreen"
 
 export interface IWindowSplitHostProps {
     split: Oni.IWindowSplit
+    id: string
     containerClassName: string
     isFocused: boolean
     onClick: (evt: React.MouseEvent<HTMLElement>) => void
@@ -69,6 +70,7 @@ export class WindowSplitHost extends React.PureComponent<
             this.props.containerClassName + (this.props.isFocused ? " focus" : " not-focused")
         return (
             <div
+                id={this.props.id}
                 className="container vertical full"
                 onClick={evt => (!this.props.isFocused ? this.props.onClick(evt) : null)}
             >
