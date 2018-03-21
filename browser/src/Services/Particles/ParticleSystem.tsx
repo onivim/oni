@@ -11,9 +11,12 @@ import * as React from "react"
 
 import styled from "styled-components"
 
-import { OverlayManager, Overlay } from "./../Overlay"
+import { Overlay, OverlayManager } from "./../Overlay"
 
-export type Vector = { x: number; y: number }
+export interface Vector {
+    x: number
+    y: number
+}
 
 export interface ParticleSystemDefinition {
     // StartSize: number
@@ -68,7 +71,7 @@ export class ParticleSystem {
     }
 
     public createParticles(count: number, system: ParticleSystemDefinition): void {
-        let newParticles: Particle[] = []
+        const newParticles: Particle[] = []
 
         for (let i = 0; i < count; i++) {
             newParticles.push({
@@ -150,8 +153,8 @@ export class ParticleSystem {
         }
 
         const context = this._activeCanvas.getContext("2d", { alpha: true })
-        let width = (this._activeCanvas.width = this._activeCanvas.offsetWidth)
-        let height = (this._activeCanvas.height = this._activeCanvas.offsetHeight)
+        const width = (this._activeCanvas.width = this._activeCanvas.offsetWidth)
+        const height = (this._activeCanvas.height = this._activeCanvas.offsetHeight)
         context.clearRect(0, 0, width, height)
 
         this._activeParticles.forEach(p => {
