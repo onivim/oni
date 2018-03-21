@@ -3,6 +3,8 @@ import * as fs from "fs"
 import * as path from "path"
 
 import { Oni } from "./Oni"
+//
+// tslint:disable:no-console
 
 const findProcess = require("find-process") // tslint:disable-line
 
