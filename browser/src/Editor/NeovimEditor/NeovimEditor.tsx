@@ -686,20 +686,19 @@ export class NeovimEditor extends Editor implements IEditor {
         // enable opening a file via drag-drop
         document.body.ondragover = ev => {
             ev.preventDefault()
+            ev.stopPropagation()
         }
+
         document.body.ondrop = ev => {
             ev.preventDefault()
+            ev.stopPropagation()
 
             const { files } = ev.dataTransfer
-            // open first file in current editor
+
+            // Open first file in the current editor if empty, otherwise in a new tab.
             if (files.length) {
-                this._neovimInstance.open(normalizePath(files[0].path))
-                // open any subsequent files in new tabs
-                for (let i = 1; i < files.length; i++) {
-                    this._neovimInstance.command(
-                        'exec ":tabe ' + normalizePath(files.item(i).path) + '"',
-                    )
-                }
+                const normalisedPaths = Array.from(files).map(f => normalizePath(f.path))
+                this._openFiles(normalisedPaths, ":tabnew")
             }
         }
     }
