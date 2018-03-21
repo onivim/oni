@@ -11,6 +11,8 @@ import { OverlayManager } from "./../Overlay"
 
 import { ParticleSystem } from "./ParticleSystem"
 
+export * from "./ParticleSystem"
+
 let _engine: ParticleSystem = null
 
 export const activate = (
