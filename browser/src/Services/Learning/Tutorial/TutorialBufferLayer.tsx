@@ -1,10 +1,15 @@
 /**
  * TutorialBufferLayer.tsx
+ *
+ * Layer that handles the top-level rendering of the tutorial UI,
+ * including the nested `NeovimEditor`, description, goals, etc.
  */
 
 import * as React from "react"
 
 import * as Oni from "oni-api"
+
+import styled from "styled-components"
 
 import { NeovimEditor } from "./../../../Editor/NeovimEditor"
 
@@ -21,13 +26,23 @@ import { getThemeManagerInstance } from "./../../Themes"
 import { getInstance as getTokenColorsInstance } from "./../../TokenColors"
 import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
+import { withProps } from "./../../../UI/components/common"
+import { FlipCard } from "./../../../UI/components/FlipCard"
+
 import { ITutorial } from "./ITutorial"
 import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
+import * as Tutorials from "./Tutorials"
+
+import { CompletionView } from "./CompletionView"
+import { GameplayBufferLayer } from "./GameplayBufferLayer"
+import { GoalView } from "./GoalView"
 
 export class TutorialBufferLayer implements Oni.BufferLayer {
     private _editor: NeovimEditor
     private _tutorialGameplayManager: TutorialGameplayManager
     private _initPromise: Promise<void>
+
+    private _isCompleted: boolean
 
     public get id(): string {
         return "oni.tutorial"
@@ -63,10 +78,23 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         })
 
         this._tutorialGameplayManager = new TutorialGameplayManager(this._editor)
+
+        this._tutorialGameplayManager.onCompleted.subscribe(() => {
+            this._isCompleted = true
+            alert("Completed!")
+        })
     }
 
     public handleInput(key: string): boolean {
-        this._editor.input(key)
+        if (this._isCompleted) {
+            this._isCompleted = false
+            this._tutorialGameplayManager.start(
+                new Tutorials.SwitchModeTutorial(),
+                this._editor.activeBuffer,
+            )
+        } else {
+            this._editor.input(key)
+        }
         return true
     }
 
@@ -83,6 +111,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
     public async startTutorial(tutorial: ITutorial): Promise<void> {
         await this._initPromise
         this._tutorialGameplayManager.start(tutorial, this._editor.activeBuffer)
+        this._editor.activeBuffer.addLayer(new GameplayBufferLayer(this._tutorialGameplayManager))
     }
 }
 
@@ -96,15 +125,14 @@ export interface ITutorialBufferLayerState {
     tutorialState: ITutorialState
 }
 
-import styled from "styled-components"
-import { withProps } from "./../../../UI/components/common"
-
 const TutorialWrapper = withProps<{}>(styled.div)`
     position: relative;
     width: 100%;
     height: 100%;
-    background-color: ${p => p.theme.background};
-    color: ${p => p.theme.foreground};
+    background-color: ${p => p.theme["editor.background"]};
+    color: ${p => p.theme["editor.foreground"]};
+
+    max-width: 1000px;
 
     display: flex;
     flex-direction: column;
@@ -112,7 +140,8 @@ const TutorialWrapper = withProps<{}>(styled.div)`
     `
 
 const TutorialSectionWrapper = styled.div`
-    width: 100%;
+    width: 80%;
+    max-width: 1000px;
     flex: 0 0 auto;
 `
 
@@ -156,6 +185,8 @@ export class TutorialBufferLayerView extends React.PureComponent<
             tutorialState: {
                 goals: [],
                 activeGoalIndex: -1,
+                metadata: null,
+                completionInfo: { completed: false },
             },
         }
     }
@@ -167,23 +198,32 @@ export class TutorialBufferLayerView extends React.PureComponent<
     }
 
     public render(): JSX.Element {
-        const goals = this.state.tutorialState.goals.map((goal, idx) => {
-            const activeIndex = this.state.tutorialState.activeGoalIndex
+        if (!this.state.tutorialState || !this.state.tutorialState.metadata) {
+            return null
+        }
 
-            if (idx < activeIndex) {
-                return <li style={{ opacity: 0.5 }}>{goal}</li>
-            } else if (idx === activeIndex) {
-                return <li style={{ fontWeight: "bold" }}>{goal}</li>
-            } else {
-                return <li>{goal}</li>
-            }
+        const title = this.state.tutorialState.metadata.name
+        const description = this.state.tutorialState.metadata.description
+
+        const activeIndex = this.state.tutorialState.activeGoalIndex
+        const goals = this.state.tutorialState.goals.map((goal, idx) => {
+            const isCompleted = idx < activeIndex
+            const visible = Math.abs(idx - activeIndex) < 2
+            return (
+                <GoalView
+                    completed={isCompleted}
+                    description={goal}
+                    active={idx === activeIndex}
+                    visible={visible}
+                />
+            )
         })
 
         return (
             <TutorialWrapper>
                 <TutorialSectionWrapper>
                     <PrimaryHeader>Tutorial</PrimaryHeader>
-                    <SubHeader>Lesson 1: Test</SubHeader>
+                    <SubHeader>{title}</SubHeader>
                 </TutorialSectionWrapper>
                 <MainTutorialSectionWrapper>
                     <div
@@ -193,18 +233,19 @@ export class TutorialBufferLayerView extends React.PureComponent<
                             boxShadow: "3px 7px 10px 7px rgba(0, 0, 0, 0.2)",
                         }}
                     >
-                        {this.props.editor.render()}
+                        <FlipCard
+                            isFlipped={this.state.tutorialState.completionInfo.completed}
+                            front={this.props.editor.render()}
+                            back={<CompletionView keyStrokes={10} time={1.52} />}
+                        />
                     </div>
                 </MainTutorialSectionWrapper>
                 <TutorialSectionWrapper>
                     <SectionHeader>Description:</SectionHeader>
-                    <Section>
-                        Oni is a modal editor, which means the editor can be in different modes. Oni
-                        starts in normal mode, but insert mode is how you enter text.
-                    </Section>
+                    <Section>{description}</Section>
                     <SectionHeader>Goals:</SectionHeader>
                     <Section>
-                        <ul>{goals}</ul>
+                        <div>{goals}</div>
                     </Section>
                     <Section />
                 </TutorialSectionWrapper>

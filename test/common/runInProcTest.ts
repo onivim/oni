@@ -150,7 +150,11 @@ export const runInProcTest = (
     timeout: number = 5000,
     failures: IFailedTest[] = null,
 ) => {
-    describe(testName, () => {
+    // tslint:disable-next-line
+    describe(testName, function() {
+        // TODO: See if we can remove this to stabilize tests.
+        this.retries(2)
+
         let testCase: ITestCase
         let oni: Oni
 
@@ -175,6 +179,7 @@ export const runInProcTest = (
         afterEach(async () => {
             logWithTimeStamp("[AFTER EACH]: " + testName)
             await oni.close()
+            logWithTimeStamp("[AFTER EACH] Completed " + testName)
         })
 
         it("ci test: " + testName, async () => {
@@ -199,9 +204,9 @@ export const runInProcTest = (
             const isLogFailure = (log: any) => log.level === "SEVERE" && !testCase.allowLogFailures
             const anyLogFailure = (logs: any[]) => logs.filter(isLogFailure).length > 0
 
-            const writeLogs = (logs: any[]): void => {
+            const writeLogs = (logs: any[], forceWrite?: boolean): void => {
                 const anyFailures = anyLogFailure(logs)
-                const shouldWrite = !result || !result.passed || anyFailures
+                const shouldWrite = !result || !result.passed || anyFailures || forceWrite
 
                 logs.forEach(log => {
                     const logMessage = `[${log.level}] ${log.message}`
@@ -232,7 +237,9 @@ export const runInProcTest = (
 
             const mainProcessLogs: any[] = await oni.client.getMainProcessLogs()
             console.log("---LOGS (Main): " + testName)
-            writeLogs(mainProcessLogs)
+            mainProcessLogs.forEach(l => {
+                console.log(l)
+            })
             console.log("--- " + testName + " ---")
 
             console.log("")

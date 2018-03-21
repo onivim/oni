@@ -56,6 +56,9 @@ export interface IConfigurationValues {
     "commandline.mode": boolean
     "commandline.icons": boolean
 
+    // Experimental flag for 'generalized preview'
+    "experimental.preview.enabled": boolean
+
     "experimental.welcome.enabled": boolean
 
     "autoClosingPairs.enabled": boolean

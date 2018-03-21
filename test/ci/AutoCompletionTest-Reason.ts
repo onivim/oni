@@ -17,7 +17,6 @@ import { getCompletionElement, navigateToFile } from "./Common"
 // tslint:disable:no-console
 
 export const test = async (oni: Oni.Plugin.Api) => {
-
     await oni.automation.waitForEditors()
 
     const reasonProjectFolder = createReasonProject()
@@ -56,7 +55,11 @@ const createReasonProject = (): string => {
 
     console.log("Creating project at: " + projectFolder)
 
-    const output = childProcess.spawnSync(bsbExecutable, ["-init", "oni-test-reason-project", "-theme", "basic-reason"], { cwd: os.tmpdir() })
+    const output = childProcess.spawnSync(
+        bsbExecutable,
+        ["-init", "oni-test-reason-project", "-theme", "basic-reason"],
+        { cwd: os.tmpdir() },
+    )
     console.log(output.stderr.toString())
     console.log(output.stdout.toString())
 

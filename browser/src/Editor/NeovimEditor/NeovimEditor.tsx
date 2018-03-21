@@ -738,12 +738,15 @@ export class NeovimEditor extends Editor implements IEditor {
             this._externalMenuOverlay = null
         }
 
-        // TODO: Implement full disposal logic
-        this._popupMenu.dispose()
-        this._popupMenu = null
+        if (this._popupMenu) {
+            this._popupMenu.dispose()
+            this._popupMenu = null
+        }
 
-        this._windowManager.dispose()
-        this._windowManager = null
+        if (this._windowManager) {
+            this._windowManager.dispose()
+            this._windowManager = null
+        }
     }
 
     public enter(): void {
@@ -753,6 +756,19 @@ export class NeovimEditor extends Editor implements IEditor {
         this._commands.activate()
 
         this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
+        this.checkAutoRead()
+    }
+
+    public checkAutoRead(): void {
+        // If the user has autoread enabled, we should run ":checktime" on
+        // focus, as this is needed to get the file to auto-update.
+        // https://github.com/neovim/neovim/issues/1936
+        if (
+            this._neovimInstance.isInitialized &&
+            this._configuration.getValue("vim.setting.autoread")
+        ) {
+            this._neovimInstance.command(":checktime")
+        }
     }
 
     public leave(): void {
@@ -968,6 +984,15 @@ export class NeovimEditor extends Editor implements IEditor {
         }
 
         await this._neovimInstance.input(key)
+    }
+
+    public async quit(): Promise<void> {
+        if (this._windowManager) {
+            this._windowManager.dispose()
+            this._windowManager = null
+        }
+
+        return this._neovimInstance.quit()
     }
 
     private _onBounceStart(): void {

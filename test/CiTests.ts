@@ -53,7 +53,10 @@ const CiTests = [
     "LargeFileTest",
 ]
 
-const WindowsOnlyTests = []
+const WindowsOnlyTests = [
+    // TODO: Stabilize this test on OSX / Linux, too!
+    "Regression.1819.AutoReadCheckTimeTest",
+]
 
 const OSXOnlyTests = ["AutoCompletionTest-Reason", "OSX.WindowTitleTest"]
 

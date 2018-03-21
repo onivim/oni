@@ -6,12 +6,20 @@ import * as Oni from "oni-api"
 
 import { Event, IEvent } from "oni-types"
 
-import { ITutorial, ITutorialStage } from "./ITutorial"
+import { ITutorial, ITutorialMetadata, ITutorialStage } from "./ITutorial"
+
+export interface ITutorialCompletionInfo {
+    completed: boolean
+    timeInMilliseconds?: number
+    keyPresses?: number
+}
 
 export interface ITutorialState {
+    metadata: ITutorialMetadata
     renderFunc?: (context: Oni.BufferLayerRenderContext) => JSX.Element
     activeGoalIndex: number
     goals: string[]
+    completionInfo: ITutorialCompletionInfo
 }
 
 /**
@@ -26,8 +34,10 @@ export class TutorialGameplayManager {
     private _onStateChanged = new Event<ITutorialState>()
     private _onCompleted = new Event<boolean>()
     private _currentState: ITutorialState = null
+    private _completionInfo: ITutorialCompletionInfo
 
     private _isTickInProgress: boolean = false
+    private _isPendingTick: boolean = false
     private _buf: Oni.Buffer
 
     public get onStateChanged(): IEvent<ITutorialState> {
@@ -56,6 +66,7 @@ export class TutorialGameplayManager {
         this._buf = buffer
         this._currentStageIdx = 0
         this._activeTutorial = tutorial
+        this._completionInfo = { completed: false, keyPresses: 0, timeInMilliseconds: 0 }
 
         this._editor.onModeChanged.subscribe((evt: string) => {
             this._tick()
@@ -73,6 +84,7 @@ export class TutorialGameplayManager {
 
     private async _tick(): Promise<void> {
         if (this._isTickInProgress) {
+            this._isPendingTick = true
             return
         }
 
@@ -92,20 +104,33 @@ export class TutorialGameplayManager {
             this._currentStageIdx++
 
             if (this._currentStageIdx >= this._activeTutorial.stages.length) {
+                this._completionInfo = {
+                    completed: true,
+                    timeInMilliseconds: 100,
+                    keyPresses: 100,
+                }
                 this._onCompleted.dispatch(true)
-                alert("done!")
             }
         }
 
         const goalsToSend = this._activeTutorial.stages.map(f => f.goalName)
 
         const newState: ITutorialState = {
+            metadata: this._activeTutorial.metadata,
             goals: goalsToSend,
             activeGoalIndex: this._currentStageIdx,
             renderFunc: (context: Oni.BufferLayerRenderContext) =>
-                this.currentStage.render ? this.currentStage.render(context) : null,
+                this.currentStage && this.currentStage.render
+                    ? this.currentStage.render(context)
+                    : null,
+            completionInfo: this._completionInfo,
         }
         this._currentState = newState
         this._onStateChanged.dispatch(newState)
+
+        if (this._isPendingTick) {
+            this._isPendingTick = false
+            await this._tick()
+        }
     }
 }
