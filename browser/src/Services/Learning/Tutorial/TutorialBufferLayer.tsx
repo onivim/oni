@@ -8,7 +8,7 @@
 import * as React from "react"
 
 import * as Oni from "oni-api"
-import { IEvent, Event } from "oni-types"
+import { Event, IEvent } from "oni-types"
 
 import styled from "styled-components"
 
@@ -25,8 +25,8 @@ import { getInstance as getOverlayInstance } from "./../../Overlay"
 import { getInstance as getSnippetManagerInstance } from "./../../Snippets"
 import { getThemeManagerInstance } from "./../../Themes"
 import { getInstance as getTokenColorsInstance } from "./../../TokenColors"
-import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 import { windowManager } from "./../../WindowManager"
+import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
 import { withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
@@ -144,12 +144,10 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
     }
 
     public handleInput(key: string): boolean {
-        console.log("- handle input called")
         if (this._completionInfo.completed) {
             this.startTutorial(new Tutorials.SwitchModeTutorial())
         } else {
             this._editor.input(key)
-            console.log("adding to key press")
             this._gameTracker.addKeyPress(1)
         }
         return true

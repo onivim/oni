@@ -46,9 +46,13 @@ export class TutorialManager {
     public async startTutorial(id: string): Promise<void> {
         // const tutorial = this._getTutorialById(id)
         const buf = await this._editorManager.activeEditor.openFile("Tutorial")
-        console.log(this._windowManager)
         const layer = new TutorialBufferLayer()
         layer.startTutorial(new Tutorials.BasicMovementTutorial())
         buf.addLayer(layer)
+
+        // Focus the editor
+        const splitHandle = this._windowManager.getSplitHandle(this._editorManager
+            .activeEditor as any)
+        splitHandle.focus()
     }
 }
