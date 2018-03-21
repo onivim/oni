@@ -31,7 +31,7 @@ export class BrowserLayer implements Oni.BufferLayer {
     public render(): JSX.Element {
         return (
             <BrowserView
-                url={this._url}
+                initialUrl={this._url}
                 goBack={this._goBackEvent}
                 goForward={this._goForwardEvent}
                 reload={this._reloadEvent}
