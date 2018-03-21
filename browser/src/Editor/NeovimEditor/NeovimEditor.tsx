@@ -674,8 +674,8 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         // TODO: Factor these out to a place that isn't dependent on a single editor instance
-        ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
-            this._openFiles(files, message)
+        ipcRenderer.on("open-files", (_evt: any, files: string[]) => {
+            this.openFiles(files)
         })
 
         ipcRenderer.on("open-file", (_evt: any, path: string) => {
@@ -695,10 +695,9 @@ export class NeovimEditor extends Editor implements IEditor {
 
             const { files } = ev.dataTransfer
 
-            // Open first file in the current editor if empty, otherwise in a new tab.
             if (files.length) {
                 const normalisedPaths = Array.from(files).map(f => normalizePath(f.path))
-                this._openFiles(normalisedPaths, ":tabnew")
+                this.openFiles(normalisedPaths, { openMode: Oni.FileOpenMode.Edit })
             }
         }
     }
@@ -847,6 +846,31 @@ export class NeovimEditor extends Editor implements IEditor {
         return this.activeBuffer
     }
 
+    public async openFiles(
+        files: string[],
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
+        if (!files) {
+            return this.activeBuffer
+        }
+
+        // Open the first file in the current buffer if there is no file there,
+        // otherwise use the passed option.
+        // Respects the users config and uses "tab drop" for Tab users, and "e!"
+        // otherwise.
+        if (this.activeBuffer.filePath === "") {
+            await this.openFile(files[0], { openMode: Oni.FileOpenMode.Edit })
+        } else {
+            await this.openFile(files[0], openOptions)
+        }
+
+        for (let i = 1; i < files.length; i++) {
+            await this.openFile(files[i], openOptions)
+        }
+
+        return this.activeBuffer
+    }
+
     public async newFile(filePath: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":vsp " + filePath)
         const context = await this._neovimInstance.getContext()
@@ -894,7 +918,7 @@ export class NeovimEditor extends Editor implements IEditor {
         }
 
         if (filesToOpen && filesToOpen.length > 0) {
-            await this._openFiles(filesToOpen, ":tabnew")
+            await this.openFiles(filesToOpen, { openMode: Oni.FileOpenMode.Edit })
         } else {
             if (this._configuration.getValue("experimental.welcome.enabled")) {
                 const buf = await this.openFile("WELCOME")
@@ -1000,20 +1024,6 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private _onBounceEnd(): void {
         this._actions.setCursorScale(1.0)
-    }
-
-    private async _openFiles(files: string[], action: string): Promise<void> {
-        if (!files) {
-            return
-        }
-
-        await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
-
-        for (let i = 1; i < files.length; i++) {
-            await this._neovimInstance.command(
-                'exec "' + action + " " + normalizePath(files[i]) + '"',
-            )
-        }
     }
 
     private _onModeChanged(newMode: string): void {
