@@ -3,6 +3,8 @@ import * as path from "path"
 
 import { Application } from "spectron"
 
+import { ensureProcessNotRunning } from "./ensureProcessNotRunning"
+
 const log = (msg: string) => {
     console.log(msg) // tslint:disable-line no-console
 }
@@ -130,6 +132,13 @@ export class Oni {
                 await race
 
                 log("- Race complete. didStop: " + didStop)
+
+                if (!didStop) {
+                    log("- Attemping to force close processes:")
+                    await ensureProcessNotRunning("nvim")
+                    log("- Force close complete")
+                }
+
                 attempts++
             }
         }
