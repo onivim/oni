@@ -15,7 +15,12 @@ export interface ITutorialPersistedState {
 
 export interface ITutorialMetadataWithProgress {
     tutorialInfo: ITutorialMetadata
-    completed: boolean
+    completionInfo: CompletionInfo
+}
+
+export interface CompletionInfo {
+    keyStrokes: number
+    time: number
 }
 
 export class TutorialManager {
@@ -26,7 +31,10 @@ export class TutorialManager {
     public getTutorialInfo(): ITutorialMetadataWithProgress[] {
         return this._tutorials.map(tut => ({
             tutorialInfo: tut.metadata,
-            completed: false,
+            completionInfo: {
+                keyStrokes: 10,
+                time: 1.5,
+            },
         }))
     }
 
