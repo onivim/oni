@@ -115,6 +115,8 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
             getWorkspaceInstance(),
         )
 
+        this._editor.autoFocus = false
+
         this._editor.onNeovimQuit.subscribe(() => {
             alert("quit!")
         })
