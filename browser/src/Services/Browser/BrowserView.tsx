@@ -14,6 +14,7 @@ import { IDisposable, IEvent } from "oni-types"
 
 import { getInstance as getSneakInstance, ISneakInfo } from "./../../Services/Sneak"
 
+import { AddressBarView } from "./AddressBarView"
 import { BrowserButtonView } from "./BrowserButtonView"
 
 const Column = styled.div`
@@ -51,18 +52,8 @@ const BrowserViewWrapper = styled.div`
     }
 `
 
-const AddressBar = styled.div`
-    width: 100%;
-    flex: 1 1 auto;
-
-    height: 2.5em;
-    line-height: 2.5em;
-
-    text-align: left;
-`
-
 export interface IBrowserViewProps {
-    url: string
+    initialUrl: string
 
     debug: IEvent<void>
     goBack: IEvent<void>
@@ -70,14 +61,26 @@ export interface IBrowserViewProps {
     reload: IEvent<void>
 }
 
+export interface IBrowserViewState {
+    url: string
+}
+
 export interface SneakInfoFromBrowser {
     id: string
     rectangle: Oni.Shapes.Rectangle
 }
 
-export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
+export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowserViewState> {
     private _webviewElement: any
     private _disposables: IDisposable[] = []
+
+    constructor(props: IBrowserViewProps) {
+        super(props)
+
+        this.state = {
+            url: props.initialUrl,
+        }
+    }
 
     public componentDidMount(): void {
         const d1 = this.props.goBack.subscribe(() => this._goBack())
@@ -139,9 +142,10 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
                     <BrowserButtonView icon={"chevron-left"} onClick={() => this._goBack()} />
                     <BrowserButtonView icon={"chevron-right"} onClick={() => this._goForward()} />
                     <BrowserButtonView icon={"undo"} onClick={() => this._reload()} />
-                    <AddressBar>
-                        <span>{this.props.url}</span>
-                    </AddressBar>
+                    <AddressBarView
+                        url={this.state.url}
+                        onAddressChanged={url => this._navigate(url)}
+                    />
                     <BrowserButtonView icon={"bug"} onClick={() => this._openDebugger()} />
                 </BrowserControlsWrapper>
                 <BrowserViewWrapper>
@@ -159,6 +163,16 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
                 </BrowserViewWrapper>
             </Column>
         )
+    }
+
+    private _navigate(url: string): void {
+        if (this._webviewElement) {
+            this._webviewElement.src = url
+
+            this.setState({
+                url,
+            })
+        }
     }
 
     private _goBack(): void {
@@ -191,7 +205,13 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
             webviewElement.preload = path.join(__dirname, "lib", "webview_preload", "index.js")
             elem.appendChild(webviewElement)
             this._webviewElement = webviewElement
-            this._webviewElement.src = this.props.url
+            this._webviewElement.src = this.props.initialUrl
+
+            this._webviewElement.addEventListener("did-navigate", (evt: any) => {
+                this.setState({
+                    url: evt.url,
+                })
+            })
         }
     }
 }
