@@ -9,7 +9,7 @@ import {
     IPersistedAchievementState,
 } from "./../../../../src/Services/Learning/Achievements"
 
-import { IStore } from "./../../../../src/Store"
+import { IPersistentStore } from "./../../../../src/PersistentStore"
 
 const createTestAchievement = (uniqueId: string, goalId: string) => ({
     uniqueId,
@@ -24,7 +24,8 @@ const createTestAchievement = (uniqueId: string, goalId: string) => ({
     ],
 })
 
-export class MockAchievementsPersistentStore implements IStore<IPersistedAchievementState> {
+export class MockAchievementsPersistentStore
+    implements IPersistentStore<IPersistedAchievementState> {
     private _state: IPersistedAchievementState
 
     constructor() {
