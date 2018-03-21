@@ -90,7 +90,7 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
                         <CursorLine lineType={"column"} />
                     </div>
                     <NeovimInput
-                        startActive={true}
+                        startActive={false}
                         onActivate={this.props.onActivate}
                         typingPrediction={this.props.typingPrediction}
                         neovimInstance={this.props.neovimInstance}

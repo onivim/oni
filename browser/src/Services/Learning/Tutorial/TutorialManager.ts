@@ -3,6 +3,7 @@
  */
 
 import { EditorManager } from "./../../EditorManager"
+import { WindowManager } from "./../../WindowManager"
 
 import { ITutorial, ITutorialMetadata } from "./ITutorial"
 import * as Tutorials from "./Tutorials"
@@ -26,7 +27,7 @@ export interface CompletionInfo {
 export class TutorialManager {
     private _tutorials: ITutorial[] = []
 
-    constructor(private _editorManager: EditorManager) {}
+    constructor(private _editorManager: EditorManager, private _windowManager: WindowManager) {}
 
     public getTutorialInfo(): ITutorialMetadataWithProgress[] {
         return this._tutorials.map(tut => ({
@@ -45,6 +46,7 @@ export class TutorialManager {
     public async startTutorial(id: string): Promise<void> {
         // const tutorial = this._getTutorialById(id)
         const buf = await this._editorManager.activeEditor.openFile("Tutorial")
+        console.log(this._windowManager)
         const layer = new TutorialBufferLayer()
         layer.startTutorial(new Tutorials.BasicMovementTutorial())
         buf.addLayer(layer)

@@ -7,6 +7,7 @@ import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 import { OverlayManager } from "./../Overlay"
 import { SidebarManager } from "./../Sidebar"
+import { WindowManager } from "./../WindowManager"
 
 import { LearningPane } from "./LearningPane"
 import { TutorialManager } from "./Tutorial/TutorialManager"
@@ -21,6 +22,7 @@ export const activate = (
     editorManager: EditorManager,
     overlayManager: OverlayManager,
     sidebarManager: SidebarManager,
+    windowManager: WindowManager,
 ) => {
     const learningEnabled = configuration.getValue("experimental.learning.enabled")
 
@@ -30,7 +32,7 @@ export const activate = (
         return
     }
 
-    const tutorialManager = new TutorialManager(editorManager)
+    const tutorialManager = new TutorialManager(editorManager, windowManager)
     sidebarManager.add("trophy", new LearningPane(tutorialManager, commandManager))
 
     AllTutorials.forEach((tut: ITutorial) => tutorialManager.registerTutorial(tut))

@@ -268,6 +268,7 @@ export const start = async (args: string[]): Promise<void> => {
         editorManager,
         overlayManager,
         Sidebar.getInstance(),
+        WindowManager.windowManager,
     )
     Performance.endMeasure("Oni.Start.Sidebar")
 
