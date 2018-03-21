@@ -2,7 +2,7 @@
  * Learning.ts
  */
 
-import { getStore, IStore } from "./../../PersistentStore"
+import { getPersistentStore, IPersistentStore } from "./../../PersistentStore"
 
 import { CommandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
@@ -32,7 +32,7 @@ export const activate = (
         return
     }
 
-    const store: IStore<IPersistedTutorialState> = getStore("oni-tutorial", {
+    const store: IPersistentStore<IPersistedTutorialState> = getPersistentStore("oni-tutorial", {
         completionInfo: {},
     })
     const tutorialManager = new TutorialManager(editorManager, store)
