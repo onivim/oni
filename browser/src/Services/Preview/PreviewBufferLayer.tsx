@@ -12,7 +12,7 @@ import styled from "styled-components"
 import { withProps } from "./../../UI/components/common"
 
 import { EditorManager } from "./../EditorManager"
-import { Preview, IPreviewer } from "./index"
+import { IPreviewer, Preview } from "./index"
 
 const PreviewWrapper = withProps<{}>(styled.div)`
     position: absolute;

@@ -23,8 +23,12 @@ export interface IPreviewer {
     render(previewContext: PreviewContext): JSX.Element
 }
 
-export type IdToPreviewer = { [id: string]: IPreviewer }
-export type LanguageToDefaultPreviewer = { [id: string]: IPreviewer }
+export interface IdToPreviewer {
+    [id: string]: IPreviewer
+}
+export interface LanguageToDefaultPreviewer {
+    [id: string]: IPreviewer
+}
 
 export class NoopPreviewer {
     public render(previewContext: PreviewContext): JSX.Element {
@@ -57,7 +61,6 @@ export class Preview {
         const activeEditor: any = this._editorManager.activeEditor
         const buf = await activeEditor.openFile("PREVIEW", { openMode })
         buf.addLayer(new PreviewBufferLayer(this._editorManager, this))
-        console.log(buf.id)
     }
 
     public registerDefaultPreviewer(language: string, previewer: IPreviewer): void {
