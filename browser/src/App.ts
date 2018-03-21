@@ -314,7 +314,7 @@ export const start = async (args: string[]): Promise<void> => {
     )
 
     const Preview = await import("./Services/Preview")
-    Preview.activate(commandManager, editorManager)
+    Preview.activate(commandManager, configuration, editorManager)
 
     const KeyDisplayer = await keyDisplayerPromise
     KeyDisplayer.activate(

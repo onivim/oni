@@ -9,6 +9,7 @@ import * as React from "react"
 import * as Oni from "oni-api"
 
 import { CallbackCommand, CommandManager } from "./../CommandManager"
+import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 
 import { PreviewBufferLayer } from "./PreviewBufferLayer"
@@ -74,15 +75,21 @@ export class Preview {
 
 let _preview: Preview
 
-export const activate = (commandManager: CommandManager, editorManager: EditorManager) => {
+export const activate = (
+    commandManager: CommandManager,
+    configuration: Configuration,
+    editorManager: EditorManager,
+) => {
     _preview = new Preview(editorManager)
 
-    commandManager.registerCommand(
-        new CallbackCommand(
-            "preview.open",
-            "Preview: Open in Vertical Split",
-            "Open preview pane in a vertical split",
-            () => _preview.openPreviewPane(Oni.FileOpenMode.VerticalSplit),
-        ),
-    )
+    if (configuration.getValue("experimental.preview.enabled")) {
+        commandManager.registerCommand(
+            new CallbackCommand(
+                "preview.open",
+                "Preview: Open in Vertical Split",
+                "Open preview pane in a vertical split",
+                () => _preview.openPreviewPane(Oni.FileOpenMode.VerticalSplit),
+            ),
+        )
+    }
 }
