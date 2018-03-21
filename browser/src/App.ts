@@ -338,7 +338,7 @@ export const start = async (args: string[]): Promise<void> => {
     Terminal.activate(commandManager, configuration, editorManager)
 
     const Particles = await import("./Services/Particles")
-    Particles.activate(editorManager, overlayManager)
+    Particles.activate(configuration, editorManager, overlayManager)
 
     Performance.endMeasure("Oni.Start.Activate")
 

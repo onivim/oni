@@ -48,6 +48,7 @@ export interface IConfigurationValues {
     // Whether or not the learning pane is available
     "experimental.achievements.enabled": boolean
     "experimental.learning.enabled": boolean
+    "experimental.particles.enabled": boolean
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
