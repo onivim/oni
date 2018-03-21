@@ -7,7 +7,7 @@
 import { Configuration } from "./../../Configuration"
 import { OverlayManager } from "./../../Overlay"
 
-import { getPersistentStore, IPersistentStore } from "./../../../Store"
+import { getPersistentStore, IPersistentStore } from "./../../../PersistentStore"
 
 import { CommandManager } from "./../../CommandManager"
 import { EditorManager } from "./../../EditorManager"
