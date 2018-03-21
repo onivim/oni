@@ -2,6 +2,8 @@
  * TutorialManager
  */
 
+import { Event, IEvent } from "oni-types"
+
 import { EditorManager } from "./../../EditorManager"
 
 import { IPersistentStore } from "./../../../PersistentStore"
@@ -24,7 +26,9 @@ export interface ITutorialCompletionInfo {
     time: number /* milliseconds */
 }
 
-export type IdToCompletionInfo = { [tutorialId: string]: ITutorialCompletionInfo }
+export interface IdToCompletionInfo {
+    [tutorialId: string]: ITutorialCompletionInfo
+}
 
 export interface IPersistedTutorialState {
     completionInfo: IdToCompletionInfo
@@ -32,16 +36,30 @@ export interface IPersistedTutorialState {
 
 export class TutorialManager {
     private _tutorials: ITutorial[] = []
+    private _initPromise: Promise<IPersistedTutorialState>
 
     private _persistedState: IPersistedTutorialState = { completionInfo: {} }
+    private _onTutorialCompletedEvent: Event<void> = new Event<void>()
+
+    public get onTutorialCompletedEvent(): IEvent<void> {
+        return this._onTutorialCompletedEvent
+    }
 
     constructor(
         private _editorManager: EditorManager,
         private _persistentStore: IPersistentStore<IPersistedTutorialState>,
     ) {}
 
-    public async start(): Promise<void> {
-        this._persistedState = await this._persistentStore.get()
+    public async start(): Promise<IPersistedTutorialState> {
+        if (this._initPromise) {
+            return this._initPromise
+        }
+
+        this._initPromise = this._persistentStore.get()
+
+        this._persistedState = await this._initPromise
+        this._onTutorialCompletedEvent.dispatch()
+        return this._persistedState
     }
 
     public getTutorialInfo(): ITutorialMetadataWithProgress[] {
@@ -59,15 +77,22 @@ export class TutorialManager {
         id: string,
         completionInfo: ITutorialCompletionInfo,
     ): Promise<void> {
-        this._persistedState[id] = completionInfo
+        await this.start()
+        this._persistedState.completionInfo[id] = completionInfo
         await this._persistentStore.set(this._persistedState)
+        this._onTutorialCompletedEvent.dispatch()
     }
 
     public getNextTutorialId(currentTutorialId?: string): string {
         const sortedTutorials = this._getSortedTutorials()
 
         if (!currentTutorialId) {
-            return sortedTutorials[0].metadata.id
+            // Get first tutorial not completed
+            const nextIncompleteTutorial = sortedTutorials.find(f => {
+                return !this._persistedState.completionInfo[f.metadata.id]
+            })
+
+            return nextIncompleteTutorial ? nextIncompleteTutorial.metadata.id : null
         }
 
         const currentTuturial = sortedTutorials.findIndex(
@@ -91,7 +116,9 @@ export class TutorialManager {
     }
 
     private _getSortedTutorials(): ITutorial[] {
-        return this._tutorials
+        return this._tutorials.sort((a, b) => {
+            return a.metadata.level - b.metadata.level
+        })
     }
 
     private _getCompletionState(id: string): ITutorialCompletionInfo {

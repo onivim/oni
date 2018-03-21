@@ -11,7 +11,7 @@ import { OverlayManager } from "./../Overlay"
 import { SidebarManager } from "./../Sidebar"
 
 import { LearningPane } from "./LearningPane"
-import { TutorialManager, IPersistedTutorialState } from "./Tutorial/TutorialManager"
+import { IPersistedTutorialState, TutorialManager } from "./Tutorial/TutorialManager"
 
 import * as Achievements from "./Achievements"
 import { ITutorial } from "./Tutorial/ITutorial"
