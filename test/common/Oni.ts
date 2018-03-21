@@ -111,13 +111,25 @@ export class Oni {
                 }
 
                 log("- Calling _app.stop")
-                this._app.stop()
-                log("- _app.stop call completed")
+                let didStop = false
+                const promise1 = this._app.stop().then(
+                    () => {
+                        console.log("_app.stop promise completed!")
+                        didStop = true
+                    },
+                    err => {
+                        // tslint:disable-next-line
+                        console.error(err)
+                    },
+                )
 
-                log("- Sleeping...")
-                await sleep()
-                log("- Sleep complete")
+                const promise2 = sleep(15000)
 
+                log("- Racing with 15s timer...")
+                const race = Promise.race([promise1, promise2])
+                await race
+
+                log("- Race complete. didStop: " + didStop)
                 attempts++
             }
         }
@@ -125,8 +137,8 @@ export class Oni {
     }
 }
 
-const sleep = () => {
+const sleep = (timeout: number = 1000) => {
     return new Promise(resolve => {
-        setTimeout(resolve, 1000)
+        setTimeout(resolve, timeout)
     })
 }
