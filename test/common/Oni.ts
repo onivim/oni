@@ -114,7 +114,7 @@ export class Oni {
                 let didStop = false
                 const promise1 = this._app.stop().then(
                     () => {
-                        console.log("_app.stop promise completed!")
+                        log("_app.stop promise completed!")
                         didStop = true
                     },
                     err => {
