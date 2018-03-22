@@ -8,7 +8,7 @@ import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
 
-import { IDisposable, IEvent, Event } from "oni-types"
+import { Event, IDisposable, IEvent } from "oni-types"
 
 import { Overlay, OverlayManager } from "./../Overlay"
 

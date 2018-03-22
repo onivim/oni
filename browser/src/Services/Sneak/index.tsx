@@ -4,8 +4,8 @@
  * Entry point for sneak functionality
  */
 
-import { AchievementsManager } from "./../Learning/Achievements"
 import { CallbackCommand, CommandManager } from "./../CommandManager"
+import { AchievementsManager } from "./../Learning/Achievements"
 import { OverlayManager } from "./../Overlay"
 
 import { Sneak } from "./Sneak"
