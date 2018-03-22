@@ -40,7 +40,11 @@
             const clientRect = element.getBoundingClientRect()
             const callback = (elem: HTMLElement) => () => {
                 if (elem && elem.click) {
-                    elem.click()
+                    if (elem.tagName === "A") {
+                        elem.click()
+                    } else if (elem.tagName === "INPUT") {
+                        elem.focus()
+                    }
                 }
             }
             _tags.push({
@@ -55,10 +59,10 @@
             })
         }
 
-        const tagsToCollect = ["a"]
+        const tagsToCollect = ["a", "input"]
 
         tagsToCollect.forEach(tag => {
-            const elems = document.getElementsByTagName("a")
+            const elems = document.getElementsByTagName(tag) as NodeListOf<HTMLElement>
 
             for (let i = 0; i < elems.length; i++) {
                 addElement(elems[i])
