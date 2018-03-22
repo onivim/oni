@@ -137,7 +137,7 @@ class CursorRenderer extends React.PureComponent<ICursorRendererProps, ICursorRe
         characterToShow: string,
     ): JSX.Element {
         return (
-            <StyledCursor style={containerStyle}>
+            <StyledCursor style={containerStyle} className="cursor">
                 <div style={cursorBlockStyle} />
                 <div style={cursorCharacterStyle}>{characterToShow}</div>
             </StyledCursor>

@@ -91,6 +91,11 @@ export class SnippetSession {
 
     private _currentPlaceholder: OniSnippetPlaceholder = null
 
+    private _lastCursorMovedEvent: IMirrorCursorUpdateEvent = {
+        mode: null,
+        cursors: [],
+    }
+
     public get buffer(): IBuffer {
         return this._buffer
     }
@@ -123,6 +128,15 @@ export class SnippetSession {
         )
         this._snippet = new OniSnippet(normalizedSnippet, new SnippetVariableResolver(this._buffer))
 
+        // If there are no placeholders, add an implicit one at the end
+        if (this._snippet.getPlaceholders().length === 0) {
+            this._snippet = new OniSnippet(
+                // tslint:disable-next-line
+                normalizedSnippet + "${0}",
+                new SnippetVariableResolver(this._buffer),
+            )
+        }
+
         const cursorPosition = await this._buffer.getCursorPosition()
         const [currentLine] = await this._buffer.getLines(
             cursorPosition.line,
@@ -152,6 +166,7 @@ export class SnippetSession {
         }
 
         await this.nextPlaceholder()
+        await this.updateCursorPosition()
     }
 
     public async nextPlaceholder(): Promise<void> {
@@ -252,10 +267,16 @@ export class SnippetSession {
             }
         })
 
-        this._onCursorMovedEvent.dispatch({
+        this._lastCursorMovedEvent = {
             mode,
             cursors: cursorPositions,
-        })
+        }
+
+        this._onCursorMovedEvent.dispatch(this._lastCursorMovedEvent)
+    }
+
+    public getLatestCursors(): IMirrorCursorUpdateEvent {
+        return this._lastCursorMovedEvent
     }
 
     // Helper method to query the value of the current placeholder,
@@ -263,6 +284,10 @@ export class SnippetSession {
     public async synchronizeUpdatedPlaceholders(): Promise<void> {
         // Get current cursor position
         const cursorPosition = await this._buffer.getCursorPosition()
+
+        if (!this._currentPlaceholder) {
+            return
+        }
 
         const bounds = this._getBoundsForPlaceholder()
 

@@ -6,9 +6,10 @@ import * as assert from "assert"
 
 import {
     AchievementsManager,
-    IAchievementsPersistentStore,
     IPersistedAchievementState,
 } from "./../../../../src/Services/Learning/Achievements"
+
+import { MockPersistentStore } from "./../../../Mocks"
 
 const createTestAchievement = (uniqueId: string, goalId: string) => ({
     uniqueId,
@@ -23,28 +24,18 @@ const createTestAchievement = (uniqueId: string, goalId: string) => ({
     ],
 })
 
-export class MockAchievementsPersistentStore implements IAchievementsPersistentStore {
-    private _state: IPersistedAchievementState
+describe("AchievementsManagerTests", () => {
+    let mockStore: MockPersistentStore<IPersistedAchievementState>
 
-    constructor() {
-        this._state = {
+    beforeEach(() => {
+        mockStore = new MockPersistentStore<IPersistedAchievementState>({
             goalCounts: {},
             achievedIds: [],
-        }
-    }
+        })
+    })
 
-    public async store(state: IPersistedAchievementState): Promise<void> {
-        this._state = state
-    }
-
-    public async get(): Promise<IPersistedAchievementState> {
-        return this._state
-    }
-}
-
-describe("AchievementsManagerTests", () => {
     it("fires onAchievementAccomplished when an achievement is accomplished", async () => {
-        const achievementsManager = new AchievementsManager(new MockAchievementsPersistentStore())
+        const achievementsManager = new AchievementsManager(mockStore)
         await achievementsManager.start()
 
         let hitCount = 0
@@ -60,13 +51,12 @@ describe("AchievementsManagerTests", () => {
     })
 
     it("doesn't fire onAchievementAccomplished if an achievement was already accomplished prior to tracking", async () => {
-        const store = new MockAchievementsPersistentStore()
-        await store.store({
+        await mockStore.set({
             goalCounts: {},
             achievedIds: ["test.achievement"],
         })
 
-        const achievementsManager = new AchievementsManager(store)
+        const achievementsManager = new AchievementsManager(mockStore)
         await achievementsManager.start()
 
         let hitCount = 0
@@ -85,7 +75,7 @@ describe("AchievementsManagerTests", () => {
     })
 
     it("does fire onAchievementAccomplished if goals are met, but it hasn't been accomplished yet", async () => {
-        const achievementsManager = new AchievementsManager(new MockAchievementsPersistentStore())
+        const achievementsManager = new AchievementsManager(mockStore)
         await achievementsManager.start()
 
         let hitCount = 0

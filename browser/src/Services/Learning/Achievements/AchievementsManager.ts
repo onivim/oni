@@ -8,6 +8,8 @@ import { Event, IEvent } from "oni-types"
 
 import * as Utility from "./../../../Utility"
 
+import { IPersistentStore } from "./../../../PersistentStore"
+
 export interface AchievementDefinition {
     uniqueId: string
     name: string
@@ -22,6 +24,11 @@ export interface AchievementGoalDefinition {
     count: number
 }
 
+export interface AchievementWithProgressInfo {
+    achievement: AchievementDefinition
+    completed: boolean
+}
+
 export class AchievementsManager {
     private _goalState: IPersistedAchievementState
     private _achievements: { [achievementId: string]: AchievementDefinition } = {}
@@ -34,7 +41,7 @@ export class AchievementsManager {
         return this._onAchievementAccomplishedEvent
     }
 
-    constructor(private _persistentStore: IAchievementsPersistentStore) {}
+    constructor(private _persistentStore: IPersistentStore<IPersistedAchievementState>) {}
 
     public notifyGoal(goalId: string): void {
         if (!this._isInitialized()) {
@@ -62,6 +69,26 @@ export class AchievementsManager {
         Object.values(this._achievements).forEach(achievement => {
             this._checkIfShouldTrackAchievement(achievement)
             this._checkVictoryCondition(achievement)
+        })
+    }
+
+    public getAchievements(): AchievementWithProgressInfo[] {
+        const allAchievements = Object.values(this._achievements)
+
+        return allAchievements.map(achievement => {
+            const completed = this._goalState.achievedIds.indexOf(achievement.uniqueId) >= 0
+
+            return {
+                achievement,
+                completed,
+            }
+        })
+    }
+
+    public clearAchievements(): void {
+        this._persistentStore.set({
+            goalCounts: {},
+            achievedIds: [],
         })
     }
 
@@ -122,7 +149,7 @@ export class AchievementsManager {
         }
 
         this._currentIdleCallback = Utility.requestIdleCallback(() => {
-            this._persistentStore.store(this._goalState)
+            this._persistentStore.set(this._goalState)
             this._currentIdleCallback = null
         })
     }
@@ -139,17 +166,3 @@ export interface IPersistedAchievementState {
     // - no need to bother tracking these.
     achievedIds: string[]
 }
-
-// const DefaultGoalState: IPersistedAchievementState = {
-//     goalCounts: {}
-//     achievedIds: []
-// }
-
-export interface IAchievementsPersistentStore {
-    store(state: IPersistedAchievementState): Promise<void>
-    get(): Promise<IPersistedAchievementState>
-}
-
-// export class AchievementsPersistentFileStore {
-
-// }
