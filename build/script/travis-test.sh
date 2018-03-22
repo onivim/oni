@@ -31,7 +31,14 @@ npm run upload:dist
 
 # We'll run code coverage only on Linux, for now
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+    npm run build:test:unit
+
+    ls -a lib_test/browser/src
+
     npm run ccov:instrument
+
+    ls -a lib_test/browser/src_ccov
+
     npm run ccov:test:browser
     npm run ccov:remap:browser:lcov
     npm run ccov:clean
