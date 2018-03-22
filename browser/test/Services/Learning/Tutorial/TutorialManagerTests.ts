@@ -5,12 +5,12 @@
 import * as assert from "assert"
 
 import { EditorManager } from "./../../../../src/Services/EditorManager"
-import { WindowManager } from "./../../../../src/Services/WindowManager"
 import {
     IPersistedTutorialState,
     ITutorial,
     TutorialManager,
 } from "./../../../../src/Services/Learning/Tutorial"
+import { WindowManager } from "./../../../../src/Services/WindowManager"
 
 import * as Mocks from "./../../../Mocks"
 
