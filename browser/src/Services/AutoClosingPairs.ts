@@ -162,7 +162,7 @@ export const activate = (
                 subscriptions.push(
                     inputManager.bind(
                         pair.open,
-                        handleOpenCharacter(pair, editorManager.anyEditor, true),
+                        handleOpenCharacter(pair, editorManager.activeEditor, true),
                         insertModeFilter,
                     ),
                 )
@@ -171,14 +171,14 @@ export const activate = (
             subscriptions.push(
                 inputManager.bind(
                     pair.open,
-                    handleOpenCharacter(pair, editorManager.anyEditor, false),
+                    handleOpenCharacter(pair, editorManager.activeEditor, false),
                     insertModeFilter,
                 ),
             )
             subscriptions.push(
                 inputManager.bind(
                     pair.close,
-                    handleCloseCharacter(pair, editorManager.anyEditor),
+                    handleCloseCharacter(pair, editorManager.activeEditor),
                     insertModeFilter,
                 ),
             )
@@ -187,20 +187,20 @@ export const activate = (
         subscriptions.push(
             inputManager.bind(
                 "<bs>",
-                handleBackspaceCharacter(autoClosingPairs, editorManager.anyEditor),
+                handleBackspaceCharacter(autoClosingPairs, editorManager.activeEditor),
                 insertModeFilter,
             ),
         )
         subscriptions.push(
             inputManager.bind(
                 "<enter>",
-                handleEnterCharacter(autoClosingPairs, editorManager.anyEditor),
+                handleEnterCharacter(autoClosingPairs, editorManager.activeEditor),
                 insertModeFilter,
             ),
         )
     }
 
-    editorManager.activeEditor.onBufferEnter.subscribe(onBufferEnter)
+    editorManager.anyEditor.onBufferEnter.subscribe(onBufferEnter)
 
     const activeEditor = editorManager.activeEditor
     if (activeEditor && activeEditor.activeBuffer) {
