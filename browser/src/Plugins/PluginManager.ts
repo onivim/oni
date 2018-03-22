@@ -15,7 +15,7 @@ const extensionsRoot = path.join(__dirname, "extensions")
 
 import { flatMap } from "./../Utility"
 
-import { YarnPluginInstaller, IPluginInstaller } from "./PluginInstaller"
+import { IPluginInstaller, YarnPluginInstaller } from "./PluginInstaller"
 
 export class PluginManager implements Oni.IPluginManager {
     private _rootPluginPaths: string[] = []
