@@ -19,6 +19,8 @@ export interface KeyBindingMap {
     [key: string]: KeyBinding[]
 }
 
+// const MAX_DELAY_BETWEEN_KEY_CHORD = 250 /* milliseconds */
+
 import { KeyboardResolver } from "./../Input/Keyboard/KeyboardResolver"
 
 import {
@@ -27,9 +29,38 @@ import {
     remapResolver,
 } from "./../Input/Keyboard/Resolvers"
 
+export interface KeyPressInfo {
+    keyChord: string
+    time: number
+}
+
+// Helper method to filter a set of key presses such that they are only the potential chords
+export const getRecentKeyPresses = (
+    keys: KeyPressInfo[],
+    maxTimeBetweenKeyPresses: number,
+): KeyPressInfo[] => {
+    return keys.reduce(
+        (prev, curr) => {
+            if (prev.length === 0) {
+                return [curr]
+            }
+
+            const lastItem = prev[prev.length - 1]
+
+            if (curr.time - lastItem.time > maxTimeBetweenKeyPresses) {
+                return [curr]
+            } else {
+                return [...prev, curr]
+            }
+        },
+        [] as KeyPressInfo[],
+    )
+}
+
 export class InputManager implements Oni.Input.InputManager {
     private _boundKeys: KeyBindingMap = {}
     private _resolver: KeyboardResolver
+    // private _keys: KeyPressInfo[] = []
 
     constructor() {
         this._resolver = new KeyboardResolver()
