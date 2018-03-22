@@ -162,7 +162,7 @@ export const activate = (
                 subscriptions.push(
                     inputManager.bind(
                         pair.open,
-                        handleOpenCharacter(pair, editorManager.activeEditor, true),
+                        handleOpenCharacter(pair, editorManager.anyEditor, true),
                         insertModeFilter,
                     ),
                 )
@@ -171,14 +171,14 @@ export const activate = (
             subscriptions.push(
                 inputManager.bind(
                     pair.open,
-                    handleOpenCharacter(pair, editorManager.activeEditor, false),
+                    handleOpenCharacter(pair, editorManager.anyEditor, false),
                     insertModeFilter,
                 ),
             )
             subscriptions.push(
                 inputManager.bind(
                     pair.close,
-                    handleCloseCharacter(pair, editorManager.activeEditor),
+                    handleCloseCharacter(pair, editorManager.anyEditor),
                     insertModeFilter,
                 ),
             )
@@ -187,14 +187,14 @@ export const activate = (
         subscriptions.push(
             inputManager.bind(
                 "<bs>",
-                handleBackspaceCharacter(autoClosingPairs, editorManager.activeEditor),
+                handleBackspaceCharacter(autoClosingPairs, editorManager.anyEditor),
                 insertModeFilter,
             ),
         )
         subscriptions.push(
             inputManager.bind(
                 "<enter>",
-                handleEnterCharacter(autoClosingPairs, editorManager.activeEditor),
+                handleEnterCharacter(autoClosingPairs, editorManager.anyEditor),
                 insertModeFilter,
             ),
         )
