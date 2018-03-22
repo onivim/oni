@@ -64,7 +64,21 @@ describe("Configuration", () => {
         )
     })
 
-    describe("removeConfiguratioProvider", () => {
+    it("triggers updated event with requireReload true", () => {
+        const configuration = new Configuration({ "test.config": 1 })
+        let hitCount = 0
+
+        configuration.onConfigurationUpdated.subscribe(evt => {
+            hitCount++
+            assert.strictEqual(evt.requiresReload, true, "Validate requiresReload is set to true")
+        })
+
+        configuration.setValue("test.config", 2)
+
+        assert.strictEqual(hitCount, 1, "Validate event handler was triggered")
+    })
+
+    describe("removeConfigurationProvider", () => {
         it("removes configuration value supplied by provider", () => {
             const configuration = new Configuration({ "test.config": 1 })
 
@@ -148,6 +162,53 @@ describe("Configuration", () => {
             assert.strictEqual(val, 2, "Validate new value was populated in event handler")
             assert.strictEqual(oldVal, 1, "Validate the oldValue was set correctly")
         })
+
+        it("disposed setting no longer receives notifications", () => {
+            const configuration = new Configuration()
+            const setting = configuration.registerSetting("test.setting", {
+                defaultValue: 1,
+            })
+
+            let hitCount = 0
+            setting.onValueChanged.subscribe(() => {
+                hitCount++
+            })
+
+            setting.dispose()
+            configuration.setValue("test.setting", 2)
+
+            assert.strictEqual(hitCount, 0, "Event should not have been fired")
+        })
+
+        it("setting metadata is available via the getMetadata call", () => {
+            const configuration = new Configuration()
+            configuration.registerSetting("test.setting", {
+                description: "test",
+                defaultValue: 1,
+            })
+
+            const metadata = configuration.getMetadata("test.setting")
+            assert.strictEqual(metadata.description, "test")
+        })
+
+        // TODO:
+        // it("applies merge strategy", () => {
+        //     const configuration = new Configuration()
+
+        //     configuration.registerSetting<string>("test.config", {
+        //         defaultValue: "",
+        //         mergeStrategy: (high, low) => high + low
+        //     })
+
+        //     const lowPriorityProvider = new MockConfigurationProvider({ "test.config": "a" })
+        //     const highPriorityProvider = new  MockConfigurationProvider({"test.config": "b"})
+
+        //     configuration.addConfigurationProvider(lowPriorityProvider)
+        //     configuration.addConfigurationProvider(highPriorityProvider)
+
+        //     const val = configuration.getValue("test.config")
+        //     assert.strictEqual(val, "ba", "Validate merge strategy is executed")
+        // })
     })
 
     describe("persisted configuration", () => {
