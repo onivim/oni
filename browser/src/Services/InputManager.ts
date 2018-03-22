@@ -19,7 +19,7 @@ export interface KeyBindingMap {
     [key: string]: KeyBinding[]
 }
 
-// const MAX_DELAY_BETWEEN_KEY_CHORD = 250 /* milliseconds */
+const MAX_DELAY_BETWEEN_KEY_CHORD = 250 /* milliseconds */
 
 import { KeyboardResolver } from "./../Input/Keyboard/KeyboardResolver"
 
@@ -60,7 +60,7 @@ export const getRecentKeyPresses = (
 export class InputManager implements Oni.Input.InputManager {
     private _boundKeys: KeyBindingMap = {}
     private _resolver: KeyboardResolver
-    // private _keys: KeyPressInfo[] = []
+    private _keys: KeyPressInfo[] = []
 
     constructor() {
         this._resolver = new KeyboardResolver()
@@ -149,7 +149,31 @@ export class InputManager implements Oni.Input.InputManager {
     // Triggers an action handler if there is a bound-key that passes the filter.
     // Returns true if the key was handled and should not continue bubbling,
     // false otherwise.
-    public handleKey(keyChord: string): boolean {
+    public handleKey(keyChord: string, time: number = new Date().getTime()): boolean {
+        const newKey: KeyPressInfo = {
+            keyChord,
+            time,
+        }
+
+        this._keys.push(newKey)
+        const potentialKeys = getRecentKeyPresses(this._keys, MAX_DELAY_BETWEEN_KEY_CHORD)
+        this._keys = [...potentialKeys]
+
+        // We'll try the longest key chord to the shortest
+        while (potentialKeys.length > 0) {
+            const fullChord = potentialKeys.map(k => k.keyChord).join("")
+
+            if (this._handleKeyCore(fullChord)) {
+                return true
+            }
+
+            potentialKeys.shift()
+        }
+
+        return false
+    }
+
+    private _handleKeyCore(keyChord: string): boolean {
         if (!this._boundKeys[keyChord]) {
             return false
         }

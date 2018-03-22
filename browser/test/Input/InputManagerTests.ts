@@ -1,6 +1,6 @@
 import * as assert from "assert"
 
-import { InputManager, KeyPressInfo, getRecentKeyPresses } from "./../../src/Services/InputManager"
+import { getRecentKeyPresses, InputManager, KeyPressInfo } from "./../../src/Services/InputManager"
 
 describe("InputManager", () => {
     describe("bind", () => {
@@ -78,6 +78,38 @@ describe("InputManager", () => {
                 const boundKeys = im.getBoundKeys("test.command")
                 assert.deepEqual(boundKeys, [], "Validate no bound keys are returned")
             })
+        })
+    })
+
+    describe("handleKey", () => {
+        it("handles chorded inputs", () => {
+            const im = new InputManager()
+
+            let hitCount: number = 0
+            im.bind("gg", () => {
+                hitCount++
+                return true
+            })
+
+            im.handleKey("g", 1)
+            im.handleKey("g", 2)
+
+            assert.strictEqual(hitCount, 1, "Validate the binding for gg was executed")
+        })
+
+        it("doesn't dispatch action if time expires between key presses", () => {
+            const im = new InputManager()
+
+            let hitCount: number = 0
+            im.bind("gg", () => {
+                hitCount++
+                return true
+            })
+
+            im.handleKey("g", 1)
+            im.handleKey("g", 1000)
+
+            assert.strictEqual(hitCount, 0, "Validate the binding was not executed")
         })
     })
 
