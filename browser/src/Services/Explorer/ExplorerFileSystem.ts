@@ -14,6 +14,7 @@ import { FolderOrFile } from "./ExplorerStore"
  */
 export interface IFileSystem {
     readdir(fullPath: string): Promise<FolderOrFile[]>
+    exists(fullPath: string): Promise<boolean>
 }
 
 export class FileSystem implements IFileSystem {
@@ -39,5 +40,13 @@ export class FileSystem implements IFileSystem {
         })
 
         return Promise.resolve(filesAndFolders)
+    }
+
+    public exists(fullPath: string): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            this._fs.exists(fullPath, (exists: boolean) => {
+                resolve(exists)
+            })
+        })
     }
 }

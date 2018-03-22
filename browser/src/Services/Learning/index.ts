@@ -2,6 +2,8 @@
  * Learning.ts
  */
 
+import { getPersistentStore, IPersistentStore } from "./../../PersistentStore"
+
 import { CommandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
@@ -10,7 +12,7 @@ import { SidebarManager } from "./../Sidebar"
 import { WindowManager } from "./../WindowManager"
 
 import { LearningPane } from "./LearningPane"
-import { TutorialManager } from "./Tutorial/TutorialManager"
+import { IPersistedTutorialState, TutorialManager } from "./Tutorial/TutorialManager"
 
 import * as Achievements from "./Achievements"
 import { ITutorial } from "./Tutorial/ITutorial"
@@ -32,7 +34,10 @@ export const activate = (
         return
     }
 
-    const tutorialManager = new TutorialManager(editorManager, windowManager)
+    const store: IPersistentStore<IPersistedTutorialState> = getPersistentStore("oni-tutorial", {
+        completionInfo: {},
+    })
+    const tutorialManager = new TutorialManager(editorManager, store, windowManager)
     sidebarManager.add("trophy", new LearningPane(tutorialManager, commandManager))
 
     AllTutorials.forEach((tut: ITutorial) => tutorialManager.registerTutorial(tut))
