@@ -212,6 +212,20 @@ export class Buffer implements IBuffer {
         }
     }
 
+    public async setIndentation(indentationType: IndentationType, size: number): Promise<void> {
+        const useSpaces = indentationType === "space"
+
+        if (useSpaces) {
+            await this._neovimInstance.command("setlocal expandtab")
+        } else {
+            await this._neovimInstance.command("setlocal noexpandtab")
+        }
+
+        await this._neovimInstance.command(
+            `setlocal tabstop=${size} shiftwidth=${size} softtabstop=${size}`,
+        )
+    }
+
     public async applyTextEdits(textEdits: types.TextEdit | types.TextEdit[]): Promise<void> {
         const textEditsAsArray = textEdits instanceof Array ? textEdits : [textEdits]
 
