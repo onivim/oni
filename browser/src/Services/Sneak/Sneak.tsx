@@ -23,7 +23,7 @@ export class Sneak {
     private _store: Store<ISneakState>
     private _onSneakCompleted = new Event<ISneakInfo>()
 
-    public get onSneakCompleted(): IEvent<SneakInfo> {
+    public get onSneakCompleted(): IEvent<ISneakInfo> {
         return this._onSneakCompleted
     }
 

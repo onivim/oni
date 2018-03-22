@@ -4,6 +4,7 @@
  * Entry point for sneak functionality
  */
 
+import { AchievementsManager } from "./../Learning/Achievements"
 import { CallbackCommand, CommandManager } from "./../CommandManager"
 import { OverlayManager } from "./../Overlay"
 
@@ -36,6 +37,51 @@ export const activate = (commandManager: CommandManager, overlayManager: Overlay
             () => _sneak.isActive,
         ),
     )
+}
+
+export const registerAchievements = (achievements: AchievementsManager) => {
+    achievements.registerAchievement({
+        uniqueId: "oni.achievement.sneak.1",
+        name: "Ninja!",
+        description: "Use the 'sneak' functionality 5 times",
+        goals: [
+            {
+                name: null,
+                goalId: "oni.goal.sneak.complete",
+                count: 5,
+            },
+        ],
+    })
+
+    achievements.registerAchievement({
+        uniqueId: "oni.achievement.sneak.2",
+        name: "REAL Ninja!",
+        description: "Use the 'sneak' functionality 25 times",
+        goals: [
+            {
+                name: null,
+                goalId: "oni.goal.sneak.complete",
+                count: 25,
+            },
+        ],
+    })
+
+    achievements.registerAchievement({
+        uniqueId: "oni.achievement.sneak.3",
+        name: "REAL ULTIMATE Ninja!",
+        description: "Use the 'sneak' functionality 100 times",
+        goals: [
+            {
+                name: null,
+                goalId: "oni.goal.sneak.complete",
+                count: 100,
+            },
+        ],
+    })
+
+    _sneak.onSneakCompleted.subscribe(val => {
+        achievements.notifyGoal("oni.goal.sneak.complete")
+    })
 }
 
 export const getInstance = (): Sneak => {

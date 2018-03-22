@@ -340,6 +340,11 @@ export const start = async (args: string[]): Promise<void> => {
     const Particles = await import("./Services/Particles")
     Particles.activate(commandManager, configuration, editorManager, overlayManager)
 
+    const Achievements = await import("./Services/Learning/Achievements")
+    const achievements = Achievements.getInstance()
+
+    Sneak.registerAchievements(achievements)
+
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()
