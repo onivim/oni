@@ -39,6 +39,8 @@ import { CompletionView } from "./CompletionView"
 import { GameplayBufferLayer } from "./GameplayBufferLayer"
 import { GoalView } from "./GoalView"
 
+import { getInstance, Vector } from "./../../Particles"
+
 export interface IGameplayCompletionInfo {
     completed: boolean
     keyPresses: number
@@ -83,8 +85,10 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
     private _tutorialGameplayManager: TutorialGameplayManager
     private _initPromise: Promise<void>
 
+    private _lastStage = -1
     private _lastTutorialState: ITutorialState
     private _completionInfo: IGameplayCompletionInfo = DefaultCompletionInfo
+    private _element: HTMLElement
     private _gameTracker: GameTracker = new GameTracker()
     private _onStateChangedEvent: Event<IGameplayStateChangedEvent> = new Event<
         IGameplayStateChangedEvent
@@ -131,6 +135,20 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
                 tutorialState: state,
                 completionInfo: this._completionInfo,
             })
+
+            if (state.activeGoalIndex !== this._lastStage) {
+                this._lastStage = state.activeGoalIndex
+
+                if (this._element) {
+                    const cursor = this._element.getElementsByClassName("cursor")
+                    if (cursor.length > 0) {
+                        const cursorElement = cursor[0]
+                        const position = cursorElement.getBoundingClientRect()
+
+                        this._spawnParticles("white", { x: position.left, y: position.top })
+                    }
+                }
+            }
         })
 
         this._tutorialGameplayManager.onCompleted.subscribe(() => {
@@ -140,6 +158,22 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
                 tutorialState: this._lastTutorialState,
                 completionInfo: this._completionInfo,
             })
+
+            if (this._element) {
+                const bounds = this._element.getBoundingClientRect()
+                const blue = "rgb(97, 175, 239)"
+
+                for (let i = 0; i < 8; i++) {
+                    this._spawnParticles(
+                        blue,
+                        {
+                            x: bounds.left + Math.random() * bounds.width,
+                            y: bounds.top + Math.random() * bounds.height,
+                        },
+                        { x: 300, y: 150 },
+                    )
+                }
+            }
         })
     }
 
@@ -159,6 +193,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
                 editor={this._editor}
                 renderContext={context}
                 onStateChangedEvent={this._onStateChangedEvent}
+                innerRef={elem => (this._element = elem)}
             />
         )
     }
@@ -172,12 +207,36 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
 
         windowManager.focusSplit("oni.window.0")
     }
+
+    private _spawnParticles(
+        color: string,
+        position: Vector,
+        velocityVariance: Vector = { x: 100, y: 50 },
+    ): void {
+        const particles = getInstance()
+
+        if (!particles || !this._element) {
+            return
+        }
+
+        particles.createParticles(25, {
+            Position: position,
+            PositionVariance: { x: 10, y: 10 },
+            Velocity: { x: 0, y: -150 },
+            VelocityVariance: { x: 100, y: 50 },
+            Color: color,
+            StartOpacity: 1,
+            EndOpacity: 0,
+            Time: 1,
+        })
+    }
 }
 
 export interface ITutorialBufferLayerViewProps {
     renderContext: Oni.BufferLayerRenderContext
     editor: NeovimEditor
     onStateChangedEvent: IEvent<IGameplayStateChangedEvent>
+    innerRef: (elem: HTMLElement) => void
 }
 
 export interface ITutorialBufferLayerState {
@@ -298,6 +357,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
                             height: "75%",
                             boxShadow: "3px 7px 10px 7px rgba(0, 0, 0, 0.2)",
                         }}
+                        ref={this.props.innerRef}
                     >
                         <FlipCard
                             isFlipped={this.state.completionInfo.completed}
