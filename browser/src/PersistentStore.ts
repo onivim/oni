@@ -12,17 +12,17 @@ import * as Log from "./Log"
 // See: https://github.com/nathanbuchar/electron-settings/wiki/FAQs
 const PersistentSettings = remote.require("electron-settings")
 
-export interface IStore<T> {
+export interface IPersistentStore<T> {
     get(): Promise<T>
     set(value: T): Promise<void>
 }
 
-export const getStore = <T>(
+export const getPersistentStore = <T>(
     storeIdentifier: string,
     defaultValue: T,
     currentVersion: number = 0,
-): IStore<T> => {
-    return new Store<T>(storeIdentifier, defaultValue, currentVersion)
+): IPersistentStore<T> => {
+    return new PersistentStore<T>(storeIdentifier, defaultValue, currentVersion)
 }
 
 export interface IPersistedValueWithMetadata<T> {
@@ -30,7 +30,7 @@ export interface IPersistedValueWithMetadata<T> {
     value: T
 }
 
-export class Store<T> implements IStore<T> {
+export class PersistentStore<T> implements IPersistentStore<T> {
     private _currentValue: IPersistedValueWithMetadata<T> = null
 
     constructor(
