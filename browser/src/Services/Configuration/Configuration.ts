@@ -111,7 +111,7 @@ export class Configuration implements Oni.Configuration {
 
     private _settingMetadata: { [settingName: string]: IConfigurationSettingMetadata<any> } = {}
     private _subscriptions: {
-        [settingName: string]: Event<IConfigurationSettingValueChangedEvent<any>>[]
+        [settingName: string]: Array<Event<IConfigurationSettingValueChangedEvent<any>>>
     } = {}
 
     public get editor(): IConfigurationEditor {
@@ -157,7 +157,7 @@ export class Configuration implements Oni.Configuration {
         }
 
         const newEvent = new Event<IConfigurationSettingValueChangedEvent<any>>()
-        const subs: Event<IConfigurationSettingValueChangedEvent<any>>[] =
+        const subs: Array<Event<IConfigurationSettingValueChangedEvent<any>>> =
             this._subscriptions[name] || []
         this._subscriptions[name] = [...subs, newEvent]
 
