@@ -7,7 +7,7 @@
 import { Configuration } from "./../../Configuration"
 import { OverlayManager } from "./../../Overlay"
 
-import { getStore, IStore } from "./../../../Store"
+import { getPersistentStore, IPersistentStore } from "./../../../PersistentStore"
 
 import { CommandManager } from "./../../CommandManager"
 import { EditorManager } from "./../../EditorManager"
@@ -33,10 +33,13 @@ export const activate = (
         return
     }
 
-    const store: IStore<IPersistedAchievementState> = getStore("oni-achievements", {
-        goalCounts: {},
-        achievedIds: [],
-    })
+    const store: IPersistentStore<IPersistedAchievementState> = getPersistentStore(
+        "oni-achievements",
+        {
+            goalCounts: {},
+            achievedIds: [],
+        },
+    )
 
     const manager = new AchievementsManager(store)
     _achievements = manager

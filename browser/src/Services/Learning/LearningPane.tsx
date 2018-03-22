@@ -103,7 +103,7 @@ export const TutorialItemView = (props: { info: ITutorialMetadataWithProgress })
         <div style={{ margin: "0.25em" }}>
             <TutorialResultsWrapper>
                 <Bold>Keys:</Bold>
-                {props.info.completionInfo.keyStrokes}
+                {props.info.completionInfo.keyPresses}
             </TutorialResultsWrapper>
             <TutorialResultsWrapper>
                 <Bold>Time:</Bold>
