@@ -37,6 +37,48 @@ interface ConfigurationProviderInfo {
     disposables: IDisposable[]
 }
 
+export interface IConfigurationSettingValueChangedEvent<T> {
+    newValue: T
+    oldValue?: T
+}
+
+export interface IConfigurationSetting<T> {
+    onValueChanged: IEvent<IConfigurationSettingValueChangedEvent<T>>
+    getValue(): T
+}
+
+export type ConfigurationSettingMergeStrategy<T> = (
+    higherPrecedenceValue: T,
+    lowerPrecedenceValue: T,
+) => T
+
+export interface IConfigurationSettingMetadata<T> {
+    defaultValue?: T
+
+    // Comment that will be shown in the generated configuration
+    // metadata section
+    description?: string
+
+    // Whether or not the configuration value requires reloading
+    // the editor to be picked up. If the value can be incrementally
+    // applied, set this to true so we don't prompt the user to
+    // reload the editor.
+    requiresReload?: boolean
+
+    // Specifies the merge strategy for a configuration setting
+    // By default, the higher precedence setting will be returned,
+    // but for things like arrays or objects, there may be a more
+    // involved merge strategy.
+    mergeStrategy?: ConfigurationSettingMergeStrategy<T>
+}
+
+const DefaultConfigurationSettings: IConfigurationSettingMetadata<any> = {
+    defaultValue: null,
+    description: null,
+    requiresReload: true,
+    mergeStrategy: (higher: any, lower: any): any => higher,
+}
+
 /**
  * Interface describing persistence layer for configuration
  */
@@ -87,6 +129,13 @@ export class Configuration implements Oni.Configuration {
         this.addConfigurationFile(UserConfiguration.getUserConfigFilePath())
 
         Performance.mark("Config.load.end")
+    }
+
+    public registerSetting<T>(
+        name: string,
+        options: IConfigurationSettingMetadata<T> = DefaultConfigurationSettings,
+    ): IConfigurationSetting<T> {
+        return null
     }
 
     public registerEditor(id: string, editor: IConfigurationEditor): void {
@@ -148,6 +197,10 @@ export class Configuration implements Oni.Configuration {
 
     public hasValue(configValue: keyof IConfigurationValues): boolean {
         return !!this.getValue(configValue)
+    }
+
+    public setValue(valueName: string, value: any): void {
+        return this.setValues({ [valueName]: value })
     }
 
     public setValues(configValues: { [configValue: string]: any }, persist: boolean = false): void {

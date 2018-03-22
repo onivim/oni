@@ -120,6 +120,36 @@ describe("Configuration", () => {
         })
     })
 
+    describe("registerConfigurationSetting", () => {
+        it("sets default value", () => {
+            const configuration = new Configuration()
+            configuration.registerSetting("test.setting", {
+                defaultValue: 1,
+            })
+
+            const val = configuration.getValue("test.setting")
+            assert.strictEqual(val, 1, "Validate default value gets set")
+        })
+
+        it("notifies when value is changed", () => {
+            const configuration = new Configuration()
+            const setting = configuration.registerSetting("test.setting", {
+                defaultValue: 1,
+            })
+
+            let val: number = null
+            let oldVal: number = null
+            setting.onValueChanged.subscribe(evt => {
+                val = evt.newValue
+                oldVal = evt.oldValue
+            })
+
+            configuration.setValue("test.setting", 2)
+            assert.strictEqual(val, 2, "Validate new value was populated in event handler")
+            assert.strictEqual(oldVal, 1, "Validate the oldValue was set correctly")
+        })
+    })
+
     describe("persisted configuration", () => {
         let persistedConfiguration: IPersistedConfiguration
 
