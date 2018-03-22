@@ -33,7 +33,7 @@ script:
 - npm run check-cached-binaries
 - ./build/script/install-reason.sh
 - ./build/script/travis-build.sh
-- travis_wait 30 npm run pack
+- travis_wait 30 ./build/script/travis-pack.sh
 - ./build/script/travis-test.sh
 deploy:
     - provider: s3
