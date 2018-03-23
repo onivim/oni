@@ -10,7 +10,7 @@ import * as React from "react"
 import styled from "styled-components"
 
 import { BufferLayerHeader } from "./../../../UI/components/BufferLayerHeader"
-import { boxShadow, Fixed, Full, withProps, Bold } from "./../../../UI/components/common"
+import { Bold, boxShadow, Fixed, Full, withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon, IconSize } from "./../../../UI/Icon"
 

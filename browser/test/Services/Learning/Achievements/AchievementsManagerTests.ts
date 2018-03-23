@@ -5,8 +5,8 @@
 import * as assert from "assert"
 
 import {
-    AchievementsManager,
     AchievementDefinition,
+    AchievementsManager,
     IPersistedAchievementState,
 } from "./../../../../src/Services/Learning/Achievements"
 
