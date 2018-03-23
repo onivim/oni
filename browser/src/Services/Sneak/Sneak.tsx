@@ -47,7 +47,11 @@ export class Sneak {
             this._activeOverlay = null
         }
 
-        this._store.dispatch({ type: "START" })
+        this._store.dispatch({
+            type: "START",
+            width: document.body.offsetWidth,
+            height: document.body.offsetHeight,
+        })
         this._collectSneakRectangles()
 
         this._activeOverlay = this._overlayManager.createItem()

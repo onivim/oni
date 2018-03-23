@@ -141,6 +141,8 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private _onNeovimQuit: Event<void> = new Event<void>()
 
+    private _autoFocus: boolean = true
+
     public get onNeovimQuit(): IEvent<void> {
         return this._onNeovimQuit
     }
@@ -156,6 +158,17 @@ export class NeovimEditor extends Editor implements IEditor {
 
     public get bufferLayers(): BufferLayerManager {
         return this._bufferLayerManager
+    }
+
+    /**
+     * Gets whether or not the editor should autoFocus,
+     * meaning, grab focus on first mount
+     */
+    public get autoFocus(): boolean {
+        return this._autoFocus
+    }
+    public set autoFocus(val: boolean) {
+        this._autoFocus = val
     }
 
     public get syntaxHighlighter(): ISyntaxHighlighter {
@@ -974,6 +987,7 @@ export class NeovimEditor extends Editor implements IEditor {
         return (
             <Provider store={this._store}>
                 <NeovimSurface
+                    autoFocus={this._autoFocus}
                     renderer={this._renderer}
                     typingPrediction={this._typingPredictionManager}
                     neovimInstance={this._neovimInstance}

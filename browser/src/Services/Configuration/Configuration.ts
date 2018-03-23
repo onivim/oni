@@ -37,12 +37,59 @@ interface ConfigurationProviderInfo {
     disposables: IDisposable[]
 }
 
+export interface IConfigurationSettingValueChangedEvent<T> {
+    newValue: T
+    oldValue?: T
+}
+
+export interface IConfigurationSetting<T> extends IDisposable {
+    onValueChanged: IEvent<IConfigurationSettingValueChangedEvent<T>>
+    getValue(): T
+}
+
+export type ConfigurationSettingMergeStrategy<T> = (
+    higherPrecedenceValue: T,
+    lowerPrecedenceValue: T,
+) => T
+
+export interface IConfigurationSettingMetadata<T> {
+    defaultValue?: T
+
+    // Comment that will be shown in the generated configuration
+    // metadata section
+    description?: string
+
+    // Whether or not the configuration value requires reloading
+    // the editor to be picked up. If the value can be incrementally
+    // applied, set this to true so we don't prompt the user to
+    // reload the editor.
+    requiresReload?: boolean
+
+    // TODO: Implement a merge strategy
+    // Specifies the merge strategy for a configuration setting
+    // By default, the higher precedence setting will be returned,
+    // but for things like arrays or objects, there may be a more
+    // involved merge strategy.
+    // mergeStrategy?: ConfigurationSettingMergeStrategy<T>
+}
+
+const DefaultConfigurationSettings: IConfigurationSettingMetadata<any> = {
+    defaultValue: null,
+    description: null,
+    requiresReload: true,
+    // mergeStrategy: (higher: any, lower: any): any => higher,
+}
+
 /**
  * Interface describing persistence layer for configuration
  */
 export interface IPersistedConfiguration {
     getPersistedValues(): GenericConfigurationValues
     setPersistedValues(configurationValues: GenericConfigurationValues): void
+}
+
+export interface IConfigurationUpdateEvent {
+    requiresReload: boolean
 }
 
 export class Configuration implements Oni.Configuration {
@@ -52,14 +99,20 @@ export class Configuration implements Oni.Configuration {
     >()
     private _onConfigurationErrorEvent: Event<Error> = new Event<Error>()
 
+    private _onConfigurationUpdatedEvent = new Event<IConfigurationUpdateEvent>()
+
     private _oniApi: Oni.Plugin.Api = null
     private _config: GenericConfigurationValues = {}
 
     private _setValues: { [configValue: string]: any } = {}
     private _fileToProvider: { [key: string]: IConfigurationProvider } = {}
     private _configProviderInfo = new Map<IConfigurationProvider, ConfigurationProviderInfo>()
-
     private _configurationEditors: { [key: string]: IConfigurationEditor } = {}
+
+    private _settingMetadata: { [settingName: string]: IConfigurationSettingMetadata<any> } = {}
+    private _subscriptions: {
+        [settingName: string]: Array<Event<IConfigurationSettingValueChangedEvent<any>>>
+    } = {}
 
     public get editor(): IConfigurationEditor {
         const val = this.getValue("configuration.editor")
@@ -72,6 +125,10 @@ export class Configuration implements Oni.Configuration {
 
     public get onConfigurationChanged(): IEvent<Partial<IConfigurationValues>> {
         return this._onConfigurationChangedEvent
+    }
+
+    public get onConfigurationUpdated(): IEvent<IConfigurationUpdateEvent> {
+        return this._onConfigurationUpdatedEvent
     }
 
     constructor(
@@ -87,6 +144,36 @@ export class Configuration implements Oni.Configuration {
         this.addConfigurationFile(UserConfiguration.getUserConfigFilePath())
 
         Performance.mark("Config.load.end")
+    }
+
+    public registerSetting<T>(
+        name: string,
+        options: IConfigurationSettingMetadata<T> = DefaultConfigurationSettings,
+    ): IConfigurationSetting<T> {
+        this._settingMetadata[name] = options
+
+        if (options.defaultValue) {
+            this.setValue(name, options.defaultValue)
+        }
+
+        const newEvent = new Event<IConfigurationSettingValueChangedEvent<any>>()
+        const subs: Array<Event<IConfigurationSettingValueChangedEvent<any>>> =
+            this._subscriptions[name] || []
+        this._subscriptions[name] = [...subs, newEvent]
+
+        const dispose = () => {
+            this._subscriptions[name] = this._subscriptions[name].filter(e => e !== newEvent)
+        }
+
+        const getValue = () => {
+            return this.getValue(name)
+        }
+
+        return {
+            onValueChanged: newEvent,
+            dispose,
+            getValue,
+        }
     }
 
     public registerEditor(id: string, editor: IConfigurationEditor): void {
@@ -150,8 +237,16 @@ export class Configuration implements Oni.Configuration {
         return !!this.getValue(configValue)
     }
 
+    public setValue(valueName: string, value: any): void {
+        return this.setValues({ [valueName]: value })
+    }
+
     public setValues(configValues: { [configValue: string]: any }, persist: boolean = false): void {
         this._setValues = configValues
+
+        const oldValues = {
+            ...this._config,
+        }
 
         this._config = {
             ...this._config,
@@ -163,6 +258,8 @@ export class Configuration implements Oni.Configuration {
         }
 
         this._onConfigurationChangedEvent.dispatch(configValues)
+
+        this._notifySubscribers(oldValues, this._config, Object.keys(configValues))
     }
 
     public getValue<K extends keyof IConfigurationValues>(configValue: K, defaultValue?: any) {
@@ -181,6 +278,10 @@ export class Configuration implements Oni.Configuration {
         this._oniApi = oni
 
         this._activateIfOniObjectIsAvailable()
+    }
+
+    public getMetadata<T>(settingName: string): IConfigurationSettingMetadata<T> {
+        return this._settingMetadata[settingName] || null
     }
 
     private _updateConfig(): void {
@@ -248,6 +349,32 @@ export class Configuration implements Oni.Configuration {
         )
 
         this._onConfigurationChangedEvent.dispatch(diffObject)
+
+        this._notifySubscribers(previousConfig, this._config, Object.keys(diffObject))
+    }
+
+    private _notifySubscribers(oldValues: any, newValues: any, changedKeys: string[]): void {
+        let requiresReload = false
+        changedKeys.forEach(name => {
+            const settings = this._subscriptions[name]
+
+            const metadata = this.getMetadata(name)
+
+            requiresReload = requiresReload || !metadata || metadata.requiresReload
+
+            if (!settings) {
+                return
+            }
+
+            const args = {
+                oldValue: oldValues[name],
+                newValue: newValues[name],
+            }
+
+            settings.forEach(evt => evt.dispatch(args))
+        })
+
+        this._onConfigurationUpdatedEvent.dispatch({ requiresReload: true })
     }
 }
 

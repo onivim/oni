@@ -28,6 +28,7 @@ import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
 
 export interface INeovimSurfaceProps {
+    autoFocus: boolean
     neovimInstance: NeovimInstance
     renderer: INeovimRenderer
     screen: NeovimScreen
@@ -90,7 +91,7 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
                         <CursorLine lineType={"column"} />
                     </div>
                     <NeovimInput
-                        startActive={true}
+                        startActive={this.props.autoFocus}
                         onActivate={this.props.onActivate}
                         typingPrediction={this.props.typingPrediction}
                         neovimInstance={this.props.neovimInstance}
