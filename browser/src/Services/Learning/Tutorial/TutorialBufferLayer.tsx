@@ -31,9 +31,8 @@ import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 import { withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
 
-import { ITutorial } from "./ITutorial"
 import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
-import * as Tutorials from "./Tutorials"
+import { TutorialManager } from "./TutorialManager"
 
 import { CompletionView } from "./CompletionView"
 import { GameplayBufferLayer } from "./GameplayBufferLayer"
@@ -86,6 +85,8 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
     private _initPromise: Promise<void>
 
     private _lastStage = -1
+    private _hasAddedLayer: boolean = false
+    private _currentTutorialId: string
     private _lastTutorialState: ITutorialState
     private _completionInfo: IGameplayCompletionInfo = DefaultCompletionInfo
     private _element: HTMLElement
@@ -102,7 +103,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         return "Tutorial"
     }
 
-    constructor() {
+    constructor(private _tutorialManager: TutorialManager) {
         // TODO: Streamline dependences for NeovimEditor, so it's easier just to spin one up..
         this._editor = new NeovimEditor(
             getColorsInstance(),
@@ -159,6 +160,11 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
                 completionInfo: this._completionInfo,
             })
 
+            this._tutorialManager.notifyTutorialCompleted(this._currentTutorialId, {
+                time: this._completionInfo.timeInMilliseconds,
+                keyPresses: this._completionInfo.keyPresses,
+            })
+
             if (this._element) {
                 const bounds = this._element.getBoundingClientRect()
                 const blue = "rgb(97, 175, 239)"
@@ -179,7 +185,11 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
 
     public handleInput(key: string): boolean {
         if (this._completionInfo.completed) {
-            this.startTutorial(new Tutorials.SwitchModeTutorial())
+            const nextTutorial = this._tutorialManager.getNextTutorialId(this._currentTutorialId)
+
+            if (nextTutorial) {
+                this.startTutorial(nextTutorial)
+            }
         } else {
             this._editor.input(key)
             this._gameTracker.addKeyPress(1)
@@ -198,11 +208,20 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         )
     }
 
-    public async startTutorial(tutorial: ITutorial): Promise<void> {
+    public async startTutorial(tutorialId: string): Promise<void> {
         await this._initPromise
         this._completionInfo = DefaultCompletionInfo
+        this._currentTutorialId = tutorialId
+        const tutorial = this._tutorialManager.getTutorial(tutorialId)
+
+        if (!this._hasAddedLayer) {
+            this._editor.activeBuffer.addLayer(
+                new GameplayBufferLayer(this._tutorialGameplayManager),
+            )
+            this._hasAddedLayer = true
+        }
+
         this._tutorialGameplayManager.start(tutorial, this._editor.activeBuffer)
-        this._editor.activeBuffer.addLayer(new GameplayBufferLayer(this._tutorialGameplayManager))
         this._gameTracker.start()
 
         windowManager.focusSplit("oni.window.0")

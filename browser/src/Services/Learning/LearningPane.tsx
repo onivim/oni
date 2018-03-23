@@ -102,12 +102,10 @@ export const TutorialItemView = (props: { info: ITutorialMetadataWithProgress })
     const results = isCompleted ? (
         <div style={{ margin: "0.25em" }}>
             <TutorialResultsWrapper>
-                <Bold>Keys:</Bold>
-                {props.info.completionInfo.keyPresses}
+                <Bold>{(props.info.completionInfo.time / 1000).toFixed(2)}</Bold>s
             </TutorialResultsWrapper>
             <TutorialResultsWrapper>
-                <Bold>Time:</Bold>
-                {props.info.completionInfo.time}s
+                <Bold>{props.info.completionInfo.keyPresses}</Bold> keys
             </TutorialResultsWrapper>
         </div>
     ) : (
@@ -155,6 +153,13 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
 
         this.trackDisposable(this.props.onEnter.subscribe(() => this.setState({ isActive: true })))
         this.trackDisposable(this.props.onLeave.subscribe(() => this.setState({ isActive: false })))
+        this.trackDisposable(
+            this.props.tutorialManager.onTutorialCompletedEvent.subscribe(() => {
+                this.setState({
+                    tutorialInfo: this.props.tutorialManager.getTutorialInfo(),
+                })
+            }),
+        )
     }
 
     public render(): JSX.Element {
