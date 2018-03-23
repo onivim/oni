@@ -5,9 +5,6 @@
  */
 
 import * as Oni from "oni-api"
-import * as React from "react"
-
-import * as types from "vscode-languageserver-types"
 
 import { ITutorialContext, ITutorialStage } from "./../ITutorial"
 

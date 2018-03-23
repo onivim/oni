@@ -5,20 +5,19 @@
 import { ITutorial, ITutorialContext, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
 import * as Stages from "./../Stages"
 
-export class SwitchModeTutorial implements ITutorial {
+export class DeleteCharacterTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
-            id: "oni.tutorial.switch_modes",
-            name: "Switching Modes: Insert and Normal",
-            description:
-                "Oni is a modal editor, which means the editor works in different modes. This can seem strange coming from other editors - where the only mode is inserting text. However, when working with text, you'll find that only a small percentage of the time you are typing - the majority of the time, you are navigating and editing, which is where normal mode is used. Let's practice switching to and from insert mode!",
-            level: 100,
+            id: "oni.tutorial.delete_character",
+            name: "Normal Mode: Deleting a Character",
+            description: "You can use the `x` key to delete a character under the cursor.",
+            level: 120,
         }
     }
 
     public get stages(): ITutorialStage[] {
         return [
-            new Stages.ClearBufferStage(),
+            new Stages.SetBufferStage(["The ccow jumpedd ovverr thhe moon.."]),
             {
                 goalName: "Switch to insert mode by pressing 'i'",
                 tickFunction: async (context: ITutorialContext): Promise<boolean> => {

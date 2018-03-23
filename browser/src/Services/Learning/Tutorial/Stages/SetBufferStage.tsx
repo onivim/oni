@@ -1,28 +1,29 @@
 /**
- * TutorialManager
+ * ClearBufferStage
  */
-
-import * as Oni from "oni-api"
-import * as React from "react"
-
-import * as types from "vscode-languageserver-types"
-
-import styled, { keyframes } from "styled-components"
 
 import { ITutorialContext, ITutorialStage } from "./../ITutorial"
 
-export class ClearBufferStage implements ITutorialStage {
+export class SetBufferStage implements ITutorialStage {
     public get goalName(): string {
         return null
     }
 
+    constructor(private _lines: string[]) {}
+
     public async tickFunction(context: ITutorialContext): Promise<boolean> {
         const allLines = context.buffer.lineCount
-        await context.buffer.setLines(0, allLines, [])
+        await context.buffer.setLines(0, allLines, this._lines)
         return true
     }
 
     public render(): JSX.Element {
         return null
+    }
+}
+
+export class ClearBufferStage extends SetBufferStage {
+    constructor() {
+        super([])
     }
 }
