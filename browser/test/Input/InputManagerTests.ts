@@ -111,6 +111,23 @@ describe("InputManager", () => {
 
             assert.strictEqual(hitCount, 0, "Validate the binding was not executed")
         })
+
+        it("doesn't re-dispatch if key was null", () => {
+            const im = new InputManager()
+            let hitCount: number = 0
+            im.bind("[", () => {
+                hitCount++
+                return true
+            })
+
+            im.handleKey("[", 1)
+
+            // For control keys like 'shift', we get a null value passed
+            // to the key-chord logic.
+            im.handleKey(null, 2)
+
+            assert.strictEqual(hitCount, 1, "Verify handler was only hit once")
+        })
     })
 
     describe("getRecentKeyPresses", () => {

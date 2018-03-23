@@ -37,6 +37,7 @@ export const activate = (
         editor: Oni.Editor,
         openCharacterSameAsClosed: boolean,
     ) => () => {
+        Log.verbose("[AutoClosingPairs::handleOpenCharacter] " + pair.open)
         const neovim: NeovimInstance = editor.neovim as any
         neovim.blockInput(async (inputFunc: any) => {
             await checkOpenCharacter(inputFunc, pair, editor, openCharacterSameAsClosed)
@@ -46,6 +47,7 @@ export const activate = (
     }
 
     const handleBackspaceCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
+        Log.verbose("[AutoClosingPairs::handleBackspaceCharacter]")
         const neovim: NeovimInstance = editor.neovim as any
         neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
@@ -84,6 +86,7 @@ export const activate = (
     }
 
     const handleEnterCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
+        Log.verbose("[AutoClosingPairs::handleEnterCharacter]")
         const neovim: NeovimInstance = editor.neovim as any
         editor.blockInput(async (inputFunc: Oni.InputCallbackFunction) => {
             const activeBuffer = editor.activeBuffer
@@ -123,6 +126,7 @@ export const activate = (
     }
 
     const handleCloseCharacter = (pair: IAutoClosingPair, editor: Oni.Editor) => () => {
+        Log.verbose("[AutoClosingPairs::handleCloseCharacter]")
         editor.blockInput(async (inputFunc: Oni.InputCallbackFunction) => {
             const activeBuffer = editor.activeBuffer
             const lines = await activeBuffer.getLines(
