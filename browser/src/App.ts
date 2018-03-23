@@ -344,6 +344,13 @@ export const start = async (args: string[]): Promise<void> => {
     const PluginConfigurationSynchronizer = await import("./Plugins/PluginConfigurationSynchronizer")
     PluginConfigurationSynchronizer.activate(configuration, pluginManager)
 
+    const Achievements = await import("./Services/Learning/Achievements")
+    const achievements = Achievements.getInstance()
+
+    if (achievements) {
+        Sneak.registerAchievements(achievements)
+    }
+
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()
