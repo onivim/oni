@@ -33,10 +33,10 @@ export class BasicMovementTutorial implements ITutorial {
     public get stages(): ITutorialStage[] {
         return [
             new InitializeBufferStage(),
-            new MoveToGoalStage("Use 'l' to move right to the goal", 0, 8),
-            new MoveToGoalStage("Use 'j' to move down to the goal", 8, 8),
-            new MoveToGoalStage("Use 'h' to move up to the goal", 8, 1),
-            new MoveToGoalStage("Use 'k' to move right to the goal", 1, 1),
+            new MoveToGoalStage("Use 'l' to move RIGHT to the goal", 0, 8),
+            new MoveToGoalStage("Use 'j' to move DOWN to the goal", 8, 8),
+            new MoveToGoalStage("Use 'h' to move LEFT to the goal", 8, 1),
+            new MoveToGoalStage("Use 'k' to move UP to the goal", 1, 1),
             new MoveToGoalStage(
                 "Put it together! Use h/j/k/l to move to the goal",
                 this._positions[0],

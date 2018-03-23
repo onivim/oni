@@ -35,14 +35,33 @@
         _tags = []
         let idx = 0
 
+        const width = window.innerWidth
+        const height = window.innerHeight
+
         const addElement = (element: HTMLElement): void => {
             idx++
             const clientRect = element.getBoundingClientRect()
+
+            if (clientRect.width === 0 || clientRect.height === 0) {
+                return
+            }
+
+            const isInBounds =
+                clientRect.top >= 0 &&
+                clientRect.left >= 0 &&
+                clientRect.top <= height &&
+                clientRect.left <= width
+
+            if (!isInBounds) {
+                return
+            }
+
             const callback = (elem: HTMLElement) => () => {
                 if (elem && elem.click) {
                     elem.click()
                 }
             }
+
             _tags.push({
                 rectangle: createRectangle(
                     clientRect.left,

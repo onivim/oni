@@ -56,6 +56,7 @@ Thanks you to all our backers for making Oni possible!
 
 * @jordwalke
 * @mhartington
+* @MikaAK
 
 ## Backers via BountySource
 
@@ -68,6 +69,7 @@ Thanks you to all our backers for making Oni possible!
 * @robtrac
 * @rrichardson
 * @sbuljac
+* @parkerault
 
 ## Backers via PayPal
 
@@ -79,6 +81,7 @@ Thanks you to all our backers for making Oni possible!
 * Akinola Sowemimo
 * Martijn Arts
 * Amadeus Folego
+* Kiyoshi Murata
 
 <a href="https://opencollective.com/oni/tiers/backer/0/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/0/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/backer/1/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/1/avatar.png"></a>
