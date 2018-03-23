@@ -11,6 +11,7 @@ import { getPersistentStore, IPersistentStore } from "./../../../PersistentStore
 
 import { CommandManager } from "./../../CommandManager"
 import { EditorManager } from "./../../EditorManager"
+import { SidebarManager } from "./../../Sidebar"
 
 export * from "./AchievementsManager"
 
@@ -24,7 +25,7 @@ export const activate = (
     commandManager: CommandManager,
     configuration: Configuration,
     editorManager: EditorManager,
-    // sidebarManager: SidebarManager,
+    sidebarManager: SidebarManager,
     overlays: OverlayManager,
 ) => {
     const achievementsEnabled = configuration.getValue("experimental.achievements.enabled")
@@ -51,6 +52,8 @@ export const activate = (
             title: achievement.name,
             description: achievement.description,
         })
+
+        sidebarManager.setNotification("oni.sidebar.learning")
     })
 
     manager.registerAchievement({
