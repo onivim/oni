@@ -5,6 +5,7 @@
 import { Event, IEvent } from "oni-types"
 
 import { EditorManager } from "./../../EditorManager"
+import { WindowManager } from "./../../WindowManager"
 
 import { IPersistentStore } from "./../../../PersistentStore"
 
@@ -48,6 +49,7 @@ export class TutorialManager {
     constructor(
         private _editorManager: EditorManager,
         private _persistentStore: IPersistentStore<IPersistedTutorialState>,
+        private _windowManager: WindowManager,
     ) {}
 
     public async start(): Promise<IPersistedTutorialState> {
@@ -113,6 +115,11 @@ export class TutorialManager {
         const layer = new TutorialBufferLayer()
         layer.startTutorial(new Tutorials.BasicMovementTutorial())
         buf.addLayer(layer)
+
+        // Focus the editor
+        const splitHandle = this._windowManager.getSplitHandle(this._editorManager
+            .activeEditor as any)
+        splitHandle.focus()
     }
 
     private _getSortedTutorials(): ITutorial[] {
