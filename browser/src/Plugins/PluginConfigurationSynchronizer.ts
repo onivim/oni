@@ -4,6 +4,8 @@
  * Responsible for synchronizing user's `plugin` configuration settings.
  */
 
+import * as Log from "./../Log"
+
 import { Configuration } from "./../Services/Configuration"
 import { PluginManager } from "./PluginManager"
 
@@ -19,16 +21,16 @@ export const activate = (configuration: Configuration, pluginManager: PluginMana
             return
         }
 
+        Log.verbose("[PluginConfigurationSynchronizer - onValueChanged]")
+
         const newPlugins = evt.newValue.filter(plugin => evt.oldValue.indexOf(plugin) === -1)
 
-        console.dir(`'plugins changed' - new value: ${evt.newValue} old value: ${evt.oldValue}`)
-
-        console.dir("new plugins: " + newPlugins)
+        Log.info("[PluginConfigurationSynchronizer] New Plugins: " + newPlugins)
 
         newPlugins.forEach(async plugin => {
-            console.log("Installing plugin: " + plugin)
+            Log.info("[PluginConfigurationSynchronizer] Installing plugin: " + plugin)
             await pluginManager.installer.install(plugin)
-            console.log("Installation complete!")
+            Log.info("[PluginConfigurationSynchronizer] Installation complete!")
         })
     })
 }
