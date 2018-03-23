@@ -331,14 +331,38 @@ export class TutorialBufferLayerView extends React.PureComponent<
         const description = this.state.tutorialState.metadata.description
 
         const activeIndex = this.state.tutorialState.activeGoalIndex
-        const goals = this.state.tutorialState.goals.map((goal, idx) => {
-            const isCompleted = idx < activeIndex
-            const visible = Math.abs(idx - activeIndex) < 2
+
+        const goalsWithIndex = this.state.tutorialState.goals
+            .map((goal, idx) => ({
+                goalIndex: idx,
+                goal: goal,
+            }))
+            .filter(gi => !!gi.goal)
+
+        let postActiveIndex = goalsWithIndex.findIndex(f => f.goalIndex === activeIndex)
+
+        if (this.state.completionInfo.completed) {
+            postActiveIndex = goalsWithIndex.length
+        }
+
+        const goalsToDisplay = goalsWithIndex.map((goal, postIndex) => {
+            const isCompleted = postActiveIndex > postIndex
+
+            let visible = false
+
+            if (postActiveIndex === 0) {
+                visible = postIndex < 3
+            } else if (postActiveIndex > goalsWithIndex.length - 3) {
+                visible = goalsWithIndex.length - postIndex <= 3
+            } else {
+                visible = Math.abs(postIndex - postActiveIndex) < 2
+            }
+
             return (
                 <GoalView
                     completed={isCompleted}
-                    description={goal}
-                    active={idx === activeIndex}
+                    description={goal.goal}
+                    active={goal.goalIndex === activeIndex}
                     visible={visible}
                 />
             )
@@ -375,8 +399,8 @@ export class TutorialBufferLayerView extends React.PureComponent<
                     <SectionHeader>Description:</SectionHeader>
                     <Section>{description}</Section>
                     <SectionHeader>Goals:</SectionHeader>
-                    <Section>
-                        <div>{goals}</div>
+                    <Section style={{ height: "200px" }}>
+                        <div>{goalsToDisplay}</div>
                     </Section>
                     <Section />
                 </TutorialSectionWrapper>
