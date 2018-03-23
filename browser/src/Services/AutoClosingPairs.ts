@@ -200,7 +200,7 @@ export const activate = (
         )
     }
 
-    editorManager.activeEditor.onBufferEnter.subscribe(onBufferEnter)
+    editorManager.anyEditor.onBufferEnter.subscribe(onBufferEnter)
 
     const activeEditor = editorManager.activeEditor
     if (activeEditor && activeEditor.activeBuffer) {
