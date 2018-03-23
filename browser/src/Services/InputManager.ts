@@ -150,6 +150,10 @@ export class InputManager implements Oni.Input.InputManager {
     // Returns true if the key was handled and should not continue bubbling,
     // false otherwise.
     public handleKey(keyChord: string, time: number = new Date().getTime()): boolean {
+        if (keyChord === null) {
+            return false
+        }
+
         const newKey: KeyPressInfo = {
             keyChord,
             time,
@@ -164,6 +168,7 @@ export class InputManager implements Oni.Input.InputManager {
             const fullChord = potentialKeys.map(k => k.keyChord).join("")
 
             if (this._handleKeyCore(fullChord)) {
+                this._keys = []
                 return true
             }
 
