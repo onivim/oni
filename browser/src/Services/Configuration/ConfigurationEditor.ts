@@ -125,6 +125,11 @@ export class ConfigurationEditManager {
         // set it as the reference buffer content
         const referenceContent = JSON.stringify(DefaultConfiguration, null, "  ")
         await referenceBuffer.setLines(0, 1, referenceContent.split("\n"))
+        console.log(
+            "Does set lang exist: ",
+            await (referenceBuffer as any).setLanguage("javascript"),
+        )
+        await (referenceBuffer as any).setLanguage("javascript")
     }
 
     private async _transpileConfiguration(

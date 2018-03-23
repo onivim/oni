@@ -42,6 +42,7 @@ import { TokenColor } from "./../Services/TokenColors"
 import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 
 export interface IBuffer extends Oni.Buffer {
+    setLanguage(lang: string): Promise<void>
     getCursorPosition(): Promise<types.Position>
     handleInput(key: string): boolean
     detectIndentation(): Promise<BufferIndentationInfo>
@@ -175,11 +176,13 @@ export class Buffer implements IBuffer {
 
     public async setLanguage(language: string): Promise<void> {
         this._language = language
-        await this._neovimInstance.request<any>("nvim_buf_set_option", [
+        console.log("language: ", language)
+        const result = await this._neovimInstance.request<any>("nvim_buf_set_option", [
             parseInt(this._id, 10),
             "filetype",
             language,
         ])
+        console.log("result----------------------------------------------------------: ", result)
     }
 
     public async detectIndentation(): Promise<BufferIndentationInfo> {
