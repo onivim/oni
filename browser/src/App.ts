@@ -341,6 +341,9 @@ export const start = async (args: string[]): Promise<void> => {
     const Particles = await import("./Services/Particles")
     Particles.activate(commandManager, configuration, editorManager, overlayManager)
 
+    const PluginConfigurationSynchronizer = await import("./Plugins/PluginConfigurationSynchronizer")
+    PluginConfigurationSynchronizer.activate(configuration, pluginManager)
+
     Performance.endMeasure("Oni.Start.Activate")
 
     checkForUpdates()
