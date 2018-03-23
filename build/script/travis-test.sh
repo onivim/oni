@@ -4,6 +4,9 @@ echo Travis build - detected OS is: "$TRAVIS_OS_NAME"
 set -e
 
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+  # Initialize display driver
+  # This is needed for our unit tests (electron-mocha)
+  # and integration tests
   DISPLAY=:99.0
   export DISPLAY
   sh -e /etc/init.d/xvfb start
@@ -24,6 +27,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
    npm run demo:screenshot
 fi
 
+npm run test:unit
 npm run test:integration
 
 # Upload master bits
