@@ -52,7 +52,7 @@ deploy:
 
 # Post-install test scripts.
 test_script:
-    - powershell build/scripts/appveyor_test.ps1
+   - powershell build/scripts/appveyor_test.ps1
 
 # Don't actually build.
 build: off
