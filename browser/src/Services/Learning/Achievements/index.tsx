@@ -61,7 +61,7 @@ export const activate = (
             {
                 name: "Launch Oni",
                 goalId: "oni.goal.launch",
-                count: 2,
+                count: 1,
             },
         ],
     })
