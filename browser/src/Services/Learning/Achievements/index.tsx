@@ -61,13 +61,14 @@ export const activate = (
             {
                 name: "Launch Oni",
                 goalId: "oni.goal.launch",
-                count: 1,
+                count: 2,
             },
         ],
     })
 
     manager.registerAchievement({
         uniqueId: "oni.achievement.dedication",
+        dependsOnId: "oni.achievement.welcome",
         name: "Dedication",
         description: "Launch Oni 25 times",
         goals: [

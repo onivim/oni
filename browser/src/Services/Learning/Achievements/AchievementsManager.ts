@@ -15,6 +15,10 @@ export interface AchievementDefinition {
     name: string
     description: string
 
+    // An achievement 'id' that this achievement
+    // depends on, before it can be tracked or available
+    dependsOnId?: string
+
     goals: AchievementGoalDefinition[]
 }
 
@@ -26,6 +30,7 @@ export interface AchievementGoalDefinition {
 
 export interface AchievementWithProgressInfo {
     achievement: AchievementDefinition
+    locked?: boolean
     completed: boolean
 }
 
@@ -76,11 +81,16 @@ export class AchievementsManager {
         const allAchievements = Object.values(this._achievements)
 
         return allAchievements.map(achievement => {
-            const completed = this._goalState.achievedIds.indexOf(achievement.uniqueId) >= 0
-
+            const isDependentAchievementCompleted =
+                !achievement.dependsOnId ||
+                this._goalState.achievedIds.indexOf(achievement.dependsOnId) >= 0
+            const completed =
+                isDependentAchievementCompleted &&
+                this._goalState.achievedIds.indexOf(achievement.uniqueId) >= 0
             return {
                 achievement,
                 completed,
+                locked: !isDependentAchievementCompleted,
             }
         })
     }
