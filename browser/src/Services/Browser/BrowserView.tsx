@@ -13,6 +13,7 @@ import * as Oni from "oni-api"
 import { IDisposable, IEvent } from "oni-types"
 
 import { getInstance as getSneakInstance, ISneakInfo } from "./../../Services/Sneak"
+import { focusManager } from "./../FocusManager"
 
 import { AddressBarView } from "./AddressBarView"
 import { BrowserButtonView } from "./BrowserButtonView"
@@ -125,6 +126,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
 
     public _triggerSneak(id: string): void {
         if (this._webviewElement) {
+            this._webviewElement.focus()
             this._webviewElement.executeJavaScript(`window["__oni_sneak_execute__"]("${id}")`, true)
         }
     }
@@ -211,6 +213,14 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
                 this.setState({
                     url: evt.url,
                 })
+            })
+
+            this._webviewElement.addEventListener("focus", () => {
+                focusManager.pushFocus(this._webviewElement)
+            })
+
+            this._webviewElement.addEventListener("blur", () => {
+                focusManager.popFocus(this._webviewElement)
             })
         }
     }
