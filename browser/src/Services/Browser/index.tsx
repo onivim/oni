@@ -22,7 +22,7 @@ export class BrowserLayer implements Oni.BufferLayer {
     private _goForwardEvent = new Event<void>()
     private _reloadEvent = new Event<void>()
 
-    constructor(private _url: string) {}
+    constructor(private _url: string, private _configuration: Configuration) {}
 
     public get id(): string {
         return "oni.browser"
@@ -31,6 +31,7 @@ export class BrowserLayer implements Oni.BufferLayer {
     public render(): JSX.Element {
         return (
             <BrowserView
+                configuration={this._configuration}
                 initialUrl={this._url}
                 goBack={this._goBackEvent}
                 goForward={this._goForwardEvent}
@@ -75,7 +76,7 @@ export const activate = (
                 { openMode },
             )
 
-            const layer = new BrowserLayer(url)
+            const layer = new BrowserLayer(url, configuration)
             buffer.addLayer(layer)
             activeLayers[buffer.id] = layer
         } else {
@@ -98,6 +99,13 @@ export const activate = (
             execute: (url?: string) => openUrl(url, Oni.FileOpenMode.HorizontalSplit),
         })
     }
+
+    configuration.registerSetting("browser.zoomFactor", {
+        description:
+            "This sets the `zoomFactor` for nested browser windows. A value of `1` means `100%` zoom, a value of 0.5 means `50%` zoom, and a value of `2` means `200%` zoom.",
+        requiresReload: false,
+        defaultValue: 1,
+    })
 
     commandManager.registerCommand({
         command: "browser.openUrl",

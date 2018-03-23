@@ -12,6 +12,7 @@ import styled from "styled-components"
 import * as Oni from "oni-api"
 import { IDisposable, IEvent } from "oni-types"
 
+import { Configuration } from "./../../Services/Configuration"
 import { getInstance as getSneakInstance, ISneakInfo } from "./../../Services/Sneak"
 import { focusManager } from "./../FocusManager"
 
@@ -55,6 +56,8 @@ const BrowserViewWrapper = styled.div`
 
 export interface IBrowserViewProps {
     initialUrl: string
+
+    configuration: Configuration
 
     debug: IEvent<void>
     goBack: IEvent<void>
@@ -106,12 +109,13 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
 
                 return sneaks.map(s => {
                     const callbackFunction = (id: string) => () => this._triggerSneak(id)
+                    const zoomFactor = this._getZoomFactor()
                     return {
                         rectangle: Oni.Shapes.Rectangle.create(
-                            webviewDimensions.left + s.rectangle.x,
-                            webviewDimensions.top + s.rectangle.y,
-                            s.rectangle.width,
-                            s.rectangle.height,
+                            webviewDimensions.left + s.rectangle.x * zoomFactor,
+                            webviewDimensions.top + s.rectangle.y * zoomFactor,
+                            s.rectangle.width * zoomFactor,
+                            s.rectangle.height * zoomFactor,
                         ),
                         callback: callbackFunction(s.id),
                     }
@@ -121,7 +125,15 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
             return []
         })
 
-        this._disposables = this._disposables.concat([d1, d2, d3, d4, d5])
+        const d6 = this.props.configuration.onConfigurationChanged.subscribe(val => {
+            const newZoomFactor = val["browser.zoomFactor"]
+
+            if (this._webviewElement && newZoomFactor) {
+                this._webviewElement.setZoomFactor(newZoomFactor)
+            }
+        })
+
+        this._disposables = this._disposables.concat([d1, d2, d3, d4, d5, d6])
     }
 
     public _triggerSneak(id: string): void {
@@ -201,6 +213,10 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         }
     }
 
+    private _getZoomFactor(): number {
+        return this.props.configuration.getValue("browser.zoomFactor", 1.0)
+    }
+
     private _initializeElement(elem: HTMLElement) {
         if (elem && !this._webviewElement) {
             const webviewElement = document.createElement("webview")
@@ -208,6 +224,10 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
             elem.appendChild(webviewElement)
             this._webviewElement = webviewElement
             this._webviewElement.src = this.props.initialUrl
+
+            this._webviewElement.addEventListener("dom-ready", () => {
+                this._webviewElement.setZoomFactor(this._getZoomFactor())
+            })
 
             this._webviewElement.addEventListener("did-navigate", (evt: any) => {
                 this.setState({
