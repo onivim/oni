@@ -30,6 +30,7 @@ import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
 import { withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
+import { StatusBar } from "./../../../UI/components/StatusBar"
 
 import { ITutorial } from "./ITutorial"
 import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
@@ -361,7 +362,30 @@ export class TutorialBufferLayerView extends React.PureComponent<
                     >
                         <FlipCard
                             isFlipped={this.state.completionInfo.completed}
-                            front={this.props.editor.render()}
+                            front={
+                                <div
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                    }}
+                                >
+                                    <div
+                                        style={{ width: "100%", height: "100%", flex: "1 1 auto" }}
+                                    >
+                                        {this.props.editor.render()}
+                                    </div>
+                                    <div style={{ flex: "0 0 auto" }}>
+                                        <StatusBar
+                                            items={[]}
+                                            fontFamily="Arial"
+                                            fontSize="12px"
+                                            enabled={true}
+                                        />
+                                    </div>
+                                </div>
+                            }
                             back={
                                 <CompletionView
                                     keyStrokes={this.state.completionInfo.keyPresses}
