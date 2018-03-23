@@ -4,12 +4,12 @@
  * Entry point for sneak functionality
  */
 
+import { Colors } from "./../Colors"
 import { CallbackCommand, CommandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { AchievementsManager } from "./../Learning/Achievements"
 import { OverlayManager } from "./../Overlay"
 import { getInstance as getParticlesInstance } from "./../Particles"
-import { Colors } from "./../Colors"
 
 import { Sneak } from "./Sneak"
 
