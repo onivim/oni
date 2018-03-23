@@ -28,7 +28,13 @@ export const activate = (
 ) => {
     const learningEnabled = configuration.getValue("experimental.learning.enabled")
 
-    Achievements.activate(commandManager, configuration, editorManager, overlayManager)
+    Achievements.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        sidebarManager,
+        overlayManager,
+    )
 
     if (!learningEnabled) {
         return
