@@ -22,7 +22,7 @@ export class BrowserLayer implements Oni.BufferLayer {
     private _goForwardEvent = new Event<void>()
     private _reloadEvent = new Event<void>()
 
-    constructor(private _url: string) {}
+    constructor(private _url: string, private _configuration: Configuration) {}
 
     public get id(): string {
         return "oni.browser"
@@ -31,6 +31,7 @@ export class BrowserLayer implements Oni.BufferLayer {
     public render(): JSX.Element {
         return (
             <BrowserView
+                configuration={this._configuration}
                 initialUrl={this._url}
                 goBack={this._goBackEvent}
                 goForward={this._goForwardEvent}
@@ -75,7 +76,7 @@ export const activate = (
                 { openMode },
             )
 
-            const layer = new BrowserLayer(url)
+            const layer = new BrowserLayer(url, configuration)
             buffer.addLayer(layer)
             activeLayers[buffer.id] = layer
         } else {

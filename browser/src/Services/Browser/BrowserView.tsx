@@ -12,6 +12,7 @@ import styled from "styled-components"
 import * as Oni from "oni-api"
 import { IDisposable, IEvent } from "oni-types"
 
+import { Configuration } from "./../../Services/Configuration"
 import { getInstance as getSneakInstance, ISneakInfo } from "./../../Services/Sneak"
 import { focusManager } from "./../FocusManager"
 
@@ -55,6 +56,8 @@ const BrowserViewWrapper = styled.div`
 
 export interface IBrowserViewProps {
     initialUrl: string
+
+    configuration: Configuration
 
     debug: IEvent<void>
     goBack: IEvent<void>
@@ -121,7 +124,15 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
             return []
         })
 
-        this._disposables = this._disposables.concat([d1, d2, d3, d4, d5])
+        const d6 = this.props.configuration.onConfigurationChanged.subscribe(val => {
+            const newZoomFactor = val["browser.zoomFactor"]
+
+            if (this._webviewElement && newZoomFactor) {
+                this._webviewElement.setZoomFactor(newZoomFactor)
+            }
+        })
+
+        this._disposables = this._disposables.concat([d1, d2, d3, d4, d5, d6])
     }
 
     public _triggerSneak(id: string): void {
@@ -208,6 +219,10 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
             elem.appendChild(webviewElement)
             this._webviewElement = webviewElement
             this._webviewElement.src = this.props.initialUrl
+
+            const zoomFactor = this.props.configuration.getValue("browser.zoomFactor", 1.0)
+
+            this._webviewElement.setZoomFactor(zoomFactor)
 
             this._webviewElement.addEventListener("did-navigate", (evt: any) => {
                 this.setState({
