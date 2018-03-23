@@ -9,7 +9,7 @@ import * as types from "vscode-languageserver-types"
 
 import styled, { keyframes } from "styled-components"
 
-import { ITutorialStage, ITutorialContext } from "./../ITutorial"
+import { ITutorialContext, ITutorialStage } from "./../ITutorial"
 
 const SpinnerKeyFrames = keyframes`
     0% {transform: rotateY(0deg); }

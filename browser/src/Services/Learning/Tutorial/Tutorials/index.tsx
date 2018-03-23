@@ -4,8 +4,8 @@
 
 import { ITutorial } from "./../ITutorial"
 
-import { SwitchModeTutorial } from "./SwitchModeTutorial"
 import { BasicMovementTutorial } from "./BasicMovementTutorial"
+import { SwitchModeTutorial } from "./SwitchModeTutorial"
 
 export * from "./BasicMovementTutorial"
 export * from "./SwitchModeTutorial"
