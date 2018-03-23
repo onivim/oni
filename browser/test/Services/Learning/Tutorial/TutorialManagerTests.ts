@@ -10,6 +10,7 @@ import {
     ITutorial,
     TutorialManager,
 } from "./../../../../src/Services/Learning/Tutorial"
+import { WindowManager } from "./../../../../src/Services/WindowManager"
 
 import * as Mocks from "./../../../Mocks"
 
@@ -33,6 +34,8 @@ describe("TutorialManagerTests", () => {
     let mockEditor: Mocks.MockEditor
     let mockStore: Mocks.MockPersistentStore<IPersistedTutorialState>
     let editorManager: EditorManager
+    let windowManager: WindowManager
+    let tutorialManager: TutorialManager
 
     beforeEach(() => {
         mockEditor = new Mocks.MockEditor()
@@ -40,13 +43,14 @@ describe("TutorialManagerTests", () => {
             completionInfo: {},
         })
         editorManager = new EditorManager()
+        windowManager = new WindowManager()
         editorManager.setActiveEditor(mockEditor as any)
+
+        tutorialManager = new TutorialManager(editorManager, mockStore, windowManager)
     })
 
     describe("registerTutorial", () => {
         it("adds a tutorial", async () => {
-            const tutorialManager = new TutorialManager(editorManager, mockStore)
-
             const tutorial = createMockTutorial("test.tutorial.1", "test tutorial")
             tutorialManager.registerTutorial(tutorial)
 
@@ -58,8 +62,6 @@ describe("TutorialManagerTests", () => {
 
     describe("getTutorialInfo", () => {
         it("returns tutorials sorted by level", async () => {
-            const tutorialManager = new TutorialManager(editorManager, mockStore)
-
             const tutorial1 = createMockTutorial("test.tutorial.1", "test tutorial1", 1)
             tutorialManager.registerTutorial(tutorial1)
 
@@ -77,7 +79,6 @@ describe("TutorialManagerTests", () => {
 
     describe("getNextTutorialId", () => {
         it("gets next incomplete tutorial if null", async () => {
-            const tutorialManager = new TutorialManager(editorManager, mockStore)
             await tutorialManager.start()
 
             const tutorial0 = createMockTutorial("test.tutorial.0", "test tutorial0", 0)
@@ -104,7 +105,6 @@ describe("TutorialManagerTests", () => {
         })
 
         it("gets tutorial in sequence", async () => {
-            const tutorialManager = new TutorialManager(editorManager, mockStore)
             await tutorialManager.start()
 
             const tutorial0 = createMockTutorial("test.tutorial.0", "test tutorial0", 0)
@@ -123,7 +123,6 @@ describe("TutorialManagerTests", () => {
 
     describe("notifyTutorialCompleted", () => {
         it("dispatches 'onTutorialCompletedEvent' when a tutorial is completed", async () => {
-            const tutorialManager = new TutorialManager(editorManager, mockStore)
             await tutorialManager.start()
 
             const tutorial0 = createMockTutorial("test.tutorial.0", "test tutorial0", 0)
@@ -143,7 +142,6 @@ describe("TutorialManagerTests", () => {
         })
 
         it("persists completion data to the store", async () => {
-            const tutorialManager = new TutorialManager(editorManager, mockStore)
             await tutorialManager.start()
 
             const tutorial0 = createMockTutorial("test.tutorial.0", "test tutorial0", 0)

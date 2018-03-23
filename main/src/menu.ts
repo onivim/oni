@@ -38,12 +38,8 @@ export const buildMenu = (mainWindow, loadInit) => {
         })
     }
 
-    const executeVimCommandForMultipleFiles = (
-        browserWindow: BrowserWindow,
-        command: string,
-        files: string[],
-    ) => {
-        executeMenuAction(browserWindow, { evt: "open-files", cmd: [command, files] })
+    const openMultipleFiles = (browserWindow: BrowserWindow, files: string[]) => {
+        executeMenuAction(browserWindow, { evt: "open-files", cmd: [files] })
     }
 
     const executeOniCommand = (browserWindow: BrowserWindow, command: string) => {
@@ -165,8 +161,7 @@ export const buildMenu = (mainWindow, loadInit) => {
                     dialog.showOpenDialog(
                         focusedWindow,
                         { properties: ["openFile", "multiSelections"] },
-                        files =>
-                            executeVimCommandForMultipleFiles(focusedWindow, ":tabnew ", files),
+                        files => openMultipleFiles(focusedWindow, files),
                     )
                 },
             },
