@@ -344,7 +344,9 @@ export const start = async (args: string[]): Promise<void> => {
     const Achievements = await import("./Services/Learning/Achievements")
     const achievements = Achievements.getInstance()
 
-    Sneak.registerAchievements(achievements)
+    if (achievements) {
+        Sneak.registerAchievements(achievements)
+    }
 
     Performance.endMeasure("Oni.Start.Activate")
 
