@@ -335,7 +335,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
         const goalsWithIndex = this.state.tutorialState.goals
             .map((goal, idx) => ({
                 goalIndex: idx,
-                goal: goal,
+                goal,
             }))
             .filter(gi => !!gi.goal)
 
