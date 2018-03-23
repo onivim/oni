@@ -60,7 +60,7 @@
                 if (elem && elem.click) {
                     if (elem.tagName === "A") {
                         elem.click()
-                    } else if (elem.tagName === "INPUT") {
+                    } else if (elem.tagName === "INPUT" || elem.tagName === "TEXTAREA") {
                         elem.focus()
                     }
                 }
@@ -78,7 +78,7 @@
             })
         }
 
-        const tagsToCollect = ["a", "input"]
+        const tagsToCollect = ["a", "input", "textarea"]
 
         tagsToCollect.forEach(tag => {
             const elems = document.getElementsByTagName(tag) as NodeListOf<HTMLElement>
