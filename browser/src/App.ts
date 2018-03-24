@@ -146,6 +146,7 @@ export const start = async (args: string[]): Promise<void> => {
 
     const Colors = await colorsPromise
     Colors.activate(configuration, Themes.getThemeManagerInstance())
+    const colors = Colors.getInstance()
     Shell.initializeColors(Colors.getInstance())
     Performance.endMeasure("Oni.Start.Themes")
 
@@ -177,7 +178,7 @@ export const start = async (args: string[]): Promise<void> => {
     const sneakPromise = import("./Services/Sneak")
     const { commandManager } = await import("./Services/CommandManager")
     const Sneak = await sneakPromise
-    Sneak.activate(commandManager, overlayManager)
+    Sneak.activate(colors, commandManager, configuration, overlayManager)
 
     const Menu = await menuPromise
     Menu.activate(configuration, overlayManager)
