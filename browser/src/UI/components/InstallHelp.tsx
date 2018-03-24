@@ -7,44 +7,6 @@ import { remote } from "electron"
 import { Icon, IconSize } from "./../Icon"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
-import styled, { enableMouse } from "./common"
-
-const InstallHelpWrapper = styled.div`
-    ${enableMouse};
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-
-    background-color: rgb(40, 44, 52);
-    color: #646464;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    & a {
-        color: #f0f0f0;
-    }
-`
-
-const Title = styled.div`
-    text-align: center;
-
-    & p {
-        font-weight: bold;
-    }
-`
-
-const Instructions = styled.div`
-    margin-bottom: 64px;
-
-    & li {
-        margin: 8px;
-    }
-`
 
 export interface InstallHelpViewProps {
     visible: boolean
@@ -67,13 +29,13 @@ export class InstallHelpView extends React.PureComponent<InstallHelpViewProps, {
         }
 
         return (
-            <InstallHelpWrapper>
-                <Title>
+            <div className="install-help enable-mouse">
+                <div className="title">
                     <Icon name="warning" size={IconSize.FiveX} />
                     <h1>Uh oh! Unable to launch Neovim...</h1>
                     <p>Neovim v0.2.1 is required to run Oni.</p>
-                </Title>
-                <Instructions>
+                </div>
+                <div className="instructions">
                     <ul>
                         <li>
                             <span>Install neovim from here: </span>
@@ -87,14 +49,14 @@ export class InstallHelpView extends React.PureComponent<InstallHelpViewProps, {
                         </li>
                         <li>Close and re-open Oni</li>
                     </ul>
-                </Instructions>
+                </div>
                 <div>
                     If this issue persists, help us by logging an{" "}
                     <a href="#" onClick={evt => _onClickIssue}>
                         issue!
                     </a>
                 </div>
-            </InstallHelpWrapper>
+            </div>
         )
     }
 }
