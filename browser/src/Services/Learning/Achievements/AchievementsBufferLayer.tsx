@@ -10,7 +10,7 @@ import * as React from "react"
 import styled from "styled-components"
 
 import { BufferLayerHeader } from "./../../../UI/components/BufferLayerHeader"
-import { boxShadow, Fixed, Full, withProps } from "./../../../UI/components/common"
+import { Bold, boxShadow, Fixed, Full, withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
@@ -97,25 +97,46 @@ export const CenteredIcon = withProps<ICenteredIconProps>(styled.div)`
     ${p => (p.isSuccess ? "color: " + p.theme["highlight.mode.insert.background"] + ";" : "")}
 `
 
-export const TrophyCaseItemView = (props: { achievementInfo: AchievementWithProgressInfo }) => {
+export const TrophyCaseItemView = (props: {
+    achievementInfo: AchievementWithProgressInfo
+    dependentAchieventName?: string
+}) => {
+    const isLocked = !!props.dependentAchieventName
+
+    const icon = (
+        <FlipCard
+            isFlipped={props.achievementInfo.completed}
+            front={
+                <CenteredIcon>
+                    <Icon name="trophy" size={IconSize.ThreeX} />
+                </CenteredIcon>
+            }
+            back={
+                <CenteredIcon isSuccess={true}>
+                    <Icon name="check" size={IconSize.ThreeX} />
+                </CenteredIcon>
+            }
+        />
+    )
+
+    const lockedIcon = (
+        <CenteredIcon>
+            <Icon name="lock" size={IconSize.ThreeX} />
+        </CenteredIcon>
+    )
+
+    const description = isLocked ? (
+        <span>
+            Complete the <Bold>{props.dependentAchieventName}</Bold> achievement to unlock
+        </span>
+    ) : (
+        props.achievementInfo.achievement.description
+    )
+
     return (
         <TrophyCaseItemViewWrapper>
             <Fixed>
-                <TrophyItemIcon>
-                    <FlipCard
-                        isFlipped={props.achievementInfo.completed}
-                        front={
-                            <CenteredIcon>
-                                <Icon name="trophy" size={IconSize.ThreeX} />
-                            </CenteredIcon>
-                        }
-                        back={
-                            <CenteredIcon isSuccess={true}>
-                                <Icon name="check" size={IconSize.ThreeX} />
-                            </CenteredIcon>
-                        }
-                    />
-                </TrophyItemIcon>
+                <TrophyItemIcon>{isLocked ? lockedIcon : icon}</TrophyItemIcon>
             </Fixed>
             <Full
                 style={{
@@ -125,8 +146,8 @@ export const TrophyCaseItemView = (props: { achievementInfo: AchievementWithProg
                     padding: "1em",
                 }}
             >
-                <TitleText>{props.achievementInfo.achievement.name}</TitleText>
-                <DescriptionText>{props.achievementInfo.achievement.description}</DescriptionText>
+                <TitleText>{isLocked ? null : props.achievementInfo.achievement.name}</TitleText>
+                <DescriptionText>{description}</DescriptionText>
             </Full>
         </TrophyCaseItemViewWrapper>
     )
@@ -145,9 +166,25 @@ export class TrophyCaseView extends React.PureComponent<
     }
 
     public render(): JSX.Element {
-        const items = this.state.progressInfo.map(item => (
-            <TrophyCaseItemView achievementInfo={item} />
-        ))
+        const items = this.state.progressInfo.map(item => {
+            let dependentAchievementName = null
+            if (item.locked) {
+                const dependentId = item.achievement.dependsOnId
+                const dependentAchievement = this.state.progressInfo.find(
+                    f => f.achievement.uniqueId === dependentId,
+                )
+                if (dependentAchievement) {
+                    dependentAchievementName = dependentAchievement.achievement.name
+                }
+            }
+
+            return (
+                <TrophyCaseItemView
+                    achievementInfo={item}
+                    dependentAchieventName={dependentAchievementName}
+                />
+            )
+        })
         return (
             <TrophyCaseViewWrapper>
                 <TrophyCaseBackground>
