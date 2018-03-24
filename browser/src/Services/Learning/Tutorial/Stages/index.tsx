@@ -5,6 +5,7 @@
  * building blocks for the tutorial levels
  */
 
+export * from "./CorrectLineStage"
 export * from "./InitializeBufferStage"
 export * from "./MoveToGoalStage"
 export * from "./SetBufferStage"

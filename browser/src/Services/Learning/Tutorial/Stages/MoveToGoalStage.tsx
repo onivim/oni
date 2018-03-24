@@ -25,23 +25,34 @@ const LoadingSpinnerWrapper = styled.div`
     opacity: 0.8;
 `
 export class MoveToGoalStage implements ITutorialStage {
+    private _goalColumn: number
     public get goalName(): string {
         return this._goalName
     }
 
-    constructor(private _goalName: string, private _line: number, private _column: number) {}
+    constructor(private _goalName: string, private _line: number, private _column?: number) {}
 
     public async tickFunction(context: ITutorialContext): Promise<boolean> {
         const cursorPosition = await (context.buffer as any).getCursorPosition()
-        return cursorPosition.line === this._line && cursorPosition.character === this._column
+
+        this._goalColumn = this._column === null ? cursorPosition.character : this._column
+
+        return cursorPosition.line === this._line && cursorPosition.character === this._goalColumn
     }
 
     public render(context: Oni.BufferLayerRenderContext): JSX.Element {
-        // const anyContext = context as any
+        if (typeof this._goalColumn !== "number") {
+            return null
+        }
+
         const screenPosition = context.bufferToScreen(
-            types.Position.create(this._line, this._column),
+            types.Position.create(this._line, this._goalColumn),
         )
         const pixelPosition = context.screenToPixel(screenPosition)
+
+        if (pixelPosition.pixelX < 0 || pixelPosition.pixelY < 0) {
+            return null
+        }
 
         return (
             <LoadingSpinnerWrapper
