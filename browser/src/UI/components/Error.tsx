@@ -12,7 +12,7 @@ import * as Oni from "oni-api"
 import { getColorFromSeverity } from "./../../Services/Diagnostics"
 
 import { Icon } from "./../Icon"
-import styled, { withProps } from "./common"
+import styled, { bufferScrollBarSize, withProps } from "./common"
 
 export interface IErrorsProps {
     errors: types.Diagnostic[]
@@ -101,16 +101,33 @@ export class Errors extends React.PureComponent<IErrorsProps, {}> {
     }
 }
 
+interface IIconContainerProps {
+    color: string
+}
+const IconContainer = withProps<IIconContainerProps>(styled.div)`
+    color: ${props => props.color};
+`
+
 interface IErrorMarkerWrapperProps {
     topOffset: number
 }
 const ErrorMarkerWrapper = withProps<IErrorMarkerWrapperProps>(styled.div)`
     position: absolute;
     top: ${props => props.topOffset}px;
-    right: @bufferScrollBarSize;
+    right: ${bufferScrollBarSize};
     opacity: 0.5;
     width: 200px;
     display: flex;
+
+    & ${IconContainer} {
+        position: absolute;
+        right: 0px;
+        background-color: rgb(80, 80, 80);
+
+        & .fa {
+            padding: 6px;
+        }
+    }
 `
 
 export interface IErrorMarkerProps {
@@ -133,19 +150,6 @@ export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, {}> {
         )
     }
 }
-
-interface IIconContainerProps {
-    color: string
-}
-const IconContainer = withProps<IIconContainerProps>(styled.div)`
-    position: absolute;
-    right: 0px;
-    background-color: rgb(80, 80, 80);
-
-    & .fa {
-        padding: 6px;
-    }
-`
 
 export interface IErrorIconProps {
     color: string

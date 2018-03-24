@@ -4,6 +4,17 @@ import * as types from "vscode-languageserver-types"
 import { ErrorIcon } from "./Error"
 
 import { getColorFromSeverity } from "./../../Services/Diagnostics"
+import { styled } from "./common"
+
+const Diagnostic = styled.div`
+    margin: 8px;
+    display: flex;
+    flex-direction: row;
+`
+
+const ErrorIconWrapper = styled.div`
+    margin-right: 8px;
+`
 
 export interface IErrorInfoProps {
     style: React.CSSProperties
@@ -20,18 +31,16 @@ export class ErrorInfo extends React.PureComponent<IErrorInfoProps, {}> {
         }
 
         const errs = this.props.errors.map(e => (
-            <div className="diagnostic">
-                <ErrorIcon color={getColorFromSeverity(e.severity)} />
+            <Diagnostic>
+                <ErrorIconWrapper>
+                    <ErrorIcon color={getColorFromSeverity(e.severity)} />
+                </ErrorIconWrapper>
                 <span>{e.message}</span>
-            </div>
+            </Diagnostic>
         ))
 
         const style = this.props.style || {}
 
-        return (
-            <div className="diagnostic-container" style={style}>
-                {errs}
-            </div>
-        )
+        return <div style={style}>{errs}</div>
     }
 }
