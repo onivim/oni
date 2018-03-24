@@ -65,6 +65,7 @@ export const registerAchievements = (achievements: AchievementsManager) => {
 
     achievements.registerAchievement({
         uniqueId: "oni.achievement.sneak.2",
+        dependsOnId: "oni.achievement.sneak.1",
         name: "REAL Ninja!",
         description: "Use the 'sneak' functionality 25 times",
         goals: [
@@ -78,6 +79,7 @@ export const registerAchievements = (achievements: AchievementsManager) => {
 
     achievements.registerAchievement({
         uniqueId: "oni.achievement.sneak.3",
+        dependsOnId: "oni.achievement.sneak.2",
         name: "REAL ULTIMATE Ninja!",
         description: "Use the 'sneak' functionality 100 times",
         goals: [
