@@ -15,7 +15,7 @@ import { IMenuOptionWithHighlights, menuStore } from "./Menu"
 import * as ActionCreators from "./MenuActionCreators"
 import * as State from "./MenuState"
 
-import styled, { withProps, fontSizeSmall, boxShadow } from "./../../UI/components/common"
+import styled, { boxShadow, fontSizeSmall, withProps } from "./../../UI/components/common"
 
 import { TextInputView } from "./../../UI/components/LightweightText"
 

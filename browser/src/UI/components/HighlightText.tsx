@@ -1,5 +1,5 @@
 import * as React from "react"
-import { ReactType } from "react"
+import { ReactType } from "react" // tslint:disable-line no-duplicate-imports
 
 export interface IHighlightTextProps {
     highlightComponent: ReactType
