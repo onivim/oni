@@ -1,5 +1,7 @@
 /**
- * TutorialManager
+ * CorrectLineStage.tsx
+ *
+ *
  */
 
 import * as Oni from "oni-api"
@@ -24,35 +26,35 @@ const LoadingSpinnerWrapper = styled.div`
     border-bottom: 8px solid transparent;
     opacity: 0.8;
 `
-export class MoveToGoalStage implements ITutorialStage {
-    private _goalColumn: number
+
+export class GoToLineStage implements ITutorialStage {
     public get goalName(): string {
         return this._goalName
     }
 
-    constructor(private _goalName: string, private _line: number, private _column?: number) {}
+    constructor(private _goalName: string, private _line: number) {}
 
     public async tickFunction(context: ITutorialContext): Promise<boolean> {
-        const cursorPosition = await (context.buffer as any).getCursorPosition()
+        const cursor
+        const [currentLine] = await (context.buffer as any).getLines(this._line, this._line + 1)
+        const diffPosition = getFirstCharacterThatIsDifferent(currentLine, this._expectedText)
+        this._diffPosition = diffPosition
 
-        this._goalColumn = this._column === null ? cursorPosition.character : this._column
+        if (diffPosition < 0 || diffPosition >= currentLine.length) {
+            return true
+        }
 
-        return cursorPosition.line === this._line && cursorPosition.character === this._goalColumn
+        const diffCharacter = currentLine[diffPosition]
+
+        return diffCharacter !== this._characterToDelete
     }
 
     public render(context: Oni.BufferLayerRenderContext): JSX.Element {
-        if (typeof this._goalColumn !== "number") {
-            return null
-        }
-
+        // const anyContext = context as any
         const screenPosition = context.bufferToScreen(
-            types.Position.create(this._line, this._goalColumn),
+            types.Position.create(this._line, this._diffPosition),
         )
         const pixelPosition = context.screenToPixel(screenPosition)
-
-        if (pixelPosition.pixelX < 0 || pixelPosition.pixelY < 0) {
-            return null
-        }
 
         return (
             <LoadingSpinnerWrapper
