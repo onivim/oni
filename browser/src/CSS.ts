@@ -5,8 +5,7 @@
  */
 
 export const activate = () => {
-    require("./UI/components/common.less") // tslint:disable-line no-var-requires
-    require("./overlay.less") // tslint:disable-line
+    require("./UI/components/common.less")
 
     require("./UI/components/QuickInfo.less")
     require("./UI/components/Tabs.less")
