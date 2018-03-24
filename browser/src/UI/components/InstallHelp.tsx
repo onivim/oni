@@ -52,9 +52,9 @@ export interface InstallHelpViewProps {
 
 export class InstallHelpView extends React.PureComponent<InstallHelpViewProps, {}> {
     public render(): JSX.Element {
-        // if (!this.props.visible) {
-        //     return null
-        // }
+        if (!this.props.visible) {
+            return null
+        }
 
         const _onClick = (evt: any) => {
             remote.shell.openExternal("https://github.com/neovim/neovim/wiki/Installing-Neovim")
