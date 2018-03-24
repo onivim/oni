@@ -18,7 +18,7 @@ const InstallHelpWrapper = styled.div`
     bottom: 0px;
 
     background-color: rgb(40, 44, 52);
-    color: #646464;
+    color: #c8c8c8;
 
     display: flex;
     flex-direction: column;
