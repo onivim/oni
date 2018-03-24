@@ -11,7 +11,6 @@ import { IPersistentStore } from "./../../../PersistentStore"
 
 import { ITutorial, ITutorialMetadata } from "./ITutorial"
 import { TutorialBufferLayer } from "./TutorialBufferLayer"
-import * as Tutorials from "./Tutorials"
 
 export interface ITutorialPersistedState {
     completedTutorialIds: string[]
@@ -71,6 +70,10 @@ export class TutorialManager {
         }))
     }
 
+    public getTutorial(id: string): ITutorial {
+        return this._tutorials.find(t => t.metadata.id === id)
+    }
+
     public registerTutorial(tutorial: ITutorial): void {
         this._tutorials.push(tutorial)
     }
@@ -111,9 +114,9 @@ export class TutorialManager {
 
     public async startTutorial(id: string): Promise<void> {
         // const tutorial = this._getTutorialById(id)
-        const buf = await this._editorManager.activeEditor.openFile("Tutorial")
-        const layer = new TutorialBufferLayer()
-        layer.startTutorial(new Tutorials.DeleteCharacterTutorial())
+        const buf = await this._editorManager.activeEditor.openFile("oni://tutorial")
+        const layer = new TutorialBufferLayer(this)
+        layer.startTutorial(id)
         buf.addLayer(layer)
 
         // Focus the editor
@@ -129,6 +132,6 @@ export class TutorialManager {
     }
 
     private _getCompletionState(id: string): ITutorialCompletionInfo {
-        return this._persistedState[id] || null
+        return this._persistedState.completionInfo[id] || null
     }
 }
