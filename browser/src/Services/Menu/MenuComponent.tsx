@@ -286,7 +286,7 @@ const LabelHighlight = styled.span`
 
 const Detail = styled(HighlightTextByIndex)`
     ${fontSizeSmall};
-    color: ${props => props.theme["menu.detail"]};
+    color: #646464;
     flex: 1 1 auto;
     overflow: hidden;
     text-overflow: ellipsis;
