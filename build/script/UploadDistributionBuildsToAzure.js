@@ -35,7 +35,7 @@ const getVersion = () => {
 }
 
 const getBuildsForWindows = version => {
-    switch (os.arch()) {
+    switch (process.env["PLATFORM"]) {
         case "x86":
             return [`Oni-${version}-ia32-win.exe`, `Oni-${version}-ia32-win.zip`]
         case "x64":

@@ -19,8 +19,8 @@ const isCiBuild = () => {
     return ciBuild
 }
 
-const getWindowsExcutablePath = () => {
-    switch (process.arch) {
+const getWindowsExcutablePathOnCiMachine = () => {
+    switch (process.env["PLATFORM"]) {
         case "x86":
             return path.join(__dirname, "..", "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
         case "x64":
@@ -33,7 +33,7 @@ const getWindowsExcutablePath = () => {
 const getExecutablePathOnCiMachine = () => {
     switch (process.platform) {
         case "win32":
-            return getWindowsExcutablePath()
+            return getWindowsExcutablePathOnCiMachine()
         case "darwin":
             return path.join(
                 __dirname,
