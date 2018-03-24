@@ -8,5 +8,4 @@ export const activate = () => {
     require("./UI/components/common.less")
 
     require("./UI/components/QuickInfo.less")
-    require("./UI/components/Tabs.less")
 }
