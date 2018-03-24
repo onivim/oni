@@ -140,7 +140,7 @@ const IconWrapper = withProps<IconWrapperProps>(styled.div)`
     text-align: center;
     background-color: ${props => props.backgroundColor}
 
-    i {
+    & i {
         font-size: 0.9em;
     }
 `
