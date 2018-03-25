@@ -117,19 +117,19 @@ export class ConfigurationEditManager {
     }
 
     private async _createReadonlyReferenceBuffer() {
-        const referenceBuffer = await this._editorManager.activeEditor.openFile("", {
+        const referenceBuffer = await this._editorManager.activeEditor.openFile("reference", {
             openMode: Oni.FileOpenMode.NewTab,
         })
 
         // Format the default configuration values as a pretty JSON object, then
         // set it as the reference buffer content
         const referenceContent = JSON.stringify(DefaultConfiguration, null, "  ")
-        await referenceBuffer.setLines(0, 1, referenceContent.split("\n"))
-        console.log(
-            "Does set lang exist: ",
-            await (referenceBuffer as any).setLanguage("javascript"),
-        )
-        await (referenceBuffer as any).setLanguage("javascript")
+        await Promise.all([
+            referenceBuffer.setLines(0, 1, referenceContent.split("\n")),
+            // FIXME: needs to be added to the Oni.Buffers API
+            (referenceBuffer as any).setLanguage("json"),
+            (referenceBuffer as any).setScratchBuffer(),
+        ])
     }
 
     private async _transpileConfiguration(
