@@ -9,10 +9,9 @@ import * as React from "react"
 
 import styled from "styled-components"
 
-// import { inputManager, InputManager } from "./../../Services/InputManager"
-
 import { BufferLayerHeader } from "./../../../UI/components/BufferLayerHeader"
-import { boxShadow, withProps } from "./../../../UI/components/common"
+import { Bold, boxShadow, Fixed, Full, withProps } from "./../../../UI/components/common"
+import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
 import * as Oni from "oni-api"
@@ -26,23 +25,6 @@ export interface ITrophyCaseViewProps {
 export interface ITrophyCaseViewState {
     progressInfo: AchievementWithProgressInfo[]
 }
-
-export interface ContainerProps {
-    direction: "horizontal" | "vertical"
-}
-
-export const Fixed = styled.div`
-    flex: 0 0 auto;
-`
-
-export const Full = styled.div`
-    flex: 1 1 auto;
-`
-
-export const Container = withProps<ContainerProps>(styled.div)`
-    display: flex;
-    flex-direction: ${p => (p.direction === "vertical" ? "column" : "row")};
-`
 
 export const TrophyCaseViewWrapper = withProps<{}>(styled.div)`
     background-color: ${p => p.theme.background};
@@ -101,13 +83,60 @@ export const DescriptionText = styled.div`
     font-size: 0.9em;
 `
 
-export const TrophyCaseItemView = (props: { achievementInfo: AchievementWithProgressInfo }) => {
+export interface ICenteredIconProps {
+    isSuccess?: boolean
+}
+
+export const CenteredIcon = withProps<ICenteredIconProps>(styled.div)`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    ${p => (p.isSuccess ? "color: " + p.theme["highlight.mode.insert.background"] + ";" : "")}
+`
+
+export const TrophyCaseItemView = (props: {
+    achievementInfo: AchievementWithProgressInfo
+    dependentAchieventName?: string
+}) => {
+    const isLocked = !!props.dependentAchieventName
+
+    const icon = (
+        <FlipCard
+            isFlipped={props.achievementInfo.completed}
+            front={
+                <CenteredIcon>
+                    <Icon name="trophy" size={IconSize.ThreeX} />
+                </CenteredIcon>
+            }
+            back={
+                <CenteredIcon isSuccess={true}>
+                    <Icon name="check" size={IconSize.ThreeX} />
+                </CenteredIcon>
+            }
+        />
+    )
+
+    const lockedIcon = (
+        <CenteredIcon>
+            <Icon name="lock" size={IconSize.ThreeX} />
+        </CenteredIcon>
+    )
+
+    const description = isLocked ? (
+        <span>
+            Complete the <Bold>{props.dependentAchieventName}</Bold> achievement to unlock
+        </span>
+    ) : (
+        props.achievementInfo.achievement.description
+    )
+
     return (
         <TrophyCaseItemViewWrapper>
             <Fixed>
-                <TrophyItemIcon>
-                    <Icon name="trophy" size={IconSize.ThreeX} />
-                </TrophyItemIcon>
+                <TrophyItemIcon>{isLocked ? lockedIcon : icon}</TrophyItemIcon>
             </Fixed>
             <Full
                 style={{
@@ -117,8 +146,8 @@ export const TrophyCaseItemView = (props: { achievementInfo: AchievementWithProg
                     padding: "1em",
                 }}
             >
-                <TitleText>{props.achievementInfo.achievement.name}</TitleText>
-                <DescriptionText>{props.achievementInfo.achievement.description}</DescriptionText>
+                <TitleText>{isLocked ? null : props.achievementInfo.achievement.name}</TitleText>
+                <DescriptionText>{description}</DescriptionText>
             </Full>
         </TrophyCaseItemViewWrapper>
     )
@@ -137,9 +166,25 @@ export class TrophyCaseView extends React.PureComponent<
     }
 
     public render(): JSX.Element {
-        const items = this.state.progressInfo.map(item => (
-            <TrophyCaseItemView achievementInfo={item} />
-        ))
+        const items = this.state.progressInfo.map(item => {
+            let dependentAchievementName = null
+            if (item.locked) {
+                const dependentId = item.achievement.dependsOnId
+                const dependentAchievement = this.state.progressInfo.find(
+                    f => f.achievement.uniqueId === dependentId,
+                )
+                if (dependentAchievement) {
+                    dependentAchievementName = dependentAchievement.achievement.name
+                }
+            }
+
+            return (
+                <TrophyCaseItemView
+                    achievementInfo={item}
+                    dependentAchieventName={dependentAchievementName}
+                />
+            )
+        })
         return (
             <TrophyCaseViewWrapper>
                 <TrophyCaseBackground>

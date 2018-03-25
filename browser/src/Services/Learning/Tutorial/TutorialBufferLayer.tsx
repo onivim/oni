@@ -1,10 +1,16 @@
 /**
  * TutorialBufferLayer.tsx
+ *
+ * Layer that handles the top-level rendering of the tutorial UI,
+ * including the nested `NeovimEditor`, description, goals, etc.
  */
 
 import * as React from "react"
 
 import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
+
+import styled from "styled-components"
 
 import { NeovimEditor } from "./../../../Editor/NeovimEditor"
 
@@ -19,15 +25,75 @@ import { getInstance as getOverlayInstance } from "./../../Overlay"
 import { getInstance as getSnippetManagerInstance } from "./../../Snippets"
 import { getThemeManagerInstance } from "./../../Themes"
 import { getInstance as getTokenColorsInstance } from "./../../TokenColors"
+import { windowManager } from "./../../WindowManager"
 import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
-import { ITutorial } from "./ITutorial"
+import { withProps } from "./../../../UI/components/common"
+import { FlipCard } from "./../../../UI/components/FlipCard"
+
 import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
+import { TutorialManager } from "./TutorialManager"
+
+import { CompletionView } from "./CompletionView"
+import { GameplayBufferLayer } from "./GameplayBufferLayer"
+import { GoalView } from "./GoalView"
+
+import { getInstance, Vector } from "./../../Particles"
+
+export interface IGameplayCompletionInfo {
+    completed: boolean
+    keyPresses: number
+    timeInMilliseconds: number
+}
+
+const DefaultCompletionInfo = {
+    completed: false,
+    keyPresses: -1,
+    timeInMilliseconds: 0,
+}
+
+export interface IGameplayStateChangedEvent {
+    tutorialState: ITutorialState
+    completionInfo: IGameplayCompletionInfo
+}
+
+export class GameTracker {
+    private _startTime: Date
+    private _keyPresses: number
+
+    public start(): void {
+        this._startTime = new Date()
+        this._keyPresses = 0
+    }
+
+    public addKeyPress(pressCount: number) {
+        this._keyPresses += pressCount
+    }
+
+    public end(): IGameplayCompletionInfo {
+        return {
+            completed: true,
+            timeInMilliseconds: new Date().getTime() - this._startTime.getTime(),
+            keyPresses: this._keyPresses,
+        }
+    }
+}
 
 export class TutorialBufferLayer implements Oni.BufferLayer {
     private _editor: NeovimEditor
     private _tutorialGameplayManager: TutorialGameplayManager
     private _initPromise: Promise<void>
+
+    private _lastStage = -1
+    private _hasAddedLayer: boolean = false
+    private _currentTutorialId: string
+    private _lastTutorialState: ITutorialState
+    private _completionInfo: IGameplayCompletionInfo = DefaultCompletionInfo
+    private _element: HTMLElement
+    private _gameTracker: GameTracker = new GameTracker()
+    private _onStateChangedEvent: Event<IGameplayStateChangedEvent> = new Event<
+        IGameplayStateChangedEvent
+    >()
 
     public get id(): string {
         return "oni.tutorial"
@@ -37,7 +103,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         return "Tutorial"
     }
 
-    constructor() {
+    constructor(private _tutorialManager: TutorialManager) {
         // TODO: Streamline dependences for NeovimEditor, so it's easier just to spin one up..
         this._editor = new NeovimEditor(
             getColorsInstance(),
@@ -54,19 +120,80 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
             getWorkspaceInstance(),
         )
 
+        this._editor.autoFocus = false
+
         this._editor.onNeovimQuit.subscribe(() => {
             alert("quit!")
         })
 
-        this._initPromise = this._editor.init([]).then(() => {
-            this._editor.enter()
-        })
+        this._initPromise = this._editor.init([])
 
         this._tutorialGameplayManager = new TutorialGameplayManager(this._editor)
+
+        this._tutorialGameplayManager.onStateChanged.subscribe(state => {
+            this._lastTutorialState = state
+            this._onStateChangedEvent.dispatch({
+                tutorialState: state,
+                completionInfo: this._completionInfo,
+            })
+
+            if (state.activeGoalIndex !== this._lastStage) {
+                this._lastStage = state.activeGoalIndex
+
+                if (this._element) {
+                    const cursor = this._element.getElementsByClassName("cursor")
+                    if (cursor.length > 0) {
+                        const cursorElement = cursor[0]
+                        const position = cursorElement.getBoundingClientRect()
+
+                        this._spawnParticles("white", { x: position.left, y: position.top })
+                    }
+                }
+            }
+        })
+
+        this._tutorialGameplayManager.onCompleted.subscribe(() => {
+            this._completionInfo = this._gameTracker.end()
+
+            this._onStateChangedEvent.dispatch({
+                tutorialState: this._lastTutorialState,
+                completionInfo: this._completionInfo,
+            })
+
+            this._tutorialManager.notifyTutorialCompleted(this._currentTutorialId, {
+                time: this._completionInfo.timeInMilliseconds,
+                keyPresses: this._completionInfo.keyPresses,
+            })
+
+            if (this._element) {
+                const bounds = this._element.getBoundingClientRect()
+                const blue = "rgb(97, 175, 239)"
+
+                for (let i = 0; i < 8; i++) {
+                    this._spawnParticles(
+                        blue,
+                        {
+                            x: bounds.left + Math.random() * bounds.width,
+                            y: bounds.top + Math.random() * bounds.height,
+                        },
+                        { x: 300, y: 150 },
+                    )
+                }
+            }
+        })
     }
 
     public handleInput(key: string): boolean {
-        this._editor.input(key)
+        if (this._completionInfo.completed) {
+            const nextTutorial = this._tutorialManager.getNextTutorialId(this._currentTutorialId)
+
+            if (nextTutorial) {
+                this.startTutorial(nextTutorial)
+            }
+        } else {
+            this._editor.input(key)
+            this._gameTracker.addKeyPress(1)
+        }
         return true
     }
 
@@ -75,36 +202,75 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
             <TutorialBufferLayerView
                 editor={this._editor}
                 renderContext={context}
-                tutorialManager={this._tutorialGameplayManager}
+                onStateChangedEvent={this._onStateChangedEvent}
+                innerRef={elem => (this._element = elem)}
             />
         )
     }
 
-    public async startTutorial(tutorial: ITutorial): Promise<void> {
+    public async startTutorial(tutorialId: string): Promise<void> {
         await this._initPromise
+        this._completionInfo = DefaultCompletionInfo
+        this._currentTutorialId = tutorialId
+        const tutorial = this._tutorialManager.getTutorial(tutorialId)
+
+        if (!this._hasAddedLayer) {
+            this._editor.activeBuffer.addLayer(
+                new GameplayBufferLayer(this._tutorialGameplayManager),
+            )
+            this._hasAddedLayer = true
+        }
+
         this._tutorialGameplayManager.start(tutorial, this._editor.activeBuffer)
+        this._gameTracker.start()
+
+        windowManager.focusSplit("oni.window.0")
+    }
+
+    private _spawnParticles(
+        color: string,
+        position: Vector,
+        velocityVariance: Vector = { x: 100, y: 50 },
+    ): void {
+        const particles = getInstance()
+
+        if (!particles || !this._element) {
+            return
+        }
+
+        particles.createParticles(25, {
+            Position: position,
+            PositionVariance: { x: 10, y: 10 },
+            Velocity: { x: 0, y: -150 },
+            VelocityVariance: { x: 100, y: 50 },
+            Color: color,
+            StartOpacity: 1,
+            EndOpacity: 0,
+            Time: 1,
+        })
     }
 }
 
 export interface ITutorialBufferLayerViewProps {
     renderContext: Oni.BufferLayerRenderContext
-    tutorialManager: TutorialGameplayManager
     editor: NeovimEditor
+    onStateChangedEvent: IEvent<IGameplayStateChangedEvent>
+    innerRef: (elem: HTMLElement) => void
 }
 
 export interface ITutorialBufferLayerState {
     tutorialState: ITutorialState
+    completionInfo: IGameplayCompletionInfo
 }
-
-import styled from "styled-components"
-import { withProps } from "./../../../UI/components/common"
 
 const TutorialWrapper = withProps<{}>(styled.div)`
     position: relative;
     width: 100%;
     height: 100%;
-    background-color: ${p => p.theme.background};
-    color: ${p => p.theme.foreground};
+    background-color: ${p => p.theme["editor.background"]};
+    color: ${p => p.theme["editor.foreground"]};
+
+    max-width: 1000px;
 
     display: flex;
     flex-direction: column;
@@ -112,7 +278,8 @@ const TutorialWrapper = withProps<{}>(styled.div)`
     `
 
 const TutorialSectionWrapper = styled.div`
-    width: 100%;
+    width: 80%;
+    max-width: 1000px;
     flex: 0 0 auto;
 `
 
@@ -156,34 +323,75 @@ export class TutorialBufferLayerView extends React.PureComponent<
             tutorialState: {
                 goals: [],
                 activeGoalIndex: -1,
+                metadata: null,
+            },
+            completionInfo: {
+                completed: false,
+                keyPresses: -1,
+                timeInMilliseconds: -1,
             },
         }
     }
 
     public componentDidMount(): void {
-        this.props.tutorialManager.onStateChanged.subscribe(newState => {
-            this.setState({ tutorialState: newState })
+        this.props.onStateChangedEvent.subscribe(newState => {
+            this.setState({
+                ...newState,
+            })
         })
     }
 
     public render(): JSX.Element {
-        const goals = this.state.tutorialState.goals.map((goal, idx) => {
-            const activeIndex = this.state.tutorialState.activeGoalIndex
+        if (!this.state.tutorialState || !this.state.tutorialState.metadata) {
+            return null
+        }
 
-            if (idx < activeIndex) {
-                return <li style={{ opacity: 0.5 }}>{goal}</li>
-            } else if (idx === activeIndex) {
-                return <li style={{ fontWeight: "bold" }}>{goal}</li>
+        const title = this.state.tutorialState.metadata.name
+        const description = this.state.tutorialState.metadata.description
+
+        const activeIndex = this.state.tutorialState.activeGoalIndex
+
+        const goalsWithIndex = this.state.tutorialState.goals
+            .map((goal, idx) => ({
+                goalIndex: idx,
+                goal,
+            }))
+            .filter(gi => !!gi.goal)
+
+        let postActiveIndex = goalsWithIndex.findIndex(f => f.goalIndex === activeIndex)
+
+        if (this.state.completionInfo.completed) {
+            postActiveIndex = goalsWithIndex.length
+        }
+
+        const goalsToDisplay = goalsWithIndex.map((goal, postIndex) => {
+            const isCompleted = postActiveIndex > postIndex
+
+            let visible = false
+
+            if (postActiveIndex === 0) {
+                visible = postIndex < 3
+            } else if (postActiveIndex > goalsWithIndex.length - 3) {
+                visible = goalsWithIndex.length - postIndex <= 3
             } else {
-                return <li>{goal}</li>
+                visible = Math.abs(postIndex - postActiveIndex) < 2
             }
+
+            return (
+                <GoalView
+                    completed={isCompleted}
+                    description={goal.goal}
+                    active={goal.goalIndex === activeIndex}
+                    visible={visible}
+                />
+            )
         })
 
         return (
             <TutorialWrapper>
                 <TutorialSectionWrapper>
                     <PrimaryHeader>Tutorial</PrimaryHeader>
-                    <SubHeader>Lesson 1: Test</SubHeader>
+                    <SubHeader>{title}</SubHeader>
                 </TutorialSectionWrapper>
                 <MainTutorialSectionWrapper>
                     <div
@@ -192,19 +400,26 @@ export class TutorialBufferLayerView extends React.PureComponent<
                             height: "75%",
                             boxShadow: "3px 7px 10px 7px rgba(0, 0, 0, 0.2)",
                         }}
+                        ref={this.props.innerRef}
                     >
-                        {this.props.editor.render()}
+                        <FlipCard
+                            isFlipped={this.state.completionInfo.completed}
+                            front={this.props.editor.render()}
+                            back={
+                                <CompletionView
+                                    keyStrokes={this.state.completionInfo.keyPresses}
+                                    time={this.state.completionInfo.timeInMilliseconds}
+                                />
+                            }
+                        />
                     </div>
                 </MainTutorialSectionWrapper>
                 <TutorialSectionWrapper>
                     <SectionHeader>Description:</SectionHeader>
-                    <Section>
-                        Oni is a modal editor, which means the editor can be in different modes. Oni
-                        starts in normal mode, but insert mode is how you enter text.
-                    </Section>
+                    <Section>{description}</Section>
                     <SectionHeader>Goals:</SectionHeader>
-                    <Section>
-                        <ul>{goals}</ul>
+                    <Section style={{ height: "200px" }}>
+                        <div>{goalsToDisplay}</div>
                     </Section>
                     <Section />
                 </TutorialSectionWrapper>

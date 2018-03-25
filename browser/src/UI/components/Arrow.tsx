@@ -3,6 +3,7 @@
  *
  * Simple 'up' or 'down' arrow component
  */
+import * as React from "react"
 
 import styled from "styled-components"
 import { withProps } from "./common"
@@ -65,3 +66,7 @@ function arrowCSS(props: IArrowProps): string {
 export const Arrow = withProps<IArrowProps>(styled.div)`
     ${props => arrowCSS(props)}
     `
+
+export const preview = () => {
+    return <Arrow size={100} color="yellow" direction={ArrowDirection.Left} />
+}

@@ -33,6 +33,8 @@ script:
 - npm run check-cached-binaries
 - ./build/script/install-reason.sh
 - ./build/script/travis-build.sh
+- travis_wait ./build/script/travis-pack.sh
+- ./build/script/travis-test.sh
 deploy:
     - provider: s3
       access_key_id: AKIAIYMATI2CEFTHPBOQ
@@ -45,18 +47,6 @@ deploy:
       skip_cleanup: true
       on:
         condition: $TRAVIS_OS_NAME = osx
-        repo: onivim/oni
-    - provider: s3
-      access_key_id: AKIAIYMATI2CEFTHPBOQ
-      secret_access_key:
-        secure: S4f/aczEABGAMKk2tmVSkoGx+T2TLPmz5z6x6RKaM+eDmAaVSAELlIj1eAz6Tu2lv3jz+cpyAIISZNC/phORsJWwzbSZHVycLrMG0N3fDTqKFxu1fl6L3b3exRe9SiKXug73ZvHfktzd/XfRcgZKop4qgrwGiM57m0ZuZb/j1LkgjytTuvNAUxXbA84I8LZs/NhY17XuXq+KPlGElIHy3UFoGqQ8pBnTypkIU5rQTsoeAxXLBE8JAFfz+nBGZ7dx6OMbQcKX5jKh/gR3vk+4aTgV8gNE2Zp24ErjSqF2zly/gP9nE2DpfR7jqpZVHnb/v+OEjRDS80tLhPo8Dbibzwt2ZZNADpYBjSGtphwAmq4DCvJ7ORExOB5+O3wmXKQGdItyBTS7sW44n6BTyv87WxWuCaSDQ9QaO9PrbJdN5YGEYeRxSTM7Mn0t72IILkfFCUeSg6fl6tFs9iWIj5zltbxH1GQsRpA8j1Idg4O+894KnQABtw/YKh6rrdeYS9y/100qAjtV6qYyiP2IdPqMWGuasOiz87q3CQ8Ejd7uhiTjAaINVqos+0k04Yf5+rT4MqkeXnYFzjXuXcqDlpq6yJIZv3aD+PMSlZi2WmTYnPJXQFndHo/x9FhEh90UF9WdO5S27ySRSo8XQT4DyL3ToPkqz8y0slNmaNqiqMouQAU=
-      bucket: oni-builds
-      local-dir: s3_dist
-      upload-dir: $TRAVIS_BRANCH
-      acl: public_read
-      region: us-west-2
-      skip_cleanup: true
-      on:
         repo: onivim/oni
     - provider: releases
       api_key:

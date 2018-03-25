@@ -9,12 +9,15 @@ import * as path from "path"
 import * as React from "react"
 import styled from "styled-components"
 
-import { IDisposable, IEvent } from "oni-types"
 import * as Oni from "oni-api"
+import { IDisposable, IEvent } from "oni-types"
 
-import { Icon, IconSize } from "./../../UI/Icon"
-
+import { Configuration } from "./../../Services/Configuration"
 import { getInstance as getSneakInstance, ISneakInfo } from "./../../Services/Sneak"
+import { focusManager } from "./../FocusManager"
+
+import { AddressBarView } from "./AddressBarView"
+import { BrowserButtonView } from "./BrowserButtonView"
 
 const Column = styled.div`
     pointer-events: auto;
@@ -51,34 +54,10 @@ const BrowserViewWrapper = styled.div`
     }
 `
 
-const BrowserButton = styled.div`
-    width: 2.5em;
-    height: 2.5em;
-    flex: 0 0 auto;
-    opacity: 0.9;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    &:hover {
-        opacity: 1;
-        box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
-    }
-`
-
-const AddressBar = styled.div`
-    width: 100%;
-    flex: 1 1 auto;
-
-    height: 2.5em;
-    line-height: 2.5em;
-
-    text-align: left;
-`
-
 export interface IBrowserViewProps {
-    url: string
+    initialUrl: string
+
+    configuration: Configuration
 
     debug: IEvent<void>
     goBack: IEvent<void>
@@ -86,14 +65,26 @@ export interface IBrowserViewProps {
     reload: IEvent<void>
 }
 
+export interface IBrowserViewState {
+    url: string
+}
+
 export interface SneakInfoFromBrowser {
     id: string
     rectangle: Oni.Shapes.Rectangle
 }
 
-export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
+export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowserViewState> {
     private _webviewElement: any
     private _disposables: IDisposable[] = []
+
+    constructor(props: IBrowserViewProps) {
+        super(props)
+
+        this.state = {
+            url: props.initialUrl,
+        }
+    }
 
     public componentDidMount(): void {
         const d1 = this.props.goBack.subscribe(() => this._goBack())
@@ -118,12 +109,13 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
 
                 return sneaks.map(s => {
                     const callbackFunction = (id: string) => () => this._triggerSneak(id)
+                    const zoomFactor = this._getZoomFactor()
                     return {
                         rectangle: Oni.Shapes.Rectangle.create(
-                            webviewDimensions.left + s.rectangle.x,
-                            webviewDimensions.top + s.rectangle.y,
-                            s.rectangle.width,
-                            s.rectangle.height,
+                            webviewDimensions.left + s.rectangle.x * zoomFactor,
+                            webviewDimensions.top + s.rectangle.y * zoomFactor,
+                            s.rectangle.width * zoomFactor,
+                            s.rectangle.height * zoomFactor,
                         ),
                         callback: callbackFunction(s.id),
                     }
@@ -133,11 +125,20 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
             return []
         })
 
-        this._disposables = this._disposables.concat([d1, d2, d3, d4, d5])
+        const d6 = this.props.configuration.onConfigurationChanged.subscribe(val => {
+            const newZoomFactor = val["browser.zoomFactor"]
+
+            if (this._webviewElement && newZoomFactor) {
+                this._webviewElement.setZoomFactor(newZoomFactor)
+            }
+        })
+
+        this._disposables = this._disposables.concat([d1, d2, d3, d4, d5, d6])
     }
 
     public _triggerSneak(id: string): void {
         if (this._webviewElement) {
+            this._webviewElement.focus()
             this._webviewElement.executeJavaScript(`window["__oni_sneak_execute__"]("${id}")`, true)
         }
     }
@@ -152,21 +153,14 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
         return (
             <Column key={"test2"}>
                 <BrowserControlsWrapper>
-                    <BrowserButton onClick={() => this._goBack()}>
-                        <Icon name="chevron-left" size={IconSize.Large} />
-                    </BrowserButton>
-                    <BrowserButton onClick={() => this._goForward()}>
-                        <Icon name="chevron-right" size={IconSize.Large} />
-                    </BrowserButton>
-                    <BrowserButton onClick={() => this._reload()}>
-                        <Icon name="undo" size={IconSize.Large} />
-                    </BrowserButton>
-                    <AddressBar>
-                        <span>{this.props.url}</span>
-                    </AddressBar>
-                    <BrowserButton onClick={() => this._openDebugger()}>
-                        <Icon name="bug" size={IconSize.Large} />
-                    </BrowserButton>
+                    <BrowserButtonView icon={"chevron-left"} onClick={() => this._goBack()} />
+                    <BrowserButtonView icon={"chevron-right"} onClick={() => this._goForward()} />
+                    <BrowserButtonView icon={"undo"} onClick={() => this._reload()} />
+                    <AddressBarView
+                        url={this.state.url}
+                        onAddressChanged={url => this._navigate(url)}
+                    />
+                    <BrowserButtonView icon={"bug"} onClick={() => this._openDebugger()} />
                 </BrowserControlsWrapper>
                 <BrowserViewWrapper>
                     <div
@@ -183,6 +177,16 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
                 </BrowserViewWrapper>
             </Column>
         )
+    }
+
+    private _navigate(url: string): void {
+        if (this._webviewElement) {
+            this._webviewElement.src = url
+
+            this.setState({
+                url,
+            })
+        }
     }
 
     private _goBack(): void {
@@ -209,13 +213,35 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
         }
     }
 
+    private _getZoomFactor(): number {
+        return this.props.configuration.getValue("browser.zoomFactor", 1.0)
+    }
+
     private _initializeElement(elem: HTMLElement) {
         if (elem && !this._webviewElement) {
             const webviewElement = document.createElement("webview")
             webviewElement.preload = path.join(__dirname, "lib", "webview_preload", "index.js")
             elem.appendChild(webviewElement)
             this._webviewElement = webviewElement
-            this._webviewElement.src = this.props.url
+            this._webviewElement.src = this.props.initialUrl
+
+            this._webviewElement.addEventListener("dom-ready", () => {
+                this._webviewElement.setZoomFactor(this._getZoomFactor())
+            })
+
+            this._webviewElement.addEventListener("did-navigate", (evt: any) => {
+                this.setState({
+                    url: evt.url,
+                })
+            })
+
+            this._webviewElement.addEventListener("focus", () => {
+                focusManager.pushFocus(this._webviewElement)
+            })
+
+            this._webviewElement.addEventListener("blur", () => {
+                focusManager.popFocus(this._webviewElement)
+            })
         }
     }
 }

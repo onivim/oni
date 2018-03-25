@@ -110,16 +110,6 @@ function OniCommand(oniCommand)
     call OniNotify(["oni_command", a:oniCommand])
 endfunction
 
-function OniOpenFile(strategy, file)
-     if bufname('%') != ''
-         exec a:strategy . a:file
-     elseif &modified
-         exec a:strategy . a:file
-     else
-         exec ":e " . a:file
-     endif
- endfunction
-
 augroup OniClipboard
     autocmd!
     autocmd! TextYankPost * :call OniNotifyYank(v:event)

@@ -7,6 +7,7 @@
 
 export * from "./MockBuffer"
 export * from "./neovim/MockNeovimInstance"
+export * from "./MockPersistentStore"
 export * from "./MockPluginManager"
 export * from "./MockThemeLoader"
 
@@ -22,6 +23,22 @@ import { createCompletablePromise, ICompletablePromise } from "./../../src/Utili
 
 import { TokenColor } from "./../../src/Services/TokenColors"
 import { IWorkspace } from "./../../src/Services/Workspace"
+
+export class MockWindowSplit {
+    public get id(): string {
+        return this._id
+    }
+
+    public get innerSplit(): any {
+        return null
+    }
+
+    constructor(private _id: string = "mock.window") {}
+
+    public render(): JSX.Element {
+        return null
+    }
+}
 
 export class MockTokenColors {
     constructor(private _tokenColors: TokenColor[] = []) {}

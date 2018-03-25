@@ -72,7 +72,7 @@ export class ConfigurationEditManager {
     private _fileToEditor: { [filePath: string]: IConfigurationEditInfo } = {}
 
     constructor(private _configuration: Configuration, private _editorManager: EditorManager) {
-        this._editorManager.activeEditor.onBufferSaved.subscribe(evt => {
+        this._editorManager.anyEditor.onBufferSaved.subscribe(evt => {
             const activeEditingSession = this._fileToEditor[evt.filePath]
 
             if (activeEditingSession) {

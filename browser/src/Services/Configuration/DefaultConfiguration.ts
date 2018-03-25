@@ -51,6 +51,8 @@ const BaseConfiguration: IConfigurationValues = {
     "commandline.mode": true,
     "commandline.icons": true,
     "experimental.learning.enabled": false,
+    "experimental.particles.enabled": false,
+    "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
 
     "experimental.neovim.transport": "stdio",

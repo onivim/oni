@@ -141,6 +141,8 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private _onNeovimQuit: Event<void> = new Event<void>()
 
+    private _autoFocus: boolean = true
+
     public get onNeovimQuit(): IEvent<void> {
         return this._onNeovimQuit
     }
@@ -156,6 +158,17 @@ export class NeovimEditor extends Editor implements IEditor {
 
     public get bufferLayers(): BufferLayerManager {
         return this._bufferLayerManager
+    }
+
+    /**
+     * Gets whether or not the editor should autoFocus,
+     * meaning, grab focus on first mount
+     */
+    public get autoFocus(): boolean {
+        return this._autoFocus
+    }
+    public set autoFocus(val: boolean) {
+        this._autoFocus = val
     }
 
     public get syntaxHighlighter(): ISyntaxHighlighter {
@@ -674,8 +687,8 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         // TODO: Factor these out to a place that isn't dependent on a single editor instance
-        ipcRenderer.on("open-files", (_evt: any, message: string, files: string[]) => {
-            this._openFiles(files, message)
+        ipcRenderer.on("open-files", (_evt: any, files: string[]) => {
+            this.openFiles(files)
         })
 
         ipcRenderer.on("open-file", (_evt: any, path: string) => {
@@ -686,20 +699,18 @@ export class NeovimEditor extends Editor implements IEditor {
         // enable opening a file via drag-drop
         document.body.ondragover = ev => {
             ev.preventDefault()
+            ev.stopPropagation()
         }
+
         document.body.ondrop = ev => {
             ev.preventDefault()
+            ev.stopPropagation()
 
             const { files } = ev.dataTransfer
-            // open first file in current editor
+
             if (files.length) {
-                this._neovimInstance.open(normalizePath(files[0].path))
-                // open any subsequent files in new tabs
-                for (let i = 1; i < files.length; i++) {
-                    this._neovimInstance.command(
-                        'exec ":tabe ' + normalizePath(files.item(i).path) + '"',
-                    )
-                }
+                const normalisedPaths = Array.from(files).map(f => normalizePath(f.path))
+                this.openFiles(normalisedPaths, { openMode: Oni.FileOpenMode.Edit })
             }
         }
     }
@@ -738,12 +749,15 @@ export class NeovimEditor extends Editor implements IEditor {
             this._externalMenuOverlay = null
         }
 
-        // TODO: Implement full disposal logic
-        this._popupMenu.dispose()
-        this._popupMenu = null
+        if (this._popupMenu) {
+            this._popupMenu.dispose()
+            this._popupMenu = null
+        }
 
-        this._windowManager.dispose()
-        this._windowManager = null
+        if (this._windowManager) {
+            this._windowManager.dispose()
+            this._windowManager = null
+        }
     }
 
     public enter(): void {
@@ -753,6 +767,23 @@ export class NeovimEditor extends Editor implements IEditor {
         this._commands.activate()
 
         this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
+        this.checkAutoRead()
+
+        if (this.activeBuffer) {
+            this.notifyBufferEnter(this.activeBuffer)
+        }
+    }
+
+    public checkAutoRead(): void {
+        // If the user has autoread enabled, we should run ":checktime" on
+        // focus, as this is needed to get the file to auto-update.
+        // https://github.com/neovim/neovim/issues/1936
+        if (
+            this._neovimInstance.isInitialized &&
+            this._configuration.getValue("vim.setting.autoread")
+        ) {
+            this._neovimInstance.command(":checktime")
+        }
     }
 
     public leave(): void {
@@ -832,6 +863,31 @@ export class NeovimEditor extends Editor implements IEditor {
         return this.activeBuffer
     }
 
+    public async openFiles(
+        files: string[],
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
+        if (!files) {
+            return this.activeBuffer
+        }
+
+        // Open the first file in the current buffer if there is no file there,
+        // otherwise use the passed option.
+        // Respects the users config and uses "tab drop" for Tab users, and "e!"
+        // otherwise.
+        if (this.activeBuffer.filePath === "") {
+            await this.openFile(files[0], { openMode: Oni.FileOpenMode.Edit })
+        } else {
+            await this.openFile(files[0], openOptions)
+        }
+
+        for (let i = 1; i < files.length; i++) {
+            await this.openFile(files[i], openOptions)
+        }
+
+        return this.activeBuffer
+    }
+
     public async newFile(filePath: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":vsp " + filePath)
         const context = await this._neovimInstance.getContext()
@@ -879,7 +935,7 @@ export class NeovimEditor extends Editor implements IEditor {
         }
 
         if (filesToOpen && filesToOpen.length > 0) {
-            await this._openFiles(filesToOpen, ":tabnew")
+            await this.openFiles(filesToOpen, { openMode: Oni.FileOpenMode.Edit })
         } else {
             if (this._configuration.getValue("experimental.welcome.enabled")) {
                 const buf = await this.openFile("WELCOME")
@@ -935,6 +991,7 @@ export class NeovimEditor extends Editor implements IEditor {
         return (
             <Provider store={this._store}>
                 <NeovimSurface
+                    autoFocus={this._autoFocus}
                     renderer={this._renderer}
                     typingPrediction={this._typingPredictionManager}
                     neovimInstance={this._neovimInstance}
@@ -970,26 +1027,21 @@ export class NeovimEditor extends Editor implements IEditor {
         await this._neovimInstance.input(key)
     }
 
+    public async quit(): Promise<void> {
+        if (this._windowManager) {
+            this._windowManager.dispose()
+            this._windowManager = null
+        }
+
+        return this._neovimInstance.quit()
+    }
+
     private _onBounceStart(): void {
         this._actions.setCursorScale(1.1)
     }
 
     private _onBounceEnd(): void {
         this._actions.setCursorScale(1.0)
-    }
-
-    private async _openFiles(files: string[], action: string): Promise<void> {
-        if (!files) {
-            return
-        }
-
-        await this._neovimInstance.callFunction("OniOpenFile", [action, files[0]])
-
-        for (let i = 1; i < files.length; i++) {
-            await this._neovimInstance.command(
-                'exec "' + action + " " + normalizePath(files[i]) + '"',
-            )
-        }
     }
 
     private _onModeChanged(newMode: string): void {

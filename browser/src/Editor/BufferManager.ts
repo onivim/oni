@@ -47,6 +47,15 @@ export interface IBuffer extends Oni.Buffer {
     detectIndentation(): Promise<BufferIndentationInfo>
 }
 
+type NvimError = [1, string]
+
+const isStringArray = (value: NvimError | string[]): value is string[] => {
+    if (value && Array.isArray(value)) {
+        return typeof value[0] === "string"
+    }
+    return false
+}
+
 export type IndentationType = "tab" | "space"
 
 export interface BufferIndentationInfo {
@@ -168,13 +177,20 @@ export class Buffer implements IBuffer {
             Log.warn("getLines called with over 2500 lines, this may cause instability.")
         }
 
-        const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [
+        // Neovim does not error if it is unable to get lines instead it returns an array
+        // of type [1, "an error message"] **on Some occasions**, we only check the first on the assumption that
+        // that is where the number is placed by neovim
+        const lines = await this._neovimInstance.request<string[]>("nvim_buf_get_lines", [
             parseInt(this._id, 10),
             start,
             end,
             false,
         ])
-        return lines
+
+        if (isStringArray(lines)) {
+            return lines
+        }
+        return []
     }
 
     public async setLanguage(language: string): Promise<void> {
