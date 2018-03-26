@@ -11,8 +11,8 @@ import { connect, Provider } from "react-redux"
 import { CSSTransition, TransitionGroup } from "react-transition-group"
 
 import {
-    INotificationButton,
     INotification,
+    INotificationButton,
     INotificationsState,
     NotificationLevel,
 } from "./NotificationStore"
