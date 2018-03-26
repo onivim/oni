@@ -8,11 +8,12 @@ import { Store } from "redux"
 
 import { Event, IEvent } from "oni-types"
 
-import { INotificationsState, NotificationLevel } from "./NotificationStore"
+import { IButton, INotificationsState, NotificationLevel } from "./NotificationStore"
 
 export class Notification {
     private _title: string = ""
     private _detail: string = ""
+    private _buttons: IButton[]
     private _expirationTime: number
     private _level: NotificationLevel = "info"
 
@@ -34,6 +35,13 @@ export class Notification {
         this._detail = detail
     }
 
+    public setButtons(buttons: IButton[]) {
+        // only set valid values
+        if (buttons && buttons.every(b => !!(b.title && b.callback))) {
+            this._buttons = buttons
+        }
+    }
+
     public setLevel(level: NotificationLevel): void {
         this._level = level
     }
@@ -50,6 +58,7 @@ export class Notification {
             id: this._id,
             title: this._title,
             detail: this._detail,
+            buttons: this._buttons,
             level: this._level,
             expirationTime: this._expirationTime,
             onClick: () => {
