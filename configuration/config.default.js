@@ -9,6 +9,7 @@ const activate = oni => {
     //
     // Add input bindings here:
     //
+    oni.input.bind("<f1>", "commands.show")
     oni.input.bind("<c-enter>", () => console.log("Control+Enter was pressed"))
 
     //
