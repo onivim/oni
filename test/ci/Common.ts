@@ -9,7 +9,7 @@ import * as os from "os"
 import * as path from "path"
 
 export const getCompletionElement = () => {
-    return getElementByClassName("autocompletion")
+    return getElementByTestAttribute("autocompletion")
 }
 
 export const getCollateralPath = () => {
@@ -26,9 +26,21 @@ export const getElementByClassName = (className: string): HTMLElement => {
     }
 }
 
+export const getElementBySelector = (selector: string) => document.body.querySelector(selector)
+
 export const getElementsBySelector = (selector: string) => {
     const elements = document.body.querySelectorAll(selector)
     return elements || []
+}
+
+export const testAttributeSelector = testAttribute => `[data-test="${testAttribute}"]`
+
+export const getElementByTestAttribute = (testAttribute: string) => {
+    return getElementBySelector(testAttributeSelector(testAttribute))
+}
+
+export const getElementsByTestAttribute = (testAttribute: string) => {
+    return getElementsBySelector(testAttributeSelector(testAttribute))
 }
 
 export const createNewFile = async (
