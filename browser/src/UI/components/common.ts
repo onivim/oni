@@ -1,4 +1,5 @@
 import * as Color from "color"
+import * as React from "react"
 import * as styledComponents from "styled-components"
 import { ThemedStyledComponentsModule } from "styled-components" // tslint:disable-line no-duplicate-imports
 import { IThemeColors } from "../../Services/Themes/ThemeManager"
@@ -56,6 +57,16 @@ export function withProps<T, U extends HTMLElement = HTMLElement>(
     styledFunction: StyledFunction<React.HTMLProps<U>>,
 ): StyledFunction<T & React.HTMLProps<U>> {
     return styledFunction
+}
+
+export function withTestAttribute<P>(testAttribute: string) {
+    return (Component: React.ReactType<P>) => (props: P) => {
+        // The object spread operator can't be used here until
+        // https://github.com/Microsoft/TypeScript/pull/13288 is merged
+        // tslint:disable-next-line:prefer-object-spread
+        const extendedProps = Object.assign({}, props, { "data-test": testAttribute })
+        return React.createElement(Component, extendedProps)
+    }
 }
 
 const darken = (c: string, deg = 0.15) =>

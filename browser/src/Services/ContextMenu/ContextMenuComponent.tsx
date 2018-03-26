@@ -13,7 +13,13 @@ import * as Oni from "oni-api"
 
 import { IMenus } from "./../Menu/MenuState"
 
-import styled, { css, enableMouse, layer, withProps } from "../../UI/components/common"
+import styled, {
+    css,
+    enableMouse,
+    layer,
+    withProps,
+    withTestAttribute,
+} from "../../UI/components/common"
 import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
 import { HighlightText } from "./../../UI/components/HighlightText"
 import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
@@ -28,7 +34,7 @@ export interface IContextMenuItem {
     icon?: string
 }
 
-const Autocompletion = styled.div`
+const AutocompletionWrapper = styled(withTestAttribute("autocompletion")("div"))`
     ${layer};
     ${enableMouse};
     width: 600px;
@@ -77,10 +83,10 @@ export class ContextMenuView extends React.PureComponent<IContextMenuProps, {}> 
             this.props.selectedIndex,
         )
         return (
-            <Autocompletion>
+            <AutocompletionWrapper>
                 {entries}
                 <ContextMenuDocumentation documentation={selectedItemDocumentation} />
-            </Autocompletion>
+            </AutocompletionWrapper>
         )
     }
 }
