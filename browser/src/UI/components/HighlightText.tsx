@@ -16,7 +16,7 @@ export const HighlightText = ({
 }: IHighlightTextProps) => {
     const letterCountDictionary = createLetterCountDictionary(highlightText)
 
-    const textCharacters = [...text]
+    const textCharacters = typeof text === "string" ? [...text] : []
     const childNodes = textCharacters.map((character, index) => {
         const remainingLetterCountBefore = letterCountDictionary[character]
         letterCountDictionary[character] = remainingLetterCountBefore - 1
@@ -44,7 +44,7 @@ export const HighlightTextByIndex = ({
     text = "",
     className,
 }: IHighlightTextByIndexProps) => {
-    const textCharacters = [...text]
+    const textCharacters = typeof text === "string" ? [...text] : []
     const childNodes = textCharacters.map(
         (character, index) =>
             shouldHighlightIndex(index, highlightIndices) ? (
