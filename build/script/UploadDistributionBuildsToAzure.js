@@ -145,12 +145,12 @@ const start = async () => {
     const distFolder = getDistFolder()
     console.log("Dist folder: " + distFolder)
 
-    const allPromises = builds.map(build => {
-        console.log("Uploading build: " + build)
-        return createBlockBlobFromFile(containerName, build, path.join(distFolder, build))
-    })
+    // const allPromises = builds.map(build => {
+    //     console.log("Uploading build: " + build)
+    //     return createBlockBlobFromFile(containerName, build, path.join(distFolder, build))
+    // })
 
-    await Promise.all(allPromises)
+    // await Promise.all(allPromises)
 
     console.log("Reading blobs for commit...")
     const currentBlobs = await getBlobsInContainer(containerName)
@@ -162,7 +162,7 @@ const start = async () => {
         const metadata = generateBuildMetadata(getBranch(), getVersion())
         console.dir(metadata)
         const metadataAsString = JSON.stringify(metadata)
-        await createBlockBlobFromText(containerName, getBranch() + ".json", metadataAsString)
+        await createBlockBlobFromText("downloadmeta", getBranch() + ".json", metadataAsString)
         console.log("Metadata uploaded!")
     } else {
         console.log("Not all blobs have been uploaded; skipping metadata")
