@@ -328,7 +328,7 @@ const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
         }
     })
 
-const clearYankRegisterEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
+export const clearYankRegisterEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
     action$.ofType("YANK").mergeMap((action: IYankAction) => {
         const oneMinute = 60000
         return Observable.timer(oneMinute).mapTo({
