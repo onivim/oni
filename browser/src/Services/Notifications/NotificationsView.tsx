@@ -10,7 +10,12 @@ import { connect, Provider } from "react-redux"
 
 import { CSSTransition, TransitionGroup } from "react-transition-group"
 
-import { IButton, INotification, INotificationsState, NotificationLevel } from "./NotificationStore"
+import {
+    INotificationButton,
+    INotification,
+    INotificationsState,
+    NotificationLevel,
+} from "./NotificationStore"
 
 import { boxShadow, keyframes, lighten, styled, withProps } from "./../../UI/components/common"
 import { Sneakable } from "./../../UI/components/Sneakable"
@@ -208,7 +213,7 @@ export const Button = styled.button`
 `
 
 interface IButtonProps {
-    buttons: IButton[]
+    buttons: INotificationButton[]
 }
 
 const Buttons = ({ buttons }: IButtonProps) => {

@@ -11,7 +11,7 @@ import { createStore as createReduxStore } from "./../../Redux"
 
 export type NotificationLevel = "info" | "warn" | "error" | "success"
 
-export interface IButton {
+export interface INotificationButton {
     title: string
     callback: (args?: any) => void
 }
@@ -34,7 +34,7 @@ export interface INotification {
     title: string
     detail: string
     expirationTime: number
-    buttons?: IButton[]
+    buttons?: INotificationButton[]
     onClick: () => void
     onClose: () => void
 }
@@ -43,7 +43,7 @@ interface IShowNotification {
     type: "SHOW_NOTIFICATION"
     id: string
     level: NotificationLevel
-    buttons: IButton[]
+    buttons: INotificationButton[]
     title: string
     detail: string
     expirationTime: number
