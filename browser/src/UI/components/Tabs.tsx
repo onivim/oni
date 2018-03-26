@@ -24,6 +24,7 @@ import {
     IThemeColors,
     layer,
     styled,
+    testable,
     withProps,
 } from "./../components/common"
 
@@ -215,7 +216,7 @@ interface ITabWrapperProps {
     shouldShowHighlight: boolean
 }
 
-const TabWrapper = withProps<ITabWrapperProps>(styled.div)`
+const TabWrapper = withProps<ITabWrapperProps>(styled(testable("div", "tab")))`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -358,10 +359,17 @@ export class Tab extends React.Component<ITabPropsWithClick> {
                         </InnerName>
                     </Name>
                     <Corner isHoverEnabled={true} onClick={this.props.onClickClose}>
-                        <IconContainer isVisibleByDefault={false} isVisibleOnTabHover={true}>
+                        <IconContainer
+                            isVisibleByDefault={false}
+                            isVisibleOnTabHover={!this.props.isDirty}
+                            data-test="close-button"
+                        >
                             <Icon name="times" />
                         </IconContainer>
-                        <IconContainer isVisibleByDefault={this.props.isDirty}>
+                        <IconContainer
+                            isVisibleByDefault={this.props.isDirty}
+                            data-test="modified-icon"
+                        >
                             <Circle />
                         </IconContainer>
                     </Corner>

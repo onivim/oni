@@ -59,13 +59,16 @@ export function withProps<T, U extends HTMLElement = HTMLElement>(
     return styledFunction
 }
 
-export function withTestAttribute<P>(testAttribute: string) {
-    return (Component: React.ReactType<P>) => (props: P) => {
+export function testable<T extends keyof JSX.IntrinsicElements>(
+    tagName: T,
+    testAttributeValue: string,
+) {
+    return (props: JSX.IntrinsicElements[T]) => {
         // The object spread operator can't be used here until
         // https://github.com/Microsoft/TypeScript/pull/13288 is merged
         // tslint:disable-next-line:prefer-object-spread
-        const extendedProps = Object.assign({}, props, { "data-test": testAttribute })
-        return React.createElement(Component, extendedProps)
+        const extendedProps = Object.assign({}, { "data-test": testAttributeValue }, props)
+        return React.createElement(tagName, extendedProps)
     }
 }
 

@@ -13,13 +13,7 @@ import * as Oni from "oni-api"
 
 import { IMenus } from "./../Menu/MenuState"
 
-import styled, {
-    css,
-    enableMouse,
-    layer,
-    withProps,
-    withTestAttribute,
-} from "../../UI/components/common"
+import styled, { css, enableMouse, layer, testable, withProps } from "../../UI/components/common"
 import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
 import { HighlightText } from "./../../UI/components/HighlightText"
 import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
@@ -34,7 +28,7 @@ export interface IContextMenuItem {
     icon?: string
 }
 
-const AutocompletionWrapper = styled(withTestAttribute("autocompletion")("div"))`
+const AutocompletionWrapper = styled(testable("div", "autocompletion"))`
     ${layer};
     ${enableMouse};
     width: 600px;
