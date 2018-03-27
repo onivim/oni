@@ -52,6 +52,7 @@ import { NeovimEditor } from "./../NeovimEditor"
 import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 
 import { ImageBufferLayer } from "./ImageBufferLayer"
+import { BrowserLayer } from "./../../Services/Browser/BrowserLayer"
 
 // Helper method to wrap a react component into a layer
 const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.BufferLayer => {
@@ -168,6 +169,16 @@ export class OniEditor extends Utility.Disposable implements IEditor {
         )
         this._neovimEditor.bufferLayers.addBufferLayer("*", buf =>
             wrapReactComponentWithLayer("oni.layer.errors", <ErrorsContainer />),
+        )
+
+        const isBrowserEnabledForBuffer = (buf: Oni.Buffer) =>
+            buf.filePath &&
+            this._configuration.getValue("browser.enabled") &&
+            (buf.filePath.startsWith("http://") || buf.filePath.startsWith("https://"))
+        // TODO: We should be able to add this via our editor API - the `Browser` plugin should be able to add this to all editors.
+        this._neovimEditor.bufferLayers.addBufferLayer(
+            isBrowserEnabledForBuffer,
+            buf => new BrowserLayer(buf.filePath, this._configuration),
         )
 
         const extensions = this._configuration.getValue("editor.imageLayerExtensions")
