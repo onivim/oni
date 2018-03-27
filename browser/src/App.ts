@@ -189,9 +189,9 @@ export const start = async (args: string[]): Promise<void> => {
 
     const Notifications = await notificationsPromise
     Notifications.activate(configuration, overlayManager)
+    const notifications = Notifications.getInstance()
 
     configuration.onConfigurationError.subscribe(err => {
-        const notifications = Notifications.getInstance()
         const notification = notifications.createItem()
         notification.setContents("Error Loading Configuration", err.toString())
         notification.setLevel("error")
@@ -299,7 +299,7 @@ export const start = async (args: string[]): Promise<void> => {
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
 
     const ConfigurationCommands = await configurationCommandsPromise
-    ConfigurationCommands.activate(commandManager, configuration, editorManager)
+    ConfigurationCommands.activate(commandManager, configuration, editorManager, notifications)
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)

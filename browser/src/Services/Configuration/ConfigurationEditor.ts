@@ -8,6 +8,7 @@ import * as os from "os"
 import * as path from "path"
 
 import * as mkdirp from "mkdirp"
+import { IEvent, Event } from "oni-types"
 
 import * as Log from "./../../Log"
 
@@ -70,6 +71,16 @@ export interface IConfigurationEditInfo {
 
 export class ConfigurationEditManager {
     private _fileToEditor: { [filePath: string]: IConfigurationEditInfo } = {}
+    private _onEditSuccess = new Event<void>()
+    private _onEditError = new Event<Error>()
+
+    public get onEditSuccess(): IEvent<void> {
+        return this._onEditSuccess
+    }
+
+    public get onEditError(): IEvent<Error> {
+        return this._onEditError
+    }
 
     constructor(private _configuration: Configuration, private _editorManager: EditorManager) {
         this._editorManager.anyEditor.onBufferSaved.subscribe(evt => {
@@ -145,7 +156,14 @@ export class ConfigurationEditManager {
 
         const contents = await buffer.getLines()
         const joinedContents = contents.join(os.EOL)
-        const transpiledContents = await editor.transpileConfigurationToJavaScript(joinedContents)
+
+        let transpiledContents = null
+        try {
+            transpiledContents = await editor.transpileConfigurationToJavaScript(joinedContents)
+        } catch (ex) {
+            this._onEditError.dispatch(ex)
+            return
+        }
 
         if (
             buffer.filePath === destinationConfigFilePath &&
@@ -158,5 +176,6 @@ export class ConfigurationEditManager {
         }
 
         fs.writeFileSync(destinationConfigFilePath, transpiledContents)
+        this._onEditSuccess.dispatch()
     }
 }

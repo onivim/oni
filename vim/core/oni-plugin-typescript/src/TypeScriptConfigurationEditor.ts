@@ -99,6 +99,13 @@ export class TypeScriptConfigurationEditor {
             } as any,
         })
 
+        if (output.diagnostics.length > 0) {
+            const errorMessage = output.diagnostics.map(
+                d => `Error ${d.code}[${d.start}] ${d.messageText}]`,
+            )
+            throw new Error(errorMessage.join("\n"))
+        }
+
         return output.outputText
     }
 }
