@@ -172,6 +172,7 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
                     indentationLevel={0}
                     isFocused={selectedId === t.tutorialInfo.id}
                     text={<TutorialItemView info={t} />}
+                    onClick={() => this._onSelect(t.tutorialInfo.id)}
                 />
             ))
 
@@ -226,6 +227,7 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
                                     text={"Tutorials"}
                                     isContainer={true}
                                     isExpanded={true}
+                                    onClick={() => {}}
                                 >
                                     {items}
                                 </SidebarContainerView>

@@ -120,6 +120,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                             isFocused={p.id === selectedId}
                             isContainer={false}
                             text={p.id}
+                            onClick={() => {}}
                         />
                     ))
 
@@ -129,6 +130,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                             isFocused={p.id === selectedId}
                             isContainer={false}
                             text={p.id}
+                            onClick={() => {}}
                         />
                     ))
 
@@ -138,6 +140,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                                 text={"Default"}
                                 isExpanded={this.state.defaultPluginsExpanded}
                                 isFocused={selectedId === "container.default"}
+                                onClick={() => {}}
                             >
                                 {defaultPluginItems}
                             </SidebarContainerView>
@@ -145,6 +148,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                                 text={"User"}
                                 isExpanded={this.state.userPluginsExpanded}
                                 isFocused={selectedId === "container.user"}
+                                onClick={() => {}}
                             >
                                 {userPluginItems}
                             </SidebarContainerView>
