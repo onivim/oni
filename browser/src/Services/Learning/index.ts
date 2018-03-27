@@ -28,7 +28,13 @@ export const activate = (
 ) => {
     const learningEnabled = configuration.getValue("experimental.learning.enabled")
 
-    Achievements.activate(commandManager, configuration, editorManager, overlayManager)
+    Achievements.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        sidebarManager,
+        overlayManager,
+    )
 
     if (!learningEnabled) {
         return
@@ -38,6 +44,7 @@ export const activate = (
         completionInfo: {},
     })
     const tutorialManager = new TutorialManager(editorManager, store, windowManager)
+    tutorialManager.start()
     sidebarManager.add("trophy", new LearningPane(tutorialManager, commandManager))
 
     AllTutorials.forEach((tut: ITutorial) => tutorialManager.registerTutorial(tut))

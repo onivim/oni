@@ -31,7 +31,23 @@ export interface ParticleSystemDefinition {
     StartOpacity: number
     EndOpacity: number
 
+    Gravity: Vector
+
     Time: number
+}
+
+const ZeroVector = { x: 0, y: 0 }
+
+export const DefaultParticleSystemDefinition: Partial<ParticleSystemDefinition> = {
+    Color: "white",
+    StartOpacity: 1,
+    EndOpacity: 0,
+    Gravity: { x: 0, y: 500 },
+    Time: 1,
+    Position: ZeroVector,
+    Velocity: ZeroVector,
+    PositionVariance: ZeroVector,
+    VelocityVariance: ZeroVector,
 }
 
 export interface Particle {
@@ -41,6 +57,7 @@ export interface Particle {
 
     velocity: Vector
     opacityVelocity: number
+    gravity: Vector
 
     remainingTime: number
 }
@@ -70,8 +87,13 @@ export class ParticleSystem {
         this._enabled = val
     }
 
-    public createParticles(count: number, system: ParticleSystemDefinition): void {
+    public createParticles(count: number, particleSystem: Partial<ParticleSystemDefinition>): void {
         const newParticles: Particle[] = []
+
+        const system = {
+            ...DefaultParticleSystemDefinition,
+            ...particleSystem,
+        }
 
         for (let i = 0; i < count; i++) {
             newParticles.push({
@@ -85,6 +107,7 @@ export class ParticleSystem {
                     x: system.Velocity.x + (Math.random() - 0.5) * system.VelocityVariance.x,
                     y: system.Velocity.y + (Math.random() - 0.5) * system.VelocityVariance.y,
                 },
+                gravity: system.Gravity,
                 opacityVelocity: (system.EndOpacity - system.StartOpacity) / system.Time,
                 remainingTime: system.Time,
             })
@@ -124,8 +147,8 @@ export class ParticleSystem {
                     y: p.position.y + p.velocity.y * deltaTime,
                 },
                 velocity: {
-                    x: p.velocity.x,
-                    y: p.velocity.y + 500 * deltaTime,
+                    x: p.velocity.x + p.gravity.x * deltaTime,
+                    y: p.velocity.y + p.gravity.y * deltaTime,
                 },
                 opacity: p.opacity + p.opacityVelocity * deltaTime,
                 remainingTime: p.remainingTime - deltaTime,

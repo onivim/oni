@@ -75,7 +75,7 @@ export const CompletionView = (props: ICompletionViewProps): JSX.Element => {
             <Fixed>
                 <ResultsWrapper>
                     <div>
-                        <Bold>Time:</Bold> {props.time}s
+                        <Bold>Time:</Bold> {(props.time / 1000).toFixed(2)}s
                     </div>
                     <div>
                         <Bold>Keystrokes:</Bold> {props.keyStrokes}

@@ -768,6 +768,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
         this.checkAutoRead()
+
+        if (this.activeBuffer) {
+            this.notifyBufferEnter(this.activeBuffer)
+        }
     }
 
     public checkAutoRead(): void {

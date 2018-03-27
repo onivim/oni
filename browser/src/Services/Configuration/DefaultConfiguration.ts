@@ -193,6 +193,11 @@ const BaseConfiguration: IConfigurationValues = {
     "language.ocaml.languageServer.arguments": ["--stdio"],
     "language.ocaml.languageServer.configuration": ocamlAndReasonConfiguration,
 
+    "language.haskell.languageServer.command": "stack",
+    "language.haskell.languageServer.arguments": ["exec", "--", "hie", "--lsp"],
+    "language.haskell.languageServer.rootFiles": [".git"],
+    "language.haskell.languageServer.configuration": {},
+
     "language.typescript.completionTriggerCharacters": [".", "/", "\\"],
     "language.typescript.textMateGrammar": {
         ".ts": path.join(

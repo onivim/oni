@@ -40,6 +40,7 @@ export interface IGameplayBufferLayerViewProps {
 
 export interface IGameplayBufferLayerViewState {
     renderFunction: (context: Oni.BufferLayerRenderContext) => JSX.Element
+    tick: number
 }
 
 export class GameplayBufferLayerView extends React.PureComponent<
@@ -51,6 +52,7 @@ export class GameplayBufferLayerView extends React.PureComponent<
 
         this.state = {
             renderFunction: () => null,
+            tick: 0,
         }
     }
 
@@ -59,6 +61,10 @@ export class GameplayBufferLayerView extends React.PureComponent<
             this.setState({
                 renderFunction: newState.renderFunc,
             })
+        })
+
+        this.props.tutorialGameplay.onTick.subscribe(() => {
+            this.forceUpdate()
         })
     }
 

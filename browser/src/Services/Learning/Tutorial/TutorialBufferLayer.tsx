@@ -32,9 +32,8 @@ import { withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
 import { StatusBar } from "./../../../UI/components/StatusBar"
 
-import { ITutorial } from "./ITutorial"
 import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
-import * as Tutorials from "./Tutorials"
+import { TutorialManager } from "./TutorialManager"
 
 import { CompletionView } from "./CompletionView"
 import { GameplayBufferLayer } from "./GameplayBufferLayer"
@@ -87,6 +86,8 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
     private _initPromise: Promise<void>
 
     private _lastStage = -1
+    private _hasAddedLayer: boolean = false
+    private _currentTutorialId: string
     private _lastTutorialState: ITutorialState
     private _completionInfo: IGameplayCompletionInfo = DefaultCompletionInfo
     private _element: HTMLElement
@@ -103,7 +104,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         return "Tutorial"
     }
 
-    constructor() {
+    constructor(private _tutorialManager: TutorialManager) {
         // TODO: Streamline dependences for NeovimEditor, so it's easier just to spin one up..
         this._editor = new NeovimEditor(
             getColorsInstance(),
@@ -160,6 +161,11 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
                 completionInfo: this._completionInfo,
             })
 
+            this._tutorialManager.notifyTutorialCompleted(this._currentTutorialId, {
+                time: this._completionInfo.timeInMilliseconds,
+                keyPresses: this._completionInfo.keyPresses,
+            })
+
             if (this._element) {
                 const bounds = this._element.getBoundingClientRect()
                 const blue = "rgb(97, 175, 239)"
@@ -180,7 +186,11 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
 
     public handleInput(key: string): boolean {
         if (this._completionInfo.completed) {
-            this.startTutorial(new Tutorials.SwitchModeTutorial())
+            const nextTutorial = this._tutorialManager.getNextTutorialId(this._currentTutorialId)
+
+            if (nextTutorial) {
+                this.startTutorial(nextTutorial)
+            }
         } else {
             this._editor.input(key)
             this._gameTracker.addKeyPress(1)
@@ -199,11 +209,20 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         )
     }
 
-    public async startTutorial(tutorial: ITutorial): Promise<void> {
+    public async startTutorial(tutorialId: string): Promise<void> {
         await this._initPromise
         this._completionInfo = DefaultCompletionInfo
+        this._currentTutorialId = tutorialId
+        const tutorial = this._tutorialManager.getTutorial(tutorialId)
+
+        if (!this._hasAddedLayer) {
+            this._editor.activeBuffer.addLayer(
+                new GameplayBufferLayer(this._tutorialGameplayManager),
+            )
+            this._hasAddedLayer = true
+        }
+
         this._tutorialGameplayManager.start(tutorial, this._editor.activeBuffer)
-        this._editor.activeBuffer.addLayer(new GameplayBufferLayer(this._tutorialGameplayManager))
         this._gameTracker.start()
 
         windowManager.focusSplit("oni.window.0")
@@ -332,14 +351,38 @@ export class TutorialBufferLayerView extends React.PureComponent<
         const description = this.state.tutorialState.metadata.description
 
         const activeIndex = this.state.tutorialState.activeGoalIndex
-        const goals = this.state.tutorialState.goals.map((goal, idx) => {
-            const isCompleted = idx < activeIndex
-            const visible = Math.abs(idx - activeIndex) < 2
+
+        const goalsWithIndex = this.state.tutorialState.goals
+            .map((goal, idx) => ({
+                goalIndex: idx,
+                goal,
+            }))
+            .filter(gi => !!gi.goal)
+
+        let postActiveIndex = goalsWithIndex.findIndex(f => f.goalIndex === activeIndex)
+
+        if (this.state.completionInfo.completed) {
+            postActiveIndex = goalsWithIndex.length
+        }
+
+        const goalsToDisplay = goalsWithIndex.map((goal, postIndex) => {
+            const isCompleted = postActiveIndex > postIndex
+
+            let visible = false
+
+            if (postActiveIndex === 0) {
+                visible = postIndex < 3
+            } else if (postActiveIndex > goalsWithIndex.length - 3) {
+                visible = goalsWithIndex.length - postIndex <= 3
+            } else {
+                visible = Math.abs(postIndex - postActiveIndex) < 2
+            }
+
             return (
                 <GoalView
                     completed={isCompleted}
-                    description={goal}
-                    active={idx === activeIndex}
+                    description={goal.goal}
+                    active={goal.goalIndex === activeIndex}
                     visible={visible}
                 />
             )
@@ -399,8 +442,8 @@ export class TutorialBufferLayerView extends React.PureComponent<
                     <SectionHeader>Description:</SectionHeader>
                     <Section>{description}</Section>
                     <SectionHeader>Goals:</SectionHeader>
-                    <Section>
-                        <div>{goals}</div>
+                    <Section style={{ height: "200px" }}>
+                        <div>{goalsToDisplay}</div>
                     </Section>
                     <Section />
                 </TutorialSectionWrapper>

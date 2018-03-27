@@ -146,6 +146,7 @@ export const start = async (args: string[]): Promise<void> => {
 
     const Colors = await colorsPromise
     Colors.activate(configuration, Themes.getThemeManagerInstance())
+    const colors = Colors.getInstance()
     Shell.initializeColors(Colors.getInstance())
     Performance.endMeasure("Oni.Start.Themes")
 
@@ -177,7 +178,7 @@ export const start = async (args: string[]): Promise<void> => {
     const sneakPromise = import("./Services/Sneak")
     const { commandManager } = await import("./Services/CommandManager")
     const Sneak = await sneakPromise
-    Sneak.activate(commandManager, overlayManager)
+    Sneak.activate(colors, commandManager, configuration, overlayManager)
 
     const Menu = await menuPromise
     Menu.activate(configuration, overlayManager)
@@ -340,6 +341,16 @@ export const start = async (args: string[]): Promise<void> => {
 
     const Particles = await import("./Services/Particles")
     Particles.activate(commandManager, configuration, editorManager, overlayManager)
+
+    const PluginConfigurationSynchronizer = await import("./Plugins/PluginConfigurationSynchronizer")
+    PluginConfigurationSynchronizer.activate(configuration, pluginManager)
+
+    const Achievements = await import("./Services/Learning/Achievements")
+    const achievements = Achievements.getInstance()
+
+    if (achievements) {
+        Sneak.registerAchievements(achievements)
+    }
 
     Performance.endMeasure("Oni.Start.Activate")
 

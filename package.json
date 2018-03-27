@@ -77,76 +77,704 @@
         },
         "fileAssociations": [
             {
-                "ext": "js",
-                "name": "javascript",
+                "name": "ADA source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": [
+                    "adb",
+                    "ads"
+                ]
             },
             {
-                "ext": "json",
-                "name": "JSON",
+                "name": "Compiled AppleScript",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "scpt"
             },
             {
-                "ext": "jsx",
-                "name": "JSX",
+                "name": "AppleScript source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "applescript"
             },
             {
-                "ext": "py",
-                "name": "Python",
+                "name": "ActionScript source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "as"
             },
             {
-                "ext": "go",
-                "name": "Go Lang",
+                "name": "ASP document",
                 "role": "Editor",
-                "isPackage": true
+                "ext": [
+                    "asp",
+                    "asa"
+                ]
             },
             {
-                "ext": "re",
-                "name": "Reason",
+                "name": "ASP.NET document",
                 "role": "Editor",
-                "isPackage": true
+                "ext": [
+                    "aspx",
+                    "ascx",
+                    "asmx",
+                    "ashx"
+                ]
             },
             {
-                "ext": "vim",
-                "name": "VimL",
+                "name": "BibTeX bibliography",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "bib"
             },
             {
-                "ext": "ts",
-                "name": "Typescript",
+                "name": "C source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "c"
             },
             {
-                "ext": "tsx",
-                "name": "Typescript",
+                "name": "C++ source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": [
+                    "cc",
+                    "cp",
+                    "cpp",
+                    "cxx",
+                    "c++"
+                ]
             },
             {
-                "ext": "css",
-                "name": "CSS",
+                "name": "C# source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "cs"
             },
             {
-                "ext": "txt",
-                "name": "Text",
+                "name": "CoffeeScript source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "coffee"
             },
             {
-                "ext": "md",
-                "name": "Markdown",
+                "name": "Commit message",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "COMMIT_EDITMSG"
+            },
+            {
+                "name": "Context Free Design Grammar",
+                "role": "Editor",
+                "ext": "cfdg"
+            },
+            {
+                "name": "Clojure source",
+                "role": "Editor",
+                "ext": [
+                    "clj",
+                    "cljs"
+                ]
+            },
+            {
+                "name": "Comma separated values",
+                "role": "Editor",
+                "ext": "csv"
+            },
+            {
+                "name": "Tab separated values",
+                "role": "Editor",
+                "ext": "tsv"
+            },
+            {
+                "name": "CGI script",
+                "role": "Editor",
+                "ext": [
+                    "cgi",
+                    "fcgi"
+                ]
+            },
+            {
+                "name": "Configuration file",
+                "role": "Editor",
+                "ext": [
+                    "cfg",
+                    "conf",
+                    "config",
+                    "htaccess"
+                ]
+            },
+            {
+                "name": "Cascading style sheet",
+                "role": "Editor",
+                "ext": "css"
+            },
+            {
+                "name": "Differences file",
+                "role": "Editor",
+                "ext": "diff"
+            },
+            {
+                "name": "Document Type Definition",
+                "role": "Editor",
+                "ext": "dtd"
+            },
+            {
+                "name": "Dylan source",
+                "role": "Editor",
+                "ext": "dylan"
+            },
+            {
+                "name": "Erlang source",
+                "role": "Editor",
+                "ext": [
+                    "erl",
+                    "hrl"
+                ]
+            },
+            {
+                "name": "F-Script source",
+                "role": "Editor",
+                "ext": "fscript"
+            },
+            {
+                "name": "Fortran source",
+                "role": "Editor",
+                "ext": [
+                    "f",
+                    "for",
+                    "fpp",
+                    "f77",
+                    "f90",
+                    "f95"
+                ]
+            },
+            {
+                "name": "Header",
+                "role": "Editor",
+                "ext": [
+                    "h",
+                    "pch"
+                ]
+            },
+            {
+                "name": "C++ header",
+                "role": "Editor",
+                "ext": [
+                    "hh",
+                    "hpp",
+                    "hxx",
+                    "h++"
+                ]
+            },
+            {
+                "name": "Go source",
+                "role": "Editor",
+                "ext": "go"
+            },
+            {
+                "name": "GTD document",
+                "role": "Editor",
+                "ext": [
+                    "gtd",
+                    "gtdlog"
+                ]
+            },
+            {
+                "name": "Haskell source",
+                "role": "Editor",
+                "ext": [
+                    "hs",
+                    "lhs"
+                ]
+            },
+            {
+                "name": "HTML document",
+                "role": "Editor",
+                "ext": [
+                    "htm",
+                    "html",
+                    "phtml",
+                    "shtml"
+                ]
+            },
+            {
+                "name": "Include file",
+                "role": "Editor",
+                "ext": "inc"
+            },
+            {
+                "name": "iCalendar schedule",
+                "role": "Editor",
+                "ext": "ics"
+            },
+            {
+                "name": "MS Windows initialization file",
+                "role": "Editor",
+                "ext": "ini"
+            },
+            {
+                "name": "Io source",
+                "role": "Editor",
+                "ext": "io"
+            },
+            {
+                "name": "Java source",
+                "role": "Editor",
+                "ext": "java"
+            },
+            {
+                "name": "BeanShell script",
+                "role": "Editor",
+                "ext": "bsh"
+            },
+            {
+                "name": "Java properties file",
+                "role": "Editor",
+                "ext": "properties"
+            },
+            {
+                "name": "JavaScript source",
+                "role": "Editor",
+                "ext": [
+                    "js",
+                    "htc"
+                ]
+            },
+            {
+                "name": "Java Server Page",
+                "role": "Editor",
+                "ext": "jsp"
+            },
+            {
+                "name": "JSON file",
+                "role": "Editor",
+                "ext": "json"
+            },
+            {
+                "name": "LDAP Data Interchange Format",
+                "role": "Editor",
+                "ext": "ldif"
+            },
+            {
+                "name": "Less source",
+                "role": "Editor",
+                "ext": "less"
+            },
+            {
+                "name": "Lisp source",
+                "role": "Editor",
+                "ext": [
+                    "lisp",
+                    "cl",
+                    "l",
+                    "lsp",
+                    "mud",
+                    "el"
+                ]
+            },
+            {
+                "name": "Log file",
+                "role": "Editor",
+                "ext": "log"
+            },
+            {
+                "name": "Logo source",
+                "role": "Editor",
+                "ext": "logo"
+            },
+            {
+                "name": "Lua source",
+                "role": "Editor",
+                "ext": "lua"
+            },
+            {
+                "name": "Markdown document",
+                "role": "Editor",
+                "ext": [
+                    "markdown",
+                    "mdown",
+                    "markdn",
+                    "md"
+                ]
+            },
+            {
+                "name": "Makefile source",
+                "role": "Editor",
+                "ext": "mk"
+            },
+            {
+                "name": "Mediawiki document",
+                "role": "Editor",
+                "ext": [
+                    "wiki",
+                    "wikipedia",
+                    "mediawiki"
+                ]
+            },
+            {
+                "name": "MIPS assembler source",
+                "role": "Editor",
+                "ext": [
+                    "s",
+                    "mips",
+                    "spim",
+                    "asm"
+                ]
+            },
+            {
+                "name": "Modula-3 source",
+                "role": "Editor",
+                "ext": [
+                    "m3",
+                    "cm3"
+                ]
+            },
+            {
+                "name": "MoinMoin document",
+                "role": "Editor",
+                "ext": "moinmoin"
+            },
+            {
+                "name": "Objective-C source",
+                "role": "Editor",
+                "ext": "m"
+            },
+            {
+                "name": "Objective-C++ source",
+                "role": "Editor",
+                "ext": "mm"
+            },
+            {
+                "name": "OCaml source",
+                "role": "Editor",
+                "ext": [
+                    "ml",
+                    "mli",
+                    "mll",
+                    "mly"
+                ]
+            },
+            {
+                "name": "Mustache document",
+                "role": "Editor",
+                "ext": [
+                    "mustache",
+                    "hbs"
+                ]
+            },
+            {
+                "name": "Pascal source",
+                "role": "Editor",
+                "ext": [
+                    "pas",
+                    "p"
+                ]
+            },
+            {
+                "name": "Patch file",
+                "role": "Editor",
+                "ext": "patch"
+            },
+            {
+                "name": "Perl source",
+                "role": "Editor",
+                "ext": [
+                    "pl",
+                    "pod",
+                    "perl"
+                ]
+            },
+            {
+                "name": "Perl module",
+                "role": "Editor",
+                "ext": "pm"
+            },
+            {
+                "name": "PHP source",
+                "role": "Editor",
+                "ext": [
+                    "php",
+                    "php3",
+                    "php4",
+                    "php5"
+                ]
+            },
+            {
+                "name": "PostScript source",
+                "role": "Editor",
+                "ext": [
+                    "ps",
+                    "eps"
+                ]
+            },
+            {
+                "name": "Property list",
+                "role": "Editor",
+                "ext": [
+                    "dict",
+                    "plist",
+                    "scriptSuite",
+                    "scriptTerminology"
+                ]
+            },
+            {
+                "name": "Python source",
+                "role": "Editor",
+                "ext": [
+                    "py",
+                    "rpy",
+                    "cpy",
+                    "python"
+                ]
+            },
+            {
+                "name": "R source",
+                "role": "Editor",
+                "ext": [
+                    "r",
+                    "s"
+                ]
+            },
+            {
+                "name": "Ragel source",
+                "role": "Editor",
+                "ext": [
+                    "rl",
+                    "ragel"
+                ]
+            },
+            {
+                "name": "Remind document",
+                "role": "Editor",
+                "ext": [
+                    "rem",
+                    "remind"
+                ]
+            },
+            {
+                "name": "reStructuredText document",
+                "role": "Editor",
+                "ext": [
+                    "rst",
+                    "rest"
+                ]
+            },
+            {
+                "name": "HTML with embedded Ruby",
+                "role": "Editor",
+                "ext": [
+                    "rhtml",
+                    "erb"
+                ]
+            },
+            {
+                "name": "SQL with embedded Ruby",
+                "role": "Editor",
+                "ext": "erbsql"
+            },
+            {
+                "name": "Ruby source",
+                "role": "Editor",
+                "ext": [
+                    "rb",
+                    "rbx",
+                    "rjs",
+                    "rxml"
+                ]
+            },
+            {
+                "name": "Sass source",
+                "role": "Editor",
+                "ext": [
+                    "sass",
+                    "scss"
+                ]
+            },
+            {
+                "name": "Scheme source",
+                "role": "Editor",
+                "ext": [
+                    "scm",
+                    "sch"
+                ]
+            },
+            {
+                "name": "Setext document",
+                "role": "Editor",
+                "ext": "ext"
+            },
+            {
+                "name": "Shell script",
+                "role": "Editor",
+                "ext": [
+                    "sh",
+                    "ss",
+                    "bashrc",
+                    "bash_profile",
+                    "bash_login",
+                    "profile",
+                    "bash_logout"
+                ]
+            },
+            {
+                "name": "Slate source",
+                "role": "Editor",
+                "ext": "slate"
+            },
+            {
+                "name": "SQL source",
+                "role": "Editor",
+                "ext": "sql"
+            },
+            {
+                "name": "Standard ML source",
+                "role": "Editor",
+                "ext": "sml"
+            },
+            {
+                "name": "Strings document",
+                "role": "Editor",
+                "ext": "strings"
+            },
+            {
+                "name": "Scalable vector graphics",
+                "role": "Editor",
+                "ext": "svg"
+            },
+            {
+                "name": "SWIG source",
+                "role": "Editor",
+                "ext": [
+                    "i",
+                    "swg"
+                ]
+            },
+            {
+                "name": "Tcl source",
+                "role": "Editor",
+                "ext": "tcl"
+            },
+            {
+                "name": "TeX document",
+                "role": "Editor",
+                "ext": [
+                    "tex",
+                    "sty",
+                    "cls"
+                ]
+            },
+            {
+                "name": "Plain text document",
+                "role": "Editor",
+                "ext": [
+                    "text",
+                    "txt",
+                    "utf8"
+                ]
+            },
+            {
+                "name": "Textile document",
+                "role": "Editor",
+                "ext": "textile"
+            },
+            {
+                "name": "TOML file",
+                "role": "Editor",
+                "ext": "toml"
+            },
+            {
+                "name": "XHTML document",
+                "role": "Editor",
+                "ext": "xhtml"
+            },
+            {
+                "name": "XML document",
+                "role": "Editor",
+                "ext": [
+                    "xml",
+                    "xsd",
+                    "xib",
+                    "rss",
+                    "tld",
+                    "pt",
+                    "cpt",
+                    "dtml"
+                ]
+            },
+            {
+                "name": "XSL stylesheet",
+                "role": "Editor",
+                "ext": [
+                    "xsl",
+                    "xslt"
+                ]
+            },
+            {
+                "name": "Electronic business card",
+                "role": "Editor",
+                "ext": [
+                    "vcf",
+                    "vcard"
+                ]
+            },
+            {
+                "name": "Visual Basic source",
+                "role": "Editor",
+                "ext": "vb"
+            },
+            {
+                "name": "YAML document",
+                "role": "Editor",
+                "ext": [
+                    "yaml",
+                    "yml"
+                ]
+            },
+            {
+                "name": "Text document",
+                "role": "Editor",
+                "ext": "nfo"
+            },
+            {
+                "name": "Source",
+                "role": "Editor",
+                "ext": [
+                    "g",
+                    "vss",
+                    "d",
+                    "e",
+                    "gri",
+                    "inf",
+                    "mel",
+                    "build",
+                    "re",
+                    "textmate",
+                    "fxscript",
+                    "lgt"
+                ]
+            },
+            {
+                "name": "Document",
+                "role": "Editor",
+                "ext": [
+                    "cfm",
+                    "cfml",
+                    "dbm",
+                    "dbml",
+                    "dist",
+                    "dot",
+                    "ics",
+                    "ifb",
+                    "dwt",
+                    "g",
+                    "in",
+                    "l",
+                    "m4",
+                    "mp",
+                    "mtml",
+                    "orig",
+                    "pde",
+                    "rej",
+                    "servlet",
+                    "s5",
+                    "tmp",
+                    "tpl",
+                    "tt",
+                    "xql",
+                    "yy",
+                    "*"
+                ]
             }
         ]
     },
