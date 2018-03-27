@@ -21,6 +21,8 @@ import { SidebarPane } from "./../Sidebar"
 
 import { ITutorialMetadataWithProgress, TutorialManager } from "./Tutorial/TutorialManager"
 
+import { noop } from "./../../Utility"
+
 export class LearningPane implements SidebarPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
@@ -227,7 +229,7 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
                                     text={"Tutorials"}
                                     isContainer={true}
                                     isExpanded={true}
-                                    onClick={() => {}}
+                                    onClick={noop}
                                 >
                                     {items}
                                 </SidebarContainerView>
