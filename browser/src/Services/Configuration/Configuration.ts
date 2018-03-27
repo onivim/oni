@@ -237,8 +237,8 @@ export class Configuration implements Oni.Configuration {
         return !!this.getValue(configValue)
     }
 
-    public setValue(valueName: string, value: any): void {
-        return this.setValues({ [valueName]: value })
+    public setValue(valueName: string, value: any, persist: boolean = false): void {
+        return this.setValues({ [valueName]: value }, persist)
     }
 
     public setValues(configValues: { [configValue: string]: any }, persist: boolean = false): void {

@@ -257,7 +257,7 @@ export class NeovimEditor extends Editor implements IEditor {
         const initVimPath = this._neovimInstance.getInitVimPath()
         const exists = Boolean(initVimPath)
         const initVimInUse = this._configuration.getValue("oni.loadInitVim")
-        if (exists && !initVimInUse) {
+        if (exists && typeof initVimInUse === "undefined") {
             const initVimNotification = notificationManager.createItem()
             initVimNotification.setLevel("info")
             initVimNotification.setContents(
@@ -269,14 +269,14 @@ export class NeovimEditor extends Editor implements IEditor {
                 {
                     title: "Yes",
                     callback: () => {
-                        this._configuration.setValue("oni.loadInitVim", true)
+                        this._configuration.setValues({ "oni.loadInitVim": true }, true)
                         commandManager.executeCommand("oni.debug.reload")
                     },
                 },
                 {
                     title: "No",
                     callback: () => {
-                        this._configuration.setValue("oni.loadInit.vim", false)
+                        this._configuration.setValues({ "oni.loadInitVim": false }, true)
                     },
                 },
             ])

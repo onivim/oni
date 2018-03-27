@@ -86,7 +86,7 @@ export interface IConfigurationValues {
     // By default, user's init.vim is not loaded, to avoid conflicts.
     // Set this to `true` to enable loading of init.vim.
     // Set this to a string to override the init.vim path.
-    "oni.loadInitVim": string | boolean
+    // "oni.loadInitVim": string | boolean
 
     // If true, hide Menu bar by default
     // (can still be activated by pressing 'Alt')
