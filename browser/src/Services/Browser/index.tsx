@@ -66,8 +66,22 @@ export const activate = (
 
     const activeLayers: { [bufferId: string]: BrowserLayer } = {}
 
+    const browserEnabled = configuration.registerSetting("browser.enabled", {
+        requiresReload: false,
+        description:
+            "`browser.enabled` controls whether the embedded browser functionality is enabled",
+        defaultValue: true,
+    })
+
+    configuration.registerSetting("browser.zoomFactor", {
+        description:
+            "This sets the `zoomFactor` for nested browser windows. A value of `1` means `100%` zoom, a value of 0.5 means `50%` zoom, and a value of `2` means `200%` zoom.",
+        requiresReload: false,
+        defaultValue: 1,
+    })
+
     const openUrl = async (url: string, openMode: Oni.FileOpenMode = Oni.FileOpenMode.NewTab) => {
-        if (configuration.getValue("experimental.browser.enabled")) {
+        if (browserEnabled.getValue()) {
             url = url || configuration.getValue("browser.defaultUrl")
 
             count++
@@ -84,27 +98,20 @@ export const activate = (
         }
     }
 
-    if (configuration.getValue("experimental.browser.enabled")) {
-        commandManager.registerCommand({
-            command: "browser.openUrl.verticalSplit",
-            name: "Browser: Open in Vertical Split",
-            detail: "Open a browser window",
-            execute: (url?: string) => openUrl(url, Oni.FileOpenMode.VerticalSplit),
-        })
+    commandManager.registerCommand({
+        command: "browser.openUrl.verticalSplit",
+        name: "Browser: Open in Vertical Split",
+        detail: "Open a browser window",
+        execute: (url?: string) => openUrl(url, Oni.FileOpenMode.VerticalSplit),
+        enabled: () => browserEnabled.getValue(),
+    })
 
-        commandManager.registerCommand({
-            command: "browser.openUrl.horizontalSplit",
-            name: "Browser: Open in Horizontal Split",
-            detail: "Open a browser window",
-            execute: (url?: string) => openUrl(url, Oni.FileOpenMode.HorizontalSplit),
-        })
-    }
-
-    configuration.registerSetting("browser.zoomFactor", {
-        description:
-            "This sets the `zoomFactor` for nested browser windows. A value of `1` means `100%` zoom, a value of 0.5 means `50%` zoom, and a value of `2` means `200%` zoom.",
-        requiresReload: false,
-        defaultValue: 1,
+    commandManager.registerCommand({
+        command: "browser.openUrl.horizontalSplit",
+        name: "Browser: Open in Horizontal Split",
+        detail: "Open a browser window",
+        execute: (url?: string) => openUrl(url, Oni.FileOpenMode.HorizontalSplit),
+        enabled: () => browserEnabled.getValue(),
     })
 
     commandManager.registerCommand({
@@ -124,8 +131,7 @@ export const activate = (
     }
 
     const isBrowserLayerActive = () =>
-        !!activeLayers[editorManager.activeEditor.activeBuffer.id] &&
-        !!configuration.getValue("experimental.browser.enabled")
+        !!activeLayers[editorManager.activeEditor.activeBuffer.id] && browserEnabled.getValue()
 
     // Per-layer commands
     commandManager.registerCommand({
