@@ -57,7 +57,7 @@ const getConfigPath = (settings: any, rootPath: string) => {
         // Fix #1436 - if no config is specified, we'll just use
         // the empty config, so that the user's config doesn't
         // impact the test results.
-        return normalizePath(serializeConfig({}))
+        return normalizePath(serializeConfig({ "oni.loadInitVim": false }))
     }
 }
 

@@ -245,6 +245,7 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
         const { level, buttons } = this.props
         return (
             <NotificationWrapper
+                data-test="notification"
                 key={this.props.id}
                 onClick={this.props.onClick}
                 className="notification"
@@ -263,7 +264,9 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
                             </Sneakable>
                         </NotificationIconWrapper>
                     </IconContainer>
-                    <NotificationTitle level={level}>{this.props.title}</NotificationTitle>
+                    <NotificationTitle data-test="title" level={level}>
+                        {this.props.title}
+                    </NotificationTitle>
                 </NotificationHeader>
                 <NotificationContents>
                     <NotificationDescription>{this.props.detail}</NotificationDescription>
