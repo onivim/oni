@@ -66,7 +66,7 @@ export const activate = (
 
     const activeLayers: { [bufferId: string]: BrowserLayer } = {}
 
-    const browserEnabled = configuration.registerSetting("browser.enabled", {
+    const browserEnabledSetting = configuration.registerSetting("browser.enabled", {
         requiresReload: false,
         description:
             "`browser.enabled` controls whether the embedded browser functionality is enabled",
@@ -80,9 +80,16 @@ export const activate = (
         defaultValue: 1,
     })
 
+    const defaultUrlSetting = configuration.registerSetting("browser.defaultUrl", {
+        description:
+            "`browser.defaultUrl` sets the default url when opening a browser window, and no url was specified.",
+        requiresReload: false,
+        defaultValue: "https://github.com/onivim/oni",
+    })
+
     const openUrl = async (url: string, openMode: Oni.FileOpenMode = Oni.FileOpenMode.NewTab) => {
-        if (browserEnabled.getValue()) {
-            url = url || configuration.getValue("browser.defaultUrl")
+        if (browserEnabledSetting.getValue()) {
+            url = url || defaultUrlSetting.getValue()
 
             count++
             const buffer: Oni.Buffer = await editorManager.activeEditor.openFile(
@@ -103,7 +110,7 @@ export const activate = (
         name: "Browser: Open in Vertical Split",
         detail: "Open a browser window",
         execute: (url?: string) => openUrl(url, Oni.FileOpenMode.VerticalSplit),
-        enabled: () => browserEnabled.getValue(),
+        enabled: () => browserEnabledSetting.getValue(),
     })
 
     commandManager.registerCommand({
@@ -111,7 +118,7 @@ export const activate = (
         name: "Browser: Open in Horizontal Split",
         detail: "Open a browser window",
         execute: (url?: string) => openUrl(url, Oni.FileOpenMode.HorizontalSplit),
-        enabled: () => browserEnabled.getValue(),
+        enabled: () => browserEnabledSetting.getValue(),
     })
 
     commandManager.registerCommand({
@@ -131,7 +138,8 @@ export const activate = (
     }
 
     const isBrowserLayerActive = () =>
-        !!activeLayers[editorManager.activeEditor.activeBuffer.id] && browserEnabled.getValue()
+        !!activeLayers[editorManager.activeEditor.activeBuffer.id] &&
+        browserEnabledSetting.getValue()
 
     // Per-layer commands
     commandManager.registerCommand({
