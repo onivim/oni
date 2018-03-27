@@ -13,6 +13,8 @@ import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
 import * as Platform from "./../Platform"
 import { Configuration } from "./../Services/Configuration"
 
+import { checkIfFileExistsSync } from "./../Utility"
+
 import * as Actions from "./actions"
 import { NeovimBufferReference } from "./MsgPack"
 import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
@@ -541,6 +543,21 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public open(fileName: string): Promise<void> {
         return this.command(`e! ${fileName}`)
+    }
+
+    /**
+     * getInitVimPath
+     */
+    public getInitVimPath() {
+        const rootFolder = Platform.isWindows()
+            ? path.join(process.env["LOCALAPPDATA"], "nvim") // tslint:disable-line no-string-literal
+            : path.join(Platform.getUserHome(), ".config", "nvim")
+        const initVimPath = path.join(rootFolder, "init.vim")
+        try {
+            return checkIfFileExistsSync(initVimPath) ? initVimPath : null
+        } catch (e) {
+            return null
+        }
     }
 
     public openInitVim(): Promise<void> {

@@ -214,13 +214,18 @@ export const Button = styled.button`
 
 interface IButtonProps {
     buttons: INotificationButton[]
+    onClose: () => void
 }
 
-const Buttons = ({ buttons }: IButtonProps) => {
+const Buttons = ({ buttons, onClose }: IButtonProps) => {
+    const executeThenClose = (callback: (args?: any) => void) => () => {
+        callback()
+        onClose()
+    }
     return (
         <ButtonRow>
             {buttons.map(({ callback, title }) => (
-                <Sneakable callback={callback}>
+                <Sneakable callback={executeThenClose(callback)}>
                     <Button onClick={callback}>{title}</Button>
                 </Sneakable>
             ))}
@@ -263,7 +268,7 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
                 <NotificationContents>
                     <NotificationDescription>{this.props.detail}</NotificationDescription>
                 </NotificationContents>
-                {buttons && <Buttons buttons={buttons} />}
+                {buttons && <Buttons onClose={this.props.onClose} buttons={buttons} />}
             </NotificationWrapper>
         )
     }
