@@ -550,11 +550,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
      */
     public getInitVimPath() {
         const rootFolder = Platform.isWindows()
-            ? path.join(process.env["LOCALAPPDATA"], "nvim") // tslint:disable-line no-string-literal
+            ? // Use path from: https://github.com/neovim/neovim/wiki/FAQ
+              path.join(process.env["LOCALAPPDATA"], "nvim") // tslint:disable-line no-string-literal
             : path.join(Platform.getUserHome(), ".config", "nvim")
         const initVimPath = path.join(rootFolder, "init.vim")
         try {
-            return checkIfFileExistsSync(initVimPath) ? initVimPath : null
+            return checkIfFileExistsSync(initVimPath) ? { initVimPath, rootFolder } : null
         } catch (e) {
             return null
         }
@@ -566,13 +567,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         if (typeof loadInitVim === "string") {
             return this.open(loadInitVim)
         } else {
-            // Use path from: https://github.com/neovim/neovim/wiki/FAQ
-            const rootFolder = Platform.isWindows()
-                ? path.join(process.env["LOCALAPPDATA"], "nvim") // tslint:disable-line no-string-literal
-                : path.join(Platform.getUserHome(), ".config", "nvim")
-
+            const { rootFolder, initVimPath } = this.getInitVimPath()
             mkdirp.sync(rootFolder)
-            const initVimPath = path.join(rootFolder, "init.vim")
 
             return this.open(initVimPath)
         }

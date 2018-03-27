@@ -254,7 +254,7 @@ export class NeovimEditor extends Editor implements IEditor {
             notification.show()
         })
 
-        const initVimPath = this._neovimInstance.getInitVimPath()
+        const { initVimPath } = this._neovimInstance.getInitVimPath()
         const exists = Boolean(initVimPath)
         const initVimInUse = this._configuration.getValue("oni.loadInitVim")
         if (exists && typeof initVimInUse === "undefined") {
