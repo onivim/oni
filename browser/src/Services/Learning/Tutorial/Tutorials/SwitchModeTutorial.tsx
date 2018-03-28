@@ -9,7 +9,7 @@ export class SwitchModeTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
             id: "oni.tutorial.switch_modes",
-            name: "Switching Modes: Insert and Normal",
+            name: "Switching Modes",
             description:
                 "Oni is a modal editor, which means the editor works in different modes. This can seem strange coming from other editors - where the only mode is inserting text. However, when working with text, you'll find that only a small percentage of the time you are typing - the majority of the time, you are navigating and editing, which is where normal mode is used. Let's practice switching to and from insert mode!",
             level: 100,
