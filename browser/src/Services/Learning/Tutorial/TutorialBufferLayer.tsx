@@ -30,6 +30,7 @@ import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
 import { withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
+import { StatusBar } from "./../../../UI/components/StatusBar"
 
 import { ITutorialState, TutorialGameplayManager } from "./TutorialGameplayManager"
 import { TutorialManager } from "./TutorialManager"
@@ -55,6 +56,7 @@ const DefaultCompletionInfo = {
 export interface IGameplayStateChangedEvent {
     tutorialState: ITutorialState
     completionInfo: IGameplayCompletionInfo
+    mode: string
 }
 
 export class GameTracker {
@@ -135,6 +137,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
             this._onStateChangedEvent.dispatch({
                 tutorialState: state,
                 completionInfo: this._completionInfo,
+                mode: this._editor.mode,
             })
 
             if (state.activeGoalIndex !== this._lastStage) {
@@ -158,6 +161,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
             this._onStateChangedEvent.dispatch({
                 tutorialState: this._lastTutorialState,
                 completionInfo: this._completionInfo,
+                mode: "normal",
             })
 
             this._tutorialManager.notifyTutorialCompleted(this._currentTutorialId, {
@@ -261,6 +265,7 @@ export interface ITutorialBufferLayerViewProps {
 export interface ITutorialBufferLayerState {
     tutorialState: ITutorialState
     completionInfo: IGameplayCompletionInfo
+    mode: string
 }
 
 const TutorialWrapper = withProps<{}>(styled.div)`
@@ -274,11 +279,11 @@ const TutorialWrapper = withProps<{}>(styled.div)`
 
     display: flex;
     flex-direction: column;
-    padding-left: 1em;
+    padding-left: 2em;
     `
 
 const TutorialSectionWrapper = styled.div`
-    width: 80%;
+    width: 75%;
     max-width: 1000px;
     flex: 0 0 auto;
 `
@@ -289,7 +294,6 @@ const MainTutorialSectionWrapper = styled.div`
     height: 100%;
 
     display: flex;
-    justify-content: center;
     align-items: center;
 `
 
@@ -312,6 +316,20 @@ const Section = styled.div`
     padding-bottom: 2em;
 `
 
+export interface IModeStatusBarItemProps {
+    mode: string
+}
+
+const ModeStatusBarItem = withProps<IModeStatusBarItemProps>(styled.div)`
+    background-color: ${p => p.theme["highlight.mode." + p.mode + ".background"]};
+    color: ${p => p.theme["highlight.mode." + p.mode + ".foreground"]};
+    text-transform: uppercase;
+
+    height: 2em;
+    line-height: 2em;
+    padding: 0px 4px;
+`
+
 export class TutorialBufferLayerView extends React.PureComponent<
     ITutorialBufferLayerViewProps,
     ITutorialBufferLayerState
@@ -330,6 +348,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
                 keyPresses: -1,
                 timeInMilliseconds: -1,
             },
+            mode: "normal",
         }
     }
 
@@ -387,6 +406,8 @@ export class TutorialBufferLayerView extends React.PureComponent<
             )
         })
 
+        const isFlipped = this.state.completionInfo.completed
+
         return (
             <TutorialWrapper>
                 <TutorialSectionWrapper>
@@ -403,8 +424,48 @@ export class TutorialBufferLayerView extends React.PureComponent<
                         ref={this.props.innerRef}
                     >
                         <FlipCard
-                            isFlipped={this.state.completionInfo.completed}
-                            front={this.props.editor.render()}
+                            isFlipped={isFlipped}
+                            front={
+                                <div
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                    }}
+                                >
+                                    <div
+                                        style={{ width: "100%", height: "100%", flex: "1 1 auto" }}
+                                    >
+                                        {this.props.editor.render()}
+                                    </div>
+                                    <div style={{ flex: "0 0 auto" }}>
+                                        <StatusBar
+                                            items={[
+                                                {
+                                                    alignment: 0,
+                                                    contents: <div />,
+                                                    id: "tutorial.null",
+                                                    priority: 0,
+                                                },
+                                                {
+                                                    alignment: 1,
+                                                    contents: (
+                                                        <ModeStatusBarItem mode={this.state.mode}>
+                                                            {this.state.mode}
+                                                        </ModeStatusBarItem>
+                                                    ),
+                                                    id: "tutorial.mode",
+                                                    priority: 0,
+                                                },
+                                            ]}
+                                            fontFamily={configuration.getValue("ui.fontFamily")}
+                                            fontSize={configuration.getValue("ui.fontSize")}
+                                            enabled={!isFlipped}
+                                        />
+                                    </div>
+                                </div>
+                            }
                             back={
                                 <CompletionView
                                     keyStrokes={this.state.completionInfo.keyPresses}
