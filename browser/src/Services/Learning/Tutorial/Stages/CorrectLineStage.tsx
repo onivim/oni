@@ -87,7 +87,6 @@ export class CorrectLineStage implements ITutorialStage {
             return true
         }
 
-        // TODO: need to merge in with latest change
         return false
     }
 
