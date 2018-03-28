@@ -65,21 +65,19 @@ export class CorrectLineStage implements ITutorialStage {
         private _goalName: string,
         private _line: number,
         private _expectedText: string,
-        private _characterToDelete: string,
+        private _minimumCorrectLine: string,
     ) {}
 
     public async tickFunction(context: ITutorialContext): Promise<boolean> {
         const [currentLine] = await (context.buffer as any).getLines(this._line, this._line + 1)
         const diffPosition = getFirstCharacterThatIsDifferent(currentLine, this._expectedText)
-        this._diffPosition = diffPosition - 1
+        this._diffPosition = diffPosition
 
-        if (diffPosition < 0 || diffPosition >= currentLine.length) {
+        if (currentLine.startsWith(this._minimumCorrectLine)) {
             return true
         }
 
-        const diffCharacter = currentLine[diffPosition]
-
-        return diffCharacter !== this._characterToDelete
+        return false
     }
 
     public render(context: Oni.BufferLayerRenderContext): JSX.Element {

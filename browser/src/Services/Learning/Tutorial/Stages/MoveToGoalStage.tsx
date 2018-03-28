@@ -16,12 +16,22 @@ const SpinnerKeyFrames = keyframes`
     100% { transform: rotateY(360deg); }
 `
 
-const LoadingSpinnerWrapper = styled.div`
+const TopArrow = styled.div`
     animation: ${SpinnerKeyFrames} 2s linear infinite;
-    border-top: 12px solid white;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid transparent;
+    border-top: 6px solid white;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    opacity: 0.8;
+`
+
+const BottomArrow = styled.div`
+    animation: ${SpinnerKeyFrames} 2s linear infinite;
+    margin-top: 2px;
+    border-top: 3px solid transparent;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 6px solid white;
     opacity: 0.8;
 `
 export class MoveToGoalStage implements ITutorialStage {
@@ -55,15 +65,16 @@ export class MoveToGoalStage implements ITutorialStage {
         }
 
         return (
-            <LoadingSpinnerWrapper
+            <div
                 style={{
                     position: "absolute",
                     top: pixelPosition.pixelY.toString() + "px",
                     left: pixelPosition.pixelX.toString() + "px",
-                    marginTop: "2px",
-                    marginLeft: "-4px",
                 }}
-            />
+            >
+                <TopArrow />
+                <BottomArrow />
+            </div>
         )
     }
 }
