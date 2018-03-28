@@ -6,8 +6,8 @@ import { ITutorial } from "./../ITutorial"
 
 import { BasicMovementTutorial } from "./BasicMovementTutorial"
 import { DeleteCharacterTutorial } from "./DeleteCharacterTutorial"
-import { SwitchModeTutorial } from "./SwitchModeTutorial"
 import { DeleteOperatorTutorial } from "./DeleteOperatorTutorial"
+import { SwitchModeTutorial } from "./SwitchModeTutorial"
 
 export * from "./DeleteCharacterTutorial"
 export * from "./SwitchModeTutorial"

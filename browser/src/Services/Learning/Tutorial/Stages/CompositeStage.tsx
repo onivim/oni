@@ -4,8 +4,8 @@
  * A stage that combines / composes multiple stages
  */
 
-import * as React from "react"
 import * as Oni from "oni-api"
+import * as React from "react"
 
 import styled from "styled-components"
 

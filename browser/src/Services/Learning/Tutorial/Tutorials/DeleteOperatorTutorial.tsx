@@ -19,7 +19,7 @@ const Line3c = "--> using the `dk` command."
 const Line2d = "--> The delete operator works with other motions, too."
 const Line3d = "--> Let's try out `dw` - delete word. Delete the duplicate words below:"
 const Line4d = "--> Help delete the duplicate duplicate words."
-const Line4d_Correct = "--> Help delete the duplicate words."
+const Line4dCorrect = "--> Help delete the duplicate words."
 
 export class DeleteOperatorTutorial implements ITutorial {
     private _stages: ITutorialStage[]
@@ -55,7 +55,7 @@ export class DeleteOperatorTutorial implements ITutorial {
             Stages.combine(
                 "Delete the duplicate word with 'dw'",
                 new Stages.DeleteCharactersStage(null, 3, 20, "duplicate"),
-                new Stages.WaitForStateStage(null, [Line1, Line2d, Line3d, Line4d_Correct]),
+                new Stages.WaitForStateStage(null, [Line1, Line2d, Line3d, Line4dCorrect]),
             ),
         ]
     }
