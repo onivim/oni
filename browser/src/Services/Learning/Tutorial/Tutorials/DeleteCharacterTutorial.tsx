@@ -20,22 +20,62 @@ export class DeleteCharacterTutorial implements ITutorial {
     constructor() {
         this._stages = [
             new Stages.SetBufferStage([TutorialLine1Original]),
-            new Stages.CorrectLineStage("Remove the duplicated 'w'", 0, TutorialLine1Correct, "w"),
-            new Stages.CorrectLineStage("Remove the duplicated 'm'", 0, TutorialLine1Correct, "m"),
+            new Stages.CorrectLineStage(
+                "Remove the duplicated 'w'",
+                0,
+                TutorialLine1Correct,
+                "The cow ",
+            ),
+            new Stages.CorrectLineStage(
+                "Remove the duplicated 'm'",
+                0,
+                TutorialLine1Correct,
+                TutorialLine1Correct,
+            ),
             new Stages.SetBufferStage([TutorialLine1Correct, TutorialLine2Original]),
             new Stages.MoveToGoalStage("Move to the next line by pressing `j`", 1, null),
-            new Stages.CorrectLineStage("Remove the duplicated 'b'", 1, TutorialLine2Correct, "b"),
-            new Stages.CorrectLineStage("Remove the duplicated 'g'", 1, TutorialLine2Correct, "g"),
-            new Stages.CorrectLineStage("Remove the duplicated 'k'", 1, TutorialLine2Correct, "k"),
+            new Stages.CorrectLineStage(
+                "Remove the duplicated 'b'",
+                1,
+                TutorialLine2Correct,
+                "The bo",
+            ),
+            new Stages.CorrectLineStage(
+                "Remove the duplicated 'g'",
+                1,
+                TutorialLine2Correct,
+                "The boy bought",
+            ),
+            new Stages.CorrectLineStage(
+                "Remove the duplicated 'k'",
+                1,
+                TutorialLine2Correct,
+                TutorialLine2Correct,
+            ),
             new Stages.SetBufferStage([
                 TutorialLine1Correct,
                 TutorialLine2Correct,
                 TutorialLine3Original,
             ]),
             new Stages.MoveToGoalStage("Move to the next line by pressing `j`", 2, null),
-            new Stages.CorrectLineStage("Remove the duplicated 'd'", 2, TutorialLine3Correct, "d"),
-            new Stages.CorrectLineStage("Remove the duplicated 'c'", 2, TutorialLine3Correct, "c"),
-            new Stages.CorrectLineStage("Remove the duplicated 'm'", 2, TutorialLine3Correct, "m"),
+            new Stages.CorrectLineStage(
+                "Remove the duplicated 'd'",
+                2,
+                TutorialLine3Correct,
+                "Modal editing",
+            ),
+            new Stages.CorrectLineStage(
+                "Remove the duplicated 'c'",
+                2,
+                TutorialLine3Correct,
+                "Modal editing is the cats",
+            ),
+            new Stages.CorrectLineStage(
+                "Remove the duplicated 'm'",
+                2,
+                TutorialLine3Correct,
+                TutorialLine3Correct,
+            ),
         ]
     }
 
