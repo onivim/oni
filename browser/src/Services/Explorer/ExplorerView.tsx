@@ -70,7 +70,6 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
         return (
             <NodeWrapper
                 style={{ cursor: "pointer" }}
-                onClick={() => this.props.onClick()}
                 innerRef={this.props.isSelected ? scrollIntoViewIfNeeded : noop}
             >
                 {this.getElement()}
@@ -96,6 +95,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                     isOver={isOver && canDrop}
                                     didDrop={didDrop}
                                     canDrop={canDrop}
+                                    onClick={() => this.props.onClick()}
                                     text={node.name}
                                     isFocused={this.props.isSelected}
                                     isContainer={false}
@@ -118,6 +118,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                     isOver={isOver}
                                     isContainer={true}
                                     isExpanded={node.expanded}
+                                    onClick={() => this.props.onClick()}
                                     text={node.name}
                                     isFocused={this.props.isSelected}
                                 />
@@ -143,6 +144,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                     text={node.name}
                                     isFocused={this.props.isSelected}
                                     indentationLevel={node.indentationLevel}
+                                    onClick={() => this.props.onClick()}
                                 />
                             )
                         }}
@@ -166,7 +168,6 @@ export interface IExplorerViewProps extends IExplorerViewContainerProps {
 }
 
 import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
-import { Sneakable } from "./../../UI/components/Sneakable"
 
 import { commandManager } from "./../CommandManager"
 
@@ -193,14 +194,12 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                 onSelected={id => this.props.onClick(id)}
                 render={(selectedId: string) => {
                     const nodes = this.props.nodes.map(node => (
-                        <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
-                            <NodeView
-                                moveFileOrFolder={this.props.moveFileOrFolder}
-                                node={node}
-                                isSelected={node.id === selectedId}
-                                onClick={() => this.props.onClick(node.id)}
-                            />
-                        </Sneakable>
+                        <NodeView
+                            moveFileOrFolder={this.props.moveFileOrFolder}
+                            node={node}
+                            isSelected={node.id === selectedId}
+                            onClick={() => this.props.onClick(node.id)}
+                        />
                     ))
 
                     return (
