@@ -47,7 +47,10 @@ export class MoveToGoalStage implements ITutorialStage {
 
         this._goalColumn = this._column === null ? cursorPosition.character : this._column
 
-        return cursorPosition.line === this._line && cursorPosition.character === this._goalColumn
+        return (
+            cursorPosition.line === this._line &&
+            (cursorPosition.character === this._goalColumn || typeof this._column !== "number")
+        )
     }
 
     public render(context: Oni.BufferLayerRenderContext): JSX.Element {
