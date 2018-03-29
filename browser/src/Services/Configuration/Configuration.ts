@@ -152,7 +152,9 @@ export class Configuration implements Oni.Configuration {
     ): IConfigurationSetting<T> {
         this._settingMetadata[name] = options
 
-        if (options.defaultValue) {
+        const currentValue = this.getValue(name, null)
+
+        if (options.defaultValue && currentValue !== null)) {
             this.setValue(name, options.defaultValue)
         }
 
