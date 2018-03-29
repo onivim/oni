@@ -154,7 +154,7 @@ export class Configuration implements Oni.Configuration {
 
         const currentValue = this.getValue(name, null)
 
-        if (options.defaultValue && currentValue !== null) {
+        if (options.defaultValue && currentValue === null) {
             this.setValue(name, options.defaultValue)
         }
 
