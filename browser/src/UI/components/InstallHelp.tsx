@@ -7,9 +7,9 @@ import { remote } from "electron"
 import { Icon, IconSize } from "./../Icon"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
-import styled, { enableMouse } from "./common"
+import { enableMouse, testable, styled } from "./common"
 
-const InstallHelpWrapper = styled.div`
+const InstallHelpWrapper = styled(testable("div", "install-help"))`
     ${enableMouse};
     position: absolute;
     top: 0px;
