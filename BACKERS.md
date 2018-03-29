@@ -85,6 +85,7 @@ Thanks you to all our backers for making Oni possible!
 * Martijn Arts
 * Amadeus Folego
 * Kiyoshi Murata
+* @Himura\_@la
 
 ## Backers via Patreon
 
