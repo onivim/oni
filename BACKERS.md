@@ -71,6 +71,7 @@ Thanks you to all our backers for making Oni possible!
 * @sbuljac
 * @parkerault
 * @erandac
+* @nithesh
 
 ## Backers via PayPal
 
