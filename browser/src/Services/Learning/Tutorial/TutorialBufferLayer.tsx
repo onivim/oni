@@ -469,10 +469,12 @@ export class TutorialBufferLayerView extends React.PureComponent<
                                 </div>
                             }
                             back={
-                                <CompletionView
-                                    keyStrokes={this.state.completionInfo.keyPresses}
-                                    time={this.state.completionInfo.timeInMilliseconds}
-                                />
+                                isFlipped ? (
+                                    <CompletionView
+                                        keyStrokes={this.state.completionInfo.keyPresses}
+                                        time={this.state.completionInfo.timeInMilliseconds}
+                                    />
+                                ) : null
                             }
                         />
                     </div>
