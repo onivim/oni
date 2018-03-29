@@ -38,18 +38,29 @@ export class AchievementsManager {
     private _goalState: IPersistedAchievementState
     private _achievements: { [achievementId: string]: AchievementDefinition } = {}
     private _trackingGoals: { [goalId: string]: string[] } = {}
+    private _enabled: boolean
 
     private _currentIdleCallback: number | null = null
     private _onAchievementAccomplishedEvent = new Event<AchievementDefinition>()
+
+    public get enabled(): boolean {
+        return this._enabled
+    }
+
+    public set enabled(val: boolean) {
+        this._enabled = val
+    }
 
     public get onAchievementAccomplished(): IEvent<AchievementDefinition> {
         return this._onAchievementAccomplishedEvent
     }
 
-    constructor(private _persistentStore: IPersistentStore<IPersistedAchievementState>) {}
+    constructor(private _persistentStore: IPersistentStore<IPersistedAchievementState>) {
+        this._enabled = true
+    }
 
     public notifyGoal(goalId: string): void {
-        if (!this._isInitialized()) {
+        if (!this._isInitialized() || !this._enabled) {
             return
         }
 
