@@ -13,6 +13,10 @@ import { Event } from "oni-types"
 import { CommandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
+import {
+    AchievementsManager,
+    getInstance as getAchievementsInstance,
+} from "./../Learning/Achievements"
 
 import { BrowserView } from "./BrowserView"
 
@@ -100,6 +104,9 @@ export const activate = (
             const layer = new BrowserLayer(url, configuration)
             buffer.addLayer(layer)
             activeLayers[buffer.id] = layer
+
+            const achievements = getAchievementsInstance()
+            achievements.notifyGoal("oni.goal.openBrowser")
         } else {
             shell.openExternal(url)
         }
@@ -172,5 +179,34 @@ export const activate = (
         name: "Browser: Reload",
         detail: "",
         enabled: isBrowserLayerActive,
+    })
+}
+
+export const registerAchievements = (achievements: AchievementsManager) => {
+    achievements.registerAchievement({
+        uniqueId: "oni.achievement.openBrowser",
+        name: "Browserception",
+        description: "Open a browser window inside Oni",
+        goals: [
+            {
+                name: null,
+                goalId: "oni.goal.openBrowser",
+                count: 1,
+            },
+        ],
+    })
+
+    achievements.registerAchievement({
+        uniqueId: "oni.achievement.sneakIntoBrowser",
+        name: "Incognito",
+        dependsOnId: "oni.achievement.openBrowser",
+        description: "Use 'sneak' to interact with UI in the browser.",
+        goals: [
+            {
+                name: null,
+                goalId: "oni.goal.sneakIntoBrowser",
+                count: 1,
+            },
+        ],
     })
 }

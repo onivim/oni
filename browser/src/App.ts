@@ -350,6 +350,7 @@ export const start = async (args: string[]): Promise<void> => {
 
     if (achievements) {
         Sneak.registerAchievements(achievements)
+        Browser.registerAchievements(achievements)
     }
 
     Performance.endMeasure("Oni.Start.Activate")
