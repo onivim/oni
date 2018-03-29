@@ -40,7 +40,7 @@ export const TrophyCaseViewWrapper = withProps<{}>(styled.div)`
 
 export const TrophyCaseItemViewWrapper = withProps<{}>(styled.div)`
     ${boxShadow}
-    background-color: ${p => p.theme["background"]};
+    background-color: ${p => p.theme.background};
     margin: 1em;
     position: relative;
 
