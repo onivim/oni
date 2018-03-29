@@ -8,6 +8,7 @@ import { BasicMovementTutorial } from "./BasicMovementTutorial"
 import { BeginningsAndEndingsTutorial } from "./BeginningsAndEndingsTutorial"
 import { DeleteCharacterTutorial } from "./DeleteCharacterTutorial"
 import { SwitchModeTutorial } from "./SwitchModeTutorial"
+import { VerticalMovementTutorial } from "./VerticalMovementTutorial"
 
 export * from "./DeleteCharacterTutorial"
 export * from "./SwitchModeTutorial"
@@ -15,6 +16,7 @@ export * from "./SwitchModeTutorial"
 export const AllTutorials: ITutorial[] = [
     new SwitchModeTutorial(),
     new BasicMovementTutorial(),
-    new DeleteCharacterTutorial(),
     new BeginningsAndEndingsTutorial(),
+    new DeleteCharacterTutorial(),
+    new VerticalMovementTutorial(),
 ]
