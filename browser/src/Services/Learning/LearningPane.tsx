@@ -156,7 +156,7 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
         this.trackDisposable(this.props.onEnter.subscribe(() => this.setState({ isActive: true })))
         this.trackDisposable(this.props.onLeave.subscribe(() => this.setState({ isActive: false })))
         this.trackDisposable(
-            this.props.tutorialManager.onTutorialCompletedEvent.subscribe(() => {
+            this.props.tutorialManager.onTutorialProgressChangedEvent.subscribe(() => {
                 this.setState({
                     tutorialInfo: this.props.tutorialManager.getTutorialInfo(),
                 })

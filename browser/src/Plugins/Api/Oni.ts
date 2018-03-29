@@ -25,6 +25,7 @@ import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
 import { getInstance as getAchievementsInstance } from "./../../Services/Learning/Achievements"
+import { getTutorialManagerInstance } from "./../../Services/Learning"
 import { getInstance as getMenuManagerInstance } from "./../../Services/Menu"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
@@ -159,6 +160,10 @@ export class Oni implements OniApi.Plugin.Api {
 
     public get services(): Services {
         return this._services
+    }
+
+    public get tutorials(): any /* todo */ {
+        return getTutorialManagerInstance()
     }
 
     public get windows(): OniApi.IWindowManager {
