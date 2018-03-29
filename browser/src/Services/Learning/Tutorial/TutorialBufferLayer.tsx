@@ -128,7 +128,9 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
             alert("quit!")
         })
 
-        this._initPromise = this._editor.init([])
+        this._initPromise = this._editor.init([], {
+            loadInitVim: false,
+        })
 
         this._tutorialGameplayManager = new TutorialGameplayManager(this._editor)
 
