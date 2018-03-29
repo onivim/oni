@@ -47,4 +47,31 @@ export const test = async (oni: Oni.Plugin.Api) => {
         currentBuffer.endsWith("testFile.tsx"),
         "Check file opened correctly after being passed over.",
     )
+
+    // Finally test passing multiple optional arguments
+    oni.commands.registerCommand({
+        command: "ciTest.test2",
+        name: "Test passing over args.",
+        detail: "Opens multiple files.",
+        execute: (files?: string[]) => {
+            files.forEach(file => oni.editors.activeEditor.neovim.command(`:e ${file}`))
+        },
+    })
+    await oni.automation.sleep(500)
+
+    oni.automation.sendKeys(":")
+    await oni.automation.waitFor(() => !!getElementByClassName("command-line"))
+    oni.automation.sendKeys(
+        'call OniCommand("ciTest.test2", "testFile2.tsx", "testFile3.tsx", "testFile4.tsx")',
+    )
+    oni.automation.sendKeys("<enter>")
+
+    await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.id === "4")
+
+    const currentBufferId = oni.editors.activeEditor.activeBuffer.id
+
+    assert(
+        currentBufferId === "4",
+        "Check multiple files opened correctly after being passed over.",
+    )
 }
