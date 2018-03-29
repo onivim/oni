@@ -47,7 +47,6 @@ export interface IConfigurationValues {
 
     // Whether or not the learning pane is available
     "experimental.achievements.enabled": boolean
-    "experimental.learning.enabled": boolean
     "experimental.particles.enabled": boolean
 
     // The transport to use for Neovim
@@ -200,6 +199,8 @@ export interface IConfigurationValues {
     "editor.cursorColumnOpacity": number
 
     "keyDisplayer.showInInsertMode": boolean
+
+    "learning.enabled": boolean
 
     // Case-sensitivity strategy for menu filtering:
     // - if `true`, is case sensitive

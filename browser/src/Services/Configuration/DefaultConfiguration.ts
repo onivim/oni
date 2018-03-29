@@ -50,7 +50,6 @@ const BaseConfiguration: IConfigurationValues = {
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
-    "experimental.learning.enabled": false,
     "experimental.particles.enabled": false,
     "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
@@ -232,6 +231,8 @@ const BaseConfiguration: IConfigurationValues = {
             "JavaScriptReact.tmLanguage.json",
         ),
     },
+
+    "learning.enabled": true,
 
     "menu.caseSensitive": "smart",
     "menu.rowHeight": 40,
