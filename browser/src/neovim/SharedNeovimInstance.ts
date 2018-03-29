@@ -12,6 +12,7 @@ import { Event, IDisposable, IEvent } from "oni-types"
 
 import { NeovimInstance } from "./NeovimInstance"
 import { INeovimStartOptions } from "./NeovimProcessSpawner"
+import { CommandContext } from "./CommandContext"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 import { commandManager } from "./../Services/CommandManager"
@@ -146,9 +147,9 @@ class SharedNeovimInstance implements SharedNeovimInstance {
     constructor(private _configuration: Configuration, private _pluginManager: PluginManager) {
         this._neovimInstance = new NeovimInstance(5, 5, this._configuration)
 
-        this._neovimInstance.onOniCommand.subscribe((command: string[]) => {
-            const commandToExecute = command[0]
-            const commandArgs = command.length > 0 ? command.slice(1) : []
+        this._neovimInstance.onOniCommand.subscribe((context: CommandContext) => {
+            const commandToExecute = context.command
+            const commandArgs = context.args
 
             commandManager.executeCommand(commandToExecute, commandArgs)
         })

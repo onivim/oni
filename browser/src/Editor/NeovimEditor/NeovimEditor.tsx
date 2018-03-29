@@ -406,9 +406,9 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         this.trackDisposable(
-            this._neovimInstance.onOniCommand.subscribe(command => {
-                const commandToExecute = command[0]
-                const commandArgs = command.length > 0 ? command.slice(1) : []
+            this._neovimInstance.onOniCommand.subscribe(context => {
+                const commandToExecute = context.command
+                const commandArgs = context.args
 
                 commandManager.executeCommand(commandToExecute, commandArgs)
             }),

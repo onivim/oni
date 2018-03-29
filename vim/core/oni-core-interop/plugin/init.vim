@@ -107,7 +107,10 @@ endif
 endfunction
 
 function OniCommand(oniCommand, ...)
-    let l:function_command_and_args = [a:oniCommand, a:000]
+    let l:function_command_and_args = {}
+    let l:function_command_and_args.command = a:oniCommand
+    let l:function_command_and_args.args = a:000
+
     call OniNotify(["oni_command", l:function_command_and_args])
 endfunction
 
