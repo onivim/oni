@@ -51,7 +51,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     const expectedResult = [
         "const test = {",
         "    window.setTimeout(() => {",
-        '        let testString = "Oni"',
+        '        let testString = "NotOni"',
         "    })",
         "}",
     ]
