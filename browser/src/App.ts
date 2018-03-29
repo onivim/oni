@@ -64,6 +64,7 @@ export const start = async (args: string[]): Promise<void> => {
 
     const configurationPromise = import("./Services/Configuration")
     const configurationCommandsPromise = import("./Services/Configuration/ConfigurationCommands")
+    const debugPromise = import("./Services/Debug")
     const pluginManagerPromise = import("./Plugins/PluginManager")
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
@@ -307,6 +308,9 @@ export const start = async (args: string[]): Promise<void> => {
     const GlobalCommands = await globalCommandsPromise
     GlobalCommands.activate(commandManager, editorManager, menuManager, tasks)
 
+    const Debug = await debugPromise
+    Debug.activate(commandManager)
+
     const WorkspaceCommands = await workspaceCommandsPromise
     WorkspaceCommands.activateCommands(
         configuration,
@@ -349,6 +353,7 @@ export const start = async (args: string[]): Promise<void> => {
     const achievements = Achievements.getInstance()
 
     if (achievements) {
+        Debug.registerAchievements(achievements)
         Sneak.registerAchievements(achievements)
     }
 
