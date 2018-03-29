@@ -34,8 +34,36 @@ const BottomArrow = styled.div`
     border-bottom: 6px solid white;
     opacity: 0.8;
 `
+
+const MoveToTopWrapper = styled.div`
+    position: absolute;
+    top: 0px;
+    left: 25%;
+    right: 25%;
+    height: 4em;
+    background-color: rgba(0, 0, 0, 0.8);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const MoveToBottomWrapper = styled.div`
+    position: absolute;
+    bottom: 0px;
+    left: 25%;
+    right: 25%;
+    height: 4em;
+    background-color: rgba(0, 0, 0, 0.8);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
 export class MoveToGoalStage implements ITutorialStage {
     private _goalColumn: number
+    private _currentCursorLine: number = 0
     public get goalName(): string {
         return this._goalName
     }
@@ -45,6 +73,7 @@ export class MoveToGoalStage implements ITutorialStage {
     public async tickFunction(context: ITutorialContext): Promise<boolean> {
         const cursorPosition = await (context.buffer as any).getCursorPosition()
 
+        this._currentCursorLine = cursorPosition.line
         this._goalColumn = this._column === null ? cursorPosition.character : this._column
 
         return (
@@ -63,8 +92,14 @@ export class MoveToGoalStage implements ITutorialStage {
         )
         const pixelPosition = context.screenToPixel(screenPosition)
 
-        if (pixelPosition.pixelX < 0 || pixelPosition.pixelY < 0) {
-            return null
+        if (isNaN(pixelPosition.pixelX) || isNaN(pixelPosition.pixelY)) {
+            if (this._currentCursorLine > this._line) {
+                return <MoveToTopWrapper>Move up to line: {this._line + 1}</MoveToTopWrapper>
+            } else {
+                return (
+                    <MoveToBottomWrapper>Move down to line: {this._line + 1}</MoveToBottomWrapper>
+                )
+            }
         }
 
         return (
