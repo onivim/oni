@@ -70,6 +70,7 @@ Thanks you to all our backers for making Oni possible!
 * @rrichardson
 * @sbuljac
 * @parkerault
+* @erandac
 
 ## Backers via PayPal
 
