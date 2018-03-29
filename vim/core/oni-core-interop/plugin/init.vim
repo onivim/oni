@@ -106,8 +106,9 @@ function OniGetEachContext(bufnum)
 endif
 endfunction
 
-function OniCommand(oniCommand)
-    call OniNotify(["oni_command", a:oniCommand])
+function OniCommand(oniCommand, ...)
+    let l:function_command_and_args = [a:oniCommand, a:000]
+    call OniNotify(["oni_command", l:function_command_and_args])
 endfunction
 
 augroup OniClipboard

@@ -146,8 +146,11 @@ class SharedNeovimInstance implements SharedNeovimInstance {
     constructor(private _configuration: Configuration, private _pluginManager: PluginManager) {
         this._neovimInstance = new NeovimInstance(5, 5, this._configuration)
 
-        this._neovimInstance.onOniCommand.subscribe((command: string) => {
-            commandManager.executeCommand(command)
+        this._neovimInstance.onOniCommand.subscribe((command: string[]) => {
+            const commandToExecute = command[0]
+            const commandArgs = command.length > 0 ? command.slice(1) : []
+
+            commandManager.executeCommand(commandToExecute, commandArgs)
         })
 
         App.registerQuitHook(async () => {
