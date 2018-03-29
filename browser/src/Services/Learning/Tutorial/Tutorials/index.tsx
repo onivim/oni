@@ -10,15 +10,17 @@ import { DeleteCharacterTutorial } from "./DeleteCharacterTutorial"
 import { DeleteOperatorTutorial } from "./DeleteOperatorTutorial"
 import { SwitchModeTutorial } from "./SwitchModeTutorial"
 import { VerticalMovementTutorial } from "./VerticalMovementTutorial"
+import { WordMotionTutorial } from "./WordMotionTutorial"
 
 export * from "./DeleteCharacterTutorial"
 export * from "./SwitchModeTutorial"
 
 export const AllTutorials: ITutorial[] = [
+    new BeginningsAndEndingsTutorial(),
     new SwitchModeTutorial(),
     new BasicMovementTutorial(),
-    new BeginningsAndEndingsTutorial(),
     new DeleteCharacterTutorial(),
     new DeleteOperatorTutorial(),
     new VerticalMovementTutorial(),
+    new WordMotionTutorial(),
 ]
