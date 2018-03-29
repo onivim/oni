@@ -28,7 +28,7 @@ export const activate = (
     sidebarManager: SidebarManager,
     windowManager: WindowManager,
 ) => {
-    const learningEnabled = configuration.getValue("experimental.learning.enabled")
+    const learningEnabled = configuration.getValue("learning.enabled")
 
     Achievements.activate(
         commandManager,

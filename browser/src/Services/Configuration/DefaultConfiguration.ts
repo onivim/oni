@@ -61,8 +61,6 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.maxLinesForLanguageServices": 2500,
     "editor.textMateHighlighting.enabled": true,
 
-    "experimental.achievements.enabled": false,
-
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
         { open: "{", close: "}" },
@@ -233,6 +231,7 @@ const BaseConfiguration: IConfigurationValues = {
     },
 
     "learning.enabled": true,
+    "achievements.enabled": true,
 
     "menu.caseSensitive": "smart",
     "menu.rowHeight": 40,

@@ -46,7 +46,6 @@ export interface IConfigurationValues {
     "editor.textMateHighlighting.enabled": boolean
 
     // Whether or not the learning pane is available
-    "experimental.achievements.enabled": boolean
     "experimental.particles.enabled": boolean
 
     // The transport to use for Neovim
@@ -201,6 +200,7 @@ export interface IConfigurationValues {
     "keyDisplayer.showInInsertMode": boolean
 
     "learning.enabled": boolean
+    "achievements.enabled": boolean
 
     // Case-sensitivity strategy for menu filtering:
     // - if `true`, is case sensitive

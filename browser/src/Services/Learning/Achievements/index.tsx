@@ -28,7 +28,7 @@ export const activate = (
     sidebarManager: SidebarManager,
     overlays: OverlayManager,
 ) => {
-    const achievementsEnabled = configuration.getValue("experimental.achievements.enabled")
+    const achievementsEnabled = configuration.getValue("achievements.enabled")
 
     if (!achievementsEnabled) {
         return
