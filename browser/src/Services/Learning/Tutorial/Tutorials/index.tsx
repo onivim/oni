@@ -8,6 +8,7 @@ import { BasicMovementTutorial } from "./BasicMovementTutorial"
 import { BeginningsAndEndingsTutorial } from "./BeginningsAndEndingsTutorial"
 import { DeleteCharacterTutorial } from "./DeleteCharacterTutorial"
 import { DeleteOperatorTutorial } from "./DeleteOperatorTutorial"
+import { MoveAndInsertTutorial } from "./MoveAndInsertTutorial"
 import { SwitchModeTutorial } from "./SwitchModeTutorial"
 import { VerticalMovementTutorial } from "./VerticalMovementTutorial"
 import { WordMotionTutorial } from "./WordMotionTutorial"
@@ -21,6 +22,7 @@ export const AllTutorials: ITutorial[] = [
     new BasicMovementTutorial(),
     new DeleteCharacterTutorial(),
     new DeleteOperatorTutorial(),
+    new MoveAndInsertTutorial(),
     new VerticalMovementTutorial(),
     new WordMotionTutorial(),
 ]
