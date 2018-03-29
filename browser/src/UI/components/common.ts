@@ -1,4 +1,5 @@
 import * as Color from "color"
+import * as React from "react"
 import * as styledComponents from "styled-components"
 import { ThemedStyledComponentsModule } from "styled-components" // tslint:disable-line no-duplicate-imports
 import { IThemeColors } from "../../Services/Themes/ThemeManager"
@@ -58,6 +59,19 @@ export function withProps<T, U extends HTMLElement = HTMLElement>(
     return styledFunction
 }
 
+export function testable<T extends keyof JSX.IntrinsicElements>(
+    tagName: T,
+    testAttributeValue: string,
+) {
+    return (props: JSX.IntrinsicElements[T]) => {
+        // The object spread operator can't be used here until
+        // https://github.com/Microsoft/TypeScript/pull/13288 is merged
+        // tslint:disable-next-line:prefer-object-spread
+        const extendedProps = Object.assign({}, { "data-test": testAttributeValue }, props)
+        return React.createElement(tagName, extendedProps)
+    }
+}
+
 const darken = (c: string, deg = 0.15) =>
     Color(c)
         .darken(deg)
@@ -73,12 +87,26 @@ const boxShadow = css`
     box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 `
 
+const boxShadowUp = css`
+    box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
+`
+
 const boxShadowInset = css`
     box-shadow: inset 0 4px 8px 2px rgba(0, 0, 0, 0.2);
 `
 
+const boxShadowUpInset = css`
+    box-shadow: 0px -4px 20px 0px rgba(0, 0, 0, 0.2) inset;
+`
+
 const enableMouse = css`
     pointer-events: auto;
+`
+
+// Layer is used to force webkit to promote the element to an individual layer.
+// This is used to tweak and control rendering performance, and not for layout
+export const layer = css`
+    will-change: transform;
 `
 
 export const OverlayWrapper = styled.div`
@@ -117,7 +145,9 @@ export {
     withTheme,
     tint,
     boxShadow,
+    boxShadowUp,
     boxShadowInset,
+    boxShadowUpInset,
     enableMouse,
     fontSizeSmall,
     fallBackFonts,

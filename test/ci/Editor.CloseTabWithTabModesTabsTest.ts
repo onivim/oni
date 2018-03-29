@@ -1,10 +1,10 @@
 import * as assert from "assert"
 import * as Oni from "oni-api"
 
-import { getElementsBySelector } from "./Common"
+import { getElementsByTestAttribute, testAttributeSelector } from "./Common"
 
 export const test = async (oni: Oni.Plugin.Api) => {
-    const getTabsCount = () => getElementsBySelector(".tabs .tab").length
+    const getTabsCount = () => getElementsByTestAttribute("tab").length
     const waitForTabCount = count => oni.automation.waitFor(() => getTabsCount() === count)
 
     const openTab = () => {
@@ -15,8 +15,10 @@ export const test = async (oni: Oni.Plugin.Api) => {
     }
 
     const closeLastTabWithMouse = () => {
-        const tabs = getElementsBySelector(".tabs .tab")
-        const closeButton = tabs[tabs.length - 1].querySelector(".corner.enable-hover")
+        const tabs = getElementsByTestAttribute("tab")
+        const closeButton = tabs[tabs.length - 1].querySelector(
+            testAttributeSelector("close-button"),
+        )
         closeButton.click()
         return waitForTabCount(tabs.length - 1)
     }

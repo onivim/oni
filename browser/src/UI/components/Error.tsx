@@ -12,6 +12,7 @@ import * as Oni from "oni-api"
 import { getColorFromSeverity } from "./../../Services/Diagnostics"
 
 import { Icon } from "./../Icon"
+import styled, { bufferScrollBarSize, withProps } from "./common"
 
 export interface IErrorsProps {
     errors: types.Diagnostic[]
@@ -100,6 +101,35 @@ export class Errors extends React.PureComponent<IErrorsProps, {}> {
     }
 }
 
+interface IIconContainerProps {
+    color: string
+}
+const IconContainer = withProps<IIconContainerProps>(styled.div)`
+    color: ${props => props.color};
+`
+
+interface IErrorMarkerWrapperProps {
+    topOffset: number
+}
+const ErrorMarkerWrapper = withProps<IErrorMarkerWrapperProps>(styled.div)`
+    position: absolute;
+    top: ${props => props.topOffset}px;
+    right: ${bufferScrollBarSize};
+    opacity: 0.5;
+    width: 200px;
+    display: flex;
+
+    & ${IconContainer} {
+        position: absolute;
+        right: 0px;
+        background-color: rgb(80, 80, 80);
+
+        & .fa {
+            padding: 6px;
+        }
+    }
+`
+
 export interface IErrorMarkerProps {
     y: number
     text: string
@@ -108,21 +138,16 @@ export interface IErrorMarkerProps {
 
 export class ErrorMarker extends React.PureComponent<IErrorMarkerProps, {}> {
     public render(): JSX.Element {
-        const iconPositionStyles = {
-            top: this.props.y.toString() + "px",
-        }
-
-        const errorIcon = (
-            <div
-                style={iconPositionStyles}
-                className="error-marker"
-                key={this.props.y.toString() + this.props.text + this.props.color}
-            >
-                <ErrorIcon color={this.props.color} />
+        return (
+            <div>
+                <ErrorMarkerWrapper
+                    topOffset={this.props.y}
+                    key={this.props.y.toString() + this.props.text + this.props.color}
+                >
+                    <ErrorIcon color={this.props.color} />
+                </ErrorMarkerWrapper>
             </div>
         )
-
-        return <div>{errorIcon}</div>
     }
 }
 
@@ -132,9 +157,9 @@ export interface IErrorIconProps {
 
 export const ErrorIcon = (props: IErrorIconProps) => {
     return (
-        <div className="icon-container" style={{ color: props.color }}>
+        <IconContainer color={props.color}>
             <Icon name="exclamation-circle" />
-        </div>
+        </IconContainer>
     )
 }
 
@@ -145,19 +170,13 @@ export interface IErrorSquiggleProps {
     width: number
     color: string
 }
-
-export class ErrorSquiggle extends React.PureComponent<IErrorSquiggleProps, {}> {
-    public render(): JSX.Element {
-        const { x, y, width, height, color } = this.props
-
-        const style = {
-            top: y.toString() + "px",
-            left: x.toString() + "px",
-            height: height.toString() + "px",
-            width: width.toString() + "px",
-            borderBottom: `1px dashed ${color}`,
-        }
-
-        return <div className="error-squiggle" style={style} />
-    }
-}
+export const ErrorSquiggle = withProps<IErrorSquiggleProps>(styled.div)`
+    position: absolute;
+    ${props => `
+        top: ${props.y}px;
+        left: ${props.x}px;
+        height: ${props.height}px;
+        width: ${props.width}px;
+        border-bottom: 1px dashed ${props.color};
+    `}
+`

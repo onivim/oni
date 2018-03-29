@@ -18,9 +18,11 @@ export const test = async (oni: Oni.Plugin.Api) => {
     oni.automation.sendKeys(".test { pos")
 
     // Wait for completion popup to show
-    await oni.automation.waitFor(() => getCompletionElement() !== null)
+    await oni.automation.waitFor(() => {
+        return getCompletionElement() !== null
+    })
 
-    // Check for 'alert' as an available completion
+    // Check for 'position' as an available completion
     const completionElement = getCompletionElement()
     const textContent = completionElement.textContent
 

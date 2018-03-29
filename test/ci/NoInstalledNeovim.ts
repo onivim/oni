@@ -10,15 +10,9 @@ import * as path from "path"
 
 import * as Oni from "oni-api"
 
-const getInstallHelpElement = () => {
-    const elements = document.body.getElementsByClassName("install-help")
+import { getElementByTestAttribute } from "./Common"
 
-    if (!elements || !elements.length) {
-        return null
-    } else {
-        return elements[0]
-    }
-}
+const getInstallHelpElement = () => getElementByTestAttribute("install-help")
 
 export const test = async (oni: Oni.Plugin.Api) => {
     // Wait for install help UX to show

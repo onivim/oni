@@ -13,6 +13,7 @@ import * as Oni from "oni-api"
 
 import { IMenus } from "./../Menu/MenuState"
 
+import styled, { css, enableMouse, layer, testable, withProps } from "../../UI/components/common"
 import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
 import { HighlightText } from "./../../UI/components/HighlightText"
 import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
@@ -26,6 +27,15 @@ export interface IContextMenuItem {
     documentation?: string
     icon?: string
 }
+
+const AutocompletionWrapper = styled(testable("div", "autocompletion"))`
+    ${layer};
+    ${enableMouse};
+    width: 600px;
+    overflow: hidden;
+    animation-name: appear;
+    animation-duration: 0.1s;
+`
 
 export interface IContextMenuProps {
     visible: boolean
@@ -67,10 +77,10 @@ export class ContextMenuView extends React.PureComponent<IContextMenuProps, {}> 
             this.props.selectedIndex,
         )
         return (
-            <div className="autocompletion enable-mouse">
-                <div className="entries">{entries}</div>
+            <AutocompletionWrapper>
+                {entries}
                 <ContextMenuDocumentation documentation={selectedItemDocumentation} />
-            </div>
+            </AutocompletionWrapper>
         )
     }
 }
@@ -87,43 +97,100 @@ const getDocumentationFromItems = (items: any[], selectedIndex: number): string 
     return items[selectedIndex].documentation
 }
 
+const Label = styled(HighlightText)`
+    flex: 1 0 auto;
+    min-width: 100px;
+    margin-left: 8px;
+`
+
+const Highlight = styled.span`
+    text-decoration: underline;
+`
+
+interface IEntryProps {
+    isSelected: boolean
+}
+const Entry = withProps<IEntryProps>(styled.div)`
+    ${props =>
+        props.isSelected
+            ? css`
+                  transform: translateY(0.1px);
+                  box-shadow: 0 1px 8px 1px rgba(0, 0, 0, 0.2), 0 1px 20px 0 rgba(0, 0, 0, 0.19);
+              `
+            : ""}
+`
+
+interface IMainProps {
+    isSelected: boolean
+}
+const Main = withProps<IMainProps>(styled.div)`
+    transition: opacity 1s;
+    opacity: ${props => (props.isSelected ? "1" : "0.8")};
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`
+interface IconWrapperProps {
+    backgroundColor: string
+}
+const IconWrapper = withProps<IconWrapperProps>(styled.div)`
+    padding: 4px;
+    width: 1.2em;
+    flex: 0 0 auto;
+    text-align: center;
+    background-color: ${props => props.backgroundColor}
+
+    & i {
+        font-size: 0.9em;
+    }
+`
+
+interface IDetailProps {
+    isSelected: boolean
+}
+const Detail = withProps<IDetailProps>(styled.div)`
+    flex: 0 1 auto;
+    min-width: 50px;
+    text-align: right;
+
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 0 5px 0 16px;
+
+    font-size: 0.8em;
+    opacity: 0.8;
+    visibility: hidden;
+
+    ${props => (props.isSelected ? "visibility:visible;" : "")}
+`
+
 export interface IContextMenuItemProps extends Oni.Menu.MenuOption {
     base: string
     isSelected: boolean
     highlightColor?: string
 }
-
 export class ContextMenuItem extends React.PureComponent<IContextMenuItemProps, {}> {
     public render(): JSX.Element {
-        let className = "entry"
-        if (this.props.isSelected) {
-            className += " selected"
-        }
-
         const highlightColor = this.props.highlightColor
-
-        const iconContainerStyle = {
-            backgroundColor: highlightColor,
-        }
 
         const arrowColor = this.props.isSelected ? highlightColor : "transparent"
 
         return (
-            <div className={className} key={this.props.label}>
-                <div className="main">
-                    <span className="icon" style={iconContainerStyle}>
+            <Entry isSelected={this.props.isSelected} key={this.props.label}>
+                <Main isSelected={this.props.isSelected}>
+                    <IconWrapper backgroundColor={highlightColor}>
                         <Icon name={this.props.icon} />
-                    </span>
+                    </IconWrapper>
                     <Arrow direction={ArrowDirection.Right} size={5} color={arrowColor} />
-                    <HighlightText
-                        className="label"
-                        highlightClassName="highlight"
+                    <Label
+                        highlightComponent={Highlight}
                         highlightText={this.props.base}
                         text={this.props.label}
                     />
-                    <span className="detail">{this.props.detail}</span>
-                </div>
-            </div>
+                    <Detail isSelected={this.props.isSelected}>{this.props.detail}</Detail>
+                </Main>
+            </Entry>
         )
     }
 }
