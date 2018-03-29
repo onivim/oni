@@ -899,9 +899,12 @@ export class NeovimEditor extends Editor implements IEditor {
         commandManager.executeCommand(command, null)
     }
 
-    public async init(filesToOpen: string[]): Promise<void> {
+    public async init(
+        filesToOpen: string[],
+        startOptions?: Partial<INeovimStartOptions>,
+    ): Promise<void> {
         Log.info("[NeovimEditor::init] Called with filesToOpen: " + filesToOpen)
-        const startOptions: INeovimStartOptions = {
+        const defaultOptions: INeovimStartOptions = {
             runtimePaths: this._pluginManager.getAllRuntimePaths(),
             transport: this._configuration.getValue("experimental.neovim.transport"),
             neovimPath: this._configuration.getValue("debug.neovimPath"),
@@ -909,7 +912,12 @@ export class NeovimEditor extends Editor implements IEditor {
             useDefaultConfig: this._configuration.getValue("oni.useDefaultConfig"),
         }
 
-        await this._neovimInstance.start(startOptions)
+        const combinedOptions = {
+            ...defaultOptions,
+            ...startOptions,
+        }
+
+        await this._neovimInstance.start(combinedOptions)
 
         if (this._errorInitializing) {
             return

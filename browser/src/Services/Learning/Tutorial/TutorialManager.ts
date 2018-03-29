@@ -40,9 +40,14 @@ export class TutorialManager {
 
     private _persistedState: IPersistedTutorialState = { completionInfo: {} }
     private _onTutorialCompletedEvent: Event<void> = new Event<void>()
+    private _onTutorialProgressChanged: Event<void> = new Event<void>()
 
     public get onTutorialCompletedEvent(): IEvent<void> {
         return this._onTutorialCompletedEvent
+    }
+
+    public get onTutorialProgressChangedEvent(): IEvent<void> {
+        return this._onTutorialProgressChanged
     }
 
     constructor(
@@ -59,7 +64,7 @@ export class TutorialManager {
         this._initPromise = this._persistentStore.get()
 
         this._persistedState = await this._initPromise
-        this._onTutorialCompletedEvent.dispatch()
+        this._onTutorialProgressChanged.dispatch()
         return this._persistedState
     }
 
@@ -86,6 +91,16 @@ export class TutorialManager {
         this._persistedState.completionInfo[id] = completionInfo
         await this._persistentStore.set(this._persistedState)
         this._onTutorialCompletedEvent.dispatch()
+        this._onTutorialProgressChanged.dispatch()
+    }
+
+    public async clearProgress(): Promise<void> {
+        await this.start()
+        this._persistedState = {
+            completionInfo: {},
+        }
+        await this._persistentStore.set(this._persistedState)
+        this._onTutorialProgressChanged.dispatch()
     }
 
     public getNextTutorialId(currentTutorialId?: string): string {
