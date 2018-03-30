@@ -104,6 +104,7 @@ const activate = async Oni => {
             await applyPrettier()
         }
     })
+    return { applyPrettier, isCompatible, checkPrettierrc }
 }
 
 function createPrettierComponent(Oni, onClick) {

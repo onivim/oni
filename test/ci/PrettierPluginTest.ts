@@ -21,11 +21,27 @@ interface IPrettierPlugin {
 }
 
 export const settings = {
-    configPath: "MarkdownPreviewTest.config.js",
+    "oni.plugins.prettier": {
+        settings: {
+            semi: false,
+            tabWidth: 2,
+            useTabs: false,
+            singleQuote: false,
+            trailingComma: "es5",
+            bracketSpacing: true,
+            jsxBracketSameLine: false,
+            arrowParens: "avoid",
+            printWidth: 80,
+            editorConfig: true,
+        },
+        formatOnSave: false,
+        enabled: false,
+        allowedFiletypes: [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json", ".graphql"],
+    },
 }
 
 export async function test(typedOni: Oni.Plugin.Api) {
-    const assert = new Assertor("Markdown-preview")
+    const assert = new Assertor("Prettier-plugin")
 
     const typelessOni = typedOni as any
     const oni = typelessOni as IOniWithPluginApi
@@ -38,10 +54,13 @@ export async function test(typedOni: Oni.Plugin.Api) {
     const prettierPlugin = plugins.getPlugin("oni-plugin-prettier") as IPrettierPlugin
     assert.defined(prettierPlugin, "plugin instance")
 
-    assert.assert(!prettierPlugin.isStatusIconPresent(), "Preview pane is not initially closed")
+    assert.assert(
+        !prettierPlugin.isStatusIconPresent(),
+        "If valid filetype prettier plugin icon is present",
+    )
 
     await navigateToFile(getTemporaryFilePath("md"), typedOni)
-    await typedOni.automation.waitFor(() => prettierPlugin.isStatusIconPresent())
+    // await typedOni.automation.waitFor(() => prettierPlugin.isStatusIconPresent())
 
     // assert.isEmpty(
     //     prettierPlugin.getUnrenderedContent().trim(),
