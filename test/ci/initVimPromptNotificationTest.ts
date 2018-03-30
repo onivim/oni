@@ -8,21 +8,22 @@
 import * as assert from "assert"
 
 import * as Oni from "oni-api"
-import * as types from "vscode-languageserver-types"
 
-import { createNewFile, getElementsBySelector } from "./Common"
+import { createNewFile, getElementByClassName, getElementsBySelector } from "./Common"
 
 export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitForEditors()
 
-    await oni.automation.sleep(1000)
+    await oni.automation.waitFor(() => !!getElementByClassName("notification"), 15000)
     // Grab the notification element on startup
     const notification = getElementsBySelector("[data-test='notification']")
     const elements = getElementsBySelector("[data-test='notification-title']")
+    console.log("notification ====================: ", notification)
+    console.log("elements ===================: ", elements)
 
     assert.ok(elements instanceof HTMLCollection)
     if (elements instanceof HTMLCollection) {
-        const notificationTitle: Node = elements.item(0)
+        const notificationTitle = elements.item(0)
         const title = notificationTitle.textContent
         assert.strictEqual(title, "init.vim found")
     }
@@ -32,5 +33,8 @@ export const test = async (oni: Oni.Plugin.Api) => {
 }
 
 export const settings = {
-    config: {},
+    config: {
+        "oni.loadInitVim": false,
+        "notifications.enabled": true,
+    },
 }

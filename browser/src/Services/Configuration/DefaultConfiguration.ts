@@ -77,7 +77,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "oni.enhancedSyntaxHighlighting": true,
 
-    // "oni.loadInitVim": false,
+    "oni.loadInitVim": false,
 
     "oni.hideMenu": false,
 

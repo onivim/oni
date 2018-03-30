@@ -547,15 +547,25 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     /**
      * getInitVimPath
+     * return the init vim path with no check to ensure existence
      */
-    public getInitVimPath() {
+    public getInitVimPath(): string {
         const rootFolder = Platform.isWindows()
             ? // Use path from: https://github.com/neovim/neovim/wiki/FAQ
               path.join(process.env["LOCALAPPDATA"], "nvim") // tslint:disable-line no-string-literal
             : path.join(Platform.getUserHome(), ".config", "nvim")
         const initVimPath = path.join(rootFolder, "init.vim")
+        return initVimPath
+    }
+
+    /**
+     * doesInitVimExist
+     * Returns the init.vim path after checking the file exists
+     */
+    public doesInitVimExist(): string {
+        const initVimPath = this.getInitVimPath()
         try {
-            return checkIfFileExistsSync(initVimPath) ? { initVimPath, rootFolder } : null
+            return checkIfFileExistsSync(initVimPath) ? initVimPath : null
         } catch (e) {
             return null
         }
@@ -567,7 +577,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         if (typeof loadInitVim === "string") {
             return this.open(loadInitVim)
         } else {
-            const { rootFolder, initVimPath } = this.getInitVimPath()
+            const initVimPath = this.getInitVimPath()
+            const rootFolder = path.dirname(initVimPath)
             mkdirp.sync(rootFolder)
 
             return this.open(initVimPath)

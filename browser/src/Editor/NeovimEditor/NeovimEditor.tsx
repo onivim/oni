@@ -254,9 +254,11 @@ export class NeovimEditor extends Editor implements IEditor {
             notification.show()
         })
 
-        const { initVimPath } = this._neovimInstance.getInitVimPath()
+        const initVimPath = this._neovimInstance.doesInitVimExist()
         const initVimInUse = this._configuration.getValue("oni.loadInitVim")
-        if (initVimPath && !initVimInUse) {
+        const hasCheckedInitVim = this._configuration.getValue("_internal.hasCheckedInitVim")
+
+        if (initVimPath && !initVimInUse && !hasCheckedInitVim) {
             const initVimNotification = notificationManager.createItem()
             initVimNotification.setLevel("info")
             initVimNotification.setContents(
@@ -264,18 +266,23 @@ export class NeovimEditor extends Editor implements IEditor {
                 `We found an init.vim file would you like Oni to use it?
                 this will result in Oni being reloaded`,
             )
+
             initVimNotification.setButtons([
                 {
                     title: "Yes",
                     callback: () => {
                         this._configuration.setValues({ "oni.loadInitVim": true }, true)
+                        this._configuration.setValues({ "_internal.hasCheckedInitVim": true }, true)
                         commandManager.executeCommand("oni.debug.reload")
                     },
                 },
                 {
                     title: "No",
                     callback: () => {
-                        this._configuration.setValues({ "oni.loadInitVim": false }, true)
+                        this._configuration.setValues(
+                            { "oni.loadInitVim": false, "_internal.hasCheckedInitVim": true },
+                            true,
+                        )
                     },
                 },
             ])
