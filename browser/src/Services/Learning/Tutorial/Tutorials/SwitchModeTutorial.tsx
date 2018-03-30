@@ -9,8 +9,6 @@ import * as Stages from "./../Stages"
 
 import * as Notes from "./../Notes"
 
-import { Bold } from "./../../../../UI/components/common"
-
 export class SwitchModeTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
@@ -23,32 +21,7 @@ export class SwitchModeTutorial implements ITutorial {
     }
 
     public get notes(): JSX.Element[] {
-        return [
-            <Notes.KeyWithDescription
-                keyCharacter="i"
-                description={
-                    <span>
-                        Enters <Bold>insert</Bold> mode at the cursor position
-                    </span>
-                }
-            />,
-            <Notes.KeyWithDescription
-                keyCharacter="esc"
-                description={
-                    <span>
-                        Goes back to <Bold>normal</Bold> mode
-                    </span>
-                }
-            />,
-            <Notes.KeyWithDescription
-                keyCharacter="o"
-                description={
-                    <span>
-                        Enters <Bold>insert</Bold> mode, on a new line
-                    </span>
-                }
-            />,
-        ]
+        return [<Notes.IKey />, <Notes.EscKey />, <Notes.OKey />]
     }
 
     public get stages(): ITutorialStage[] {

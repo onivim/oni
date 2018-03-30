@@ -4,8 +4,11 @@
  * Tutorial that exercises the delete operator
  */
 
+import * as React from "react"
+
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
 import * as Stages from "./../Stages"
+import * as Notes from "./../Notes"
 
 const Line1 = "The delete operator is very useful!"
 const Line2a = "--> Delete this line"
@@ -72,5 +75,16 @@ export class DeleteOperatorTutorial implements ITutorial {
 
     public get stages(): ITutorialStage[] {
         return this._stages
+    }
+
+    public get notes(): JSX.Element[] {
+        return [
+            <Notes.HJKLKeys />,
+            <Notes.DeleteOperatorKey />,
+            <Notes.DeleteLineKey />,
+            <Notes.DeleteLineBelowKey />,
+            <Notes.DeleteLineAboveKey />,
+            <Notes.DeleteWordKey />,
+        ]
     }
 }

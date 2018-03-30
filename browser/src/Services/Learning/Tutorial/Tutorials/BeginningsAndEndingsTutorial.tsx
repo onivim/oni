@@ -2,8 +2,11 @@
  * TutorialManager
  */
 
+import * as React from "react"
+
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
 import * as Stages from "./../Stages"
+import * as Notes from "./../Notes"
 
 const Line1 = "Use the `$` key to move to the end of a line."
 const Line2 = "`0` moves to the beginning of the line."
@@ -58,5 +61,9 @@ export class BeginningsAndEndingsTutorial implements ITutorial {
 
     public get stages(): ITutorialStage[] {
         return this._stages
+    }
+
+    public get notes(): JSX.Element[] {
+        return [<Notes.HJKLKeys />, <Notes.ZeroKey />, <Notes.UnderscoreKey />, <Notes.DollarKey />]
     }
 }

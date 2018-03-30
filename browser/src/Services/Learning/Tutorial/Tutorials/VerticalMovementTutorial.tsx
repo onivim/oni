@@ -1,9 +1,11 @@
 /**
  * Vertical Movement Tutorial
  */
+import * as React from "react"
 
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
 import * as Stages from "./../Stages"
+import * as Notes from "./../Notes"
 
 export class VerticalMovementTutorial implements ITutorial {
     private _stages: ITutorialStage[]
@@ -39,5 +41,9 @@ export class VerticalMovementTutorial implements ITutorial {
 
     public get stages(): ITutorialStage[] {
         return this._stages
+    }
+
+    public get notes(): JSX.Element[] {
+        return [<Notes.GKey />, <Notes.GGKey />, <Notes.XGKey />]
     }
 }

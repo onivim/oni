@@ -4,8 +4,11 @@
  * Tutorial that brings together moving and inserting
  */
 
+import * as React from "react"
+
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
 import * as Stages from "./../Stages"
+import * as Notes from "./../Notes"
 
 const TutorialLine1Original = "There is text msng this ."
 const TutorialLine1Correct = "There is some text missing from this line."
@@ -63,5 +66,9 @@ export class MoveAndInsertTutorial implements ITutorial {
 
     public get stages(): ITutorialStage[] {
         return this._stages
+    }
+
+    public get notes(): JSX.Element[] {
+        return [<Notes.HJKLKeys />, <Notes.IKey />, <Notes.EscKey />]
     }
 }

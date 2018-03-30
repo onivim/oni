@@ -12,7 +12,7 @@ import * as React from "react"
 
 import styled from "styled-components"
 
-import { withProps } from "./../../../UI/components/common"
+import { withProps, Bold } from "./../../../UI/components/common"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
 const NoteWrapper = styled.div`
@@ -70,6 +70,167 @@ export const KeyWithIconAbove = (props: {
             <IconWrapper>{props.icon}</IconWrapper>
             <KeyWrapper>{props.keyCharacter}</KeyWrapper>
         </VerticalStackWrapper>
+    )
+}
+
+export const IKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="i"
+            description={
+                <span>
+                    Enters <Bold>insert</Bold> mode at the cursor position
+                </span>
+            }
+        />
+    )
+}
+
+export const EscKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="esc"
+            description={
+                <span>
+                    Goes back to <Bold>normal</Bold> mode
+                </span>
+            }
+        />
+    )
+}
+
+export const OKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="o"
+            description={
+                <span>
+                    Enters <Bold>insert</Bold> mode, on a new line
+                </span>
+            }
+        />
+    )
+}
+
+export const GGKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="gg"
+            description={<span>Moves the cursor to the TOP of the file.</span>}
+        />
+    )
+}
+
+export const GKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="G"
+            description={<span>Moves the cursor to the BOTTOM of the file.</span>}
+        />
+    )
+}
+
+export const XGKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="#+G"
+            description={
+                <span>Moves the cursor to line `#`. For example, `10G` moves to line 10.</span>
+            }
+        />
+    )
+}
+
+export const ZeroKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="0"
+            description={<span>Moves the cursor to the BEGINNING of the line.</span>}
+        />
+    )
+}
+export const UnderscoreKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="_"
+            description={<span>Moves the cursor to the FIRST CHARACTER of the line.</span>}
+        />
+    )
+}
+export const DollarKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="$"
+            description={<span>Moves the cursor to the END of the line.</span>}
+        />
+    )
+}
+export const WordKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="w"
+            description={<span>Moves the cursor to the BEGINNING of the NEXT word.</span>}
+        />
+    )
+}
+export const BeginningKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="b"
+            description={<span>Moves the cursor to the BEGINNING of the PREVIOUS word.</span>}
+        />
+    )
+}
+export const EndKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="e"
+            description={<span>Moves the cursor to the END of the NEXT word.</span>}
+        />
+    )
+}
+export const DeleteOperatorKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="d"
+            description={
+                <span>
+                    <Bold>+ motion</Bold>: Deletes text covered by the `motion`. Examples:
+                </span>
+            }
+        />
+    )
+}
+export const DeleteLineKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="dd"
+            description={<span>Deletes the CURRENT line.</span>}
+        />
+    )
+}
+export const DeleteLineBelowKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="dj"
+            description={<span>Deletes the CURRENT line and the one BELOW.</span>}
+        />
+    )
+}
+export const DeleteLineAboveKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="dk"
+            description={<span>Deletes the CURRENT line and the one ABOVE.</span>}
+        />
+    )
+}
+export const DeleteWordKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="dw"
+            description={<span>Delete to the end of the current word.</span>}
+        />
     )
 }
 
