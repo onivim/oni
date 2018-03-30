@@ -8,18 +8,11 @@ import { Event, IEvent } from "oni-types"
 
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./ITutorial"
 
-export interface ITutorialCompletionInfo {
-    completed: boolean
-    timeInMilliseconds?: number
-    keyPresses?: number
-}
-
 export interface ITutorialState {
     metadata: ITutorialMetadata
     renderFunc?: (context: Oni.BufferLayerRenderContext) => JSX.Element
     activeGoalIndex: number
     goals: string[]
-    completionInfo: ITutorialCompletionInfo
 }
 
 /**
@@ -34,7 +27,7 @@ export class TutorialGameplayManager {
     private _onStateChanged = new Event<ITutorialState>()
     private _onCompleted = new Event<boolean>()
     private _currentState: ITutorialState = null
-    private _completionInfo: ITutorialCompletionInfo
+    private _onTick = new Event<void>()
 
     private _isTickInProgress: boolean = false
     private _isPendingTick: boolean = false
@@ -46,6 +39,10 @@ export class TutorialGameplayManager {
 
     public get onCompleted(): IEvent<boolean> {
         return this._onCompleted
+    }
+
+    public get onTick(): IEvent<void> {
+        return this._onTick
     }
 
     public get currentState(): ITutorialState {
@@ -66,7 +63,6 @@ export class TutorialGameplayManager {
         this._buf = buffer
         this._currentStageIdx = 0
         this._activeTutorial = tutorial
-        this._completionInfo = { completed: false, keyPresses: 0, timeInMilliseconds: 0 }
 
         this._editor.onModeChanged.subscribe((evt: string) => {
             this._tick()
@@ -98,19 +94,18 @@ export class TutorialGameplayManager {
             editor: this._editor,
             buffer: this._buf,
         })
+        this._onTick.dispatch()
 
         this._isTickInProgress = false
         if (result) {
             this._currentStageIdx++
 
             if (this._currentStageIdx >= this._activeTutorial.stages.length) {
-                this._completionInfo = {
-                    completed: true,
-                    timeInMilliseconds: 100,
-                    keyPresses: 100,
-                }
                 this._onCompleted.dispatch(true)
             }
+
+            // If we're on a new change, schedule a tick
+            window.setTimeout(() => this._tick())
         }
 
         const goalsToSend = this._activeTutorial.stages.map(f => f.goalName)
@@ -123,7 +118,6 @@ export class TutorialGameplayManager {
                 this.currentStage && this.currentStage.render
                     ? this.currentStage.render(context)
                     : null,
-            completionInfo: this._completionInfo,
         }
         this._currentState = newState
         this._onStateChanged.dispatch(newState)

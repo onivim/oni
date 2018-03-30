@@ -183,6 +183,7 @@ export function createWindow(
 
     updateMenu(currentWindow, false)
     currentWindow.webContents.on("did-finish-load", () => {
+        Log.info("did-finish-load event received")
         currentWindow.webContents.send("init", {
             args: commandLineArguments,
             workingDirectory,
@@ -254,9 +255,11 @@ app.on("open-file", (event, filePath) => {
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
+    Log.info("window-all-closed event")
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== "darwin" || isAutomation) {
+        Log.info("quitting app")
         app.quit()
     }
 })

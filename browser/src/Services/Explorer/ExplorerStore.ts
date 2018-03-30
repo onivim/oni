@@ -309,7 +309,7 @@ const undoPaste = (file: ExplorerNode, pasteTarget: ExplorerNode) => {
 }
 
 const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
-    action$.ofType("UNDO").mergeMap(action => {
+    action$.ofType("UNDO").map(action => {
         const { register: { undo } } = store.getState()
         const { type, pasted, target: pasteTarget } = undo[undo.length - 1]
         switch (type) {
@@ -318,13 +318,9 @@ const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
                 filesAndFolders.forEach(pastedItems => {
                     mv(pastedItems.file, pastedItems.folder)
                 })
-                return Observable.of({
-                    type: "UNDO_SUCCESS",
-                } as IUndoSuccessAction)
+                return { type: "UNDO_SUCCESS" } as IUndoSuccessAction
             default:
-                return Observable.of({
-                    type: "UNDO_FAIL",
-                } as IUndoFailAction)
+                return { type: "UNDO_FAIL" } as IUndoFailAction
         }
     })
 

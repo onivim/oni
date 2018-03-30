@@ -35,14 +35,37 @@
         _tags = []
         let idx = 0
 
+        const width = window.innerWidth
+        const height = window.innerHeight
+
         const addElement = (element: HTMLElement): void => {
             idx++
             const clientRect = element.getBoundingClientRect()
+
+            if (clientRect.width === 0 || clientRect.height === 0) {
+                return
+            }
+
+            const isInBounds =
+                clientRect.top >= 0 &&
+                clientRect.left >= 0 &&
+                clientRect.top <= height &&
+                clientRect.left <= width
+
+            if (!isInBounds) {
+                return
+            }
+
             const callback = (elem: HTMLElement) => () => {
                 if (elem && elem.click) {
-                    elem.click()
+                    if (elem.tagName === "A") {
+                        elem.click()
+                    } else if (elem.tagName === "INPUT" || elem.tagName === "TEXTAREA") {
+                        elem.focus()
+                    }
                 }
             }
+
             _tags.push({
                 rectangle: createRectangle(
                     clientRect.left,
@@ -55,10 +78,10 @@
             })
         }
 
-        const tagsToCollect = ["a"]
+        const tagsToCollect = ["a", "input", "textarea"]
 
         tagsToCollect.forEach(tag => {
-            const elems = document.getElementsByTagName("a")
+            const elems = document.getElementsByTagName(tag) as NodeListOf<HTMLElement>
 
             for (let i = 0; i < elems.length; i++) {
                 addElement(elems[i])

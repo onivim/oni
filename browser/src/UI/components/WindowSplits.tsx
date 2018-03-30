@@ -43,6 +43,7 @@ export class Dock extends React.PureComponent<IDockProps, {}> {
                 <div style={{ display: "flex", flexDirection: "row" }} key={s.id}>
                     <WindowSplitHost
                         key={i}
+                        id={s.id}
                         containerClassName="split"
                         split={s}
                         isFocused={this.props.activeSplitId === s.id}
@@ -100,6 +101,7 @@ export class WindowSplitView extends React.PureComponent<IWindowSplitViewProps, 
                                 <div style={style}>
                                     <WindowSplitHost
                                         key={item.split.id}
+                                        id={item.split.id}
                                         containerClassName="editor"
                                         split={item.split}
                                         isFocused={this.props.activeSplitId === item.split.id}

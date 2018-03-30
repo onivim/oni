@@ -13,6 +13,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group"
 
 import { styled } from "./../../UI/components/common"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
+import { Sneakable } from "./../../UI/components/Sneakable"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 import { DragAndDrop, Droppeable } from "./../DragAndDrop"
 
@@ -86,7 +87,6 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
         return (
             <NodeWrapper
                 style={{ cursor: "pointer" }}
-                onClick={() => this.props.onClick()}
                 innerRef={this.props.isSelected ? scrollIntoViewIfNeeded : noop}
             >
                 {this.getElement()}
@@ -123,6 +123,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                             isFocused={this.props.isSelected}
                                             isContainer={false}
                                             indentationLevel={node.indentationLevel}
+                                            onClick={this.props.onClick}
                                             icon={<FileIcon fileName={node.name} isLarge={true} />}
                                         />
                                     </NodeTransitionWrapper>
@@ -148,6 +149,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                         isExpanded={node.expanded}
                                         text={node.name}
                                         isFocused={this.props.isSelected}
+                                        onClick={this.props.onClick}
                                     />
                                 </TransitionGroup>
                             )
@@ -173,6 +175,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                     text={node.name}
                                     isFocused={this.props.isSelected}
                                     indentationLevel={node.indentationLevel}
+                                    onClick={() => this.props.onClick()}
                                 />
                             )
                         }}
@@ -198,7 +201,6 @@ export interface IExplorerViewProps extends IExplorerViewContainerProps {
 }
 
 import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
-import { Sneakable } from "./../../UI/components/Sneakable"
 
 import { commandManager } from "./../CommandManager"
 

@@ -29,6 +29,7 @@ export interface ISidebarEntry {
     id: string
     icon: SidebarIcon
     pane: SidebarPane
+    hasNotification?: boolean
 }
 
 export interface SidebarPane extends Oni.IWindowSplit {
@@ -70,6 +71,15 @@ export class SidebarManager {
                 "left",
                 new SidebarContentSplit(this),
             )
+        }
+    }
+
+    public setNotification(id: string): void {
+        if (id) {
+            this._store.dispatch({
+                type: "SET_NOTIFICATION",
+                id,
+            })
         }
     }
 
@@ -141,6 +151,10 @@ export type SidebarActions =
           entry: ISidebarEntry
       }
     | {
+          type: "SET_NOTIFICATION"
+          id: string
+      }
+    | {
           type: "ENTER"
       }
     | {
@@ -151,37 +165,38 @@ export const sidebarReducer: Reducer<ISidebarState> = (
     state: ISidebarState = DefaultSidebarState,
     action: SidebarActions,
 ) => {
+    const newState = {
+        ...state,
+        entries: entriesReducer(state.entries, action),
+    }
+
     switch (action.type) {
         case "ENTER":
             return {
-                ...state,
+                ...newState,
                 isActive: true,
             }
         case "LEAVE":
             return {
-                ...state,
+                ...newState,
                 isActive: false,
             }
         case "SET_ACTIVE_ID":
             return {
-                ...state,
+                ...newState,
                 activeEntryId: action.activeEntryId,
             }
         case "ADD_ENTRY":
             if (!state.activeEntryId) {
                 return {
-                    ...state,
+                    ...newState,
                     activeEntryId: action.entry.pane.id,
-                    entries: entriesReducer(state.entries, action),
                 }
             } else {
-                return {
-                    ...state,
-                    entries: entriesReducer(state.entries, action),
-                }
+                return newState
             }
         default:
-            return state
+            return newState
     }
 }
 
@@ -192,6 +207,28 @@ export const entriesReducer: Reducer<ISidebarEntry[]> = (
     switch (action.type) {
         case "ADD_ENTRY":
             return [...state, action.entry]
+        case "SET_ACTIVE_ID":
+            return state.map(e => {
+                if (e.id === action.activeEntryId) {
+                    return {
+                        ...e,
+                        hasNotification: false,
+                    }
+                } else {
+                    return e
+                }
+            })
+        case "SET_NOTIFICATION":
+            return state.map(e => {
+                if (e.id !== action.id) {
+                    return e
+                } else {
+                    return {
+                        ...e,
+                        hasNotification: true,
+                    }
+                }
+            })
         default:
             return state
     }

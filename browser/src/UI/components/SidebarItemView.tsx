@@ -8,6 +8,8 @@ import * as React from "react"
 
 import { styled, withProps } from "./common"
 
+import { Sneakable } from "./../../UI/components/Sneakable"
+
 export interface ISidebarItemViewProps {
     yanked?: boolean
     pasted?: boolean
@@ -19,6 +21,7 @@ export interface ISidebarItemViewProps {
     isContainer?: boolean
     indentationLevel: number
     icon?: JSX.Element
+    onClick: () => void
 }
 
 const px = (num: number): string => num.toString() + "px"
@@ -40,6 +43,9 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
     padding-top: 4px;
     padding-bottom: 4px;
     position: relative;
+
+    cursor: pointer;
+    pointer-events: all;
 
     .icon {
         flex: 0 0 auto;
@@ -81,11 +87,17 @@ export class SidebarItemView extends React.PureComponent<ISidebarItemViewProps, 
     public render(): JSX.Element {
         const icon = this.props.icon ? <div className="icon">{this.props.icon}</div> : null
         return (
-            <SidebarItemStyleWrapper {...this.props} className="item">
-                <SidebarItemBackground {...this.props} />
-                {icon}
-                <div className="name">{this.props.text}</div>
-            </SidebarItemStyleWrapper>
+            <Sneakable callback={this.props.onClick}>
+                <SidebarItemStyleWrapper
+                    {...this.props}
+                    className="item"
+                    onClick={this.props.onClick}
+                >
+                    <SidebarItemBackground {...this.props} />
+                    {icon}
+                    <div className="name">{this.props.text}</div>
+                </SidebarItemStyleWrapper>
+            </Sneakable>
         )
     }
 }
@@ -99,6 +111,7 @@ export interface ISidebarContainerViewProps extends IContainerProps {
     isFocused: boolean
     indentationLevel?: number
     isContainer?: boolean
+    onClick: () => void
 }
 
 interface IContainerProps {
@@ -139,6 +152,7 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
                     text={this.props.text}
                     isFocused={this.props.isFocused}
                     isContainer={this.props.isContainer}
+                    onClick={this.props.onClick}
                 />
                 {this.props.isExpanded ? this.props.children : null}
             </SidebarContainer>
