@@ -38,10 +38,17 @@ const EntranceKeyFrames = keyframes`
     100% { opacity: 1; }
 `
 
-const MoveToTopWrapper = styled.div`
-    animation: ${EntranceKeyFrames} 0.3s linear forwards;
+const CommonAnimation = `
+    animation-name: ${EntranceKeyFrames};
+    animation-duration: 0.4s;
+    animation-delay: 0.25s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
     opacity: 0;
-    position: absolute;
+`
+
+const MoveToTopWrapper = styled.div`
+    ${CommonAnimation} position: absolute;
     top: 0px;
     left: 25%;
     right: 25%;
@@ -54,9 +61,7 @@ const MoveToTopWrapper = styled.div`
 `
 
 const MoveToBottomWrapper = styled.div`
-    animation: ${EntranceKeyFrames} 0.3s linear forwards;
-    opacity: 0;
-    position: absolute;
+    ${CommonAnimation} position: absolute;
     bottom: 0px;
     left: 25%;
     right: 25%;

@@ -34,6 +34,11 @@ export class DeleteOperatorTutorial implements ITutorial {
                 new Stages.DeleteCharactersStage(null, 1, 0, Line2a),
                 new Stages.WaitForStateStage(null, [Line1]),
             ),
+            Stages.combine(
+                null,
+                new Stages.FadeInLineStage(null, 1, Line2b),
+                new Stages.FadeInLineStage(null, 2, Line3b),
+            ),
             new Stages.SetBufferStage([Line1, Line2b, Line3b]),
             new Stages.MoveToGoalStage("Move to the goal marker", 1, 0),
             Stages.combine(
@@ -42,7 +47,12 @@ export class DeleteOperatorTutorial implements ITutorial {
                 new Stages.DeleteCharactersStage(null, 2, 0, Line3b),
                 new Stages.WaitForStateStage(null, [Line1]),
             ),
-            new Stages.SetBufferStage([Line1, Line2c, Line3c]),
+            Stages.combine(
+                null,
+                new Stages.FadeInLineStage(null, 1, Line2c),
+                new Stages.FadeInLineStage(null, 2, Line3c),
+                new Stages.SetBufferStage([Line1, Line2c, Line3c]),
+            ),
             new Stages.MoveToGoalStage("Move to the goal marker", 2, 0),
             Stages.combine(
                 "Delete the current line, and the one above it, with 'dk'",
@@ -50,7 +60,13 @@ export class DeleteOperatorTutorial implements ITutorial {
                 new Stages.DeleteCharactersStage(null, 2, 0, Line3c),
                 new Stages.WaitForStateStage(null, [Line1]),
             ),
-            new Stages.SetBufferStage([Line1, Line2d, Line3d, Line4d]),
+            Stages.combine(
+                null,
+                new Stages.FadeInLineStage(null, 1, Line2d),
+                new Stages.FadeInLineStage(null, 2, Line3d),
+                new Stages.FadeInLineStage(null, 3, Line4d),
+                new Stages.SetBufferStage([Line1, Line2d, Line3d, Line4d]),
+            ),
             new Stages.MoveToGoalStage("Move to the goal marker", 3, 20),
             Stages.combine(
                 "Delete the duplicate word with 'dw'",
