@@ -32,6 +32,7 @@ const CiTests = [
     "QuickOpenTest",
     "StatusBar-Mode",
     "Neovim.InvalidInitVimHandlingTest",
+    "Neovim.CallOniCommands",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
 
