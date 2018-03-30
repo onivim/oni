@@ -122,7 +122,9 @@ export const CompletionView = (props: ICompletionViewProps): JSX.Element => {
                 </ResultsWrapper>
                 <Fixed>
                     <FooterWrapper>
-                        <AppearWithDelay delay={1.5}>Press any key to continue...</AppearWithDelay>
+                        <AppearWithDelay delay={1.5}>
+                            Press ENTER to continue or SPACE to restart
+                        </AppearWithDelay>
                     </FooterWrapper>
                 </Fixed>
             </Container>
