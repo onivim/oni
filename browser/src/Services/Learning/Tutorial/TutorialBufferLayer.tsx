@@ -193,7 +193,9 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         if (this._completionInfo.completed) {
             const nextTutorial = this._tutorialManager.getNextTutorialId(this._currentTutorialId)
 
-            if (nextTutorial && key === "<enter>") {
+            if (key === "<space>") {
+                this.startTutorial(this._currentTutorialId)
+            } else if (nextTutorial && key === "<enter>") {
                 this.startTutorial(nextTutorial)
             } else {
                 // No tutorial left - we'll pass through
