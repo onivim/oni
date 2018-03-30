@@ -7,8 +7,8 @@ import { Event, IDisposable, IEvent } from "oni-types"
 
 import * as Log from "./../Log"
 import * as Performance from "./../Performance"
-import { EventContext } from "./EventContext"
 import { CommandContext } from "./CommandContext"
+import { EventContext } from "./EventContext"
 
 import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
 import * as Platform from "./../Platform"
