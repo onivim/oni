@@ -34,12 +34,23 @@ const getVersion = () => {
     return version
 }
 
+const getBuildsForWindows = version => {
+    switch (process.env["PLATFORM"]) {
+        case "x86":
+            return [`Oni-${version}-ia32-win.exe`, `Oni-${version}-ia32-win.zip`]
+        case "x64":
+            return [`Oni-${version}-win.exe`, `Oni-${version}-win.zip`]
+        default:
+            return []
+    }
+}
+
 const getBuildsForPlatform = version => {
     const platform = os.platform()
 
     switch (platform) {
         case "win32":
-            return [`Oni-${version}-ia32-win.exe`, `Oni-${version}-ia32-win.zip`]
+            return getBuildsForWindows(version)
         case "darwin":
             return [`Oni-${version}-osx.dmg`]
         case "linux":

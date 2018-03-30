@@ -19,10 +19,21 @@ const isCiBuild = () => {
     return ciBuild
 }
 
+const getWindowsExcutablePathOnCiMachine = () => {
+    switch (process.env.PLATFORM) {
+        case "x86":
+            return path.join(__dirname, "..", "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
+        case "x64":
+            return path.join(__dirname, "..", "..", "..", "dist", "win-unpacked", "Oni.exe")
+        default:
+            throw new Error(`Unable to find Oni executable for Windows arch ${process.arch}`)
+    }
+}
+
 const getExecutablePathOnCiMachine = () => {
     switch (process.platform) {
         case "win32":
-            return path.join(__dirname, "..", "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
+            return getWindowsExcutablePathOnCiMachine()
         case "darwin":
             return path.join(
                 __dirname,
