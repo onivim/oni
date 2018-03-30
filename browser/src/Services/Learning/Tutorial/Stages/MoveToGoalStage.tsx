@@ -33,7 +33,14 @@ const TopArrow = styled.div`
     margin-top: 1px;
 `
 
+const EntranceKeyFrames = keyframes`
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+`
+
 const MoveToTopWrapper = styled.div`
+    animation: ${EntranceKeyFrames} 0.3s linear forwards;
+    opacity: 0;
     position: absolute;
     top: 0px;
     left: 25%;
@@ -47,6 +54,8 @@ const MoveToTopWrapper = styled.div`
 `
 
 const MoveToBottomWrapper = styled.div`
+    animation: ${EntranceKeyFrames} 0.3s linear forwards;
+    opacity: 0;
     position: absolute;
     bottom: 0px;
     left: 25%;
@@ -72,7 +81,7 @@ export class MoveToGoalStage implements ITutorialStage {
         const cursorPosition = await (context.buffer as any).getCursorPosition()
 
         this._currentCursorLine = cursorPosition.line
-        this._goalColumn = this._column === null ? cursorPosition.character : this._column
+        this._goalColumn = !!this._column ? this._column : cursorPosition.character
 
         return (
             cursorPosition.line === this._line &&
