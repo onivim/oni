@@ -101,6 +101,11 @@ export const TutorialItemView = (props: { info: ITutorialMetadataWithProgress })
 
     const icon = isCompleted ? <Icon name={"check"} /> : <Icon name={"circle-o"} />
 
+    // TODO: Refactor this to a 'success' theme color, ie: highlight.success.background
+    const backgroundColor = isCompleted ? "#5AB379" : "rgba(0, 0, 0, 0.1)"
+    // TODO: Refactor this to a 'success' theme color, ie: highlight.success.foreground
+    const color = isCompleted ? "white" : null
+
     const results = isCompleted ? (
         <div style={{ margin: "0.25em" }}>
             <TutorialResultsWrapper>
@@ -115,12 +120,8 @@ export const TutorialItemView = (props: { info: ITutorialMetadataWithProgress })
     )
 
     return (
-        <Container
-            direction="horizontal"
-            fullWidth={true}
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}
-        >
-            <Fixed>
+        <Container direction="horizontal" fullWidth={true} style={{ backgroundColor, color }}>
+            <Fixed style={{ backgroundColor }}>
                 <TutorialItemViewIconContainer>{icon}</TutorialItemViewIconContainer>
             </Fixed>
             <Full style={{ margin: "0.5em", whiteSpace: "pre-wrap" }}>
