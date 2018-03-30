@@ -49,7 +49,7 @@ export class BeginningsAndEndingsTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
             id: "oni.tutorials.beginnings_and_endings",
-            name: "Beginnings & Endings: _, 0, $",
+            name: "Motion: _, 0, $",
             description:
                 "Using `h` and `l` isn't always the most efficient way to get around a line. You can use the `0` key to move to the very beginning a line, and `$` to move to the end. `_` moves to the first character in the line, which is often more convenient than `0`.",
             level: 160,

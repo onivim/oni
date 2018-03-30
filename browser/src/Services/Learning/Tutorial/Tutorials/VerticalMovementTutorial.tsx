@@ -30,7 +30,7 @@ export class VerticalMovementTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
             id: "oni.tutorials.vertical_movement",
-            name: "Vertical Movement: gg & G",
+            name: "Motion: gg, G",
             description:
                 "When working with large files, it's very helpful to quickly be able to move to the top or bottom of the file, as well as to particular lines. `gg`, `G`, and `<x>G` can help us here!",
             level: 150,
