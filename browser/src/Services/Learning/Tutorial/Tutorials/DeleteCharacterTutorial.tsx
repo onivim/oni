@@ -8,10 +8,25 @@ import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
 import * as Stages from "./../Stages"
 
 const TutorialLine1Original = "The coww jumped over the mmoon"
+const TutorialLine1CorrectA = "The cow jumped over the mmoon"
 const TutorialLine1Correct = "The cow jumped over the moon"
+
+const TutorialLine2FirstMarker = "The b".length - 1
 const TutorialLine2Original = "The bboy bougght the baskketball"
+const TutorialLine2SecondMarker = "The boy boug".length - 1
+const TutorialLine2CorrectA = "The boy bougght the baskketball"
+
+const TutorialLine2ThirdMarker = "The boy bought the bask".length - 1
+const TutorialLine2CorrectB = "The boy bought the baskketball"
+
 const TutorialLine2Correct = "The boy bought the basketball"
-const TutorialLine3Original = "Modal edditing is the ccats pajammas"
+
+const TutorialLine3Original = "Modal edditing is the ccats pajamas"
+
+const TutorialLine3FirstMarker = "Modal ed".length - 1
+const TutorialLine3CorrectA = "Modal editing is the ccats pajamas"
+
+const TutorialLine3SecondMarker = "Modal editing is the c".length - 1
 const TutorialLine3Correct = "Modal editing is the cats pajamas"
 
 export class DeleteCharacterTutorial implements ITutorial {
@@ -20,61 +35,87 @@ export class DeleteCharacterTutorial implements ITutorial {
     constructor() {
         this._stages = [
             new Stages.SetBufferStage([TutorialLine1Original]),
-            new Stages.CorrectLineStage(
-                "Remove the duplicated 'w'",
-                0,
-                TutorialLine1Correct,
-                "The cow ",
+            new Stages.MoveToGoalStage("Move to the first duplicated 'w' character", 0, 6),
+            Stages.combine(
+                "Delete the duplicated 'w' character by pressing `x`",
+                new Stages.DeleteCharactersStage(null, 0, 6, "w"),
+                new Stages.WaitForStateStage(null, [TutorialLine1CorrectA]),
             ),
-            new Stages.CorrectLineStage(
-                "Remove the duplicated 'm'",
+            new Stages.MoveToGoalStage(
+                "Move to the first duplicated 'm' character",
                 0,
-                TutorialLine1Correct,
-                TutorialLine1Correct,
+                TutorialLine1CorrectA.length - 5,
+            ),
+            Stages.combine(
+                "Remove the duplicated 'm' character by pressing `x`",
+                new Stages.DeleteCharactersStage(null, 0, TutorialLine1CorrectA.length - 5, "m"),
+                new Stages.WaitForStateStage(null, [TutorialLine1Correct]),
             ),
             new Stages.SetBufferStage([TutorialLine1Correct, TutorialLine2Original]),
-            new Stages.MoveToGoalStage("Move to the next line by pressing `j`", 1, null),
-            new Stages.CorrectLineStage(
-                "Remove the duplicated 'b'",
+            new Stages.MoveToGoalStage(
+                "Move to the first duplicated 'b' character",
                 1,
-                TutorialLine2Correct,
-                "The bo",
+                TutorialLine2FirstMarker,
             ),
-            new Stages.CorrectLineStage(
-                "Remove the duplicated 'g'",
-                1,
-                TutorialLine2Correct,
-                "The boy bought",
+            Stages.combine(
+                "Remove the duplicated 'b' character by pressing `x`",
+                new Stages.DeleteCharactersStage(null, 1, TutorialLine2FirstMarker, "b"),
+                new Stages.WaitForStateStage(null, [TutorialLine1Correct, TutorialLine2CorrectA]),
             ),
-            new Stages.CorrectLineStage(
-                "Remove the duplicated 'k'",
+            new Stages.MoveToGoalStage(
+                "Move to the first duplicated 'g' character",
                 1,
-                TutorialLine2Correct,
-                TutorialLine2Correct,
+                TutorialLine2SecondMarker,
+            ),
+            Stages.combine(
+                "Remove the duplicated 'g' character by pressing `x`",
+                new Stages.DeleteCharactersStage(null, 1, TutorialLine2SecondMarker, "g"),
+                new Stages.WaitForStateStage(null, [TutorialLine1Correct, TutorialLine2CorrectB]),
+            ),
+            new Stages.MoveToGoalStage(
+                "Move to the first duplicated 'k' character",
+                1,
+                TutorialLine2ThirdMarker,
+            ),
+            Stages.combine(
+                "Remove the duplicated 'k' character by pressing `x`",
+                new Stages.DeleteCharactersStage(null, 1, TutorialLine2ThirdMarker, "g"),
+                new Stages.WaitForStateStage(null, [TutorialLine1Correct, TutorialLine2Correct]),
             ),
             new Stages.SetBufferStage([
                 TutorialLine1Correct,
                 TutorialLine2Correct,
                 TutorialLine3Original,
             ]),
-            new Stages.MoveToGoalStage("Move to the next line by pressing `j`", 2, null),
-            new Stages.CorrectLineStage(
-                "Remove the duplicated 'd'",
+
+            new Stages.MoveToGoalStage(
+                "Move to the first duplicated 'd' character",
                 2,
-                TutorialLine3Correct,
-                "Modal editing",
+                TutorialLine3FirstMarker,
             ),
-            new Stages.CorrectLineStage(
-                "Remove the duplicated 'c'",
-                2,
-                TutorialLine3Correct,
-                "Modal editing is the cats",
+            Stages.combine(
+                "Remove the duplicated 'd' character by pressing `x`",
+                new Stages.DeleteCharactersStage(null, 2, TutorialLine3FirstMarker, "d"),
+                new Stages.WaitForStateStage(null, [
+                    TutorialLine1Correct,
+                    TutorialLine2Correct,
+                    TutorialLine3CorrectA,
+                ]),
             ),
-            new Stages.CorrectLineStage(
-                "Remove the duplicated 'm'",
+
+            new Stages.MoveToGoalStage(
+                "Move to the first duplicated 'c' character",
                 2,
-                TutorialLine3Correct,
-                TutorialLine3Correct,
+                TutorialLine3SecondMarker,
+            ),
+            Stages.combine(
+                "Remove the duplicated 'c' character by pressing `x`",
+                new Stages.DeleteCharactersStage(null, 2, TutorialLine3SecondMarker, "c"),
+                new Stages.WaitForStateStage(null, [
+                    TutorialLine1Correct,
+                    TutorialLine2Correct,
+                    TutorialLine3Correct,
+                ]),
             ),
         ]
     }
