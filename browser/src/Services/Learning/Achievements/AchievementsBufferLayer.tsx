@@ -15,6 +15,7 @@ import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
 import * as Oni from "oni-api"
+import { IDisposable } from "oni-types"
 
 import { AchievementsManager, AchievementWithProgressInfo } from "./AchievementsManager"
 
@@ -31,6 +32,8 @@ export const TrophyCaseViewWrapper = withProps<{}>(styled.div)`
     color: ${p => p.theme.foreground};
     width: 100%;
     height: 100%;
+    overflow-y: auto;
+    pointer-events: all;
 
     display: flex;
     flex-direction: column;
@@ -157,12 +160,30 @@ export class TrophyCaseView extends React.PureComponent<
     ITrophyCaseViewProps,
     ITrophyCaseViewState
 > {
+    private _disposables: IDisposable[] = []
+
     constructor(props: ITrophyCaseViewProps) {
         super(props)
 
         this.state = {
             progressInfo: props.achievements.getAchievements(),
         }
+    }
+
+    public componentDidMount(): void {
+        this._cleanSubscriptions()
+
+        const s1 = this.props.achievements.onAchievementAccomplished.subscribe(() => {
+            this.setState({
+                progressInfo: this.props.achievements.getAchievements(),
+            })
+        })
+
+        this._disposables = [s1]
+    }
+
+    public componentWillUnmount(): void {
+        this._cleanSubscriptions()
     }
 
     public render(): JSX.Element {
@@ -199,6 +220,11 @@ export class TrophyCaseView extends React.PureComponent<
                 <Full>{items}</Full>
             </TrophyCaseViewWrapper>
         )
+    }
+
+    private _cleanSubscriptions(): void {
+        this._disposables.forEach(d => d.dispose())
+        this._disposables = []
     }
 }
 
