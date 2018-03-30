@@ -36,7 +36,7 @@ export class BasicMovementTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
             id: "oni.tutorials.basic_movement",
-            name: "Motion: h/j/k/l",
+            name: "Motion: h, j, k, l",
             description:
                 "To use Oni effectively in normal mode, you'll need to learn to move the cursor around! There are many ways to move the cursor, but the most basic is to use `h`, `j`, `k`, and `l`. These keys might seem strange at first, but they allow you to move the cursor without your fingers leaving the home row.",
             level: 110,
