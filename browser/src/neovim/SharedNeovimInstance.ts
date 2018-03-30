@@ -10,9 +10,9 @@
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { CommandContext } from "./CommandContext"
 import { NeovimInstance } from "./NeovimInstance"
 import { INeovimStartOptions } from "./NeovimProcessSpawner"
-import { CommandContext } from "./CommandContext"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 import { commandManager } from "./../Services/CommandManager"
