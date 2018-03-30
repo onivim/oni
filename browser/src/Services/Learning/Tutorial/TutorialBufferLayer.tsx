@@ -28,7 +28,7 @@ import { getInstance as getTokenColorsInstance } from "./../../TokenColors"
 import { windowManager } from "./../../WindowManager"
 import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
-import { withProps, Bold } from "./../../../UI/components/common"
+import { Bold, withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
 import { StatusBar } from "./../../../UI/components/StatusBar"
 

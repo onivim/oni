@@ -22,9 +22,9 @@ const NoteWrapper = styled.div`
 `
 
 const KeyWrapper = withProps<{}>(styled.div)`
-    background-color: ${props => props.theme["background"]};
-    color: ${props => props.theme["foreground"]};
-    border: 1px solid ${props => props.theme["foreground"]};
+    background-color: ${props => props.theme.background};
+    color: ${props => props.theme.foreground};
+    border: 1px solid ${props => props.theme.foreground};
 
     width: 40px;
     height: 40px;

@@ -7,8 +7,8 @@ import * as React from "react"
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
 // import { InitializeBufferStage, MoveToGoalStage } from "./../Stages"
 
-import * as Stages from "./../Stages"
 import * as Notes from "./../Notes"
+import * as Stages from "./../Stages"
 
 const Line1 = "In NORMAL mode, the 'l' key moves one character to the RIGHT..."
 const Line2 = "...and 'h' moves one character to the LEFT."

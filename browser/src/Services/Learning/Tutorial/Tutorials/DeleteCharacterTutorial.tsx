@@ -7,8 +7,8 @@
 import * as React from "react"
 
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
-import * as Stages from "./../Stages"
 import * as Notes from "./../Notes"
+import * as Stages from "./../Stages"
 
 import { Bold } from "./../../../../UI/components/common"
 
