@@ -7,8 +7,8 @@
 import * as React from "react"
 
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
-import * as Stages from "./../Stages"
 import * as Notes from "./../Notes"
+import * as Stages from "./../Stages"
 
 const TutorialLine1Original = "There is text msng this ."
 const TutorialLine1Correct = "There is some text missing from this line."

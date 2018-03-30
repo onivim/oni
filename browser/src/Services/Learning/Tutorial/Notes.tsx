@@ -12,7 +12,7 @@ import * as React from "react"
 
 import styled from "styled-components"
 
-import { withProps, Bold } from "./../../../UI/components/common"
+import { Bold, withProps } from "./../../../UI/components/common"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
 const NoteWrapper = styled.div`

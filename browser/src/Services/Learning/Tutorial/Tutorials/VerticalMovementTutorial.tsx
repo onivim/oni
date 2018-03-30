@@ -4,8 +4,8 @@
 import * as React from "react"
 
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
-import * as Stages from "./../Stages"
 import * as Notes from "./../Notes"
+import * as Stages from "./../Stages"
 
 export class VerticalMovementTutorial implements ITutorial {
     private _stages: ITutorialStage[]

@@ -5,8 +5,8 @@
 import * as React from "react"
 
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
-import * as Stages from "./../Stages"
 import * as Notes from "./../Notes"
+import * as Stages from "./../Stages"
 
 const Line1 = "Use the `$` key to move to the end of a line."
 const Line2 = "`0` moves to the beginning of the line."

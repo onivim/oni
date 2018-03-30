@@ -7,8 +7,8 @@
 import * as React from "react"
 
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
-import * as Stages from "./../Stages"
 import * as Notes from "./../Notes"
+import * as Stages from "./../Stages"
 
 const Line1 = "Use the w key to move to the BEGINNING of the NEXT word."
 const Line2 = "Use the e key to move to the END of the NEXT word."

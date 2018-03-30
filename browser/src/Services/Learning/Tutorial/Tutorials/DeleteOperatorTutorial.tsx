@@ -7,8 +7,8 @@
 import * as React from "react"
 
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
-import * as Stages from "./../Stages"
 import * as Notes from "./../Notes"
+import * as Stages from "./../Stages"
 
 const Line1 = "The delete operator is very useful!"
 const Line2a = "--> Delete this line"
