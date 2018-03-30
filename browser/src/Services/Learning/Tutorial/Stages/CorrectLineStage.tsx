@@ -10,6 +10,7 @@ import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
 import styled, { keyframes } from "styled-components"
+import { withProps } from "./../../../../UI/components/common"
 
 import { ITutorialContext, ITutorialStage } from "./../ITutorial"
 
@@ -18,9 +19,13 @@ const SpinnerKeyFrames = keyframes`
     100% { transform: rotateY(360deg); }
 `
 
-const TopArrow = styled.div`
+export interface ArrowProps {
+    color: string
+}
+
+const TopArrow = withProps<ArrowProps>(styled.div)`
     animation: ${SpinnerKeyFrames} 2s linear infinite;
-    border-top: 6px solid red;
+    border-top: 6px solid ${p => p.color};
     border-left: 3px solid transparent;
     border-right: 3px solid transparent;
     border-bottom: 3px solid transparent;
@@ -33,7 +38,7 @@ const BottomArrow = styled.div`
     border-top: 3px solid transparent;
     border-left: 3px solid transparent;
     border-right: 3px solid transparent;
-    border-bottom: 6px solid red;
+    border-bottom: 6px solid ${p => p.color};
     opacity: 0.8;
 `
 
@@ -65,15 +70,20 @@ export class CorrectLineStage implements ITutorialStage {
         private _goalName: string,
         private _line: number,
         private _expectedText: string,
-        private _minimumCorrectLine: string,
-    ) {}
+        private _color: string = "red",
+        private _minimumLine?: string,
+    ) {
+        if (!this._minimumLine) {
+            this._minimumLine = this._expectedText
+        }
+    }
 
     public async tickFunction(context: ITutorialContext): Promise<boolean> {
         const [currentLine] = await (context.buffer as any).getLines(this._line, this._line + 1)
         const diffPosition = getFirstCharacterThatIsDifferent(currentLine, this._expectedText)
         this._diffPosition = diffPosition
 
-        if (currentLine.startsWith(this._minimumCorrectLine)) {
+        if (currentLine.startsWith(this._minimumLine)) {
             return true
         }
 
@@ -100,8 +110,8 @@ export class CorrectLineStage implements ITutorialStage {
                     left: pixelPosition.pixelX.toString() + "px",
                 }}
             >
-                <TopArrow />
-                <BottomArrow />
+                <TopArrow color={this._color} />
+                <BottomArrow color={this._color} />
             </div>
         )
     }

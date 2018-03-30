@@ -134,7 +134,7 @@ describe("Configuration", () => {
         })
     })
 
-    describe("registerConfigurationSetting", () => {
+    describe("registerSetting", () => {
         it("sets default value", () => {
             const configuration = new Configuration()
             configuration.registerSetting("test.setting", {
@@ -143,6 +143,23 @@ describe("Configuration", () => {
 
             const val = configuration.getValue("test.setting")
             assert.strictEqual(val, 1, "Validate default value gets set")
+        })
+
+        it("default value doesn't override set value", () => {
+            const configuration = new Configuration()
+
+            configuration.setValue("test.setting", 1)
+
+            configuration.registerSetting("test.setting", {
+                defaultValue: 2,
+            })
+
+            const val = configuration.getValue("test.setting")
+            assert.strictEqual(
+                val,
+                1,
+                "Validate value is 1, because it shouldn't be overwritten by the default",
+            )
         })
 
         it("notifies when value is changed", () => {

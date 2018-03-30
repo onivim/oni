@@ -136,6 +136,12 @@ export class Buffer implements IBuffer {
         this._actions.addBufferLayer(parseInt(this._id, 10), layer)
     }
 
+    public getLayerById<T>(id: string): T {
+        return (this._store
+            .getState()
+            .layers[parseInt(this._id, 10)].find(layer => layer.id === id) as any) as T
+    }
+
     public removeLayer(layer: IBufferLayer): void {
         this._actions.removeBufferLayer(parseInt(this._id, 10), layer)
     }

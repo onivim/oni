@@ -2,6 +2,7 @@
  * TutorialManager
  */
 
+import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 import { EditorManager } from "./../../EditorManager"
@@ -128,12 +129,16 @@ export class TutorialManager {
     }
 
     public async startTutorial(id: string): Promise<void> {
-        // const tutorial = this._getTutorialById(id)
-        const buf = await this._editorManager.activeEditor.openFile("oni://tutorial")
-        const layer = new TutorialBufferLayer(this)
-        layer.startTutorial(id)
-        buf.addLayer(layer)
+        const buf = await this._editorManager.activeEditor.openFile("oni://Tutorial", {
+            openMode: Oni.FileOpenMode.Edit,
+        })
+        let tutorialLayer = (buf as any).getLayerById("oni.layer.tutorial") as TutorialBufferLayer
+        if (!tutorialLayer) {
+            tutorialLayer = new TutorialBufferLayer(this)
+            buf.addLayer(tutorialLayer)
+        }
 
+        tutorialLayer.startTutorial(id)
         // Focus the editor
         const splitHandle = this._windowManager.getSplitHandle(this._editorManager
             .activeEditor as any)
