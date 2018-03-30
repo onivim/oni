@@ -3,7 +3,7 @@
  */
 
 import { Assertor } from "./Assert"
-import { getTemporaryFilePath, navigateToFile } from "./Common"
+import { getTemporaryFilePath, navigateToFile, createNewFile } from "./Common"
 
 import * as Oni from "oni-api"
 
@@ -16,11 +16,13 @@ interface IOniWithPluginApi {
 }
 
 interface IPrettierPlugin {
-    isStatusIconPresent(): boolean
+    isCompatible(): boolean
     applyPrettier(): string
+    checkPrettierrc(): boolean
 }
 
 export const settings = {
+    "oni.loadInitVim": false,
     "oni.plugins.prettier": {
         settings: {
             semi: false,
@@ -49,23 +51,19 @@ export async function test(typedOni: Oni.Plugin.Api) {
     await typedOni.automation.waitForEditors()
 
     const plugins = oni.plugins
-    const typelessPluginsManager = plugins as any
+    const typelessPluginsManager: any = plugins
     await typedOni.automation.waitFor(() => typelessPluginsManager.loaded)
-    const prettierPlugin = plugins.getPlugin("oni-plugin-prettier") as IPrettierPlugin
+    const prettierPlugin: IPrettierPlugin = plugins.getPlugin("oni-plugin-prettier")
     assert.defined(prettierPlugin, "plugin instance")
 
+    await createNewFile("ts", typedOni)
+
     assert.assert(
-        !prettierPlugin.isStatusIconPresent(),
-        "If valid filetype prettier plugin icon is present",
+        prettierPlugin.isCompatible(),
+        "If valid filetype prettier plugin check should return true",
     )
 
-    await navigateToFile(getTemporaryFilePath("md"), typedOni)
-    // await typedOni.automation.waitFor(() => prettierPlugin.isStatusIconPresent())
-
-    // assert.isEmpty(
-    //     prettierPlugin.getUnrenderedContent().trim(),
-    //     "Preview pane for empty Markdown buffer",
-    // )
+    // await navigateToFile(getTemporaryFilePath("md"), typedOni)
 
     await insertText(typedOni, "function(){console.log('test')}")
     assert.contains(

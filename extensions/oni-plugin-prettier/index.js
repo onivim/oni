@@ -91,8 +91,7 @@ const activate = async Oni => {
             ? config.allowedFiletypes
             : defaultFiletypes
         const extension = path.extname(buffer.filePath)
-        const isCompatible = allowedFiletypes.includes(extension)
-        return isCompatible
+        return allowedFiletypes.includes(extension)
     }
 
     Oni.editors.activeEditor.onBufferEnter.subscribe(buffer => {
