@@ -28,8 +28,8 @@ export interface ITrophyCaseViewState {
 }
 
 export const TrophyCaseViewWrapper = withProps<{}>(styled.div)`
-    background-color: ${p => p.theme.background};
-    color: ${p => p.theme.foreground};
+    background-color: ${props => props.theme["editor.background"]};
+    color: ${props => props.theme["editor.foreground"]};
     width: 100%;
     height: 100%;
     overflow-y: auto;
@@ -43,7 +43,7 @@ export const TrophyCaseViewWrapper = withProps<{}>(styled.div)`
 
 export const TrophyCaseItemViewWrapper = withProps<{}>(styled.div)`
     ${boxShadow}
-    background-color: ${p => p.theme["editor.background"]};
+    background-color: ${props => props.theme.background};
     margin: 1em;
     position: relative;
 
