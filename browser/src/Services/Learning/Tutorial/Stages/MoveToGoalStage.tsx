@@ -16,23 +16,21 @@ const SpinnerKeyFrames = keyframes`
     100% { transform: rotateY(360deg); }
 `
 
-const TopArrow = styled.div`
-    animation: ${SpinnerKeyFrames} 2s linear infinite;
-    border-top: 6px solid white;
-    border-left: 3px solid transparent;
-    border-right: 3px solid transparent;
-    border-bottom: 3px solid transparent;
-    opacity: 0.8;
+const MoveToCharacterWrapper = styled.div`
+    background-color: rgba(255, 255, 255, 0.2);
+    position: absolute;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.8);
 `
 
-const BottomArrow = styled.div`
+const TopArrow = styled.div`
     animation: ${SpinnerKeyFrames} 2s linear infinite;
-    margin-top: 2px;
-    border-top: 3px solid transparent;
-    border-left: 3px solid transparent;
-    border-right: 3px solid transparent;
-    border-bottom: 6px solid white;
+    border-top: 8px solid white;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid transparent;
     opacity: 0.8;
+    margin-left: -3px;
+    margin-top: 1px;
 `
 
 const MoveToTopWrapper = styled.div`
@@ -102,6 +100,9 @@ export class MoveToGoalStage implements ITutorialStage {
             }
         }
 
+        const width = (context as any).fontPixelWidth
+        const height = (context as any).fontPixelHeight
+
         return (
             <div
                 style={{
@@ -110,8 +111,8 @@ export class MoveToGoalStage implements ITutorialStage {
                     left: pixelPosition.pixelX.toString() + "px",
                 }}
             >
+                <MoveToCharacterWrapper style={{ width: width + "px", height: height + "px" }} />
                 <TopArrow />
-                <BottomArrow />
             </div>
         )
     }

@@ -14,20 +14,11 @@ import styled from "styled-components"
 import { ITutorialContext, ITutorialStage } from "./../ITutorial"
 
 const DeleteCharacterWrapper = styled.div`
-    background-color: red;
+    background-color: rgba(255, 0, 0, 0.2);
     color: white;
     position: absolute;
-    opacity: 0.2;
+    border-bottom: 1px solid rgba(255, 0, 0, 0.8);
 `
-
-// const OverlayWrapper = styled.div`
-//     position: absolute;
-//     top: 0px;
-//     left: 0px;
-//     right: 0px;
-//     bottom: 0px;
-// `
-
 export class DeleteCharactersStage implements ITutorialStage {
     public get goalName(): string {
         return this._goalName
