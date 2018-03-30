@@ -4,8 +4,13 @@
  * Tutorial that runs through deleting a character.
  */
 
+import * as React from "react"
+
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
 import * as Stages from "./../Stages"
+import * as Notes from "./../Notes"
+
+import { Bold } from "./../../../../UI/components/common"
 
 const TutorialLine1Original = "The coww jumped over the mmoon"
 const TutorialLine1Correct = "The cow jumped over the moon"
@@ -87,6 +92,20 @@ export class DeleteCharacterTutorial implements ITutorial {
                 "In normal mode, you can quickly delete characters. Move to the character (using h/j/k/l) and press `x` to delete. Correct the above lines without going to insert mode.",
             level: 120,
         }
+    }
+
+    public get notes(): JSX.Element[] {
+        return [
+            <Notes.HJKLKeys />,
+            <Notes.KeyWithDescription
+                keyCharacter={"x"}
+                description={
+                    <span>
+                        In normal mode, <Bold>deletes the character</Bold> at the cursor position.
+                    </span>
+                }
+            />,
+        ]
     }
 
     public get stages(): ITutorialStage[] {

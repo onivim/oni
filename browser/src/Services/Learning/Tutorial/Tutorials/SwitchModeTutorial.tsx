@@ -2,8 +2,14 @@
  * TutorialManager
  */
 
+import * as React from "react"
+
 import { ITutorial, ITutorialContext, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
 import * as Stages from "./../Stages"
+
+import * as Notes from "./../Notes"
+
+import { Bold } from "./../../../../UI/components/common"
 
 export class SwitchModeTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
@@ -14,6 +20,35 @@ export class SwitchModeTutorial implements ITutorial {
                 "Oni is a modal editor, which means the editor works in different modes. This can seem strange coming from other editors - where the only mode is inserting text. However, when working with text, you'll find that only a small percentage of the time you are typing - the majority of the time, you are navigating and editing, which is where normal mode is used. Let's practice switching to and from insert mode!",
             level: 100,
         }
+    }
+
+    public get notes(): JSX.Element[] {
+        return [
+            <Notes.KeyWithDescription
+                keyCharacter="i"
+                description={
+                    <span>
+                        Enters <Bold>insert</Bold> mode at the cursor position
+                    </span>
+                }
+            />,
+            <Notes.KeyWithDescription
+                keyCharacter="esc"
+                description={
+                    <span>
+                        Goes back to <Bold>normal</Bold> mode
+                    </span>
+                }
+            />,
+            <Notes.KeyWithDescription
+                keyCharacter="o"
+                description={
+                    <span>
+                        Enters <Bold>insert</Bold> mode, on a new line
+                    </span>
+                }
+            />,
+        ]
     }
 
     public get stages(): ITutorialStage[] {
