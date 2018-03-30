@@ -4,7 +4,10 @@
  * Tutorial that exercises the delete operator
  */
 
+import * as React from "react"
+
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
+import * as Notes from "./../Notes"
 import * as Stages from "./../Stages"
 
 const Line1 = "The delete operator is very useful!"
@@ -79,7 +82,7 @@ export class DeleteOperatorTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
             id: "oni.tutorials.delete_operator",
-            name: "Operator: Delete",
+            name: "Delete Operator: d",
             description:
                 "We've stuck mostly with motions, but now we're going to learn about our first operator - delete (`d`). Operators are like _verbs_ in the vim world, and motions are like _nouns_. An operator can be paired with a motion - which means we can pair the `d` key with all sorts of motions - `dj` to delete the line and the line below, `dw` to delete a word, etc.",
             level: 180,
@@ -88,5 +91,16 @@ export class DeleteOperatorTutorial implements ITutorial {
 
     public get stages(): ITutorialStage[] {
         return this._stages
+    }
+
+    public get notes(): JSX.Element[] {
+        return [
+            <Notes.HJKLKeys />,
+            <Notes.DeleteOperatorKey />,
+            <Notes.DeleteLineKey />,
+            <Notes.DeleteLineBelowKey />,
+            <Notes.DeleteLineAboveKey />,
+            <Notes.DeleteWordKey />,
+        ]
     }
 }
