@@ -14,8 +14,8 @@ import { Bold, boxShadow, Fixed, Full, withProps } from "./../../../UI/component
 import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
-import { IDisposable } from "oni-types"
 import * as Oni from "oni-api"
+import { IDisposable } from "oni-types"
 
 import { AchievementsManager, AchievementWithProgressInfo } from "./AchievementsManager"
 
