@@ -4,7 +4,10 @@
  * Tutorial that exercises basic word motion - `w`, `b`, `e`
  */
 
+import * as React from "react"
+
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
+import * as Notes from "./../Notes"
 import * as Stages from "./../Stages"
 
 const Line1 = "Use the w key to move to the BEGINNING of the NEXT word."
@@ -80,5 +83,9 @@ export class WordMotionTutorial implements ITutorial {
 
     public get stages(): ITutorialStage[] {
         return this._stages
+    }
+
+    public get notes(): JSX.Element[] {
+        return [<Notes.HJKLKeys />, <Notes.WordKey />, <Notes.BeginningKey />, <Notes.EndKey />]
     }
 }
