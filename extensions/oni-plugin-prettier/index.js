@@ -87,9 +87,10 @@ const activate = async Oni => {
 
     const isCompatible = buffer => {
         const defaultFiletypes = [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json", ".graphql"]
-        const allowedFiletypes = Array.isArray(config.allowedFiletypes)
-            ? config.allowedFiletypes
-            : defaultFiletypes
+        const allowedFiletypes =
+            config && Array.isArray(config.allowedFiletypes)
+                ? config.allowedFiletypes
+                : defaultFiletypes
         const extension = path.extname(buffer.filePath)
         return allowedFiletypes.includes(extension)
     }
