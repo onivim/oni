@@ -168,7 +168,7 @@ const start = async () => {
     const blobCount = currentBlobs.entries.length
     console.log("Found " + blobCount + " uploaded.")
 
-    if (blobCount === 6) {
+    if (blobCount === 8) {
         console.log("All builds are uploaded. Creating metadata...")
         const metadata = generateBuildMetadata(getBranch(), getVersion())
         console.dir(metadata)
