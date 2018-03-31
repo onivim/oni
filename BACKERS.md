@@ -57,6 +57,7 @@ Thanks you to all our backers for making Oni possible!
 * @jordwalke
 * @mhartington
 * @MikaAK
+* @emolitor
 
 ## Backers via BountySource
 
