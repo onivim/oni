@@ -33,8 +33,22 @@ const TopArrow = styled.div`
     margin-top: 1px;
 `
 
+const EntranceKeyFrames = keyframes`
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+`
+
+const CommonAnimation = `
+    animation-name: ${EntranceKeyFrames};
+    animation-duration: 0.4s;
+    animation-delay: 0.25s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    opacity: 0;
+`
+
 const MoveToTopWrapper = styled.div`
-    position: absolute;
+    ${CommonAnimation} position: absolute;
     top: 0px;
     left: 25%;
     right: 25%;
@@ -47,7 +61,7 @@ const MoveToTopWrapper = styled.div`
 `
 
 const MoveToBottomWrapper = styled.div`
-    position: absolute;
+    ${CommonAnimation} position: absolute;
     bottom: 0px;
     left: 25%;
     right: 25%;
@@ -72,7 +86,7 @@ export class MoveToGoalStage implements ITutorialStage {
         const cursorPosition = await (context.buffer as any).getCursorPosition()
 
         this._currentCursorLine = cursorPosition.line
-        this._goalColumn = this._column === null ? cursorPosition.character : this._column
+        this._goalColumn = !!this._column ? this._column : cursorPosition.character
 
         return (
             cursorPosition.line === this._line &&

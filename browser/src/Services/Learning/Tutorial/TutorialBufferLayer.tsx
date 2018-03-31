@@ -126,6 +126,9 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         this._editor.autoFocus = false
 
         this._editor.onNeovimQuit.subscribe(() => {
+            // TODO:
+            // Maybe add an achievement for 'quitting vim'?
+            // Close current buffer / tab?
             alert("quit!")
         })
 
@@ -235,6 +238,9 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
             this._hasAddedLayer = true
         }
         this._notes = tutorial.notes || []
+
+        await this._editor.activeBuffer.setCursorPosition(0, 0)
+        await this._editor.neovim.command("stopinsert")
 
         this._tutorialGameplayManager.start(tutorial, this._editor.activeBuffer)
         this._gameTracker.start()

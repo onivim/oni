@@ -90,6 +90,7 @@ const TutorialItemViewIconContainer = styled.div`
 
 const TutorialItemTitleWrapper = styled.div`
     font-size: 0.9em;
+    margin-left: 0.5em;
 `
 
 const TutorialResultsWrapper = styled.div`
@@ -107,7 +108,7 @@ export const TutorialItemView = (props: { info: ITutorialMetadataWithProgress })
     const color = isCompleted ? "white" : null
 
     const results = isCompleted ? (
-        <div style={{ margin: "0.25em" }}>
+        <div style={{ margin: "0.5em" }}>
             <TutorialResultsWrapper>
                 <Bold>{(props.info.completionInfo.time / 1000).toFixed(2)}</Bold>s
             </TutorialResultsWrapper>
@@ -116,7 +117,7 @@ export const TutorialItemView = (props: { info: ITutorialMetadataWithProgress })
             </TutorialResultsWrapper>
         </div>
     ) : (
-        <div style={{ margin: "0.25em" }}>--</div>
+        <div style={{ margin: "0.5em" }}>--</div>
     )
 
     return (
@@ -125,11 +126,7 @@ export const TutorialItemView = (props: { info: ITutorialMetadataWithProgress })
                 <TutorialItemViewIconContainer>{icon}</TutorialItemViewIconContainer>
             </Fixed>
             <Full style={{ margin: "0.5em", whiteSpace: "pre-wrap" }}>
-                <Center>
-                    <TutorialItemTitleWrapper>
-                        {props.info.tutorialInfo.name}
-                    </TutorialItemTitleWrapper>
-                </Center>
+                <TutorialItemTitleWrapper>{props.info.tutorialInfo.name}</TutorialItemTitleWrapper>
             </Full>
             <Fixed>
                 <Center style={{ flexDirection: "column" }}>{results}</Center>
