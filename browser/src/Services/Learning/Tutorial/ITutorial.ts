@@ -27,4 +27,5 @@ export interface ITutorialMetadata {
 export interface ITutorial {
     metadata: ITutorialMetadata
     stages: ITutorialStage[]
+    notes?: JSX.Element[]
 }

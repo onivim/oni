@@ -10,6 +10,7 @@
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { CommandContext } from "./CommandContext"
 import { NeovimInstance } from "./NeovimInstance"
 import { INeovimStartOptions } from "./NeovimProcessSpawner"
 
@@ -146,8 +147,11 @@ class SharedNeovimInstance implements SharedNeovimInstance {
     constructor(private _configuration: Configuration, private _pluginManager: PluginManager) {
         this._neovimInstance = new NeovimInstance(5, 5, this._configuration)
 
-        this._neovimInstance.onOniCommand.subscribe((command: string) => {
-            commandManager.executeCommand(command)
+        this._neovimInstance.onOniCommand.subscribe((context: CommandContext) => {
+            const commandToExecute = context.command
+            const commandArgs = context.args
+
+            commandManager.executeCommand(commandToExecute, commandArgs)
         })
 
         App.registerQuitHook(async () => {

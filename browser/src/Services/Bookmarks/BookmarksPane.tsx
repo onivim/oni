@@ -176,6 +176,7 @@ export class BookmarksPaneView extends React.PureComponent<
                     isFocused={selectedId === bm.id}
                     isContainer={false}
                     indentationLevel={0}
+                    onClick={() => this._onSelected(bm.id)}
                 />
             )
 
@@ -199,6 +200,7 @@ export class BookmarksPaneView extends React.PureComponent<
                                     text="Global Marks"
                                     isExpanded={this.state.isGlobalSectionExpanded}
                                     isFocused={selectedId === "container.global"}
+                                    onClick={() => this._onSelected("container.global")}
                                 >
                                     {globalMarks.map(mapFunc)}
                                 </SidebarContainerView>
@@ -206,6 +208,7 @@ export class BookmarksPaneView extends React.PureComponent<
                                     text="Local Marks"
                                     isExpanded={this.state.isLocalSectionExpanded}
                                     isFocused={selectedId === "container.local"}
+                                    onClick={() => this._onSelected("container.local")}
                                 >
                                     {localMarks.map(mapFunc)}
                                 </SidebarContainerView>

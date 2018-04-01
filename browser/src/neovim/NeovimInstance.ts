@@ -7,6 +7,7 @@ import { Event, IDisposable, IEvent } from "oni-types"
 
 import * as Log from "./../Log"
 import * as Performance from "./../Performance"
+import { CommandContext } from "./CommandContext"
 import { EventContext } from "./EventContext"
 
 import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
@@ -131,7 +132,7 @@ export interface INeovimInstance {
     onTitleChanged: IEvent<string>
 
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
-    onOniCommand: IEvent<string>
+    onOniCommand: IEvent<CommandContext>
 
     onHidePopupMenu: IEvent<void>
     onShowPopupMenu: IEvent<INeovimCompletionInfo>
@@ -223,7 +224,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onDirectoryChanged = new Event<string>()
     private _onErrorEvent = new Event<Error | string>()
     private _onYank = new Event<INeovimYankInfo>()
-    private _onOniCommand = new Event<string>()
+    private _onOniCommand = new Event<CommandContext>()
     private _onRedrawComplete = new Event<void>()
     private _onScroll = new Event<EventContext>()
     private _onTitleChanged = new Event<string>()
@@ -286,7 +287,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._onModeChanged
     }
 
-    public get onOniCommand(): IEvent<string> {
+    public get onOniCommand(): IEvent<CommandContext> {
         return this._onOniCommand
     }
 

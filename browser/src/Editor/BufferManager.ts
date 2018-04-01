@@ -42,9 +42,11 @@ import { TokenColor } from "./../Services/TokenColors"
 import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 
 export interface IBuffer extends Oni.Buffer {
+    setLanguage(lang: string): Promise<void>
     getCursorPosition(): Promise<types.Position>
     handleInput(key: string): boolean
     detectIndentation(): Promise<BufferIndentationInfo>
+    setScratchBuffer(): Promise<void>
 }
 
 type NvimError = [1, string]
@@ -135,6 +137,12 @@ export class Buffer implements IBuffer {
         this._actions.addBufferLayer(parseInt(this._id, 10), layer)
     }
 
+    public getLayerById<T>(id: string): T {
+        return (this._store
+            .getState()
+            .layers[parseInt(this._id, 10)].find(layer => layer.id === id) as any) as T
+    }
+
     public removeLayer(layer: IBufferLayer): void {
         this._actions.removeBufferLayer(parseInt(this._id, 10), layer)
     }
@@ -195,11 +203,30 @@ export class Buffer implements IBuffer {
 
     public async setLanguage(language: string): Promise<void> {
         this._language = language
-        await this._neovimInstance.request<any>("nvim_buf_set_option", [
-            parseInt(this._id, 10),
-            "filetype",
-            language,
-        ])
+        await this._neovimInstance.command(`setl ft=${language}`)
+    }
+
+    public async setScratchBuffer(): Promise<void> {
+        // set the open buffer to be a readonly throw away buffer, also add scrollbind
+        // may need a config option
+        const calls = [
+            ["nvim_command", ["setlocal buftype=nofile"]],
+            ["nvim_command", ["setlocal bufhidden=hide"]],
+            ["nvim_command", ["setlocal noswapfile"]],
+            ["nvim_command", ["setlocal nobuflisted"]],
+            ["nvim_command", ["setlocal nomodifiable"]],
+            ["nvim_command", ["windo set scrollbind!"]],
+        ]
+
+        const [result, error] = await this._neovimInstance.request<any[] | NvimError>(
+            "nvim_call_atomic",
+            [calls],
+        )
+
+        if (typeof result === "number" && error) {
+            Log.info(`Failed to set scratch buffer due to ${error}`)
+        }
+        this._modified = false
     }
 
     public async detectIndentation(): Promise<BufferIndentationInfo> {

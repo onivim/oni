@@ -16,16 +16,66 @@ const SpinnerKeyFrames = keyframes`
     100% { transform: rotateY(360deg); }
 `
 
-const LoadingSpinnerWrapper = styled.div`
-    animation: ${SpinnerKeyFrames} 2s linear infinite;
-    border-top: 12px solid white;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    opacity: 0.8;
+const MoveToCharacterWrapper = styled.div`
+    background-color: rgba(255, 255, 255, 0.2);
+    position: absolute;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.8);
 `
+
+const TopArrow = styled.div`
+    animation: ${SpinnerKeyFrames} 2s linear infinite;
+    border-top: 8px solid white;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    opacity: 0.8;
+    margin-left: -3px;
+    margin-top: 1px;
+`
+
+const EntranceKeyFrames = keyframes`
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+`
+
+const CommonAnimation = `
+    animation-name: ${EntranceKeyFrames};
+    animation-duration: 0.4s;
+    animation-delay: 0.25s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    opacity: 0;
+`
+
+const MoveToTopWrapper = styled.div`
+    ${CommonAnimation} position: absolute;
+    top: 0px;
+    left: 25%;
+    right: 25%;
+    height: 4em;
+    background-color: rgba(0, 0, 0, 0.8);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const MoveToBottomWrapper = styled.div`
+    ${CommonAnimation} position: absolute;
+    bottom: 0px;
+    left: 25%;
+    right: 25%;
+    height: 4em;
+    background-color: rgba(0, 0, 0, 0.8);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
 export class MoveToGoalStage implements ITutorialStage {
     private _goalColumn: number
+    private _currentCursorLine: number = 0
     public get goalName(): string {
         return this._goalName
     }
@@ -35,9 +85,13 @@ export class MoveToGoalStage implements ITutorialStage {
     public async tickFunction(context: ITutorialContext): Promise<boolean> {
         const cursorPosition = await (context.buffer as any).getCursorPosition()
 
-        this._goalColumn = this._column === null ? cursorPosition.character : this._column
+        this._currentCursorLine = cursorPosition.line
+        this._goalColumn = !!this._column ? this._column : cursorPosition.character
 
-        return cursorPosition.line === this._line && cursorPosition.character === this._goalColumn
+        return (
+            cursorPosition.line === this._line &&
+            (cursorPosition.character === this._goalColumn || typeof this._column !== "number")
+        )
     }
 
     public render(context: Oni.BufferLayerRenderContext): JSX.Element {
@@ -50,20 +104,30 @@ export class MoveToGoalStage implements ITutorialStage {
         )
         const pixelPosition = context.screenToPixel(screenPosition)
 
-        if (pixelPosition.pixelX < 0 || pixelPosition.pixelY < 0) {
-            return null
+        if (isNaN(pixelPosition.pixelX) || isNaN(pixelPosition.pixelY)) {
+            if (this._currentCursorLine > this._line) {
+                return <MoveToTopWrapper>Move up to line: {this._line + 1}</MoveToTopWrapper>
+            } else {
+                return (
+                    <MoveToBottomWrapper>Move down to line: {this._line + 1}</MoveToBottomWrapper>
+                )
+            }
         }
 
+        const width = (context as any).fontPixelWidth
+        const height = (context as any).fontPixelHeight
+
         return (
-            <LoadingSpinnerWrapper
+            <div
                 style={{
                     position: "absolute",
                     top: pixelPosition.pixelY.toString() + "px",
                     left: pixelPosition.pixelX.toString() + "px",
-                    marginTop: "2px",
-                    marginLeft: "-4px",
                 }}
-            />
+            >
+                <MoveToCharacterWrapper style={{ width: width + "px", height: height + "px" }} />
+                <TopArrow />
+            </div>
         )
     }
 }

@@ -8,7 +8,7 @@ import * as React from "react"
 
 import styled, { keyframes } from "styled-components"
 
-import { Container, Fixed, Full, withProps } from "./../../../UI/components/common"
+import { Container, Fixed, withProps } from "./../../../UI/components/common"
 // import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
@@ -22,13 +22,28 @@ const RotatingKeyFrames = keyframes`
     100% { transform: rotateY(360deg); }
 `
 
+const AppearKeyFrames = keyframes`
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+`
+
+export interface AppearWithDelayProps {
+    delay: number
+}
+
+const AppearWithDelay = withProps<AppearWithDelayProps>(styled.div)`
+    animation: ${AppearKeyFrames} 1s linear ${p => p.delay}s forwards;
+    opacity: 0;
+`
+
 const TrophyIconWrapper = withProps<{}>(styled.div)`
     background-color: rgb(97, 175, 239);
     color: white;
+    opacity: 0.1;
 
-    width: 72px;
-    height: 72px;
-    border-radius: 36px;
+    width: 144px;
+    height: 144px;
+    border-radius: 72px;
 
     animation: ${RotatingKeyFrames} 2s linear infinite;
 
@@ -40,7 +55,13 @@ const TrophyIconWrapper = withProps<{}>(styled.div)`
 const ResultsWrapper = styled.div`
     color: white;
     font-size: 2em;
-    padding: 2em;
+
+    height: 100%;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 `
 
 const Bold = styled.span`
@@ -51,40 +72,62 @@ const FooterWrapper = styled.div`
     padding: 1em;
 `
 
+const Layer = styled.div`
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
 export const CompletionView = (props: ICompletionViewProps): JSX.Element => {
     return (
         <Container
             fullHeight={true}
             fullWidth={true}
-            direction="vertical"
+            direction="horizontal"
             style={{
                 backgroundColor: "black",
                 color: "white",
                 justifyContent: "center",
                 alignItems: "center",
+                overflow: "hidden",
             }}
         >
-            <Fixed>
-                <h1>Level Complete!</h1>
-            </Fixed>
-            <Full style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Layer>
                 <TrophyIconWrapper>
-                    <Icon name="trophy" size={IconSize.ThreeX} />
+                    <Icon name="trophy" size={IconSize.FiveX} />
                 </TrophyIconWrapper>
-            </Full>
-            <Fixed>
+            </Layer>
+            <Container
+                fullHeight={true}
+                fullWidth={true}
+                direction="vertical"
+                style={{ justifyContent: "center", alignItems: "center" }}
+            >
+                <Fixed>
+                    <h1>Level Complete!</h1>
+                </Fixed>
                 <ResultsWrapper>
-                    <div>
+                    <AppearWithDelay delay={0.5}>
                         <Bold>Time:</Bold> {(props.time / 1000).toFixed(2)}s
-                    </div>
-                    <div>
+                    </AppearWithDelay>
+                    <AppearWithDelay delay={1}>
                         <Bold>Keystrokes:</Bold> {props.keyStrokes}
-                    </div>
+                    </AppearWithDelay>
                 </ResultsWrapper>
-            </Fixed>
-            <Fixed>
-                <FooterWrapper>Press any key to continue...</FooterWrapper>
-            </Fixed>
+                <Fixed>
+                    <FooterWrapper>
+                        <AppearWithDelay delay={1.5}>
+                            Press ENTER to continue or SPACE to restart
+                        </AppearWithDelay>
+                    </FooterWrapper>
+                </Fixed>
+            </Container>
         </Container>
     )
 }

@@ -2,6 +2,7 @@
  * TutorialManager
  */
 
+import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 import { EditorManager } from "./../../EditorManager"
@@ -40,9 +41,14 @@ export class TutorialManager {
 
     private _persistedState: IPersistedTutorialState = { completionInfo: {} }
     private _onTutorialCompletedEvent: Event<void> = new Event<void>()
+    private _onTutorialProgressChanged: Event<void> = new Event<void>()
 
     public get onTutorialCompletedEvent(): IEvent<void> {
         return this._onTutorialCompletedEvent
+    }
+
+    public get onTutorialProgressChangedEvent(): IEvent<void> {
+        return this._onTutorialProgressChanged
     }
 
     constructor(
@@ -59,7 +65,7 @@ export class TutorialManager {
         this._initPromise = this._persistentStore.get()
 
         this._persistedState = await this._initPromise
-        this._onTutorialCompletedEvent.dispatch()
+        this._onTutorialProgressChanged.dispatch()
         return this._persistedState
     }
 
@@ -86,6 +92,16 @@ export class TutorialManager {
         this._persistedState.completionInfo[id] = completionInfo
         await this._persistentStore.set(this._persistedState)
         this._onTutorialCompletedEvent.dispatch()
+        this._onTutorialProgressChanged.dispatch()
+    }
+
+    public async clearProgress(): Promise<void> {
+        await this.start()
+        this._persistedState = {
+            completionInfo: {},
+        }
+        await this._persistentStore.set(this._persistedState)
+        this._onTutorialProgressChanged.dispatch()
     }
 
     public getNextTutorialId(currentTutorialId?: string): string {
@@ -113,12 +129,16 @@ export class TutorialManager {
     }
 
     public async startTutorial(id: string): Promise<void> {
-        // const tutorial = this._getTutorialById(id)
-        const buf = await this._editorManager.activeEditor.openFile("oni://tutorial")
-        const layer = new TutorialBufferLayer(this)
-        layer.startTutorial(id)
-        buf.addLayer(layer)
+        const buf = await this._editorManager.activeEditor.openFile("oni://Tutorial", {
+            openMode: Oni.FileOpenMode.Edit,
+        })
+        let tutorialLayer = (buf as any).getLayerById("oni.layer.tutorial") as TutorialBufferLayer
+        if (!tutorialLayer) {
+            tutorialLayer = new TutorialBufferLayer(this)
+            buf.addLayer(tutorialLayer)
+        }
 
+        tutorialLayer.startTutorial(id)
         // Focus the editor
         const splitHandle = this._windowManager.getSplitHandle(this._editorManager
             .activeEditor as any)
