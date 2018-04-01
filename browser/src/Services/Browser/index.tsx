@@ -78,8 +78,9 @@ export const activate = (
     })
 
     configuration.registerSetting("browser.zoomFactor", {
-        description:
-            "This sets the `zoomFactor` for nested browser windows. A value of `1` means `100%` zoom, a value of 0.5 means `50%` zoom, and a value of `2` means `200%` zoom.",
+        description: `This sets the "zoomFactor" for nested browser windows.
+        A value of "1" means "100%" zoom, a value of 0.5 means
+        "50%" zoom, and a value of "2" means "200%" zoom.`,
         requiresReload: false,
         defaultValue: 1,
     })

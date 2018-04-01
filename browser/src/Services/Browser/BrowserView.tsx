@@ -94,6 +94,14 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         commandManager.registerCommand(
             new CallbackCommand("browser.scrollUp", null, null, () => this._scrollUp()),
         )
+
+        commandManager.registerCommand(
+            new CallbackCommand("browser.scrollRight", null, null, () => this._scrollRight()),
+        )
+
+        commandManager.registerCommand(
+            new CallbackCommand("browser.scrollLeft", null, null, () => this._scrollLeft()),
+        )
     }
 
     public componentDidMount(): void {
@@ -191,14 +199,40 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         )
     }
 
+    private _scrollLeft(): void {
+        this._webviewElement.sendInputEvent({
+            type: "keyDown",
+            keyCode: "Left",
+            canScroll: true,
+            modifiers: ["isAutoRepeat"],
+        })
+    }
+
+    private _scrollRight(): void {
+        this._webviewElement.sendInputEvent({
+            type: "keyDown",
+            keyCode: "Right",
+            canScroll: true,
+            modifiers: ["isAutoRepeat"],
+        })
+    }
+
     private _scrollDown(): void {
-        console.log("this._webviewElement: ", this._webviewElement.sendInputEvent)
-        this._webviewElement.sendInputEvent({ type: "mouseWheel", x: 100 })
+        this._webviewElement.sendInputEvent({
+            type: "keyDown",
+            keyCode: "Down",
+            canScroll: true,
+            modifiers: ["isAutoRepeat"],
+        })
     }
 
     private _scrollUp(): void {
-        console.log("Scroll Up")
-        this._webviewElement.scrolltop -= 100
+        this._webviewElement.sendInputEvent({
+            type: "keyDown",
+            keyCode: "Up",
+            canScroll: true,
+            modifiers: ["isAutoRepeat"],
+        })
     }
 
     private _navigate(url: string): void {
