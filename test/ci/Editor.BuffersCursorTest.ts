@@ -23,7 +23,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     // results are 0 based
     const { line, character } = await activeBuffer.convertOffsetToLineColumn(cursorOffset)
 
-    assert.equal(line + 1, 1)
+    assert.equal(line, 0)
     assert.equal(character, 19)
     // Check that the cursor position from the conversion matches the getCursorPosition method
     // results
