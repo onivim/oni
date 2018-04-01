@@ -24,7 +24,7 @@ install:
   - node --version
   - npm --version
   # install modules
-  - yarn install
+  - yarn install --verbose
 
 artifacts:
     - path: dist/*.exe
