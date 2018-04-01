@@ -271,8 +271,10 @@ export class NeovimEditor extends Editor implements IEditor {
                 {
                     title: "Yes",
                     callback: () => {
-                        this._configuration.setValues({ "oni.loadInitVim": true }, true)
-                        this._configuration.setValues({ "_internal.hasCheckedInitVim": true }, true)
+                        this._configuration.setValues(
+                            { "_internal.hasCheckedInitVim": true, "oni.loadInitVim": true },
+                            true,
+                        )
                         commandManager.executeCommand("oni.debug.reload")
                     },
                 },
