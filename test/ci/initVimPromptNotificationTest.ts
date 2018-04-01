@@ -18,8 +18,6 @@ export const test = async (oni: Oni.Plugin.Api) => {
     // Grab the notification element on startup
     const notification = getElementsBySelector("[data-test='notification']")
     const elements = getElementsBySelector("[data-test='notification-title']")
-    console.log("notification ====================: ", notification)
-    console.log("elements ===================: ", elements)
 
     assert.ok(elements instanceof HTMLCollection)
     if (elements instanceof HTMLCollection) {
