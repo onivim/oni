@@ -176,7 +176,7 @@ export class Tab extends React.Component<ITabPropsWithClick> {
                         <FileIcon
                             fileName={this.props.iconFileName}
                             isLarge={true}
-                            additionalClassNames={"file-icon-appear-animation"}
+                            playAppearAnimation={true}
                         />
                     </div>
                     <div className="name" onClick={this.props.onClickName}>

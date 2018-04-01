@@ -11,6 +11,7 @@
 
 Oni is an independent, MIT-licensed open source project. Please consider supporting Oni by:
 
+* [Become a backer or sponsor on Patreon](https://www.patreon.com/onivim)
 * [Become a backer or sponsor on Open Collective](https://opencollective.com/oni)
 * [Become a backer on BountySource](https://www.bountysource.com/teams/oni)
 

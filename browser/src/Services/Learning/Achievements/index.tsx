@@ -28,11 +28,7 @@ export const activate = (
     sidebarManager: SidebarManager,
     overlays: OverlayManager,
 ) => {
-    const achievementsEnabled = configuration.getValue("experimental.achievements.enabled")
-
-    if (!achievementsEnabled) {
-        return
-    }
+    const achievementsEnabled = configuration.getValue("achievements.enabled")
 
     const store: IPersistentStore<IPersistedAchievementState> = getPersistentStore(
         "oni-achievements",
@@ -43,6 +39,7 @@ export const activate = (
     )
 
     const manager = new AchievementsManager(store)
+    manager.enabled = achievementsEnabled
     _achievements = manager
 
     const renderer = new AchievementNotificationRenderer(overlays)

@@ -52,7 +52,7 @@ export const activate = (
 export const registerAchievements = (achievements: AchievementsManager) => {
     achievements.registerAchievement({
         uniqueId: "oni.achievement.sneak.1",
-        name: "Ninja!",
+        name: "Ninja",
         description: "Use the 'sneak' functionality 5 times",
         goals: [
             {
@@ -66,27 +66,13 @@ export const registerAchievements = (achievements: AchievementsManager) => {
     achievements.registerAchievement({
         uniqueId: "oni.achievement.sneak.2",
         dependsOnId: "oni.achievement.sneak.1",
-        name: "REAL Ninja!",
+        name: "Professional Ninja",
         description: "Use the 'sneak' functionality 25 times",
         goals: [
             {
                 name: null,
                 goalId: "oni.goal.sneak.complete",
                 count: 25,
-            },
-        ],
-    })
-
-    achievements.registerAchievement({
-        uniqueId: "oni.achievement.sneak.3",
-        dependsOnId: "oni.achievement.sneak.2",
-        name: "REAL ULTIMATE Ninja!",
-        description: "Use the 'sneak' functionality 100 times",
-        goals: [
-            {
-                name: null,
-                goalId: "oni.goal.sneak.complete",
-                count: 100,
             },
         ],
     })

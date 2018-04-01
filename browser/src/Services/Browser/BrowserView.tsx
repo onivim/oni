@@ -13,6 +13,7 @@ import * as Oni from "oni-api"
 import { IDisposable, IEvent } from "oni-types"
 
 import { Configuration } from "./../../Services/Configuration"
+import { getInstance as getAchievementsInstance } from "./../../Services/Learning/Achievements"
 import { getInstance as getSneakInstance, ISneakInfo } from "./../../Services/Sneak"
 import { focusManager } from "./../FocusManager"
 
@@ -140,6 +141,8 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         if (this._webviewElement) {
             this._webviewElement.focus()
             this._webviewElement.executeJavaScript(`window["__oni_sneak_execute__"]("${id}")`, true)
+
+            getAchievementsInstance().notifyGoal("oni.goal.sneakIntoBrowser")
         }
     }
 
