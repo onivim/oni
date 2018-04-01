@@ -12,6 +12,7 @@ import styled from "styled-components"
 import * as Oni from "oni-api"
 import { IDisposable, IEvent } from "oni-types"
 
+import { CallbackCommand, commandManager } from "./../../Services/CommandManager"
 import { Configuration } from "./../../Services/Configuration"
 import { getInstance as getAchievementsInstance } from "./../../Services/Learning/Achievements"
 import { getInstance as getSneakInstance, ISneakInfo } from "./../../Services/Sneak"
@@ -85,6 +86,14 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         this.state = {
             url: props.initialUrl,
         }
+
+        commandManager.registerCommand(
+            new CallbackCommand("browser.scrollDown", null, null, () => this._scrollDown()),
+        )
+
+        commandManager.registerCommand(
+            new CallbackCommand("browser.scrollUp", null, null, () => this._scrollUp()),
+        )
     }
 
     public componentDidMount(): void {
@@ -182,6 +191,16 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         )
     }
 
+    private _scrollDown(): void {
+        console.log("this._webviewElement: ", this._webviewElement.sendInputEvent)
+        this._webviewElement.sendInputEvent({ type: "mouseWheel", x: 100 })
+    }
+
+    private _scrollUp(): void {
+        console.log("Scroll Up")
+        this._webviewElement.scrolltop -= 100
+    }
+
     private _navigate(url: string): void {
         if (this._webviewElement) {
             this._webviewElement.src = url
@@ -224,6 +243,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         if (elem && !this._webviewElement) {
             const webviewElement = document.createElement("webview")
             webviewElement.preload = path.join(__dirname, "lib", "webview_preload", "index.js")
+            webviewElement.autosize = "autosize"
             elem.appendChild(webviewElement)
             this._webviewElement = webviewElement
             this._webviewElement.src = this.props.initialUrl
