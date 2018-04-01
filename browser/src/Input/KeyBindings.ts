@@ -19,7 +19,6 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     const isNotInsertMode = () => editors.activeEditor.mode !== "insert"
     const isInsertOrCommandMode = () =>
         editors.activeEditor.mode === "insert" || editors.activeEditor.mode === "cmdline_normal"
-    const isBrowserActive = () => !!editors.activeEditor.activeBuffer.filePath.includes("Browser")
 
     const isMenuOpen = () => menu.isMenuOpen()
 
@@ -120,8 +119,8 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     input.bind("<s-c-b>", "sidebar.toggle", isNormalMode)
 
-    input.bind("k", "browser.scrollUp", isBrowserActive)
-    input.bind("j", "browser.scrollDown", isBrowserActive)
-    input.bind("h", "browser.scrollLeft", isBrowserActive)
-    input.bind("l", "browser.scrollRight", isBrowserActive)
+    input.bind("k", "browser.scrollUp")
+    input.bind("j", "browser.scrollDown")
+    input.bind("h", "browser.scrollLeft")
+    input.bind("l", "browser.scrollRight")
 }

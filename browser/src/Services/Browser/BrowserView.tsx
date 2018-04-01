@@ -9,10 +9,10 @@ import * as path from "path"
 import * as React from "react"
 import styled from "styled-components"
 
+import { WebviewTag } from "electron"
 import * as Oni from "oni-api"
 import { IDisposable, IEvent } from "oni-types"
 
-import { CallbackCommand, commandManager } from "./../../Services/CommandManager"
 import { Configuration } from "./../../Services/Configuration"
 import { getInstance as getAchievementsInstance } from "./../../Services/Learning/Achievements"
 import { getInstance as getSneakInstance, ISneakInfo } from "./../../Services/Sneak"
@@ -65,6 +65,10 @@ export interface IBrowserViewProps {
     goBack: IEvent<void>
     goForward: IEvent<void>
     reload: IEvent<void>
+    scrollUp: IEvent<void>
+    scrollDown: IEvent<void>
+    scrollLeft: IEvent<void>
+    scrollRight: IEvent<void>
 }
 
 export interface IBrowserViewState {
@@ -77,7 +81,7 @@ export interface SneakInfoFromBrowser {
 }
 
 export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowserViewState> {
-    private _webviewElement: any
+    private _webviewElement: WebviewTag
     private _disposables: IDisposable[] = []
 
     constructor(props: IBrowserViewProps) {
@@ -86,22 +90,6 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         this.state = {
             url: props.initialUrl,
         }
-
-        commandManager.registerCommand(
-            new CallbackCommand("browser.scrollDown", null, null, () => this._scrollDown()),
-        )
-
-        commandManager.registerCommand(
-            new CallbackCommand("browser.scrollUp", null, null, () => this._scrollUp()),
-        )
-
-        commandManager.registerCommand(
-            new CallbackCommand("browser.scrollRight", null, null, () => this._scrollRight()),
-        )
-
-        commandManager.registerCommand(
-            new CallbackCommand("browser.scrollLeft", null, null, () => this._scrollLeft()),
-        )
     }
 
     public componentDidMount(): void {
@@ -109,12 +97,17 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         const d2 = this.props.goForward.subscribe(() => this._goForward())
         const d3 = this.props.reload.subscribe(() => this._reload())
         const d4 = this.props.debug.subscribe(() => this._openDebugger())
+        const scrollDown = this.props.scrollDown.subscribe(() => this._scrollDown())
+        const scrollUp = this.props.scrollUp.subscribe(() => this._scrollUp())
+        const scrollRight = this.props.scrollRight.subscribe(() => this._scrollRight())
+        const scrollLeft = this.props.scrollLeft.subscribe(() => this._scrollLeft())
 
         const d5 = getSneakInstance().addSneakProvider(async (): Promise<ISneakInfo[]> => {
             if (this._webviewElement) {
                 const promise = new Promise<SneakInfoFromBrowser[]>(resolve => {
                     this._webviewElement.executeJavaScript(
                         "window['__oni_sneak_collector__']()",
+                        null,
                         (result: any) => {
                             resolve(result)
                         },
@@ -151,7 +144,18 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
             }
         })
 
-        this._disposables = this._disposables.concat([d1, d2, d3, d4, d5, d6])
+        this._disposables = this._disposables.concat([
+            d1,
+            d2,
+            d3,
+            d4,
+            d5,
+            d6,
+            scrollUp,
+            scrollDown,
+            scrollLeft,
+            scrollRight,
+        ])
     }
 
     public _triggerSneak(id: string): void {

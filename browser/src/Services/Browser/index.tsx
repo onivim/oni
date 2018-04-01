@@ -25,6 +25,10 @@ export class BrowserLayer implements Oni.BufferLayer {
     private _goBackEvent = new Event<void>()
     private _goForwardEvent = new Event<void>()
     private _reloadEvent = new Event<void>()
+    private _scrollUpEvent = new Event<void>()
+    private _scrollDownEvent = new Event<void>()
+    private _scrollRightEvent = new Event<void>()
+    private _scrollLeftEvent = new Event<void>()
 
     constructor(private _url: string, private _configuration: Configuration) {}
 
@@ -41,6 +45,10 @@ export class BrowserLayer implements Oni.BufferLayer {
                 goForward={this._goForwardEvent}
                 reload={this._reloadEvent}
                 debug={this._debugEvent}
+                scrollDown={this._scrollDownEvent}
+                scrollUp={this._scrollUpEvent}
+                scrollLeft={this._scrollLeftEvent}
+                scrollRight={this._scrollRightEvent}
             />
         )
     }
@@ -59,6 +67,22 @@ export class BrowserLayer implements Oni.BufferLayer {
 
     public reload(): void {
         this._reloadEvent.dispatch()
+    }
+
+    public scrollUp(): void {
+        this._scrollUpEvent.dispatch()
+    }
+
+    public scrollDown(): void {
+        this._scrollDownEvent.dispatch()
+    }
+
+    public scrollLeft(): void {
+        this._scrollLeftEvent.dispatch()
+    }
+
+    public scrollRight(): void {
+        this._scrollRightEvent.dispatch()
     }
 }
 export const activate = (
@@ -178,6 +202,38 @@ export const activate = (
         command: "browser.reload",
         execute: executeCommandForLayer(browser => browser.reload()),
         name: "Browser: Reload",
+        detail: "",
+        enabled: isBrowserLayerActive,
+    })
+
+    commandManager.registerCommand({
+        command: "browser.scrollDown",
+        execute: executeCommandForLayer(browser => browser.scrollDown()),
+        name: "Browser: Scroll Down",
+        detail: "",
+        enabled: isBrowserLayerActive,
+    })
+
+    commandManager.registerCommand({
+        command: "browser.scrollUp",
+        execute: executeCommandForLayer(browser => browser.scrollUp()),
+        name: "Browser: Scroll Up",
+        detail: "",
+        enabled: isBrowserLayerActive,
+    })
+
+    commandManager.registerCommand({
+        command: "browser.scrollLeft",
+        execute: executeCommandForLayer(browser => browser.scrollLeft()),
+        name: "Browser: Scroll Left",
+        detail: "",
+        enabled: isBrowserLayerActive,
+    })
+
+    commandManager.registerCommand({
+        command: "browser.scrollRight",
+        execute: executeCommandForLayer(browser => browser.scrollRight()),
+        name: "Browser: Scroll Right",
         detail: "",
         enabled: isBrowserLayerActive,
     })
