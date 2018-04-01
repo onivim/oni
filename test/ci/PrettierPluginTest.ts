@@ -5,7 +5,13 @@
 import * as stock_assert from "assert"
 import * as os from "os"
 import { Assertor } from "./Assert"
-import { createNewFile, getElementByClassName, getTemporaryFilePath } from "./Common"
+import {
+    awaitEditorMode,
+    createNewFile,
+    getElementByClassName,
+    getTemporaryFilePath,
+    insertText,
+} from "./Common"
 
 import * as Oni from "oni-api"
 
@@ -79,18 +85,4 @@ export async function test(oni: Oni.Plugin.Api) {
     assert.assert(bufferText.length === 3, "The code is split into 3 lines")
     assert.assert(!bufferString.includes(";"), "Semi colons are removed from the text")
     assert.assert(!bufferString.includes("'"), "Single quotes are removed from the formatted text")
-}
-
-async function awaitEditorMode(oni: Oni.Plugin.Api, mode: string): Promise<void> {
-    function condition(): boolean {
-        return oni.editors.activeEditor.mode === mode
-    }
-    await oni.automation.waitFor(condition)
-}
-
-async function insertText(oni: Oni.Plugin.Api, text: string): Promise<void> {
-    oni.automation.sendKeys("i")
-    await awaitEditorMode(oni, "insert")
-    oni.automation.sendKeys(`${text}<ESC>`)
-    await awaitEditorMode(oni, "normal")
 }
