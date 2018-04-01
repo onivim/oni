@@ -9,9 +9,6 @@ branches:
     - master
     - /^release.*/
 
-cache:
-    - "%LOCALAPPDATA%\\Yarn"
-
 platform:
     - x86
     - x64
