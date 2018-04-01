@@ -14,7 +14,7 @@ const EmptyLine = ""
 
 // Forward search lines
 const Line1 = "In NORMAL mode, the '/' key lets you search for a string."
-const Line2 = "It's a very powerful way to move you way inside a buffer quickly"
+const Line2 = "It's a very powerful way to move your way inside a buffer quickly"
 const Line3 = "The 'n' key lets you move to the next instance of the matched string."
 const Line4 = "Even if the match is way down, move here!"
 const Line5 = "If you want to go the opposite way,"
