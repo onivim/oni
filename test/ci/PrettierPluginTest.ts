@@ -1,11 +1,11 @@
 /**
- * Test the Markdown-preview plugin
+ * Test the Prettier plugin
  */
 
 import * as stock_assert from "assert"
 import * as os from "os"
 import { Assertor } from "./Assert"
-import { createNewFile, getTemporaryFilePath, navigateToFile } from "./Common"
+import { createNewFile, getElementByClassName, getTemporaryFilePath } from "./Common"
 
 import * as Oni from "oni-api"
 
@@ -51,6 +51,11 @@ export async function test(oni: Oni.Plugin.Api) {
     await insertText(oni, "function test(){console.log('test')};")
 
     await oni.automation.waitFor(() => oni.plugins.loaded)
+
+    // Test that the prettier status bar item is present
+    const prettierElement = getElementByClassName("prettier")
+    assert.defined(prettierElement, "Prettier status icon element is present")
+
     const prettierPlugin: IPrettierPlugin = await oni.plugins.getPlugin("oni-plugin-prettier")
     assert.defined(prettierPlugin, "plugin instance")
     assert.defined(prettierPlugin.applyPrettier, "plugin formatting method")
@@ -61,8 +66,6 @@ export async function test(oni: Oni.Plugin.Api) {
         "If valid filetype prettier plugin check should return true",
     )
 
-    // await prettierPlugin.applyPrettier()
-
     // Test that in a Typescript file the plugin formats the buffer on save
     oni.automation.sendKeys("0")
     oni.automation.sendKeys(":")
@@ -70,6 +73,7 @@ export async function test(oni: Oni.Plugin.Api) {
     oni.automation.sendKeys("<CR>")
 
     await oni.automation.sleep(5000)
+
     const bufferText = await activeBuffer.getLines()
     const bufferString = bufferText.join(os.EOL)
     assert.assert(bufferText.length === 3, "The code is split into 3 lines")
