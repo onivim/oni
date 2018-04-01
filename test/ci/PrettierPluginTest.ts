@@ -2,7 +2,7 @@
  * Test the Markdown-preview plugin
  */
 
-// import * as stock_assert from "assert"
+import * as stock_assert from "assert"
 import * as os from "os"
 import { Assertor } from "./Assert"
 import { createNewFile, getTemporaryFilePath, navigateToFile } from "./Common"
@@ -34,7 +34,6 @@ export const settings = {
                 jsxBracketSameLine: false,
                 arrowParens: "avoid",
                 printWidth: 80,
-                editorConfig: true,
             },
             formatOnSave: true,
             enabled: true,
@@ -49,31 +48,33 @@ export async function test(oni: Oni.Plugin.Api) {
     await oni.automation.waitForEditors()
     await createNewFile("ts", oni)
 
-    await insertText(oni, "function(){console.log('test')}")
+    await insertText(oni, "function test(){console.log('test')};")
 
     await oni.automation.waitFor(() => oni.plugins.loaded)
-    const prettierPlugin: IPrettierPlugin = oni.plugins.getPlugin("oni-plugin-prettier")
+    const prettierPlugin: IPrettierPlugin = await oni.plugins.getPlugin("oni-plugin-prettier")
     assert.defined(prettierPlugin, "plugin instance")
+    assert.defined(prettierPlugin.applyPrettier, "plugin formatting method")
 
     const { activeBuffer } = oni.editors.activeEditor
-    // assert.assert(
-    //     prettierPlugin.isCompatible(activeBuffer),
-    //     "If valid filetype prettier plugin check should return true",
-    // )
+    assert.assert(
+        prettierPlugin.isCompatible(activeBuffer),
+        "If valid filetype prettier plugin check should return true",
+    )
 
     // await prettierPlugin.applyPrettier()
 
+    // Test that in a Typescript file the plugin formats the buffer on save
+    oni.automation.sendKeys("0")
     oni.automation.sendKeys(":")
     oni.automation.sendKeys("w")
     oni.automation.sendKeys("<CR>")
 
     await oni.automation.sleep(5000)
     const bufferText = await activeBuffer.getLines()
-    // stock_assert.equal(
-    //     bufferText.join(os.EOL),
-    //     `function(){${os.EOL}   console.log('test')${os.EOL} };`,
-    //     "Formatted buffer",
-    // )
+    const bufferString = bufferText.join(os.EOL)
+    assert.assert(bufferText.length === 3, "The code is split into 3 lines")
+    assert.assert(!bufferString.includes(";"), "Semi colons are removed from the text")
+    assert.assert(!bufferString.includes("'"), "Single quotes are removed from the formatted text")
 }
 
 async function awaitEditorMode(oni: Oni.Plugin.Api, mode: string): Promise<void> {

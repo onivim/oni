@@ -268,7 +268,6 @@ const BaseConfiguration: IConfigurationValues = {
             jsxBracketSameLine: false,
             arrowParens: "avoid",
             printWidth: 80,
-            editorConfig: true,
         },
         formatOnSave: false,
         enabled: false,

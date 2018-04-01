@@ -50,6 +50,7 @@ const activate = async Oni => {
             const prettierrc = await checkPrettierrc(activeBuffer.filePath)
             const prettierConfig = prettierrc || config.settings
             const cursorOffset = activeBuffer.getCursorOffset()
+
             // Pass in the file path so prettier can infer the correct parser to use
             prettierCode = prettier.formatWithCursor(
                 bufferString,

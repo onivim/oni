@@ -11,46 +11,47 @@ const LongTimeout = 5000
 
 const CiTests = [
     // Core functionality tests
-    // "Api.Buffer.AddLayer", // "Api.Overlays.AddRemoveTest",
-    // "AutoClosingPairsTest",
-    // "AutoCompletionTest-CSS",
-    // "AutoCompletionTest-HTML",
-    // "AutoCompletionTest-TypeScript",
+    "Api.Buffer.AddLayer",
+    "Api.Overlays.AddRemoveTest",
+    "AutoClosingPairsTest",
+    "AutoCompletionTest-CSS",
+    "AutoCompletionTest-HTML",
+    "AutoCompletionTest-TypeScript",
 
-    // "Configuration.JavaScriptEditorTest",
-    // "Configuration.TypeScriptEditor.NewConfigurationTest",
-    // "Configuration.TypeScriptEditor.CompletionTest",
+    "Configuration.JavaScriptEditorTest",
+    "Configuration.TypeScriptEditor.NewConfigurationTest",
+    "Configuration.TypeScriptEditor.CompletionTest",
 
-    // "Editor.ExternalCommandLineTest",
-    // "Editor.BufferModifiedState",
-    // "Editor.OpenFile.PathWithSpacesTest",
-    // "Editor.TabModifiedState",
-    // "Editor.CloseTabWithTabModesTabsTest",
-    // "MarkdownPreviewTest",
+    "Editor.ExternalCommandLineTest",
+    "Editor.BufferModifiedState",
+    "Editor.OpenFile.PathWithSpacesTest",
+    "Editor.TabModifiedState",
+    "Editor.CloseTabWithTabModesTabsTest",
+    "MarkdownPreviewTest",
     "PrettierPluginTest",
-    // "PaintPerformanceTest",
-    // "QuickOpenTest",
-    // "StatusBar-Mode",
-    // "Neovim.InvalidInitVimHandlingTest",
-    // "NoInstalledNeovim",
-    // "Sidebar.ToggleSplitTest",
+    "PaintPerformanceTest",
+    "QuickOpenTest",
+    "StatusBar-Mode",
+    "Neovim.InvalidInitVimHandlingTest",
+    "NoInstalledNeovim",
+    "Sidebar.ToggleSplitTest",
 
-    // "Snippets.BasicInsertTest",
+    "Snippets.BasicInsertTest",
 
-    // "WindowManager.ErrorBoundary",
-    // "Workspace.ConfigurationTest",
+    "WindowManager.ErrorBoundary",
+    "Workspace.ConfigurationTest",
     // Regression Tests
-    // "Regression.1251.NoAdditionalProcessesOnStartup",
-    // "Regression.1296.SettingColorsTest",
-    // "Regression.1295.UnfocusedWindowTest",
-    // "Regression.1799.MacroApplicationTest",
+    "Regression.1251.NoAdditionalProcessesOnStartup",
+    "Regression.1296.SettingColorsTest",
+    "Regression.1295.UnfocusedWindowTest",
+    "Regression.1799.MacroApplicationTest",
 
-    //"TextmateHighlighting.DebugScopesTest",
-    // "TextmateHighlighting.ScopesOnEnterTest",
-    // "TextmateHighlighting.TokenColorOverrideTest",
+    "TextmateHighlighting.DebugScopesTest",
+    "TextmateHighlighting.ScopesOnEnterTest",
+    "TextmateHighlighting.TokenColorOverrideTest",
 
     // This test occasionally hangs and breaks tests after - trying to move it later...
-    // "LargeFileTest",
+    "LargeFileTest",
 ]
 
 const WindowsOnlyTests = [
