@@ -9,6 +9,13 @@ import * as Oni from "oni-api"
 import * as Platform from "./../Platform"
 import { Configuration } from "./../Services/Configuration"
 
+interface ISidebar {
+    sidebar: {
+        activeEntryId: string
+        isFocused: boolean
+    }
+}
+
 export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configuration): void => {
     const { editors, input, menu } = oni
 
@@ -120,10 +127,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<s-c-b>", "sidebar.toggle", isNormalMode)
 
     // Explorer
-    // FIXME: this needs to be added to the Oni.Plugin.Api
-    const oniWithSidebar = oni as Oni.Plugin.Api & {
-        sidebar: { activeEntryId: string; isFocused: boolean }
-    }
+    const oniWithSidebar = oni as Oni.Plugin.Api & ISidebar
     const isExplorerActive = () =>
         oniWithSidebar.sidebar.activeEntryId === "oni.sidebar.explorer" &&
         oniWithSidebar.sidebar.isFocused

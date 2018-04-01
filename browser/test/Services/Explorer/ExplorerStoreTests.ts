@@ -6,25 +6,30 @@ import * as assert from "assert"
 import * as path from "path"
 
 import { Store } from "redux"
-import configureMockStore from "redux-mock-store"
+import { MockStoreCreator } from "redux-mock-store"
 import { createEpicMiddleware } from "redux-observable"
 
 import * as ExplorerFileSystem from "./../../../src/Services/Explorer/ExplorerFileSystem"
 import * as ExplorerState from "./../../../src/Services/Explorer/ExplorerStore"
 
 import * as TestHelpers from "./../../TestHelpers"
+
+const configureMockStore = require("redux-mock-store") // tslint:disable-line
 const epicMiddleware = createEpicMiddleware(ExplorerState.clearYankRegisterEpic)
 
 const MemoryFileSystem = require("memory-fs") // tslint:disable-line
-const mockStore = configureMockStore([epicMiddleware])
+const mockStore: MockStoreCreator<ExplorerState.IExplorerState> = configureMockStore([
+    epicMiddleware,
+])
 
-describe("ExplorerStore", () => {
+describe("ExplorerStore", async () => {
     let fileSystem: any
     let store: Store<ExplorerState.IExplorerState>
-    const epicStore = mockStore()
 
     const rootPath = path.normalize(path.join(TestHelpers.getRootDirectory(), "a", "test", "dir"))
     const filePath = path.join(rootPath, "file.txt")
+    const target = { filePath, id: "1" }
+    const epicStore = mockStore({ ...ExplorerState.DefaultExplorerState })
 
     beforeEach(() => {
         fileSystem = new MemoryFileSystem()
@@ -58,9 +63,15 @@ describe("ExplorerStore", () => {
             )
         })
     })
-    it("dispatches a clear register action after a minute", async () => {
-        // TODO
-        epicStore.dispatch({ type: "YANK" })
-        await setTimeout(() => assert.ok(epicStore.getActions().length === 2), 700000)
+
+    describe("YANK_AND_PASTE_EPICS", async () => {
+        it("dispatches a clear register action after a minute", async () => {
+            epicStore.dispatch({ type: "YANK", target })
+            const overOneMinute = 60000 + 1000
+            const actions = epicStore.getActions()
+            await setTimeout(() => assert.ok(actions.length === 2), overOneMinute)
+            const clearedRegister = !!actions.find(action => action.type === "CLEAR_REGISTER")
+            assert.ok(clearedRegister)
+        })
     })
 })
