@@ -8,6 +8,8 @@ import * as sortBy from "lodash/sortBy"
 
 import * as Oni from "oni-api"
 
+import { score } from "./Scorer/QuickOpenScorer"
+
 import { IMenuOptionWithHighlights, shouldFilterbeCaseSensitive } from "./../Menu"
 
 import {
@@ -47,6 +49,8 @@ export const regexFilter = (
 
     const ret = filteredOptions.map(fo => {
         const letterCountDictionary = createLetterCountDictionary(searchString)
+        const fullPath = fo.detail + fo.label
+        const resultScore = score(fullPath, searchString, fullPath.toLowerCase(), true)
 
         const detailHighlights = getHighlightsFromString(
             fo.detail,
@@ -63,10 +67,13 @@ export const regexFilter = (
             ...fo,
             detailHighlights,
             labelHighlights,
+            score: resultScore[0],
         }
     })
 
-    return ret
+    return sortBy(ret, r => {
+        r.pinned ? Number.MAX_VALUE : r.score
+    })
 }
 
 export const processSearchTerm = (
