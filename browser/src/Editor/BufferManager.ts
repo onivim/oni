@@ -206,10 +206,10 @@ export class Buffer implements IBuffer {
         const bufferLinesPromise = this.getLines(0, 1024)
         const detectIndentPromise = import("detect-indent")
 
-        await Promise.all([bufferLinesPromise, detectIndentPromise])
-
-        const bufferLines = await bufferLinesPromise
-        const detectIndent = await detectIndentPromise
+        const [bufferLines, detectIndent] = await Promise.all([
+            bufferLinesPromise,
+            detectIndentPromise,
+        ])
 
         const ret = detectIndent(bufferLines.join("\n"))
 
