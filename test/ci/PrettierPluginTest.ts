@@ -70,7 +70,7 @@ export async function test(oni: Oni.Plugin.Api) {
     oni.automation.sendKeys("0")
     oni.automation.sendKeys(":")
     oni.automation.sendKeys("w")
-    oni.automation.sendKeys("<CR>")
+    oni.automation.sendKeys("<enter>")
 
     await oni.automation.sleep(5000)
 

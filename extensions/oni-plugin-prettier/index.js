@@ -49,7 +49,7 @@ const activate = async Oni => {
         try {
             const prettierrc = await checkPrettierrc(activeBuffer.filePath)
             const prettierConfig = prettierrc || config.settings
-            const cursorOffset = activeBuffer.getCursorOffset()
+            const { cursorOffset } = activeBuffer
 
             // Pass in the file path so prettier can infer the correct parser to use
             prettierCode = prettier.formatWithCursor(
@@ -82,7 +82,7 @@ const activate = async Oni => {
             const { character, line } = await activeBuffer.convertOffsetToLineColumn(
                 prettierCode.cursorOffset,
             )
-            await activeBuffer.setCursorPosition(line - 1, character + 1)
+            await activeBuffer.setCursorPosition(line, character)
         }
     }
 
