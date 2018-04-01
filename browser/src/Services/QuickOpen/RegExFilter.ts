@@ -71,9 +71,7 @@ export const regexFilter = (
         }
     })
 
-    return sortBy(ret, r => {
-        r.pinned ? Number.MAX_VALUE : r.score
-    })
+    return sortBy(ret, r => (r.pinned ? Number.MAX_VALUE : r.score))
 }
 
 export const processSearchTerm = (

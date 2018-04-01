@@ -1,3 +1,5 @@
+/* tslint:disable */
+
 import { CharCode } from "./CharCode"
 
 export const isWindows = process.platform === "win32"
