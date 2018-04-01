@@ -224,8 +224,8 @@ const Buttons = ({ buttons, onClose }: IButtonProps) => {
     }
     return (
         <ButtonRow>
-            {buttons.map(({ callback, title }) => (
-                <Sneakable callback={executeThenClose(callback)}>
+            {buttons.map(({ callback, title }, index) => (
+                <Sneakable key={`${title}-${index}`} callback={executeThenClose(callback)}>
                     <Button onClick={callback}>{title}</Button>
                 </Sneakable>
             ))}
