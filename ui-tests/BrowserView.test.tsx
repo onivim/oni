@@ -34,13 +34,13 @@ describe("<BrowserView /> Tests", () => {
         const wrapper = shallow(component, { disableLifecycleMethods: true })
         // can be typed here but the _webviewComponent is expected - TS Error
         const instance: any = wrapper.instance()
-        expect(instance.prefixUrl("apple.com")).toBe("https://apple.com")
+        expect(instance.prefixUrl("apple.com")).toBe("http://apple.com")
     })
     it('Should NOT prefix a url with "https" or "http" if already present', () => {
         const wrapper = shallow(component, { disableLifecycleMethods: true })
         const instance: any = wrapper.instance()
         // subtle difference here as the function always add https as a prefix not http
-        expect(instance.prefixUrl("http://www.apple.com")).toBe("http://www.apple.com")
+        expect(instance.prefixUrl("https://www.apple.com")).toBe("https://www.apple.com")
     })
 
     it("Should match the recent snapshot - unless an intentional change has occurred ", () => {
