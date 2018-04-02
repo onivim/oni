@@ -5,6 +5,7 @@
  */
 
 import * as path from "path"
+import * as Url from "url"
 
 import * as React from "react"
 import styled from "styled-components"
@@ -184,12 +185,20 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
 
     private _navigate(url: string): void {
         if (this._webviewElement) {
-            this._webviewElement.src = url
+            const prefixedUrl = this._prefixUrl(url)
+            this._webviewElement.src = prefixedUrl
 
             this.setState({
                 url,
             })
         }
+    }
+
+    private _prefixUrl = (url: string) => {
+        const urlObj = new Url.URL(url)
+        const { protocol } = urlObj
+        console.log("protocol: ", protocol)
+        return url
     }
 
     private _goBack(): void {
