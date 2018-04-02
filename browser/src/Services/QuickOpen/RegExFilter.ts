@@ -49,7 +49,7 @@ export const regexFilter = (
             ? listOfSearchTerms.slice(1) + listOfSearchTerms[0]
             : listOfSearchTerms[0]
 
-    const filteredOptions = processSearchTerm(vsCodeSearchString, options, isCaseSensitive)
+    const filteredOptions = processSearchTerm(vsCodeSearchString, options)
 
     const ret = filteredOptions.filter(fo => {
         if (fo.score === 0) {
@@ -59,13 +59,12 @@ export const regexFilter = (
         }
     })
 
-    return ret.sort((e1, e2) => compareItemsByScoreOni(e1, e2, vsCodeSearchString, false))
+    return ret.sort((e1, e2) => compareItemsByScoreOni(e1, e2, vsCodeSearchString, true))
 }
 
 export const processSearchTerm = (
     searchString: string,
     options: Oni.Menu.MenuOption[],
-    isCaseSensitive: boolean,
 ): Oni.Menu.IMenuOptionWithHighlights[] => {
     const result: Oni.Menu.IMenuOptionWithHighlights[] = options.map(f => {
         const itemScore = scoreItemOni(f, searchString, true)
@@ -81,8 +80,4 @@ export const processSearchTerm = (
     })
 
     return result
-}
-
-export function convertSimple2RegExpPattern(pattern: string): string {
-    return pattern.replace(/[\-\\\{\}\+\?\|\^\$\.\,\[\]\(\)\#\s]/g, "\\$&").replace(/[\*]/g, ".*")
 }
