@@ -40,6 +40,15 @@ export const regexFilter = (
 
     const listOfSearchTerms = searchString.split(" ").filter(x => x)
 
+    // Since the VSCode scorer doesn't deal so well with the spaces,
+    // instead rebuild the term in reverse order.
+    // ie `index browser editor` becomes `browsereditorindex`
+    // This allows the scoring and highlighting to work better.
+    const vsCodeSearchString =
+        listOfSearchTerms.length > 1
+            ? listOfSearchTerms.slice(1) + listOfSearchTerms[0]
+            : listOfSearchTerms[0]
+
     let filteredOptions = options
 
     listOfSearchTerms.map(searchTerm => {
@@ -47,7 +56,7 @@ export const regexFilter = (
     })
 
     const ret = filteredOptions.map(fo => {
-        const resultScore = scoreItemOni(fo, searchString, true)
+        const resultScore = scoreItemOni(fo, vsCodeSearchString, true)
 
         const detailHighlights = getHighlightsFromResult(resultScore.descriptionMatch)
 
