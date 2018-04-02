@@ -66,7 +66,7 @@ export const regexFilter = (
             ...fo,
             detailHighlights,
             labelHighlights,
-            score: resultScore[0],
+            score: fo.pinned ? Number.MAX_SAFE_INTEGER : resultScore[0],
         }
     })
 
