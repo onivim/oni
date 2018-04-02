@@ -3,9 +3,9 @@
  */
 
 import * as assert from "assert"
-import { createLetterCountDictionary } from "../../../src/UI/components/HighlightText"
+// import { createLetterCountDictionary } from "../../../src/UI/components/HighlightText"
 import {
-    getHighlightsFromString,
+    // getHighlightsFromString,
     processSearchTerm,
     regexFilter,
 } from "./../../../src/Services/QuickOpen/RegExFilter"
@@ -140,35 +140,35 @@ describe("regexFilter", () => {
     })
 })
 
-describe("getHighlightsFromString", () => {
-    it("Correctly highlights a match when case is similar", () => {
-        const match = "foobar"
-        const searchString = "foob"
+// describe("getHighlightsFromString", () => {
+//     it("Correctly highlights a match when case is similar", () => {
+//         const match = "foobar"
+//         const searchString = "foob"
 
-        const highlights = getHighlightsFromString(match, createLetterCountDictionary(searchString))
+//         const highlights = getHighlightsFromString(match, createLetterCountDictionary(searchString))
 
-        assert.deepEqual([0, 1, 2, 3], highlights)
-    })
+//         assert.deepEqual([0, 1, 2, 3], highlights)
+//     })
 
-    it("Correctly highlights a search match when case is not similar (in case INSENSITIVE mode)", () => {
-        const match = "FooBar"
-        const searchString = "foob"
+//     it("Correctly highlights a search match when case is not similar (in case INSENSITIVE mode)", () => {
+//         const match = "FooBar"
+//         const searchString = "foob"
 
-        const highlights = getHighlightsFromString(match, createLetterCountDictionary(searchString))
+//         const highlights = getHighlightsFromString(match, createLetterCountDictionary(searchString))
 
-        assert.deepEqual([0, 1, 2, 3], highlights)
-    })
+//         assert.deepEqual([0, 1, 2, 3], highlights)
+//     })
 
-    it("Correctly highlights a search match when case is not similar (in case SENSITIVE mode)", () => {
-        const match = "FooBar"
-        const searchString = "foob"
+//     it("Correctly highlights a search match when case is not similar (in case SENSITIVE mode)", () => {
+//         const match = "FooBar"
+//         const searchString = "foob"
 
-        const highlights = getHighlightsFromString(
-            match,
-            createLetterCountDictionary(searchString),
-            true,
-        )
+//         const highlights = getHighlightsFromString(
+//             match,
+//             createLetterCountDictionary(searchString),
+//             true,
+//         )
 
-        assert.deepEqual([1, 2], highlights)
-    })
-})
+//         assert.deepEqual([1, 2], highlights)
+//     })
+// })

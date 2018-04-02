@@ -8,14 +8,13 @@ import * as sortBy from "lodash/sortBy"
 
 import * as Oni from "oni-api"
 
-import { compareItemsByScoreOni, scoreItemOni } from "./Scorer/OniQuickOpenScorer"
+import {
+    compareItemsByScoreOni,
+    getHighlightsFromResult,
+    scoreItemOni,
+} from "./Scorer/OniQuickOpenScorer"
 
 import { IMenuOptionWithHighlights, shouldFilterbeCaseSensitive } from "./../Menu"
-
-import {
-    createLetterCountDictionary,
-    LetterCountDictionary,
-} from "./../../UI/components/HighlightText"
 
 export const regexFilter = (
     options: Oni.Menu.MenuOption[],
@@ -48,20 +47,11 @@ export const regexFilter = (
     })
 
     const ret = filteredOptions.map(fo => {
-        const letterCountDictionary = createLetterCountDictionary(searchString)
         const resultScore = scoreItemOni(fo, searchString, true)
 
-        const detailHighlights = getHighlightsFromString(
-            fo.detail,
-            letterCountDictionary,
-            isCaseSensitive,
-        )
+        const detailHighlights = getHighlightsFromResult(resultScore.descriptionMatch)
 
-        const labelHighlights = getHighlightsFromString(
-            fo.label,
-            letterCountDictionary,
-            isCaseSensitive,
-        )
+        const labelHighlights = getHighlightsFromResult(resultScore.labelMatch)
 
         return {
             ...fo,
@@ -90,27 +80,4 @@ export const processSearchTerm = (
 
         return textToFilterOn.match(filterRegExp)
     })
-}
-
-export const getHighlightsFromString = (
-    text: string,
-    letterCountDictionary: LetterCountDictionary,
-    isCaseSensitive: boolean = false,
-): number[] => {
-    if (!text) {
-        return []
-    }
-
-    const ret: number[] = []
-
-    for (let i = 0; i < text.length; i++) {
-        const letter = isCaseSensitive ? text[i] : text[i].toLowerCase()
-        const idx = i
-        if (letterCountDictionary[letter] && letterCountDictionary[letter] > 0) {
-            ret.push(idx)
-            letterCountDictionary[letter]--
-        }
-    }
-
-    return ret
 }

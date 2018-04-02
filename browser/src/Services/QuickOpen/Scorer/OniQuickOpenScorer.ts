@@ -5,7 +5,7 @@ import {
     compareItemsByScore,
     prepareQuery,
 } from "./QuickOpenScorer"
-import { nativeSep } from "./Utilities"
+import { IMatch, nativeSep } from "./Utilities"
 
 const NO_ITEM_SCORE: IItemScore = Object.freeze({ score: 0 })
 
@@ -58,4 +58,20 @@ export function compareItemsByScoreOni(
     const accessor = new OniAccessor()
 
     return compareItemsByScore(resultObjectA, resultObjectB, query, fuzzy, accessor)
+}
+
+export const getHighlightsFromResult = (result: IMatch[]): number[] => {
+    if (!result) {
+        return []
+    }
+
+    const highlights: number[] = []
+
+    result.forEach(r => {
+        for (let i = r.start; i < r.end; i++) {
+            highlights.push(i)
+        }
+    })
+
+    return highlights
 }
