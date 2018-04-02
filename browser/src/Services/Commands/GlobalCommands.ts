@@ -9,6 +9,7 @@ import { remote } from "electron"
 
 import * as Oni from "oni-api"
 
+import { EditorManager } from "./../../Services/EditorManager"
 import { MenuManager } from "./../../Services/Menu"
 import { showAboutMessage } from "./../../Services/Metadata"
 import { multiProcess } from "./../../Services/MultiProcess"
@@ -23,9 +24,12 @@ import * as Platform from "./../../Platform"
 
 export const activate = (
     commandManager: CommandManager,
+    editorManager: EditorManager,
     menuManager: MenuManager,
     tasks: Tasks,
 ) => {
+    tasks.registerTaskProvider(commandManager)
+
     const popupMenuCommand = (innerCommand: Oni.Commands.CommandCallback) => {
         return () => {
             if (menuManager.isMenuOpen()) {
@@ -42,23 +46,15 @@ export const activate = (
     const popupMenuSelect = popupMenuCommand(() => menuManager.selectMenuItem())
 
     const commands = [
+        new CallbackCommand("editor.executeVimCommand", null, null, (message: string) => {
+            const neovim = editorManager.activeEditor.neovim
+            if (message.startsWith(":")) {
+                neovim.command('exec "' + message + '"')
+            } else {
+                neovim.command('exec ":normal! ' + message + '"')
+            }
+        }),
         new CallbackCommand("oni.about", null, null, () => showAboutMessage()),
-
-        new CallbackCommand("oni.quit", null, null, () => remote.app.quit()),
-
-        // Debug
-        new CallbackCommand(
-            "oni.debug.openDevTools",
-            "Open DevTools",
-            "Debug Oni and any running plugins using the Chrome developer tools",
-            () => remote.getCurrentWindow().webContents.openDevTools(),
-        ),
-        new CallbackCommand(
-            "oni.debug.reload",
-            "Reload Oni",
-            "Reloads the Oni instance. You will lose all unsaved changes",
-            () => remote.getCurrentWindow().reload(),
-        ),
 
         new CallbackCommand(
             "oni.editor.maximize",

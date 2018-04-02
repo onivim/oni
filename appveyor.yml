@@ -9,9 +9,6 @@ branches:
     - master
     - /^release.*/
 
-cache:
-    - "%LOCALAPPDATA%\\Yarn"
-
 platform:
     - x86
     - x64
@@ -27,7 +24,7 @@ install:
   - node --version
   - npm --version
   # install modules
-  - yarn install
+  - yarn install --verbose
 
 artifacts:
     - path: dist/*.exe
@@ -50,33 +47,9 @@ deploy:
       on:
           appveyor_repo_tag: true
 
-    - provider: S3
-      access_key_id: AKIAIYMATI2CEFTHPBOQ
-      secret_access_key:
-          secure: brqAO0yA6DSxwRbf7IbbmhvyEoQqSeetdrq4mutR2aaeLJBQu6by4u1Td+wq5Msc
-      bucket: oni-builds
-      region: us-west-2
-      unzip: false
-      set_public: true
-      folder: $(APPVEYOR_REPO_BRANCH)
-      artifact: SetupExe, ProductZip
-
 # Post-install test scripts.
 test_script:
-  # Output useful info for debugging.
-  - node --version
-  - npm --version
-  # build
-  - npm run build
-  - npm run lint
-  - npm run test:unit
-  # create setup package
-  - npm run copy-icons
-  - npm run dist:win
-  - npm run pack:win
-  # run integration tests
-  - npm run test:integration
-  - npm run demo:screenshot
+  - powershell build/script/appveyor-test.ps1
 
 # Don't actually build.
 build: off

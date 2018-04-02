@@ -32,6 +32,7 @@ const CiTests = [
     "QuickOpenTest",
     "StatusBar-Mode",
     "Neovim.InvalidInitVimHandlingTest",
+    "Neovim.CallOniCommands",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
 
@@ -43,19 +44,22 @@ const CiTests = [
     "Regression.1251.NoAdditionalProcessesOnStartup",
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
+    "Regression.1799.MacroApplicationTest",
+
+    "TextmateHighlighting.DebugScopesTest",
     "TextmateHighlighting.ScopesOnEnterTest",
+    "TextmateHighlighting.TokenColorOverrideTest",
 
     // This test occasionally hangs and breaks tests after - trying to move it later...
     "LargeFileTest",
 ]
 
 const WindowsOnlyTests = [
-    // For some reason, the `beginFrameSubscription` call doesn't seem to work on OSX,
-    // so we can't properly validate that case on that platform...
-    "PaintPerformanceTest",
+    // TODO: Stabilize this test on OSX / Linux, too!
+    "Regression.1819.AutoReadCheckTimeTest",
 ]
 
-const OSXOnlyTests = ["OSX.WindowTitleTest"]
+const OSXOnlyTests = ["AutoCompletionTest-Reason", "OSX.WindowTitleTest"]
 
 // tslint:disable:no-console
 
@@ -79,7 +83,7 @@ describe("ci tests", function() {
         : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
 
     const testFailures: IFailedTest[] = []
-    CiTests.forEach(test => {
+    tests.forEach(test => {
         runInProcTest(path.join(__dirname, "ci"), test, 5000, testFailures)
     })
 

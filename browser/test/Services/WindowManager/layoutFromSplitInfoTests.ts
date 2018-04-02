@@ -7,7 +7,7 @@ import * as Oni from "oni-api"
 
 import { ISplitInfo, layoutFromSplitInfo } from "./../../../src/Services/WindowManager"
 
-import { MockWindowSplit } from "./LinearSplitProviderTests"
+import { MockWindowSplit } from "./../../Mocks"
 
 const resultFromSplitAndRect = (rectangle: Oni.Shapes.Rectangle, split: MockWindowSplit) => ({
     split,

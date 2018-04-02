@@ -30,8 +30,6 @@ export interface IConfigurationValues {
     "debug.detailedSessionLogging": boolean
     "debug.showTypingPrediction": boolean
 
-    "experimental.achievements.enabled": boolean
-
     "browser.defaultUrl": string
 
     // Simulate slow language server, for debugging
@@ -48,7 +46,7 @@ export interface IConfigurationValues {
     "editor.textMateHighlighting.enabled": boolean
 
     // Whether or not the learning pane is available
-    "experimental.learning.enabled": boolean
+    "experimental.particles.enabled": boolean
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
@@ -56,6 +54,9 @@ export interface IConfigurationValues {
     "wildmenu.mode": boolean
     "commandline.mode": boolean
     "commandline.icons": boolean
+
+    // Experimental flag for 'generalized preview'
+    "experimental.preview.enabled": boolean
 
     "experimental.welcome.enabled": boolean
 
@@ -195,6 +196,11 @@ export interface IConfigurationValues {
 
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
+
+    "keyDisplayer.showInInsertMode": boolean
+
+    "learning.enabled": boolean
+    "achievements.enabled": boolean
 
     // Case-sensitivity strategy for menu filtering:
     // - if `true`, is case sensitive

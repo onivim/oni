@@ -41,7 +41,7 @@ export const configuration = {
     //"oni.useDefaultConfig": true,
     //"oni.bookmarks": ["~/Documents"],
     //"oni.loadInitVim": false,
-    //"editor.fontSize": "14px",
+    //"editor.fontSize": "12px",
     //"editor.fontFamily": "Monaco",
 
     // UI customizations

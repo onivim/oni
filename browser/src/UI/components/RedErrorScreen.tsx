@@ -55,7 +55,7 @@ const ButtonsWrapper = styled.div`
     margin-top: 4em;
 `
 
-import { OniButton } from "./SidebarEmptyPaneView"
+import { SidebarButton } from "./SidebarButton"
 
 import { remote } from "electron"
 
@@ -84,8 +84,8 @@ export class RedErrorScreenView extends React.PureComponent<RedErrorScreenViewPr
                     <ErrorTextWrapper>{additionalStack}</ErrorTextWrapper>
                 </RedScreenContentsWrapper>
                 <ButtonsWrapper>
-                    <OniButton focused={false} text="Open Debugger" onClick={openDebugger} />
-                    <OniButton focused={false} text="Create an Issue" onClick={createIssue} />
+                    <SidebarButton focused={false} text="Open Debugger" onClick={openDebugger} />
+                    <SidebarButton focused={false} text="Create an Issue" onClick={createIssue} />
                 </ButtonsWrapper>
             </RedScreenWrapper>
         )

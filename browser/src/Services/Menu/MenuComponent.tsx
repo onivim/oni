@@ -2,12 +2,11 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { connect, Provider } from "react-redux"
 
-import styled from "styled-components"
-
 import { AutoSizer, List } from "react-virtualized"
 
 import * as Oni from "oni-api"
 
+import { styled } from "../../UI/components/common"
 import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
 // import { Visible } from "./../../UI/components/Visible"
 import { Icon, IconSize } from "./../../UI/Icon"
@@ -256,16 +255,26 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
                     className="label"
                     text={this.props.label}
                     highlightIndices={this.props.labelHighlights}
-                    highlightClassName={"highlight"}
+                    highlightComponent={LabelHighlight}
                 />
                 <HighlightTextByIndex
                     className="detail"
                     text={this.props.detail}
                     highlightIndices={this.props.detailHighlights}
-                    highlightClassName={"highlight"}
+                    highlightComponent={DetailHighlight}
                 />
                 {this.props.additionalComponent}
             </MenuItemWrapper>
         )
     }
 }
+
+const LabelHighlight = styled.span`
+    font-weight: bold;
+    color: ${props => props.theme["highlight.mode.normal.background"]};
+`
+
+const DetailHighlight = styled.span`
+    font-weight: bold;
+    color: #757575;
+`

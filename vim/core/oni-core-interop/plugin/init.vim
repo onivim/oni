@@ -106,19 +106,13 @@ function OniGetEachContext(bufnum)
 endif
 endfunction
 
-function OniCommand(oniCommand)
-    call OniNotify(["oni_command", a:oniCommand])
-endfunction
+function OniCommand(oniCommand, ...)
+    let l:function_command_and_args = {}
+    let l:function_command_and_args.command = a:oniCommand
+    let l:function_command_and_args.args = a:000
 
-function OniOpenFile(strategy, file)
-     if bufname('%') != ''
-         exec a:strategy . a:file
-     elseif &modified
-         exec a:strategy . a:file
-     else
-         exec ":e " . a:file
-     endif
- endfunction
+    call OniNotify(["oni_command", l:function_command_and_args])
+endfunction
 
 augroup OniClipboard
     autocmd!

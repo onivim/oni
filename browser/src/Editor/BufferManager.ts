@@ -42,9 +42,20 @@ import { TokenColor } from "./../Services/TokenColors"
 import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 
 export interface IBuffer extends Oni.Buffer {
+    setLanguage(lang: string): Promise<void>
     getCursorPosition(): Promise<types.Position>
     handleInput(key: string): boolean
     detectIndentation(): Promise<BufferIndentationInfo>
+    setScratchBuffer(): Promise<void>
+}
+
+type NvimError = [1, string]
+
+const isStringArray = (value: NvimError | string[]): value is string[] => {
+    if (value && Array.isArray(value)) {
+        return typeof value[0] === "string"
+    }
+    return false
 }
 
 export type IndentationType = "tab" | "space"
@@ -125,6 +136,12 @@ export class Buffer implements IBuffer {
         this._actions.addBufferLayer(parseInt(this._id, 10), layer)
     }
 
+    public getLayerById<T>(id: string): T {
+        return (this._store
+            .getState()
+            .layers[parseInt(this._id, 10)].find(layer => layer.id === id) as any) as T
+    }
+
     public removeLayer(layer: IBufferLayer): void {
         this._actions.removeBufferLayer(parseInt(this._id, 10), layer)
     }
@@ -148,22 +165,48 @@ export class Buffer implements IBuffer {
             Log.warn("getLines called with over 2500 lines, this may cause instability.")
         }
 
-        const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [
+        // Neovim does not error if it is unable to get lines instead it returns an array
+        // of type [1, "an error message"] **on Some occasions**, we only check the first on the assumption that
+        // that is where the number is placed by neovim
+        const lines = await this._neovimInstance.request<string[]>("nvim_buf_get_lines", [
             parseInt(this._id, 10),
             start,
             end,
             false,
         ])
-        return lines
+
+        if (isStringArray(lines)) {
+            return lines
+        }
+        return []
     }
 
     public async setLanguage(language: string): Promise<void> {
         this._language = language
-        await this._neovimInstance.request<any>("nvim_buf_set_option", [
-            parseInt(this._id, 10),
-            "filetype",
-            language,
-        ])
+        await this._neovimInstance.command(`setl ft=${language}`)
+    }
+
+    public async setScratchBuffer(): Promise<void> {
+        // set the open buffer to be a readonly throw away buffer, also add scrollbind
+        // may need a config option
+        const calls = [
+            ["nvim_command", ["setlocal buftype=nofile"]],
+            ["nvim_command", ["setlocal bufhidden=hide"]],
+            ["nvim_command", ["setlocal noswapfile"]],
+            ["nvim_command", ["setlocal nobuflisted"]],
+            ["nvim_command", ["setlocal nomodifiable"]],
+            ["nvim_command", ["windo set scrollbind!"]],
+        ]
+
+        const [result, error] = await this._neovimInstance.request<any[] | NvimError>(
+            "nvim_call_atomic",
+            [calls],
+        )
+
+        if (typeof result === "number" && error) {
+            Log.info(`Failed to set scratch buffer due to ${error}`)
+        }
+        this._modified = false
     }
 
     public async detectIndentation(): Promise<BufferIndentationInfo> {

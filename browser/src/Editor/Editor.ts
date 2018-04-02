@@ -9,6 +9,8 @@ import { Event, IEvent } from "oni-types"
 
 import * as types from "vscode-languageserver-types"
 
+import { Disposable } from "./../Utility"
+
 export interface IEditor extends Oni.Editor {
     // Methods
     init(filesToOpen: string[]): void
@@ -20,7 +22,7 @@ export interface IEditor extends Oni.Editor {
 /**
  * Base class for Editor implementations
  */
-export class Editor implements Oni.Editor {
+export class Editor extends Disposable implements Oni.Editor {
     private _currentMode: string
     private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()

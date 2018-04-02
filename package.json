@@ -3,7 +3,7 @@
     "author": "",
     "email": "bryphe@outlook.com",
     "homepage": "https://www.onivim.io",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "description": "Code editor with a modern twist on modal editing - powered by neovim.",
     "keywords": [
         "vim",
@@ -26,6 +26,7 @@
             "**/*",
             "!**/*.oni",
             "!**/*.vscode",
+            "!**/travis_wait*.log",
             "!app",
             "!assets",
             "!browser",
@@ -77,64 +78,704 @@
         },
         "fileAssociations": [
             {
-                "ext": "js",
-                "name": "javascript",
+                "name": "ADA source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": [
+                    "adb",
+                    "ads"
+                ]
             },
             {
-                "ext": "json",
-                "name": "JSON",
+                "name": "Compiled AppleScript",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "scpt"
             },
             {
-                "ext": "jsx",
-                "name": "JSX",
+                "name": "AppleScript source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "applescript"
             },
             {
-                "ext": "py",
-                "name": "Python",
+                "name": "ActionScript source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "as"
             },
             {
-                "ext": "go",
-                "name": "Go Lang",
+                "name": "ASP document",
                 "role": "Editor",
-                "isPackage": true
+                "ext": [
+                    "asp",
+                    "asa"
+                ]
             },
             {
-                "ext": "re",
-                "name": "Reason",
+                "name": "ASP.NET document",
                 "role": "Editor",
-                "isPackage": true
+                "ext": [
+                    "aspx",
+                    "ascx",
+                    "asmx",
+                    "ashx"
+                ]
             },
             {
-                "ext": "vim",
-                "name": "VimL",
+                "name": "BibTeX bibliography",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "bib"
             },
             {
-                "ext": "ts",
-                "name": "Typescript",
+                "name": "C source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "c"
             },
             {
-                "ext": "tsx",
-                "name": "Typescript",
+                "name": "C++ source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": [
+                    "cc",
+                    "cp",
+                    "cpp",
+                    "cxx",
+                    "c++"
+                ]
             },
             {
-                "ext": "css",
-                "name": "CSS",
+                "name": "C# source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "cs"
+            },
+            {
+                "name": "CoffeeScript source",
+                "role": "Editor",
+                "ext": "coffee"
+            },
+            {
+                "name": "Commit message",
+                "role": "Editor",
+                "ext": "COMMIT_EDITMSG"
+            },
+            {
+                "name": "Context Free Design Grammar",
+                "role": "Editor",
+                "ext": "cfdg"
+            },
+            {
+                "name": "Clojure source",
+                "role": "Editor",
+                "ext": [
+                    "clj",
+                    "cljs"
+                ]
+            },
+            {
+                "name": "Comma separated values",
+                "role": "Editor",
+                "ext": "csv"
+            },
+            {
+                "name": "Tab separated values",
+                "role": "Editor",
+                "ext": "tsv"
+            },
+            {
+                "name": "CGI script",
+                "role": "Editor",
+                "ext": [
+                    "cgi",
+                    "fcgi"
+                ]
+            },
+            {
+                "name": "Configuration file",
+                "role": "Editor",
+                "ext": [
+                    "cfg",
+                    "conf",
+                    "config",
+                    "htaccess"
+                ]
+            },
+            {
+                "name": "Cascading style sheet",
+                "role": "Editor",
+                "ext": "css"
+            },
+            {
+                "name": "Differences file",
+                "role": "Editor",
+                "ext": "diff"
+            },
+            {
+                "name": "Document Type Definition",
+                "role": "Editor",
+                "ext": "dtd"
+            },
+            {
+                "name": "Dylan source",
+                "role": "Editor",
+                "ext": "dylan"
+            },
+            {
+                "name": "Erlang source",
+                "role": "Editor",
+                "ext": [
+                    "erl",
+                    "hrl"
+                ]
+            },
+            {
+                "name": "F-Script source",
+                "role": "Editor",
+                "ext": "fscript"
+            },
+            {
+                "name": "Fortran source",
+                "role": "Editor",
+                "ext": [
+                    "f",
+                    "for",
+                    "fpp",
+                    "f77",
+                    "f90",
+                    "f95"
+                ]
+            },
+            {
+                "name": "Header",
+                "role": "Editor",
+                "ext": [
+                    "h",
+                    "pch"
+                ]
+            },
+            {
+                "name": "C++ header",
+                "role": "Editor",
+                "ext": [
+                    "hh",
+                    "hpp",
+                    "hxx",
+                    "h++"
+                ]
+            },
+            {
+                "name": "Go source",
+                "role": "Editor",
+                "ext": "go"
+            },
+            {
+                "name": "GTD document",
+                "role": "Editor",
+                "ext": [
+                    "gtd",
+                    "gtdlog"
+                ]
+            },
+            {
+                "name": "Haskell source",
+                "role": "Editor",
+                "ext": [
+                    "hs",
+                    "lhs"
+                ]
+            },
+            {
+                "name": "HTML document",
+                "role": "Editor",
+                "ext": [
+                    "htm",
+                    "html",
+                    "phtml",
+                    "shtml"
+                ]
+            },
+            {
+                "name": "Include file",
+                "role": "Editor",
+                "ext": "inc"
+            },
+            {
+                "name": "iCalendar schedule",
+                "role": "Editor",
+                "ext": "ics"
+            },
+            {
+                "name": "MS Windows initialization file",
+                "role": "Editor",
+                "ext": "ini"
+            },
+            {
+                "name": "Io source",
+                "role": "Editor",
+                "ext": "io"
+            },
+            {
+                "name": "Java source",
+                "role": "Editor",
+                "ext": "java"
+            },
+            {
+                "name": "BeanShell script",
+                "role": "Editor",
+                "ext": "bsh"
+            },
+            {
+                "name": "Java properties file",
+                "role": "Editor",
+                "ext": "properties"
+            },
+            {
+                "name": "JavaScript source",
+                "role": "Editor",
+                "ext": [
+                    "js",
+                    "htc"
+                ]
+            },
+            {
+                "name": "Java Server Page",
+                "role": "Editor",
+                "ext": "jsp"
+            },
+            {
+                "name": "JSON file",
+                "role": "Editor",
+                "ext": "json"
+            },
+            {
+                "name": "LDAP Data Interchange Format",
+                "role": "Editor",
+                "ext": "ldif"
+            },
+            {
+                "name": "Less source",
+                "role": "Editor",
+                "ext": "less"
+            },
+            {
+                "name": "Lisp source",
+                "role": "Editor",
+                "ext": [
+                    "lisp",
+                    "cl",
+                    "l",
+                    "lsp",
+                    "mud",
+                    "el"
+                ]
+            },
+            {
+                "name": "Log file",
+                "role": "Editor",
+                "ext": "log"
+            },
+            {
+                "name": "Logo source",
+                "role": "Editor",
+                "ext": "logo"
+            },
+            {
+                "name": "Lua source",
+                "role": "Editor",
+                "ext": "lua"
+            },
+            {
+                "name": "Markdown document",
+                "role": "Editor",
+                "ext": [
+                    "markdown",
+                    "mdown",
+                    "markdn",
+                    "md"
+                ]
+            },
+            {
+                "name": "Makefile source",
+                "role": "Editor",
+                "ext": "mk"
+            },
+            {
+                "name": "Mediawiki document",
+                "role": "Editor",
+                "ext": [
+                    "wiki",
+                    "wikipedia",
+                    "mediawiki"
+                ]
+            },
+            {
+                "name": "MIPS assembler source",
+                "role": "Editor",
+                "ext": [
+                    "s",
+                    "mips",
+                    "spim",
+                    "asm"
+                ]
+            },
+            {
+                "name": "Modula-3 source",
+                "role": "Editor",
+                "ext": [
+                    "m3",
+                    "cm3"
+                ]
+            },
+            {
+                "name": "MoinMoin document",
+                "role": "Editor",
+                "ext": "moinmoin"
+            },
+            {
+                "name": "Objective-C source",
+                "role": "Editor",
+                "ext": "m"
+            },
+            {
+                "name": "Objective-C++ source",
+                "role": "Editor",
+                "ext": "mm"
+            },
+            {
+                "name": "OCaml source",
+                "role": "Editor",
+                "ext": [
+                    "ml",
+                    "mli",
+                    "mll",
+                    "mly"
+                ]
+            },
+            {
+                "name": "Mustache document",
+                "role": "Editor",
+                "ext": [
+                    "mustache",
+                    "hbs"
+                ]
+            },
+            {
+                "name": "Pascal source",
+                "role": "Editor",
+                "ext": [
+                    "pas",
+                    "p"
+                ]
+            },
+            {
+                "name": "Patch file",
+                "role": "Editor",
+                "ext": "patch"
+            },
+            {
+                "name": "Perl source",
+                "role": "Editor",
+                "ext": [
+                    "pl",
+                    "pod",
+                    "perl"
+                ]
+            },
+            {
+                "name": "Perl module",
+                "role": "Editor",
+                "ext": "pm"
+            },
+            {
+                "name": "PHP source",
+                "role": "Editor",
+                "ext": [
+                    "php",
+                    "php3",
+                    "php4",
+                    "php5"
+                ]
+            },
+            {
+                "name": "PostScript source",
+                "role": "Editor",
+                "ext": [
+                    "ps",
+                    "eps"
+                ]
+            },
+            {
+                "name": "Property list",
+                "role": "Editor",
+                "ext": [
+                    "dict",
+                    "plist",
+                    "scriptSuite",
+                    "scriptTerminology"
+                ]
+            },
+            {
+                "name": "Python source",
+                "role": "Editor",
+                "ext": [
+                    "py",
+                    "rpy",
+                    "cpy",
+                    "python"
+                ]
+            },
+            {
+                "name": "R source",
+                "role": "Editor",
+                "ext": [
+                    "r",
+                    "s"
+                ]
+            },
+            {
+                "name": "Ragel source",
+                "role": "Editor",
+                "ext": [
+                    "rl",
+                    "ragel"
+                ]
+            },
+            {
+                "name": "Remind document",
+                "role": "Editor",
+                "ext": [
+                    "rem",
+                    "remind"
+                ]
+            },
+            {
+                "name": "reStructuredText document",
+                "role": "Editor",
+                "ext": [
+                    "rst",
+                    "rest"
+                ]
+            },
+            {
+                "name": "HTML with embedded Ruby",
+                "role": "Editor",
+                "ext": [
+                    "rhtml",
+                    "erb"
+                ]
+            },
+            {
+                "name": "SQL with embedded Ruby",
+                "role": "Editor",
+                "ext": "erbsql"
+            },
+            {
+                "name": "Ruby source",
+                "role": "Editor",
+                "ext": [
+                    "rb",
+                    "rbx",
+                    "rjs",
+                    "rxml"
+                ]
+            },
+            {
+                "name": "Sass source",
+                "role": "Editor",
+                "ext": [
+                    "sass",
+                    "scss"
+                ]
+            },
+            {
+                "name": "Scheme source",
+                "role": "Editor",
+                "ext": [
+                    "scm",
+                    "sch"
+                ]
+            },
+            {
+                "name": "Setext document",
+                "role": "Editor",
+                "ext": "ext"
+            },
+            {
+                "name": "Shell script",
+                "role": "Editor",
+                "ext": [
+                    "sh",
+                    "ss",
+                    "bashrc",
+                    "bash_profile",
+                    "bash_login",
+                    "profile",
+                    "bash_logout"
+                ]
+            },
+            {
+                "name": "Slate source",
+                "role": "Editor",
+                "ext": "slate"
+            },
+            {
+                "name": "SQL source",
+                "role": "Editor",
+                "ext": "sql"
+            },
+            {
+                "name": "Standard ML source",
+                "role": "Editor",
+                "ext": "sml"
+            },
+            {
+                "name": "Strings document",
+                "role": "Editor",
+                "ext": "strings"
+            },
+            {
+                "name": "Scalable vector graphics",
+                "role": "Editor",
+                "ext": "svg"
+            },
+            {
+                "name": "SWIG source",
+                "role": "Editor",
+                "ext": [
+                    "i",
+                    "swg"
+                ]
+            },
+            {
+                "name": "Tcl source",
+                "role": "Editor",
+                "ext": "tcl"
+            },
+            {
+                "name": "TeX document",
+                "role": "Editor",
+                "ext": [
+                    "tex",
+                    "sty",
+                    "cls"
+                ]
+            },
+            {
+                "name": "Plain text document",
+                "role": "Editor",
+                "ext": [
+                    "text",
+                    "txt",
+                    "utf8"
+                ]
+            },
+            {
+                "name": "Textile document",
+                "role": "Editor",
+                "ext": "textile"
+            },
+            {
+                "name": "TOML file",
+                "role": "Editor",
+                "ext": "toml"
+            },
+            {
+                "name": "XHTML document",
+                "role": "Editor",
+                "ext": "xhtml"
+            },
+            {
+                "name": "XML document",
+                "role": "Editor",
+                "ext": [
+                    "xml",
+                    "xsd",
+                    "xib",
+                    "rss",
+                    "tld",
+                    "pt",
+                    "cpt",
+                    "dtml"
+                ]
+            },
+            {
+                "name": "XSL stylesheet",
+                "role": "Editor",
+                "ext": [
+                    "xsl",
+                    "xslt"
+                ]
+            },
+            {
+                "name": "Electronic business card",
+                "role": "Editor",
+                "ext": [
+                    "vcf",
+                    "vcard"
+                ]
+            },
+            {
+                "name": "Visual Basic source",
+                "role": "Editor",
+                "ext": "vb"
+            },
+            {
+                "name": "YAML document",
+                "role": "Editor",
+                "ext": [
+                    "yaml",
+                    "yml"
+                ]
+            },
+            {
+                "name": "Text document",
+                "role": "Editor",
+                "ext": "nfo"
+            },
+            {
+                "name": "Source",
+                "role": "Editor",
+                "ext": [
+                    "g",
+                    "vss",
+                    "d",
+                    "e",
+                    "gri",
+                    "inf",
+                    "mel",
+                    "build",
+                    "re",
+                    "textmate",
+                    "fxscript",
+                    "lgt"
+                ]
+            },
+            {
+                "name": "Document",
+                "role": "Editor",
+                "ext": [
+                    "cfm",
+                    "cfml",
+                    "dbm",
+                    "dbml",
+                    "dist",
+                    "dot",
+                    "ics",
+                    "ifb",
+                    "dwt",
+                    "g",
+                    "in",
+                    "l",
+                    "m4",
+                    "mp",
+                    "mtml",
+                    "orig",
+                    "pde",
+                    "rej",
+                    "servlet",
+                    "s5",
+                    "tmp",
+                    "tpl",
+                    "tt",
+                    "xql",
+                    "yy",
+                    "*"
+                ]
             }
         ]
     },
@@ -151,20 +792,27 @@
         "build:plugin:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm run build",
         "build:test": "npm run build:test:unit && npm run build:test:integration",
         "build:test:integration": "cd test && tsc -p tsconfig.json",
-        "build:test:unit": "rimraf lib_test && cd browser && tsc -p tsconfig.test.json",
+        "build:test:unit": "npm run build:test:unit:browser && npm run build:test:unit:main",
+        "build:test:unit:browser": "rimraf lib_test/browser && cd browser && tsc -p tsconfig.test.json",
+        "build:test:unit:main": "rimraf lib_test/main && cd main && tsc -p tsconfig.test.json",
         "build:webview_preload": "cd webview_preload && tsc -p tsconfig.json",
         "check-cached-binaries": "node build/script/CheckBinariesForBuild.js",
         "copy-icons": "node build/CopyIcons.js",
-        "copy-dist-to-s3": "node build/script/CopyPackedFilesForS3Upload.js",
         "debug:test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
         "demo:screenshot": "npm run build:test && cross-env DEMO_TEST=HeroScreenshot mocha -t 30000000 lib_test/test/Demo.js",
         "demo:video": "npm run build:test && cross-env DEMO_TEST=HeroDemo mocha -t 30000000 lib_test/test/Demo.js",
-        "dist:win": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
+        "dist:win:x86": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
+        "dist:win:x64": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch x64 --publish never",
         "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
         "test": "npm run test:unit && npm run test:integration",
-        "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js",
-        "test:unit": "npm run test:unit:browser",
-        "test:unit:browser": "npm run build:test:unit && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+        "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js --bail",
+        "test:react": "jest --config ./jest.config.js ./ui-tests",
+        "test:react:watch": "jest --config ./jest.config.js ./ui-tests --watch",
+        "test:react:coverage": "jest --config ./jest.config.js ./ui-tests --coverage",
+        "test:unit:browser": "npm run build:test:unit:browser && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+        "test:unit": "npm run test:unit:browser && npm run test:unit:main && npm run test:react",
+        "test:unit:main": "npm run build:test:unit:main && cd main && electron-mocha --renderer --recursive ../lib_test/main/test",
+        "upload:dist": "node build/script/UploadDistributionBuildsToAzure",
         "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
         "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
@@ -209,9 +857,9 @@
         "minimist": "1.2.0",
         "msgpack-lite": "0.1.26",
         "ocaml-language-server": "^1.0.27",
-        "oni-api": "^0.0.39",
-        "oni-neovim-binaries": "0.1.0",
-        "oni-ripgrep": "0.0.3",
+        "oni-api": "^0.0.41",
+        "oni-neovim-binaries": "0.1.1",
+        "oni-ripgrep": "0.0.4",
         "oni-types": "0.0.4",
         "react": "16.0.0",
         "react-dnd": "^2.5.4",
@@ -235,6 +883,8 @@
         "@types/detect-indent": "^5.0.0",
         "@types/dompurify": "^0.0.31",
         "@types/electron-settings": "^3.1.1",
+        "@types/enzyme": "^3.1.8",
+        "@types/jest": "^22.1.3",
         "@types/jsdom": "11.0.0",
         "@types/lodash": "4.14.38",
         "@types/lolex": "2.1.0",
@@ -251,14 +901,18 @@
         "@types/react-dom": "16.0.3",
         "@types/react-motion": "0.0.23",
         "@types/react-redux": "5.0.12",
+        "@types/react-test-renderer": "^16.0.0",
         "@types/react-transition-group": "2.0.6",
         "@types/react-virtualized": "^9.7.10",
         "@types/redux-batched-subscribe": "^0.1.2",
+        "@types/redux-mock-store": "^0.0.13",
         "@types/shelljs": "^0.7.7",
         "@types/sinon": "1.16.32",
         "autoprefixer": "6.4.0",
+        "azure-storage": "^2.8.1",
+        "babel-plugin-dynamic-import-node": "^1.2.0",
         "babili-webpack-plugin": "0.1.2",
-        "bs-platform": "1.8.0",
+        "bs-platform": "2.1.0",
         "classnames": "2.2.5",
         "codecov": "^3.0.0",
         "color": "2.0.0",
@@ -266,11 +920,14 @@
         "cross-env": "3.1.3",
         "css-loader": "0.28.4",
         "detect-indent": "^5.0.0",
-        "electron": "^1.8.2-beta.5",
-        "electron-builder": "19.46.4",
+        "electron": "^1.8.4",
+        "electron-builder": "^20.5.1",
         "electron-devtools-installer": "^2.2.3",
         "electron-mocha": "5.0.0",
         "electron-rebuild": "1.6.0",
+        "enzyme": "^3.3.0",
+        "enzyme-adapter-react-16": "^1.1.1",
+        "enzyme-to-json": "^3.3.1",
         "extract-zip": "1.6.0",
         "find-process": "^1.1.0",
         "fs-extra": "4.0.2",
@@ -280,6 +937,7 @@
         "innosetup-compiler": "5.5.9",
         "istanbul-api": "^1.2.1",
         "istanbul-lib-coverage": "^1.1.1",
+        "jest": "^22.2.2",
         "jsdom": "11.0.0",
         "less": "2.7.1",
         "less-loader": "4.0.5",
@@ -291,7 +949,7 @@
         "mkdirp": "0.5.1",
         "mocha": "3.1.2",
         "nyc": "^11.4.1",
-        "oni-release-downloader": "0.0.8",
+        "oni-release-downloader": "^0.0.10",
         "opencollective": "1.0.3",
         "optimize-js-plugin": "0.0.4",
         "prettier": "^1.10.2",
@@ -299,18 +957,21 @@
         "react-hot-loader": "1.3.1",
         "react-motion": "0.5.2",
         "react-redux": "5.0.6",
+        "react-test-renderer": "^16.2.0",
         "react-transition-group": "2.2.1",
         "react-virtualized": "^9.18.0",
         "redux": "3.7.2",
+        "redux-mock-store": "^1.5.1",
         "redux-observable": "0.17.0",
         "redux-thunk": "2.2.0",
         "remap-istanbul": "^0.10.1",
         "reselect": "3.0.1",
-        "rxjs": "5.5.0",
+        "rxjs": "^5.5.8",
         "sinon": "1.17.6",
-        "spectron": "3.6.2",
+        "spectron": "^3.8.0",
         "style-loader": "0.18.2",
         "sudo-prompt": "7.1.1",
+        "ts-jest": "^22.0.4",
         "ts-loader": "2.3.2",
         "tslint": "5.9.1",
         "vscode-snippet-parser": "0.0.5",

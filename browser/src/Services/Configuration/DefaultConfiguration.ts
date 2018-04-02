@@ -50,7 +50,8 @@ const BaseConfiguration: IConfigurationValues = {
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
-    "experimental.learning.enabled": false,
+    "experimental.particles.enabled": false,
+    "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
 
     "experimental.neovim.transport": "stdio",
@@ -59,8 +60,6 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.maxLinesForLanguageServices": 2500,
     "editor.textMateHighlighting.enabled": true,
-
-    "experimental.achievements.enabled": false,
 
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
@@ -105,7 +104,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
-    "editor.quickOpen.filterStrategy": "fuse",
+    "editor.quickOpen.filterStrategy": "regex",
 
     "editor.split.mode": "native",
 
@@ -129,6 +128,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
 
     "environment.additionalPaths": [],
+
+    "keyDisplayer.showInInsertMode": false,
 
     "language.html.languageServer.command": htmlLanguageServerPath,
     "language.html.languageServer.arguments": ["--stdio"],
@@ -189,6 +190,11 @@ const BaseConfiguration: IConfigurationValues = {
     "language.ocaml.languageServer.arguments": ["--stdio"],
     "language.ocaml.languageServer.configuration": ocamlAndReasonConfiguration,
 
+    "language.haskell.languageServer.command": "stack",
+    "language.haskell.languageServer.arguments": ["exec", "--", "hie", "--lsp"],
+    "language.haskell.languageServer.rootFiles": [".git"],
+    "language.haskell.languageServer.configuration": {},
+
     "language.typescript.completionTriggerCharacters": [".", "/", "\\"],
     "language.typescript.textMateGrammar": {
         ".ts": path.join(
@@ -223,6 +229,9 @@ const BaseConfiguration: IConfigurationValues = {
             "JavaScriptReact.tmLanguage.json",
         ),
     },
+
+    "learning.enabled": true,
+    "achievements.enabled": true,
 
     "menu.caseSensitive": "smart",
     "menu.rowHeight": 40,
