@@ -5,6 +5,9 @@
 import * as assert from "assert"
 import * as os from "os"
 import * as path from "path"
+import { execSync } from "child_process"
+
+import * as rimraf from "rimraf"
 
 import { getCompletionElement, getTemporaryFolder } from "./../ci/Common"
 
@@ -15,8 +18,38 @@ import { remote } from "electron"
 const BASEDELAY = 25
 const RANDOMDELAY = 15
 
+const getRootPath = () => {
+    const root = getRoot(__dirname)
+    return os.platform() === "win32" ? root : os.homedir()
+}
+
+const ReactProjectName = "oni-react-app"
+
+const getRoot = (dir: string): string => {
+    const parent = path.dirname(dir)
+    if (parent === dir) {
+        return parent
+    } else {
+        return getRoot(parent)
+    }
+}
+
+const createReactAppProject = oni => {
+    const oniReactApp = path.join(getRootPath(), ReactProjectName)
+
+    rimraf.sync(oniReactApp)
+
+    const output = execSync('create-react-app "' + oniReactApp + '"')
+
+    return oniReactApp
+}
+
 export const test = async (oni: any) => {
+    const reactAppPath = createReactAppProject(oni)
+
     await oni.automation.waitForEditors()
+
+    oni.workspace.changeDirectory(reactAppPath)
 
     const isMac = process.platform === "darwin"
 
@@ -370,7 +403,7 @@ export const test = async (oni: any) => {
     await simulateTyping(":tabnew")
     await pressEnter()
     await openQuickOpen()
-    await simulateTyping("NeovimInstance.ts")
+    await simulateTyping("App.js")
     await pressEnter()
 
     await simulateTyping("owindow.")
