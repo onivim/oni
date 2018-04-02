@@ -8,6 +8,9 @@ function exitIfFailed() {
 node --version
 npm --version
 
+Write-Host "Platform: " $env:PLATFORM
+Write-Host "AppVeyor: " $env:APPVEYOR
+
 # Build
 npm run build ; exitIfFailed
 npm run lint ; exitIfFailed
