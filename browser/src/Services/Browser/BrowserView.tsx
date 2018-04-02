@@ -194,8 +194,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
 
     private _navigate(url: string): void {
         if (this._webviewElement) {
-            const prefixedUrl = this.prefixUrl(url)
-            this._webviewElement.src = prefixedUrl
+            this._webviewElement.src = this.prefixUrl(url)
 
             this.setState({
                 url,
