@@ -81,29 +81,11 @@ export const test = async (oni: any) => {
         oni.automation.sendKeysV2("<c-w>")
         oni.automation.sendKeysV2("<c-s>")
         await shortDelay()
-        await simulateTyping(":e VIM.md")
+        await simulateTyping(":new VIM.md")
     }
 
     const waitForCompletion = async () => {
         return oni.automation.waitFor(() => !!getCompletionElement())
-    }
-
-    const intro = async () => {
-        await simulateTyping(":tabnew Hello.md")
-        await pressEnter()
-
-        await simulateTyping(
-            "iOni is a new kind of editor: combining the best of Vim, Atom, and VSCode.",
-        )
-        await pressEnter()
-        await simulateTyping(
-            "Built with web tech, featuring a high performance canvas renderer, with (neo)vim handling the heavy lifting.",
-        )
-        await pressEnter()
-        await simulateTyping("Available for Windows, OSX, and Linux.")
-        await pressEnter()
-
-        await pressEscape()
     }
 
     const showWelcomeAchievement = async () => {
@@ -127,6 +109,93 @@ export const test = async (oni: any) => {
 
         await longDelay()
         await longDelay()
+    }
+
+    const intro = async () => {
+        await simulateTyping(":tabnew Hello.md")
+        await pressEnter()
+
+        await simulateTyping(
+            "iOni is a new kind of editor: combining the best of Vim, Atom, and VSCode.",
+        )
+        await pressEnter()
+        await simulateTyping(
+            "Built with web tech, featuring a high performance canvas renderer, with (neo)vim handling the heavy lifting.",
+        )
+        await pressEnter()
+        await simulateTyping("Available for Windows, OSX, and Linux.")
+        await pressEnter()
+
+        await pressEscape()
+    }
+
+    const showKeyboardNavigation = async () => {
+        await splitHorizontal(":tabnew VIM.md")
+        await pressEnter()
+
+        await simulateTyping("i")
+        await simulateTyping("Use your Vim muscle memory to be productive without a mouse...")
+
+        await pressEscape()
+
+        oni.automation.sendKeysV2("<c-w>")
+        oni.automation.sendKeysV2("<c-h>")
+        await shortDelay()
+
+        oni.automation.sendKeysV2("G")
+        await longDelay()
+        oni.automation.sendKeysV2("gg")
+        await longDelay()
+
+        oni.automation.sendKeysV2("<c-w>")
+        oni.automation.sendKeysV2("<c-h>")
+        await shortDelay()
+
+        oni.automation.sendKeysV2("<c-w>")
+        oni.automation.sendKeysV2("<c-l>")
+        await shortDelay()
+
+        oni.automation.sendKeysV2("<c-w>")
+        oni.automation.sendKeysV2("<c-l>")
+        await shortDelay()
+
+        oni.automation.sendKeysV2("<c-w>")
+        oni.automation.sendKeysV2("<c-j>")
+        await shortDelay()
+
+        await simulateTyping("o")
+        await simulateTyping("..but enjoy the conveniences of a modern UI editor.")
+        await pressEscape()
+
+        await shortDelay()
+        oni.automation.sendKeysV2("<c-g>")
+        await shortDelay()
+        await simulateTyping("a")
+        await shortDelay()
+        await simulateTyping("c")
+
+        oni.automation.sendKeysV2("<c-g>")
+        await shortDelay()
+        await simulateTyping("a")
+        await shortDelay()
+        await simulateTyping("d")
+        await shortDelay()
+
+        oni.automation.sendKeysV2("<c-g>")
+        await shortDelay()
+        await simulateTyping("a")
+        await shortDelay()
+        await simulateTyping("b")
+        await shortDelay()
+
+        oni.automation.sendKeysV2("<esc>")
+
+        await simulateTyping(":qa!")
+        oni.automation.sendKeysV2("<cr>")
+
+        await shortDelay()
+
+        oni.automation.sendKeysV2("<esc>")
     }
 
     const showConfig = async () => {
@@ -318,101 +387,40 @@ export const test = async (oni: any) => {
 
     await showWelcomeAchievement()
 
+    oni.tutorials.clearProgress()
+
     oni.commands.executeCommand("keyDisplayer.show")
     oni.configuration.setValues({ "keyDisplayer.showInInsertMode": false })
 
     await intro()
 
-    await splitHorizontal("VIM.md")
-    await pressEnter()
-
-    await simulateTyping("i")
-    await simulateTyping("Use your Vim muscle memory to be productive without a mouse...")
-
-    await pressEscape()
-
-    oni.automation.sendKeysV2("<c-w>")
-    oni.automation.sendKeysV2("<c-h>")
-    await shortDelay()
-
-    oni.automation.sendKeysV2("G")
-    await longDelay()
-    oni.automation.sendKeysV2("gg")
-    await longDelay()
-
-    oni.automation.sendKeysV2("<c-w>")
-    oni.automation.sendKeysV2("<c-h>")
-    await shortDelay()
-
-    oni.automation.sendKeysV2("<c-w>")
-    oni.automation.sendKeysV2("<c-l>")
-    await shortDelay()
-
-    oni.automation.sendKeysV2("<c-w>")
-    oni.automation.sendKeysV2("<c-l>")
-    await shortDelay()
-
-    await simulateTyping("o")
-    await simulateTyping("..but enjoy the conveniences of a modern UI editor.")
-    await pressEscape()
-
-    await shortDelay()
-    oni.automation.sendKeysV2("<c-g>")
-    await shortDelay()
-    await simulateTyping("a")
-    await shortDelay()
-    await simulateTyping("c")
-
-    oni.automation.sendKeysV2("<c-g>")
-    await shortDelay()
-    await simulateTyping("a")
-    await shortDelay()
-    await simulateTyping("b")
-    await shortDelay()
-
-    oni.automation.sendKeysV2("<esc>")
-
-    await simulateTyping(":q!")
-    oni.automation.sendKeysV2("<cr>")
+    await showKeyboardNavigation()
 
     // ---
     await showLanguageServices()
     // ---
 
-    await simulateTyping("gT")
+    // oni.automation.sendKeysV2("<c-w>")
+    // oni.automation.sendKeysV2("<c-k>")
 
-    await simulateTyping("o")
-    await simulateTyping("Enjoy built in search with ripgrep..")
+    // await simulateTyping("o")
+    // await simulateTyping("...or the embedded file finder.")
+    // await shortDelay()
 
-    await pressEscape()
+    // await pressEscape()
+    // await shortDelay()
+    // await openQuickOpen()
+    // await simulateTyping("NeovimEditor")
+    // await shortDelay()
+    // oni.automation.sendKeysV2("<cr>")
+    // await longDelay()
+    // oni.automation.sendKeysV2("<c-o>")
+    // await shortDelay()
 
-    await openFindInFiles()
-    await simulateTyping("OniEditor")
-    await longDelay()
-    oni.automation.sendKeysV2("<cr>")
-    await longDelay()
-
-    oni.automation.sendKeysV2("<c-w>")
-    oni.automation.sendKeysV2("<c-k>")
-
-    await simulateTyping("o")
-    await simulateTyping("...or the embedded file finder.")
-    await shortDelay()
-
-    await pressEscape()
-    await shortDelay()
-    await openQuickOpen()
-    await simulateTyping("NeovimEditor")
-    await shortDelay()
-    oni.automation.sendKeysV2("<cr>")
-    await longDelay()
-    oni.automation.sendKeysV2("<c-o>")
-    await shortDelay()
-
-    await simulateTyping("G")
-    await simulateTyping("o")
-    await simulateTyping("...use the built in command palette to discover functionality.")
-    await pressEscape()
+    // await simulateTyping("G")
+    // await simulateTyping("o")
+    // await simulateTyping("...use the built in command palette to discover functionality.")
+    // await pressEscape()
 
     await showConfig()
     await showComingSoon()
