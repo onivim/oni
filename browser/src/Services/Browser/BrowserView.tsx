@@ -186,7 +186,8 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         // Regex Explainer - match at the beginning of the string ^
         // brackets to match the selection not partial match like ://
         // match http or https, then match ://
-        if (url && !/^(https?:)\/\//i.test(url)) {
+        const hasValidProtocol = /^(https?:)\/\//i
+        if (url && !hasValidProtocol.test(url)) {
             return `https://${url}`
         }
         return url
