@@ -12,8 +12,6 @@ import { getDistPath } from "./DemoCommon"
 
 import { remote } from "electron"
 
-const EmptyConfigPath = path.join(getTemporaryFolder(), "config.js")
-
 const BASEDELAY = 25
 const RANDOMDELAY = 15
 
@@ -76,6 +74,14 @@ export const test = async (oni: any) => {
         const keys = isMac ? "<m-p>" : "<c-p>"
         oni.automation.sendKeysV2(keys)
         await shortDelay()
+    }
+
+    const splitHorizontal = async (fileName: string) => {
+        await shortDelay()
+        oni.automation.sendKeysV2("<c-w>")
+        oni.automation.sendKeysV2("<c-s>")
+        await shortDelay()
+        await simulateTyping(":e VIM.md")
     }
 
     const waitForCompletion = async () => {
@@ -293,7 +299,7 @@ export const test = async (oni: any) => {
     await pressEnter()
 
     await pressEscape()
-    await simulateTyping(":sp VIM.md")
+    await splitHorizontal("VIM.md")
     await pressEnter()
 
     await simulateTyping("i")
@@ -397,5 +403,5 @@ export const test = async (oni: any) => {
 }
 
 export const settings = {
-    configPath: EmptyConfigPath,
+    "editor.split.mode": "oni",
 }
