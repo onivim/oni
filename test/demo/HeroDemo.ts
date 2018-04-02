@@ -403,5 +403,7 @@ export const test = async (oni: any) => {
 }
 
 export const settings = {
-    "editor.split.mode": "oni",
+    config: {
+        "editor.split.mode": "oni",
+    },
 }
