@@ -66,6 +66,7 @@ describe("regexFilter", () => {
         result.forEach(r => {
             delete r.detailHighlights
             delete r.labelHighlights
+            delete r.score
         })
 
         const expectedResult = [
@@ -88,6 +89,7 @@ describe("regexFilter", () => {
         // elsewhere.
         delete result[0].detailHighlights
         delete result[0].labelHighlights
+        delete result[0].score
 
         const expectedResult = [{ label: "index.ts", detail: "browser/src/index.ts" }]
 
@@ -106,6 +108,7 @@ describe("regexFilter", () => {
         // elsewhere.
         delete result[0].detailHighlights
         delete result[0].labelHighlights
+        delete result[0].score
 
         const expectedResult = [
             { label: "index.ts", detail: "browser/src/services/quickopen/index.ts" },
