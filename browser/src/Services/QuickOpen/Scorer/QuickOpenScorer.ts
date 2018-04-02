@@ -6,20 +6,11 @@
 
 "use strict"
 
-import { compareAnything } from "./Comparers"
-import {
-    createMatches,
-    matchesCamelCase,
-    matchesPrefix,
-    IMatch,
-    isLinux,
-    isWindows,
-    equalsIgnoreCase,
-    stripWildcards,
-    nativeSep,
-    isUpper,
-} from "./Utilities"
 import { CharCode } from "./CharCode"
+import { compareAnything } from "./Comparers"
+import { createMatches, IMatch, matchesCamelCase, matchesPrefix } from "./filters"
+import { equalsIgnoreCase } from "./strings"
+import { isLinux, isWindows, stripWildcards, nativeSep, isUpper } from "./Utilities"
 
 export type Score = [number /* score */, number[] /* match positions */]
 export type ScorerCache = { [key: string]: IItemScore }

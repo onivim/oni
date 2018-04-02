@@ -4,8 +4,9 @@ import {
     IItemScore,
     prepareQuery,
     scoreItem,
-} from "./QuickOpenScorer"
-import { IMatch, nativeSep } from "./Utilities"
+} from "./quickOpenScorer"
+import { IMatch } from "./filters"
+import { nativeSep } from "./Utilities"
 
 const NO_ITEM_SCORE: IItemScore = Object.freeze({ score: 0 })
 
