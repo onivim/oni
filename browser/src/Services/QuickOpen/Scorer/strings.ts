@@ -1,3 +1,4 @@
+/* tslint:disable */
 /**
  * Imported functions from VSCode's strings.ts
  */

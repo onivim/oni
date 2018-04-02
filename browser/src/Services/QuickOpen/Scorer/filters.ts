@@ -1,3 +1,8 @@
+/* tslint:disable */
+/**
+ * Imported functions from VSCode's filters.ts
+ */
+
 import { startsWithIgnoreCase } from "./strings"
 import { isAlphanumeric, isLower, isNumber, isUpper, isWhitespace } from "./Utilities"
 

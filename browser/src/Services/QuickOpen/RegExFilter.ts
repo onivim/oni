@@ -1,7 +1,7 @@
 /**
- * MenuFilter.ts
+ * RegExFilter.ts
  *
- * Implements filtering logic for the menu
+ * Implements RegEx filtering logic for the menu
  */
 
 import * as sortBy from "lodash/sortBy"
