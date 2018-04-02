@@ -5,7 +5,6 @@
  */
 
 import * as path from "path"
-import * as Url from "url"
 
 import * as React from "react"
 import styled from "styled-components"
@@ -183,22 +182,25 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         )
     }
 
+    public prefixUrl = (url: string) => {
+        // Regex Explainer - match at the beginning of the string ^
+        // brackets to match the selection not partial match like ://
+        // match http or https, then match ://
+        if (url && !/^(https?:)\/\//i.test(url)) {
+            return `https://${url}`
+        }
+        return url
+    }
+
     private _navigate(url: string): void {
         if (this._webviewElement) {
-            const prefixedUrl = this._prefixUrl(url)
+            const prefixedUrl = this.prefixUrl(url)
             this._webviewElement.src = prefixedUrl
 
             this.setState({
                 url,
             })
         }
-    }
-
-    private _prefixUrl = (url: string) => {
-        const urlObj = new Url.URL(url)
-        const { protocol } = urlObj
-        console.log("protocol: ", protocol)
-        return url
     }
 
     private _goBack(): void {
