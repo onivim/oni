@@ -156,14 +156,14 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         return (
             <Column key={"test2"}>
                 <BrowserControlsWrapper>
-                    <BrowserButtonView icon={"chevron-left"} onClick={() => this._goBack()} />
-                    <BrowserButtonView icon={"chevron-right"} onClick={() => this._goForward()} />
-                    <BrowserButtonView icon={"undo"} onClick={() => this._reload()} />
+                    <BrowserButtonView icon={"chevron-left"} onClick={this._goBack} />
+                    <BrowserButtonView icon={"chevron-right"} onClick={this._goForward} />
+                    <BrowserButtonView icon={"undo"} onClick={this._reload} />
                     <AddressBarView
                         url={this.state.url}
                         onAddressChanged={url => this._navigate(url)}
                     />
-                    <BrowserButtonView icon={"bug"} onClick={() => this._openDebugger()} />
+                    <BrowserButtonView icon={"bug"} onClick={this._openDebugger} />
                 </BrowserControlsWrapper>
                 <BrowserViewWrapper>
                     <div
