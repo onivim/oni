@@ -86,7 +86,8 @@ export class MoveToGoalStage implements ITutorialStage {
         const cursorPosition = await (context.buffer as any).getCursorPosition()
 
         this._currentCursorLine = cursorPosition.line
-        this._goalColumn = !!this._column ? this._column : cursorPosition.character
+        this._goalColumn =
+            typeof this._column === "number" ? this._column : cursorPosition.character
 
         return (
             cursorPosition.line === this._line &&
