@@ -8,7 +8,7 @@ import * as sortBy from "lodash/sortBy"
 
 import * as Oni from "oni-api"
 
-import { score } from "./Scorer/QuickOpenScorer"
+import { compareItemsByScoreOni, scoreItemOni } from "./Scorer/OniQuickOpenScorer"
 
 import { IMenuOptionWithHighlights, shouldFilterbeCaseSensitive } from "./../Menu"
 
@@ -49,14 +49,14 @@ export const regexFilter = (
 
     const ret = filteredOptions.map(fo => {
         const letterCountDictionary = createLetterCountDictionary(searchString)
-        const fullPath = fo.detail + fo.label
-        const resultScore = score(fullPath, searchString, fullPath.toLowerCase(), true)
+        const resultScore = scoreItemOni(fo, searchString, true)
 
         const detailHighlights = getHighlightsFromString(
             fo.detail,
             letterCountDictionary,
             isCaseSensitive,
         )
+
         const labelHighlights = getHighlightsFromString(
             fo.label,
             letterCountDictionary,
@@ -71,7 +71,7 @@ export const regexFilter = (
         }
     })
 
-    return sortBy(ret, r => (r.pinned ? Number.MAX_VALUE : r.score))
+    return ret.sort((e1, e2) => compareItemsByScoreOni(e1, e2, searchString, false))
 }
 
 export const processSearchTerm = (

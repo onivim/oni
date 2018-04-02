@@ -352,7 +352,7 @@ export function scoreItem<T>(
     query: IPreparedQuery,
     fuzzy: boolean,
     accessor: IItemAccessor<T>,
-    cache: ScorerCache,
+    // cache: ScorerCache,
 ): IItemScore {
     if (!item || !query.value) {
         return NO_ITEM_SCORE // we need an item and query to score on at least
@@ -365,20 +365,20 @@ export function scoreItem<T>(
 
     const description = accessor.getItemDescription(item)
 
-    let cacheHash: string
-    if (description) {
-        cacheHash = `${label}${description}${query.value}${fuzzy}`
-    } else {
-        cacheHash = `${label}${query.value}${fuzzy}`
-    }
+    // let cacheHash: string
+    // if (description) {
+    //     cacheHash = `${label}${description}${query.value}${fuzzy}`
+    // } else {
+    //     cacheHash = `${label}${query.value}${fuzzy}`
+    // }
 
-    const cached = cache[cacheHash]
-    if (cached) {
-        return cached
-    }
+    // const cached = cache[cacheHash]
+    // if (cached) {
+    //     return cached
+    // }
 
     const itemScore = doScoreItem(label, description, accessor.getItemPath(item), query, fuzzy)
-    cache[cacheHash] = itemScore
+    // cache[cacheHash] = itemScore
 
     return itemScore
 }
@@ -476,11 +476,11 @@ export function compareItemsByScore<T>(
     query: IPreparedQuery,
     fuzzy: boolean,
     accessor: IItemAccessor<T>,
-    cache: ScorerCache,
-    fallbackComparer = fallbackCompare,
+    // cache: ScorerCache,
+    // fallbackComparer = fallbackCompare,
 ): number {
-    const itemScoreA = scoreItem(itemA, query, fuzzy, accessor, cache)
-    const itemScoreB = scoreItem(itemB, query, fuzzy, accessor, cache)
+    const itemScoreA = scoreItem(itemA, query, fuzzy, accessor)
+    const itemScoreB = scoreItem(itemB, query, fuzzy, accessor)
 
     const scoreA = itemScoreA.score
     const scoreB = itemScoreB.score
@@ -556,7 +556,10 @@ export function compareItemsByScore<T>(
 
     // 7.) at this point, scores are identical and match compactness as well
     // for both items so we start to use the fallback compare
-    return fallbackComparer(itemA, itemB, query, accessor)
+    // return fallbackComparer(itemA, itemB, query, accessor)
+
+    // For now, assume are equal
+    return 0
 }
 
 function computeLabelAndDescriptionMatchDistance<T>(
