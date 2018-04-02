@@ -26,6 +26,7 @@
             "**/*",
             "!**/*.oni",
             "!**/*.vscode",
+            "!**/travis_wait*.log",
             "!app",
             "!assets",
             "!browser",
