@@ -1,4 +1,4 @@
-const os = require("os")
+const { EOL } = require("os")
 const path = require("path")
 const prettier = require("prettier")
 
@@ -23,7 +23,7 @@ const activate = async Oni => {
         execute: callback,
     })
 
-    async function checkPrettierrc(bufferPath) {
+    const checkPrettierrc = async bufferPath => {
         try {
             return await prettier.resolveConfig(bufferPath)
         } catch (e) {
@@ -31,60 +31,82 @@ const activate = async Oni => {
         }
     }
 
-    // Track the buffer state if the buffer as a string is the same
-    // as the last state do no format because nothing has changed
-    let lastBufferState = null
+    const setStatusBarContents = (statusBarItem, defaultElement) => async (
+        statusElement,
+        timeOut = 3500,
+    ) => {
+        statusBarItem.setContents(statusElement)
+        await setTimeout(() => statusBarItem.setContents(defaultElement), timeOut)
+    }
 
-    async function applyPrettier() {
-        const { activeBuffer } = Oni.editors.activeEditor
-        const arrayOfLines = await activeBuffer.getLines()
-        const { line, character } = await activeBuffer.getCursorPosition()
-        const bufferString = arrayOfLines.join(os.EOL)
-        if (lastBufferState === bufferString) {
-            return
-        }
+    const setPrettierStatus = setStatusBarContents(prettierItem, prettierElement)
 
-        let prettierCode
+    const applyPrettier = () => {
+        // Track the buffer state within the function using a closure
+        // if the buffer as a string is the same as the last state
+        // do no format because nothing has changed
+        let lastBufferState = null
 
-        try {
-            const prettierrc = await checkPrettierrc(activeBuffer.filePath)
-            const prettierConfig = prettierrc || config.settings
-            const { cursorOffset } = activeBuffer
+        // pass in Oni explicitly - Make dependencies clearer
+        return async Oni => {
+            const { activeBuffer } = Oni.editors.activeEditor
 
-            // Pass in the file path so prettier can infer the correct parser to use
-            prettierCode = prettier.formatWithCursor(
-                bufferString,
-                Object.assign({ filepath: activeBuffer.filePath }, prettierConfig, {
-                    cursorOffset,
-                }),
-            )
-            if (!prettierCode.formatted) {
-                throw new Error("Couldn't format the buffer")
+            const [arrayOfLines, cursorPosition] = await Promise.all([
+                activeBuffer.getLines(),
+                activeBuffer.getCursorPosition(),
+            ])
+
+            const { line, character } = cursorPosition
+            const bufferString = arrayOfLines.join(EOL)
+
+            if (lastBufferState === bufferString) {
+                return
             }
-        } catch (e) {
-            console.warn(`Couldn't format the buffer because: ${e}`)
-            prettierItem.setContents(errorElement)
-            await setTimeout(() => prettierItem.setContents(prettierElement), 3500)
-        }
 
-        if (prettierCode && prettierCode.formatted) {
-            prettierItem.setContents(successElement)
-            await setTimeout(() => prettierItem.setContents(prettierElement), 3500)
+            let prettierCode
 
-            const formattedWithoutLastCR = prettierCode.formatted.replace(/\n$/, "")
-            lastBufferState = formattedWithoutLastCR
-            await activeBuffer.setLines(
-                0,
-                arrayOfLines.length,
-                formattedWithoutLastCR.split(os.EOL),
-            )
+            try {
+                const prettierrc = await checkPrettierrc(activeBuffer.filePath)
+                const prettierConfig = prettierrc || config.settings
+                const { cursorOffset } = activeBuffer
 
-            const { character, line } = await activeBuffer.convertOffsetToLineColumn(
-                prettierCode.cursorOffset,
-            )
-            await activeBuffer.setCursorPosition(line, character)
+                // Pass in the file path so prettier can infer the correct parser to use
+                prettierCode = prettier.formatWithCursor(
+                    bufferString,
+                    Object.assign({ filepath: activeBuffer.filePath }, prettierConfig, {
+                        cursorOffset,
+                    }),
+                )
+                if (!prettierCode.formatted) {
+                    throw new Error("Couldn't format the buffer")
+                }
+            } catch (e) {
+                console.warn(`Couldn't format the buffer because: ${e}`)
+                await setPrettierStatus(errorElement)
+            }
+
+            if (prettierCode && prettierCode.formatted) {
+                await setPrettierStatus(successElement)
+
+                const formattedWithoutLastCR = prettierCode.formatted.replace(/\n$/, "")
+                lastBufferState = formattedWithoutLastCR
+                await activeBuffer.setLines(
+                    0,
+                    arrayOfLines.length,
+                    formattedWithoutLastCR.split(EOL),
+                )
+
+                const { character, line } = await activeBuffer.convertOffsetToLineColumn(
+                    prettierCode.cursorOffset,
+                )
+
+                await activeBuffer.setCursorPosition(line, character)
+                await Oni.editors.activeEditor.neovim.command("w")
+            }
         }
     }
+
+    const applyPrettierWithState = applyPrettier()
 
     const isCompatible = buffer => {
         const defaultFiletypes = [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json", ".graphql"]
@@ -102,10 +124,10 @@ const activate = async Oni => {
 
     Oni.editors.activeEditor.onBufferSaved.subscribe(async buffer => {
         if (config.formatOnSave && config.enabled && isCompatible(buffer)) {
-            await applyPrettier()
+            await applyPrettierWithState(Oni)
         }
     })
-    return { applyPrettier, isCompatible, checkPrettierrc }
+    return { applyPrettier: applyPrettierWithState, isCompatible, checkPrettierrc }
 }
 
 function createPrettierComponent(Oni, onClick) {

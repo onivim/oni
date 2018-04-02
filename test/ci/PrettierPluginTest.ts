@@ -82,7 +82,7 @@ export async function test(oni: Oni.Plugin.Api) {
 
     const bufferText = await activeBuffer.getLines()
     const bufferString = bufferText.join(os.EOL)
-    assert.assert(bufferText.length === 3, "The code is split into 3 lines")
     assert.assert(!bufferString.includes(";"), "Semi colons are removed from the text")
     assert.assert(!bufferString.includes("'"), "Single quotes are removed from the formatted text")
+    assert.assert(bufferText.length === 3, "The code is split into 3 lines")
 }
