@@ -6,49 +6,49 @@ import * as assert from "assert"
 // import { createLetterCountDictionary } from "../../../src/UI/components/HighlightText"
 import {
     // getHighlightsFromString,
-    processSearchTerm,
+    // processSearchTerm,
     regexFilter,
 } from "./../../../src/Services/QuickOpen/RegExFilter"
 
-describe("processSearchTerm", () => {
-    it("Correctly matches word.", async () => {
-        const testString = "src"
-        const testList = [
-            { label: "index.ts", detail: "browser/src/index.ts" },
-            { label: "index.ts", detail: "browser/test/index.ts" },
-        ]
+// describe("processSearchTerm", () => {
+//     it("Correctly matches word.", async () => {
+//         const testString = "src"
+//         const testList = [
+//             { label: "index.ts", detail: "browser/src/index.ts" },
+//             { label: "index.ts", detail: "browser/test/index.ts" },
+//         ]
 
-        const result = processSearchTerm(testString, testList, false)
+//         const result = processSearchTerm(testString, testList, false)
 
-        const expectedResult = [{ label: "index.ts", detail: "browser/src/index.ts" }]
+//         const expectedResult = [{ label: "index.ts", detail: "browser/src/index.ts" }]
 
-        assert.deepEqual(result, expectedResult)
-    })
-    it("Correctly matches case-sensitive word.", async () => {
-        const testString = "SRC"
-        const testList = [
-            { label: "index.ts", detail: "browser/src/index.ts" },
-            { label: "index.ts", detail: "browser/SRC/index.ts" },
-        ]
+//         assert.deepEqual(result, expectedResult)
+//     })
+//     it("Correctly matches case-sensitive word.", async () => {
+//         const testString = "SRC"
+//         const testList = [
+//             { label: "index.ts", detail: "browser/src/index.ts" },
+//             { label: "index.ts", detail: "browser/SRC/index.ts" },
+//         ]
 
-        const result = processSearchTerm(testString, testList, true)
+//         const result = processSearchTerm(testString, testList, true)
 
-        const expectedResult = [{ label: "index.ts", detail: "browser/SRC/index.ts" }]
+//         const expectedResult = [{ label: "index.ts", detail: "browser/SRC/index.ts" }]
 
-        assert.deepEqual(result, expectedResult)
-    })
-    it("Correctly returns no matches.", async () => {
-        const testString = "zzz"
-        const testList = [
-            { label: "index.ts", detail: "browser/src/index.ts" },
-            { label: "index.ts", detail: "browser/test/index.ts" },
-        ]
+//         assert.deepEqual(result, expectedResult)
+//     })
+//     it("Correctly returns no matches.", async () => {
+//         const testString = "zzz"
+//         const testList = [
+//             { label: "index.ts", detail: "browser/src/index.ts" },
+//             { label: "index.ts", detail: "browser/test/index.ts" },
+//         ]
 
-        const result = processSearchTerm(testString, testList, false)
+//         const result = processSearchTerm(testString, testList, false)
 
-        assert.deepEqual(result, [])
-    })
-})
+//         assert.deepEqual(result, [])
+//     })
+// })
 
 describe("regexFilter", () => {
     it("Correctly matches string.", async () => {

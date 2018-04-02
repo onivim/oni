@@ -468,7 +468,7 @@ export function compareItemsByScore<T>(
     fuzzy: boolean,
     accessor: IItemAccessor<T>,
     // cache: ScorerCache,
-    // fallbackComparer = fallbackCompare,
+    fallbackComparer = fallbackCompare,
 ): number {
     const itemScoreA = scoreItem(itemA, query, fuzzy, accessor)
     const itemScoreB = scoreItem(itemB, query, fuzzy, accessor)
@@ -547,10 +547,7 @@ export function compareItemsByScore<T>(
 
     // 7.) at this point, scores are identical and match compactness as well
     // for both items so we start to use the fallback compare
-    // return fallbackComparer(itemA, itemB, query, accessor)
-
-    // For now, assume are equal
-    return 0
+    return fallbackComparer(itemA, itemB, query, accessor)
 }
 
 function computeLabelAndDescriptionMatchDistance<T>(

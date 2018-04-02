@@ -60,7 +60,14 @@ export function compareItemsByScoreOni(
 
     const accessor = new OniAccessor()
 
-    return compareItemsByScore(resultObjectA, resultObjectB, query, fuzzy, accessor)
+    return compareItemsByScore(
+        resultObjectA,
+        resultObjectB,
+        query,
+        fuzzy,
+        accessor,
+        (resultObjectA, resultObjectB, query, accessor) => -1,
+    )
 }
 
 export const getHighlightsFromResult = (result: IMatch[]): number[] => {
