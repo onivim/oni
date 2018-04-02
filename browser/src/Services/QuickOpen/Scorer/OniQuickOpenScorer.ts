@@ -1,9 +1,9 @@
 import {
+    compareItemsByScore,
     IItemAccessor,
     IItemScore,
-    scoreItem,
-    compareItemsByScore,
     prepareQuery,
+    scoreItem,
 } from "./QuickOpenScorer"
 import { IMatch, nativeSep } from "./Utilities"
 
