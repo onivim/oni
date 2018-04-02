@@ -88,12 +88,45 @@ export const test = async (oni: any) => {
         return oni.automation.waitFor(() => !!getCompletionElement())
     }
 
+    const intro = async () => {
+        await simulateTyping(":tabnew Hello.md")
+        await pressEnter()
+
+        await simulateTyping(
+            "iOni is a new kind of editor: combining the best of Vim, Atom, and VSCode.",
+        )
+        await pressEnter()
+        await simulateTyping(
+            "Built with web tech, featuring a high performance canvas renderer, with (neo)vim handling the heavy lifting.",
+        )
+        await pressEnter()
+        await simulateTyping("Available for Windows, OSX, and Linux.")
+        await pressEnter()
+
+        await pressEscape()
+    }
+
     const showWelcomeAchievement = async () => {
         oni.achievements.clearAchievements()
-        oni.achievements.notifyGoal("oni.goal.launch")
+
+        // Create our own 'mock' achievement, because
+        // the welcome one won't be tracked if it has been completed
+        oni.achievements.registerAchievement({
+            uniqueId: "oni.achievement.automation",
+            name: "Welcome to Oni!",
+            description: "Launch Oni for the first time",
+            goals: [
+                {
+                    name: null,
+                    goalId: "oni.automation.goal",
+                    count: 1,
+                },
+            ],
+        })
+        oni.achievements.notifyGoal("oni.automation.goal")
 
         await longDelay()
-        alert("done with achievements")
+        await longDelay()
     }
 
     const showConfig = async () => {
@@ -288,24 +321,8 @@ export const test = async (oni: any) => {
     oni.commands.executeCommand("keyDisplayer.show")
     oni.configuration.setValues({ "keyDisplayer.showInInsertMode": false })
 
-    await simulateTyping(":tabnew Hello.md")
-    await pressEnter()
+    await intro()
 
-    await simulateTyping("iHello and welcome to Oni!")
-    await pressEnter()
-
-    await simulateTyping(
-        "Oni is a new kind of editor: combining the best of Vim, Atom, and VSCode.",
-    )
-    await pressEnter()
-    await simulateTyping(
-        "Built with web tech, featuring a high performance canvas renderer, with (neo)vim handling the heavy lifting.",
-    )
-    await pressEnter()
-    await simulateTyping("Available for Windows, OSX, and Linux.")
-    await pressEnter()
-
-    await pressEscape()
     await splitHorizontal("VIM.md")
     await pressEnter()
 
@@ -355,7 +372,7 @@ export const test = async (oni: any) => {
 
     oni.automation.sendKeysV2("<esc>")
 
-    await simulateTyping(":close")
+    await simulateTyping(":q!")
     oni.automation.sendKeysV2("<cr>")
 
     // ---
