@@ -49,44 +49,40 @@ export const regexFilter = (
             ? listOfSearchTerms.slice(1) + listOfSearchTerms[0]
             : listOfSearchTerms[0]
 
-    let filteredOptions = options
+    const filteredOptions = processSearchTerm(vsCodeSearchString, options, isCaseSensitive)
 
-    listOfSearchTerms.map(searchTerm => {
-        filteredOptions = processSearchTerm(searchTerm, filteredOptions, isCaseSensitive)
-    })
-
-    const ret = filteredOptions.map(fo => {
-        const resultScore = scoreItemOni(fo, vsCodeSearchString, true)
-
-        const detailHighlights = getHighlightsFromResult(resultScore.descriptionMatch)
-
-        const labelHighlights = getHighlightsFromResult(resultScore.labelMatch)
-
-        return {
-            ...fo,
-            detailHighlights,
-            labelHighlights,
-            score: fo.pinned ? Number.MAX_SAFE_INTEGER : resultScore[0],
+    const ret = filteredOptions.filter(fo => {
+        if (fo.score === 0) {
+            return false
+        } else {
+            return true
         }
     })
 
-    return ret.sort((e1, e2) => compareItemsByScoreOni(e1, e2, searchString, false))
+    return ret.sort((e1, e2) => compareItemsByScoreOni(e1, e2, vsCodeSearchString, false))
 }
 
 export const processSearchTerm = (
     searchString: string,
     options: Oni.Menu.MenuOption[],
     isCaseSensitive: boolean,
-): Oni.Menu.MenuOption[] => {
-    const filterRegExp = new RegExp(".*" + searchString.split("").join(".*") + ".*")
+): Oni.Menu.IMenuOptionWithHighlights[] => {
+    const result: Oni.Menu.IMenuOptionWithHighlights[] = options.map(f => {
+        const itemScore = scoreItemOni(f, searchString, true)
+        const detailHighlights = getHighlightsFromResult(itemScore.descriptionMatch)
+        const labelHighlights = getHighlightsFromResult(itemScore.labelMatch)
 
-    return options.filter(f => {
-        let textToFilterOn = f.detail + f.label
-
-        if (!isCaseSensitive) {
-            textToFilterOn = textToFilterOn.toLowerCase()
+        return {
+            ...f,
+            detailHighlights,
+            labelHighlights,
+            score: f.pinned ? Number.MAX_SAFE_INTEGER : itemScore.score,
         }
-
-        return textToFilterOn.match(filterRegExp)
     })
+
+    return result
+}
+
+export function convertSimple2RegExpPattern(pattern: string): string {
+    return pattern.replace(/[\-\\\{\}\+\?\|\^\$\.\,\[\]\(\)\#\s]/g, "\\$&").replace(/[\*]/g, ".*")
 }

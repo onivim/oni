@@ -6,9 +6,9 @@ import {
     prepareQuery,
     scoreItem,
 } from "./quickOpenScorer"
-import { nativeSep } from "./Utilities"
+import { convertSimple2RegExpPattern, nativeSep } from "./Utilities"
 
-const NO_ITEM_SCORE: IItemScore = Object.freeze({ score: 0 })
+export const NO_ITEM_SCORE: IItemScore = Object.freeze({ score: 0 })
 
 class OniAccessor implements IItemAccessor<any> {
     public getItemLabel(result: any): string {
@@ -29,7 +29,8 @@ export function scoreItemOni(resultObject: any, searchString: string, fuzzy: boo
         return NO_ITEM_SCORE
     }
 
-    const query = prepareQuery(searchString)
+    const escapedString = convertSimple2RegExpPattern(searchString)
+    const query = prepareQuery(escapedString)
 
     if (!resultObject || !query.value) {
         return NO_ITEM_SCORE
@@ -50,7 +51,8 @@ export function compareItemsByScoreOni(
         return 0
     }
 
-    const query = prepareQuery(searchString)
+    const escapedString = convertSimple2RegExpPattern(searchString)
+    const query = prepareQuery(escapedString)
 
     if (!resultObjectA || !resultObjectB || !query.value) {
         return 0
