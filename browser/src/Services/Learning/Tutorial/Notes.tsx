@@ -189,6 +189,40 @@ export const EndKey = (): JSX.Element => {
         />
     )
 }
+export const SlashKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="/"
+            description={<span>Search for the given string</span>}
+        />
+    )
+}
+export const QuestionKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="?"
+            description={<span>Search backwards for the given string</span>}
+        />
+    )
+}
+export const nKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="n"
+            description={<span>Move the cursor to the next instance of the matched string</span>}
+        />
+    )
+}
+export const NKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="N"
+            description={
+                <span>Move the cursor to the previous instance of the matched string</span>
+            }
+        />
+    )
+}
 export const DeleteOperatorKey = (): JSX.Element => {
     return (
         <KeyWithDescription

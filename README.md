@@ -158,4 +158,5 @@ Bundled plugins have their own license terms. These include:
 * [targets.vim](https://github.com/wellle/targets.vim) (`oni/vim/default/bundle/targets.vim`)
 * [vim-commentary](https://github.com/tpope/vim-commentary) (`oni/vim/default/bundle/vim-commentary`)
 * [vim-unimpaired](https://github.com/tpope/vim-unimpaired) (`oni/vim/default/bundle/vim-unimpaired`)
+* [vim-surround](https://github.com/tpope/vim-surround) (`oni/vim/default/bundle/vim-surround`)
 * [vim-reasonml](https://github.com/reasonml-editor/vim-reason) (`.vim` files in `oni/vim/core/oni-plugin-reasonml`)
