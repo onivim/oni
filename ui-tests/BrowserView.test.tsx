@@ -1,6 +1,6 @@
 import { shallow } from "enzyme"
-import * as React from "react"
 import { shallowToJson } from "enzyme-to-json"
+import * as React from "react"
 
 import { Event } from "oni-types"
 import {
