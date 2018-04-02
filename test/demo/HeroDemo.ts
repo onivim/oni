@@ -88,6 +88,14 @@ export const test = async (oni: any) => {
         return oni.automation.waitFor(() => !!getCompletionElement())
     }
 
+    const showWelcomeAchievement = async () => {
+        oni.achievements.clearAchievements()
+        oni.achievements.notifyGoal("oni.goal.launch")
+
+        await longDelay()
+        alert("done with achievements")
+    }
+
     const showConfig = async () => {
         await pressEscape()
         await openCommandPalette()
@@ -273,10 +281,9 @@ export const test = async (oni: any) => {
     // Set window size
     remote.getCurrentWindow().setSize(1280, 720)
 
-    // Disable notifications, since there is sometimes noise... (HACK)
-    oni.notifications.disable()
-
     oni.recorder.startRecording()
+
+    await showWelcomeAchievement()
 
     oni.commands.executeCommand("keyDisplayer.show")
     oni.configuration.setValues({ "keyDisplayer.showInInsertMode": false })
