@@ -948,7 +948,7 @@
         "mkdirp": "0.5.1",
         "mocha": "3.1.2",
         "nyc": "^11.4.1",
-        "oni-release-downloader": "0.0.8",
+        "oni-release-downloader": "^0.0.10",
         "opencollective": "1.0.3",
         "optimize-js-plugin": "0.0.4",
         "prettier": "^1.10.2",
