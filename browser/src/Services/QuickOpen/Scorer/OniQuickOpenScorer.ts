@@ -66,7 +66,7 @@ export function compareItemsByScoreOni(
         query,
         fuzzy,
         accessor,
-        (resultObjectA, resultObjectB, query, accessor) => -1,
+        (objA, objB, searchQuery, objAccessor) => -1,
     )
 }
 
