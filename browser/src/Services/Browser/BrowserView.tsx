@@ -175,7 +175,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
 
     public render(): JSX.Element {
         return (
-            <Column key={"test2"}>
+            <Column key="test2">
                 <BrowserControlsWrapper>
                     <BrowserButtonView icon={"chevron-left"} onClick={() => this._goBack()} />
                     <BrowserButtonView icon={"chevron-right"} onClick={() => this._goForward()} />
@@ -203,7 +203,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         )
     }
 
-    private _scrollLeft(): void {
+    private _scrollLeft = (): void => {
         this._webviewElement.sendInputEvent({
             type: "keyDown",
             keyCode: "Left",
@@ -212,7 +212,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         })
     }
 
-    private _scrollRight(): void {
+    private _scrollRight = (): void => {
         this._webviewElement.sendInputEvent({
             type: "keyDown",
             keyCode: "Right",
@@ -221,7 +221,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         })
     }
 
-    private _scrollDown(): void {
+    private _scrollDown = (): void => {
         this._webviewElement.sendInputEvent({
             type: "keyDown",
             keyCode: "Down",
@@ -230,7 +230,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         })
     }
 
-    private _scrollUp(): void {
+    private _scrollUp = (): void => {
         this._webviewElement.sendInputEvent({
             type: "keyDown",
             keyCode: "Up",
