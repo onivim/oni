@@ -15,6 +15,7 @@ import { EmptyArray } from "./../../Utility"
 
 export interface ISneakableProps {
     callback?: (evt?: any) => void
+    tag?: string
 }
 
 export class Sneakable extends React.PureComponent<ISneakableProps, {}> {
@@ -39,6 +40,7 @@ export class Sneakable extends React.PureComponent<ISneakableProps, {}> {
                             rect.width,
                             rect.height,
                         ),
+                        tag: this.props.tag || null,
                     },
                 ]
             } else {

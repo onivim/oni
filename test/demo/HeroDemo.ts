@@ -263,6 +263,23 @@ export const test = async (oni: any) => {
         await openQuickOpen()
         await simulateTyping("Appjs")
         await pressEnter()
+
+        // TODO: Wait for app to start
+        oni.automation.sendKeysV2("<c-g>")
+        await shortDelay()
+
+        const addressBarSneak = oni.sneak.getSneakMatchingTag("browser.address")
+        const triggerKeys = addressBarSneak.triggerKeys as string
+        await simulateTyping(triggerKeys)
+
+        await shortDelay()
+
+        await simulateTyping("http://localhost:3000")
+        await pressEnter()
+
+        oni.automation.sendKeysV2("<c-w>")
+        oni.automation.sendKeysV2("<c-h>")
+        await shortDelay()
     }
 
     const showConfig = async () => {
