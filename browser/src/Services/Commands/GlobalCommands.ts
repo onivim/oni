@@ -54,6 +54,12 @@ export const activate = (
                 neovim.command('exec ":normal! ' + message + '"')
             }
         }),
+        new CallbackCommand(
+            "oni.enableMinimalConfig",
+            "Configuration: Switch to Minimal",
+            "Switch to a minimal configuration that would better suit experienced Vim users",
+            () => {},
+        ),
         new CallbackCommand("oni.about", null, null, () => showAboutMessage()),
 
         new CallbackCommand(

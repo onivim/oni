@@ -10,7 +10,8 @@ import * as React from "react"
 import styled from "styled-components"
 
 import { BufferLayerHeader } from "./../../../UI/components/BufferLayerHeader"
-import { Bold, boxShadow, Fixed, Full, withProps } from "./../../../UI/components/common"
+import { Bold, boxShadow, Fixed, Full, withProps, Container } from "./../../../UI/components/common"
+import { SidebarButton } from "./../../../UI/components/SidebarButton"
 import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
@@ -156,6 +157,18 @@ export const TrophyCaseItemView = (props: {
     )
 }
 
+const FeatureWrapper = withProps<{ selected: boolean }>(styled.div)`
+    ${props => (props.selected ? boxShadow : "")}
+
+    width: 300px;
+    height: 400px;
+    margin: 2em 4em;
+    border: 1px solid ${props => props.theme["background"]};
+
+    display: flex;
+    flex-direction: column;
+`
+
 export class TrophyCaseView extends React.PureComponent<
     ITrophyCaseViewProps,
     ITrophyCaseViewState
@@ -187,37 +200,49 @@ export class TrophyCaseView extends React.PureComponent<
     }
 
     public render(): JSX.Element {
-        const items = this.state.progressInfo.map(item => {
-            let dependentAchievementName = null
-            if (item.locked) {
-                const dependentId = item.achievement.dependsOnId
-                const dependentAchievement = this.state.progressInfo.find(
-                    f => f.achievement.uniqueId === dependentId,
-                )
-                if (dependentAchievement) {
-                    dependentAchievementName = dependentAchievement.achievement.name
-                }
-            }
+        // const items = this.state.progressInfo.map(item => {
+        //     let dependentAchievementName = null
+        //     if (item.locked) {
+        //         const dependentId = item.achievement.dependsOnId
+        //         const dependentAchievement = this.state.progressInfo.find(
+        //             f => f.achievement.uniqueId === dependentId,
+        //         )
+        //         if (dependentAchievement) {
+        //             dependentAchievementName = dependentAchievement.achievement.name
+        //         }
+        //     }
 
-            return (
-                <TrophyCaseItemView
-                    achievementInfo={item}
-                    dependentAchieventName={dependentAchievementName}
-                />
-            )
-        })
+        //     return (
+        //         <TrophyCaseItemView
+        //             achievementInfo={item}
+        //             dependentAchieventName={dependentAchievementName}
+        //         />
+        //     )
+        // })
         return (
             <TrophyCaseViewWrapper>
-                <TrophyCaseBackground>
-                    <Icon name="trophy" size={IconSize.FiveX} style={{ fontSize: "20em" }} />
-                </TrophyCaseBackground>
                 <Fixed>
-                    <BufferLayerHeader
-                        title="Achievements"
-                        description="Discover new functionality by unlocking achievements"
-                    />
+                    <BufferLayerHeader title="Welcome to Oni" description="First-time setup" />
                 </Fixed>
-                <Full>{items}</Full>
+                <Fixed>
+                    <div style={{ width: "100%", margin: "1em", textAlign: "center" }}>
+                        Choose your experience:
+                    </div>
+                </Fixed>
+                <Full>
+                    <Container
+                        direction={"horizontal"}
+                        fullWidth={true}
+                        fullHeight={true}
+                        style={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+                    >
+                        <FeatureWrapper selected={true}>one</FeatureWrapper>
+                        <FeatureWrapper selected={false}>two</FeatureWrapper>
+                    </Container>
+                </Full>
+                <Fixed>
+                    <SidebarButton onClick={() => {}} focused={false} text="OK!" />
+                </Fixed>
             </TrophyCaseViewWrapper>
         )
     }

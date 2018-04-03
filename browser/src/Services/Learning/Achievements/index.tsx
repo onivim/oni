@@ -85,7 +85,7 @@ export const activate = (
     })
 
     const showAchievements = async () => {
-        const buf = await editorManager.activeEditor.openFile("ACHIEVEMENTS.oni")
+        const buf = await editorManager.activeEditor.openFile("WELCOME.oni")
         buf.addLayer(new AchievementsBufferLayer(manager))
     }
 
