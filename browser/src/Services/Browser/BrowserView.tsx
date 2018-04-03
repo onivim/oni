@@ -81,7 +81,7 @@ export interface SneakInfoFromBrowser {
 }
 
 export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowserViewState> {
-    private _webviewElement: WebviewTag
+    public _webviewElement: WebviewTag
     private _elem: HTMLElement
     private _disposables: IDisposable[] = []
 
@@ -98,10 +98,10 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         const d2 = this.props.goForward.subscribe(() => this._goForward())
         const d3 = this.props.reload.subscribe(() => this._reload())
         const d4 = this.props.debug.subscribe(() => this._openDebugger())
-        const scrollDown = this.props.scrollDown.subscribe(() => this._scrollDown())
-        const scrollUp = this.props.scrollUp.subscribe(() => this._scrollUp())
-        const scrollRight = this.props.scrollRight.subscribe(() => this._scrollRight())
-        const scrollLeft = this.props.scrollLeft.subscribe(() => this._scrollLeft())
+        const scrollDown = this.props.scrollDown.subscribe(() => this.scrollDown())
+        const scrollUp = this.props.scrollUp.subscribe(() => this.scrollUp())
+        const scrollRight = this.props.scrollRight.subscribe(() => this.scrollRight())
+        const scrollLeft = this.props.scrollLeft.subscribe(() => this.scrollLeft())
 
         const d5 = getSneakInstance().addSneakProvider(async (): Promise<ISneakInfo[]> => {
             if (this._webviewElement) {
@@ -109,7 +109,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
                     this._webviewElement.executeJavaScript(
                         "window['__oni_sneak_collector__']()",
                         null,
-                        (result: any) => {
+                        result => {
                             resolve(result)
                         },
                     )
@@ -216,7 +216,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         return url
     }
 
-    private _scrollLeft = (): void => {
+    public scrollLeft = (): void => {
         this._webviewElement.sendInputEvent({
             type: "keyDown",
             keyCode: "Left",
@@ -225,7 +225,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         })
     }
 
-    private _scrollRight = (): void => {
+    public scrollRight = (): void => {
         this._webviewElement.sendInputEvent({
             type: "keyDown",
             keyCode: "Right",
@@ -234,7 +234,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         })
     }
 
-    private _scrollDown = (): void => {
+    public scrollDown = (): void => {
         this._webviewElement.sendInputEvent({
             type: "keyDown",
             keyCode: "Down",
@@ -243,7 +243,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         })
     }
 
-    private _scrollUp = (): void => {
+    public scrollUp = (): void => {
         this._webviewElement.sendInputEvent({
             type: "keyDown",
             keyCode: "Up",
