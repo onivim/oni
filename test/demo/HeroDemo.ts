@@ -37,9 +37,11 @@ const getRoot = (dir: string): string => {
 const createReactAppProject = oni => {
     const oniReactApp = path.join(getRootPath(), ReactProjectName)
 
+    alert("deleting...")
     rimraf.sync(oniReactApp)
-
     const output = execSync('create-react-app "' + oniReactApp + '"')
+
+    alert(output)
 
     return oniReactApp
 }
@@ -114,7 +116,7 @@ export const test = async (oni: any) => {
         oni.automation.sendKeysV2("<c-w>")
         oni.automation.sendKeysV2("<c-s>")
         await shortDelay()
-        await simulateTyping(":new VIM.md")
+        await simulateTyping(":tabnew VIM.md")
     }
 
     const waitForCompletion = async () => {
@@ -163,7 +165,7 @@ export const test = async (oni: any) => {
     }
 
     const showKeyboardNavigation = async () => {
-        await splitHorizontal(":tabnew VIM.md")
+        await splitHorizontal("VIM.md")
         await pressEnter()
 
         await simulateTyping("i")
@@ -229,6 +231,38 @@ export const test = async (oni: any) => {
         await shortDelay()
 
         oni.automation.sendKeysV2("<esc>")
+    }
+
+    const showDevelopment = async () => {
+        await pressEscape()
+
+        await openCommandPalette()
+        await simulateTyping("brovsp")
+        await longDelay()
+        await pressEnter()
+        await longDelay()
+
+        await pressEscape()
+        await openCommandPalette()
+        await simulateTyping("termhsp")
+        await longDelay()
+        await pressEnter()
+
+        await longDelay()
+
+        await simulateTyping("A")
+        await simulateTyping("npm run start")
+        await pressEnter()
+
+        await pressEscape()
+
+        oni.automation.sendKeysV2("<c-w>")
+        oni.automation.sendKeysV2("<c-h>")
+        await shortDelay()
+
+        await openQuickOpen()
+        await simulateTyping("Appjs")
+        await pressEnter()
     }
 
     const showConfig = async () => {
@@ -424,6 +458,8 @@ export const test = async (oni: any) => {
 
     oni.commands.executeCommand("keyDisplayer.show")
     oni.configuration.setValues({ "keyDisplayer.showInInsertMode": false })
+
+    await showDevelopment()
 
     await intro()
 
