@@ -1,4 +1,3 @@
-const { EOL } = require("os")
 const path = require("path")
 const prettier = require("prettier")
 
@@ -57,7 +56,7 @@ const activate = async Oni => {
             ])
 
             const { line, character } = cursorPosition
-            const bufferString = arrayOfLines.join(EOL)
+            const bufferString = arrayOfLines.join("\n")
 
             if (lastBufferState === bufferString) {
                 return
@@ -89,12 +88,9 @@ const activate = async Oni => {
                 await setPrettierStatus(successElement)
 
                 const formattedWithoutLastCR = prettierCode.formatted.replace(/\n$/, "")
+                const formattedBufferArray = formattedWithoutLastCR.split("\n")
                 lastBufferState = formattedWithoutLastCR
-                await activeBuffer.setLines(
-                    0,
-                    arrayOfLines.length,
-                    formattedWithoutLastCR.split(EOL),
-                )
+                await activeBuffer.setLines(0, arrayOfLines.length, formattedBufferArray)
 
                 const { character, line } = await activeBuffer.convertOffsetToLineColumn(
                     prettierCode.cursorOffset,
