@@ -3,6 +3,8 @@
  */
 
 import * as assert from "assert"
+import * as fs from "fs"
+import * as shell from "shelljs"
 import * as os from "os"
 import * as path from "path"
 import { execSync } from "child_process"
@@ -11,14 +13,16 @@ import * as rimraf from "rimraf"
 
 import { getCompletionElement, getTemporaryFolder } from "./../ci/Common"
 
-import { getDistPath } from "./DemoCommon"
+import { getDistPath, getRootPath } from "./DemoCommon"
 
 import { remote } from "electron"
 
 const BASEDELAY = 25
 const RANDOMDELAY = 15
 
-const getRootPath = () => {
+const EmptyConfigPath = path.join(getTemporaryFolder(), "config.js")
+
+const getProjectRootPath = () => {
     const root = getRoot(__dirname)
     return os.platform() === "win32" ? root : os.homedir()
 }
@@ -35,14 +39,34 @@ const getRoot = (dir: string): string => {
 }
 
 const createReactAppProject = oni => {
-    const oniReactApp = path.join(getRootPath(), ReactProjectName)
+    const oniReactApp = path.join(getProjectRootPath(), ReactProjectName)
 
-    alert("deleting...")
     rimraf.sync(oniReactApp)
     const output = execSync('create-react-app "' + oniReactApp + '"')
-
     alert(output)
 
+    const oniLogoPath = path.join(getRootPath(), "images", "256x256.png")
+    const oniLogoDestinationPath = path.join(oniReactApp, "src", "oni.png")
+
+    const oniLogoComponentPath = path.join(oniReactApp, "src", "OniLogo.js")
+
+    fs.writeFileSync(
+        oniLogoComponentPath,
+        `
+import React, { Component } from 'react';
+import logo from './oni.png';
+
+export class OniLogo extends Component {
+  render() {
+    return <img src={logo} className="App-logo" alt="logo" />;
+  }
+}
+    `,
+        "utf8",
+    )
+
+    shell.cp(oniLogoPath, oniLogoDestinationPath)
+    alert("done")
     return oniReactApp
 }
 
@@ -238,17 +262,12 @@ export const test = async (oni: any) => {
 
         await openCommandPalette()
         await simulateTyping("brovsp")
-        await longDelay()
         await pressEnter()
-        await longDelay()
 
         await pressEscape()
         await openCommandPalette()
         await simulateTyping("termhsp")
-        await longDelay()
         await pressEnter()
-
-        await longDelay()
 
         await simulateTyping("A")
         await simulateTyping("npm run start")
@@ -264,7 +283,6 @@ export const test = async (oni: any) => {
         await simulateTyping("Appjs")
         await pressEnter()
 
-        // TODO: Wait for app to start
         oni.automation.sendKeysV2("<c-g>")
         await shortDelay()
 
@@ -277,8 +295,55 @@ export const test = async (oni: any) => {
         await simulateTyping("http://localhost:3000")
         await pressEnter()
 
+        await simulateTyping("10j")
+        await shortDelay()
+        await simulateTyping("cit")
+        await shortDelay()
+        await simulateTyping("Welcome to Oni")
+        await pressEscape()
+        await simulateTyping(":w")
+        await pressEnter()
+        await shortDelay()
+
+        await simulateTyping("7k")
+        await simulateTyping("O")
+        await simulateTyping("impsnip")
+        await pressEnter()
+        await shortDelay()
+        await simulateTyping("./Oni")
+        await waitForCompletion()
+        await pressEnter()
+
+        await pressTab()
+        await simulateTyping("Oni")
+        await waitForCompletion()
+        await pressEnter()
+        await pressTab()
+
+        await simulateTyping("7j")
+        await simulateTyping("b")
+        await simulateTyping("C")
+        await simulateTyping("OniLogo />")
+
+        await pressEscape()
+        await simulateTyping(":w")
+        await pressEnter()
+        await shortDelay()
+
         oni.automation.sendKeysV2("<c-w>")
-        oni.automation.sendKeysV2("<c-h>")
+        oni.automation.sendKeysV2("<c-l>")
+        await shortDelay()
+
+        oni.automation.sendKeysV2("<c-w>")
+        oni.automation.sendKeysV2("<c-j>")
+        await shortDelay()
+
+        await simulateTyping(":q")
+        await pressEnter()
+        await shortDelay()
+
+        await simulateTyping(":q")
+        await pressEnter()
         await shortDelay()
     }
 
@@ -384,11 +449,15 @@ export const test = async (oni: any) => {
 
         await simulateTyping("This is just the beginning! Lots more to come:")
         await pressEnter()
-        await simulateTyping("Live Preview")
+        await simulateTyping("* Live Preview")
         await pressEnter()
-        await simulateTyping("Integrated Browser")
+        await simulateTyping("* Plugin Management")
         await pressEnter()
-        await simulateTyping("Interactive Tutorial")
+        await simulateTyping("* More tutorials ")
+        await pressEnter()
+        await simulateTyping("* Debuggers")
+        await pressEnter()
+        await simulateTyping("* Version Control Integration")
         await longDelay()
         await pressEnter()
         await pressEnter()
@@ -465,7 +534,7 @@ export const test = async (oni: any) => {
     await pressEnter()
 
     // Set window size
-    remote.getCurrentWindow().setSize(1280, 720)
+    remote.getCurrentWindow().setSize(1920, 1080)
 
     oni.recorder.startRecording()
 
@@ -474,13 +543,16 @@ export const test = async (oni: any) => {
     oni.tutorials.clearProgress()
 
     oni.commands.executeCommand("keyDisplayer.show")
-    oni.configuration.setValues({ "keyDisplayer.showInInsertMode": false })
-
-    await showDevelopment()
+    oni.configuration.setValues({
+        "keyDisplayer.showInInsertMode": false,
+        "editor.split.mode": "oni",
+    })
 
     await intro()
 
     await showKeyboardNavigation()
+
+    await showDevelopment()
 
     // ---
     await showLanguageServices()
@@ -521,7 +593,5 @@ export const test = async (oni: any) => {
 }
 
 export const settings = {
-    config: {
-        "editor.split.mode": "oni",
-    },
+    configPath: EmptyConfigPath,
 }
