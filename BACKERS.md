@@ -78,6 +78,7 @@ Thanks you to all our backers for making Oni possible!
 * @city41
 * @nithesh
 * @erandac
+* @appelgriebsch
 
 ## Backers via PayPal
 
