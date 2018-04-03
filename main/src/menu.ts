@@ -250,6 +250,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             },
             {
                 label: "Exit",
+                accelerator: "CmdOrCtrl+Q",
                 click(item, focusedWindow) {
                     app.quit()
                 },

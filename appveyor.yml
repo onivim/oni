@@ -9,9 +9,6 @@ branches:
     - master
     - /^release.*/
 
-cache:
-    - "%LOCALAPPDATA%\\Yarn"
-
 platform:
     - x86
     - x64
@@ -27,7 +24,7 @@ install:
   - node --version
   - npm --version
   # install modules
-  - yarn install
+  - yarn install --verbose
 
 artifacts:
     - path: dist/*.exe
