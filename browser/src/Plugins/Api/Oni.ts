@@ -32,6 +32,7 @@ import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
 import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
 import { getInstance as getSnippetsInstance } from "./../../Services/Snippets"
+import { getInstance as getSneakInstance } from "./../../Services/Sneak"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
 import { getInstance as getTokenColorsInstance } from "./../../Services/TokenColors"
 import { windowManager } from "./../../Services/WindowManager"
@@ -160,6 +161,10 @@ export class Oni implements OniApi.Plugin.Api {
 
     public get services(): Services {
         return this._services
+    }
+
+    public get sneak(): any /* todo */ {
+        return getSneakInstance()
     }
 
     public get tutorials(): any /* todo */ {
