@@ -1,5 +1,5 @@
-import { shallow } from "enzyme"
 import { WebviewTag } from "electron"
+import { shallow } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
 
@@ -14,7 +14,7 @@ import { Configuration } from "../browser/src/Services/Configuration"
 const mockEvent = new Event<void>()
 const dispatch = () => mockEvent.dispatch()
 
-const MockWebviewElement = (spy: any) =>
+const MockWebviewElement = (spy: (args?: any) => void) =>
     ({
         sendInputEvent(args) {
             spy(args)
@@ -58,7 +58,7 @@ describe("<BrowserView /> Tests", () => {
     it("Should match the recent snapshot - unless an intentional change has occurred ", () => {
         expect(shallowToJson(wrapper)).toMatchSnapshot()
     })
-    it("it should call the sendInputEvent method of the mocked webview element", () => {
+    it("it should call the sendInputEvent method of the mocked webview element on Scroll down", () => {
         const typedInstance: BrowserView = instance
         const spy = jest.fn()
         typedInstance._webviewElement = MockWebviewElement(spy)
@@ -74,7 +74,7 @@ describe("<BrowserView /> Tests", () => {
         }
         expect(spy.mock.calls[0][0]).toMatchObject(args)
     })
-    it("it should call the sendInputEvent method of the mocked webview element", () => {
+    it("it should call the sendInputEvent method of the mocked webview element on Scroll up", () => {
         const typedInstance: BrowserView = instance
         const spy = jest.fn()
         typedInstance._webviewElement = MockWebviewElement(spy)
@@ -90,13 +90,11 @@ describe("<BrowserView /> Tests", () => {
         }
         expect(spy.mock.calls[0][0]).toMatchObject(args)
     })
-    it("it should call the sendInputEvent method of the mocked webview element", () => {
+    it("it should call the sendInputEvent method of the mocked webview element on Scroll left", () => {
         const typedInstance: BrowserView = instance
         const spy = jest.fn()
         typedInstance._webviewElement = MockWebviewElement(spy)
         typedInstance._scrollLeft()
-        // the spy is passed to the mocked webview element so given that it was called the method accurately
-        // accessed the method on the webview
         expect(spy).toHaveBeenCalled()
         const args = {
             type: "keyDown",
@@ -106,13 +104,11 @@ describe("<BrowserView /> Tests", () => {
         }
         expect(spy.mock.calls[0][0]).toMatchObject(args)
     })
-    it("it should call the sendInputEvent method of the mocked webview element", () => {
+    it("it should call the sendInputEvent method of the mocked webview element on Scroll right", () => {
         const typedInstance: BrowserView = instance
         const spy = jest.fn()
         typedInstance._webviewElement = MockWebviewElement(spy)
         typedInstance._scrollRight()
-        // the spy is passed to the mocked webview element so given that it was called the method accurately
-        // accessed the method on the webview
         expect(spy).toHaveBeenCalled()
         const args = {
             type: "keyDown",
@@ -122,7 +118,7 @@ describe("<BrowserView /> Tests", () => {
         }
         expect(spy.mock.calls[0][0]).toMatchObject(args)
     })
-    it("it should NOT call the sendInputEvent method of the mocked webview element", () => {
+    it("it should NOT call the sendInputEvent method if no webview is present", () => {
         const typedInstance: BrowserView = instance
         const spy = jest.fn()
         typedInstance._webviewElement = null
