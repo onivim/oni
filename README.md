@@ -65,15 +65,19 @@ Check out [Releases](https://github.com/onivim/oni/releases) for the latest bina
 
 Oni brings several IDE-like integrations to neovim:
 
+* [Embedded Browser](https://github.com/onivim/oni/wiki/Features#embedded-browser)
 * [Quick Info](https://github.com/onivim/oni/wiki/Features#quick-info)
 * [Code Completion](https://github.com/onivim/oni/wiki/Features#code-completion)
 * [Syntax / Compilation Errors](https://github.com/onivim/oni/wiki/Features#syntax--compilation-errors)
 * [Fuzzy Finding](https://github.com/onivim/oni/wiki/Features#fuzzy-finder)
 * [Status Bar](https://github.com/onivim/oni/wiki/Features#status-bar)
+* [Interactive Tutorial](https://github.com/onivim/oni/wiki/Features#interactive-tutorial)
 
 And more coming - check out our [Roadmap](https://github.com/onivim/oni/wiki/Roadmap)
 
 Oni is cross-platform and supports Windows, Mac, and Linux.
+
+> If you're a Vim power user, and don't need all these features, check out our [minimal configuration](https://github.com/onivim/oni/wiki/How-To:-Minimalist-Oni-Configuration).
 
 ## Installation
 
@@ -112,7 +116,10 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 There many ways to get involved & contribute to Oni:
 
-* Support Oni financially by making a donation via [OpenCollective](https://opencollective.com/oni) or [Bountysource](https://salt.bountysource.com/teams/oni)
+* Support Oni financially by making a donation via:
+    * [Patreon](https://patreon.com/onivim)
+    * [OpenCollective](https://opencollective.com/oni)
+    * [Bountysource](https://salt.bountysource.com/teams/oni)
 * Thumbs up existing [issues](https://github.com/onivim/oni/issues) if they impact you.
 * [Create an issue](https://github.com/onivim/oni/issues) for bugs or new features.
 * Review and update our [documentation](https://github.com/onivim/oni/wiki).
@@ -121,6 +128,8 @@ There many ways to get involved & contribute to Oni:
     * Review [PRs](https://github.com/onivim/oni/pulls)
     * Submit a bug fix or feature
     * Add test cases
+* Create a blog post or YouTube video
+* Follow us on [Twitter](https://twitter.com/oni_vim)
 
 ## Acknowledgements
 

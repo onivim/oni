@@ -147,3 +147,6 @@ yarn.lock
 
 # Webpack stats file
 stats.json
+
+# User Notes
+.notes

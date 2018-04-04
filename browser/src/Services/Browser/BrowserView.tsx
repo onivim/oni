@@ -77,6 +77,7 @@ export interface SneakInfoFromBrowser {
 
 export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowserViewState> {
     private _webviewElement: any
+    private _elem: HTMLElement
     private _disposables: IDisposable[] = []
 
     constructor(props: IBrowserViewProps) {
@@ -135,6 +136,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         })
 
         this._disposables = this._disposables.concat([d1, d2, d3, d4, d5, d6])
+        this._initializeElement(this._elem)
     }
 
     public _triggerSneak(id: string): void {
@@ -156,18 +158,18 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         return (
             <Column key={"test2"}>
                 <BrowserControlsWrapper>
-                    <BrowserButtonView icon={"chevron-left"} onClick={() => this._goBack()} />
-                    <BrowserButtonView icon={"chevron-right"} onClick={() => this._goForward()} />
-                    <BrowserButtonView icon={"undo"} onClick={() => this._reload()} />
+                    <BrowserButtonView icon={"chevron-left"} onClick={this._goBack} />
+                    <BrowserButtonView icon={"chevron-right"} onClick={this._goForward} />
+                    <BrowserButtonView icon={"undo"} onClick={this._reload} />
                     <AddressBarView
                         url={this.state.url}
                         onAddressChanged={url => this._navigate(url)}
                     />
-                    <BrowserButtonView icon={"bug"} onClick={() => this._openDebugger()} />
+                    <BrowserButtonView icon={"bug"} onClick={this._openDebugger} />
                 </BrowserControlsWrapper>
                 <BrowserViewWrapper>
                     <div
-                        ref={elem => this._initializeElement(elem)}
+                        ref={elem => (this._elem = elem)}
                         style={{
                             position: "absolute",
                             top: "0px",
@@ -182,9 +184,20 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         )
     }
 
-    private _navigate(url: string): void {
+    public prefixUrl = (url: string) => {
+        // Regex Explainer - match at the beginning of the string ^
+        // brackets to match the selection not partial match like ://
+        // match http or https, then match ://
+        const hasValidProtocol = /^(https?:)\/\//i
+        if (url && !hasValidProtocol.test(url)) {
+            return `http://${url}`
+        }
+        return url
+    }
+
+    private _navigate = (url: string): void => {
         if (this._webviewElement) {
-            this._webviewElement.src = url
+            this._webviewElement.src = this.prefixUrl(url)
 
             this.setState({
                 url,
@@ -192,41 +205,41 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         }
     }
 
-    private _goBack(): void {
+    private _goBack = (): void => {
         if (this._webviewElement) {
             this._webviewElement.goBack()
         }
     }
 
-    private _goForward(): void {
+    private _goForward = (): void => {
         if (this._webviewElement) {
             this._webviewElement.goForward()
         }
     }
 
-    private _openDebugger(): void {
+    private _openDebugger = (): void => {
         if (this._webviewElement) {
             this._webviewElement.openDevTools()
         }
     }
 
-    private _reload(): void {
+    private _reload = (): void => {
         if (this._webviewElement) {
             this._webviewElement.reload()
         }
     }
 
-    private _getZoomFactor(): number {
+    private _getZoomFactor = (): number => {
         return this.props.configuration.getValue("browser.zoomFactor", 1.0)
     }
 
-    private _initializeElement(elem: HTMLElement) {
+    private _initializeElement = (elem: HTMLElement) => {
         if (elem && !this._webviewElement) {
             const webviewElement = document.createElement("webview")
             webviewElement.preload = path.join(__dirname, "lib", "webview_preload", "index.js")
             elem.appendChild(webviewElement)
             this._webviewElement = webviewElement
-            this._webviewElement.src = this.props.initialUrl
+            this._navigate(this.props.initialUrl)
 
             this._webviewElement.addEventListener("dom-ready", () => {
                 this._webviewElement.setZoomFactor(this._getZoomFactor())
