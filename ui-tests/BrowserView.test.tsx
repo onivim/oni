@@ -1,4 +1,5 @@
 import { shallow } from "enzyme"
+import { WebviewTag } from "electron"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
 
@@ -11,18 +12,19 @@ import {
 import { Configuration } from "../browser/src/Services/Configuration"
 
 const mockEvent = new Event<void>()
+const dispatch = () => mockEvent.dispatch()
 
-const MockWebviewElement = {
-    sendInputEvent({ type, keyCode, canScroll, modifiers }) {
-        jest.fn()
-    },
-}
+const MockWebviewElement = (spy: any) =>
+    ({
+        sendInputEvent(args) {
+            spy(args)
+        },
+    } as WebviewTag)
 
 // Using the disable life cycle methods here as the CDM calls sneak which is
 // an external dependency I'm not trying to test here
 
 describe("<BrowserView /> Tests", () => {
-    BrowserView._webviewElement = MockWebviewElement
     const component = (
         <BrowserView
             initialUrl={"test.com"}
@@ -57,8 +59,74 @@ describe("<BrowserView /> Tests", () => {
         expect(shallowToJson(wrapper)).toMatchSnapshot()
     })
     it("it should call the sendInputEvent method of the mocked webview element", () => {
-        const spy = jest.spyOn(BrowserView.prototype, "scrollDown")
-        instance._scrollDown()
-        expect(instance._scrollDown).toHaveBeenCalled()
+        const typedInstance: BrowserView = instance
+        const spy = jest.fn()
+        typedInstance._webviewElement = MockWebviewElement(spy)
+        typedInstance._scrollDown()
+        // the spy is passed to the mocked webview element so given that it was called the method accurately
+        // accessed the method on the webview
+        expect(spy).toHaveBeenCalled()
+        const args = {
+            type: "keyDown",
+            keyCode: "Down",
+            canScroll: true,
+            modifiers: ["isAutoRepeat"],
+        }
+        expect(spy.mock.calls[0][0]).toMatchObject(args)
+    })
+    it("it should call the sendInputEvent method of the mocked webview element", () => {
+        const typedInstance: BrowserView = instance
+        const spy = jest.fn()
+        typedInstance._webviewElement = MockWebviewElement(spy)
+        typedInstance._scrollUp()
+        // the spy is passed to the mocked webview element so given that it was called the method accurately
+        // accessed the method on the webview
+        expect(spy).toHaveBeenCalled()
+        const args = {
+            type: "keyDown",
+            keyCode: "Up",
+            canScroll: true,
+            modifiers: ["isAutoRepeat"],
+        }
+        expect(spy.mock.calls[0][0]).toMatchObject(args)
+    })
+    it("it should call the sendInputEvent method of the mocked webview element", () => {
+        const typedInstance: BrowserView = instance
+        const spy = jest.fn()
+        typedInstance._webviewElement = MockWebviewElement(spy)
+        typedInstance._scrollLeft()
+        // the spy is passed to the mocked webview element so given that it was called the method accurately
+        // accessed the method on the webview
+        expect(spy).toHaveBeenCalled()
+        const args = {
+            type: "keyDown",
+            keyCode: "Left",
+            canScroll: true,
+            modifiers: ["isAutoRepeat"],
+        }
+        expect(spy.mock.calls[0][0]).toMatchObject(args)
+    })
+    it("it should call the sendInputEvent method of the mocked webview element", () => {
+        const typedInstance: BrowserView = instance
+        const spy = jest.fn()
+        typedInstance._webviewElement = MockWebviewElement(spy)
+        typedInstance._scrollRight()
+        // the spy is passed to the mocked webview element so given that it was called the method accurately
+        // accessed the method on the webview
+        expect(spy).toHaveBeenCalled()
+        const args = {
+            type: "keyDown",
+            keyCode: "Right",
+            canScroll: true,
+            modifiers: ["isAutoRepeat"],
+        }
+        expect(spy.mock.calls[0][0]).toMatchObject(args)
+    })
+    it("it should NOT call the sendInputEvent method of the mocked webview element", () => {
+        const typedInstance: BrowserView = instance
+        const spy = jest.fn()
+        typedInstance._webviewElement = null
+        typedInstance._scrollDown()
+        expect(spy.mock.calls.length).toBe(0)
     })
 })
