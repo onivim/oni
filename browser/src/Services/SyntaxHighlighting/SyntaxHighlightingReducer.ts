@@ -129,14 +129,15 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
             const updatedBufferState: SyntaxHighlightLines = {
                 ...state,
             }
+            // console.log("state: ", state)
 
             for (let i = 0; i < action.lines.length; i++) {
                 const oldLine = updatedBufferState[i]
                 const newLine = action.lines[i]
 
-                if (oldLine && oldLine.line === newLine) {
-                    continue
-                }
+                // if (oldLine && oldLine.line === newLine) {
+                //     continue
+                // }
 
                 updatedBufferState[i] = {
                     tokens: [],
