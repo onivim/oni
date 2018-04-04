@@ -46,7 +46,7 @@ export const vsCodeFilter = (
     // This allows the scoring and highlighting to work better.
     const vsCodeSearchString =
         listOfSearchTerms.length > 1
-            ? listOfSearchTerms.slice(1) + listOfSearchTerms[0]
+            ? listOfSearchTerms.slice(1).join("") + listOfSearchTerms[0]
             : listOfSearchTerms[0]
 
     const filteredOptions = processSearchTerm(vsCodeSearchString, options)
