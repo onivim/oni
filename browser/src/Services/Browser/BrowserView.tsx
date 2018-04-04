@@ -9,6 +9,7 @@ import * as path from "path"
 import * as React from "react"
 import styled from "styled-components"
 
+import { WebviewTag } from "electron"
 import * as Oni from "oni-api"
 import { IDisposable, IEvent } from "oni-types"
 
@@ -64,6 +65,10 @@ export interface IBrowserViewProps {
     goBack: IEvent<void>
     goForward: IEvent<void>
     reload: IEvent<void>
+    scrollUp: IEvent<void>
+    scrollDown: IEvent<void>
+    scrollLeft: IEvent<void>
+    scrollRight: IEvent<void>
 }
 
 export interface IBrowserViewState {
@@ -76,7 +81,7 @@ export interface SneakInfoFromBrowser {
 }
 
 export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowserViewState> {
-    private _webviewElement: any
+    public _webviewElement: WebviewTag
     private _elem: HTMLElement
     private _disposables: IDisposable[] = []
 
@@ -93,13 +98,18 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         const d2 = this.props.goForward.subscribe(() => this._goForward())
         const d3 = this.props.reload.subscribe(() => this._reload())
         const d4 = this.props.debug.subscribe(() => this._openDebugger())
+        const scrollDown = this.props.scrollDown.subscribe(() => this._scrollDown())
+        const scrollUp = this.props.scrollUp.subscribe(() => this._scrollUp())
+        const scrollRight = this.props.scrollRight.subscribe(() => this._scrollRight())
+        const scrollLeft = this.props.scrollLeft.subscribe(() => this._scrollLeft())
 
         const d5 = getSneakInstance().addSneakProvider(async (): Promise<ISneakInfo[]> => {
             if (this._webviewElement) {
                 const promise = new Promise<SneakInfoFromBrowser[]>(resolve => {
                     this._webviewElement.executeJavaScript(
                         "window['__oni_sneak_collector__']()",
-                        (result: any) => {
+                        null,
+                        result => {
                             resolve(result)
                         },
                     )
@@ -135,7 +145,18 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
             }
         })
 
-        this._disposables = this._disposables.concat([d1, d2, d3, d4, d5, d6])
+        this._disposables = this._disposables.concat([
+            d1,
+            d2,
+            d3,
+            d4,
+            d5,
+            d6,
+            scrollUp,
+            scrollDown,
+            scrollLeft,
+            scrollRight,
+        ])
         this._initializeElement(this._elem)
     }
 
@@ -156,7 +177,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
 
     public render(): JSX.Element {
         return (
-            <Column key={"test2"}>
+            <Column key="test2">
                 <BrowserControlsWrapper>
                     <BrowserButtonView icon={"chevron-left"} onClick={this._goBack} />
                     <BrowserButtonView icon={"chevron-right"} onClick={this._goForward} />
@@ -193,6 +214,50 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
             return `http://${url}`
         }
         return url
+    }
+
+    public _scrollLeft = (): void => {
+        if (this._webviewElement) {
+            this._webviewElement.sendInputEvent({
+                type: "keyDown",
+                keyCode: "Left",
+                canScroll: true,
+                modifiers: ["isAutoRepeat"],
+            })
+        }
+    }
+
+    public _scrollRight = (): void => {
+        if (this._webviewElement) {
+            this._webviewElement.sendInputEvent({
+                type: "keyDown",
+                keyCode: "Right",
+                canScroll: true,
+                modifiers: ["isAutoRepeat"],
+            })
+        }
+    }
+
+    public _scrollDown = (): void => {
+        if (this._webviewElement) {
+            this._webviewElement.sendInputEvent({
+                type: "keyDown",
+                keyCode: "Down",
+                canScroll: true,
+                modifiers: ["isAutoRepeat"],
+            })
+        }
+    }
+
+    public _scrollUp = (): void => {
+        if (this._webviewElement) {
+            this._webviewElement.sendInputEvent({
+                type: "keyDown",
+                keyCode: "Up",
+                canScroll: true,
+                modifiers: ["isAutoRepeat"],
+            })
+        }
     }
 
     private _navigate = (url: string): void => {
@@ -237,6 +302,7 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
         if (elem && !this._webviewElement) {
             const webviewElement = document.createElement("webview")
             webviewElement.preload = path.join(__dirname, "lib", "webview_preload", "index.js")
+            webviewElement.autosize = "autosize"
             elem.appendChild(webviewElement)
             this._webviewElement = webviewElement
             this._navigate(this.props.initialUrl)
