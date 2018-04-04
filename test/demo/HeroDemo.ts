@@ -270,6 +270,8 @@ export const test = async (oni: any) => {
         await simulateTyping("termhsp")
         await pressEnter()
 
+        await longDelay()
+
         await simulateTyping("A")
         await simulateTyping("npm run start")
         await pressEnter()
