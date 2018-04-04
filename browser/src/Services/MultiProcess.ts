@@ -19,6 +19,10 @@ export class MultiProcess {
     public moveToNextOniInstance(direction: string): void {
         ipcRenderer.send("move-to-next-oni-instance", direction)
     }
+
+    public openNewWindow(): void {
+        ipcRenderer.send("open-oni-window")
+    }
 }
 
 export const activate = (windowManager: WindowManager): void => {
