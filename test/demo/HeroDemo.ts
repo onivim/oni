@@ -43,7 +43,6 @@ const createReactAppProject = oni => {
 
     rimraf.sync(oniReactApp)
     const output = execSync('create-react-app "' + oniReactApp + '"')
-    alert(output)
 
     const oniLogoPath = path.join(getRootPath(), "images", "256x256.png")
     const oniLogoDestinationPath = path.join(oniReactApp, "src", "oni.png")
