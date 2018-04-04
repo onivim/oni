@@ -3,52 +3,52 @@
  */
 
 import * as assert from "assert"
-// import { createLetterCountDictionary } from "../../../src/UI/components/HighlightText"
+import { createLetterCountDictionary } from "../../../src/UI/components/HighlightText"
 import {
-    // getHighlightsFromString,
-    // processSearchTerm,
+    getHighlightsFromString,
+    processSearchTerm,
     regexFilter,
 } from "./../../../src/Services/QuickOpen/RegExFilter"
 
-// describe("processSearchTerm", () => {
-//     it("Correctly matches word.", async () => {
-//         const testString = "src"
-//         const testList = [
-//             { label: "index.ts", detail: "browser/src/index.ts" },
-//             { label: "index.ts", detail: "browser/test/index.ts" },
-//         ]
+describe("processSearchTerm", () => {
+    it("Correctly matches word.", async () => {
+        const testString = "src"
+        const testList = [
+            { label: "index.ts", detail: "browser/src/index.ts" },
+            { label: "index.ts", detail: "browser/test/index.ts" },
+        ]
 
-//         const result = processSearchTerm(testString, testList, false)
+        const result = processSearchTerm(testString, testList, false)
 
-//         const expectedResult = [{ label: "index.ts", detail: "browser/src/index.ts" }]
+        const expectedResult = [{ label: "index.ts", detail: "browser/src/index.ts" }]
 
-//         assert.deepEqual(result, expectedResult)
-//     })
-//     it("Correctly matches case-sensitive word.", async () => {
-//         const testString = "SRC"
-//         const testList = [
-//             { label: "index.ts", detail: "browser/src/index.ts" },
-//             { label: "index.ts", detail: "browser/SRC/index.ts" },
-//         ]
+        assert.deepEqual(result, expectedResult)
+    })
+    it("Correctly matches case-sensitive word.", async () => {
+        const testString = "SRC"
+        const testList = [
+            { label: "index.ts", detail: "browser/src/index.ts" },
+            { label: "index.ts", detail: "browser/SRC/index.ts" },
+        ]
 
-//         const result = processSearchTerm(testString, testList, true)
+        const result = processSearchTerm(testString, testList, true)
 
-//         const expectedResult = [{ label: "index.ts", detail: "browser/SRC/index.ts" }]
+        const expectedResult = [{ label: "index.ts", detail: "browser/SRC/index.ts" }]
 
-//         assert.deepEqual(result, expectedResult)
-//     })
-//     it("Correctly returns no matches.", async () => {
-//         const testString = "zzz"
-//         const testList = [
-//             { label: "index.ts", detail: "browser/src/index.ts" },
-//             { label: "index.ts", detail: "browser/test/index.ts" },
-//         ]
+        assert.deepEqual(result, expectedResult)
+    })
+    it("Correctly returns no matches.", async () => {
+        const testString = "zzz"
+        const testList = [
+            { label: "index.ts", detail: "browser/src/index.ts" },
+            { label: "index.ts", detail: "browser/test/index.ts" },
+        ]
 
-//         const result = processSearchTerm(testString, testList, false)
+        const result = processSearchTerm(testString, testList, false)
 
-//         assert.deepEqual(result, [])
-//     })
-// })
+        assert.deepEqual(result, [])
+    })
+})
 
 describe("regexFilter", () => {
     it("Correctly matches string.", async () => {
@@ -143,35 +143,35 @@ describe("regexFilter", () => {
     })
 })
 
-// describe("getHighlightsFromString", () => {
-//     it("Correctly highlights a match when case is similar", () => {
-//         const match = "foobar"
-//         const searchString = "foob"
+describe("getHighlightsFromString", () => {
+    it("Correctly highlights a match when case is similar", () => {
+        const match = "foobar"
+        const searchString = "foob"
 
-//         const highlights = getHighlightsFromString(match, createLetterCountDictionary(searchString))
+        const highlights = getHighlightsFromString(match, createLetterCountDictionary(searchString))
 
-//         assert.deepEqual([0, 1, 2, 3], highlights)
-//     })
+        assert.deepEqual([0, 1, 2, 3], highlights)
+    })
 
-//     it("Correctly highlights a search match when case is not similar (in case INSENSITIVE mode)", () => {
-//         const match = "FooBar"
-//         const searchString = "foob"
+    it("Correctly highlights a search match when case is not similar (in case INSENSITIVE mode)", () => {
+        const match = "FooBar"
+        const searchString = "foob"
 
-//         const highlights = getHighlightsFromString(match, createLetterCountDictionary(searchString))
+        const highlights = getHighlightsFromString(match, createLetterCountDictionary(searchString))
 
-//         assert.deepEqual([0, 1, 2, 3], highlights)
-//     })
+        assert.deepEqual([0, 1, 2, 3], highlights)
+    })
 
-//     it("Correctly highlights a search match when case is not similar (in case SENSITIVE mode)", () => {
-//         const match = "FooBar"
-//         const searchString = "foob"
+    it("Correctly highlights a search match when case is not similar (in case SENSITIVE mode)", () => {
+        const match = "FooBar"
+        const searchString = "foob"
 
-//         const highlights = getHighlightsFromString(
-//             match,
-//             createLetterCountDictionary(searchString),
-//             true,
-//         )
+        const highlights = getHighlightsFromString(
+            match,
+            createLetterCountDictionary(searchString),
+            true,
+        )
 
-//         assert.deepEqual([1, 2], highlights)
-//     })
-// })
+        assert.deepEqual([1, 2], highlights)
+    })
+})

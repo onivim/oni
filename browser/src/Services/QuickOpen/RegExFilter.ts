@@ -8,13 +8,12 @@ import * as sortBy from "lodash/sortBy"
 
 import * as Oni from "oni-api"
 
-import {
-    compareItemsByScoreOni,
-    getHighlightsFromResult,
-    scoreItemOni,
-} from "./Scorer/OniQuickOpenScorer"
-
 import { IMenuOptionWithHighlights, shouldFilterbeCaseSensitive } from "./../Menu"
+
+import {
+    createLetterCountDictionary,
+    LetterCountDictionary,
+} from "./../../UI/components/HighlightText"
 
 export const regexFilter = (
     options: Oni.Menu.MenuOption[],
@@ -40,44 +39,73 @@ export const regexFilter = (
 
     const listOfSearchTerms = searchString.split(" ").filter(x => x)
 
-    // Since the VSCode scorer doesn't deal so well with the spaces,
-    // instead rebuild the term in reverse order.
-    // ie `index browser editor` becomes `browsereditorindex`
-    // This allows the scoring and highlighting to work better.
-    const vsCodeSearchString =
-        listOfSearchTerms.length > 1
-            ? listOfSearchTerms.slice(1) + listOfSearchTerms[0]
-            : listOfSearchTerms[0]
+    let filteredOptions = options
 
-    const filteredOptions = processSearchTerm(vsCodeSearchString, options)
+    listOfSearchTerms.map(searchTerm => {
+        filteredOptions = processSearchTerm(searchTerm, filteredOptions, isCaseSensitive)
+    })
 
-    const ret = filteredOptions.filter(fo => {
-        if (fo.score === 0) {
-            return false
-        } else {
-            return true
+    const ret = filteredOptions.map(fo => {
+        const letterCountDictionary = createLetterCountDictionary(searchString)
+
+        const detailHighlights = getHighlightsFromString(
+            fo.detail,
+            letterCountDictionary,
+            isCaseSensitive,
+        )
+        const labelHighlights = getHighlightsFromString(
+            fo.label,
+            letterCountDictionary,
+            isCaseSensitive,
+        )
+
+        return {
+            ...fo,
+            detailHighlights,
+            labelHighlights,
         }
     })
 
-    return ret.sort((e1, e2) => compareItemsByScoreOni(e1, e2, vsCodeSearchString, true))
+    return ret
 }
 
 export const processSearchTerm = (
     searchString: string,
     options: Oni.Menu.MenuOption[],
-): Oni.Menu.IMenuOptionWithHighlights[] => {
-    const result: Oni.Menu.IMenuOptionWithHighlights[] = options.map(f => {
-        const itemScore = scoreItemOni(f, searchString, true)
-        const detailHighlights = getHighlightsFromResult(itemScore.descriptionMatch)
-        const labelHighlights = getHighlightsFromResult(itemScore.labelMatch)
+    isCaseSensitive: boolean,
+): Oni.Menu.MenuOption[] => {
+    const filterRegExp = new RegExp(".*" + searchString.split("").join(".*") + ".*")
 
-        return {
-            ...f,
-            detailHighlights,
-            labelHighlights,
-            score: f.pinned ? Number.MAX_SAFE_INTEGER : itemScore.score,
+    return options.filter(f => {
+        let textToFilterOn = f.detail + f.label
+
+        if (!isCaseSensitive) {
+            textToFilterOn = textToFilterOn.toLowerCase()
         }
-    })
 
-    return result
+        return textToFilterOn.match(filterRegExp)
+    })
+}
+
+export const getHighlightsFromString = (
+    text: string,
+    letterCountDictionary: LetterCountDictionary,
+    isCaseSensitive: boolean = false,
+): number[] => {
+    if (!text) {
+        return []
+    }
+
+    const ret: number[] = []
+
+    for (let i = 0; i < text.length; i++) {
+        const letter = isCaseSensitive ? text[i] : text[i].toLowerCase()
+        const idx = i
+        if (letterCountDictionary[letter] && letterCountDictionary[letter] > 0) {
+            ret.push(idx)
+            letterCountDictionary[letter]--
+        }
+    }
+
+    return ret
 }
