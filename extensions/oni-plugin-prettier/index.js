@@ -1,6 +1,15 @@
 const path = require("path")
 const prettier = require("prettier")
 
+// Helper functions
+const compose = (...fns) => argument => fns.reduceRight((arg, fn) => fn(arg), argument)
+const joinOrSplit = (method, by = "\n") => array => array[method](by)
+const join = joinOrSplit("join")
+const split = joinOrSplit("split")
+const isEqual = toCompare => initialItem => initialItem === toCompare
+const isTrue = (...args) => args.every(a => Boolean(a))
+const eitherOr = (...args) => args.find(a => !!a)
+
 const activate = async Oni => {
     const config = Oni.configuration.getValue("oni.plugins.prettier")
     const prettierItem = Oni.statusBar.createItem(0, "oni.plugins.prettier")
@@ -50,76 +59,69 @@ const activate = async Oni => {
         return async Oni => {
             const { activeBuffer } = Oni.editors.activeEditor
 
-            const [arrayOfLines, cursorPosition] = await Promise.all([
+            const [arrayOfLines, { line, character }] = await Promise.all([
                 activeBuffer.getLines(),
                 activeBuffer.getCursorPosition(),
             ])
 
-            const { line, character } = cursorPosition
-            const bufferString = arrayOfLines.join("\n")
+            const hasNotChanged = compose(isEqual(lastBufferState), join)
 
-            if (lastBufferState === bufferString) {
+            if (hasNotChanged(arrayOfLines)) {
                 return
             }
 
-            let prettierCode
-
             try {
-                const prettierrc = await checkPrettierrc(activeBuffer.filePath)
-                const prettierConfig = prettierrc || config.settings
-                const { cursorOffset } = activeBuffer
+                const prettierrc = await checkPrettierrc(activeBuffer.filepath)
+                const prettierConfig = eitherOr(prettierrc, config.settings)
 
                 // Pass in the file path so prettier can infer the correct parser to use
-                prettierCode = prettier.formatWithCursor(
-                    bufferString,
+                const { formatted, cursorOffset } = prettier.formatWithCursor(
+                    join(arrayOfLines),
                     Object.assign({ filepath: activeBuffer.filePath }, prettierConfig, {
-                        cursorOffset,
+                        cursorOffset: activeBuffer.cursorOffset,
                     }),
                 )
-                if (!prettierCode.formatted) {
+                if (!formatted) {
                     throw new Error("Couldn't format the buffer")
                 }
-            } catch (e) {
-                console.warn(`Couldn't format the buffer because: ${e}`)
-                await setPrettierStatus(errorElement)
-            }
 
-            if (prettierCode && prettierCode.formatted) {
                 await setPrettierStatus(successElement)
 
-                const formattedWithoutLastCR = prettierCode.formatted.replace(/\n$/, "")
-                const formattedBufferArray = formattedWithoutLastCR.split("\n")
-                lastBufferState = formattedWithoutLastCR
-                await activeBuffer.setLines(0, arrayOfLines.length, formattedBufferArray)
+                const withoutFinalCR = formatted.replace(/\n$/, "")
+                lastBufferState = withoutFinalCR
 
-                const { character, line } = await activeBuffer.convertOffsetToLineColumn(
-                    prettierCode.cursorOffset,
-                )
+                const [, { character, line }] = await Promise.all([
+                    activeBuffer.setLines(0, arrayOfLines.length, split(withoutFinalCR)),
+                    activeBuffer.convertOffsetToLineColumn(cursorOffset),
+                ])
 
                 await activeBuffer.setCursorPosition(line, character)
                 await Oni.editors.activeEditor.neovim.command("w")
+            } catch (e) {
+                console.warn(`Couldn't format the buffer because: ${e}`)
+                await setPrettierStatus(errorElement)
             }
         }
     }
 
     const applyPrettierWithState = applyPrettier()
 
-    const isCompatible = buffer => {
+    const isCompatible = ({ filePath }) => {
         const defaultFiletypes = [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json", ".graphql"]
-        const allowedFiletypes =
-            config && Array.isArray(config.allowedFiletypes)
-                ? config.allowedFiletypes
-                : defaultFiletypes
-        const extension = path.extname(buffer.filePath)
+        const allowedFiletypes = isTrue(config, Array.isArray(config.allowedFiletypes))
+            ? config.allowedFiletypes
+            : defaultFiletypes
+        const extension = path.extname(filePath)
         return allowedFiletypes.includes(extension)
     }
 
-    Oni.editors.activeEditor.onBufferEnter.subscribe(buffer => {
-        return isCompatible(buffer) ? prettierItem.show() : prettierItem.hide()
-    })
+    Oni.editors.activeEditor.onBufferEnter.subscribe(
+        buffer => (isCompatible(buffer) ? prettierItem.show() : prettierItem.hide()),
+    )
 
     Oni.editors.activeEditor.onBufferSaved.subscribe(async buffer => {
-        if (config.formatOnSave && config.enabled && isCompatible(buffer)) {
+        const canApplyPrettier = isTrue(config.formatOnSave, config.enabled, isCompatible(buffer))
+        if (canApplyPrettier) {
             await applyPrettierWithState(Oni)
         }
     })
