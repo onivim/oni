@@ -14,17 +14,14 @@ const activate = async Oni => {
     const config = Oni.configuration.getValue("oni.plugins.prettier")
     const prettierItem = Oni.statusBar.createItem(0, "oni.plugins.prettier")
 
+    const applyPrettierWithState = applyPrettier()
+
     const callback = async () => {
         const isNormalMode = Oni.editors.activeEditor.mode === "normal"
         if (isNormalMode) {
-            await applyPrettier()
+            await applyPrettierWithState(Oni)
         }
     }
-
-    const { errorElement, successElement, prettierElement } = createPrettierComponent(Oni, callback)
-
-    prettierItem.setContents(prettierElement)
-
     Oni.commands.registerCommand({
         command: "autoformat.prettier",
         name: "Autoformat with Prettier",
@@ -39,6 +36,11 @@ const activate = async Oni => {
         }
     }
 
+    // Status Bar Component ----
+    const { errorElement, successElement, prettierElement } = createPrettierComponent(Oni, callback)
+
+    prettierItem.setContents(prettierElement)
+
     const setStatusBarContents = (statusBarItem, defaultElement) => async (
         statusElement,
         timeOut = 3500,
@@ -49,7 +51,7 @@ const activate = async Oni => {
 
     const setPrettierStatus = setStatusBarContents(prettierItem, prettierElement)
 
-    const applyPrettier = () => {
+    function applyPrettier() {
         // Track the buffer state within the function using a closure
         // if the buffer as a string is the same as the last state
         // do no format because nothing has changed
@@ -103,8 +105,6 @@ const activate = async Oni => {
             }
         }
     }
-
-    const applyPrettierWithState = applyPrettier()
 
     const isCompatible = ({ filePath }) => {
         const defaultFiletypes = [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json", ".graphql"]
