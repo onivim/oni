@@ -175,4 +175,29 @@ describe("vsCodeFilter", () => {
 
         assert.deepEqual(result, [])
     })
+    it("Correctly sorts results.", async () => {
+        const testString = "aBE"
+        const testList = [
+            { label: "BufferEditor.ts", detail: "packages/demo/src/BufferEditor.ts" },
+            {
+                label: "BufferEditorContainer.ts",
+                detail: "packages/demo/src/BufferEditorContainer.ts",
+            },
+            { label: "astBackedEditing.ts", detail: "packages/core/src/astBackedEditing.ts" },
+        ]
+
+        // All results match, but only the last has an exact match on aBE inside the file name.
+        const result = vsCodeFilter(testList, testString)
+
+        const be = result.find(r => r.label === "BufferEditor.ts")
+        const bec = result.find(r => r.label === "BufferEditorContainer.ts")
+        const abe = result.find(r => r.label === "astBackedEditing.ts")
+
+        // Therefore it should score the highest.
+        assert.equal(abe.score > be.score, true)
+        assert.equal(abe.score > bec.score, true)
+
+        // It should also be the first in the list
+        assert.deepEqual(result[0], abe)
+    })
 })
