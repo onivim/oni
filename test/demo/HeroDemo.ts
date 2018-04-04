@@ -437,6 +437,12 @@ export const test = async (oni: any) => {
         // item.show()
 
         await longDelay()
+
+        await simulateTyping(":q")
+        await pressEnter()
+
+        await simulateTyping(":q")
+        await pressEnter()
     }
 
     const showComingSoon = async () => {
@@ -519,6 +525,35 @@ export const test = async (oni: any) => {
         await pressEscape()
     }
 
+    const showTutorials = async () => {
+        await oni.editors.activeEditor.neovim.command(":tabnew")
+        oni.automation.sendKeysV2("<c-g>")
+        await shortDelay()
+
+        await simulateTyping("ad")
+
+        const firstTutorialId = oni.tutorials.getNextTutorialId()
+        await oni.tutorials.startTutorial(firstTutorialId)
+
+        await shortDelay()
+        await pressEscape()
+
+        await simulateTyping("i")
+        await shortDelay()
+        await simulateTyping("hello")
+        await shortDelay()
+        await pressEscape()
+        await shortDelay()
+        await simulateTyping("o")
+        await shortDelay()
+        await simulateTyping("world")
+        await shortDelay()
+        await pressEscape()
+
+        await longDelay()
+        await oni.editors.activeEditor.neovim.command(":q!")
+    }
+
     // Prime the typescript language service prior to recording
     await simulateTyping(":tabnew")
     await pressEnter()
@@ -546,6 +581,7 @@ export const test = async (oni: any) => {
     oni.configuration.setValues({
         "keyDisplayer.showInInsertMode": false,
         "editor.split.mode": "oni",
+        "browser.defaultUrl": "https://github.com/onivim/oni",
     })
 
     await intro()
@@ -579,8 +615,10 @@ export const test = async (oni: any) => {
     // await simulateTyping("o")
     // await simulateTyping("...use the built in command palette to discover functionality.")
     // await pressEscape()
+    await showTutorials()
 
     await showConfig()
+
     await showComingSoon()
 
     await simulateTyping(":q")
