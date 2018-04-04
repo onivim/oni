@@ -56,6 +56,10 @@ export const activate = (
         }),
         new CallbackCommand("oni.about", null, null, () => showAboutMessage()),
 
+        new CallbackCommand("oni.process.openWindow", "New Window", "Open a new window", () =>
+            multiProcess.openNewWindow(),
+        ),
+
         new CallbackCommand(
             "oni.editor.maximize",
             "Maximize Window",
