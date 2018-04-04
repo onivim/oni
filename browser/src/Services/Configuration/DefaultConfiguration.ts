@@ -276,7 +276,6 @@ const BaseConfiguration: IConfigurationValues = {
         },
         formatOnSave: false,
         enabled: false,
-        allowedFiletypes: [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json", ".graphql"],
     },
 
     "tabs.mode": "tabs",

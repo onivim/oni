@@ -20,7 +20,7 @@ interface IPluginManager {
 }
 
 interface IPrettierPlugin {
-    isCompatible(buffer: Oni.Buffer): boolean
+    checkCompatibility(filePath: string): boolean
     applyPrettier(): void
     checkPrettierrc(): boolean
 }
@@ -68,7 +68,7 @@ export async function test(oni: Oni.Plugin.Api) {
 
     const { activeBuffer } = oni.editors.activeEditor
     assert.assert(
-        prettierPlugin.isCompatible(activeBuffer),
+        prettierPlugin.checkCompatibility(activeBuffer.filePath),
         "If valid filetype prettier plugin check should return true",
     )
 

@@ -9,12 +9,27 @@ const split = joinOrSplit("split")
 const isEqual = toCompare => initialItem => initialItem === toCompare
 const isTrue = (...args) => args.every(a => Boolean(a))
 const eitherOr = (...args) => args.find(a => !!a)
+const flatten = multidimensional => [].concat(...multidimensional)
+
+const isCompatible = (allowedFiletypes, defaultFiletypes) => filePath => {
+    const filetypes = isTrue(allowedFiletypes, Array.isArray(allowedFiletypes))
+        ? config.allowedFiletypes
+        : defaultFiletypes
+    const extension = path.extname(filePath)
+    return filetypes.includes(extension)
+}
+
+const getSupportedLanguages = async () => {
+    const info = await prettier.getSupportInfo()
+    return flatten(info.languages.map(lang => lang.extensions))
+}
 
 const activate = async Oni => {
     const config = Oni.configuration.getValue("oni.plugins.prettier")
     const prettierItem = Oni.statusBar.createItem(0, "oni.plugins.prettier")
 
     const applyPrettierWithState = applyPrettier()
+    const defaultFiletypes = await getSupportedLanguages()
 
     const callback = async () => {
         const isNormalMode = Oni.editors.activeEditor.mode === "normal"
@@ -109,26 +124,24 @@ const activate = async Oni => {
         }
     }
 
-    const isCompatible = ({ filePath }) => {
-        const defaultFiletypes = [".js", ".jsx", ".ts", ".tsx", ".md", ".html", ".json", ".graphql"]
-        const allowedFiletypes = isTrue(config, Array.isArray(config.allowedFiletypes))
-            ? config.allowedFiletypes
-            : defaultFiletypes
-        const extension = path.extname(filePath)
-        return allowedFiletypes.includes(extension)
-    }
+    const { allowedFiletypes, formatOnSave, enabled } = config
+    const checkCompatibility = isCompatible(allowedFiletypes, defaultFiletypes)
 
-    Oni.editors.activeEditor.onBufferEnter.subscribe(
-        buffer => (isCompatible(buffer) ? prettierItem.show() : prettierItem.hide()),
-    )
+    Oni.editors.activeEditor.onBufferEnter.subscribe(({ filePath }) => {
+        const hasCompatibility = checkCompatibility(filePath)
 
-    Oni.editors.activeEditor.onBufferSaved.subscribe(async buffer => {
-        const canApplyPrettier = isTrue(config.formatOnSave, config.enabled, isCompatible(buffer))
+        hasCompatibility ? prettierItem.show() : prettierItem.hide()
+    })
+
+    Oni.editors.activeEditor.onBufferSaved.subscribe(async ({ filePath }) => {
+        const hasCompatibility = checkCompatibility(filePath)
+
+        const canApplyPrettier = isTrue(formatOnSave, enabled, hasCompatibility)
         if (canApplyPrettier) {
             await applyPrettierWithState(Oni)
         }
     })
-    return { applyPrettier: applyPrettierWithState, isCompatible, checkPrettierrc }
+    return { applyPrettier: applyPrettierWithState, checkCompatibility, checkPrettierrc }
 }
 
 function createPrettierComponent(Oni, onClick) {

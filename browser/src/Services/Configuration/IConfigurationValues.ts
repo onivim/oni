@@ -242,7 +242,7 @@ export interface IConfigurationValues {
         }
         formatOnSave: boolean
         enabled: boolean
-        allowedFiletypes: string[]
+        allowedFiletypes?: string[]
     }
 
     "snippets.enabled": boolean
