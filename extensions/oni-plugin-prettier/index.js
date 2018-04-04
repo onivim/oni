@@ -29,6 +29,9 @@ const activate = async Oni => {
     })
 
     const checkPrettierrc = async bufferPath => {
+        if (!bufferPath) {
+            throw new Error(`No buffer path passed for prettier to check for a Prettierrc`)
+        }
         try {
             return await prettier.resolveConfig(bufferPath)
         } catch (e) {
@@ -73,7 +76,7 @@ const activate = async Oni => {
             }
 
             try {
-                const prettierrc = await checkPrettierrc(activeBuffer.filepath)
+                const prettierrc = await checkPrettierrc(activeBuffer.filePath)
                 const prettierConfig = eitherOr(prettierrc, config.settings)
 
                 // Pass in the file path so prettier can infer the correct parser to use
