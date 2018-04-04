@@ -64,8 +64,10 @@ export class OniLogo extends Component {
         "utf8",
     )
 
+    // Delete the 'App.test.js' so it doesn't mess up fuzzy find results
+    rimraf.sync(path.join(oniReactApp, "src", "App.test.js"))
+
     shell.cp(oniLogoPath, oniLogoDestinationPath)
-    alert("done")
     return oniReactApp
 }
 
