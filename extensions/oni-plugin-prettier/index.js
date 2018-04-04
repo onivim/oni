@@ -13,7 +13,7 @@ const flatten = multidimensional => [].concat(...multidimensional)
 
 const isCompatible = (allowedFiletypes, defaultFiletypes) => filePath => {
     const filetypes = isTrue(allowedFiletypes, Array.isArray(allowedFiletypes))
-        ? config.allowedFiletypes
+        ? allowedFiletypes
         : defaultFiletypes
     const extension = path.extname(filePath)
     return filetypes.includes(extension)
