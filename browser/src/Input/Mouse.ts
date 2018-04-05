@@ -7,6 +7,7 @@ import { IScreen } from "./../neovim"
 export class Mouse extends EventEmitter {
     private _isDragging = false
     private _scrollDelta = 0
+    private SCROLL_THRESHOLD = 100
 
     constructor(private _editorElement: HTMLDivElement, private _screen: IScreen) {
         super()
@@ -46,7 +47,7 @@ export class Mouse extends EventEmitter {
             // might be backwards
             if (evt.deltaY) {
                 this._scrollDelta += evt.deltaY
-                if (Math.abs(this._scrollDelta) >= 100) {
+                if (Math.abs(this._scrollDelta) >= this.SCROLL_THRESHOLD) {
                     if (this._scrollDelta < 0) {
                         scrollcmdY += `ScrollWheelUp>`
                     } else {
