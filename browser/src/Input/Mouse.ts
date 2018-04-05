@@ -6,6 +6,7 @@ import { IScreen } from "./../neovim"
 // Handle modifier keys
 export class Mouse extends EventEmitter {
     private _isDragging = false
+    private _scrollDelta = 0
 
     constructor(private _editorElement: HTMLDivElement, private _screen: IScreen) {
         super()
@@ -44,12 +45,16 @@ export class Mouse extends EventEmitter {
             // the other applications I use. However, because OSX is super weird, it
             // might be backwards
             if (evt.deltaY) {
-                if (evt.deltaY < 0) {
-                    scrollcmdY += `ScrollWheelUp>`
-                } else {
-                    scrollcmdY += `ScrollWheelDown>`
+                this._scrollDelta += evt.deltaY
+                if (Math.abs(this._scrollDelta) >= 100) {
+                    if (this._scrollDelta < 0) {
+                        scrollcmdY += `ScrollWheelUp>`
+                    } else {
+                        scrollcmdY += `ScrollWheelDown>`
+                    }
+                    this._scrollDelta = 0
+                    this.emit("mouse", scrollcmdY + `<${line},${column}>`)
                 }
-                this.emit("mouse", scrollcmdY + `<${line},${column}>`)
             }
 
             this._isDragging = false
