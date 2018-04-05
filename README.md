@@ -77,7 +77,7 @@ And more coming - check out our [Roadmap](https://github.com/onivim/oni/wiki/Roa
 
 Oni is cross-platform and supports Windows, Mac, and Linux.
 
-> If you're a Vim power user, and don't need all these features, check out our [minimal configuration](https://github.com/onivim/oni/wiki/How-To:-Minimalist-Oni-Configuration).
+> If you're a Vim power user, and don't need all these features, check out our [minimal configuration](https://github.com/onivim/oni/wiki/How-To:-Minimal-Oni-Configuration).
 
 ## Installation
 
