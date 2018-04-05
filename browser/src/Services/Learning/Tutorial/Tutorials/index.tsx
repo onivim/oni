@@ -13,6 +13,7 @@ import { SearchInBufferTutorial } from "./SearchInBufferTutorial"
 import { SwitchModeTutorial } from "./SwitchModeTutorial"
 import { VerticalMovementTutorial } from "./VerticalMovementTutorial"
 import { WordMotionTutorial } from "./WordMotionTutorial"
+import { CopyPasteTutorial } from "./CopyPasteTutorial"
 
 export * from "./DeleteCharacterTutorial"
 export * from "./SwitchModeTutorial"
@@ -27,4 +28,5 @@ export const AllTutorials: ITutorial[] = [
     new VerticalMovementTutorial(),
     new WordMotionTutorial(),
     new SearchInBufferTutorial(),
+    new CopyPasteTutorial(),
 ]
