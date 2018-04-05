@@ -36,7 +36,7 @@ exports[`<NotificationsView /> should match the snapshot 1`] = `
       </styled.div>
     </styled.div>
     <styled.div
-      data-test="title"
+      data-test="notification-title"
       level="info"
     >
       testing1
