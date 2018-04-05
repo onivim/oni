@@ -137,7 +137,7 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
                 // check if the buffer version has changed and if so
                 // update the line - rather than check if specific line
                 // is changed
-                if (oldLine && oldLine.version === action.version) {
+                if (oldLine && oldLine.version >= action.version) {
                     continue
                 }
 
