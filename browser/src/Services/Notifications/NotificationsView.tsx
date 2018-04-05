@@ -223,10 +223,12 @@ const Buttons = ({ buttons, onClose }: IButtonProps) => {
         onClose()
     }
     return (
-        <ButtonRow>
+        <ButtonRow data-test="notification-buttons">
             {buttons.map(({ callback, title }, index) => (
                 <Sneakable key={`${title}-${index}`} callback={executeThenClose(callback)}>
-                    <Button onClick={callback}>{title}</Button>
+                    <Button data-test={`notification-${title.toLowerCase()}`} onClick={callback}>
+                        {title}
+                    </Button>
                 </Sneakable>
             ))}
         </ButtonRow>
@@ -264,7 +266,7 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
                             </Sneakable>
                         </NotificationIconWrapper>
                     </IconContainer>
-                    <NotificationTitle data-test="title" level={level}>
+                    <NotificationTitle data-test="notification-title" level={level}>
                         {this.props.title}
                     </NotificationTitle>
                 </NotificationHeader>
