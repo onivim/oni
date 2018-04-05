@@ -99,6 +99,40 @@ describe("vsCodeFilter", () => {
 
         assert.deepEqual(result, expectedResult)
     })
+    it("Correctly matches string with extension.", async () => {
+        const testString = "index.ts"
+        const testList = [
+            { label: "index.ts", detail: "browser/src" },
+            { label: "main.ts", detail: "browser/src" },
+            { label: "index.ts", detail: "browser/test" },
+        ]
+
+        const result = vsCodeFilter(testList, testString)
+
+        // Remove the score since it can change if we updated the
+        // module.
+        // However, the score should be equal due to an exact match on both.
+        assert.equal(result[0].score === result[1].score, true)
+        delete result[0].score
+        delete result[1].score
+
+        const expectedResult = [
+            {
+                label: "index.ts",
+                labelHighlights: [0, 1, 2, 3, 4, 5, 6, 7],
+                detail: "browser/src",
+                detailHighlights: [] as number[],
+            },
+            {
+                label: "index.ts",
+                labelHighlights: [0, 1, 2, 3, 4, 5, 6, 7],
+                detail: "browser/test",
+                detailHighlights: [] as number[],
+            },
+        ]
+
+        assert.deepEqual(result, expectedResult)
+    })
     it("Correctly splits and matches string.", async () => {
         const testString = "index src"
         const testList = [
