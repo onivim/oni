@@ -6,7 +6,7 @@ import {
     prepareQuery,
     scoreItem,
 } from "./QuickOpenScorer"
-import { convertSimple2RegExpPattern, nativeSep } from "./Utilities"
+import { nativeSep } from "./Utilities"
 
 export const NO_ITEM_SCORE: IItemScore = Object.freeze({ score: 0 })
 
