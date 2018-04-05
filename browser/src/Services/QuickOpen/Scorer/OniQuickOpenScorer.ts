@@ -29,8 +29,7 @@ export function scoreItemOni(resultObject: any, searchString: string, fuzzy: boo
         return NO_ITEM_SCORE
     }
 
-    const escapedString = convertSimple2RegExpPattern(searchString)
-    const query = prepareQuery(escapedString)
+    const query = prepareQuery(searchString)
 
     if (!resultObject || !query.value) {
         return NO_ITEM_SCORE
@@ -51,8 +50,7 @@ export function compareItemsByScoreOni(
         return 0
     }
 
-    const escapedString = convertSimple2RegExpPattern(searchString)
-    const query = prepareQuery(escapedString)
+    const query = prepareQuery(searchString)
 
     if (!resultObjectA || !resultObjectB || !query.value) {
         return 0
@@ -60,14 +58,7 @@ export function compareItemsByScoreOni(
 
     const accessor = new OniAccessor()
 
-    return compareItemsByScore(
-        resultObjectA,
-        resultObjectB,
-        query,
-        fuzzy,
-        accessor,
-        (objA, objB, searchQuery, objAccessor) => -1,
-    )
+    return compareItemsByScore(resultObjectA, resultObjectB, query, fuzzy, accessor)
 }
 
 export const getHighlightsFromResult = (result: IMatch[]): number[] => {
