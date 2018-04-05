@@ -207,10 +207,47 @@ describe("vsCodeFilter", () => {
 
         const result = vsCodeFilter(testList, testString)
 
-        // Should prefer the short A path
+        // Should only match the last term
         const best = result.find(r => r.detail === "packages/core/test/oni")
+        assert.deepEqual(result[0], best)
+        assert.equal(result.length, 1)
+    })
+    it("Correctly sorts results for shortest result on file name.", async () => {
+        const testString = "main"
+        const testList = [
+            { label: "main.tex", detail: "packages/core/src" },
+            { label: "main.tex", detail: "packages/core/test" },
+            { label: "main.tex", detail: "packages/core/test/oni" },
+        ]
+
+        const result = vsCodeFilter(testList, testString)
+
+        // Should prefer the short path
+        const best = result.find(r => r.detail === "packages/core/src")
+        const second = result.find(r => r.detail === "packages/core/test")
+        const third = result.find(r => r.detail === "packages/core/test/oni")
 
         // Order should be as follows
         assert.deepEqual(result[0], best)
+        assert.deepEqual(result[1], second)
+        assert.deepEqual(result[2], third)
+    })
+    it("Correctly sorts results for shortest result on path.", async () => {
+        const testString = "somepath"
+        const testList = [
+            { label: "fileA.ts", detail: "/some/path" },
+            { label: "fileB.ts", detail: "/some/path/longer" },
+            { label: "fileC.ts", detail: "packages/core/oni" },
+        ]
+
+        const result = vsCodeFilter(testList, testString)
+
+        // Should prefer the short path
+        const best = result.find(r => r.label === "fileA.ts")
+        const second = result.find(r => r.label === "fileB.ts")
+
+        // Order should be as follows
+        assert.deepEqual(result[0], best)
+        assert.deepEqual(result[1], second)
     })
 })
