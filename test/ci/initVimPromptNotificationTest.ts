@@ -21,7 +21,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     const assert = new Assertor("Prompt Notification Test ===============")
     await oni.automation.waitForEditors()
 
-    await oni.automation.waitFor(() => !!getElementByClassName("notification"), 15000)
+    await oni.automation.sleep(1500)
     // Grab the notification element on startup
     const notification = getSingleElementBySelector("[data-test='notification']")
     const notificationTitle = getSingleElementBySelector("[data-test='notification-title']")
