@@ -67,7 +67,7 @@ export class SearchInBufferTutorial implements ITutorial {
             name: "Motion: /, ?, n, N",
             description:
                 "To navigate a buffer efficiently, Oni lets you search for strings with `/` and `?`. `n` and `N` let you navigate quickly between the matches!",
-            level: 190,
+            level: 180,
         }
     }
 
