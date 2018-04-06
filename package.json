@@ -849,6 +849,7 @@
     },
     "license": "MIT",
     "dependencies": {
+        "color-normalize": "^1.0.3",
         "dompurify": "^1.0.3",
         "electron-settings": "^3.1.4",
         "find-up": "2.1.0",
@@ -908,6 +909,7 @@
         "@types/redux-mock-store": "^0.0.13",
         "@types/shelljs": "^0.7.7",
         "@types/sinon": "1.16.32",
+        "@types/webgl2": "^0.0.3",
         "autoprefixer": "6.4.0",
         "azure-storage": "^2.8.1",
         "babel-plugin-dynamic-import-node": "^1.2.0",
