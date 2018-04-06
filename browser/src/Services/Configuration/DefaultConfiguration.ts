@@ -104,7 +104,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
-    "editor.quickOpen.filterStrategy": "regex",
+    "editor.quickOpen.filterStrategy": "vscode",
 
     "editor.split.mode": "native",
 
