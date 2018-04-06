@@ -36,6 +36,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "browser.defaultUrl": "https://duckduckgo.com",
     "configuration.editor": "typescript",
+    "configuration.showReferenceBuffer": true,
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
