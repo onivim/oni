@@ -41,6 +41,7 @@ export interface IConfigurationValues {
     "editor.split.mode": string
 
     "configuration.editor": string
+    "configuration.showReferenceBuffer": boolean
 
     // - textMateHighlighting
     "editor.textMateHighlighting.enabled": boolean
