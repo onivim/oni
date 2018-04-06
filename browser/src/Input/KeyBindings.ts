@@ -118,4 +118,9 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind(["<esc>", "<c-c>"], "sneak.hide")
 
     input.bind("<s-c-b>", "sidebar.toggle", isNormalMode)
+
+    input.bind("k", "browser.scrollUp")
+    input.bind("j", "browser.scrollDown")
+    input.bind("h", "browser.scrollLeft")
+    input.bind("l", "browser.scrollRight")
 }

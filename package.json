@@ -3,7 +3,7 @@
     "author": "",
     "email": "bryphe@outlook.com",
     "homepage": "https://www.onivim.io",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "description": "Code editor with a modern twist on modal editing - powered by neovim.",
     "keywords": [
         "vim",
@@ -838,8 +838,9 @@
         "watch:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && tsc --watch",
         "uninstall-global": "npm rm -g oni-vim",
         "install-global": "npm install -g oni-vim",
-        "install:plugins": "npm run install:plugins:oni-plugin-markdown-preview",
+        "install:plugins": "npm run install:plugins:oni-plugin-markdown-preview && npm run install:plugins:oni-plugin-prettier",
         "install:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm install --prod",
+        "install:plugins:oni-plugin-prettier": "cd extensions/oni-plugin-prettier && npm install --prod",
         "postinstall": "npm run install:plugins && electron-rebuild && opencollective postinstall",
         "profile:webpack": "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
     },
@@ -857,7 +858,7 @@
         "minimist": "1.2.0",
         "msgpack-lite": "0.1.26",
         "ocaml-language-server": "^1.0.27",
-        "oni-api": "^0.0.41",
+        "oni-api": "^0.0.42",
         "oni-neovim-binaries": "0.1.1",
         "oni-ripgrep": "0.0.4",
         "oni-types": "0.0.4",

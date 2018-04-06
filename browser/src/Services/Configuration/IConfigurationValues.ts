@@ -227,6 +227,24 @@ export interface IConfigurationValues {
     "sidebar.marks.enabled": boolean
     "sidebar.plugins.enabled": boolean
 
+    "oni.plugins.prettier": {
+        settings: {
+            semi: boolean
+            tabWidth: number
+            useTabs: boolean
+            singleQuote: boolean
+            trailingComma: "es5" | "all" | "none"
+            bracketSpacing: boolean
+            jsxBracketSameLine: boolean
+            arrowParens: "avoid" | "always"
+            printWidth: number
+            [key: string]: number | string | boolean
+        }
+        formatOnSave: boolean
+        enabled: boolean
+        allowedFiletypes?: string[]
+    }
+
     "snippets.enabled": boolean
     "snippets.userSnippetFolder": string
 
