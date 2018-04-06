@@ -3,11 +3,11 @@
  */
 
 import * as assert from "assert"
+import { execSync } from "child_process"
 import * as fs from "fs"
-import * as shell from "shelljs"
 import * as os from "os"
 import * as path from "path"
-import { execSync } from "child_process"
+import * as shell from "shelljs"
 
 import * as rimraf from "rimraf"
 
@@ -375,24 +375,24 @@ export const test = async (oni: any) => {
         await longDelay()
         await simulateTyping("ciw")
         await longDelay()
-        await simulateTyping("15px")
+        await simulateTyping("16px")
         await pressEscape()
         await simulateTyping(":w")
         await pressEscape()
 
         // HACK - Configuration doesn't use the same file, so we need to set this directly here
-        oni.configuration.setValues({ "editor.fontSize": "15px" })
+        oni.configuration.setValues({ "editor.fontSize": "16px" })
 
         await longDelay()
         await simulateTyping("b")
         await longDelay()
         await simulateTyping("ciw")
         await longDelay()
-        await simulateTyping("12px")
+        await simulateTyping("14px")
         await pressEscape()
         await simulateTyping(":w")
         await pressEnter()
-        oni.configuration.setValues({ "editor.fontSize": "12px" })
+        oni.configuration.setValues({ "editor.fontSize": "14px" })
         await longDelay()
         await pressEscape()
 
@@ -576,6 +576,11 @@ export const test = async (oni: any) => {
     await pressEscape()
     await simulateTyping(":q!")
     await pressEnter()
+
+    oni.configuration.setValues({
+        "ui.fontSize": "14px",
+        "editor.fontSize": "14px",
+    })
 
     // Set window size
     remote.getCurrentWindow().setSize(1920, 1080)
