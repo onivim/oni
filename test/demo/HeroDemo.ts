@@ -17,8 +17,8 @@ import { getDistPath, getRootPath } from "./DemoCommon"
 
 import { remote } from "electron"
 
-const BASEDELAY = 25
-const RANDOMDELAY = 15
+const BASEDELAY = 18
+const RANDOMDELAY = 8
 
 const EmptyConfigPath = path.join(getTemporaryFolder(), "config.js")
 
@@ -41,8 +41,8 @@ const getRoot = (dir: string): string => {
 const createReactAppProject = oni => {
     const oniReactApp = path.join(getProjectRootPath(), ReactProjectName)
 
-    rimraf.sync(oniReactApp)
-    const output = execSync('create-react-app "' + oniReactApp + '"')
+    // rimraf.sync(oniReactApp)
+    // const output = execSync('create-react-app "' + oniReactApp + '"')
 
     const oniLogoPath = path.join(getRootPath(), "images", "256x256.png")
     const oniLogoDestinationPath = path.join(oniReactApp, "src", "oni.png")
@@ -68,6 +68,7 @@ export class OniLogo extends Component {
     rimraf.sync(path.join(oniReactApp, "src", "App.test.js"))
 
     shell.cp(oniLogoPath, oniLogoDestinationPath)
+    shell.cp(path.join(oniReactApp, "src", "Old.js"), path.join(oniReactApp, "src", "App.js"))
     return oniReactApp
 }
 
@@ -184,7 +185,6 @@ export const test = async (oni: any) => {
         )
         await pressEnter()
         await simulateTyping("Available for Windows, OSX, and Linux.")
-        await pressEnter()
 
         await pressEscape()
     }
@@ -264,9 +264,7 @@ export const test = async (oni: any) => {
 
         await pressEscape()
         await openCommandPalette()
-        await simulateTyping("term")
-        await simulateTyping("hzsp")
-        await shortDelay()
+        await simulateTyping("termhzsp")
         await pressEnter()
 
         await longDelay()
@@ -292,6 +290,11 @@ export const test = async (oni: any) => {
         await simulateTyping("http://localhost:3000")
         await pressEnter()
 
+        // The popped up browser can steal focus, causing our bindings to fail..
+        require("electron")
+            .remote.getCurrentWindow()
+            .focus()
+
         await simulateTyping("10j")
         await shortDelay()
         await simulateTyping("cit")
@@ -305,8 +308,11 @@ export const test = async (oni: any) => {
         await simulateTyping("7k")
         await simulateTyping("O")
         await simulateTyping("impsnip")
-        await shortDelay()
+
+        await waitForCompletion()
+
         await pressEnter()
+
         await shortDelay()
         await simulateTyping("./Oni")
         await waitForCompletion()
@@ -326,7 +332,8 @@ export const test = async (oni: any) => {
         await pressEscape()
         await simulateTyping(":w")
         await pressEnter()
-        await shortDelay()
+        await longDelay()
+        await longDelay()
 
         oni.automation.sendKeysV2("<c-w>")
         oni.automation.sendKeysV2("<c-l>")
@@ -524,7 +531,13 @@ export const test = async (oni: any) => {
     }
 
     const showTutorials = async () => {
-        await oni.editors.activeEditor.neovim.command(":tabnew")
+        await oni.editors.activeEditor.neovim.command(":tabnew TUTORIAL")
+
+        await simulateTyping("i")
+        await simulateTyping(
+            "If you're new to modal editing, Oni comes with interactive tutorials to get you up to speed!",
+        )
+        await pressEscape()
 
         await navigateToSneakWithTag("oni.sidebar.learning")
 
