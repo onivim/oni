@@ -10,7 +10,7 @@ branches:
     - /^release.*/
 
 cache:
-    - .oni-release-binaries -> package.json 
+    - .oni_build_cache -> package.json 
 
 platform:
     - x86
