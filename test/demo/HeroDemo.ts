@@ -264,7 +264,8 @@ export const test = async (oni: any) => {
 
         await pressEscape()
         await openCommandPalette()
-        await simulateTyping("termhsp")
+        await simulateTyping("term")
+        await simulateTyping("hzsp")
         await shortDelay()
         await pressEnter()
 
