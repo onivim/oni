@@ -9,6 +9,9 @@ branches:
     - master
     - /^release.*/
 
+cache:
+    - .oni-release-binaries -> package.json 
+
 platform:
     - x86
     - x64
