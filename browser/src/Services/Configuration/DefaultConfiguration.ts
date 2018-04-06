@@ -243,6 +243,7 @@ const BaseConfiguration: IConfigurationValues = {
     "recorder.outputPath": os.tmpdir(),
 
     "sidebar.enabled": true,
+    "sidebar.default.open": true,
     "sidebar.width": "50px",
 
     "sidebar.marks.enabled": false,
