@@ -18,4 +18,16 @@ export const activate = (
     workspace: Workspace,
 ) => {
     sidebarManager.add("files-o", new ExplorerSplit(workspace, commandManager, editorManager))
+
+    const toggleExplorer = () => {
+        sidebarManager.toggleVisibilityById("oni.sidebar.explorer")
+    }
+
+    commandManager.registerCommand({
+        command: "explorer.toggle",
+        name: "Explorer: Toggle Visiblity",
+        detail: "Toggles the explorer in the sidebar",
+        execute: toggleExplorer,
+        enabled: () => !!workspace.activeWorkspace,
+    })
 }

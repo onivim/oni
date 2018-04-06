@@ -10,17 +10,16 @@ let _sidebarManager: SidebarManager = null
 export * from "./SidebarStore"
 
 export const activate = (configuration: Configuration, workspace: Workspace) => {
-    if (configuration.getValue("sidebar.enabled")) {
-        _sidebarManager = new SidebarManager(windowManager)
+    _sidebarManager = new SidebarManager(windowManager)
+    commandManager.registerCommand({
+        command: "sidebar.toggle",
+        name: "Sidebar: Toggle",
+        detail: "Show / hide the contents of the sidebar pane.",
+        execute: () => _sidebarManager.toggleSidebarVisibility(),
+    })
 
-        commandManager.registerCommand({
-            command: "sidebar.toggle",
-            name: "Sidebar: Toggle",
-            detail: "Show / hide the contents of the sidebar pane.",
-            execute: () => _sidebarManager.toggleSidebarVisibility(),
-        })
-    } else {
-        _sidebarManager = new SidebarManager()
+    if (!configuration.getValue("sidebar.enabled")) {
+        _sidebarManager.hide()
     }
 }
 

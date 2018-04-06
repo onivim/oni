@@ -61,13 +61,8 @@ export class SidebarManager {
     constructor(private _windowManager: WindowManager = null) {
         this._store = createStore()
 
-        if (_windowManager) {
-            this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
-            this._contentSplit = this._windowManager.createSplit(
-                "left",
-                new SidebarContentSplit(this),
-            )
-        }
+        this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
+        this._contentSplit = this._windowManager.createSplit("left", new SidebarContentSplit(this))
     }
 
     public setNotification(id: string): void {
@@ -110,6 +105,26 @@ export class SidebarManager {
         }
     }
 
+    public toggleVisibilityById(id: string): void {
+        if (id) {
+            if (id !== this.activeEntryId) {
+                this._store.dispatch({
+                    type: "SET_ACTIVE_ID",
+                    activeEntryId: id,
+                })
+
+                this._contentSplit.show()
+            } else {
+                if (this._contentSplit.isVisible) {
+                    this._contentSplit.hide()
+                } else {
+                    // In some cases you can have an ACTIVE entry that is hidden
+                    this._contentSplit.show()
+                }
+            }
+        }
+    }
+
     public enter(): void {
         this._store.dispatch({ type: "ENTER" })
     }
@@ -128,6 +143,11 @@ export class SidebarManager {
             type: "ADD_ENTRY",
             entry,
         })
+    }
+
+    public hide(): void {
+        this._contentSplit.hide()
+        this._iconSplit.hide()
     }
 }
 

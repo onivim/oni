@@ -136,7 +136,7 @@ export const activate = (
     sidebarManager.add("search", new SearchPane(editorManager, workspace, onFocusEvent))
 
     const searchAllFiles = () => {
-        sidebarManager.setActiveEntry("oni.sidebar.search")
+        sidebarManager.toggleVisibilityById("oni.sidebar.search")
 
         onFocusEvent.dispatch()
     }
