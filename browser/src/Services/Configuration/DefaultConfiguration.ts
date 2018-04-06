@@ -36,6 +36,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "browser.defaultUrl": "https://duckduckgo.com",
     "configuration.editor": "typescript",
+    "configuration.showReferenceBuffer": true,
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
@@ -243,6 +244,7 @@ const BaseConfiguration: IConfigurationValues = {
     "recorder.outputPath": os.tmpdir(),
 
     "sidebar.enabled": true,
+    "sidebar.default.open": true,
     "sidebar.width": "50px",
 
     "sidebar.marks.enabled": false,

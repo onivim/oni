@@ -6,6 +6,7 @@ import { ITutorial } from "./../ITutorial"
 
 import { BasicMovementTutorial } from "./BasicMovementTutorial"
 import { BeginningsAndEndingsTutorial } from "./BeginningsAndEndingsTutorial"
+import { CopyPasteTutorial } from "./CopyPasteTutorial"
 import { DeleteCharacterTutorial } from "./DeleteCharacterTutorial"
 import { DeleteOperatorTutorial } from "./DeleteOperatorTutorial"
 import { MoveAndInsertTutorial } from "./MoveAndInsertTutorial"
@@ -27,4 +28,5 @@ export const AllTutorials: ITutorial[] = [
     new VerticalMovementTutorial(),
     new WordMotionTutorial(),
     new SearchInBufferTutorial(),
+    new CopyPasteTutorial(),
 ]

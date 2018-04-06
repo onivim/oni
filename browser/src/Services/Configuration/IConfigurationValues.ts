@@ -41,6 +41,7 @@ export interface IConfigurationValues {
     "editor.split.mode": string
 
     "configuration.editor": string
+    "configuration.showReferenceBuffer": boolean
 
     // - textMateHighlighting
     "editor.textMateHighlighting.enabled": boolean
@@ -222,6 +223,7 @@ export interface IConfigurationValues {
     "recorder.copyScreenshotToClipboard": boolean
 
     "sidebar.enabled": boolean
+    "sidebar.default.open": boolean
     "sidebar.width": string
 
     "sidebar.marks.enabled": boolean
