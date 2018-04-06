@@ -189,6 +189,16 @@ export const test = async (oni: any) => {
         await pressEscape()
     }
 
+    const navigateToSneakWithTag = async (tag: string) => {
+        oni.automation.sendKeysV2("<c-g>")
+        await shortDelay()
+
+        const targetSneak = oni.sneak.getSneakMatchingTag(tag)
+        const triggerKeys = targetSneak.triggerKeys as string
+        await simulateTyping(triggerKeys)
+        await shortDelay()
+    }
+
     const showKeyboardNavigation = async () => {
         await splitHorizontal("VIM.md")
         await pressEnter()
@@ -228,25 +238,12 @@ export const test = async (oni: any) => {
         await pressEscape()
 
         await shortDelay()
-        oni.automation.sendKeysV2("<c-g>")
-        await shortDelay()
-        await simulateTyping("a")
-        await shortDelay()
-        await simulateTyping("c")
 
-        oni.automation.sendKeysV2("<c-g>")
-        await shortDelay()
-        await simulateTyping("a")
-        await shortDelay()
-        await simulateTyping("d")
-        await shortDelay()
+        await navigateToSneakWithTag("oni.sidebar.search")
 
-        oni.automation.sendKeysV2("<c-g>")
-        await shortDelay()
-        await simulateTyping("a")
-        await shortDelay()
-        await simulateTyping("b")
-        await shortDelay()
+        await navigateToSneakWithTag("oni.sidebar.learning")
+
+        await navigateToSneakWithTag("oni.sidebar.explorer")
 
         oni.automation.sendKeysV2("<esc>")
 
@@ -268,6 +265,7 @@ export const test = async (oni: any) => {
         await pressEscape()
         await openCommandPalette()
         await simulateTyping("termhsp")
+        await shortDelay()
         await pressEnter()
 
         await longDelay()
@@ -286,12 +284,7 @@ export const test = async (oni: any) => {
         await simulateTyping("Appjs")
         await pressEnter()
 
-        oni.automation.sendKeysV2("<c-g>")
-        await shortDelay()
-
-        const addressBarSneak = oni.sneak.getSneakMatchingTag("browser.address")
-        const triggerKeys = addressBarSneak.triggerKeys as string
-        await simulateTyping(triggerKeys)
+        await navigateToSneakWithTag("browser.address")
 
         await shortDelay()
 
@@ -311,6 +304,7 @@ export const test = async (oni: any) => {
         await simulateTyping("7k")
         await simulateTyping("O")
         await simulateTyping("impsnip")
+        await shortDelay()
         await pressEnter()
         await shortDelay()
         await simulateTyping("./Oni")
@@ -530,10 +524,8 @@ export const test = async (oni: any) => {
 
     const showTutorials = async () => {
         await oni.editors.activeEditor.neovim.command(":tabnew")
-        oni.automation.sendKeysV2("<c-g>")
-        await shortDelay()
 
-        await simulateTyping("ad")
+        await navigateToSneakWithTag("oni.sidebar.learning")
 
         const firstTutorialId = oni.tutorials.getNextTutorialId()
         await oni.tutorials.startTutorial(firstTutorialId)
