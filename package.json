@@ -696,7 +696,6 @@
         "ocaml-language-server": "^1.0.34",
         "oni-api": "^0.0.42",
         "oni-neovim-binaries": "0.1.1",
-        "oni-neovim-binaries": "0.1.0",
         "oni-ripgrep": "0.0.4",
         "oni-types": "0.0.4",
         "react": "16.0.0",
