@@ -8,12 +8,16 @@ import { Event, IEvent } from "oni-types"
 
 import * as Utility from "./../../../Utility"
 
-import { IStore } from "./../../../Store"
+import { IPersistentStore } from "./../../../PersistentStore"
 
 export interface AchievementDefinition {
     uniqueId: string
     name: string
     description: string
+
+    // An achievement 'id' that this achievement
+    // depends on, before it can be tracked or available
+    dependsOnId?: string
 
     goals: AchievementGoalDefinition[]
 }
@@ -26,6 +30,7 @@ export interface AchievementGoalDefinition {
 
 export interface AchievementWithProgressInfo {
     achievement: AchievementDefinition
+    locked?: boolean
     completed: boolean
 }
 
@@ -33,18 +38,29 @@ export class AchievementsManager {
     private _goalState: IPersistedAchievementState
     private _achievements: { [achievementId: string]: AchievementDefinition } = {}
     private _trackingGoals: { [goalId: string]: string[] } = {}
+    private _enabled: boolean
 
     private _currentIdleCallback: number | null = null
     private _onAchievementAccomplishedEvent = new Event<AchievementDefinition>()
+
+    public get enabled(): boolean {
+        return this._enabled
+    }
+
+    public set enabled(val: boolean) {
+        this._enabled = val
+    }
 
     public get onAchievementAccomplished(): IEvent<AchievementDefinition> {
         return this._onAchievementAccomplishedEvent
     }
 
-    constructor(private _persistentStore: IStore<IPersistedAchievementState>) {}
+    constructor(private _persistentStore: IPersistentStore<IPersistedAchievementState>) {
+        this._enabled = true
+    }
 
     public notifyGoal(goalId: string): void {
-        if (!this._isInitialized()) {
+        if (!this._isInitialized() || !this._enabled) {
             return
         }
 
@@ -76,11 +92,16 @@ export class AchievementsManager {
         const allAchievements = Object.values(this._achievements)
 
         return allAchievements.map(achievement => {
-            const completed = this._goalState.achievedIds.indexOf(achievement.uniqueId) >= 0
-
+            const isDependentAchievementCompleted =
+                !achievement.dependsOnId ||
+                this._goalState.achievedIds.indexOf(achievement.dependsOnId) >= 0
+            const completed =
+                isDependentAchievementCompleted &&
+                this._goalState.achievedIds.indexOf(achievement.uniqueId) >= 0
             return {
                 achievement,
                 completed,
+                locked: !isDependentAchievementCompleted,
             }
         })
     }

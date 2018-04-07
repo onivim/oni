@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<NotificationsView /> should match the snapshot 1`] = `
+<styled.div
+  className="notification"
+  key="1"
+  level="info"
+  onClick={[Function]}
+>
+  <styled.header>
+    <styled.div>
+      <styled.div
+        level="info"
+      >
+        <Sneakable
+          callback={[Function]}
+        >
+          <Icon
+            name="info-circle"
+            size={1}
+          />
+        </Sneakable>
+      </styled.div>
+      <styled.div
+        onClick={[Function]}
+      >
+        <Sneakable
+          callback={[Function]}
+        >
+          <Icon
+            name="times"
+            size={1}
+          />
+        </Sneakable>
+      </styled.div>
+    </styled.div>
+    <styled.div
+      level="info"
+    >
+      testing1
+    </styled.div>
+  </styled.header>
+  <styled.div>
+    <styled.div>
+      this is a test
+    </styled.div>
+  </styled.div>
+</styled.div>
+`;

@@ -7,6 +7,7 @@
 
 export * from "./MockBuffer"
 export * from "./neovim/MockNeovimInstance"
+export * from "./MockPersistentStore"
 export * from "./MockPluginManager"
 export * from "./MockThemeLoader"
 

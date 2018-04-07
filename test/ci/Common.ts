@@ -74,3 +74,17 @@ export const waitForCommand = async (command: string, oni: Oni.Plugin.Api): Prom
         return anyCommands.hasCommand(command)
     }, 10000)
 }
+
+export async function awaitEditorMode(oni: Oni.Plugin.Api, mode: string): Promise<void> {
+    function condition(): boolean {
+        return oni.editors.activeEditor.mode === mode
+    }
+    await oni.automation.waitFor(condition)
+}
+
+export async function insertText(oni: Oni.Plugin.Api, text: string): Promise<void> {
+    oni.automation.sendKeys("i")
+    await awaitEditorMode(oni, "insert")
+    oni.automation.sendKeys(`${text}<ESC>`)
+    await awaitEditorMode(oni, "normal")
+}

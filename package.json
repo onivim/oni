@@ -3,16 +3,9 @@
     "author": "",
     "email": "bryphe@outlook.com",
     "homepage": "https://www.onivim.io",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "description": "Code editor with a modern twist on modal editing - powered by neovim.",
-    "keywords": [
-        "vim",
-        "neovim",
-        "text",
-        "editor",
-        "ide",
-        "vim"
-    ],
+    "keywords": ["vim", "neovim", "text", "editor", "ide", "vim"],
     "main": "./lib/main/src/main.js",
     "bin": {
         "oni": "./cli/oni",
@@ -26,6 +19,7 @@
             "**/*",
             "!**/*.oni",
             "!**/*.vscode",
+            "!**/travis_wait*.log",
             "!app",
             "!assets",
             "!browser",
@@ -50,168 +44,641 @@
         "mac": {
             "artifactName": "${productName}-${version}-osx.${ext}",
             "category": "public.app-category.developer-tools",
-            "target": [
-                "dmg"
-            ],
-            "files": [
-                "bin/osx/**/*"
-            ]
+            "target": ["dmg"],
+            "files": ["bin/osx/**/*"]
         },
         "linux": {
             "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
             "maintainer": "bryphe@outlook.com",
-            "target": [
-                "tar.gz",
-                "deb",
-                "rpm"
-            ]
+            "target": ["tar.gz", "deb", "rpm"]
         },
         "win": {
-            "target": [
-                "zip",
-                "dir"
-            ],
-            "files": [
-                "bin/x86/**/*"
-            ]
+            "target": ["zip", "dir"],
+            "files": ["bin/x86/**/*"]
         },
         "fileAssociations": [
             {
-                "ext": "js",
-                "name": "javascript",
+                "name": "ADA source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": ["adb", "ads"]
             },
             {
-                "ext": "json",
-                "name": "JSON",
+                "name": "Compiled AppleScript",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "scpt"
             },
             {
-                "ext": "jsx",
-                "name": "JSX",
+                "name": "AppleScript source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "applescript"
             },
             {
-                "ext": "py",
-                "name": "Python",
+                "name": "ActionScript source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "as"
             },
             {
-                "ext": "go",
-                "name": "Go Lang",
+                "name": "ASP document",
                 "role": "Editor",
-                "isPackage": true
+                "ext": ["asp", "asa"]
             },
             {
-                "ext": "re",
-                "name": "Reason",
+                "name": "ASP.NET document",
                 "role": "Editor",
-                "isPackage": true
+                "ext": ["aspx", "ascx", "asmx", "ashx"]
             },
             {
-                "ext": "vim",
-                "name": "VimL",
+                "name": "BibTeX bibliography",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "bib"
             },
             {
-                "ext": "ts",
-                "name": "Typescript",
+                "name": "C source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "c"
             },
             {
-                "ext": "tsx",
-                "name": "Typescript",
+                "name": "C++ source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": ["cc", "cp", "cpp", "cxx", "c++"]
             },
             {
-                "ext": "css",
-                "name": "CSS",
+                "name": "C# source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "cs"
             },
             {
-                "ext": "txt",
-                "name": "Text",
+                "name": "CoffeeScript source",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "coffee"
             },
             {
-                "ext": "md",
-                "name": "Markdown",
+                "name": "Commit message",
                 "role": "Editor",
-                "isPackage": true
+                "ext": "COMMIT_EDITMSG"
+            },
+            {
+                "name": "Context Free Design Grammar",
+                "role": "Editor",
+                "ext": "cfdg"
+            },
+            {
+                "name": "Clojure source",
+                "role": "Editor",
+                "ext": ["clj", "cljs"]
+            },
+            {
+                "name": "Comma separated values",
+                "role": "Editor",
+                "ext": "csv"
+            },
+            {
+                "name": "Tab separated values",
+                "role": "Editor",
+                "ext": "tsv"
+            },
+            {
+                "name": "CGI script",
+                "role": "Editor",
+                "ext": ["cgi", "fcgi"]
+            },
+            {
+                "name": "Configuration file",
+                "role": "Editor",
+                "ext": ["cfg", "conf", "config", "htaccess"]
+            },
+            {
+                "name": "Cascading style sheet",
+                "role": "Editor",
+                "ext": "css"
+            },
+            {
+                "name": "Differences file",
+                "role": "Editor",
+                "ext": "diff"
+            },
+            {
+                "name": "Document Type Definition",
+                "role": "Editor",
+                "ext": "dtd"
+            },
+            {
+                "name": "Dylan source",
+                "role": "Editor",
+                "ext": "dylan"
+            },
+            {
+                "name": "Erlang source",
+                "role": "Editor",
+                "ext": ["erl", "hrl"]
+            },
+            {
+                "name": "F-Script source",
+                "role": "Editor",
+                "ext": "fscript"
+            },
+            {
+                "name": "Fortran source",
+                "role": "Editor",
+                "ext": ["f", "for", "fpp", "f77", "f90", "f95"]
+            },
+            {
+                "name": "Header",
+                "role": "Editor",
+                "ext": ["h", "pch"]
+            },
+            {
+                "name": "C++ header",
+                "role": "Editor",
+                "ext": ["hh", "hpp", "hxx", "h++"]
+            },
+            {
+                "name": "Go source",
+                "role": "Editor",
+                "ext": "go"
+            },
+            {
+                "name": "GTD document",
+                "role": "Editor",
+                "ext": ["gtd", "gtdlog"]
+            },
+            {
+                "name": "Haskell source",
+                "role": "Editor",
+                "ext": ["hs", "lhs"]
+            },
+            {
+                "name": "HTML document",
+                "role": "Editor",
+                "ext": ["htm", "html", "phtml", "shtml"]
+            },
+            {
+                "name": "Include file",
+                "role": "Editor",
+                "ext": "inc"
+            },
+            {
+                "name": "iCalendar schedule",
+                "role": "Editor",
+                "ext": "ics"
+            },
+            {
+                "name": "MS Windows initialization file",
+                "role": "Editor",
+                "ext": "ini"
+            },
+            {
+                "name": "Io source",
+                "role": "Editor",
+                "ext": "io"
+            },
+            {
+                "name": "Java source",
+                "role": "Editor",
+                "ext": "java"
+            },
+            {
+                "name": "BeanShell script",
+                "role": "Editor",
+                "ext": "bsh"
+            },
+            {
+                "name": "Java properties file",
+                "role": "Editor",
+                "ext": "properties"
+            },
+            {
+                "name": "JavaScript source",
+                "role": "Editor",
+                "ext": ["js", "htc"]
+            },
+            {
+                "name": "Java Server Page",
+                "role": "Editor",
+                "ext": "jsp"
+            },
+            {
+                "name": "JSON file",
+                "role": "Editor",
+                "ext": "json"
+            },
+            {
+                "name": "LDAP Data Interchange Format",
+                "role": "Editor",
+                "ext": "ldif"
+            },
+            {
+                "name": "Less source",
+                "role": "Editor",
+                "ext": "less"
+            },
+            {
+                "name": "Lisp source",
+                "role": "Editor",
+                "ext": ["lisp", "cl", "l", "lsp", "mud", "el"]
+            },
+            {
+                "name": "Log file",
+                "role": "Editor",
+                "ext": "log"
+            },
+            {
+                "name": "Logo source",
+                "role": "Editor",
+                "ext": "logo"
+            },
+            {
+                "name": "Lua source",
+                "role": "Editor",
+                "ext": "lua"
+            },
+            {
+                "name": "Markdown document",
+                "role": "Editor",
+                "ext": ["markdown", "mdown", "markdn", "md"]
+            },
+            {
+                "name": "Makefile source",
+                "role": "Editor",
+                "ext": "mk"
+            },
+            {
+                "name": "Mediawiki document",
+                "role": "Editor",
+                "ext": ["wiki", "wikipedia", "mediawiki"]
+            },
+            {
+                "name": "MIPS assembler source",
+                "role": "Editor",
+                "ext": ["s", "mips", "spim", "asm"]
+            },
+            {
+                "name": "Modula-3 source",
+                "role": "Editor",
+                "ext": ["m3", "cm3"]
+            },
+            {
+                "name": "MoinMoin document",
+                "role": "Editor",
+                "ext": "moinmoin"
+            },
+            {
+                "name": "Objective-C source",
+                "role": "Editor",
+                "ext": "m"
+            },
+            {
+                "name": "Objective-C++ source",
+                "role": "Editor",
+                "ext": "mm"
+            },
+            {
+                "name": "OCaml source",
+                "role": "Editor",
+                "ext": ["ml", "mli", "mll", "mly"]
+            },
+            {
+                "name": "Mustache document",
+                "role": "Editor",
+                "ext": ["mustache", "hbs"]
+            },
+            {
+                "name": "Pascal source",
+                "role": "Editor",
+                "ext": ["pas", "p"]
+            },
+            {
+                "name": "Patch file",
+                "role": "Editor",
+                "ext": "patch"
+            },
+            {
+                "name": "Perl source",
+                "role": "Editor",
+                "ext": ["pl", "pod", "perl"]
+            },
+            {
+                "name": "Perl module",
+                "role": "Editor",
+                "ext": "pm"
+            },
+            {
+                "name": "PHP source",
+                "role": "Editor",
+                "ext": ["php", "php3", "php4", "php5"]
+            },
+            {
+                "name": "PostScript source",
+                "role": "Editor",
+                "ext": ["ps", "eps"]
+            },
+            {
+                "name": "Property list",
+                "role": "Editor",
+                "ext": ["dict", "plist", "scriptSuite", "scriptTerminology"]
+            },
+            {
+                "name": "Python source",
+                "role": "Editor",
+                "ext": ["py", "rpy", "cpy", "python"]
+            },
+            {
+                "name": "R source",
+                "role": "Editor",
+                "ext": ["r", "s"]
+            },
+            {
+                "name": "Ragel source",
+                "role": "Editor",
+                "ext": ["rl", "ragel"]
+            },
+            {
+                "name": "Remind document",
+                "role": "Editor",
+                "ext": ["rem", "remind"]
+            },
+            {
+                "name": "reStructuredText document",
+                "role": "Editor",
+                "ext": ["rst", "rest"]
+            },
+            {
+                "name": "HTML with embedded Ruby",
+                "role": "Editor",
+                "ext": ["rhtml", "erb"]
+            },
+            {
+                "name": "SQL with embedded Ruby",
+                "role": "Editor",
+                "ext": "erbsql"
+            },
+            {
+                "name": "Ruby source",
+                "role": "Editor",
+                "ext": ["rb", "rbx", "rjs", "rxml"]
+            },
+            {
+                "name": "Sass source",
+                "role": "Editor",
+                "ext": ["sass", "scss"]
+            },
+            {
+                "name": "Scheme source",
+                "role": "Editor",
+                "ext": ["scm", "sch"]
+            },
+            {
+                "name": "Setext document",
+                "role": "Editor",
+                "ext": "ext"
+            },
+            {
+                "name": "Shell script",
+                "role": "Editor",
+                "ext": [
+                    "sh",
+                    "ss",
+                    "bashrc",
+                    "bash_profile",
+                    "bash_login",
+                    "profile",
+                    "bash_logout"
+                ]
+            },
+            {
+                "name": "Slate source",
+                "role": "Editor",
+                "ext": "slate"
+            },
+            {
+                "name": "SQL source",
+                "role": "Editor",
+                "ext": "sql"
+            },
+            {
+                "name": "Standard ML source",
+                "role": "Editor",
+                "ext": "sml"
+            },
+            {
+                "name": "Strings document",
+                "role": "Editor",
+                "ext": "strings"
+            },
+            {
+                "name": "Scalable vector graphics",
+                "role": "Editor",
+                "ext": "svg"
+            },
+            {
+                "name": "SWIG source",
+                "role": "Editor",
+                "ext": ["i", "swg"]
+            },
+            {
+                "name": "Tcl source",
+                "role": "Editor",
+                "ext": "tcl"
+            },
+            {
+                "name": "TeX document",
+                "role": "Editor",
+                "ext": ["tex", "sty", "cls"]
+            },
+            {
+                "name": "Plain text document",
+                "role": "Editor",
+                "ext": ["text", "txt", "utf8"]
+            },
+            {
+                "name": "Textile document",
+                "role": "Editor",
+                "ext": "textile"
+            },
+            {
+                "name": "TOML file",
+                "role": "Editor",
+                "ext": "toml"
+            },
+            {
+                "name": "XHTML document",
+                "role": "Editor",
+                "ext": "xhtml"
+            },
+            {
+                "name": "XML document",
+                "role": "Editor",
+                "ext": ["xml", "xsd", "xib", "rss", "tld", "pt", "cpt", "dtml"]
+            },
+            {
+                "name": "XSL stylesheet",
+                "role": "Editor",
+                "ext": ["xsl", "xslt"]
+            },
+            {
+                "name": "Electronic business card",
+                "role": "Editor",
+                "ext": ["vcf", "vcard"]
+            },
+            {
+                "name": "Visual Basic source",
+                "role": "Editor",
+                "ext": "vb"
+            },
+            {
+                "name": "YAML document",
+                "role": "Editor",
+                "ext": ["yaml", "yml"]
+            },
+            {
+                "name": "Text document",
+                "role": "Editor",
+                "ext": "nfo"
+            },
+            {
+                "name": "Source",
+                "role": "Editor",
+                "ext": [
+                    "g",
+                    "vss",
+                    "d",
+                    "e",
+                    "gri",
+                    "inf",
+                    "mel",
+                    "build",
+                    "re",
+                    "textmate",
+                    "fxscript",
+                    "lgt"
+                ]
+            },
+            {
+                "name": "Document",
+                "role": "Editor",
+                "ext": [
+                    "cfm",
+                    "cfml",
+                    "dbm",
+                    "dbml",
+                    "dist",
+                    "dot",
+                    "ics",
+                    "ifb",
+                    "dwt",
+                    "g",
+                    "in",
+                    "l",
+                    "m4",
+                    "mp",
+                    "mtml",
+                    "orig",
+                    "pde",
+                    "rej",
+                    "servlet",
+                    "s5",
+                    "tmp",
+                    "tpl",
+                    "tt",
+                    "xql",
+                    "yy",
+                    "*"
+                ]
             }
         ]
     },
     "scripts": {
         "precommit": "pretty-quick --staged",
         "prepush": "npm run build && npm run lint",
-        "build": "npm run build:browser && npm run build:webview_preload && npm run build:main && npm run build:plugins",
+        "build":
+            "npm run build:browser && npm run build:webview_preload && npm run build:main && npm run build:plugins",
         "build-debug": "npm run build:browser-debug && npm run build:main && npm run build:plugins",
         "build:browser": "webpack --config browser/webpack.production.config.js",
         "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
         "build:main": "cd main && tsc -p tsconfig.json",
-        "build:plugins": "npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-markdown-preview",
+        "build:plugins":
+            "npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-markdown-preview",
         "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && npm run build",
-        "build:plugin:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm run build",
+        "build:plugin:oni-plugin-markdown-preview":
+            "cd extensions/oni-plugin-markdown-preview && npm run build",
         "build:test": "npm run build:test:unit && npm run build:test:integration",
         "build:test:integration": "cd test && tsc -p tsconfig.json",
         "build:test:unit": "npm run build:test:unit:browser && npm run build:test:unit:main",
-        "build:test:unit:browser": "rimraf lib_test/browser && cd browser && tsc -p tsconfig.test.json",
+        "build:test:unit:browser":
+            "rimraf lib_test/browser && cd browser && tsc -p tsconfig.test.json",
         "build:test:unit:main": "rimraf lib_test/main && cd main && tsc -p tsconfig.test.json",
         "build:webview_preload": "cd webview_preload && tsc -p tsconfig.json",
         "check-cached-binaries": "node build/script/CheckBinariesForBuild.js",
         "copy-icons": "node build/CopyIcons.js",
-        "debug:test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
-        "demo:screenshot": "npm run build:test && cross-env DEMO_TEST=HeroScreenshot mocha -t 30000000 lib_test/test/Demo.js",
-        "demo:video": "npm run build:test && cross-env DEMO_TEST=HeroDemo mocha -t 30000000 lib_test/test/Demo.js",
-        "dist:win": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
-        "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
+        "debug:test:unit:browser":
+            "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+        "demo:screenshot":
+            "npm run build:test && cross-env DEMO_TEST=HeroScreenshot mocha -t 30000000 lib_test/test/Demo.js",
+        "demo:video":
+            "npm run build:test && cross-env DEMO_TEST=HeroDemo mocha -t 30000000 lib_test/test/Demo.js",
+        "dist:win:x86":
+            "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
+        "dist:win:x64":
+            "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch x64 --publish never",
+        "pack:win":
+            "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
         "test": "npm run test:unit && npm run test:integration",
         "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js --bail",
         "test:react": "jest --config ./jest.config.js ./ui-tests",
         "test:react:watch": "jest --config ./jest.config.js ./ui-tests --watch",
         "test:react:coverage": "jest --config ./jest.config.js ./ui-tests --coverage",
-        "test:unit:browser": "npm run build:test:unit:browser && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+        "test:unit:browser":
+            "npm run build:test:unit:browser && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
         "test:unit": "npm run test:unit:browser && npm run test:unit:main && npm run test:react",
-        "test:unit:main": "npm run build:test:unit:main && cd main && electron-mocha --renderer --recursive ../lib_test/main/test",
+        "test:unit:main":
+            "npm run build:test:unit:main && cd main && electron-mocha --renderer --recursive ../lib_test/main/test",
         "upload:dist": "node build/script/UploadDistributionBuildsToAzure",
         "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
-        "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+        "fix-lint:browser":
+            "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
         "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
         "lint": "npm run lint:browser && npm run lint:main && npm run lint:test",
-        "lint:browser": "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+        "lint:browser":
+            "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
-        "lint:test": "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
+        "lint:test":
+            "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
         "pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --publish never",
-        "ccov:instrument": "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
-        "ccov:test:browser": "cross-env ONI_CCOV=1 electron-mocha --renderer --require browser/testHelpers.js -R browser/testCoverageReporter --recursive lib_test/browser/test",
-        "ccov:remap:browser:html": "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output html-report --type html",
-        "ccov:remap:browser:lcov": "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output lcov.info --type lcovonly",
+        "ccov:instrument":
+            "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
+        "ccov:test:browser":
+            "cross-env ONI_CCOV=1 electron-mocha --renderer --require browser/testHelpers.js -R browser/testCoverageReporter --recursive lib_test/browser/test",
+        "ccov:remap:browser:html":
+            "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output html-report --type html",
+        "ccov:remap:browser:lcov":
+            "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output lcov.info --type lcovonly",
         "ccov:clean": "rimraf coverage",
         "ccov:upload": "codecov",
         "launch": "electron lib/main/src/main.js",
-        "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
-        "start-hot": "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
+        "start":
+            "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
+        "start-hot":
+            "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
         "start-not-dev": "cross-env electron main.js",
-        "watch:browser": "webpack-dev-server --config browser/webpack.development.config.js --host localhost --port 8191",
-        "watch:plugins": "npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
+        "watch:browser":
+            "webpack-dev-server --config browser/webpack.development.config.js --host localhost --port 8191",
+        "watch:plugins":
+            "npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
         "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
-        "watch:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && tsc --watch",
+        "watch:plugins:oni-plugin-markdown-preview":
+            "cd extensions/oni-plugin-markdown-preview && tsc --watch",
         "uninstall-global": "npm rm -g oni-vim",
         "install-global": "npm install -g oni-vim",
-        "install:plugins": "npm run install:plugins:oni-plugin-markdown-preview",
-        "install:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm install --prod",
+        "install:plugins":
+            "npm run install:plugins:oni-plugin-markdown-preview && npm run install:plugins:oni-plugin-prettier",
+        "install:plugins:oni-plugin-markdown-preview":
+            "cd extensions/oni-plugin-markdown-preview && npm install --prod",
+        "install:plugins:oni-plugin-prettier":
+            "cd extensions/oni-plugin-prettier && npm install --prod",
         "postinstall": "npm run install:plugins && electron-rebuild && opencollective postinstall",
-        "profile:webpack": "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
+        "profile:webpack":
+            "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
     },
     "repository": {
         "type": "git",
@@ -227,9 +694,10 @@
         "minimist": "1.2.0",
         "msgpack-lite": "0.1.26",
         "ocaml-language-server": "^1.0.34",
-        "oni-api": "^0.0.41",
+        "oni-api": "^0.0.42",
+        "oni-neovim-binaries": "0.1.1",
         "oni-neovim-binaries": "0.1.0",
-        "oni-ripgrep": "0.0.3",
+        "oni-ripgrep": "0.0.4",
         "oni-types": "0.0.4",
         "react": "16.0.0",
         "react-dnd": "^2.5.4",
@@ -319,7 +787,7 @@
         "mkdirp": "0.5.1",
         "mocha": "3.1.2",
         "nyc": "^11.4.1",
-        "oni-release-downloader": "0.0.8",
+        "oni-release-downloader": "^0.0.10",
         "opencollective": "1.0.3",
         "optimize-js-plugin": "0.0.4",
         "prettier": "^1.10.2",
@@ -336,7 +804,7 @@
         "redux-thunk": "2.2.0",
         "remap-istanbul": "^0.10.1",
         "reselect": "3.0.1",
-        "rxjs": "5.5.0",
+        "rxjs": "^5.5.8",
         "sinon": "1.17.6",
         "spectron": "^3.8.0",
         "style-loader": "0.18.2",

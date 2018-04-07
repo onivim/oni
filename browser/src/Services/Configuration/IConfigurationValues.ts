@@ -41,13 +41,13 @@ export interface IConfigurationValues {
     "editor.split.mode": string
 
     "configuration.editor": string
+    "configuration.showReferenceBuffer": boolean
 
     // - textMateHighlighting
     "editor.textMateHighlighting.enabled": boolean
 
     // Whether or not the learning pane is available
-    "experimental.achievements.enabled": boolean
-    "experimental.learning.enabled": boolean
+    "experimental.particles.enabled": boolean
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
@@ -55,6 +55,9 @@ export interface IConfigurationValues {
     "wildmenu.mode": boolean
     "commandline.mode": boolean
     "commandline.icons": boolean
+
+    // Experimental flag for 'generalized preview'
+    "experimental.preview.enabled": boolean
 
     "experimental.welcome.enabled": boolean
 
@@ -197,6 +200,9 @@ export interface IConfigurationValues {
 
     "keyDisplayer.showInInsertMode": boolean
 
+    "learning.enabled": boolean
+    "achievements.enabled": boolean
+
     // Case-sensitivity strategy for menu filtering:
     // - if `true`, is case sensitive
     // - if `false`, is not case sensitive
@@ -217,10 +223,29 @@ export interface IConfigurationValues {
     "recorder.copyScreenshotToClipboard": boolean
 
     "sidebar.enabled": boolean
+    "sidebar.default.open": boolean
     "sidebar.width": string
 
     "sidebar.marks.enabled": boolean
     "sidebar.plugins.enabled": boolean
+
+    "oni.plugins.prettier": {
+        settings: {
+            semi: boolean
+            tabWidth: number
+            useTabs: boolean
+            singleQuote: boolean
+            trailingComma: "es5" | "all" | "none"
+            bracketSpacing: boolean
+            jsxBracketSameLine: boolean
+            arrowParens: "avoid" | "always"
+            printWidth: number
+            [key: string]: number | string | boolean
+        }
+        formatOnSave: boolean
+        enabled: boolean
+        allowedFiletypes?: string[]
+    }
 
     "snippets.enabled": boolean
     "snippets.userSnippetFolder": string

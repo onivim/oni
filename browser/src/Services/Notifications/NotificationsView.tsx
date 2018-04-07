@@ -10,9 +10,14 @@ import { connect, Provider } from "react-redux"
 
 import { CSSTransition, TransitionGroup } from "react-transition-group"
 
-import { INotification, INotificationsState, NotificationLevel } from "./NotificationStore"
+import {
+    INotification,
+    INotificationButton,
+    INotificationsState,
+    NotificationLevel,
+} from "./NotificationStore"
 
-import { boxShadow, keyframes, styled, withProps } from "./../../UI/components/common"
+import { boxShadow, keyframes, lighten, styled, withProps } from "./../../UI/components/common"
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { Icon, IconSize } from "./../../UI/Icon"
 
@@ -138,7 +143,7 @@ const NotificationIconWrapper = withProps<IErrorStyles>(styled.div)`
     }
 `
 
-const NotificationContents = styled.div`
+export const NotificationContents = styled.div`
     flex: 1 1 auto;
     width: 100%;
 
@@ -152,7 +157,7 @@ const NotificationContents = styled.div`
     overflow-x: hidden;
 `
 
-const NotificationTitle = withProps<IErrorStyles>(styled.div)`
+export const NotificationTitle = withProps<IErrorStyles>(styled.div)`
     ${({ level }) => level && `color: ${getColorForErrorLevel(level)};`};
     flex: 0 0 auto;
     width: 100%;
@@ -161,7 +166,7 @@ const NotificationTitle = withProps<IErrorStyles>(styled.div)`
     font-size: 1.1em;
 `
 
-const NotificationDescription = styled.div`
+export const NotificationDescription = styled.div`
     flex: 1 1 auto;
     overflow-y: auto;
     overflow-x: hidden;
@@ -181,6 +186,48 @@ const NotificationHeader = styled.header`
     padding: 0.5rem;
 `
 
+const ButtonRow = styled.div`
+    width: 100%;
+    height: 10%;
+    display: flex;
+    justify-content: flex-end;
+`
+
+export const Button = styled.button`
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    overflow: hidden;
+    min-width: 5em;
+    min-height: 2em;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: inherit;
+    display: inline-block;
+    margin: 0 0.5em;
+    ${boxShadow};
+    ${({ theme }) => `
+        background-color: ${lighten(theme["editor.background"], 0.25)};
+        color: ${theme["editor.foreground"]};
+    `};
+`
+
+interface IButtonProps {
+    buttons: INotificationButton[]
+}
+
+const Buttons = ({ buttons }: IButtonProps) => {
+    return (
+        <ButtonRow>
+            {buttons.map(({ callback, title }) => (
+                <Sneakable callback={callback}>
+                    <Button onClick={callback}>{title}</Button>
+                </Sneakable>
+            ))}
+        </ButtonRow>
+    )
+}
+
 export class NotificationView extends React.PureComponent<INotification, {}> {
     private iconDictionary = {
         error: "times-circle",
@@ -190,7 +237,7 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
     }
 
     public render(): JSX.Element {
-        const { level } = this.props
+        const { level, buttons } = this.props
         return (
             <NotificationWrapper
                 key={this.props.id}
@@ -216,6 +263,7 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
                 <NotificationContents>
                     <NotificationDescription>{this.props.detail}</NotificationDescription>
                 </NotificationContents>
+                {buttons && <Buttons buttons={buttons} />}
             </NotificationWrapper>
         )
     }

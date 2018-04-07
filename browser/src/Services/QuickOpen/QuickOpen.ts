@@ -22,6 +22,7 @@ import { render as renderPinnedIcon } from "./PinnedIconView"
 import { QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
 import { regexFilter } from "./RegExFilter"
 import * as RipGrep from "./RipGrep"
+import { vsCodeFilter } from "./VSCodeFilter"
 
 import { getFileIcon } from "./../FileIcon"
 
@@ -77,10 +78,18 @@ export class QuickOpen {
 
         const filterStrategy = configuration.getValue("editor.quickOpen.filterStrategy")
 
-        const useRegExFilter = filterStrategy === "regex"
-
-        const filterFunction = useRegExFilter ? regexFilter : fuseFilter
-        this._menu.setFilterFunction(filterFunction)
+        switch (filterStrategy) {
+            case "fuse":
+                this._menu.setFilterFunction(fuseFilter)
+                break
+            case "regex":
+                this._menu.setFilterFunction(regexFilter)
+                break
+            case "vscode":
+            default:
+                this._menu.setFilterFunction(vsCodeFilter)
+                break
+        }
 
         //  If in exec directory or home, show bookmarks to change cwd to
         if (this._isInstallDirectoryOrHome()) {

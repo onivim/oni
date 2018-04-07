@@ -15,11 +15,13 @@ import { SidebarButton } from "./../../UI/components/SidebarButton"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 
-import { Container, Fixed, Full } from "./../../UI/components/common"
+import { Bold, Center, Container, Fixed, Full } from "./../../UI/components/common"
 import { Icon, IconSize } from "./../../UI/Icon"
 import { SidebarPane } from "./../Sidebar"
 
 import { ITutorialMetadataWithProgress, TutorialManager } from "./Tutorial/TutorialManager"
+
+import { noop } from "./../../Utility"
 
 export class LearningPane implements SidebarPane {
     private _onEnter = new Event<void>()
@@ -74,8 +76,63 @@ export interface ILearningPaneViewState {
     tutorialInfo: ITutorialMetadataWithProgress[]
 }
 
+import styled from "styled-components"
+
+const TutorialItemViewIconContainer = styled.div`
+    width: 2em;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const TutorialItemTitleWrapper = styled.div`
+    font-size: 0.9em;
+    margin-left: 0.5em;
+`
+
+const TutorialResultsWrapper = styled.div`
+    font-size: 0.8em;
+`
+
 export const TutorialItemView = (props: { info: ITutorialMetadataWithProgress }): JSX.Element => {
-    return <div>{props.info.tutorialInfo.name}</div>
+    const isCompleted = !!props.info.completionInfo
+
+    const icon = isCompleted ? <Icon name={"check"} /> : <Icon name={"circle-o"} />
+
+    // TODO: Refactor this to a 'success' theme color, ie: highlight.success.background
+    const backgroundColor = isCompleted ? "#5AB379" : "rgba(0, 0, 0, 0.1)"
+    // TODO: Refactor this to a 'success' theme color, ie: highlight.success.foreground
+    const color = isCompleted ? "white" : null
+
+    const results = isCompleted ? (
+        <div style={{ margin: "0.5em" }}>
+            <TutorialResultsWrapper>
+                <Bold>{(props.info.completionInfo.time / 1000).toFixed(2)}</Bold>s
+            </TutorialResultsWrapper>
+            <TutorialResultsWrapper>
+                <Bold>{props.info.completionInfo.keyPresses}</Bold> keys
+            </TutorialResultsWrapper>
+        </div>
+    ) : (
+        <div style={{ margin: "0.5em" }}>--</div>
+    )
+
+    return (
+        <Container direction="horizontal" fullWidth={true} style={{ backgroundColor, color }}>
+            <Fixed style={{ backgroundColor }}>
+                <TutorialItemViewIconContainer>{icon}</TutorialItemViewIconContainer>
+            </Fixed>
+            <Full style={{ margin: "0.5em", whiteSpace: "pre-wrap" }}>
+                <TutorialItemTitleWrapper>{props.info.tutorialInfo.name}</TutorialItemTitleWrapper>
+            </Full>
+            <Fixed>
+                <Center style={{ flexDirection: "column" }}>{results}</Center>
+            </Fixed>
+        </Container>
+    )
 }
 
 export class LearningPaneView extends PureComponentWithDisposeTracking<
@@ -96,6 +153,13 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
 
         this.trackDisposable(this.props.onEnter.subscribe(() => this.setState({ isActive: true })))
         this.trackDisposable(this.props.onLeave.subscribe(() => this.setState({ isActive: false })))
+        this.trackDisposable(
+            this.props.tutorialManager.onTutorialProgressChangedEvent.subscribe(() => {
+                this.setState({
+                    tutorialInfo: this.props.tutorialManager.getTutorialInfo(),
+                })
+            }),
+        )
     }
 
     public render(): JSX.Element {
@@ -105,9 +169,10 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
         const tutorialItems = (selectedId: string) =>
             this.state.tutorialInfo.map(t => (
                 <SidebarItemView
-                    indentationLevel={1}
+                    indentationLevel={0}
                     isFocused={selectedId === t.tutorialInfo.id}
                     text={<TutorialItemView info={t} />}
+                    onClick={() => this._onSelect(t.tutorialInfo.id)}
                 />
             ))
 
@@ -162,6 +227,7 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
                                     text={"Tutorials"}
                                     isContainer={true}
                                     isExpanded={true}
+                                    onClick={noop}
                                 >
                                     {items}
                                 </SidebarContainerView>

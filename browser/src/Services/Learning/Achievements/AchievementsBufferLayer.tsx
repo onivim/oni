@@ -10,11 +10,12 @@ import * as React from "react"
 import styled from "styled-components"
 
 import { BufferLayerHeader } from "./../../../UI/components/BufferLayerHeader"
-import { boxShadow, Fixed, Full, withProps } from "./../../../UI/components/common"
+import { Bold, boxShadow, Fixed, Full, withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
 import { Icon, IconSize } from "./../../../UI/Icon"
 
 import * as Oni from "oni-api"
+import { IDisposable } from "oni-types"
 
 import { AchievementsManager, AchievementWithProgressInfo } from "./AchievementsManager"
 
@@ -27,10 +28,12 @@ export interface ITrophyCaseViewState {
 }
 
 export const TrophyCaseViewWrapper = withProps<{}>(styled.div)`
-    background-color: ${p => p.theme.background};
-    color: ${p => p.theme.foreground};
+    background-color: ${props => props.theme["editor.background"]};
+    color: ${props => props.theme["editor.foreground"]};
     width: 100%;
     height: 100%;
+    overflow-y: auto;
+    pointer-events: all;
 
     display: flex;
     flex-direction: column;
@@ -40,7 +43,7 @@ export const TrophyCaseViewWrapper = withProps<{}>(styled.div)`
 
 export const TrophyCaseItemViewWrapper = withProps<{}>(styled.div)`
     ${boxShadow}
-    background-color: ${p => p.theme["editor.background"]};
+    background-color: ${props => props.theme.background};
     margin: 1em;
     position: relative;
 
@@ -97,25 +100,46 @@ export const CenteredIcon = withProps<ICenteredIconProps>(styled.div)`
     ${p => (p.isSuccess ? "color: " + p.theme["highlight.mode.insert.background"] + ";" : "")}
 `
 
-export const TrophyCaseItemView = (props: { achievementInfo: AchievementWithProgressInfo }) => {
+export const TrophyCaseItemView = (props: {
+    achievementInfo: AchievementWithProgressInfo
+    dependentAchieventName?: string
+}) => {
+    const isLocked = !!props.dependentAchieventName
+
+    const icon = (
+        <FlipCard
+            isFlipped={props.achievementInfo.completed}
+            front={
+                <CenteredIcon>
+                    <Icon name="trophy" size={IconSize.ThreeX} />
+                </CenteredIcon>
+            }
+            back={
+                <CenteredIcon isSuccess={true}>
+                    <Icon name="check" size={IconSize.ThreeX} />
+                </CenteredIcon>
+            }
+        />
+    )
+
+    const lockedIcon = (
+        <CenteredIcon>
+            <Icon name="lock" size={IconSize.ThreeX} />
+        </CenteredIcon>
+    )
+
+    const description = isLocked ? (
+        <span>
+            Complete the <Bold>{props.dependentAchieventName}</Bold> achievement to unlock
+        </span>
+    ) : (
+        props.achievementInfo.achievement.description
+    )
+
     return (
         <TrophyCaseItemViewWrapper>
             <Fixed>
-                <TrophyItemIcon>
-                    <FlipCard
-                        isFlipped={props.achievementInfo.completed}
-                        front={
-                            <CenteredIcon>
-                                <Icon name="trophy" size={IconSize.ThreeX} />
-                            </CenteredIcon>
-                        }
-                        back={
-                            <CenteredIcon isSuccess={true}>
-                                <Icon name="check" size={IconSize.ThreeX} />
-                            </CenteredIcon>
-                        }
-                    />
-                </TrophyItemIcon>
+                <TrophyItemIcon>{isLocked ? lockedIcon : icon}</TrophyItemIcon>
             </Fixed>
             <Full
                 style={{
@@ -125,8 +149,8 @@ export const TrophyCaseItemView = (props: { achievementInfo: AchievementWithProg
                     padding: "1em",
                 }}
             >
-                <TitleText>{props.achievementInfo.achievement.name}</TitleText>
-                <DescriptionText>{props.achievementInfo.achievement.description}</DescriptionText>
+                <TitleText>{isLocked ? null : props.achievementInfo.achievement.name}</TitleText>
+                <DescriptionText>{description}</DescriptionText>
             </Full>
         </TrophyCaseItemViewWrapper>
     )
@@ -136,6 +160,8 @@ export class TrophyCaseView extends React.PureComponent<
     ITrophyCaseViewProps,
     ITrophyCaseViewState
 > {
+    private _disposables: IDisposable[] = []
+
     constructor(props: ITrophyCaseViewProps) {
         super(props)
 
@@ -144,10 +170,42 @@ export class TrophyCaseView extends React.PureComponent<
         }
     }
 
+    public componentDidMount(): void {
+        this._cleanSubscriptions()
+
+        const s1 = this.props.achievements.onAchievementAccomplished.subscribe(() => {
+            this.setState({
+                progressInfo: this.props.achievements.getAchievements(),
+            })
+        })
+
+        this._disposables = [s1]
+    }
+
+    public componentWillUnmount(): void {
+        this._cleanSubscriptions()
+    }
+
     public render(): JSX.Element {
-        const items = this.state.progressInfo.map(item => (
-            <TrophyCaseItemView achievementInfo={item} />
-        ))
+        const items = this.state.progressInfo.map(item => {
+            let dependentAchievementName = null
+            if (item.locked) {
+                const dependentId = item.achievement.dependsOnId
+                const dependentAchievement = this.state.progressInfo.find(
+                    f => f.achievement.uniqueId === dependentId,
+                )
+                if (dependentAchievement) {
+                    dependentAchievementName = dependentAchievement.achievement.name
+                }
+            }
+
+            return (
+                <TrophyCaseItemView
+                    achievementInfo={item}
+                    dependentAchieventName={dependentAchievementName}
+                />
+            )
+        })
         return (
             <TrophyCaseViewWrapper>
                 <TrophyCaseBackground>
@@ -162,6 +220,11 @@ export class TrophyCaseView extends React.PureComponent<
                 <Full>{items}</Full>
             </TrophyCaseViewWrapper>
         )
+    }
+
+    private _cleanSubscriptions(): void {
+        this._disposables.forEach(d => d.dispose())
+        this._disposables = []
     }
 }
 

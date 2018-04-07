@@ -36,6 +36,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "browser.defaultUrl": "https://duckduckgo.com",
     "configuration.editor": "typescript",
+    "configuration.showReferenceBuffer": true,
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
@@ -50,7 +51,8 @@ const BaseConfiguration: IConfigurationValues = {
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
-    "experimental.learning.enabled": false,
+    "experimental.particles.enabled": false,
+    "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
 
     "experimental.neovim.transport": "stdio",
@@ -59,8 +61,6 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.maxLinesForLanguageServices": 2500,
     "editor.textMateHighlighting.enabled": true,
-
-    "experimental.achievements.enabled": false,
 
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
@@ -105,7 +105,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
-    "editor.quickOpen.filterStrategy": "regex",
+    "editor.quickOpen.filterStrategy": "vscode",
 
     "editor.split.mode": "native",
 
@@ -191,6 +191,11 @@ const BaseConfiguration: IConfigurationValues = {
     "language.ocaml.languageServer.arguments": ["--stdio"],
     "language.ocaml.languageServer.configuration": ocamlAndReasonConfiguration,
 
+    "language.haskell.languageServer.command": "stack",
+    "language.haskell.languageServer.arguments": ["exec", "--", "hie", "--lsp"],
+    "language.haskell.languageServer.rootFiles": [".git"],
+    "language.haskell.languageServer.configuration": {},
+
     "language.typescript.completionTriggerCharacters": [".", "/", "\\"],
     "language.typescript.textMateGrammar": {
         ".ts": path.join(
@@ -226,6 +231,9 @@ const BaseConfiguration: IConfigurationValues = {
         ),
     },
 
+    "learning.enabled": true,
+    "achievements.enabled": true,
+
     "menu.caseSensitive": "smart",
     "menu.rowHeight": 40,
     "menu.maxItemsToShow": 8,
@@ -236,6 +244,7 @@ const BaseConfiguration: IConfigurationValues = {
     "recorder.outputPath": os.tmpdir(),
 
     "sidebar.enabled": true,
+    "sidebar.default.open": true,
     "sidebar.width": "50px",
 
     "sidebar.marks.enabled": false,
@@ -253,6 +262,22 @@ const BaseConfiguration: IConfigurationValues = {
         "oni.status.mode": 1,
         "oni.status.filetype": 1,
         "oni.status.git": 3,
+    },
+
+    "oni.plugins.prettier": {
+        settings: {
+            semi: false,
+            tabWidth: 2,
+            useTabs: false,
+            singleQuote: false,
+            trailingComma: "es5",
+            bracketSpacing: true,
+            jsxBracketSameLine: false,
+            arrowParens: "avoid",
+            printWidth: 80,
+        },
+        formatOnSave: false,
+        enabled: false,
     },
 
     "tabs.mode": "tabs",

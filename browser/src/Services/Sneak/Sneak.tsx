@@ -8,7 +8,7 @@ import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
 
-import { IDisposable } from "oni-types"
+import { Event, IDisposable, IEvent } from "oni-types"
 
 import { Overlay, OverlayManager } from "./../Overlay"
 
@@ -21,6 +21,11 @@ export class Sneak {
     private _activeOverlay: Overlay
     private _providers: SneakProvider[] = []
     private _store: Store<ISneakState>
+    private _onSneakCompleted = new Event<ISneakInfo>()
+
+    public get onSneakCompleted(): IEvent<ISneakInfo> {
+        return this._onSneakCompleted
+    }
 
     constructor(private _overlayManager: OverlayManager) {
         this._store = createSneakStore()
@@ -42,7 +47,11 @@ export class Sneak {
             this._activeOverlay = null
         }
 
-        this._store.dispatch({ type: "START" })
+        this._store.dispatch({
+            type: "START",
+            width: document.body.offsetWidth,
+            height: document.body.offsetHeight,
+        })
         this._collectSneakRectangles()
 
         this._activeOverlay = this._overlayManager.createItem()
@@ -66,6 +75,8 @@ export class Sneak {
     private _onComplete(sneakInfo: ISneakInfo): void {
         this.close()
         sneakInfo.callback()
+
+        this._onSneakCompleted.dispatch(sneakInfo)
     }
 
     private _collectSneakRectangles(): void {

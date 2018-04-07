@@ -16,6 +16,8 @@ import { VimNavigator } from "./../UI/components/VimNavigator"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 
+import { noop } from "./../Utility"
+
 export class PluginsSidebarPane implements SidebarPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
@@ -120,6 +122,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                             isFocused={p.id === selectedId}
                             isContainer={false}
                             text={p.id}
+                            onClick={noop}
                         />
                     ))
 
@@ -129,6 +132,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                             isFocused={p.id === selectedId}
                             isContainer={false}
                             text={p.id}
+                            onClick={noop}
                         />
                     ))
 
@@ -138,6 +142,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                                 text={"Default"}
                                 isExpanded={this.state.defaultPluginsExpanded}
                                 isFocused={selectedId === "container.default"}
+                                onClick={noop}
                             >
                                 {defaultPluginItems}
                             </SidebarContainerView>
@@ -145,6 +150,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                                 text={"User"}
                                 isExpanded={this.state.userPluginsExpanded}
                                 isFocused={selectedId === "container.user"}
+                                onClick={noop}
                             >
                                 {userPluginItems}
                             </SidebarContainerView>

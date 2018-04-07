@@ -56,18 +56,8 @@ export const activate = (
         }),
         new CallbackCommand("oni.about", null, null, () => showAboutMessage()),
 
-        // Debug
-        new CallbackCommand(
-            "oni.debug.openDevTools",
-            "Open DevTools",
-            "Debug Oni and any running plugins using the Chrome developer tools",
-            () => remote.getCurrentWindow().webContents.openDevTools(),
-        ),
-        new CallbackCommand(
-            "oni.debug.reload",
-            "Reload Oni",
-            "Reloads the Oni instance. You will lose all unsaved changes",
-            () => remote.getCurrentWindow().reload(),
+        new CallbackCommand("oni.process.openWindow", "New Window", "Open a new window", () =>
+            multiProcess.openNewWindow(),
         ),
 
         new CallbackCommand(

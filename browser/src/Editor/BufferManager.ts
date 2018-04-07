@@ -42,9 +42,11 @@ import { TokenColor } from "./../Services/TokenColors"
 import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 
 export interface IBuffer extends Oni.Buffer {
+    setLanguage(lang: string): Promise<void>
     getCursorPosition(): Promise<types.Position>
     handleInput(key: string): boolean
     detectIndentation(): Promise<BufferIndentationInfo>
+    setScratchBuffer(): Promise<void>
 }
 
 type NvimError = [1, string]
@@ -86,6 +88,7 @@ export class Buffer implements IBuffer {
     private _filePath: string
     private _language: string
     private _cursor: Oni.Cursor
+    private _cursorOffset: number
     private _version: number
     private _modified: boolean
     private _lineCount: number
@@ -107,6 +110,10 @@ export class Buffer implements IBuffer {
 
     public get cursor(): Oni.Cursor {
         return this._cursor
+    }
+
+    public get cursorOffset(): number {
+        return this._cursorOffset
     }
 
     public get version(): number {
@@ -134,8 +141,26 @@ export class Buffer implements IBuffer {
         this._actions.addBufferLayer(parseInt(this._id, 10), layer)
     }
 
+    public getLayerById<T>(id: string): T {
+        return (this._store
+            .getState()
+            .layers[parseInt(this._id, 10)].find(layer => layer.id === id) as any) as T
+    }
+
     public removeLayer(layer: IBufferLayer): void {
         this._actions.removeBufferLayer(parseInt(this._id, 10), layer)
+    }
+
+    /**
+     * convertOffsetToLineColumn
+     */
+    public async convertOffsetToLineColumn(
+        cursorOffset = this._cursorOffset,
+    ): Promise<types.Position> {
+        const line: number = await this._neovimInstance.callFunction("byte2line", [cursorOffset])
+        const countFromLine: number = await this._neovimInstance.callFunction("line2byte", [line])
+        const column = cursorOffset - countFromLine
+        return types.Position.create(line - 1, column)
     }
 
     public async getCursorPosition(): Promise<types.Position> {
@@ -175,21 +200,40 @@ export class Buffer implements IBuffer {
 
     public async setLanguage(language: string): Promise<void> {
         this._language = language
-        await this._neovimInstance.request<any>("nvim_buf_set_option", [
-            parseInt(this._id, 10),
-            "filetype",
-            language,
-        ])
+        await this._neovimInstance.command(`setl ft=${language}`)
+    }
+
+    public async setScratchBuffer(): Promise<void> {
+        // set the open buffer to be a readonly throw away buffer, also add scrollbind
+        // may need a config option
+        const calls = [
+            ["nvim_command", ["setlocal buftype=nofile"]],
+            ["nvim_command", ["setlocal bufhidden=hide"]],
+            ["nvim_command", ["setlocal noswapfile"]],
+            ["nvim_command", ["setlocal nobuflisted"]],
+            ["nvim_command", ["setlocal nomodifiable"]],
+            ["nvim_command", ["windo set scrollbind!"]],
+        ]
+
+        const [result, error] = await this._neovimInstance.request<any[] | NvimError>(
+            "nvim_call_atomic",
+            [calls],
+        )
+
+        if (typeof result === "number" && error) {
+            Log.info(`Failed to set scratch buffer due to ${error}`)
+        }
+        this._modified = false
     }
 
     public async detectIndentation(): Promise<BufferIndentationInfo> {
         const bufferLinesPromise = this.getLines(0, 1024)
         const detectIndentPromise = import("detect-indent")
 
-        await Promise.all([bufferLinesPromise, detectIndentPromise])
-
-        const bufferLines = await bufferLinesPromise
-        const detectIndent = await detectIndentPromise
+        const [bufferLines, detectIndent] = await Promise.all([
+            bufferLinesPromise,
+            detectIndentPromise,
+        ])
 
         const ret = detectIndent(bufferLines.join("\n"))
 
@@ -387,6 +431,7 @@ export class Buffer implements IBuffer {
         this._version = evt.version
         this._modified = evt.modified
         this._lineCount = evt.bufferTotalLines
+        this._cursorOffset = evt.byte
 
         this._cursor = {
             line: evt.line - 1,

@@ -7,10 +7,11 @@
 import { Configuration } from "./../../Configuration"
 import { OverlayManager } from "./../../Overlay"
 
-import { getStore, IStore } from "./../../../Store"
+import { getPersistentStore, IPersistentStore } from "./../../../PersistentStore"
 
 import { CommandManager } from "./../../CommandManager"
 import { EditorManager } from "./../../EditorManager"
+import { SidebarManager } from "./../../Sidebar"
 
 export * from "./AchievementsManager"
 
@@ -24,21 +25,21 @@ export const activate = (
     commandManager: CommandManager,
     configuration: Configuration,
     editorManager: EditorManager,
-    // sidebarManager: SidebarManager,
+    sidebarManager: SidebarManager,
     overlays: OverlayManager,
 ) => {
-    const achievementsEnabled = configuration.getValue("experimental.achievements.enabled")
+    const achievementsEnabled = configuration.getValue("achievements.enabled")
 
-    if (!achievementsEnabled) {
-        return
-    }
-
-    const store: IStore<IPersistedAchievementState> = getStore("oni-achievements", {
-        goalCounts: {},
-        achievedIds: [],
-    })
+    const store: IPersistentStore<IPersistedAchievementState> = getPersistentStore(
+        "oni-achievements",
+        {
+            goalCounts: {},
+            achievedIds: [],
+        },
+    )
 
     const manager = new AchievementsManager(store)
+    manager.enabled = achievementsEnabled
     _achievements = manager
 
     const renderer = new AchievementNotificationRenderer(overlays)
@@ -48,6 +49,8 @@ export const activate = (
             title: achievement.name,
             description: achievement.description,
         })
+
+        sidebarManager.setNotification("oni.sidebar.learning")
     })
 
     manager.registerAchievement({
@@ -65,6 +68,7 @@ export const activate = (
 
     manager.registerAchievement({
         uniqueId: "oni.achievement.dedication",
+        dependsOnId: "oni.achievement.welcome",
         name: "Dedication",
         description: "Launch Oni 25 times",
         goals: [

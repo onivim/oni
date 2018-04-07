@@ -3,6 +3,8 @@ import * as path from "path"
 
 import { Application } from "spectron"
 
+import { ensureProcessNotRunning } from "./ensureProcessNotRunning"
+
 const log = (msg: string) => {
     console.log(msg) // tslint:disable-line no-console
 }
@@ -17,10 +19,21 @@ const isCiBuild = () => {
     return ciBuild
 }
 
+const getWindowsExcutablePathOnCiMachine = () => {
+    switch (process.env.PLATFORM) {
+        case "x86":
+            return path.join(__dirname, "..", "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
+        case "x64":
+            return path.join(__dirname, "..", "..", "..", "dist", "win-unpacked", "Oni.exe")
+        default:
+            throw new Error(`Unable to find Oni executable for Windows arch ${process.arch}`)
+    }
+}
+
 const getExecutablePathOnCiMachine = () => {
     switch (process.platform) {
         case "win32":
-            return path.join(__dirname, "..", "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
+            return getWindowsExcutablePathOnCiMachine()
         case "darwin":
             return path.join(
                 __dirname,
@@ -111,12 +124,41 @@ export class Oni {
                 }
 
                 log("- Calling _app.stop")
-                await this._app.stop()
-                log("- _app.stop call completed")
+                let didStop = false
+                const promise1 = this._app.stop().then(
+                    () => {
+                        log("_app.stop promise completed!")
+                        didStop = true
+                    },
+                    err => {
+                        // tslint:disable-next-line
+                        console.error(err)
+                    },
+                )
+
+                const promise2 = sleep(15000)
+
+                log("- Racing with 15s timer...")
+                const race = Promise.race([promise1, promise2])
+                await race
+
+                log("- Race complete. didStop: " + didStop)
+
+                if (!didStop) {
+                    log("- Attemping to force close processes:")
+                    await ensureProcessNotRunning("nvim")
+                    log("- Force close complete")
+                }
 
                 attempts++
             }
         }
         log("Oni closed.")
     }
+}
+
+const sleep = (timeout: number = 1000) => {
+    return new Promise(resolve => {
+        setTimeout(resolve, timeout)
+    })
 }

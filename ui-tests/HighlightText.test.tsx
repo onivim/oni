@@ -6,15 +6,10 @@ import * as os from "os"
 
 import { HighlightTextByIndex } from "./../browser/src/UI/components/HighlightText"
 
-interface IHighlightTextByIndexProps {
-    highlightClassName: string
-    highlightIndices: number[]
-    text: string
-    className: string
-}
+const highlightComponent = "em"
 
 const initialState = {
-    highlightClassName: "highlight-test",
+    highlightComponent,
     highlightIndices: [0, 1, 3, 4],
     text: "highlight text",
     className: "test-class",
@@ -37,12 +32,12 @@ describe("<HighlightTextByIndex />", () => {
         expect(component.text()).toHaveLength(14)
 
         // Check only 4 chars were highlighed
-        expect(component.find(".highlight-test")).toHaveLength(4)
+        expect(component.find("em")).toHaveLength(4)
     })
 
     it("renders the correct text with no highlights", () => {
         const testState = {
-            highlightClassName: "highlight-test",
+            highlightComponent,
             highlightIndices: [],
             text: "no highlight text",
             className: "test-class",
@@ -57,12 +52,12 @@ describe("<HighlightTextByIndex />", () => {
         expect(component.text()).toHaveLength(17)
 
         // Check no chars were highlighed
-        expect(component.find(".highlight-test")).toHaveLength(0)
+        expect(component.find("em")).toHaveLength(0)
     })
 
     it("doesn't crash when passed a non-string", () => {
         const testState = {
-            highlightClassName: "highlight-test",
+            highlightComponent,
             highlightIndices: [0, 1, 3, 4],
             text: 10101,
             className: "test-class",

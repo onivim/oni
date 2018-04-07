@@ -15,14 +15,21 @@ const extensionsRoot = path.join(__dirname, "extensions")
 
 import { flatMap } from "./../Utility"
 
+import { IPluginInstaller, YarnPluginInstaller } from "./PluginInstaller"
+
 export class PluginManager implements Oni.IPluginManager {
     private _rootPluginPaths: string[] = []
     private _plugins: Plugin[] = []
     private _anonymousPlugin: AnonymousPlugin
     private _pluginsActivated: boolean = false
+    private _installer: IPluginInstaller = new YarnPluginInstaller()
 
     public get plugins(): Plugin[] {
         return this._plugins
+    }
+
+    public get installer(): IPluginInstaller {
+        return this._installer
     }
 
     constructor(private _config: Configuration) {}
