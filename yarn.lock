@@ -5633,13 +5633,13 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@^0.0.41:
-  version "0.0.41"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.41.tgz#42bb55d27d63f173fb378da2e1f70a0ad753e4f5"
+oni-api@^0.0.42:
+  version "0.0.42"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.42.tgz#79cab4289809bda1c7b86590119f0c7aaa5a053e"
 
-oni-neovim-binaries@0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/oni-neovim-binaries/-/oni-neovim-binaries-0.1.1.tgz#7aed74c14bca2581e1447c557541192dd5e89cdd"
+oni-neovim-binaries@0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/oni-neovim-binaries/-/oni-neovim-binaries-0.1.0.tgz#3852b654b2db8aa53e72c053163ade50eb80ee5b"
 
 oni-release-downloader@^0.0.10:
   version "0.0.10"
