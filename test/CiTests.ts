@@ -11,6 +11,7 @@ const LongTimeout = 5000
 
 const CiTests = [
     // Core functionality tests
+    "initVimPromptNotificationTest",
     "Api.Buffer.AddLayer",
     "Api.Overlays.AddRemoveTest",
     "AutoClosingPairsTest",
@@ -34,7 +35,6 @@ const CiTests = [
     "QuickOpenTest",
     "StatusBar-Mode",
     "Neovim.InvalidInitVimHandlingTest",
-    "initVimPromptNotificationTest",
     "Neovim.CallOniCommands",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
