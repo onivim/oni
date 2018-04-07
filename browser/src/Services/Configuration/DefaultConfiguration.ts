@@ -213,6 +213,10 @@ const BaseConfiguration: IConfigurationValues = {
             "TypeScriptReact.tmLanguage.json",
         ),
     },
+    "language.java.textMateGrammar": {
+        ".java": path.join(__dirname, "extensions", "java", "syntaxes", "Java.tmLanguage.json"),
+        ".jar": path.join(__dirname, "extensions", "java", "syntaxes", "Java.tmLanguage.json"),
+    },
     "language.javascript.completionTriggerCharacters": [".", "/", "\\"],
     "language.javascript.textMateGrammar": {
         ".js": path.join(
