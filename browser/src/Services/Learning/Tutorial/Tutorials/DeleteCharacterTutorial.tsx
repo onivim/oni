@@ -131,7 +131,7 @@ export class DeleteCharacterTutorial implements ITutorial {
             name: "Deleting a Character",
             description:
                 "In normal mode, you can quickly delete characters. Move to the character (using h/j/k/l) and press `x` to delete. Correct the above lines without going to insert mode.",
-            level: 120,
+            level: 190,
         }
     }
 

@@ -36,6 +36,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "browser.defaultUrl": "https://duckduckgo.com",
     "configuration.editor": "typescript",
+    "configuration.showReferenceBuffer": true,
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
@@ -104,7 +105,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
-    "editor.quickOpen.filterStrategy": "regex",
+    "editor.quickOpen.filterStrategy": "vscode",
 
     "editor.split.mode": "native",
 
@@ -243,6 +244,7 @@ const BaseConfiguration: IConfigurationValues = {
     "recorder.outputPath": os.tmpdir(),
 
     "sidebar.enabled": true,
+    "sidebar.default.open": true,
     "sidebar.width": "50px",
 
     "sidebar.marks.enabled": false,
@@ -260,6 +262,22 @@ const BaseConfiguration: IConfigurationValues = {
         "oni.status.mode": 1,
         "oni.status.filetype": 1,
         "oni.status.git": 3,
+    },
+
+    "oni.plugins.prettier": {
+        settings: {
+            semi: false,
+            tabWidth: 2,
+            useTabs: false,
+            singleQuote: false,
+            trailingComma: "es5",
+            bracketSpacing: true,
+            jsxBracketSameLine: false,
+            arrowParens: "avoid",
+            printWidth: 80,
+        },
+        formatOnSave: false,
+        enabled: false,
     },
 
     "tabs.mode": "tabs",

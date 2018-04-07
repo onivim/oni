@@ -5633,13 +5633,13 @@ oni-api@^0.0.41:
   version "0.0.41"
   resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.41.tgz#42bb55d27d63f173fb378da2e1f70a0ad753e4f5"
 
-oni-neovim-binaries@0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/oni-neovim-binaries/-/oni-neovim-binaries-0.1.0.tgz#3852b654b2db8aa53e72c053163ade50eb80ee5b"
+oni-neovim-binaries@0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/oni-neovim-binaries/-/oni-neovim-binaries-0.1.1.tgz#7aed74c14bca2581e1447c557541192dd5e89cdd"
 
-oni-release-downloader@0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/oni-release-downloader/-/oni-release-downloader-0.0.8.tgz#7796cfd0c6df9a7ebcd7573389bdb387351c843a"
+oni-release-downloader@^0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/oni-release-downloader/-/oni-release-downloader-0.0.10.tgz#819253e4e463dfbbabd1d8904ed24402724efc6a"
   dependencies:
     extract-zip "^1.6.6"
     fs-extra "^4.0.2"
@@ -5647,9 +5647,9 @@ oni-release-downloader@0.0.8:
     mkdirp "^0.5.1"
     rimraf "^2.6.2"
 
-oni-ripgrep@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/oni-ripgrep/-/oni-ripgrep-0.0.3.tgz#fce3ae21f41b587e09827cb3c6e4dce91928c6a7"
+oni-ripgrep@0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/oni-ripgrep/-/oni-ripgrep-0.0.4.tgz#8eb52383f4a3f92b8b5d8fe29d52e9d728a46b50"
 
 oni-types@0.0.4:
   version "0.0.4"

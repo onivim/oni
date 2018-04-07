@@ -129,6 +129,7 @@ const generateBuildMetadata = (branch, version) => {
     return {
         branch,
         version,
+        commit: COMMIT_ID,
         releaseNotesUrl: "https://github.com/onivim/oni/wiki/Whats-New-in-Oni",
         releaseDate: new Date().getTime(),
         containerName: getContainerName(branch, version, COMMIT_ID),

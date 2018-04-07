@@ -152,7 +152,7 @@ export class CursorPositionerView extends React.PureComponent<
         const childStyle = this.state.shouldOpenDownward ? openFromTopStyle : openFromBottomStyle
         const arrowStyle = this.state.shouldOpenDownward ? openFromBottomStyle : openFromTopStyle
 
-        const arrowStyleWithAdjustments = {
+        const arrowStyleWithAdjustments: React.CSSProperties = {
             ...arrowStyle,
             left: (this.props.x + this.props.fontPixelWidth / 2).toString() + "px",
             visibility: this.props.hideArrow ? "hidden" : "visible",

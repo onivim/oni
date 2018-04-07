@@ -19,7 +19,7 @@ import { withProps } from "./../../../../UI/components/common"
 
 const FuzzyFadeInKeyframes = keyframes`
     0% { opacity: 0; -webkit-filter: blur(10px); }
-    100% { opacity: 1; -webkit-filter: blur(0px); }
+    100% { opacity: 1; }
 `
 const Wrapper = withProps<{}>(styled.div)`
     background-color: ${props => props.theme["editor.background"]};
@@ -28,7 +28,7 @@ const Wrapper = withProps<{}>(styled.div)`
 `
 
 const FadeInWrapper = styled.div`
-    animation: ${FuzzyFadeInKeyframes} 0.5s linear forwards;
+    animation: ${FuzzyFadeInKeyframes} 0.4s linear forwards;
 
     opacity: 0;
 `

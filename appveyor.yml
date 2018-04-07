@@ -10,7 +10,7 @@ branches:
     - /^release.*/
 
 cache:
-    - "%LOCALAPPDATA%\\Yarn"
+    - .oni_build_cache -> package.json 
 
 platform:
     - x86
@@ -27,7 +27,8 @@ install:
   - node --version
   - npm --version
   # install modules
-  - yarn install
+  - yarn install --verbose
+  - npm run check-cached-binaries
 
 artifacts:
     - path: dist/*.exe
