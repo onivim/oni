@@ -302,10 +302,34 @@ const BaseConfiguration: IConfigurationValues = {
         "shell.tmLanguage.json",
     ),
     "language.markdown.textMateGrammar": {
-        ".md": path.join(__dirname, "extensions", "rust", "syntaxes", "rust.tmLanguage.json"),
-        ".markdown": path.join(__dirname, "extensions", "rust", "syntaxes", "rust.tmLanguage.json"),
-        ".mkd": path.join(__dirname, "extensions", "rust", "syntaxes", "rust.tmLanguage.json"),
-        ".mdown": path.join(__dirname, "extensions", "rust", "syntaxes", "rust.tmLanguage.json"),
+        ".md": path.join(
+            __dirname,
+            "extensions",
+            "markdown",
+            "syntaxes",
+            "markdown.tmLanguage.json",
+        ),
+        ".markdown": path.join(
+            __dirname,
+            "extensions",
+            "markdown",
+            "syntaxes",
+            "markdown.tmLanguage.json",
+        ),
+        ".mkd": path.join(
+            __dirname,
+            "extensions",
+            "markdown",
+            "syntaxes",
+            "markdown.tmLanguage.json",
+        ),
+        ".mdown": path.join(
+            __dirname,
+            "extensions",
+            "markdown",
+            "syntaxes",
+            "markdown.tmLanguage.json",
+        ),
     },
     "language.java.textMateGrammar": {
         ".java": path.join(__dirname, "extensions", "java", "syntaxes", "Java.tmLanguage.json"),
