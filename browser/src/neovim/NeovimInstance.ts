@@ -551,12 +551,15 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
      * return the init vim path with no check to ensure existence
      */
     public getInitVimPath(): string {
+        // tslint:disable no-string-literal
+        const MYVIMRC = process.env["MYVIMRC"]
         const rootFolder = Platform.isWindows()
             ? // Use path from: https://github.com/neovim/neovim/wiki/FAQ
-              path.join(process.env["LOCALAPPDATA"], "nvim") // tslint:disable-line no-string-literal
+              path.join(process.env["LOCALAPPDATA"], "nvim")
             : path.join(Platform.getUserHome(), ".config", "nvim")
-        const initVimPath = path.join(rootFolder, "init.vim")
+        const initVimPath = MYVIMRC || path.join(rootFolder, "init.vim")
         return initVimPath
+        // tslint:enable no-string-literal
     }
 
     /**

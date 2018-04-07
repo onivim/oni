@@ -8,6 +8,7 @@
 // import * as assert from "assert"
 import { Assertor } from "./Assert"
 
+import * as fs from "fs"
 import * as Oni from "oni-api"
 
 import {
@@ -15,7 +16,20 @@ import {
     getElementByClassName,
     getElementsBySelector,
     getSingleElementBySelector,
+    getTemporaryFilePath,
 } from "./Common"
+
+// tslint:disable:no-console
+
+const createAndReturnInitVimPath = (): string => {
+    const tempInitVim = getTemporaryFilePath("vim")
+
+    console.log("- Writing init vim to: " + tempInitVim)
+    fs.writeFileSync(tempInitVim, "derpInvalidInitVimderp")
+    console.log("- Write successful.")
+
+    return tempInitVim
+}
 
 export const test = async (oni: Oni.Plugin.Api) => {
     const assert = new Assertor("Prompt Notification Test ===============")
@@ -46,10 +60,14 @@ export const test = async (oni: Oni.Plugin.Api) => {
 }
 
 export const settings = {
+    env: {
+        MYVIMRC: createAndReturnInitVimPath(),
+    },
     config: {
         "oni.loadInitVim": false,
         "oni.useDefaultConfig": true,
         "notifications.enabled": true,
         "_internal.hasCheckedInitVim": false,
     },
+    allowLogFailures: true,
 }

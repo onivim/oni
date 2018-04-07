@@ -11,7 +11,6 @@ const LongTimeout = 5000
 
 const CiTests = [
     // Core functionality tests
-    "initVimPromptNotificationTest",
     "Api.Buffer.AddLayer",
     "Api.Overlays.AddRemoveTest",
     "AutoClosingPairsTest",
@@ -23,6 +22,7 @@ const CiTests = [
     "Configuration.TypeScriptEditor.NewConfigurationTest",
     "Configuration.TypeScriptEditor.CompletionTest",
 
+    "initVimPromptNotificationTest",
     "Editor.BuffersCursorTest",
     "Editor.ExternalCommandLineTest",
     "Editor.BufferModifiedState",
