@@ -264,7 +264,7 @@ export class NeovimEditor extends Editor implements IEditor {
             initVimNotification.setContents(
                 "init.vim found",
                 `We found an init.vim file would you like Oni to use it?
-                this will result in Oni being reloaded`,
+                This will result in Oni being reloaded`,
             )
 
             initVimNotification.setButtons([
