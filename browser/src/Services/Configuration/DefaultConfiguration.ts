@@ -280,6 +280,27 @@ const BaseConfiguration: IConfigurationValues = {
             "objective-c++.tmLanguage.json",
         ),
     },
+    "language.python.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "python",
+        "syntaxes",
+        "python.tmLanguage.json",
+    ),
+    "language.sh.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "shell",
+        "syntaxes",
+        "shell.tmLanguage.json",
+    ),
+    "language.zsh.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "shell",
+        "syntaxes",
+        "shell.tmLanguage.json",
+    ),
     "language.markdown.textMateGrammar": {
         ".md": path.join(__dirname, "extensions", "rust", "syntaxes", "rust.tmLanguage.json"),
         ".markdown": path.join(__dirname, "extensions", "rust", "syntaxes", "rust.tmLanguage.json"),
