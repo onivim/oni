@@ -251,17 +251,35 @@ const BaseConfiguration: IConfigurationValues = {
     "language.php.textMateGrammar": path.join(
         __dirname,
         "extensions",
-        "rust",
+        "php",
         "syntaxes",
         "php.tmLanguage.json",
     ),
-    "language.objective-c.textMateGrammar": path.join(
-        __dirname,
-        "extensions",
-        "rust",
-        "syntaxes",
-        "objective-c.tmLanguage.json",
-    ),
+    "language.objc.textMateGrammar": {
+        ".m": path.join(
+            __dirname,
+            "extensions",
+            "objective-c",
+            "syntaxes",
+            "objective-c.tmLanguage.json",
+        ),
+        ".h": path.join(
+            __dirname,
+            "extensions",
+            "objective-c",
+            "syntaxes",
+            "objective-c.tmLanguage.json",
+        ),
+    },
+    "language.objcpp.textMateGrammar": {
+        ".mm": path.join(
+            __dirname,
+            "extensions",
+            "objective-c++",
+            "syntaxes",
+            "objective-c++.tmLanguage.json",
+        ),
+    },
     "language.markdown.textMateGrammar": {
         ".md": path.join(__dirname, "extensions", "rust", "syntaxes", "rust.tmLanguage.json"),
         ".markdown": path.join(__dirname, "extensions", "rust", "syntaxes", "rust.tmLanguage.json"),
