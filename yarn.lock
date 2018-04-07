@@ -5595,9 +5595,9 @@ obuf@^1.0.0, obuf@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.1.tgz#104124b6c602c6796881a042541d36db43a5264e"
 
-ocaml-language-server@^1.0.29:
-  version "1.0.29"
-  resolved "https://registry.yarnpkg.com/ocaml-language-server/-/ocaml-language-server-1.0.29.tgz#6946fc269c3f25fa312b7a689a6804042d44a516"
+ocaml-language-server@^1.0.34:
+  version "1.0.34"
+  resolved "https://registry.yarnpkg.com/ocaml-language-server/-/ocaml-language-server-1.0.34.tgz#8512b26c30a0c8684e1613ed0a4ae063418b382a"
   dependencies:
     async "2.6.0"
     deepmerge "2.1.0"
@@ -5606,7 +5606,7 @@ ocaml-language-server@^1.0.29:
     lokijs "1.5.3"
     pegjs "0.10.0"
     vscode-jsonrpc "3.6.0"
-    vscode-languageclient "4.0.0"
+    vscode-languageclient "4.0.1"
     vscode-languageserver "4.0.0"
     vscode-languageserver-protocol "3.6.0"
     vscode-uri "1.0.3"
@@ -8110,9 +8110,9 @@ vscode-jsonrpc@3.6.0, vscode-jsonrpc@^3.6.0:
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/vscode-jsonrpc/-/vscode-jsonrpc-3.6.0.tgz#848d56995d5168950d84feb5d9c237ae5c6a02d4"
 
-vscode-languageclient@4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/vscode-languageclient/-/vscode-languageclient-4.0.0.tgz#635f5bfbcfa1385dae489b394857f1db8b459a7d"
+vscode-languageclient@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/vscode-languageclient/-/vscode-languageclient-4.0.1.tgz#70a3d98afa62b12bf932a5c987c8a73cee195017"
   dependencies:
     vscode-languageserver-protocol "^3.6.0"
 
