@@ -29,11 +29,13 @@ describe("ExplorerStore", async () => {
     const rootPath = path.normalize(path.join(TestHelpers.getRootDirectory(), "a", "test", "dir"))
     const filePath = path.join(rootPath, "file.txt")
     const target = { filePath, id: "1" }
+    const pasteTarget = { folderPath: `${rootPath}/paste`, id: "2" }
     const epicStore = mockStore({ ...ExplorerState.DefaultExplorerState })
 
     beforeEach(() => {
         fileSystem = new MemoryFileSystem()
         fileSystem.mkdirpSync(rootPath)
+        fileSystem.mkdirpSync(`${rootPath}/paste`)
         fileSystem.writeFileSync(filePath, "Hello World")
 
         const explorerFileSystem = new ExplorerFileSystem.FileSystem(fileSystem as any)
@@ -67,9 +69,10 @@ describe("ExplorerStore", async () => {
     describe("YANK_AND_PASTE_EPICS", async () => {
         it("dispatches a clear register action after a minute", async () => {
             epicStore.dispatch({ type: "YANK", target })
-            const overOneMinute = 60000 + 1000
             const actions = epicStore.getActions()
-            await setTimeout(() => assert.ok(actions.length === 2), overOneMinute)
+            await TestHelpers.waitForAllAsyncOperations()
+            // three because an init action is sent first
+            await assert.ok(actions.length === 3)
             const clearedRegister = !!actions.find(action => action.type === "CLEAR_REGISTER")
             assert.ok(clearedRegister)
         })

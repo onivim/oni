@@ -890,7 +890,6 @@
         "@types/lodash": "4.14.38",
         "@types/lolex": "2.1.0",
         "@types/marked": "^0.3.0",
-        "@types/memory-fs": "^0.3.0",
         "@types/minimatch": "3.0.1",
         "@types/minimist": "1.1.29",
         "@types/mkdirp": "0.3.29",
