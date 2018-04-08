@@ -29,7 +29,6 @@ describe("ExplorerStore", async () => {
     const rootPath = path.normalize(path.join(TestHelpers.getRootDirectory(), "a", "test", "dir"))
     const filePath = path.join(rootPath, "file.txt")
     const target = { filePath, id: "1" }
-    const pasteTarget = { folderPath: `${rootPath}/paste`, id: "2" }
     const epicStore = mockStore({ ...ExplorerState.DefaultExplorerState })
 
     beforeEach(() => {
