@@ -34,7 +34,6 @@ describe("ExplorerStore", async () => {
     beforeEach(() => {
         fileSystem = new MemoryFileSystem()
         fileSystem.mkdirpSync(rootPath)
-        fileSystem.mkdirpSync(`${rootPath}/paste`)
         fileSystem.writeFileSync(filePath, "Hello World")
 
         const explorerFileSystem = new ExplorerFileSystem.FileSystem(fileSystem as any)
