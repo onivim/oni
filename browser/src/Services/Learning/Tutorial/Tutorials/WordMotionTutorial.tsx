@@ -4,7 +4,10 @@
  * Tutorial that exercises basic word motion - `w`, `b`, `e`
  */
 
+import * as React from "react"
+
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
+import * as Notes from "./../Notes"
 import * as Stages from "./../Stages"
 
 const Line1 = "Use the w key to move to the BEGINNING of the NEXT word."
@@ -71,7 +74,7 @@ export class WordMotionTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
             id: "oni.tutorials.word_motion",
-            name: "Word Motion: w, e, b",
+            name: "Motion: w, e, b",
             description:
                 "Often, `h` and `l` aren't the fastest way to move in a line. Word motions can be useful here - and even more useful when coupled with operators (we'll explore those later)! The `w` key moves to the first letter of the next word, the `b` key moves to the beginning letter of the previous word, and the `e` key moves to the end of the next word.",
             level: 170,
@@ -80,5 +83,9 @@ export class WordMotionTutorial implements ITutorial {
 
     public get stages(): ITutorialStage[] {
         return this._stages
+    }
+
+    public get notes(): JSX.Element[] {
+        return [<Notes.HJKLKeys />, <Notes.WordKey />, <Notes.BeginningKey />, <Notes.EndKey />]
     }
 }

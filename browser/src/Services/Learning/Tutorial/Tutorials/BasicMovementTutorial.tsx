@@ -2,9 +2,12 @@
  * TutorialManager
  */
 
+import * as React from "react"
+
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
 // import { InitializeBufferStage, MoveToGoalStage } from "./../Stages"
 
+import * as Notes from "./../Notes"
 import * as Stages from "./../Stages"
 
 const Line1 = "In NORMAL mode, the 'l' key moves one character to the RIGHT..."
@@ -36,11 +39,15 @@ export class BasicMovementTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
             id: "oni.tutorials.basic_movement",
-            name: "Motion: h/j/k/l",
+            name: "Motion: h, j, k, l",
             description:
                 "To use Oni effectively in normal mode, you'll need to learn to move the cursor around! There are many ways to move the cursor, but the most basic is to use `h`, `j`, `k`, and `l`. These keys might seem strange at first, but they allow you to move the cursor without your fingers leaving the home row.",
             level: 110,
         }
+    }
+
+    public get notes(): JSX.Element[] {
+        return [<Notes.HJKLKeys />]
     }
 
     public get stages(): ITutorialStage[] {

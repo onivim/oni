@@ -1,0 +1,45 @@
+{
+    "rules": {
+        "indent": 0,
+        "linebreak-style": ["off", "unix"],
+        "quotes": ["error", "double", { "allowTemplateLiterals": true }],
+        "semi": ["error", "never"],
+        "array-callback-return": "error",
+        "eqeqeq": "error",
+        "no-console": "on",
+        "strict": 0,
+        "no-unused-vars": 0,
+        "no-undef": 1,
+        "no-undefined": 1,
+        "camelcase": 1,
+        "no-underscore-dangle": 0,
+        "no-console": 0,
+        "no-invalid-this": 1,
+        "no-useless-return": 1,
+        "comma-dangle": ["error", "only-multiline"],
+        "comma-spacing": ["error", { "before": false, "after": true }]
+    },
+    "env": {
+        "es6": true,
+        "browser": true,
+        "jasmine": true,
+        "mocha": true
+    },
+    "settings": {
+        "ecmascript": 6,
+        "jsx": true
+    },
+    "extends": "eslint:recommended",
+    "parser": "babel-eslint",
+    "plugins": ["react"],
+    "globals": {
+        "_": false,
+        "remote": false,
+        "process": false,
+        "module": false,
+        "require": false,
+        "__dirname": false,
+        "preloadedData": false
+    },
+    "root": true
+}

@@ -7,10 +7,12 @@
 
 export * from "./CompositeStage"
 export * from "./CorrectLineStage"
+export * from "./FadeInLineStage"
 export * from "./InitializeBufferStage"
 export * from "./MoveToGoalStage"
 export * from "./SetBufferStage"
 export * from "./SetCursorPositionStage"
+export * from "./WaitForRegisterStage"
 export * from "./DeleteCharactersStage"
 export * from "./WaitForModeStage"
 export * from "./WaitForStateStage"

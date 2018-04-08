@@ -4,7 +4,10 @@
  * Tutorial that exercises the delete operator
  */
 
+import * as React from "react"
+
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
+import * as Notes from "./../Notes"
 import * as Stages from "./../Stages"
 
 const Line1 = "The delete operator is very useful!"
@@ -34,6 +37,11 @@ export class DeleteOperatorTutorial implements ITutorial {
                 new Stages.DeleteCharactersStage(null, 1, 0, Line2a),
                 new Stages.WaitForStateStage(null, [Line1]),
             ),
+            Stages.combine(
+                null,
+                new Stages.FadeInLineStage(null, 1, Line2b),
+                new Stages.FadeInLineStage(null, 2, Line3b),
+            ),
             new Stages.SetBufferStage([Line1, Line2b, Line3b]),
             new Stages.MoveToGoalStage("Move to the goal marker", 1, 0),
             Stages.combine(
@@ -42,7 +50,12 @@ export class DeleteOperatorTutorial implements ITutorial {
                 new Stages.DeleteCharactersStage(null, 2, 0, Line3b),
                 new Stages.WaitForStateStage(null, [Line1]),
             ),
-            new Stages.SetBufferStage([Line1, Line2c, Line3c]),
+            Stages.combine(
+                null,
+                new Stages.FadeInLineStage(null, 1, Line2c),
+                new Stages.FadeInLineStage(null, 2, Line3c),
+                new Stages.SetBufferStage([Line1, Line2c, Line3c]),
+            ),
             new Stages.MoveToGoalStage("Move to the goal marker", 2, 0),
             Stages.combine(
                 "Delete the current line, and the one above it, with 'dk'",
@@ -50,7 +63,13 @@ export class DeleteOperatorTutorial implements ITutorial {
                 new Stages.DeleteCharactersStage(null, 2, 0, Line3c),
                 new Stages.WaitForStateStage(null, [Line1]),
             ),
-            new Stages.SetBufferStage([Line1, Line2d, Line3d, Line4d]),
+            Stages.combine(
+                null,
+                new Stages.FadeInLineStage(null, 1, Line2d),
+                new Stages.FadeInLineStage(null, 2, Line3d),
+                new Stages.FadeInLineStage(null, 3, Line4d),
+                new Stages.SetBufferStage([Line1, Line2d, Line3d, Line4d]),
+            ),
             new Stages.MoveToGoalStage("Move to the goal marker", 3, 20),
             Stages.combine(
                 "Delete the duplicate word with 'dw'",
@@ -63,14 +82,25 @@ export class DeleteOperatorTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
             id: "oni.tutorials.delete_operator",
-            name: "Operator: Delete",
+            name: "Delete Operator: d",
             description:
                 "We've stuck mostly with motions, but now we're going to learn about our first operator - delete (`d`). Operators are like _verbs_ in the vim world, and motions are like _nouns_. An operator can be paired with a motion - which means we can pair the `d` key with all sorts of motions - `dj` to delete the line and the line below, `dw` to delete a word, etc.",
-            level: 180,
+            level: 200,
         }
     }
 
     public get stages(): ITutorialStage[] {
         return this._stages
+    }
+
+    public get notes(): JSX.Element[] {
+        return [
+            <Notes.HJKLKeys />,
+            <Notes.DeleteOperatorKey />,
+            <Notes.DeleteLineKey />,
+            <Notes.DeleteLineBelowKey />,
+            <Notes.DeleteLineAboveKey />,
+            <Notes.DeleteWordKey />,
+        ]
     }
 }

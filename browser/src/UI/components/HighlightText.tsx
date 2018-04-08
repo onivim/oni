@@ -1,71 +1,61 @@
 import * as React from "react"
 
-export interface IHighlightTextProps {
-    highlightClassName: string
+interface IHighlightTextProps {
+    highlightComponent: React.ReactType
     highlightText: string
     text: string
-    className: string
+    className?: string
 }
 
-export class HighlightText extends React.PureComponent<IHighlightTextProps, {}> {
-    public render(): JSX.Element {
-        const childNodes: JSX.Element[] = []
+export const HighlightText = ({
+    highlightComponent: HighlightComponent,
+    highlightText,
+    text = "",
+    className,
+}: IHighlightTextProps) => {
+    const letterCountDictionary = createLetterCountDictionary(highlightText)
 
-        const letterCountDictionary = createLetterCountDictionary(this.props.highlightText)
+    const textCharacters = typeof text === "string" ? [...text] : []
+    const childNodes = textCharacters.map((character, index) => {
+        const remainingLetterCountBefore = letterCountDictionary[character]
+        letterCountDictionary[character] = remainingLetterCountBefore - 1
 
-        this.props.text.split("").forEach((c: string, idx: number) => {
-            const currentVal = letterCountDictionary[c]
-            letterCountDictionary[c] = currentVal - 1
+        return remainingLetterCountBefore > 0 ? (
+            <HighlightComponent key={`${index}-${character}`}>{character}</HighlightComponent>
+        ) : (
+            <span key={`${index}-${character}`}>{character}</span>
+        )
+    })
 
-            if (currentVal > 0) {
-                childNodes.push(
-                    <span key={`${idx}-${c}`} className={this.props.highlightClassName}>
-                        {c}
-                    </span>,
-                )
-            } else {
-                childNodes.push(<span key={`${idx}-${c}`}>{c}</span>)
-            }
-        })
-
-        return <span className={this.props.className}>{childNodes}</span>
-    }
+    return <span className={className}>{childNodes}</span>
 }
 
-export interface IHighlightTextByIndexProps {
-    highlightClassName: string
+interface IHighlightTextByIndexProps {
+    highlightComponent: React.ReactType
     highlightIndices: number[]
     text: string
-    className: string
+    className?: string
 }
 
-export class HighlightTextByIndex extends React.PureComponent<IHighlightTextByIndexProps, {}> {
-    public render(): JSX.Element {
-        const childNodes: JSX.Element[] = []
-        const highlightIndices = this.props.highlightIndices || []
-        let text = this.props.text || ""
+export const HighlightTextByIndex = ({
+    highlightComponent: HighlightComponent,
+    highlightIndices = [],
+    text = "",
+    className,
+}: IHighlightTextByIndexProps) => {
+    const textCharacters = typeof text === "string" ? [...text] : []
+    const childNodes = textCharacters.map(
+        (character, index) =>
+            shouldHighlightIndex(index, highlightIndices) ? (
+                <HighlightComponent key={`${index}-${highlightIndices}-${character}`}>
+                    {character}
+                </HighlightComponent>
+            ) : (
+                <span key={`${index}-${highlightIndices}-${character}`}>{character}</span>
+            ),
+    )
 
-        if (typeof text !== "string") {
-            text = ""
-        }
-
-        text.split("").forEach((c: string, idx: number) => {
-            if (shouldHighlightIndex(idx, highlightIndices)) {
-                childNodes.push(
-                    <span
-                        key={`${idx}-${highlightIndices}-${c}`}
-                        className={this.props.highlightClassName}
-                    >
-                        {c}
-                    </span>,
-                )
-            } else {
-                childNodes.push(<span key={`${idx}-${highlightIndices}-${c}`}>{c}</span>)
-            }
-        })
-
-        return <span className={this.props.className}>{childNodes}</span>
-    }
+    return <span className={className}>{childNodes}</span>
 }
 
 function shouldHighlightIndex(index: number, highlights: number[]): boolean {
@@ -76,11 +66,14 @@ export interface LetterCountDictionary {
     [letter: string]: number
 }
 
-export function createLetterCountDictionary(text: string): LetterCountDictionary {
-    const array: string[] = text.split("")
-    return array.reduce((previousValue: any, currentValue: string) => {
-        const cur = previousValue[currentValue] || 0
-        previousValue[currentValue] = cur + 1
-        return previousValue
-    }, {})
+export function createLetterCountDictionary(text: string) {
+    const textCharacters = [...text]
+    return textCharacters.reduce(
+        (dictionary, character) => {
+            const currentLetterCount = dictionary[character] || 0
+            dictionary[character] = currentLetterCount + 1
+            return dictionary
+        },
+        {} as LetterCountDictionary,
+    )
 }

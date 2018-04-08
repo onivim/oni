@@ -406,8 +406,11 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         this.trackDisposable(
-            this._neovimInstance.onOniCommand.subscribe(command => {
-                commandManager.executeCommand(command)
+            this._neovimInstance.onOniCommand.subscribe(context => {
+                const commandToExecute = context.command
+                const commandArgs = context.args
+
+                commandManager.executeCommand(commandToExecute, commandArgs)
             }),
         )
 
@@ -704,7 +707,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         document.body.ondrop = ev => {
             ev.preventDefault()
-            ev.stopPropagation()
+            // ev.stopPropagation()
 
             const { files } = ev.dataTransfer
 

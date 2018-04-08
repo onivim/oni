@@ -27,6 +27,11 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     const isInsertOrCommandMode = () =>
         editors.activeEditor.mode === "insert" || editors.activeEditor.mode === "cmdline_normal"
 
+    const oniWithSidebar = oni as Oni.Plugin.Api & ISidebar
+    const isExplorerActive = () =>
+        oniWithSidebar.sidebar.activeEntryId === "oni.sidebar.explorer" &&
+        oniWithSidebar.sidebar.isFocused
+
     const isMenuOpen = () => menu.isMenuOpen()
 
     if (Platform.isMac()) {
@@ -127,14 +132,14 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<s-c-b>", "sidebar.toggle", isNormalMode)
 
     // Explorer
-    const oniWithSidebar = oni as Oni.Plugin.Api & ISidebar
-    const isExplorerActive = () =>
-        oniWithSidebar.sidebar.activeEntryId === "oni.sidebar.explorer" &&
-        oniWithSidebar.sidebar.isFocused
     input.bind("d", "explorer.delete", isExplorerActive)
     input.bind("y", "explorer.yank", isExplorerActive)
     input.bind("p", "explorer.paste", isExplorerActive)
     input.bind("u", "explorer.undo", isExplorerActive)
     input.bind("h", "explorer.collapse.directory", isExplorerActive)
     input.bind("l", "explorer.expand.directory", isExplorerActive)
+    input.bind("k", "browser.scrollUp")
+    input.bind("j", "browser.scrollDown")
+    input.bind("h", "browser.scrollLeft")
+    input.bind("l", "browser.scrollRight")
 }

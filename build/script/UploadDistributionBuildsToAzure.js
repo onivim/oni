@@ -34,12 +34,23 @@ const getVersion = () => {
     return version
 }
 
+const getBuildsForWindows = version => {
+    switch (process.env["PLATFORM"]) {
+        case "x86":
+            return [`Oni-${version}-ia32-win.exe`, `Oni-${version}-ia32-win.zip`]
+        case "x64":
+            return [`Oni-${version}-win.exe`, `Oni-${version}-win.zip`]
+        default:
+            return []
+    }
+}
+
 const getBuildsForPlatform = version => {
     const platform = os.platform()
 
     switch (platform) {
         case "win32":
-            return [`Oni-${version}-ia32-win.exe`, `Oni-${version}-ia32-win.zip`]
+            return getBuildsForWindows(version)
         case "darwin":
             return [`Oni-${version}-osx.dmg`]
         case "linux":
@@ -118,6 +129,7 @@ const generateBuildMetadata = (branch, version) => {
     return {
         branch,
         version,
+        commit: COMMIT_ID,
         releaseNotesUrl: "https://github.com/onivim/oni/wiki/Whats-New-in-Oni",
         releaseDate: new Date().getTime(),
         containerName: getContainerName(branch, version, COMMIT_ID),
@@ -157,7 +169,7 @@ const start = async () => {
     const blobCount = currentBlobs.entries.length
     console.log("Found " + blobCount + " uploaded.")
 
-    if (blobCount === 6) {
+    if (blobCount === 8) {
         console.log("All builds are uploaded. Creating metadata...")
         const metadata = generateBuildMetadata(getBranch(), getVersion())
         console.dir(metadata)

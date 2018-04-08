@@ -28,7 +28,7 @@ import { getInstance as getTokenColorsInstance } from "./../../TokenColors"
 import { windowManager } from "./../../WindowManager"
 import { getInstance as getWorkspaceInstance } from "./../../Workspace"
 
-import { withProps } from "./../../../UI/components/common"
+import { Bold, withProps } from "./../../../UI/components/common"
 import { FlipCard } from "./../../../UI/components/FlipCard"
 import { StatusBar } from "./../../../UI/components/StatusBar"
 
@@ -92,9 +92,10 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
     private _lastTutorialState: ITutorialState
     private _completionInfo: IGameplayCompletionInfo = DefaultCompletionInfo
     private _element: HTMLElement
+    private _notes: JSX.Element[] = []
     private _gameTracker: GameTracker = new GameTracker()
-    private _onStateChangedEvent: Event<IGameplayStateChangedEvent> = new Event<
-        IGameplayStateChangedEvent
+    private _onStateChangedEvent: Event<ITutorialBufferLayerState> = new Event<
+        ITutorialBufferLayerState
     >()
 
     public get id(): string {
@@ -125,6 +126,9 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         this._editor.autoFocus = false
 
         this._editor.onNeovimQuit.subscribe(() => {
+            // TODO:
+            // Maybe add an achievement for 'quitting vim'?
+            // Close current buffer / tab?
             alert("quit!")
         })
 
@@ -140,6 +144,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
                 tutorialState: state,
                 completionInfo: this._completionInfo,
                 mode: this._editor.mode,
+                notes: this._notes,
             })
 
             if (state.activeGoalIndex !== this._lastStage) {
@@ -164,6 +169,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
                 tutorialState: this._lastTutorialState,
                 completionInfo: this._completionInfo,
                 mode: "normal",
+                notes: this._notes,
             })
 
             this._tutorialManager.notifyTutorialCompleted(this._currentTutorialId, {
@@ -231,6 +237,10 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
             )
             this._hasAddedLayer = true
         }
+        this._notes = tutorial.notes || []
+
+        await this._editor.activeBuffer.setCursorPosition(0, 0)
+        await this._editor.neovim.command("stopinsert")
 
         this._tutorialGameplayManager.start(tutorial, this._editor.activeBuffer)
         this._gameTracker.start()
@@ -273,6 +283,7 @@ export interface ITutorialBufferLayerState {
     tutorialState: ITutorialState
     completionInfo: IGameplayCompletionInfo
     mode: string
+    notes: JSX.Element[]
 }
 
 const TutorialWrapper = withProps<{}>(styled.div)`
@@ -281,13 +292,33 @@ const TutorialWrapper = withProps<{}>(styled.div)`
     height: 100%;
     background-color: ${p => p.theme["editor.background"]};
     color: ${p => p.theme["editor.foreground"]};
+    overflow: auto;
+    pointer-events: all;
 
+    display: flex;
+    flex-direction: row;
+    `
+
+const TutorialContentsWrapper = styled.div`
+    flex: 1 1 auto;
+    min-width: 600px;
     max-width: 1000px;
+
+    margin-left: 2em;
 
     display: flex;
     flex-direction: column;
-    padding-left: 2em;
-    `
+`
+
+const TutorialNotesWrapper = styled.div`
+    flex: 0 0 auto;
+    width: 250px;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    margin: 3em 0em;
+
+    display: flex;
+    flex-direction: column;
+`
 
 const TutorialSectionWrapper = styled.div`
     width: 75%;
@@ -356,6 +387,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
                 timeInMilliseconds: -1,
             },
             mode: "normal",
+            notes: [],
         }
     }
 
@@ -417,82 +449,96 @@ export class TutorialBufferLayerView extends React.PureComponent<
 
         return (
             <TutorialWrapper>
-                <TutorialSectionWrapper>
-                    <PrimaryHeader>Tutorial</PrimaryHeader>
-                    <SubHeader>{title}</SubHeader>
-                </TutorialSectionWrapper>
-                <MainTutorialSectionWrapper>
-                    <div
-                        style={{
-                            width: "75%",
-                            height: "75%",
-                            boxShadow: "3px 7px 10px 7px rgba(0, 0, 0, 0.2)",
-                        }}
-                        ref={this.props.innerRef}
-                    >
-                        <FlipCard
-                            isFlipped={isFlipped}
-                            front={
-                                <div
-                                    style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        display: "flex",
-                                        flexDirection: "column",
-                                    }}
-                                >
+                <TutorialContentsWrapper>
+                    <TutorialSectionWrapper>
+                        <PrimaryHeader>Tutorial</PrimaryHeader>
+                        <SubHeader>{title}</SubHeader>
+                    </TutorialSectionWrapper>
+                    <MainTutorialSectionWrapper>
+                        <div
+                            style={{
+                                width: "75%",
+                                height: "75%",
+                                boxShadow: "3px 7px 10px 7px rgba(0, 0, 0, 0.2)",
+                            }}
+                            ref={this.props.innerRef}
+                        >
+                            <FlipCard
+                                isFlipped={isFlipped}
+                                front={
                                     <div
-                                        style={{ width: "100%", height: "100%", flex: "1 1 auto" }}
+                                        style={{
+                                            width: "100%",
+                                            height: "100%",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                        }}
                                     >
-                                        {this.props.editor.render()}
+                                        <div
+                                            style={{
+                                                width: "100%",
+                                                height: "100%",
+                                                flex: "1 1 auto",
+                                            }}
+                                        >
+                                            {this.props.editor.render()}
+                                        </div>
+                                        <div style={{ flex: "0 0 auto" }}>
+                                            <StatusBar
+                                                items={[
+                                                    {
+                                                        alignment: 0,
+                                                        contents: <div />,
+                                                        id: "tutorial.null",
+                                                        priority: 0,
+                                                    },
+                                                    {
+                                                        alignment: 1,
+                                                        contents: (
+                                                            <ModeStatusBarItem
+                                                                mode={this.state.mode}
+                                                            >
+                                                                {this.state.mode}
+                                                            </ModeStatusBarItem>
+                                                        ),
+                                                        id: "tutorial.mode",
+                                                        priority: 0,
+                                                    },
+                                                ]}
+                                                fontFamily={configuration.getValue("ui.fontFamily")}
+                                                fontSize={configuration.getValue("ui.fontSize")}
+                                                enabled={!isFlipped}
+                                            />
+                                        </div>
                                     </div>
-                                    <div style={{ flex: "0 0 auto" }}>
-                                        <StatusBar
-                                            items={[
-                                                {
-                                                    alignment: 0,
-                                                    contents: <div />,
-                                                    id: "tutorial.null",
-                                                    priority: 0,
-                                                },
-                                                {
-                                                    alignment: 1,
-                                                    contents: (
-                                                        <ModeStatusBarItem mode={this.state.mode}>
-                                                            {this.state.mode}
-                                                        </ModeStatusBarItem>
-                                                    ),
-                                                    id: "tutorial.mode",
-                                                    priority: 0,
-                                                },
-                                            ]}
-                                            fontFamily={configuration.getValue("ui.fontFamily")}
-                                            fontSize={configuration.getValue("ui.fontSize")}
-                                            enabled={!isFlipped}
+                                }
+                                back={
+                                    isFlipped ? (
+                                        <CompletionView
+                                            keyStrokes={this.state.completionInfo.keyPresses}
+                                            time={this.state.completionInfo.timeInMilliseconds}
                                         />
-                                    </div>
-                                </div>
-                            }
-                            back={
-                                isFlipped ? (
-                                    <CompletionView
-                                        keyStrokes={this.state.completionInfo.keyPresses}
-                                        time={this.state.completionInfo.timeInMilliseconds}
-                                    />
-                                ) : null
-                            }
-                        />
+                                    ) : null
+                                }
+                            />
+                        </div>
+                    </MainTutorialSectionWrapper>
+                    <TutorialSectionWrapper>
+                        <SectionHeader>Description:</SectionHeader>
+                        <Section>{description}</Section>
+                        <SectionHeader>Goals:</SectionHeader>
+                        <Section style={{ height: "200px" }}>
+                            <div>{goalsToDisplay}</div>
+                        </Section>
+                        <Section />
+                    </TutorialSectionWrapper>
+                </TutorialContentsWrapper>
+                <TutorialNotesWrapper>
+                    <div style={{ textAlign: "center" }}>
+                        <Bold>Notes:</Bold>
                     </div>
-                </MainTutorialSectionWrapper>
-                <TutorialSectionWrapper>
-                    <SectionHeader>Description:</SectionHeader>
-                    <Section>{description}</Section>
-                    <SectionHeader>Goals:</SectionHeader>
-                    <Section style={{ height: "200px" }}>
-                        <div>{goalsToDisplay}</div>
-                    </Section>
-                    <Section />
-                </TutorialSectionWrapper>
+                    <div>{this.state.notes}</div>
+                </TutorialNotesWrapper>
             </TutorialWrapper>
         )
     }

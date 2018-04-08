@@ -106,8 +106,12 @@ function OniGetEachContext(bufnum)
 endif
 endfunction
 
-function OniCommand(oniCommand)
-    call OniNotify(["oni_command", a:oniCommand])
+function OniCommand(oniCommand, ...)
+    let l:function_command_and_args = {}
+    let l:function_command_and_args.command = a:oniCommand
+    let l:function_command_and_args.args = a:000
+
+    call OniNotify(["oni_command", l:function_command_and_args])
 endfunction
 
 augroup OniClipboard
@@ -163,7 +167,7 @@ let context.windowTopLine = line("w0")
 let context.windowBottomLine = line("w$")
 let context.windowWidth = winwidth(winnr())
 let context.windowHeight = winheight(winnr())
-let context.byte = line2byte(line(".")) + col(".")
+let context.byte = line2byte (line ( "." ) ) + col ( "." ) - 1
 let context.filetype = eval("&filetype")
 let context.modified = &modified
 let context.hidden = &hidden

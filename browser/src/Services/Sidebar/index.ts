@@ -12,6 +12,9 @@ export * from "./SidebarStore"
 export const activate = (configuration: Configuration, workspace: Workspace) => {
     if (configuration.getValue("sidebar.enabled")) {
         _sidebarManager = new SidebarManager(windowManager)
+        if (!configuration.getValue("sidebar.default.open")) {
+            _sidebarManager.toggleSidebarVisibility()
+        }
 
         commandManager.registerCommand({
             command: "sidebar.toggle",
