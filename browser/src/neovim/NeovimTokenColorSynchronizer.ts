@@ -108,8 +108,8 @@ export class NeovimTokenColorSynchronizer {
     }
 
     private _getKeyFromTokenColor(tokenColor: TokenColor): string {
-        return `${tokenColor.scope}_${tokenColor.settings.backgroundColor}_${
-            tokenColor.settings.foregroundColor
-        }_${tokenColor.settings.bold}_${tokenColor.settings.italic}`
+        return `${tokenColor.scope}_${tokenColor.settings.background}_${
+            tokenColor.settings.foreground
+        }_${tokenColor.settings.fontStyle === "bold"}_${tokenColor.settings.fontStyle === "italic"}`
     }
 }
