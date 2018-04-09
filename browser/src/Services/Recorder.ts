@@ -15,6 +15,7 @@ import * as Oni from "oni-api"
 import * as Log from "./../Log"
 
 import { configuration } from "./Configuration"
+import { getInstance as getNotificationsInstance } from "./Notifications"
 
 declare var MediaRecorder: any
 
@@ -98,7 +99,11 @@ class Recorder implements Oni.Recorder {
 
         this._recorder = null
         this._blobs = []
-        alert("Recording saved to: " + videoFilePath)
+
+        const notification = getNotificationsInstance().createItem()
+        notification.setContents("Recording finished", "Recording saved to: " + videoFilePath)
+        notification.setLevel("success")
+        notification.show()
     }
 
     public takeScreenshot(fileName?: string, scale: number = 1): void {
@@ -112,7 +117,11 @@ class Recorder implements Oni.Recorder {
             if (configuration.getValue("recorder.copyScreenshotToClipboard")) {
                 clipboard.writeImage(screenshotPath as any)
             }
-            alert("Screenshot saved to: " + screenshotPath)
+
+            const notification = getNotificationsInstance().createItem()
+            notification.setContents("Screenshot taken", "Screenshot saved to " + screenshotPath)
+            notification.setLevel("success")
+            notification.show()
         })
     }
 
