@@ -84,6 +84,7 @@ Thanks you to all our backers for making Oni possible!
 ## Backers via PayPal
 
 * @mchalkley
+* @am2605
 
 ## Backers via OpenCollective
 
