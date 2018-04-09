@@ -41,7 +41,9 @@ exports[`<NotificationsView /> should match the snapshot 1`] = `
     </styled.div>
   </styled.header>
   <styled.div>
-    <styled.div>
+    <styled.div
+      className="notification-description"
+    >
       this is a test
     </styled.div>
   </styled.div>
