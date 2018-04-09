@@ -261,7 +261,9 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
                     <NotificationTitle level={level}>{this.props.title}</NotificationTitle>
                 </NotificationHeader>
                 <NotificationContents>
-                    <NotificationDescription>{this.props.detail}</NotificationDescription>
+                    <NotificationDescription className="notification-description">
+                        {this.props.detail}
+                    </NotificationDescription>
                 </NotificationContents>
                 {buttons && <Buttons buttons={buttons} />}
             </NotificationWrapper>
