@@ -189,6 +189,11 @@ export interface IConfigurationValues {
     // 'zero-latency' mode typing, and increases responsiveness.
     "editor.typingPrediction": boolean
 
+    // Files deleted in the explorer can be persisted for the duration
+    // of the session meaning that deletion can be undone is this is set
+    // to true
+    "explorer.persistDeletedFiles": true
+
     "editor.fullScreenOnStart": boolean
     "editor.maximizeScreenOnStart": boolean
 

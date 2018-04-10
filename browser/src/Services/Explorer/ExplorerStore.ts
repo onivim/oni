@@ -4,20 +4,19 @@
  * State management for the explorer split
  */
 
-import * as fs from "fs"
-
 import * as omit from "lodash/omit"
 import * as path from "path"
-import { mv } from "shelljs"
 
 import { Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 import { Observable } from "rxjs"
 
 import { createStore as createReduxStore } from "./../../Redux"
+import { tail } from "./../../Utility"
+import { configuration } from "./../Configuration"
 import { EmptyNode, ExplorerNode } from "./ExplorerSelectors"
 
-import { FileSystem, IFileSystem } from "./ExplorerFileSystem"
+import { IFileSystem, OniFileSystem } from "./ExplorerFileSystem"
 
 export interface IFolderState {
     type: "folder"
@@ -60,7 +59,7 @@ export interface IFileSystem {
     delete(fullPath: string): Promise<void>
 }
 
-type RegisterAction = IPasteAction
+type RegisterAction = IPasteAction | IDeleteAction | IDeleteSuccessAction
 
 interface IRegisterState {
     yank: ExplorerNode[]
@@ -108,6 +107,16 @@ interface IPasteAction {
     pasted: ExplorerNode[]
 }
 
+interface IDeleteAction {
+    type: "DELETE"
+    target: ExplorerNode
+}
+
+interface IDeleteSuccessAction {
+    type: "DELETE_SUCCESS"
+    target: ExplorerNode
+}
+
 interface IClearRegisterAction {
     type: "CLEAR_REGISTER"
     id: string
@@ -140,6 +149,8 @@ export type ExplorerAction =
     | {
           type: "REFRESH"
       }
+    | IDeleteAction
+    | IDeleteSuccessAction
     | IYankAction
     | IPasteAction
     | IClearRegisterAction
@@ -196,6 +207,11 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                 ...state,
                 paste: EmptyNode,
                 yank: removePastedNode(state.yank, action.id),
+            }
+        case "DELETE_SUCCESS":
+            return {
+                ...state,
+                undo: [...state.undo, action],
             }
         case "LEAVE":
             return { ...DefaultRegisterState, undo: state.undo }
@@ -282,7 +298,7 @@ const sortFilesAndFoldersFunc = (a: FolderOrFile, b: FolderOrFile) => {
     }
 }
 
-const getPathForNode = (node: ExplorerNode) => {
+export const getPathForNode = (node: ExplorerNode) => {
     if (node.type === "file") {
         return node.filePath
     } else if (node.type === "folder") {
@@ -308,19 +324,45 @@ const undoPaste = (file: ExplorerNode, pasteTarget: ExplorerNode) => {
     }
 }
 
+const actionsOfType = (register: RegisterAction[]) => (type: string) =>
+    register.filter(a => a.type === type)
+
 const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
-    action$.ofType("UNDO").map(action => {
+    action$.ofType("UNDO").flatMap(action => {
         const { register: { undo } } = store.getState()
-        const { type, pasted, target: pasteTarget } = undo[undo.length - 1]
+        const getActions = actionsOfType(undo)
+        const { type } = tail(undo)
         switch (type) {
             case "PASTE":
+                const pasteActions = getActions("PASTE") as IPasteAction[]
+                const lastPaste = tail(pasteActions)
+                const { pasted, target: pasteTarget } = lastPaste
                 const filesAndFolders = pasted.map(file => undoPaste(file, pasteTarget))
-                filesAndFolders.forEach(pastedItems => {
-                    mv(pastedItems.file, pastedItems.folder)
-                })
-                return { type: "UNDO_SUCCESS" } as IUndoSuccessAction
+                OniFileSystem.moveCollection(filesAndFolders, pasteTarget)
+                return [{ type: "UNDO_SUCCESS" }, { type: "REFRESH" }] as ExplorerAction[]
+            case "DELETE_SUCCESS":
+                const deleteActions = getActions("DELETE_SUCCESS") as IDeleteAction[]
+                const { target } = tail(deleteActions)
+                OniFileSystem.restoreFileOrFolder(getPathForNode(target))
+                return [{ type: "REFRESH" }, { type: "UNDO_SUCCESS" }] as ExplorerAction[]
             default:
-                return { type: "UNDO_FAIL" } as IUndoFailAction
+                return [{ type: "UNDO_FAIL" }] as ExplorerAction[]
+        }
+    })
+
+export const deleteEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
+    action$.ofType("DELETE").flatMap((action: IDeleteAction) => {
+        const result = [{ type: "REFRESH" }]
+        try {
+            configuration.getValue("explorer.persistDeletedFiles")
+                ? OniFileSystem.persistFile(getPathForNode(action.target))
+                : OniFileSystem.deleteFileOrFolder(action.target)
+            return [
+                ...result,
+                { type: "DELETE_SUCCESS", target: action.target },
+            ] as RegisterAction[]
+        } catch (e) {
+            return [...result, { type: "DELETE_FAIL", target: action.target }] as RegisterAction[]
         }
     })
 
@@ -368,13 +410,14 @@ const expandDirectoryEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExp
     })
 
 export const createStore = (fileSystem?: IFileSystem): Store<IExplorerState> => {
-    fileSystem = fileSystem || new FileSystem(fs)
+    fileSystem = fileSystem || OniFileSystem
 
     return createReduxStore("Explorer", reducer, DefaultExplorerState, [
         createEpicMiddleware(
             combineEpics(
                 undoEpic,
                 refreshEpic,
+                deleteEpic,
                 setRootDirectoryEpic,
                 clearYankRegisterEpic,
                 expandDirectoryEpic(fileSystem),

@@ -25,7 +25,7 @@ import { createStore, IExplorerState } from "./ExplorerStore"
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
 
-import { mv, rm } from "shelljs"
+import { mv } from "shelljs"
 
 type Node = ExplorerSelectors.ExplorerNode
 type File = ExplorerSelectors.IFileNode
@@ -317,20 +317,10 @@ export class ExplorerSplit {
         if (!selectedItem) {
             return
         }
-
-        switch (selectedItem.type) {
-            case "file":
-                rm(selectedItem.filePath)
-                break
-            case "folder":
-                rm("-rf", selectedItem.folderPath)
-                break
-            default:
-                alert("Not implemented yet")
-        }
-
-        this._store.dispatch({
-            type: "REFRESH",
+        this._store.dispatch({ type: "DELETE", target: selectedItem })
+        this.sendExplorerNotification({
+            title: `${selectedItem.name} deleted`,
+            details: `${selectedItem.name} was removed`,
         })
     }
 }

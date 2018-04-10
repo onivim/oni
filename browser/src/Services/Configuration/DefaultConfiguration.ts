@@ -128,6 +128,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
 
+    "explorer.persistDeletedFiles": true,
+
     "environment.additionalPaths": [],
 
     "keyDisplayer.showInInsertMode": false,
