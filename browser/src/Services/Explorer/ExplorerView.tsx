@@ -45,6 +45,12 @@ const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
     // tslint:disable-next-line
     elem && elem["scrollIntoViewIfNeeded"] && elem["scrollIntoViewIfNeeded"]()
 }
+const stopPropagation = (fn: () => void) => {
+    return (e: React.MouseEvent<HTMLElement>) => {
+        e.stopPropagation()
+        fn()
+    }
+}
 
 const Types = {
     FILE: "FILE",
@@ -123,7 +129,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                             isFocused={this.props.isSelected}
                                             isContainer={false}
                                             indentationLevel={node.indentationLevel}
-                                            onClick={this.props.onClick}
+                                            onClick={stopPropagation(this.props.onClick)}
                                             icon={<FileIcon fileName={node.name} isLarge={true} />}
                                         />
                                     </NodeTransitionWrapper>
@@ -149,7 +155,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                         isExpanded={node.expanded}
                                         text={node.name}
                                         isFocused={this.props.isSelected}
-                                        onClick={this.props.onClick}
+                                        onClick={stopPropagation(this.props.onClick)}
                                     />
                                 </TransitionGroup>
                             )
@@ -175,7 +181,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                     text={node.name}
                                     isFocused={this.props.isSelected}
                                     indentationLevel={node.indentationLevel}
-                                    onClick={() => this.props.onClick()}
+                                    onClick={stopPropagation(this.props.onClick)}
                                 />
                             )
                         }}
