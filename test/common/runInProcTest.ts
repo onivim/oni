@@ -11,8 +11,10 @@ import { ensureProcessNotRunning } from "./ensureProcessNotRunning"
 export interface ITestCase {
     name: string
     testPath: string
-    configPath: string
     allowLogFailures: boolean
+    env: {
+        [key: string]: string
+    }
 }
 
 export interface IFailedTest {
@@ -33,8 +35,11 @@ const loadTest = (rootPath: string, testName: string): ITestCase => {
     const normalizedMeta: ITestCase = {
         name: testDescription.name || testName,
         testPath: normalizePath(testPath),
-        configPath: getConfigPath(testMeta.settings, rootPath),
         allowLogFailures: testDescription.allowLogFailures,
+        env: {
+            ...(testDescription.env || {}),
+            ONI_CONFIG_FILE: getConfigPath(testMeta.settings, rootPath),
+        },
     }
 
     return normalizedMeta
@@ -57,7 +62,7 @@ const getConfigPath = (settings: any, rootPath: string) => {
         // Fix #1436 - if no config is specified, we'll just use
         // the empty config, so that the user's config doesn't
         // impact the test results.
-        return normalizePath(serializeConfig({}))
+        return normalizePath(serializeConfig({ "oni.loadInitVim": false }))
     }
 }
 
@@ -111,7 +116,7 @@ export const runInProcTest = (
 
             testCase = loadTest(rootPath, testName)
             const startOptions = {
-                configurationPath: testCase.configPath,
+                env: testCase.env,
             }
 
             oni = new Oni()

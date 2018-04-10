@@ -76,7 +76,11 @@ const getArgsForLocalExecution = () => [
 ]
 
 export interface OniStartOptions {
-    configurationPath?: string
+    env?: {
+        ONI_CONFIG_FILE?: string
+        MYVIMRC?: string
+        [key: string]: string
+    }
 }
 
 export class Oni {
@@ -98,7 +102,7 @@ export class Oni {
         this._app = new Application({
             path: executablePath,
             args: executableArgs,
-            env: options.configurationPath ? { ONI_CONFIG_FILE: options.configurationPath } : {},
+            env: options.env,
         })
 
         log("Oni starting...")
