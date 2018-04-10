@@ -7,7 +7,7 @@
 import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
-import { mv, rm, tempdir, mkdir } from "shelljs"
+import { mkdir, mv, rm, tempdir } from "shelljs"
 
 import { ExplorerNode } from "./ExplorerSelectors"
 import { FolderOrFile } from "./ExplorerStore"
