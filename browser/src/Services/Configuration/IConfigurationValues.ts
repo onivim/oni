@@ -192,7 +192,7 @@ export interface IConfigurationValues {
     // Files deleted in the explorer can be persisted for the duration
     // of the session meaning that deletion can be undone is this is set
     // to true
-    "explorer.persistDeletedFiles": true
+    "explorer.persistDeletedFiles": boolean
 
     "editor.fullScreenOnStart": boolean
     "editor.maximizeScreenOnStart": boolean
