@@ -2,13 +2,13 @@ module.exports = {
     verbose: true,
     collectCoverage: true,
     collectCoverageFrom: ["**/*.{tsx}", "!**/node_modules/**", "!**/dist/**"],
-    setupFiles: ["<rootDir>/ui-tests/jestsetup.ts"],
+    setupFiles: ["<rootDir>/jest-tests/jestsetup.ts"],
     moduleNameMapper: {
-        electron: "<rootDir>/ui-tests/mocks/electronMock.ts",
-        PersistentSettings: "<rootDir>/ui-tests/mocks/PersistentSettings.ts",
-        Utility: "<rootDir>/ui-tests/mocks/Utility.ts",
-        Configuration: "<rootDir>/ui-tests/mocks/Configuration.ts",
-        classnames: "<rootDir>/ui-tests/mocks/classnames.ts",
+        electron: "<rootDir>/jest-tests/mocks/electronMock.ts",
+        PersistentSettings: "<rootDir>/jest-tests/mocks/PersistentSettings.ts",
+        Utility: "<rootDir>/jest-tests/mocks/Utility.ts",
+        Configuration: "<rootDir>/jest-tests/mocks/Configuration.ts",
+        classnames: "<rootDir>/jest-tests/mocks/classnames.ts",
     },
     snapshotSerializers: ["enzyme-to-json/serializer"],
     transform: {
@@ -26,7 +26,7 @@ module.exports = {
                     },
                 },
             },
-            tsConfigFile: "./ui-tests/tsconfig.react.json",
+            tsConfigFile: "./jest-tests/tsconfig.react.json",
         },
     },
 }

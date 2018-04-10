@@ -27,6 +27,11 @@ export interface IFileSystem {
 
 export class FileSystem implements IFileSystem {
     private _backupDirectory = `${tempdir()}${path.sep}oni_backup${path.sep}`
+
+    public get backupDir(): string {
+        return this._backupDirectory
+    }
+
     constructor(private _fs: typeof fs) {
         if (!checkIfPathExists(this._backupDirectory, "folder")) {
             mkdir("-p", this._backupDirectory)
@@ -104,7 +109,7 @@ export class FileSystem implements IFileSystem {
      * @param {string} filename A file or folder path
      */
     public persistNode = async (fileOrFolder: string) => {
-        const { size } = fs.statSync(fileOrFolder)
+        const { size } = this._fs.statSync(fileOrFolder)
         const hasEnoughSpace = os.freemem() > size
         if (hasEnoughSpace) {
             mv(fileOrFolder, this._backupDirectory)
@@ -130,10 +135,11 @@ export class FileSystem implements IFileSystem {
 
     /**
      * canPersistFile
+     * Determine based on size whether the directory should be persisted
      */
     public canPersistFile(fullPath: string, maxSize: number) {
-        const { size } = fs.statSync(fullPath)
-        return size >= maxSize
+        const { size } = this._fs.statSync(fullPath)
+        return size < maxSize
     }
 }
 
