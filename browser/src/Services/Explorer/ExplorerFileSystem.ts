@@ -12,6 +12,8 @@ import { mkdir, mv, rm, tempdir } from "shelljs"
 import { ExplorerNode } from "./ExplorerSelectors"
 import { FolderOrFile } from "./ExplorerStore"
 
+import { checkIfPathExists } from "./../../Utility"
+
 /**
  * An abstraction of the node filesystem APIs to enable testing
  */
@@ -23,7 +25,9 @@ export interface IFileSystem {
 export class FileSystem implements IFileSystem {
     private _backupDirectory = `${tempdir()}/oni_backup/`
     constructor(private _fs: typeof fs) {
-        mkdir("-p", this._backupDirectory)
+        if (!checkIfPathExists(this._backupDirectory, "folder")) {
+            mkdir("-p", this._backupDirectory)
+        }
     }
 
     public readdir(directoryPath: string): Promise<FolderOrFile[]> {
@@ -96,11 +100,11 @@ export class FileSystem implements IFileSystem {
      * @function
      * @param {string} filename A file or folder path
      */
-    public persistFile = async (filename: string) => {
-        const { size } = fs.statSync(filename)
+    public persistFile = async (fileOrFolder: string) => {
+        const { size } = fs.statSync(fileOrFolder)
         const hasEnoughSpace = os.freemem() > size
         if (hasEnoughSpace) {
-            mv(filename, this._backupDirectory)
+            mv(fileOrFolder, this._backupDirectory)
         }
     }
 

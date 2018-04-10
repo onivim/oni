@@ -248,3 +248,16 @@ export function ignoreWhilePendingPromise<T, U>(
 
 export const tail = <T>(arr: T[]) => arr[arr.length - 1]
 export const head = <T>(arr: T[]) => head[0]
+
+export function checkIfPathExists(fileOrFolder: string, type?: "file" | "folder"): boolean | Error {
+    try {
+        const stats = fs.statSync(fileOrFolder)
+        return type === "file" ? stats.isFile() : stats.isDirectory()
+    } catch (e) {
+        if (e.code === "ENOENT") {
+            return false
+        } else {
+            throw e
+        }
+    }
+}

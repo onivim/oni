@@ -242,9 +242,9 @@ export class NeovimEditor extends Editor implements IEditor {
             this._toolTipsProvider,
         )
 
+        const notificationManager = getNotificationsInstance()
         this._neovimInstance.onMessage.subscribe(messageInfo => {
             // TODO: Hook up real notifications
-            const notificationManager = getNotificationsInstance()
             const notification = notificationManager.createItem()
             notification.setLevel("error")
             notification.setContents(messageInfo.title, messageInfo.details)
@@ -253,6 +253,43 @@ export class NeovimEditor extends Editor implements IEditor {
             )
             notification.show()
         })
+
+        const initVimPath = this._neovimInstance.doesInitVimExist()
+        const initVimInUse = this._configuration.getValue("oni.loadInitVim")
+        const hasCheckedInitVim = this._configuration.getValue("_internal.hasCheckedInitVim")
+
+        if (initVimPath && !initVimInUse && !hasCheckedInitVim) {
+            const initVimNotification = notificationManager.createItem()
+            initVimNotification.setLevel("info")
+            initVimNotification.setContents(
+                "init.vim found",
+                `We found an init.vim file would you like Oni to use it?
+                This will result in Oni being reloaded`,
+            )
+
+            initVimNotification.setButtons([
+                {
+                    title: "Yes",
+                    callback: () => {
+                        this._configuration.setValues(
+                            { "_internal.hasCheckedInitVim": true, "oni.loadInitVim": true },
+                            true,
+                        )
+                        commandManager.executeCommand("oni.debug.reload")
+                    },
+                },
+                {
+                    title: "No",
+                    callback: () => {
+                        this._configuration.setValues(
+                            { "oni.loadInitVim": false, "_internal.hasCheckedInitVim": true },
+                            true,
+                        )
+                    },
+                },
+            ])
+            initVimNotification.show()
+        }
 
         this._renderer = new CanvasRenderer()
 

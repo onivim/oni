@@ -14,6 +14,8 @@ import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
 import * as Platform from "./../Platform"
 import { Configuration } from "./../Services/Configuration"
 
+import { checkIfPathExists } from "./../Utility"
+
 import * as Actions from "./actions"
 import { NeovimBufferReference } from "./MsgPack"
 import { INeovimAutoCommands, NeovimAutoCommands } from "./NeovimAutoCommands"
@@ -544,19 +546,44 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.command(`e! ${fileName}`)
     }
 
+    /**
+     * getInitVimPath
+     * return the init vim path with no check to ensure existence
+     */
+    public getInitVimPath(): string {
+        // tslint:disable no-string-literal
+        const MYVIMRC = process.env["MYVIMRC"]
+        const rootFolder = Platform.isWindows()
+            ? // Use path from: https://github.com/neovim/neovim/wiki/FAQ
+              path.join(process.env["LOCALAPPDATA"], "nvim")
+            : path.join(Platform.getUserHome(), ".config", "nvim")
+        const initVimPath = MYVIMRC || path.join(rootFolder, "init.vim")
+        return initVimPath
+        // tslint:enable no-string-literal
+    }
+
+    /**
+     * doesInitVimExist
+     * Returns the init.vim path after checking the file exists
+     */
+    public doesInitVimExist(): string {
+        const initVimPath = this.getInitVimPath()
+        try {
+            return checkIfPathExists(initVimPath) ? initVimPath : null
+        } catch (e) {
+            return null
+        }
+    }
+
     public openInitVim(): Promise<void> {
         const loadInitVim = this._configuration.getValue("oni.loadInitVim")
 
         if (typeof loadInitVim === "string") {
             return this.open(loadInitVim)
         } else {
-            // Use path from: https://github.com/neovim/neovim/wiki/FAQ
-            const rootFolder = Platform.isWindows()
-                ? path.join(process.env["LOCALAPPDATA"], "nvim") // tslint:disable-line no-string-literal
-                : path.join(Platform.getUserHome(), ".config", "nvim")
-
+            const initVimPath = this.getInitVimPath()
+            const rootFolder = path.dirname(initVimPath)
             mkdirp.sync(rootFolder)
-            const initVimPath = path.join(rootFolder, "init.vim")
 
             return this.open(initVimPath)
         }
