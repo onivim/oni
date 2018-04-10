@@ -19,7 +19,7 @@ export interface ISidebarItemViewProps {
     isContainer?: boolean
     indentationLevel: number
     icon?: JSX.Element
-    onClick: () => void
+    onClick: (e: React.MouseEvent<HTMLElement>) => void
 }
 
 const px = (num: number): string => num.toString() + "px"
@@ -105,7 +105,7 @@ export interface ISidebarContainerViewProps extends IContainerProps {
     isFocused: boolean
     indentationLevel?: number
     isContainer?: boolean
-    onClick: () => void
+    onClick: (e: React.MouseEvent<HTMLElement>) => void
 }
 
 interface IContainerProps {

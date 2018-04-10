@@ -42,6 +42,12 @@ const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
     // tslint:disable-next-line
     elem && elem["scrollIntoViewIfNeeded"] && elem["scrollIntoViewIfNeeded"]()
 }
+const stopPropagation = (fn: () => void) => {
+    return (e: React.MouseEvent<HTMLElement>) => {
+        e.stopPropagation()
+        fn()
+    }
+}
 
 const Types = {
     FILE: "FILE",
@@ -95,7 +101,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                     isOver={isOver && canDrop}
                                     didDrop={didDrop}
                                     canDrop={canDrop}
-                                    onClick={() => this.props.onClick()}
+                                    onClick={stopPropagation(() => this.props.onClick())}
                                     text={node.name}
                                     isFocused={this.props.isSelected}
                                     isContainer={false}
@@ -118,7 +124,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                     isOver={isOver}
                                     isContainer={true}
                                     isExpanded={node.expanded}
-                                    onClick={() => this.props.onClick()}
+                                    onClick={stopPropagation(() => this.props.onClick())}
                                     text={node.name}
                                     isFocused={this.props.isSelected}
                                 />
@@ -144,7 +150,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                     text={node.name}
                                     isFocused={this.props.isSelected}
                                     indentationLevel={node.indentationLevel}
-                                    onClick={() => this.props.onClick()}
+                                    onClick={stopPropagation(() => this.props.onClick())}
                                 />
                             )
                         }}
