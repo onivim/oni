@@ -8,6 +8,7 @@ module.exports = {
         PersistentSettings: "<rootDir>/ui-tests/mocks/PersistentSettings.ts",
         Utility: "<rootDir>/ui-tests/mocks/Utility.ts",
         Configuration: "<rootDir>/ui-tests/mocks/Configuration.ts",
+        classnames: "<rootDir>/ui-tests/mocks/classnames.ts",
     },
     snapshotSerializers: ["enzyme-to-json/serializer"],
     transform: {
