@@ -52,4 +52,20 @@ describe("WindowManagerTests", () => {
 
         assert.strictEqual(handle.id, handle3.id)
     })
+
+    it("respects direction even if a reference split is not passed in", async () => {
+        const split1 = new MockWindowSplit("window1")
+        const split2 = new MockWindowSplit("window2")
+
+        windowManager.createSplit("horizontal", split1)
+        windowManager.createSplit("vertical", split2)
+
+        const splitRoot = windowManager.splitRoot
+
+        assert.strictEqual(
+            splitRoot.direction,
+            "horizontal",
+            "Validate the splits are arranged horizontally (it's confusing, by this means they are vertical splits)",
+        )
+    })
 })
