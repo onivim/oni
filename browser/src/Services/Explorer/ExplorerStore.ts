@@ -110,11 +110,13 @@ interface IPasteAction {
 interface IDeleteAction {
     type: "DELETE"
     target: ExplorerNode
+    persist: boolean
 }
 
 interface IDeleteSuccessAction {
     type: "DELETE_SUCCESS"
     target: ExplorerNode
+    persist: boolean
 }
 
 interface IClearRegisterAction {
@@ -181,6 +183,9 @@ const removePastedNode = (nodeArray: ExplorerNode[], id: string): ExplorerNode[]
 const removeUndoItem = (undoArray: RegisterAction[]): RegisterAction[] =>
     undoArray.slice(0, undoArray.length - 1)
 
+// Do not add un-undoeable action to the undo list
+const shouldAddDeletion = (action: IDeleteSuccessAction) => (action.persist ? [action] : [])
+
 export const yankRegisterReducer: Reducer<IRegisterState> = (
     state: IRegisterState = DefaultRegisterState,
     action: ExplorerAction,
@@ -211,7 +216,7 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
         case "DELETE_SUCCESS":
             return {
                 ...state,
-                undo: [...state.undo, action],
+                undo: [...state.undo, ...shouldAddDeletion(action)],
             }
         case "LEAVE":
             return { ...DefaultRegisterState, undo: state.undo }
@@ -332,19 +337,26 @@ const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
         const { register: { undo } } = store.getState()
         const getActions = actionsOfType(undo)
         const { type } = tail(undo)
+
         switch (type) {
             case "PASTE":
                 const pasteActions = getActions("PASTE") as IPasteAction[]
                 const lastPaste = tail(pasteActions)
                 const { pasted, target: pasteTarget } = lastPaste
                 const filesAndFolders = pasted.map(file => undoPaste(file, pasteTarget))
-                OniFileSystem.moveCollection(filesAndFolders, pasteTarget)
+                OniFileSystem.moveNodes(filesAndFolders, pasteTarget)
+
                 return [{ type: "UNDO_SUCCESS" }, { type: "REFRESH" }] as ExplorerAction[]
+
             case "DELETE_SUCCESS":
-                const deleteActions = getActions("DELETE_SUCCESS") as IDeleteAction[]
+                const deleteActions = getActions("DELETE_SUCCESS").filter(
+                    (a: IDeleteSuccessAction) => !!a.persist,
+                ) as IDeleteAction[]
                 const { target } = tail(deleteActions)
-                OniFileSystem.restoreFileOrFolder(getPathForNode(target))
+                OniFileSystem.restoreNode(getPathForNode(target))
+
                 return [{ type: "REFRESH" }, { type: "UNDO_SUCCESS" }] as ExplorerAction[]
+
             default:
                 return [{ type: "UNDO_FAIL" }] as ExplorerAction[]
         }
@@ -353,22 +365,26 @@ const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
 export const deleteEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
     action$.ofType("DELETE").flatMap((action: IDeleteAction) => {
         const result = [{ type: "REFRESH" }]
+        const { target, persist } = action
         try {
-            configuration.getValue("explorer.persistDeletedFiles")
-                ? OniFileSystem.persistFile(getPathForNode(action.target))
-                : OniFileSystem.deleteFileOrFolder(action.target)
-            return [
-                ...result,
-                { type: "DELETE_SUCCESS", target: action.target },
-            ] as RegisterAction[]
+            const fullPath = getPathForNode(target)
+            const maxSize = configuration.getValue("explorer.maxUndoFileSizeInBytes")
+            const persistEnabled = configuration.getValue("explorer.persistDeletedFiles")
+            const canPersistNode = OniFileSystem.canPersistFile(fullPath, maxSize)
+
+            persistEnabled && persist && canPersistNode
+                ? OniFileSystem.persistNode(fullPath)
+                : OniFileSystem.deleteNode(target)
+
+            return [...result, { type: "DELETE_SUCCESS", target, persist }] as RegisterAction[]
         } catch (e) {
-            return [...result, { type: "DELETE_FAIL", target: action.target }] as RegisterAction[]
+            return [...result, { type: "DELETE_FAIL", target }] as RegisterAction[]
         }
     })
 
 export const clearYankRegisterEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
     action$.ofType("YANK").mergeMap((action: IYankAction) => {
-        const oneMinute = 60000
+        const oneMinute = 60_000
         return Observable.timer(oneMinute).mapTo({
             type: "CLEAR_REGISTER",
             id: action.target.id,

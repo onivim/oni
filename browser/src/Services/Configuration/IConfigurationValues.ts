@@ -193,6 +193,7 @@ export interface IConfigurationValues {
     // of the session meaning that deletion can be undone is this is set
     // to true
     "explorer.persistDeletedFiles": boolean
+    "explorer.maxUndoFileSizeInBytes": number
 
     "editor.fullScreenOnStart": boolean
     "editor.maximizeScreenOnStart": boolean

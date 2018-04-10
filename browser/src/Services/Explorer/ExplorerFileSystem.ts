@@ -20,10 +20,13 @@ import { checkIfPathExists } from "./../../Utility"
 export interface IFileSystem {
     readdir(fullPath: string): Promise<FolderOrFile[]>
     exists(fullPath: string): Promise<boolean>
+    restoreNode(fullPath: string): void
+    persistNode(fullPath: string): void
+    moveNodes(collection: Array<{ file: string; folder: string }>, destination: ExplorerNode): void
 }
 
 export class FileSystem implements IFileSystem {
-    private _backupDirectory = `${tempdir()}/oni_backup/`
+    private _backupDirectory = `${tempdir()}${path.sep}oni_backup${path.sep}`
     constructor(private _fs: typeof fs) {
         if (!checkIfPathExists(this._backupDirectory, "folder")) {
             mkdir("-p", this._backupDirectory)
@@ -63,11 +66,11 @@ export class FileSystem implements IFileSystem {
     /**
      * Delete a file or Folder
      *
-     * @name deleteFileOrFolder
+     * @name deleteNode
      * @function
      * @param {ExplorerNode} node The file or folder node
      */
-    public deleteFileOrFolder = (node: ExplorerNode) => {
+    public deleteNode = (node: ExplorerNode) => {
         switch (node.type) {
             case "folder":
                 rm("-rf", node.folderPath)
@@ -83,24 +86,24 @@ export class FileSystem implements IFileSystem {
     /**
      * Move a file or folder from the backup dir to its original location
      *
-     * @name restoreFileOrFolder
+     * @name restoreNode
      * @function
      * @param {string} fileOrFolder The file or folder path
      */
-    public restoreFileOrFolder = (fileOrFolder: string) => {
-        const name = path.basename(fileOrFolder)
-        const directory = path.dirname(fileOrFolder)
+    public restoreNode = (fullPath: string) => {
+        const name = path.basename(fullPath)
+        const directory = path.dirname(fullPath)
         mv(`${this._backupDirectory}/${name}`, directory)
     }
 
     /**
      * Saves a file to the tmp directory to persist deleted files
      *
-     * @name PersistFile
+     * @name PersistNode
      * @function
      * @param {string} filename A file or folder path
      */
-    public persistFile = async (fileOrFolder: string) => {
+    public persistNode = async (fileOrFolder: string) => {
         const { size } = fs.statSync(fileOrFolder)
         const hasEnoughSpace = os.freemem() > size
         if (hasEnoughSpace) {
@@ -116,13 +119,21 @@ export class FileSystem implements IFileSystem {
      * @param {Array} collection An array of object with a file and its destination folder
      * @returns {void}
      */
-    public moveCollection = (
+    public moveNodes = (
         collection: Array<{ file: string; folder: string }>,
         destination: ExplorerNode,
     ) => {
         collection.forEach(item => {
             mv(item.file, item.folder)
         })
+    }
+
+    /**
+     * canPersistFile
+     */
+    public canPersistFile(fullPath: string, maxSize: number) {
+        const { size } = fs.statSync(fullPath)
+        return size >= maxSize
     }
 }
 

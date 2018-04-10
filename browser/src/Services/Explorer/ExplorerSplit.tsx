@@ -160,6 +160,11 @@ export class ExplorerSplit {
 
     private _initialiseExplorerCommands(): void {
         this._commandManager.registerCommand(
+            new CallbackCommand("explorer.delete.persist", null, null, () =>
+                this._onDeletePersistItem(),
+            ),
+        )
+        this._commandManager.registerCommand(
             new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
         )
         this._commandManager.registerCommand(
@@ -311,16 +316,32 @@ export class ExplorerSplit {
         }
     }
 
-    private _onDeleteItem(): void {
+    // Split delete and persist here for readability and maintainability
+    // the only difference is persist is set to differently
+    private _onDeletePersistItem(): void {
         const selectedItem = this._getSelectedItem()
 
         if (!selectedItem) {
             return
         }
-        this._store.dispatch({ type: "DELETE", target: selectedItem })
+        this._store.dispatch({ type: "DELETE", target: selectedItem, persist: true })
+        this._sendDeletionNotification(selectedItem.name)
+    }
+
+    private _onDeleteItem(persist: boolean = true): void {
+        const selectedItem = this._getSelectedItem()
+
+        if (!selectedItem) {
+            return
+        }
+        this._store.dispatch({ type: "DELETE", target: selectedItem, persist: false })
+        this._sendDeletionNotification(selectedItem.name)
+    }
+
+    private _sendDeletionNotification(name: string): void {
         this.sendExplorerNotification({
-            title: `${selectedItem.name} deleted`,
-            details: `${selectedItem.name} was removed`,
+            title: `${name} deleted`,
+            details: `${name} was removed`,
         })
     }
 }

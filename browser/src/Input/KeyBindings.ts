@@ -132,12 +132,15 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<s-c-b>", "sidebar.toggle", isNormalMode)
 
     // Explorer
-    input.bind("d", "explorer.delete", isExplorerActive)
+    input.bind("d", "explorer.delete.persist", isExplorerActive)
+    input.bind("<c-d>", "explorer.delete", isExplorerActive)
     input.bind("y", "explorer.yank", isExplorerActive)
     input.bind("p", "explorer.paste", isExplorerActive)
     input.bind("u", "explorer.undo", isExplorerActive)
     input.bind("h", "explorer.collapse.directory", isExplorerActive)
     input.bind("l", "explorer.expand.directory", isExplorerActive)
+
+    // Browser
     input.bind("k", "browser.scrollUp")
     input.bind("j", "browser.scrollDown")
     input.bind("h", "browser.scrollLeft")
