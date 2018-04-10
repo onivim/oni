@@ -4,7 +4,7 @@
 
 import * as assert from "assert"
 
-import { WindowManager } from "./../../../src/Services/WindowManager"
+import { WindowManager, ISplitInfo } from "./../../../src/Services/WindowManager"
 import { MockWindowSplit } from "./../../Mocks"
 
 describe("WindowManagerTests", () => {
@@ -57,15 +57,21 @@ describe("WindowManagerTests", () => {
         const split1 = new MockWindowSplit("window1")
         const split2 = new MockWindowSplit("window2")
 
-        windowManager.createSplit("horizontal", split1)
-        windowManager.createSplit("vertical", split2)
+        const handle1 = windowManager.createSplit("horizontal", split1)
+        handle1.focus()
+
+        windowManager.createSplit("vertical", split2, split1)
 
         const splitRoot = windowManager.splitRoot
 
+        const firstChild = splitRoot.splits[0] as ISplitInfo<MockWindowSplit>
+
+        assert.strictEqual(firstChild.type, "Split")
         assert.strictEqual(
-            splitRoot.direction,
+            firstChild.direction,
             "horizontal",
-            "Validate the splits are arranged horizontally (it's confusing, by this means they are vertical splits)",
+            "Validate the splits are arranged horizontally (it's confusing... but this means they are vertical splits)",
         )
+        assert.strictEqual(firstChild.splits.length, 2, "Validate both windows are in this split")
     })
 })
