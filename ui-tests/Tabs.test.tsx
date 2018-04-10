@@ -4,8 +4,6 @@ import * as React from "react"
 
 import { Tab, Tabs } from "../browser/src/UI/components/Tabs"
 
-jest.mock("classNames")
-
 describe("<Tabs /> Tests", () => {
     const testTabs = [
         {
@@ -39,12 +37,24 @@ describe("<Tabs /> Tests", () => {
         const wrapper = shallow(TestTabs)
         expect(shallowToJson(wrapper)).toMatchSnapshot()
     })
-    it("Should show the modified icon if the tab is dirty", () => {
+    it("Should render the correct number of tabs", () => {
         const wrapper = shallow(TestTabs)
-        const circle = wrapper
-            .find(Tab)
-            .dive()
-            .find(".circle")
-        expect(circle.length).toEqual(1)
+        expect(wrapper.children.length).toEqual(1)
+    })
+    it("Should not render if the visible props is false", () => {
+        const wrapper = shallow(
+            <Tabs
+                fontSize="1.2em"
+                maxWidth="20em"
+                height="2em"
+                fontFamily="inherit"
+                backgroundColor="#fff"
+                foregroundColor="#000"
+                shouldWrap={false}
+                visible={false}
+                tabs={testTabs}
+            />,
+        )
+        expect(wrapper.getElement()).toBe(null)
     })
 })
