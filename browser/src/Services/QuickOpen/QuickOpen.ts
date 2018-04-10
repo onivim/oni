@@ -41,7 +41,7 @@ export class QuickOpen {
     ) {
         this._menu = menuManager.create()
         this._menu.onItemSelected.subscribe((selectedItem: any) => {
-            this._onItemSelected(selectedItem)
+            this.openFileWithDefaultAction(selectedItem)
         })
 
         this._menu.onHide.subscribe(() => {
@@ -68,6 +68,32 @@ export class QuickOpen {
         if (selectedItem) {
             this._onItemSelected(selectedItem, openFileMode)
         }
+    }
+
+    public openFileWithDefaultAction(selectedItem: Oni.Menu.MenuOption): void {
+        if (!selectedItem) {
+            return
+        }
+
+        const openInCurrentByDefault = configuration.getValue(
+            "editor.quickOpen.openInCurrentByDefault",
+        )
+        const openMode = openInCurrentByDefault
+            ? Oni.FileOpenMode.ExistingTab
+            : Oni.FileOpenMode.Edit
+
+        this._onItemSelected(selectedItem, openMode)
+    }
+
+    public openFileWithAltAction(): void {
+        const openInCurrentByDefault = configuration.getValue(
+            "editor.quickOpen.openInCurrentByDefault",
+        )
+        const openMode = openInCurrentByDefault
+            ? Oni.FileOpenMode.Edit
+            : Oni.FileOpenMode.ExistingTab
+
+        this.openFile(openMode)
     }
 
     public async show() {

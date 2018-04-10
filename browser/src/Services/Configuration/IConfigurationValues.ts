@@ -125,6 +125,7 @@ export interface IConfigurationValues {
     "editor.quickInfo.enabled": boolean
     // Delay (in ms) for showing QuickInfo, when the cursor is on a term
     "editor.quickInfo.delay": number
+    "editor.quickOpen.openInCurrentByDefault": boolean
 
     "editor.errors.slideOnFocus": boolean
     "editor.formatting.formatOnSwitchToNormalMode": boolean // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun

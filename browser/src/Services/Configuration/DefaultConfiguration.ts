@@ -106,6 +106,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.quickOpen.execCommand": null,
     "editor.quickOpen.filterStrategy": "vscode",
+    "editor.quickOpen.openInCurrentByDefault": false,
 
     "editor.split.mode": "native",
 
