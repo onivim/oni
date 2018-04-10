@@ -41,7 +41,7 @@ describe("<Tabs /> Tests", () => {
         const wrapper = shallow(TestTabs)
         expect(wrapper.children.length).toEqual(1)
     })
-    it("Should not render if the visible props is false", () => {
+    it("Should not render if the visible prop is false", () => {
         const wrapper = shallow(
             <Tabs
                 fontSize="1.2em"

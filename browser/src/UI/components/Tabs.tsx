@@ -17,7 +17,7 @@ import { addDefaultUnitIfNeeded } from "./../../Font"
 
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { Icon } from "./../../UI/Icon"
-import { styled, withProps } from "./../components/common"
+import { styled } from "./../components/common"
 
 import { FileIcon } from "./../../Services/FileIcon"
 
@@ -57,8 +57,8 @@ export interface ITabsProps {
     fontSize: string
 }
 
-const InnerName = withProps<{ isLong?: boolean }>(styled.span)`
-    max-width: 18em;
+const InnerName = styled.span`
+    max-width: 20em;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
