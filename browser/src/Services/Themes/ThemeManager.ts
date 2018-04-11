@@ -283,9 +283,14 @@ export const DefaultThemeColors: IThemeColors = {
     "editor.tokenColors": [],
 }
 
+// Value used to determine whether the base Vim theme
+// should be set to 'dark' or 'light'
+export type VimBackground = "light" | "dark"
+
 export interface IThemeMetadata {
     name: string
     baseVimTheme?: string
+    baseVimBackground?: VimBackground
     colors: Partial<IThemeColors>
     tokenColors: TokenColor[]
 }

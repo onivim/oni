@@ -1,6 +1,7 @@
 {
     "name": "solarized8_light",
-    "baseVimTheme": "solarized8_light",
+    "baseVimTheme": "solarized8",
+    "baseVimBackground": "light",
     "colors": {
         "background": "#073642",
         "foreground": "#839496",

@@ -44,6 +44,7 @@ import { Configuration, IConfigurationValues } from "./../../Services/Configurat
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
+import { IThemeMetadata } from "./../../Services/Themes"
 import { TokenColors } from "./../../Services/TokenColors"
 
 import * as Shell from "./../../UI/Shell"
@@ -972,14 +973,12 @@ export class NeovimEditor extends Editor implements IEditor {
             const newTheme = this._themeManager.activeTheme
 
             if (newTheme.baseVimTheme && newTheme.baseVimTheme !== this._currentColorScheme) {
-                this._neovimInstance.command(":color " + newTheme.baseVimTheme)
+                this.setColorSchemeFromTheme(newTheme)
             }
         })
 
         if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
-            await this._neovimInstance.command(
-                ":color " + this._themeManager.activeTheme.baseVimTheme,
-            )
+            await this.setColorSchemeFromTheme(this._themeManager.activeTheme)
         }
 
         if (filesToOpen && filesToOpen.length > 0) {
@@ -996,6 +995,14 @@ export class NeovimEditor extends Editor implements IEditor {
         this._hasLoaded = true
         this._isFirstRender = true
         this._scheduleRender()
+    }
+
+    public async setColorSchemeFromTheme(theme: IThemeMetadata): Promise<void> {
+        if (theme.baseVimBackground === "dark" || theme.baseVimBackground === "light") {
+            await this._neovimInstance.command(":set background=" + theme.baseVimBackground)
+        }
+
+        await this._neovimInstance.command(":color " + theme.baseVimTheme)
     }
 
     public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
