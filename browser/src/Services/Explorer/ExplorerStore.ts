@@ -355,7 +355,7 @@ const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
                 const { target } = tail(deleteActions)
                 OniFileSystem.restoreNode(getPathForNode(target))
 
-                return [{ type: "REFRESH" }, { type: "UNDO_SUCCESS" }] as ExplorerAction[]
+                return [{ type: "UNDO_SUCCESS" }, { type: "REFRESH" }] as ExplorerAction[]
 
             default:
                 return [{ type: "UNDO_FAIL" }] as ExplorerAction[]

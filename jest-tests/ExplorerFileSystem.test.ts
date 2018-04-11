@@ -27,10 +27,11 @@ describe("File System tests", () => {
 
     afterAll(async () => {
         await rmdir(rootPath)
+        await rmdir(Fs.backupDir)
     })
 
     it("Should return false is the file is too big to persist", () => {
-        const canPersist = Fs.canPersistFile(os.homedir(), 1)
+        const canPersist = Fs.canPersistFile(filePath, 1)
         expect(canPersist).toBeFalsy()
     })
     it("Should return true is the file can be persisted", () => {
