@@ -1,7 +1,10 @@
 module.exports = {
+    bail: true,
+    automock: true,
     verbose: true,
     collectCoverage: true,
-    collectCoverageFrom: ["**/*.{tsx}", "!**/node_modules/**", "!**/dist/**"],
+    coverageDirectory: "<rootDir>/coverage/",
+    collectCoverageFrom: ["**/jest-tests/*.{tsx}", "!**/node_modules/**", "!**/dist/**"],
     setupFiles: ["<rootDir>/jest-tests/jestsetup.ts"],
     moduleNameMapper: {
         electron: "<rootDir>/jest-tests/mocks/electronMock.ts",

@@ -316,8 +316,6 @@ export class ExplorerSplit {
         }
     }
 
-    // Split delete and persist here for readability and maintainability
-    // the only difference is persist is set to differently
     private _onDeletePersistItem(): void {
         const selectedItem = this._getSelectedItem()
 
