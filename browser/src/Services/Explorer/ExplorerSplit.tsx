@@ -323,7 +323,7 @@ export class ExplorerSplit {
             return
         }
         this._store.dispatch({ type: "DELETE", target: selectedItem, persist: true })
-        this._sendDeletionNotification(selectedItem.name)
+        this._sendDeletionNotification(selectedItem.name, selectedItem.type)
     }
 
     private _onDeleteItem(persist: boolean = true): void {
@@ -333,13 +333,13 @@ export class ExplorerSplit {
             return
         }
         this._store.dispatch({ type: "DELETE", target: selectedItem, persist: false })
-        this._sendDeletionNotification(selectedItem.name)
+        this._sendDeletionNotification(selectedItem.name, selectedItem.type)
     }
 
-    private _sendDeletionNotification(name: string): void {
+    private _sendDeletionNotification(name: string, type: string): void {
         this.sendExplorerNotification({
-            title: `${name} deleted`,
-            details: `${name} was removed`,
+            title: `${capitalize(type)} deleted`,
+            details: `${name} was deleted successfully`,
         })
     }
 }
