@@ -32,6 +32,7 @@ export const DefaultRegisterState: IRegisterState = {
     yank: [],
     undo: [],
     paste: EmptyNode,
+    updated: null,
 }
 
 export interface IFileState {
@@ -59,12 +60,13 @@ export interface IFileSystem {
     delete(fullPath: string): Promise<void>
 }
 
-type RegisterAction = IPasteAction | IDeleteAction | IDeleteSuccessAction
+type RegisterAction = IPasteAction | IDeleteSuccessAction
 
 interface IRegisterState {
     yank: ExplorerNode[]
     paste: ExplorerNode
     undo: RegisterAction[]
+    updated: string[]
 }
 
 export interface IExplorerState {
@@ -177,14 +179,62 @@ export const rootFolderReducer: Reducer<IFolderState> = (
     }
 }
 
+// Helper functions for Updating state ========================================================
 export const removePastedNode = (nodeArray: ExplorerNode[], id: string): ExplorerNode[] =>
     nodeArray.filter(node => node.id !== id)
 
 export const removeUndoItem = (undoArray: RegisterAction[]): RegisterAction[] =>
     undoArray.slice(0, undoArray.length - 1)
 
-// Do not add un-undoeable action to the undo list
+const getOriginalNodeLocations = (file: ExplorerNode, pasteTarget: ExplorerNode) => {
+    const originalFolder = path.dirname(getPathForNode(file))
+
+    const targetDirectory =
+        pasteTarget.type === "file"
+            ? path.dirname(pasteTarget.filePath)
+            : getPathForNode(pasteTarget)
+
+    const fileOrFolderPath = getPathForNode(file)
+    const filename = path.basename(fileOrFolderPath)
+    return {
+        file: path.join(targetDirectory, filename),
+        folder: originalFolder,
+    }
+}
+
+// Do not add un-undoable action to the undo list
 export const shouldAddDeletion = (action: IDeleteSuccessAction) => (action.persist ? [action] : [])
+
+const getUpdatedPasteNode = (action: IPasteAction) =>
+    action.pasted.map(node => getOriginalNodeLocations(node, action.target)).map(n => n.file)
+
+const getUpdatedDeleteNode = (action: IDeleteSuccessAction) => [getPathForNode(action.target)]
+
+type Updates = IPasteAction | IDeleteSuccessAction | IUndoSuccessAction
+
+export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[] => {
+    switch (action.type) {
+        case "PASTE":
+            return getUpdatedPasteNode(action)
+        case "DELETE_SUCCESS":
+            return getUpdatedDeleteNode(action)
+        case "UNDO_SUCCESS":
+            const lastAction = tail(state.undo)
+            return lastAction.type === "DELETE_SUCCESS"
+                ? getUpdatedDeleteNode(lastAction)
+                : lastAction.pasted.map(node => getPathForNode(node))
+        default:
+            return []
+    }
+}
+
+// Yank, Paste Delete register =============================
+// The undo register is essentially a list of past actions
+// => [paste, delete, paste], when an action is carried out
+// it is added to the back of the stack when an undo is triggered
+// it is removed.
+// The most recently actioned node(s) path(s) are set to the value of
+// the updated field, this is used to animate updated fields.
 
 export const yankRegisterReducer: Reducer<IRegisterState> = (
     state: IRegisterState = DefaultRegisterState,
@@ -201,11 +251,13 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                 ...state,
                 paste: action.target,
                 undo: [...state.undo, action],
+                updated: getUpdatedNode(action),
             }
         case "UNDO_SUCCESS":
             return {
                 ...state,
                 undo: removeUndoItem(state.undo),
+                updated: getUpdatedNode(action, state),
             }
         case "CLEAR_REGISTER":
             return {
@@ -217,6 +269,7 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
             return {
                 ...state,
                 undo: [...state.undo, ...shouldAddDeletion(action)],
+                updated: getUpdatedNode(action),
             }
         case "LEAVE":
             return { ...DefaultRegisterState, undo: state.undo }
@@ -313,22 +366,6 @@ export const getPathForNode = (node: ExplorerNode) => {
     }
 }
 
-const undoPaste = (file: ExplorerNode, pasteTarget: ExplorerNode) => {
-    const originalFolder = path.dirname(getPathForNode(file))
-
-    const targetDirectory =
-        pasteTarget.type === "file"
-            ? path.dirname(pasteTarget.filePath)
-            : getPathForNode(pasteTarget)
-
-    const fileOrFolderPath = getPathForNode(file)
-    const filename = path.basename(fileOrFolderPath)
-    return {
-        file: path.join(targetDirectory, filename),
-        folder: originalFolder,
-    }
-}
-
 const actionsOfType = (register: RegisterAction[]) => (type: string) =>
     register.filter(a => a.type === type)
 
@@ -344,7 +381,9 @@ const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
                 const lastPaste = tail(pasteActions)
                 const { pasted, target: pasteTarget } = lastPaste
 
-                const filesAndFolders = pasted.map(file => undoPaste(file, pasteTarget))
+                const filesAndFolders = pasted.map(file =>
+                    getOriginalNodeLocations(file, pasteTarget),
+                )
                 OniFileSystem.moveNodes(filesAndFolders)
 
                 return [{ type: "UNDO_SUCCESS" }, { type: "REFRESH" }] as ExplorerAction[]
@@ -352,10 +391,10 @@ const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
             case "DELETE_SUCCESS":
                 const deleteActions = getActions("DELETE_SUCCESS").filter(
                     ({ persist }: IDeleteSuccessAction) => !!persist,
-                ) as IDeleteAction[]
+                ) as IDeleteSuccessAction[]
 
-                const { target } = tail(deleteActions)
-                OniFileSystem.restoreNode(getPathForNode(target))
+                const lastDelete = tail(deleteActions)
+                OniFileSystem.restoreNode(getPathForNode(lastDelete.target))
 
                 return [{ type: "UNDO_SUCCESS" }, { type: "REFRESH" }] as ExplorerAction[]
 

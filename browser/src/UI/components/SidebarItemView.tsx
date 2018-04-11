@@ -12,7 +12,7 @@ import { Sneakable } from "./../../UI/components/Sneakable"
 
 export interface ISidebarItemViewProps {
     yanked?: boolean
-    pasted?: boolean
+    updated?: boolean
     isOver?: boolean
     canDrop?: boolean
     didDrop?: boolean
@@ -30,7 +30,7 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
     padding-left: ${props => px(INDENT_AMOUNT * props.indentationLevel)};
     border-left: ${props =>
         props.isFocused
-            ? "4px solid " + props.theme["highlight.mode.normal.background"]
+            ? `4px solid  ${props.theme["highlight.mode.normal.background"]}`
             : "4px solid transparent"};
 
     ${p =>
@@ -104,7 +104,7 @@ export class SidebarItemView extends React.PureComponent<ISidebarItemViewProps, 
 
 export interface ISidebarContainerViewProps extends IContainerProps {
     yanked?: boolean
-    pasted?: boolean
+    updated?: boolean
     didDrop?: boolean
     text: string
     isExpanded: boolean
@@ -118,7 +118,7 @@ interface IContainerProps {
     isOver?: boolean
     canDrop?: boolean
     yanked?: boolean
-    pasted?: boolean
+    updated?: boolean
 }
 
 const SidebarContainer = withProps<IContainerProps>(styled.div)`
@@ -138,14 +138,14 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
 
         return (
             <SidebarContainer
-                pasted={this.props.pasted}
+                updated={this.props.updated}
                 yanked={this.props.yanked}
                 canDrop={this.props.canDrop}
                 isOver={this.props.isOver}
             >
                 <SidebarItemView
                     yanked={this.props.yanked}
-                    pasted={this.props.pasted}
+                    updated={this.props.updated}
                     didDrop={this.props.didDrop}
                     indentationLevel={indentationlevel}
                     icon={icon}

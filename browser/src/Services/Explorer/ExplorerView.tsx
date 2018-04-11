@@ -30,7 +30,7 @@ export interface INodeViewProps {
     isSelected: boolean
     onClick: () => void
     yanked: string[]
-    pasted: string
+    updated?: string[]
 }
 
 const NodeWrapper = styled.div`
@@ -67,18 +67,29 @@ interface IMoveNode {
 }
 
 const NodeTransitionWrapper = styled.div`
-    transition: all 100ms 50ms ease-in;
-    &.move-appear.move-appear-active {
-        transform: scale(1.05);
-    }
-    &.move-enter.move-enter-active {
-        transform: scale(1.05);
-    }
+    transition: all 400ms 50ms ease-in-out;
 
-    &.move-exit.move-exit-active {
+    &.move-enter {
+        opacity: 0.01;
         transform: scale(0.9);
     }
+
+    &.move-enter-active {
+        transform: scale(1);
+        opacity: 1;
+    }
 `
+
+interface ITransitionProps {
+    children: React.ReactNode
+    updated: boolean
+}
+
+const Transition = ({ children, updated }: ITransitionProps) => (
+    <CSSTransition in={updated} classNames="move" timeout={1000}>
+        <NodeTransitionWrapper className={updated && "move"}>{children}</NodeTransitionWrapper>
+    </CSSTransition>
+)
 
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     public moveFileOrFolder = ({ drag, drop }: IMoveNode) => {
@@ -100,11 +111,12 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
         )
     }
 
+    public hasUpdated = (path: string) =>
+        !!this.props.updated && this.props.updated.some(nodePath => nodePath === path)
+
     public getElement(): JSX.Element {
         const { node } = this.props
         const yanked = this.props.yanked.includes(node.id)
-        const pasted = this.props.pasted === node.id
-        const didPasteNode = yanked && !!this.props.pasted
 
         switch (node.type) {
             case "file":
@@ -116,24 +128,23 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         isValidDrop={this.isSameNode}
                         node={node}
                         render={({ canDrop, isDragging, didDrop, isOver }) => {
+                            const updated = this.hasUpdated(node.filePath)
                             return (
-                                <CSSTransition in={didPasteNode} classNames="move" timeout={1000}>
-                                    <NodeTransitionWrapper className={didPasteNode ? "move" : ""}>
-                                        <SidebarItemView
-                                            yanked={yanked}
-                                            pasted={didPasteNode}
-                                            isOver={isOver && canDrop}
-                                            didDrop={didDrop}
-                                            canDrop={canDrop}
-                                            text={node.name}
-                                            isFocused={this.props.isSelected}
-                                            isContainer={false}
-                                            indentationLevel={node.indentationLevel}
-                                            onClick={stopPropagation(this.props.onClick)}
-                                            icon={<FileIcon fileName={node.name} isLarge={true} />}
-                                        />
-                                    </NodeTransitionWrapper>
-                                </CSSTransition>
+                                <Transition updated={updated}>
+                                    <SidebarItemView
+                                        updated={updated}
+                                        yanked={yanked}
+                                        isOver={isOver && canDrop}
+                                        didDrop={didDrop}
+                                        canDrop={canDrop}
+                                        text={node.name}
+                                        isFocused={this.props.isSelected}
+                                        isContainer={false}
+                                        indentationLevel={node.indentationLevel}
+                                        onClick={stopPropagation(this.props.onClick)}
+                                        icon={<FileIcon fileName={node.name} isLarge={true} />}
+                                    />
+                                </Transition>
                             )
                         }}
                     />
@@ -146,18 +157,15 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         isValidDrop={() => true}
                         render={({ isOver }) => {
                             return (
-                                <TransitionGroup>
-                                    <SidebarContainerView
-                                        yanked={yanked}
-                                        pasted={pasted}
-                                        isOver={isOver}
-                                        isContainer={true}
-                                        isExpanded={node.expanded}
-                                        text={node.name}
-                                        isFocused={this.props.isSelected}
-                                        onClick={stopPropagation(this.props.onClick)}
-                                    />
-                                </TransitionGroup>
+                                <SidebarContainerView
+                                    yanked={yanked}
+                                    isOver={isOver}
+                                    isContainer={true}
+                                    isExpanded={node.expanded}
+                                    text={node.name}
+                                    isFocused={this.props.isSelected}
+                                    onClick={stopPropagation(this.props.onClick)}
+                                />
                             )
                         }}
                     />
@@ -171,18 +179,22 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         onDrop={this.moveFileOrFolder}
                         node={node}
                         render={({ isOver, didDrop, canDrop }) => {
+                            const updated = this.hasUpdated(node.folderPath)
                             return (
-                                <SidebarContainerView
-                                    yanked={yanked}
-                                    didDrop={didDrop}
-                                    isOver={isOver && canDrop}
-                                    isContainer={false}
-                                    isExpanded={node.expanded}
-                                    text={node.name}
-                                    isFocused={this.props.isSelected}
-                                    indentationLevel={node.indentationLevel}
-                                    onClick={stopPropagation(this.props.onClick)}
-                                />
+                                <Transition updated={updated}>
+                                    <SidebarContainerView
+                                        yanked={yanked}
+                                        updated={updated}
+                                        didDrop={didDrop}
+                                        isOver={isOver && canDrop}
+                                        isContainer={false}
+                                        isExpanded={node.expanded}
+                                        text={node.name}
+                                        isFocused={this.props.isSelected}
+                                        indentationLevel={node.indentationLevel}
+                                        onClick={stopPropagation(this.props.onClick)}
+                                    />
+                                </Transition>
                             )
                         }}
                     />
@@ -198,12 +210,12 @@ export interface IExplorerViewContainerProps {
     onSelectionChanged: (id: string) => void
     onClick: (id: string) => void
     yanked?: string[]
-    pasted?: string
 }
 
 export interface IExplorerViewProps extends IExplorerViewContainerProps {
     nodes: ExplorerSelectors.ExplorerNode[]
     isActive: boolean
+    updated: string[]
 }
 
 import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
@@ -226,32 +238,34 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
         }
 
         return (
-            <VimNavigator
-                ids={ids}
-                active={this.props.isActive}
-                onSelectionChanged={this.props.onSelectionChanged}
-                onSelected={id => this.props.onClick(id)}
-                render={(selectedId: string) => {
-                    const nodes = this.props.nodes.map(node => (
-                        <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
-                            <NodeView
-                                yanked={this.props.yanked}
-                                pasted={this.props.pasted}
-                                moveFileOrFolder={this.props.moveFileOrFolder}
-                                node={node}
-                                isSelected={node.id === selectedId}
-                                onClick={() => this.props.onClick(node.id)}
-                            />
-                        </Sneakable>
-                    ))
+            <TransitionGroup>
+                <VimNavigator
+                    ids={ids}
+                    active={this.props.isActive}
+                    onSelectionChanged={this.props.onSelectionChanged}
+                    onSelected={id => this.props.onClick(id)}
+                    render={(selectedId: string) => {
+                        const nodes = this.props.nodes.map(node => (
+                            <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
+                                <NodeView
+                                    updated={this.props.updated}
+                                    yanked={this.props.yanked}
+                                    moveFileOrFolder={this.props.moveFileOrFolder}
+                                    node={node}
+                                    isSelected={node.id === selectedId}
+                                    onClick={() => this.props.onClick(node.id)}
+                                />
+                            </Sneakable>
+                        ))
 
-                    return (
-                        <div className="explorer enable-mouse">
-                            <div className="items">{nodes}</div>
-                        </div>
-                    )
-                }}
-            />
+                        return (
+                            <div className="explorer enable-mouse">
+                                <div className="items">{nodes}</div>
+                            </div>
+                        )
+                    }}
+                />
+            </TransitionGroup>
         )
     }
 }
@@ -265,7 +279,7 @@ const mapStateToProps = (
         ...containerProps,
         isActive: state.hasFocus,
         nodes: ExplorerSelectors.mapStateToNodeList(state),
-        pasted: state.register.paste.id,
+        updated: state.register.updated,
         yanked,
     }
 }
