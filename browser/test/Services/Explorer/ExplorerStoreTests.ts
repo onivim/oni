@@ -75,4 +75,26 @@ describe("ExplorerStore", async () => {
             assert.ok(clearedRegister)
         })
     })
+
+    describe("Store utility helper tests", () => {
+        it("Should not add an action if it isn't set to persist", () => {
+            const testAction = {
+                type: "DELETE_SUCCESS",
+                persist: false,
+                target: { id: "2", type: "file", filePath },
+            } as ExplorerState.IDeleteSuccessAction
+            const newState = ExplorerState.shouldAddDeletion(testAction)
+            assert.ok(newState.length === 0 && Array.isArray(newState))
+        })
+
+        it("Should return an action if it is set to persist", () => {
+            const testAction = {
+                type: "DELETE_SUCCESS",
+                persist: true,
+                target: { id: "2", type: "file", filePath },
+            } as ExplorerState.IDeleteSuccessAction
+            const newState = ExplorerState.shouldAddDeletion(testAction)
+            assert.deepEqual(newState[0], testAction)
+        })
+    })
 })

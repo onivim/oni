@@ -113,7 +113,7 @@ interface IDeleteAction {
     persist: boolean
 }
 
-interface IDeleteSuccessAction {
+export interface IDeleteSuccessAction {
     type: "DELETE_SUCCESS"
     target: ExplorerNode
     persist: boolean
@@ -177,14 +177,14 @@ export const rootFolderReducer: Reducer<IFolderState> = (
     }
 }
 
-const removePastedNode = (nodeArray: ExplorerNode[], id: string): ExplorerNode[] =>
+export const removePastedNode = (nodeArray: ExplorerNode[], id: string): ExplorerNode[] =>
     nodeArray.filter(node => node.id !== id)
 
-const removeUndoItem = (undoArray: RegisterAction[]): RegisterAction[] =>
+export const removeUndoItem = (undoArray: RegisterAction[]): RegisterAction[] =>
     undoArray.slice(0, undoArray.length - 1)
 
 // Do not add un-undoeable action to the undo list
-const shouldAddDeletion = (action: IDeleteSuccessAction) => (action.persist ? [action] : [])
+export const shouldAddDeletion = (action: IDeleteSuccessAction) => (action.persist ? [action] : [])
 
 export const yankRegisterReducer: Reducer<IRegisterState> = (
     state: IRegisterState = DefaultRegisterState,
@@ -324,7 +324,7 @@ const undoPaste = (file: ExplorerNode, pasteTarget: ExplorerNode) => {
     const fileOrFolderPath = getPathForNode(file)
     const filename = path.basename(fileOrFolderPath)
     return {
-        file: `${targetDirectory}${path.sep}${filename}`,
+        file: path.join(targetDirectory, filename),
         folder: originalFolder,
     }
 }
@@ -378,9 +378,9 @@ export const deleteEpic: Epic<ExplorerAction, IExplorerState> = (action$, store)
                 ? OniFileSystem.persistNode(fullPath)
                 : OniFileSystem.deleteNode(target)
 
-            return [...result, { type: "DELETE_SUCCESS", target, persist }] as RegisterAction[]
+            return [{ type: "DELETE_SUCCESS", target, persist }, ...result] as RegisterAction[]
         } catch (e) {
-            return [...result, { type: "DELETE_FAIL", target }] as RegisterAction[]
+            return [{ type: "DELETE_FAIL", target }, ...result] as RegisterAction[]
         }
     })
 
