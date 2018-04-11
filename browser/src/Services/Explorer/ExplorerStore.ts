@@ -343,15 +343,17 @@ const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
                 const pasteActions = getActions("PASTE") as IPasteAction[]
                 const lastPaste = tail(pasteActions)
                 const { pasted, target: pasteTarget } = lastPaste
+
                 const filesAndFolders = pasted.map(file => undoPaste(file, pasteTarget))
-                OniFileSystem.moveNodes(filesAndFolders, pasteTarget)
+                OniFileSystem.moveNodes(filesAndFolders)
 
                 return [{ type: "UNDO_SUCCESS" }, { type: "REFRESH" }] as ExplorerAction[]
 
             case "DELETE_SUCCESS":
                 const deleteActions = getActions("DELETE_SUCCESS").filter(
-                    (a: IDeleteSuccessAction) => !!a.persist,
+                    ({ persist }: IDeleteSuccessAction) => !!persist,
                 ) as IDeleteAction[]
+
                 const { target } = tail(deleteActions)
                 OniFileSystem.restoreNode(getPathForNode(target))
 

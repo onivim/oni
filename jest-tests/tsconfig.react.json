@@ -6,7 +6,7 @@
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "jsx": "react",
-        "lib": ["dom", "es2017", "es5", "es2015.promise"],
+        "lib": ["dom", "es2017", "es5"],
         "module": "commonjs",
         "moduleResolution": "node",
         "noEmitOnError": true,
