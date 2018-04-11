@@ -24,9 +24,36 @@ const mockStore: MockStoreCreator<ExplorerState.IExplorerState> = configureMockS
     epicMiddleware,
 ])
 
-describe("ExplorerStore", async () => {
+export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
+    public promises: Array<Promise<any>>
+
+    constructor(private _inner: ExplorerFileSystem.IFileSystem) {
+        this.promises = []
+    }
+
+    public readdir(directoryPath: string): Promise<ExplorerState.FolderOrFile[]> {
+        const promise = this._inner.readdir(directoryPath)
+        this.promises.push(promise)
+        return promise
+    }
+
+    public exists(fullPath: string): Promise<boolean> {
+        const promise = this._inner.exists(fullPath)
+        this.promises.push(promise)
+        return promise
+    }
+
+    // tslint:disable
+    public restoreNode() {}
+    public persistNode() {}
+    public moveNodes() {}
+    // tslint:enable
+}
+
+describe("ExplorerStore", () => {
     let fileSystem: any
     let store: Store<ExplorerState.IExplorerState>
+    let explorerFileSystem: MockedFileSystem
 
     const rootPath = path.normalize(path.join(TestHelpers.getRootDirectory(), "a", "test", "dir"))
     const filePath = path.join(rootPath, "file.txt")
@@ -38,7 +65,9 @@ describe("ExplorerStore", async () => {
         fileSystem.mkdirpSync(rootPath)
         fileSystem.writeFileSync(filePath, "Hello World")
 
-        const explorerFileSystem = new ExplorerFileSystem.FileSystem(fileSystem as any)
+        explorerFileSystem = new MockedFileSystem(
+            new ExplorerFileSystem.FileSystem(fileSystem as any),
+        )
         store = ExplorerState.createStore(explorerFileSystem)
     })
 
@@ -54,8 +83,9 @@ describe("ExplorerStore", async () => {
             })
 
             await TestHelpers.waitForAllAsyncOperations()
+            TestHelpers.tick(0) // execute setImmediate of memory-fs callbacks
+            await Promise.all(explorerFileSystem.promises)
 
-            // At this point, the FS operations are synchronous
             const state = store.getState()
 
             assert.deepEqual(

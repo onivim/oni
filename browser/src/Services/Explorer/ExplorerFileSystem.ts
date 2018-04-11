@@ -8,6 +8,7 @@ import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 import { mkdir, mv, rm, tempdir } from "shelljs"
+import { promisify } from "util"
 
 import { ExplorerNode } from "./ExplorerSelectors"
 import { FolderOrFile } from "./ExplorerStore"
@@ -26,24 +27,35 @@ export interface IFileSystem {
 }
 
 export class FileSystem implements IFileSystem {
+    private _fs: {
+        readdir(path: string): Promise<string[]>
+        stat(path: string): Promise<fs.Stats>
+        exists(path: string): Promise<boolean>
+    }
     private _backupDirectory = path.join(tempdir(), "oni_backup")
 
     public get backupDir(): string {
         return this._backupDirectory
     }
 
-    constructor(private _fs: typeof fs) {
+    constructor(nfs: typeof fs) {
+        this._fs = {
+            readdir: promisify(nfs.readdir.bind(nfs)),
+            stat: promisify(nfs.stat.bind(nfs)),
+            exists: promisify(nfs.exists.bind(nfs)),
+        }
+
         if (!checkIfPathExists(this._backupDirectory, "folder")) {
             mkdir("-p", this._backupDirectory)
         }
     }
 
-    public readdir(directoryPath: string): Promise<FolderOrFile[]> {
-        const files = this._fs.readdirSync(directoryPath)
+    public async readdir(directoryPath: string): Promise<FolderOrFile[]> {
+        const files = await this._fs.readdir(directoryPath)
 
-        const filesAndFolders = files.map(f => {
+        const filesAndFolders = files.map(async f => {
             const fullPath = path.join(directoryPath, f)
-            const stat = this._fs.statSync(fullPath)
+            const stat = await this._fs.stat(fullPath)
             if (stat.isDirectory()) {
                 return {
                     type: "folder",
@@ -57,15 +69,11 @@ export class FileSystem implements IFileSystem {
             }
         })
 
-        return Promise.resolve(filesAndFolders)
+        return Promise.all(filesAndFolders)
     }
 
     public exists(fullPath: string): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            this._fs.exists(fullPath, (exists: boolean) => {
-                resolve(exists)
-            })
-        })
+        return this._fs.exists(fullPath)
     }
 
     /**
@@ -109,7 +117,7 @@ export class FileSystem implements IFileSystem {
      * @param {string} filename A file or folder path
      */
     public persistNode = async (fileOrFolder: string) => {
-        const { size } = this._fs.statSync(fileOrFolder)
+        const { size } = await this._fs.stat(fileOrFolder)
         const hasEnoughSpace = os.freemem() > size
         if (hasEnoughSpace) {
             mv(fileOrFolder, this._backupDirectory)
@@ -134,8 +142,8 @@ export class FileSystem implements IFileSystem {
      * canPersistNode
      * Determine based on size whether the directory should be persisted
      */
-    public canPersistNode(fullPath: string, maxSize: number) {
-        const { size } = this._fs.statSync(fullPath)
+    public canPersistNode = async (fullPath: string, maxSize: number) => {
+        const { size } = await this._fs.stat(fullPath)
         return size < maxSize
     }
 }
