@@ -36,11 +36,11 @@ describe("File System tests", () => {
     })
 
     it("Should return false is the file is too big to persist", () => {
-        const canPersist = fileSystem.canPersistFile(filePath, 1)
+        const canPersist = fileSystem.canPersistNode(filePath, 1)
         expect(canPersist).toBeFalsy()
     })
     it("Should return true is the file can be persisted", () => {
-        const canPersist = fileSystem.canPersistFile(filePath, 1000)
+        const canPersist = fileSystem.canPersistNode(filePath, 1000)
         expect(canPersist).toBeTruthy()
     })
     it("Should delete the file", async () => {

@@ -119,7 +119,7 @@ export class FileSystem implements IFileSystem {
     /**
      * Moves an array of files and folders
      *
-     * @name moveCollection
+     * @name moveNodes
      * @function
      * @param {Array} collection An array of object with a file and its destination folder
      * @returns {void}
@@ -131,10 +131,10 @@ export class FileSystem implements IFileSystem {
     }
 
     /**
-     * canPersistFile
+     * canPersistNode
      * Determine based on size whether the directory should be persisted
      */
-    public canPersistFile(fullPath: string, maxSize: number) {
+    public canPersistNode(fullPath: string, maxSize: number) {
         const { size } = this._fs.statSync(fullPath)
         return size < maxSize
     }

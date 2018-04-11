@@ -372,7 +372,7 @@ export const deleteEpic: Epic<ExplorerAction, IExplorerState> = (action$, store)
             const fullPath = getPathForNode(target)
             const maxSize = configuration.getValue("explorer.maxUndoFileSizeInBytes")
             const persistEnabled = configuration.getValue("explorer.persistDeletedFiles")
-            const canPersistNode = OniFileSystem.canPersistFile(fullPath, maxSize)
+            const canPersistNode = OniFileSystem.canPersistNode(fullPath, maxSize)
 
             persistEnabled && persist && canPersistNode
                 ? OniFileSystem.persistNode(fullPath)
