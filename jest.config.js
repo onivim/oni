@@ -1,6 +1,5 @@
 module.exports = {
     bail: true,
-    automock: true,
     verbose: true,
     collectCoverage: true,
     coverageDirectory: "<rootDir>/coverage/",

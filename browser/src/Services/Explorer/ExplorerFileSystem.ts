@@ -22,11 +22,11 @@ export interface IFileSystem {
     exists(fullPath: string): Promise<boolean>
     restoreNode(fullPath: string): void
     persistNode(fullPath: string): void
-    moveNodes(collection: Array<{ file: string; folder: string }>, destination: ExplorerNode): void
+    moveNodes(collection: Array<{ file: string; folder: string }>): void
 }
 
 export class FileSystem implements IFileSystem {
-    private _backupDirectory = `${tempdir()}${path.sep}oni_backup${path.sep}`
+    private _backupDirectory = path.join(tempdir(), "oni_backup")
 
     public get backupDir(): string {
         return this._backupDirectory
@@ -124,10 +124,7 @@ export class FileSystem implements IFileSystem {
      * @param {Array} collection An array of object with a file and its destination folder
      * @returns {void}
      */
-    public moveNodes = (
-        collection: Array<{ file: string; folder: string }>,
-        destination: ExplorerNode,
-    ) => {
+    public moveNodes = (collection: Array<{ file: string; folder: string }>) => {
         collection.forEach(item => {
             mv(item.file, item.folder)
         })

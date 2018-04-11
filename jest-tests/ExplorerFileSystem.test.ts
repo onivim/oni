@@ -4,10 +4,12 @@ import * as path from "path"
 import { mkdir, rm } from "shelljs"
 import { promisify } from "util"
 
+import { isCiBuild } from "./utility"
+
 const rmdir = promisify(fs.rmdir)
 const stat = promisify(fs.stat)
 
-import { OniFileSystem as Fs } from "./../browser/src/Services/Explorer/ExplorerFileSystem"
+import { OniFileSystem as fileSystem } from "./../browser/src/Services/Explorer/ExplorerFileSystem"
 
 describe("File System tests", () => {
     let rootPath: string
@@ -18,28 +20,31 @@ describe("File System tests", () => {
         filePath = path.join(rootPath, "file.txt")
         secondPath = path.join(rootPath, "file1.txt")
         mkdir("-p", rootPath)
-        fs.writeFileSync(filePath, "Hello World")
     })
 
     beforeEach(() => {
+        fs.writeFileSync(filePath, "Hello World")
         fs.writeFileSync(secondPath, "file1.txt")
     })
 
     afterAll(async () => {
+        if (isCiBuild) {
+            // Do not delete the backup dir for developers
+            await rmdir(fileSystem.backupDir)
+        }
         await rmdir(rootPath)
-        await rmdir(Fs.backupDir)
     })
 
     it("Should return false is the file is too big to persist", () => {
-        const canPersist = Fs.canPersistFile(filePath, 1)
+        const canPersist = fileSystem.canPersistFile(filePath, 1)
         expect(canPersist).toBeFalsy()
     })
     it("Should return true is the file can be persisted", () => {
-        const canPersist = Fs.canPersistFile(filePath, 1000)
+        const canPersist = fileSystem.canPersistFile(filePath, 1000)
         expect(canPersist).toBeTruthy()
     })
     it("Should delete the file", async () => {
-        Fs.deleteNode({
+        fileSystem.deleteNode({
             filePath: secondPath,
             id: "2",
             type: "file",
@@ -51,8 +56,18 @@ describe("File System tests", () => {
     })
 
     it("Should persist the file", async () => {
-        Fs.persistNode(secondPath)
-        const stats = await stat(path.join(Fs.backupDir, "file1.txt"))
+        fileSystem.persistNode(secondPath)
+        const stats = await stat(path.join(fileSystem.backupDir, "file1.txt"))
         expect(stats.isFile()).toBeTruthy()
+    })
+
+    it("Should move a collection of files to the correct directory", async () => {
+        const { backupDir: folder } = fileSystem
+        const nodes = [{ file: filePath, folder }, { file: secondPath, folder }]
+        fileSystem.moveNodes(nodes)
+        const firstStats = stat(path.join(folder, "file1.txt"))
+        const secondStats = stat(path.join(folder, "file1.txt"))
+        expect(firstStats).toBeTruthy
+        expect(secondStats).toBeTruthy
     })
 })
