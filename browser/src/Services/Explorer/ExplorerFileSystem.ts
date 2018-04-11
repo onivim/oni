@@ -83,7 +83,7 @@ export class FileSystem implements IFileSystem {
      * @function
      * @param {ExplorerNode} node The file or folder node
      */
-    public deleteNode = (node: ExplorerNode) => {
+    public deleteNode = (node: ExplorerNode): void => {
         switch (node.type) {
             case "folder":
                 rm("-rf", node.folderPath)
@@ -103,7 +103,7 @@ export class FileSystem implements IFileSystem {
      * @function
      * @param {string} fileOrFolder The file or folder path
      */
-    public restoreNode = (fullPath: string) => {
+    public restoreNode = (fullPath: string): void => {
         const name = path.basename(fullPath)
         const directory = path.dirname(fullPath)
         mv(path.join(this._backupDirectory, name), directory)
@@ -116,7 +116,7 @@ export class FileSystem implements IFileSystem {
      * @function
      * @param {string} filename A file or folder path
      */
-    public persistNode = async (fileOrFolder: string) => {
+    public persistNode = async (fileOrFolder: string): Promise<void> => {
         const { size } = await this._fs.stat(fileOrFolder)
         const hasEnoughSpace = os.freemem() > size
         if (hasEnoughSpace) {
@@ -132,7 +132,7 @@ export class FileSystem implements IFileSystem {
      * @param {Array} collection An array of object with a file and its destination folder
      * @returns {void}
      */
-    public moveNodes = (collection: Array<{ file: string; folder: string }>) => {
+    public moveNodes = (collection: Array<{ file: string; folder: string }>): void => {
         collection.forEach(item => {
             mv(item.file, item.folder)
         })
@@ -142,7 +142,7 @@ export class FileSystem implements IFileSystem {
      * canPersistNode
      * Determine based on size whether the directory should be persisted
      */
-    public canPersistNode = async (fullPath: string, maxSize: number) => {
+    public canPersistNode = async (fullPath: string, maxSize: number): Promise<boolean> => {
         const { size } = await this._fs.stat(fullPath)
         return size < maxSize
     }

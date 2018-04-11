@@ -35,12 +35,12 @@ describe("File System tests", () => {
         await rmdir(rootPath)
     })
 
-    it("Should return false is the file is too big to persist", () => {
-        const canPersist = fileSystem.canPersistNode(filePath, 1)
+    it("Should return false is the file is too big to persist", async () => {
+        const canPersist = await fileSystem.canPersistNode(filePath, 1)
         expect(canPersist).toBeFalsy()
     })
-    it("Should return true is the file can be persisted", () => {
-        const canPersist = fileSystem.canPersistNode(filePath, 1000)
+    it("Should return true is the file can be persisted", async () => {
+        const canPersist = await fileSystem.canPersistNode(filePath, 1000)
         expect(canPersist).toBeTruthy()
     })
     it("Should delete the file", async () => {

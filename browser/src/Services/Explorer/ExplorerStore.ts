@@ -60,7 +60,7 @@ export interface IFileSystem {
     delete(fullPath: string): Promise<void>
 }
 
-type RegisterAction = IPasteAction | IDeleteSuccessAction
+type RegisterAction = IPasteAction | IDeleteSuccessAction | IDeleteFailAction | IDeleteAction
 
 interface IRegisterState {
     yank: ExplorerNode[]
@@ -121,9 +121,19 @@ export interface IDeleteSuccessAction {
     persist: boolean
 }
 
+export interface IDeleteFailAction {
+    type: "DELETE_FAIL"
+    target: ExplorerNode
+    persist: boolean
+}
+
 export interface IClearRegisterAction {
     type: "CLEAR_REGISTER"
     id: string
+}
+
+interface IRefreshAction {
+    type: "REFRESH"
 }
 
 export type ExplorerAction =
@@ -150,9 +160,8 @@ export type ExplorerAction =
     | {
           type: "LEAVE"
       }
-    | {
-          type: "REFRESH"
-      }
+    | IDeleteFailAction
+    | IRefreshAction
     | IDeleteAction
     | IDeleteSuccessAction
     | IYankAction
@@ -220,9 +229,12 @@ export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[
             return getUpdatedDeleteNode(action)
         case "UNDO_SUCCESS":
             const lastAction = last(state.undo)
-            return lastAction.type === "DELETE_SUCCESS"
-                ? getUpdatedDeleteNode(lastAction)
-                : lastAction.pasted.map(node => getPathForNode(node))
+            if (lastAction.type === "DELETE_SUCCESS") {
+                return getUpdatedDeleteNode(lastAction)
+            } else if (lastAction.type === "PASTE") {
+                return lastAction.pasted.map(node => getPathForNode(node))
+            }
+            return []
         default:
             return []
     }
@@ -273,6 +285,7 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
             }
         case "LEAVE":
             return { ...DefaultRegisterState, undo: state.undo }
+        case "DELETE_FAIL":
         default:
             return state
     }
@@ -403,23 +416,22 @@ const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
         }
     })
 
-export const deleteEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
-    action$.ofType("DELETE").flatMap((action: IDeleteAction) => {
-        const result = [{ type: "REFRESH" }]
+export const deleteEpic: Epic<RegisterAction, IExplorerState> = (action$, store) =>
+    action$.ofType("DELETE").flatMap(async (action: IDeleteAction) => {
         const { target, persist } = action
         try {
             const fullPath = getPathForNode(target)
             const maxSize = configuration.getValue("explorer.maxUndoFileSizeInBytes")
             const persistEnabled = configuration.getValue("explorer.persistDeletedFiles")
-            const canPersistNode = OniFileSystem.canPersistNode(fullPath, maxSize)
+            const canPersistNode = await OniFileSystem.canPersistNode(fullPath, maxSize)
 
             persistEnabled && persist && canPersistNode
-                ? OniFileSystem.persistNode(fullPath)
+                ? await OniFileSystem.persistNode(fullPath)
                 : OniFileSystem.deleteNode(target)
 
-            return [{ type: "DELETE_SUCCESS", target, persist }, ...result] as RegisterAction[]
+            return [{ type: "DELETE_SUCCESS", target, persist }, { type: "REFRESH" }]
         } catch (e) {
-            return [{ type: "DELETE_FAIL", target }, ...result] as RegisterAction[]
+            return [{ type: "DELETE_FAIL", target, persist }]
         }
     })
 
