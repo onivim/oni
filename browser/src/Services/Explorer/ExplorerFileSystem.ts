@@ -98,7 +98,7 @@ export class FileSystem implements IFileSystem {
     public restoreNode = (fullPath: string) => {
         const name = path.basename(fullPath)
         const directory = path.dirname(fullPath)
-        mv(`${this._backupDirectory}/${name}`, directory)
+        mv(path.join(this._backupDirectory, name), directory)
     }
 
     /**
