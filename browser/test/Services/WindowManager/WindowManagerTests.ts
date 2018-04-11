@@ -4,7 +4,7 @@
 
 import * as assert from "assert"
 
-import { WindowManager, ISplitInfo } from "./../../../src/Services/WindowManager"
+import { ISplitInfo, WindowManager } from "./../../../src/Services/WindowManager"
 import { MockWindowSplit } from "./../../Mocks"
 
 describe("WindowManagerTests", () => {
