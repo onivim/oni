@@ -246,9 +246,6 @@ export function ignoreWhilePendingPromise<T, U>(
     return ret
 }
 
-export const tail = <T>(arr: T[]) => arr[arr.length - 1]
-export const head = <T>(arr: T[]) => head[0]
-
 export function checkIfPathExists(
     fileOrFolder: string,
     type: "file" | "folder" = "file",

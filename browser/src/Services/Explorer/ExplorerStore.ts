@@ -4,6 +4,7 @@
  * State management for the explorer split
  */
 
+import * as last from "lodash/last"
 import * as omit from "lodash/omit"
 import * as path from "path"
 
@@ -12,7 +13,6 @@ import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 import { Observable } from "rxjs"
 
 import { createStore as createReduxStore } from "./../../Redux"
-import { tail } from "./../../Utility"
 import { configuration } from "./../Configuration"
 import { EmptyNode, ExplorerNode } from "./ExplorerSelectors"
 
@@ -96,20 +96,20 @@ interface IUndoFailAction {
     type: "UNDO_FAIL"
 }
 
-interface IYankAction {
+export interface IYankAction {
     type: "YANK"
     path: string
     target: ExplorerNode
 }
 
-interface IPasteAction {
+export interface IPasteAction {
     type: "PASTE"
     path: string
     target: ExplorerNode
     pasted: ExplorerNode[]
 }
 
-interface IDeleteAction {
+export interface IDeleteAction {
     type: "DELETE"
     target: ExplorerNode
     persist: boolean
@@ -121,7 +121,7 @@ export interface IDeleteSuccessAction {
     persist: boolean
 }
 
-interface IClearRegisterAction {
+export interface IClearRegisterAction {
     type: "CLEAR_REGISTER"
     id: string
 }
@@ -219,7 +219,7 @@ export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[
         case "DELETE_SUCCESS":
             return getUpdatedDeleteNode(action)
         case "UNDO_SUCCESS":
-            const lastAction = tail(state.undo)
+            const lastAction = last(state.undo)
             return lastAction.type === "DELETE_SUCCESS"
                 ? getUpdatedDeleteNode(lastAction)
                 : lastAction.pasted.map(node => getPathForNode(node))
@@ -373,12 +373,12 @@ const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
     action$.ofType("UNDO").flatMap(action => {
         const { register: { undo } } = store.getState()
         const getActions = actionsOfType(undo)
-        const { type } = tail(undo)
+        const { type } = last(undo)
 
         switch (type) {
             case "PASTE":
                 const pasteActions = getActions("PASTE") as IPasteAction[]
-                const lastPaste = tail(pasteActions)
+                const lastPaste = last(pasteActions)
                 const { pasted, target: pasteTarget } = lastPaste
 
                 const filesAndFolders = pasted.map(file =>
@@ -393,7 +393,7 @@ const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
                     ({ persist }: IDeleteSuccessAction) => !!persist,
                 ) as IDeleteSuccessAction[]
 
-                const lastDelete = tail(deleteActions)
+                const lastDelete = last(deleteActions)
                 OniFileSystem.restoreNode(getPathForNode(lastDelete.target))
 
                 return [{ type: "UNDO_SUCCESS" }, { type: "REFRESH" }] as ExplorerAction[]
