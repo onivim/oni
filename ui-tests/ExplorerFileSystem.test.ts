@@ -9,6 +9,8 @@ import { isCiBuild } from "./utility"
 const rmdir = promisify(fs.rmdir)
 const stat = promisify(fs.stat)
 
+jest.autoMockOn()
+
 import { OniFileSystem as fileSystem } from "./../browser/src/Services/Explorer/ExplorerFileSystem"
 
 describe("File System tests", () => {

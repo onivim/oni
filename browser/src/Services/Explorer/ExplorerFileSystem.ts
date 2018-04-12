@@ -38,11 +38,11 @@ export class FileSystem implements IFileSystem {
         return this._backupDirectory
     }
 
-    constructor(nfs: typeof fs) {
+    constructor(nfs: typeof fs, _promisify: typeof promisify) {
         this._fs = {
-            readdir: promisify(nfs.readdir.bind(nfs)),
-            stat: promisify(nfs.stat.bind(nfs)),
-            exists: promisify(nfs.exists.bind(nfs)),
+            readdir: _promisify(nfs.readdir.bind(nfs)),
+            stat: _promisify(nfs.stat.bind(nfs)),
+            exists: _promisify(nfs.exists.bind(nfs)),
         }
 
         if (!checkIfPathExists(this._backupDirectory, "folder")) {
@@ -148,4 +148,4 @@ export class FileSystem implements IFileSystem {
     }
 }
 
-export const OniFileSystem = new FileSystem(fs)
+export const OniFileSystem = new FileSystem(fs, promisify)
