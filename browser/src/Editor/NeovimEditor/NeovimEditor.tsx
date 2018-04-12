@@ -123,6 +123,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _windowManager: NeovimWindowManager
 
     private _currentColorScheme: string = ""
+    private _currentBackground: string = ""
     private _isFirstRender: boolean = true
 
     private _lastBufferId: string = null
@@ -972,7 +973,11 @@ export class NeovimEditor extends Editor implements IEditor {
         this._themeManager.onThemeChanged.subscribe(() => {
             const newTheme = this._themeManager.activeTheme
 
-            if (newTheme.baseVimTheme && newTheme.baseVimTheme !== this._currentColorScheme) {
+            if (
+                newTheme.baseVimTheme &&
+                (newTheme.baseVimTheme !== this._currentColorScheme ||
+                    newTheme.baseVimBackground !== this._currentBackground)
+            ) {
                 this.setColorSchemeFromTheme(newTheme)
             }
         })
@@ -998,8 +1003,12 @@ export class NeovimEditor extends Editor implements IEditor {
     }
 
     public async setColorSchemeFromTheme(theme: IThemeMetadata): Promise<void> {
-        if (theme.baseVimBackground === "dark" || theme.baseVimBackground === "light") {
+        if (
+            (theme.baseVimBackground === "dark" || theme.baseVimBackground === "light") &&
+            theme.baseVimBackground !== this._currentBackground
+        ) {
             await this._neovimInstance.command(":set background=" + theme.baseVimBackground)
+            this._currentBackground = theme.baseVimBackground
         }
 
         await this._neovimInstance.command(":color " + theme.baseVimTheme)
