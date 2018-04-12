@@ -416,24 +416,27 @@ const undoEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
         }
     })
 
-export const deleteEpic: Epic<RegisterAction, IExplorerState> = (action$, store) =>
-    action$.ofType("DELETE").flatMap(async (action: IDeleteAction) => {
-        const { target, persist } = action
-        try {
-            const fullPath = getPathForNode(target)
-            const maxSize = configuration.getValue("explorer.maxUndoFileSizeInBytes")
-            const persistEnabled = configuration.getValue("explorer.persistDeletedFiles")
-            const canPersistNode = await OniFileSystem.canPersistNode(fullPath, maxSize)
+export const deleteEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
+    action$
+        .ofType("DELETE")
+        .flatMap(async (action: IDeleteAction) => {
+            const { target, persist } = action
+            try {
+                const fullPath = getPathForNode(target)
+                const maxSize = configuration.getValue("explorer.maxUndoFileSizeInBytes")
+                const persistEnabled = configuration.getValue("explorer.persistDeletedFiles")
+                const canPersistNode = await OniFileSystem.canPersistNode(fullPath, maxSize)
 
-            persistEnabled && persist && canPersistNode
-                ? await OniFileSystem.persistNode(fullPath)
-                : OniFileSystem.deleteNode(target)
+                persistEnabled && persist && canPersistNode
+                    ? await OniFileSystem.persistNode(fullPath)
+                    : OniFileSystem.deleteNode(target)
 
-            return [{ type: "DELETE_SUCCESS", target, persist }, { type: "REFRESH" }]
-        } catch (e) {
-            return [{ type: "DELETE_FAIL", target, persist }]
-        }
-    })
+                return { type: "DELETE_SUCCESS", target, persist } as RegisterAction
+            } catch (e) {
+                return { type: "DELETE_FAIL", target, persist } as RegisterAction
+            }
+        })
+        .mapTo({ type: "REFRESH" } as IRefreshAction)
 
 export const clearYankRegisterEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
     action$.ofType("YANK").mergeMap((action: IYankAction) => {
