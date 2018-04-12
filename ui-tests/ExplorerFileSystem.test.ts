@@ -2,21 +2,24 @@ import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 import { mkdir, rm } from "shelljs"
-import { promisify } from "util"
+import * as util from "util"
 
 import { isCiBuild } from "./utility"
 
-const rmdir = promisify(fs.rmdir)
-const stat = promisify(fs.stat)
+const rmdir = util.promisify(fs.rmdir)
+const stat = util.promisify(fs.stat)
 
-jest.autoMockOn()
+jest.mock("util")
 
-import { OniFileSystem as fileSystem } from "./../browser/src/Services/Explorer/ExplorerFileSystem"
+import { FileSystem } from "./../browser/src/Services/Explorer/ExplorerFileSystem"
 
 describe("File System tests", () => {
     let rootPath: string
     let filePath: string
     let secondPath: string
+
+    const fileSystem = new FileSystem(fs, util.promisify)
+
     beforeAll(() => {
         rootPath = path.normalize(path.join(os.tmpdir(), "a", "test", "dir"))
         filePath = path.join(rootPath, "file.txt")

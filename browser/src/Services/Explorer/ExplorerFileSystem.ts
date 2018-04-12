@@ -38,7 +38,7 @@ export class FileSystem implements IFileSystem {
         return this._backupDirectory
     }
 
-    constructor(nfs: typeof fs, _promisify: typeof promisify) {
+    constructor(nfs: typeof fs, _promisify: typeof promisify = promisify) {
         this._fs = {
             readdir: _promisify(nfs.readdir.bind(nfs)),
             stat: _promisify(nfs.stat.bind(nfs)),
@@ -148,4 +148,4 @@ export class FileSystem implements IFileSystem {
     }
 }
 
-export const OniFileSystem = new FileSystem(fs, promisify)
+export const OniFileSystem = new FileSystem(fs)
