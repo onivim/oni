@@ -4,7 +4,6 @@
  * Responsible for installing, updating, and uninstalling plugins.
  */
 
-import * as fs from "fs"
 import * as path from "path"
 
 import { Event, IEvent } from "oni-types"
@@ -17,7 +16,7 @@ import { getUserConfigFolderPath } from "./../Services/Configuration"
 // import { AnonymousPlugin } from "./AnonymousPlugin"
 // import { Plugin } from "./Plugin"
 
-import { OniFileSystem, IFileSystem } from "./../Services/Explorer/ExplorerFileSystem"
+import { IFileSystem, OniFileSystem } from "./../Services/Explorer/ExplorerFileSystem"
 
 import Process from "./Api/Process"
 
