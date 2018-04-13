@@ -140,6 +140,11 @@ export interface IClearRegisterAction {
     ids: string[]
 }
 
+interface IExpandDirectoryAction {
+    type: "EXPAND_DIRECTORY"
+    directoryPath: string
+}
+
 interface IRefreshAction {
     type: "REFRESH"
 }
@@ -148,10 +153,6 @@ export type ExplorerAction =
     | {
           type: "SET_ROOT_DIRECTORY"
           rootPath: string
-      }
-    | {
-          type: "EXPAND_DIRECTORY"
-          directoryPath: string
       }
     | {
           type: "COLLAPSE_DIRECTORY"
@@ -168,6 +169,7 @@ export type ExplorerAction =
     | {
           type: "LEAVE"
       }
+    | IExpandDirectoryAction
     | IDeleteFailAction
     | IRefreshAction
     | IDeleteAction
@@ -274,6 +276,25 @@ const wrapInTryCatch = <T extends Function, U = any>(
         return fail
     }
 }
+
+export const getPathForNode = (node: ExplorerNode) => {
+    if (node.type === "file") {
+        return node.filePath
+    } else if (node.type === "folder") {
+        return node.folderPath
+    } else {
+        return node.name
+    }
+}
+
+export const nameInNewDir = (dirPath: string, nodePath: string) =>
+    path.join(dirPath, path.basename(nodePath))
+
+const actionsOfType = (register: RegisterAction[]) => <T extends RegisterAction>(type: string) =>
+    register.filter(a => a.type === type) as T[]
+
+const expandDirectory = (expand: boolean, directoryPath: string): IExpandDirectoryAction[] =>
+    !expand ? [] : [{ type: "EXPAND_DIRECTORY", directoryPath }]
 
 // Yank, Paste Delete register =============================
 // The undo register is essentially a list of past actions
@@ -405,30 +426,14 @@ const sortFilesAndFoldersFunc = (a: FolderOrFile, b: FolderOrFile) => {
     }
 }
 
-export const getPathForNode = (node: ExplorerNode) => {
-    if (node.type === "file") {
-        return node.filePath
-    } else if (node.type === "folder") {
-        return node.folderPath
-    } else {
-        return node.name
-    }
-}
-
-export const nameInNewDir = (dirPath: string, nodePath: string) =>
-    path.join(dirPath, path.basename(nodePath))
-
-const actionsOfType = (register: RegisterAction[]) => <T extends RegisterAction>(type: string) =>
-    register.filter(a => a.type === type) as T[]
-
 const pasteEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState> => (
     action$,
     store,
 ) =>
     action$
         .ofType("PASTE")
-        .concatMap(({ target, pasted }: IPasteAction) => {
-            return Promise.all(
+        .concatMap(async ({ target, pasted }: IPasteAction) => {
+            const ids = await Promise.all(
                 pasted.map(async yankedItem => {
                     const sourcePath = getPathForNode(yankedItem)
                     const destPath =
@@ -439,39 +444,51 @@ const pasteEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState
                     return yankedItem.id
                 }),
             )
+            return {
+                ids,
+                expand: target.type === "folder",
+                directoryPath: target.type === "folder" ? target.folderPath : null,
+            }
         })
-        .flatMap(ids => [{ type: "CLEAR_REGISTER", ids } as IClearRegisterAction, refreshAction])
+        .flatMap(({ ids, expand, directoryPath }) => [
+            { type: "CLEAR_REGISTER", ids } as IClearRegisterAction,
+            refreshAction,
+            ...expandDirectory(expand, directoryPath),
+        ])
 
-const undoEpic = (fileSystem: IFileSystem): Epic<RegisterAction, IExplorerState> => (
+const undoEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState> => (
     action$,
     store,
 ) =>
-    action$.ofType("UNDO").mergeMap(async action => {
-        const { register: { undo } } = store.getState()
-        const { type } = last(undo)
-        const getActions = actionsOfType(undo)
-        const undoSuccess = { type: "UNDO_SUCCESS" } as IUndoSuccessAction
-        const undoFail = { type: "UNDO_FAIL" } as IUndoFailAction
-        const undoAction = wrapInTryCatch(undoSuccess, undoFail)
+    action$
+        .ofType("UNDO")
+        .flatMap(async action => {
+            const { register: { undo } } = store.getState()
+            const { type } = last(undo)
+            const getActions = actionsOfType(undo)
+            const undoSuccess = { type: "UNDO_SUCCESS" } as IUndoSuccessAction
+            const undoFail = { type: "UNDO_FAIL" } as IUndoFailAction
+            const undoAction = wrapInTryCatch(undoSuccess, undoFail)
 
-        switch (type) {
-            case "PASTE":
-                const pasteActions = getActions<IPasteAction>("PASTE")
-                const lastPaste = last(pasteActions)
-                const filesAndFolders = lastPaste.pasted.map(file =>
-                    getOriginalNodeLocations(file, lastPaste.target),
-                )
-                return undoAction(fileSystem.moveNodes, filesAndFolders)
-            case "DELETE_SUCCESS":
-                const deleteActions = getActions<IDeleteSuccessAction>("DELETE_SUCCESS")
-                const persistedActions = deleteActions.filter(a => a.persist)
-                const { target } = last(persistedActions)
-                return undoAction(fileSystem.restoreNode, getPathForNode(target))
+            switch (type) {
+                case "PASTE":
+                    const pasteActions = getActions<IPasteAction>("PASTE")
+                    const lastPaste = last(pasteActions)
+                    const filesAndFolders = lastPaste.pasted.map(file =>
+                        getOriginalNodeLocations(file, lastPaste.target),
+                    )
+                    return undoAction(fileSystem.moveNodesBack, filesAndFolders)
+                case "DELETE_SUCCESS":
+                    const deleteActions = getActions<IDeleteSuccessAction>("DELETE_SUCCESS")
+                    const persistedActions = deleteActions.filter(a => a.persist)
+                    const { target } = last(persistedActions)
+                    return undoAction(fileSystem.restoreNode, getPathForNode(target))
 
-            default:
-                return undoFail
-        }
-    })
+                default:
+                    return undoFail
+            }
+        })
+        .flatMap(result => [result, refreshAction])
 
 export const deleteEpic = (fileSystem: IFileSystem): Epic<RegisterAction, IExplorerState> => (
     action$,

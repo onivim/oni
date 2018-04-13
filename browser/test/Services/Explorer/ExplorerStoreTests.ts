@@ -51,7 +51,7 @@ export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
     // tslint:disable
     public async restoreNode() {}
     public async persistNode() {}
-    public async moveNodes() {}
+    public async moveNodesBack() {}
     public async deleteNode() {}
     public async move() {}
     // tslint:enable
