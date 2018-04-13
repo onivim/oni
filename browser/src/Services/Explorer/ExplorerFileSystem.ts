@@ -132,7 +132,9 @@ export class FileSystem implements IFileSystem {
         const { size } = await this._fs.stat(fileOrFolder)
         const hasEnoughSpace = os.freemem() > size
         if (hasEnoughSpace) {
-            await move(fileOrFolder, this._backupDirectory, { overwrite: true })
+            const filename = path.basename(fileOrFolder)
+            const newPath = path.join(this._backupDirectory, filename)
+            await move(fileOrFolder, newPath, { overwrite: true })
         }
     }
 

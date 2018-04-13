@@ -207,7 +207,7 @@ export const removePastedNode = (nodeArray: ExplorerNode[], ids: string[]): Expl
 export const removeUndoItem = (undoArray: RegisterAction[]): RegisterAction[] =>
     undoArray.slice(0, undoArray.length - 1)
 
-const getOriginalNodeLocations = (file: ExplorerNode, pasteTarget: ExplorerNode) => {
+const getInitialLocation = (file: ExplorerNode, pasteTarget: ExplorerNode) => {
     const originalFile = getPathForNode(file)
 
     const targetDirectory =
@@ -227,9 +227,7 @@ const getOriginalNodeLocations = (file: ExplorerNode, pasteTarget: ExplorerNode)
 export const shouldAddDeletion = (action: IDeleteSuccessAction) => (action.persist ? [action] : [])
 
 const getUpdatedPasteNode = (action: IPasteAction) =>
-    action.pasted
-        .map(node => getOriginalNodeLocations(node, action.target))
-        .map(node => node.newLocation)
+    action.pasted.map(node => getInitialLocation(node, action.target)).map(node => node.newLocation)
 
 const getUpdatedDeleteNode = (action: IDeleteSuccessAction) => [getPathForNode(action.target)]
 
@@ -253,6 +251,9 @@ export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[
             return []
     }
 }
+
+const expandOrNull = (target: ExplorerNode): IExpandDirectoryAction[] =>
+    target.type === "folder" ? [{ type: "EXPAND_DIRECTORY", directoryPath: target.folderPath }] : []
 
 // tslint:disable: ban-types
 /**
@@ -292,9 +293,6 @@ export const nameInNewDir = (dirPath: string, nodePath: string) =>
 
 const actionsOfType = (register: RegisterAction[]) => <T extends RegisterAction>(type: string) =>
     register.filter(a => a.type === type) as T[]
-
-const expandDirectory = (expand: boolean, directoryPath: string): IExpandDirectoryAction[] =>
-    !expand ? [] : [{ type: "EXPAND_DIRECTORY", directoryPath }]
 
 // Yank, Paste Delete register =============================
 // The undo register is essentially a list of past actions
@@ -438,23 +436,22 @@ const pasteEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState
                     const sourcePath = getPathForNode(yankedItem)
                     const destPath =
                         target.type === "file"
-                            ? nameInNewDir(path.dirname(target.filePath), sourcePath)
-                            : nameInNewDir(getPathForNode(target), sourcePath)
-                    await fileSystem.move(sourcePath, destPath)
+                            ? path.dirname(target.filePath)
+                            : getPathForNode(target)
+                    const newPath = nameInNewDir(destPath, sourcePath)
+                    await fileSystem.move(sourcePath, newPath)
                     return yankedItem.id
                 }),
             )
-            return {
-                ids,
-                expand: target.type === "folder",
-                directoryPath: target.type === "folder" ? target.folderPath : null,
-            }
+            return { ids, target }
         })
-        .flatMap(({ ids, expand, directoryPath }) => [
-            { type: "CLEAR_REGISTER", ids } as IClearRegisterAction,
-            refreshAction,
-            ...expandDirectory(expand, directoryPath),
-        ])
+        .flatMap(({ ids, target }) => {
+            return [
+                { type: "CLEAR_REGISTER", ids } as IClearRegisterAction,
+                ...expandOrNull(target),
+                refreshAction,
+            ]
+        })
 
 const undoEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState> => (
     action$,
@@ -473,10 +470,8 @@ const undoEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState>
             switch (type) {
                 case "PASTE":
                     const pasteActions = getActions<IPasteAction>("PASTE")
-                    const lastPaste = last(pasteActions)
-                    const filesAndFolders = lastPaste.pasted.map(file =>
-                        getOriginalNodeLocations(file, lastPaste.target),
-                    )
+                    const { pasted, target: dir } = last(pasteActions)
+                    const filesAndFolders = pasted.map(file => getInitialLocation(file, dir))
                     return undoAction(fileSystem.moveNodesBack, filesAndFolders)
                 case "DELETE_SUCCESS":
                     const deleteActions = getActions<IDeleteSuccessAction>("DELETE_SUCCESS")
