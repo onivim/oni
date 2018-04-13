@@ -44,7 +44,6 @@ import { Configuration, IConfigurationValues } from "./../../Services/Configurat
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
 import { SnippetManager } from "./../../Services/Snippets"
-import { IThemeMetadata } from "./../../Services/Themes"
 import { TokenColors } from "./../../Services/TokenColors"
 
 import * as Shell from "./../../UI/Shell"
@@ -62,7 +61,7 @@ import {
 } from "./../../Services/SyntaxHighlighting"
 
 import { MenuManager } from "./../../Services/Menu"
-import { ThemeManager } from "./../../Services/Themes"
+import { IThemeMetadata, ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 import { Workspace } from "./../../Services/Workspace"
 
