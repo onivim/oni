@@ -5,15 +5,13 @@
  */
 
 import * as fs from "fs"
+import { emptyDirSync, ensureDirSync, move, remove } from "fs-extra"
 import * as os from "os"
 import * as path from "path"
-import { mkdir, mv, rm, tempdir } from "shelljs"
 import { promisify } from "util"
 
 import { ExplorerNode } from "./ExplorerSelectors"
 import { FolderOrFile } from "./ExplorerStore"
-
-import { checkIfPathExists } from "./../../Utility"
 
 /**
  * An abstraction of the node filesystem APIs to enable testing
@@ -21,9 +19,12 @@ import { checkIfPathExists } from "./../../Utility"
 export interface IFileSystem {
     readdir(fullPath: string): Promise<FolderOrFile[]>
     exists(fullPath: string): Promise<boolean>
-    restoreNode(fullPath: string): void
-    persistNode(fullPath: string): void
-    moveNodes(collection: Array<{ file: string; folder: string }>): void
+    persistNode(fullPath: string): Promise<void>
+    restoreNode(fullPath: string): Promise<void>
+    deleteNode(node: ExplorerNode): Promise<void>
+    canPersistNode(fullPath: string, size: number): Promise<boolean>
+    move(source: string, dest: string): Promise<void>
+    moveNodes(collection: Array<{ originalLocation: string; newLocation: string }>): Promise<void>
 }
 
 export class FileSystem implements IFileSystem {
@@ -32,7 +33,8 @@ export class FileSystem implements IFileSystem {
         stat(path: string): Promise<fs.Stats>
         exists(path: string): Promise<boolean>
     }
-    private _backupDirectory = path.join(tempdir(), "oni_backup")
+
+    private _backupDirectory = path.join(os.tmpdir(), "oni_backup")
 
     public get backupDir(): string {
         return this._backupDirectory
@@ -45,9 +47,12 @@ export class FileSystem implements IFileSystem {
             exists: _promisify(nfs.exists.bind(nfs)),
         }
 
-        if (!checkIfPathExists(this._backupDirectory, "folder")) {
-            mkdir("-p", this._backupDirectory)
-        }
+        this.init()
+    }
+
+    public init = () => {
+        ensureDirSync(this._backupDirectory)
+        emptyDirSync(this._backupDirectory)
     }
 
     public async readdir(directoryPath: string): Promise<FolderOrFile[]> {
@@ -83,13 +88,13 @@ export class FileSystem implements IFileSystem {
      * @function
      * @param {ExplorerNode} node The file or folder node
      */
-    public deleteNode = (node: ExplorerNode): void => {
+    public deleteNode = async (node: ExplorerNode): Promise<void> => {
         switch (node.type) {
             case "folder":
-                rm("-rf", node.folderPath)
+                await remove(node.folderPath)
                 break
             case "file":
-                rm(node.filePath)
+                await remove(node.filePath)
                 break
             default:
                 break
@@ -103,12 +108,17 @@ export class FileSystem implements IFileSystem {
      * @function
      * @param {string} fileOrFolder The file or folder path
      */
-    public restoreNode = (fullPath: string): void => {
-        const name = path.basename(fullPath)
-        const directory = path.dirname(fullPath)
-        mv(path.join(this._backupDirectory, name), directory)
+    public restoreNode = async (prevPath: string): Promise<void> => {
+        const name = path.basename(prevPath)
+        const backupPath = path.join(this._backupDirectory, name)
+        console.log("backupPath: ", backupPath)
+        console.log("prevPath: ", prevPath)
+        await move(backupPath, prevPath)
     }
 
+    public move = async (source: string, dest: string): Promise<void> => {
+        return this.areDifferent(source, dest) && move(source, dest)
+    }
     /**
      * Saves a file to the tmp directory to persist deleted files
      *
@@ -120,7 +130,7 @@ export class FileSystem implements IFileSystem {
         const { size } = await this._fs.stat(fileOrFolder)
         const hasEnoughSpace = os.freemem() > size
         if (hasEnoughSpace) {
-            mv(fileOrFolder, this._backupDirectory)
+            await move(fileOrFolder, this._backupDirectory, { overwrite: true })
         }
     }
 
@@ -132,10 +142,17 @@ export class FileSystem implements IFileSystem {
      * @param {Array} collection An array of object with a file and its destination folder
      * @returns {void}
      */
-    public moveNodes = (collection: Array<{ file: string; folder: string }>): void => {
-        collection.forEach(item => {
-            mv(item.file, item.folder)
-        })
+    public moveNodes = async (
+        collection: Array<{ newLocation: string; originalLocation: string }>,
+    ): Promise<void> => {
+        console.log("collection: ", collection)
+        await Promise.all(
+            collection.map(
+                ({ originalLocation, newLocation }) =>
+                    this.areDifferent(originalLocation, newLocation) &&
+                    move(originalLocation, newLocation),
+            ),
+        )
     }
 
     /**
@@ -146,6 +163,8 @@ export class FileSystem implements IFileSystem {
         const { size } = await this._fs.stat(fullPath)
         return size < maxSize
     }
+
+    private areDifferent = (src: string, dest: string) => src !== dest
 }
 
 export const OniFileSystem = new FileSystem(fs)

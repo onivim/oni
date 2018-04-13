@@ -44,10 +44,16 @@ export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
         return promise
     }
 
+    public async canPersistNode() {
+        return true
+    }
+
     // tslint:disable
-    public restoreNode() {}
-    public persistNode() {}
-    public moveNodes() {}
+    public async restoreNode() {}
+    public async persistNode() {}
+    public async moveNodes() {}
+    public async deleteNode() {}
+    public async move() {}
     // tslint:enable
 }
 

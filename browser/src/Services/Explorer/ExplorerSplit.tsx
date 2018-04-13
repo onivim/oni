@@ -4,7 +4,6 @@
  */
 
 import { capitalize } from "lodash"
-import * as path from "path"
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
@@ -25,10 +24,7 @@ import { createStore, IExplorerState } from "./ExplorerStore"
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
 
-import { mv } from "shelljs"
-
 type Node = ExplorerSelectors.ExplorerNode
-type File = ExplorerSelectors.IFileNode
 
 export class ExplorerSplit {
     private _onEnterEvent: Event<void> = new Event<void>()
@@ -87,64 +83,29 @@ export class ExplorerSplit {
     }
 
     public moveFileOrFolder = (source: Node, dest: Node): void => {
-        if (!source || !dest) {
-            return
-        }
-
-        let folderPath
-        let sourcePath
-
-        if (source.type === "folder" && dest.type === "folder") {
-            return this.moveFolder(source, dest)
-        }
-
-        if (dest.type === "file") {
-            const parent = this.findParentDir(dest.id)
-            folderPath = parent
-        } else if (dest.type === "container") {
-            folderPath = dest.name
-        } else {
-            folderPath = dest.folderPath
-        }
-
-        if (folderPath && source.type === "file" && source.filePath) {
-            sourcePath = source.filePath
-        } else if (source.type === "folder" && folderPath) {
-            sourcePath = source.folderPath
-        }
-
-        mv(sourcePath, folderPath)
+        this._store.dispatch({ type: "PASTE", pasted: [source], target: dest })
         this._store.dispatch({ type: "REFRESH" })
-        if (dest.type === "folder") {
-            this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: dest.folderPath })
-        }
-        this.sendExplorerNotification({
-            title: `${capitalize(source.type)} Moved`,
-            details: `Successfully moved ${source.name} to ${folderPath}`,
-        })
+        // this.sendExplorerNotification({
+        //     title: `${capitalize(source.type)} Moved`,
+        //     details: `Successfully moved ${source.name} to ${folderPath}`,
+        // })
     }
-
-    public moveFolder = (
-        source: ExplorerSelectors.IFolderNode,
-        destination: ExplorerSelectors.IFolderNode,
-    ) => {
-        if (source.folderPath === destination.folderPath) {
-            return
-        }
-        mv(source.folderPath, destination.folderPath)
-        this._store.dispatch({ type: "REFRESH" })
-        this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: destination.folderPath })
-        this.sendExplorerNotification({
-            title: `${capitalize(source.type)} Moved`,
-            details: `Successfully moved ${source.name} to ${destination.folderPath}`,
-        })
-    }
-
-    public findParentDir = (fileId: string): string => {
-        const { filePath } = this._getSelectedItem(fileId) as File
-        const folder = path.dirname(filePath)
-        return folder
-    }
+    //
+    // public moveFolder = (
+    //     source: ExplorerSelectors.IFolderNode,
+    //     destination: ExplorerSelectors.IFolderNode,
+    // ) => {
+    //     if (source.folderPath === destination.folderPath) {
+    //         return
+    //     }
+    //     mv(source.folderPath, destination.folderPath)
+    //     this._store.dispatch({ type: "REFRESH" })
+    //     this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: destination.folderPath })
+    //     this.sendExplorerNotification({
+    //         title: `${capitalize(source.type)} Moved`,
+    //         details: `Successfully moved ${source.name} to ${destination.folderPath}`,
+    //     })
+    // }
 
     public render(): JSX.Element {
         return (
@@ -278,7 +239,6 @@ export class ExplorerSplit {
         const { register: { undo } } = this._store.getState()
         if (undo.length) {
             this._store.dispatch({ type: "UNDO" })
-            this._store.dispatch({ type: "REFRESH" })
         }
     }
 
@@ -293,9 +253,8 @@ export class ExplorerSplit {
 
         if (!inYankRegister) {
             this._store.dispatch({ type: "YANK", target: selectedItem })
-            this._store.dispatch({ type: "REFRESH" })
         } else {
-            this._store.dispatch({ type: "CLEAR_REGISTER", id: selectedItem.id })
+            this._store.dispatch({ type: "CLEAR_REGISTER", ids: [selectedItem.id] })
         }
     }
 
@@ -309,10 +268,6 @@ export class ExplorerSplit {
 
         if (yank.length && pasteTarget) {
             this._store.dispatch({ type: "PASTE", target: pasteTarget, pasted: yank })
-            yank.forEach(yankedItem => {
-                this.moveFileOrFolder(yankedItem, pasteTarget)
-                this._store.dispatch({ type: "CLEAR_REGISTER", id: yankedItem.id })
-            })
         }
     }
 
