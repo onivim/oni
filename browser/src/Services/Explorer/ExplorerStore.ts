@@ -149,26 +149,35 @@ interface IRefreshAction {
     type: "REFRESH"
 }
 
+interface ISetRootDirectoryAction {
+    type: "SET_ROOT_DIRECTORY"
+    rootPath: string
+}
+
+interface ICollapseDirectory {
+    type: "COLLAPSE_DIRECTORY"
+    directoryPath: string
+}
+
+interface IExpandDirectoryResult {
+    type: "EXPAND_DIRECTORY_RESULT"
+    directoryPath: string
+    children: FolderOrFile[]
+}
+interface IEnterAction {
+    type: "ENTER"
+}
+
+interface ILeaveAction {
+    type: "LEAVE"
+}
+
 export type ExplorerAction =
-    | {
-          type: "SET_ROOT_DIRECTORY"
-          rootPath: string
-      }
-    | {
-          type: "COLLAPSE_DIRECTORY"
-          directoryPath: string
-      }
-    | {
-          type: "EXPAND_DIRECTORY_RESULT"
-          directoryPath: string
-          children: FolderOrFile[]
-      }
-    | {
-          type: "ENTER"
-      }
-    | {
-          type: "LEAVE"
-      }
+    | IEnterAction
+    | ILeaveAction
+    | IExpandDirectoryResult
+    | ICollapseDirectory
+    | ISetRootDirectoryAction
     | IExpandDirectoryAction
     | IDeleteFailAction
     | IRefreshAction
@@ -253,9 +262,8 @@ export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[
 }
 
 const expandOrNull = (target: ExplorerNode): IExpandDirectoryAction[] =>
-    target.type === "folder" ? [{ type: "EXPAND_DIRECTORY", directoryPath: target.folderPath }] : []
+    target && target.type === "folder" ? [Actions.expandDirectory(target.folderPath)] : []
 
-// tslint:disable: ban-types
 /**
  * Wrap a function in a try catch that returns the success action or the fail action
  *
@@ -265,6 +273,7 @@ const expandOrNull = (target: ExplorerNode): IExpandDirectoryAction[] =>
  * @param {any} ...args The function's arguments
  * @returns {RegisterAction} A success or fail action
  */
+// tslint:disable:line: ban-types
 const wrapInTryCatch = <T extends Function, U = any>(
     success: RegisterAction,
     fail: RegisterAction,
@@ -293,6 +302,28 @@ export const nameInNewDir = (dirPath: string, nodePath: string) =>
 
 const actionsOfType = (register: RegisterAction[]) => <T extends RegisterAction>(type: string) =>
     register.filter(a => a.type === type) as T[]
+
+// Strongly typed actions/action-creators to be used in multiple epics
+const Actions = {
+    undoFail: { type: "UNDO_FAIL" } as IUndoFailAction,
+    undoSuccess: { type: "UNDO_SUCCESS" } as IUndoSuccessAction,
+    paste: { type: "PASTE" } as IPasteAction,
+    refresh: { type: "REFRESH" } as IRefreshAction,
+    clearRegister: (ids: string[]) => ({ type: "CLEAR_REGISTER", ids } as IClearRegisterAction),
+    deleteFail: (target: ExplorerNode, persist: boolean) =>
+        ({ type: "DELETE_FAIL", target, persist } as IDeleteFailAction),
+    deleteSuccess: (target: ExplorerNode, persist: boolean) =>
+        ({ type: "DELETE_SUCCESS", target, persist } as IDeleteSuccessAction),
+    expandDirectory: (directoryPath: string) =>
+        ({ type: "EXPAND_DIRECTORY", directoryPath } as IExpandDirectoryAction),
+    Null: { type: null } as ExplorerAction,
+    expandDirectoryResult: (pathToExpand: string, sortedFilesAndFolders: FolderOrFile[]) =>
+        ({
+            type: "EXPAND_DIRECTORY_RESULT",
+            directoryPath: pathToExpand,
+            children: sortedFilesAndFolders,
+        } as ExplorerAction),
+}
 
 // Yank, Paste Delete register =============================
 // The undo register is essentially a list of past actions
@@ -391,23 +422,13 @@ export const reducer: Reducer<IExplorerState> = (
     }
 }
 
-const NullAction: ExplorerAction = { type: null }
-const refreshAction: IRefreshAction = { type: "REFRESH" }
-
 const setRootDirectoryEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
-    action$.ofType("SET_ROOT_DIRECTORY").map(action => {
-        if (action.type !== "SET_ROOT_DIRECTORY") {
-            return NullAction
-        }
-
+    action$.ofType("SET_ROOT_DIRECTORY").map((action: ISetRootDirectoryAction) => {
         if (!action.rootPath) {
-            return NullAction
+            return Actions.Null
         }
 
-        return {
-            type: "EXPAND_DIRECTORY",
-            directoryPath: action.rootPath,
-        } as ExplorerAction
+        return Actions.expandDirectory(action.rootPath)
     })
 
 const sortFilesAndFoldersFunc = (a: FolderOrFile, b: FolderOrFile) => {
@@ -445,13 +466,11 @@ const pasteEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState
             )
             return { ids, target }
         })
-        .flatMap(({ ids, target }) => {
-            return [
-                { type: "CLEAR_REGISTER", ids } as IClearRegisterAction,
-                ...expandOrNull(target),
-                refreshAction,
-            ]
-        })
+        .flatMap(({ ids, target }) => [
+            Actions.clearRegister(ids),
+            ...expandOrNull(target),
+            Actions.refresh,
+        ])
 
 const undoEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState> => (
     action$,
@@ -463,57 +482,58 @@ const undoEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState>
             const { register: { undo } } = store.getState()
             const { type } = last(undo)
             const getActions = actionsOfType(undo)
-            const undoSuccess = { type: "UNDO_SUCCESS" } as IUndoSuccessAction
-            const undoFail = { type: "UNDO_FAIL" } as IUndoFailAction
-            const undoAction = wrapInTryCatch(undoSuccess, undoFail)
+            const undoAction = wrapInTryCatch(Actions.undoSuccess, Actions.undoFail)
 
             switch (type) {
                 case "PASTE":
                     const pasteActions = getActions<IPasteAction>("PASTE")
                     const { pasted, target: dir } = last(pasteActions)
                     const filesAndFolders = pasted.map(file => getInitialLocation(file, dir))
-                    return undoAction(fileSystem.moveNodesBack, filesAndFolders)
+                    const resOne = await undoAction(fileSystem.moveNodesBack, filesAndFolders)
+                    return { result: resOne, target: dir }
+
                 case "DELETE_SUCCESS":
                     const deleteActions = getActions<IDeleteSuccessAction>("DELETE_SUCCESS")
                     const persistedActions = deleteActions.filter(a => a.persist)
                     const { target } = last(persistedActions)
-                    return undoAction(fileSystem.restoreNode, getPathForNode(target))
+                    const resTwo = await undoAction(fileSystem.restoreNode, getPathForNode(target))
+                    return { result: resTwo, target }
 
                 default:
-                    return undoFail
+                    return { result: Actions.undoFail, target: null }
             }
         })
-        .flatMap(result => [result, refreshAction])
+        .flatMap(({ result, target }) => [result, ...expandOrNull(target), Actions.refresh])
 
-export const deleteEpic = (fileSystem: IFileSystem): Epic<RegisterAction, IExplorerState> => (
+export const deleteEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState> => (
     action$,
     store,
 ) =>
-    action$.ofType("DELETE").mergeMap(async (action: IDeleteAction) => {
-        const { target, persist } = action
-        const deleteAction = wrapInTryCatch(
-            { type: "DELETE_FAIL", target, persist } as IDeleteFailAction,
-            { type: "DELETE_SUCCESS", target, persist } as IDeleteSuccessAction,
-        )
-        const fullPath = getPathForNode(target)
-        const maxSize: number = configuration.getValue("explorer.maxUndoFileSizeInBytes")
-        const persistEnabled: boolean = configuration.getValue("explorer.persistDeletedFiles")
-        const canPersistNode = await fileSystem.canPersistNode(fullPath, maxSize)
+    action$
+        .ofType("DELETE")
+        .mergeMap(async (action: IDeleteAction) => {
+            const { target, persist } = action
+            const deleteAction = wrapInTryCatch(
+                Actions.deleteSuccess(target, persist),
+                Actions.deleteFail(target, persist),
+            )
+            const fullPath = getPathForNode(target)
+            const maxSize: number = configuration.getValue("explorer.maxUndoFileSizeInBytes")
+            const persistEnabled: boolean = configuration.getValue("explorer.persistDeletedFiles")
+            const canPersistNode = await fileSystem.canPersistNode(fullPath, maxSize)
 
-        const persistOrDelete = async () =>
-            persistEnabled && persist && canPersistNode
-                ? fileSystem.persistNode(fullPath)
-                : fileSystem.deleteNode(target)
-        return deleteAction(persistOrDelete)
-    })
+            const persistOrDelete = async () =>
+                persistEnabled && persist && canPersistNode
+                    ? fileSystem.persistNode(fullPath)
+                    : fileSystem.deleteNode(target)
+            return deleteAction(persistOrDelete)
+        })
+        .flatMap(successOrFailAction => [successOrFailAction, Actions.refresh])
 
 export const clearYankRegisterEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
     action$.ofType("YANK").mergeMap((action: IYankAction) => {
         const oneMinute = 60_000
-        return Observable.timer(oneMinute).mapTo({
-            type: "CLEAR_REGISTER",
-            ids: [action.target.id],
-        } as IClearRegisterAction)
+        return Observable.timer(oneMinute).mapTo(Actions.clearRegister([action.target.id]))
     })
 
 const refreshEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
@@ -521,10 +541,7 @@ const refreshEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
         const state = store.getState()
 
         return Object.keys(state.expandedFolders).map(p => {
-            return {
-                type: "EXPAND_DIRECTORY",
-                directoryPath: p,
-            } as ExplorerAction
+            return Actions.expandDirectory(p)
         })
     })
 
@@ -534,7 +551,7 @@ const expandDirectoryEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExp
 ) =>
     action$.ofType("EXPAND_DIRECTORY").flatMap(async (action: ExplorerAction) => {
         if (action.type !== "EXPAND_DIRECTORY") {
-            return NullAction
+            return Actions.Null
         }
 
         const pathToExpand = action.directoryPath
@@ -543,11 +560,7 @@ const expandDirectoryEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExp
 
         const sortedFilesAndFolders = filesAndFolders.sort(sortFilesAndFoldersFunc)
 
-        return {
-            type: "EXPAND_DIRECTORY_RESULT",
-            directoryPath: pathToExpand,
-            children: sortedFilesAndFolders,
-        } as ExplorerAction
+        return Actions.expandDirectoryResult(pathToExpand, sortedFilesAndFolders)
     })
 
 export const createStore = (fileSystem: IFileSystem = OniFileSystem): Store<IExplorerState> => {
