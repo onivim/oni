@@ -1,0 +1,46 @@
+{
+    "name": "hybrid_dark",
+    "baseVimTheme": "hybrid",
+    "baseVimBackground": "dark",
+    "colors": {
+        "background": "#1d1f21",
+        "foreground": "#c5c8c6",
+
+        "title.background": "#1d1f21",
+        "title.foreground": "#c5c8c6",
+
+        "editor.background": "#1d1f21",
+        "editor.foreground": "#c5c8c6",
+
+        "tabs.background": "#232c31",
+        "tabs.foreground": "#c5c8c6",
+
+        "toolTip.background": "#232c31",
+        "toolTip.foreground": "#c5c8c6",
+        "toolTip.border": "#242d32",
+
+        "menu.background": "#232c31",
+        "menu.foreground": "#c5c8c6",
+        "menu.border": "#242d32",
+
+        "contextMenu.background": "#232c31",
+        "contextMenu.foreground": "#c5c8c6",
+        "contextMenu.border": "#242d32",
+        "contextMenu.highlight": "#373b41",
+
+        "statusBar.background": "#1d1f21",
+        "statusBar.foreground": "#c5c8c6",
+
+        "highlight.mode.insert.background": "#f0c674",
+        "highlight.mode.insert.foreground": "#1d1f21",
+
+        "highlight.mode.normal.background": "#81a2be",
+        "highlight.mode.normal.foreground": "#1d1f21",
+
+        "highlight.mode.operator.background": "#b294bb",
+        "highlight.mode.operator.foreground": "#1d1f21",
+
+        "highlight.mode.visual.background": "#b5bd68",
+        "highlight.mode.visual.foreground": "#1d1f21"
+    }
+}
