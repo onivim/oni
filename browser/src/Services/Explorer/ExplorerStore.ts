@@ -329,6 +329,7 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                 yank: [...state.yank, action.target],
             }
         case "PASTE":
+            console.log("action: ", action)
             return {
                 ...state,
                 paste: action.target,

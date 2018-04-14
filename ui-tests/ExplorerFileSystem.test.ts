@@ -70,8 +70,8 @@ describe("File System tests", () => {
         const locationOne = path.join(backupDir, "file.txt")
         const locationTwo = path.join(backupDir, "file1.txt")
         const nodes = [
-            { originalLocation: filePath, newLocation: locationOne },
-            { originalLocation: secondPath, newLocation: locationTwo },
+            { source: filePath, destination: locationOne },
+            { source: secondPath, destination: locationTwo },
         ]
         await fileSystem.moveNodesBack(nodes)
         const firstStats = stat(locationOne)
