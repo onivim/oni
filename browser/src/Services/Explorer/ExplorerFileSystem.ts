@@ -40,11 +40,11 @@ export class FileSystem implements IFileSystem {
         return this._backupDirectory
     }
 
-    constructor(nfs: typeof fs, _promisify: typeof promisify = promisify) {
+    constructor(nfs: typeof fs) {
         this._fs = {
-            readdir: _promisify(nfs.readdir.bind(nfs)),
-            stat: _promisify(nfs.stat.bind(nfs)),
-            exists: _promisify(nfs.exists.bind(nfs)),
+            readdir: promisify(nfs.readdir.bind(nfs)),
+            stat: promisify(nfs.stat.bind(nfs)),
+            exists: promisify(nfs.exists.bind(nfs)),
         }
 
         this.init()

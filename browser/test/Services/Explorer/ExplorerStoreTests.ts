@@ -4,7 +4,6 @@
 
 import * as assert from "assert"
 import * as path from "path"
-import { promisify } from "util"
 
 import { Store } from "redux"
 import { MockStoreCreator } from "redux-mock-store"
@@ -73,7 +72,7 @@ describe("ExplorerStore", () => {
         fileSystem.writeFileSync(filePath, "Hello World")
 
         explorerFileSystem = new MockedFileSystem(
-            new ExplorerFileSystem.FileSystem(fileSystem as any, promisify),
+            new ExplorerFileSystem.FileSystem(fileSystem as any),
         )
         store = ExplorerState.createStore({
             fileSystem: explorerFileSystem,

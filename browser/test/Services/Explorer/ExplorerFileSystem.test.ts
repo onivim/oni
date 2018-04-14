@@ -1,51 +1,43 @@
-import * as fs from "fs"
-import { mkdirp, remove } from "fs-extra"
+import * as assert from "assert"
+import { emptyDir, mkdirp, remove, stat, writeFile } from "fs-extra"
 import * as os from "os"
 import * as path from "path"
-import * as util from "util"
 
-import { isCiBuild } from "./utility"
+import { FileSystem, OniFileSystem } from "./../../../src/Services/Explorer/ExplorerFileSystem"
 
-const stat = util.promisify(fs.stat)
-
-jest.mock("util")
-
-import { FileSystem } from "./../browser/src/Services/Explorer/ExplorerFileSystem"
-
-describe("File System tests", () => {
+describe("File System tests", async () => {
     let rootPath: string
     let filePath: string
     let secondPath: string
+    let fileSystem: FileSystem
 
-    const fileSystem = new FileSystem(fs, util.promisify)
-
-    beforeAll(() => {
+    before(() => {
         rootPath = path.normalize(path.join(os.tmpdir(), "a", "test", "dir"))
         filePath = path.join(rootPath, "file.txt")
         secondPath = path.join(rootPath, "file1.txt")
         mkdirp(rootPath)
+        fileSystem = OniFileSystem
     })
 
-    beforeEach(() => {
-        fs.writeFileSync(filePath, "Hello World")
-        fs.writeFileSync(secondPath, "file1.txt")
+    beforeEach(async () => {
+        await Promise.all([
+            emptyDir(fileSystem.backupDir),
+            writeFile(filePath, "hello world"),
+            writeFile(secondPath, "file1.txt"),
+        ])
     })
 
-    afterAll(async () => {
-        if (isCiBuild) {
-            // Do not delete the backup dir for developers
-            await remove(fileSystem.backupDir)
-        }
+    after(async () => {
         await remove(rootPath)
     })
 
     it("Should return false is the file is too big to persist", async () => {
         const canPersist = await fileSystem.canPersistNode(filePath, 1)
-        expect(canPersist).toBeFalsy()
+        assert.ok(!canPersist)
     })
     it("Should return true is the file can be persisted", async () => {
         const canPersist = await fileSystem.canPersistNode(filePath, 1000)
-        expect(canPersist).toBeTruthy()
+        assert.ok(canPersist)
     })
     it("Should delete the file", async () => {
         await fileSystem.deleteNode({
@@ -56,27 +48,30 @@ describe("File System tests", () => {
             name: "file1",
             indentationLevel: 2,
         })
-        expect(() => fs.statSync(secondPath)).toThrow(/ENOENT/)
+        try {
+            await stat(secondPath)
+        } catch (e) {
+            assert.ok(e.message.includes("ENOENT"))
+        }
     })
 
     it("Should persist the file", async () => {
         await fileSystem.persistNode(secondPath)
         const stats = await stat(path.join(fileSystem.backupDir, "file1.txt"))
-        expect(stats.isFile()).toBeTruthy()
+        assert.ok(stats.isFile())
     })
 
     it("Should move a collection of files to the correct directory", async () => {
-        const { backupDir } = fileSystem
-        const locationOne = path.join(backupDir, "file.txt")
-        const locationTwo = path.join(backupDir, "file1.txt")
+        const locationOne = path.join(fileSystem.backupDir, "file.txt")
+        const locationTwo = path.join(fileSystem.backupDir, "file1.txt")
         const nodes = [
-            { source: filePath, destination: locationOne },
-            { source: secondPath, destination: locationTwo },
+            { source: locationOne, destination: filePath },
+            { source: locationTwo, destination: secondPath },
         ]
         await fileSystem.moveNodesBack(nodes)
-        const firstStats = stat(locationOne)
+        const firstStats = await stat(locationOne)
         const secondStats = await stat(locationTwo)
-        expect(firstStats).toBeTruthy()
-        expect(secondStats).toBeTruthy()
+        assert.ok(firstStats.isFile())
+        assert.ok(secondStats.isFile())
     })
 })
