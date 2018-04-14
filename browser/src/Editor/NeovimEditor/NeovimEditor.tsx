@@ -1231,6 +1231,12 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _onColorsChanged(): Promise<void> {
         const newColorScheme = await this._neovimInstance.eval<string>("g:colors_name")
+
+        // In error cases, the neovim API layer returns an array
+        if (typeof newColorScheme !== "string") {
+            return
+        }
+
         this._currentColorScheme = newColorScheme
         const backgroundColor = this._screen.backgroundColor
         const foregroundColor = this._screen.foregroundColor
