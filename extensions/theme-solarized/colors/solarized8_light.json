@@ -3,16 +3,16 @@
     "baseVimTheme": "solarized8",
     "baseVimBackground": "light",
     "colors": {
-        "background": "#073642",
+        "background": "#eee8d5",
         "foreground": "#839496",
 
-        "title.background": "#002b36",
+        "title.background": "#eee8d5",
         "title.foreground": "#839496",
 
-        "editor.background": "#002b36",
-        "editor.foreground": "#586e75",
+        "editor.background": "#eee8d5",
+        "editor.foreground": "#839496",
 
-        "tabs.background": "#002b36",
+        "tabs.background": "#eee8d5",
         "tabs.foreground": "#839496",
 
         "toolTip.background": "#002b36",
