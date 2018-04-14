@@ -134,6 +134,7 @@ export interface IDeleteSuccessAction {
 
 export interface IDeleteFailAction {
     type: "DELETE_FAIL"
+    reason: string
 }
 
 export interface IClearRegisterAction {
@@ -175,6 +176,7 @@ interface ILeaveAction {
 
 interface IPasteFailAction {
     type: "PASTE_FAIL"
+    reason: string
 }
 
 interface IPasteSuccessAction {
@@ -302,12 +304,12 @@ const Actions = {
     Null: { type: null } as ExplorerAction,
     pasteSuccess: (moved: IMovedNodes[]) =>
         ({ type: "PASTE_SUCCESS", moved } as IPasteSuccessAction),
-    pasteFail: { type: "PASTE_FAIL" } as IPasteFailAction,
+    pasteFail: (reason: string) => ({ type: "PASTE_FAIL", reason } as IPasteFailAction),
     undoFail: { type: "UNDO_FAIL" } as IUndoFailAction,
     undoSuccess: { type: "UNDO_SUCCESS" } as IUndoSuccessAction,
     paste: { type: "PASTE" } as IPasteAction,
     refresh: { type: "REFRESH" } as IRefreshAction,
-    deleteFail: { type: "DELETE_FAIL" } as IDeleteFailAction,
+    deleteFail: (reason: string) => ({ type: "DELETE_FAIL", reason } as IDeleteFailAction),
     clearRegister: (ids: string[]) => ({ type: "CLEAR_REGISTER", ids } as IClearRegisterAction),
     deleteSuccess: (target: ExplorerNode, persist: boolean): IDeleteSuccessAction => {
         return { type: "DELETE_SUCCESS", target, persist }
@@ -492,6 +494,21 @@ const deletionNotification = ({ type, name, notifications }: SendNotificationArg
         notifications,
     )
 
+interface ErrorNotificationArgs {
+    type: string
+    reason: string
+    notifications: Notifications
+}
+
+const errorNotification = ({ type, reason, notifications }: ErrorNotificationArgs): void =>
+    sendExplorerNotification(
+        {
+            title: `${capitalize(type)} Failed`,
+            details: reason,
+        },
+        notifications,
+    )
+
 interface Dependencies {
     fileSystem: IFileSystem
     notifications: Notifications
@@ -529,7 +546,7 @@ const pasteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         })
         .catch(error => {
             Log.warn(error)
-            return [Actions.pasteFail]
+            return [Actions.pasteFail(error)]
         })
 
 const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
@@ -583,7 +600,7 @@ export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         .flatMap(action => [action, Actions.refresh])
         .catch((error, observable) => {
             Log.warn(error)
-            return [Actions.deleteFail]
+            return [Actions.deleteFail(error)]
         })
 
 export const clearYankRegisterEpic: ExplorerEpic = (action$, store) =>
@@ -617,7 +634,7 @@ const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     })
 
 const notificationEpic: ExplorerEpic = (action$, store, { notifications }) =>
-    action$.ofType("PASTE_SUCCESS", "DELETE_SUCCESS").map(action => {
+    action$.ofType("PASTE_SUCCESS", "DELETE_SUCCESS", "PASTE_FAIL", "DELETE_FAIL").map(action => {
         switch (action.type) {
             case "PASTE_SUCCESS":
                 action.moved.map(item =>
@@ -634,6 +651,15 @@ const notificationEpic: ExplorerEpic = (action$, store, { notifications }) =>
                     notifications,
                     type: action.target.type,
                     name: action.target.name,
+                })
+                return Actions.Null
+            case "PASTE_FAIL":
+            case "DELETE_FAIL":
+                const [type] = action.type.split("_")
+                errorNotification({
+                    type,
+                    notifications,
+                    reason: action.reason,
                 })
                 return Actions.Null
             default:
