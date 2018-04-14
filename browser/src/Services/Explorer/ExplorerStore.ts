@@ -4,6 +4,7 @@
  * State management for the explorer split
  */
 
+import * as capitalize from "lodash/capitalize"
 import * as last from "lodash/last"
 import * as omit from "lodash/omit"
 import * as path from "path"
@@ -16,6 +17,8 @@ import * as Log from "./../../Log"
 import { createStore as createReduxStore } from "./../../Redux"
 import { configuration } from "./../Configuration"
 import { EmptyNode, ExplorerNode } from "./ExplorerSelectors"
+
+import { Notifications } from "./../../Services/Notifications"
 
 import { IFileSystem, OniFileSystem } from "./ExplorerFileSystem"
 
@@ -170,6 +173,20 @@ interface ILeaveAction {
     type: "LEAVE"
 }
 
+interface IPasteFailAction {
+    type: "PASTE_FAIL"
+}
+
+interface IPasteSuccessAction {
+    type: "PASTE_SUCCESS"
+    moved: IMovedNodes[]
+}
+
+interface IMovedNodes {
+    node: ExplorerNode
+    destination: string
+}
+
 export type ExplorerAction =
     | IEnterAction
     | ILeaveAction
@@ -183,6 +200,8 @@ export type ExplorerAction =
     | IDeleteSuccessAction
     | IYankAction
     | IPasteAction
+    | IPasteFailAction
+    | IPasteSuccessAction
     | IClearRegisterAction
     | IUndoAction
     | IUndoSuccessAction
@@ -206,7 +225,6 @@ export const rootFolderReducer: Reducer<IFolderState> = (
 }
 
 // Helper functions for Updating state ========================================================
-
 export const removePastedNode = (nodeArray: ExplorerNode[], ids: string[]): ExplorerNode[] => {
     const difference = nodeArray.filter(node => !ids.includes(node.id))
     return difference
@@ -282,6 +300,9 @@ const actionsOfType = (register: RegisterAction[]) => <T extends RegisterAction>
 // Strongly typed actions/action-creators to be used in multiple epics
 const Actions = {
     Null: { type: null } as ExplorerAction,
+    pasteSuccess: (moved: IMovedNodes[]) =>
+        ({ type: "PASTE_SUCCESS", moved } as IPasteSuccessAction),
+    pasteFail: { type: "PASTE_FAIL" } as IPasteFailAction,
     undoFail: { type: "UNDO_FAIL" } as IUndoFailAction,
     undoSuccess: { type: "UNDO_SUCCESS" } as IUndoSuccessAction,
     paste: { type: "PASTE" } as IPasteAction,
@@ -426,14 +447,64 @@ const sortFilesAndFoldersFunc = (a: FolderOrFile, b: FolderOrFile) => {
     }
 }
 
-const pasteEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState> => (
-    action$,
-    store,
-) =>
+// Send Notifications ==================================================
+interface INotificationDetails {
+    title: string
+    details: string
+}
+
+const sendExplorerNotification = (
+    { title, details }: INotificationDetails,
+    notifications: Notifications,
+) => {
+    const notification = notifications.createItem()
+    notification.setContents(title, details)
+    notification.setLevel("success")
+    notification.setExpiration(8000)
+    notification.show()
+}
+
+interface MoveNotificationArgs {
+    type: string
+    name: string
+    destination: string
+    notifications: Notifications
+}
+const moveNotification = ({ type, name, destination, notifications }: MoveNotificationArgs) =>
+    sendExplorerNotification(
+        {
+            title: `${capitalize(type)} Moved`,
+            details: `Successfully moved ${name} to ${destination}`,
+        },
+        notifications,
+    )
+interface SendNotificationArgs {
+    name: string
+    type: string
+    notifications: Notifications
+}
+const deletionNotification = ({ type, name, notifications }: SendNotificationArgs): void =>
+    sendExplorerNotification(
+        {
+            title: `${capitalize(type)} deleted`,
+            details: `${name} was deleted successfully`,
+        },
+        notifications,
+    )
+
+interface Dependencies {
+    fileSystem: IFileSystem
+    notifications: Notifications
+}
+
+// EPICS =============================================================
+type ExplorerEpic = Epic<ExplorerAction, IExplorerState, Dependencies>
+
+const pasteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$
         .ofType("PASTE")
         .concatMap(async ({ target, pasted }: IPasteAction) => {
-            const ids = await Promise.all(
+            const moved = await Promise.all(
                 pasted.map(async yankedItem => {
                     const sourcePath = getPathForNode(yankedItem)
                     const destPath =
@@ -442,21 +513,26 @@ const pasteEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState
                             : getPathForNode(target)
                     const newPath = nameInNewDir(destPath, sourcePath)
                     await fileSystem.move(sourcePath, newPath)
-                    return yankedItem.id
+                    return { node: yankedItem, destination: destPath }
                 }),
             )
-            return { ids, target }
+            return { moved, target }
         })
-        .flatMap(({ ids, target }) => [
-            Actions.clearRegister(ids),
-            ...expandOrNull(target),
-            Actions.refresh,
-        ])
+        .flatMap(({ moved, target }) => {
+            const ids = moved.map(item => item.node.id)
+            return [
+                Actions.clearRegister(ids),
+                ...expandOrNull(target),
+                Actions.refresh,
+                Actions.pasteSuccess(moved),
+            ]
+        })
+        .catch(error => {
+            Log.warn(error)
+            return [Actions.pasteFail]
+        })
 
-const undoEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState> => (
-    action$,
-    store,
-) =>
+const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$
         .ofType("UNDO")
         .flatMap(async action => {
@@ -489,10 +565,7 @@ const undoEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState>
             return [Actions.undoFail]
         })
 
-export const deleteEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState> => (
-    action$,
-    store,
-) =>
+export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$
         .ofType("DELETE")
         .mergeMap(async (action: IDeleteAction) => {
@@ -507,19 +580,19 @@ export const deleteEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplo
                 : await fileSystem.deleteNode(target)
             return Actions.deleteSuccess(target, persist)
         })
-        .flatMap(successOrFailAction => [successOrFailAction, Actions.refresh])
+        .flatMap(action => [action, Actions.refresh])
         .catch((error, observable) => {
             Log.warn(error)
             return [Actions.deleteFail]
         })
 
-export const clearYankRegisterEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
+export const clearYankRegisterEpic: ExplorerEpic = (action$, store) =>
     action$.ofType("YANK").mergeMap((action: IYankAction) => {
         const oneMinute = 60_000
         return Observable.timer(oneMinute).mapTo(Actions.clearRegister([action.target.id]))
     })
 
-const refreshEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
+const refreshEpic: ExplorerEpic = (action$, store) =>
     action$.ofType("REFRESH").mergeMap(() => {
         const state = store.getState()
 
@@ -528,10 +601,7 @@ const refreshEpic: Epic<ExplorerAction, IExplorerState> = (action$, store) =>
         })
     })
 
-const expandDirectoryEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExplorerState> => (
-    action$,
-    store,
-) =>
+const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("EXPAND_DIRECTORY").flatMap(async (action: ExplorerAction) => {
         if (action.type !== "EXPAND_DIRECTORY") {
             return Actions.Null
@@ -546,18 +616,53 @@ const expandDirectoryEpic = (fileSystem: IFileSystem): Epic<ExplorerAction, IExp
         return Actions.expandDirectoryResult(pathToExpand, sortedFilesAndFolders)
     })
 
-export const createStore = (fileSystem: IFileSystem = OniFileSystem): Store<IExplorerState> => {
+const notificationEpic: ExplorerEpic = (action$, store, { notifications }) =>
+    action$.ofType("PASTE_SUCCESS", "DELETE_SUCCESS").map(action => {
+        switch (action.type) {
+            case "PASTE_SUCCESS":
+                action.moved.map(item =>
+                    moveNotification({
+                        notifications,
+                        type: item.node.type,
+                        name: item.node.name,
+                        destination: item.destination,
+                    }),
+                )
+                return Actions.Null
+            case "DELETE_SUCCESS":
+                deletionNotification({
+                    notifications,
+                    type: action.target.type,
+                    name: action.target.name,
+                })
+                return Actions.Null
+            default:
+                return Actions.Null
+        }
+    })
+
+interface ICreateStore {
+    fileSystem?: IFileSystem
+    notifications: Notifications
+}
+
+export const createStore = ({
+    fileSystem = OniFileSystem,
+    notifications,
+}: ICreateStore): Store<IExplorerState> => {
     return createReduxStore("Explorer", reducer, DefaultExplorerState, [
-        createEpicMiddleware(
+        createEpicMiddleware<ExplorerAction, IExplorerState, Dependencies>(
             combineEpics(
                 refreshEpic,
                 setRootDirectoryEpic,
                 clearYankRegisterEpic,
-                pasteEpic(fileSystem),
-                undoEpic(fileSystem),
-                deleteEpic(fileSystem),
-                expandDirectoryEpic(fileSystem),
+                pasteEpic,
+                undoEpic,
+                deleteEpic,
+                expandDirectoryEpic,
+                notificationEpic,
             ),
+            { dependencies: { fileSystem, notifications } },
         ),
     ])
 }

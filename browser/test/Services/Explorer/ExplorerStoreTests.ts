@@ -75,7 +75,10 @@ describe("ExplorerStore", () => {
         explorerFileSystem = new MockedFileSystem(
             new ExplorerFileSystem.FileSystem(fileSystem as any, promisify),
         )
-        store = ExplorerState.createStore(explorerFileSystem)
+        store = ExplorerState.createStore({
+            fileSystem: explorerFileSystem,
+            notifications: {} as any,
+        })
     })
 
     afterEach(() => {

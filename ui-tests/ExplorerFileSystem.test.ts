@@ -1,12 +1,11 @@
 import * as fs from "fs"
+import { mkdirp, remove } from "fs-extra"
 import * as os from "os"
 import * as path from "path"
-import { mkdir, rm } from "shelljs"
 import * as util from "util"
 
 import { isCiBuild } from "./utility"
 
-const rmdir = util.promisify(fs.rmdir)
 const stat = util.promisify(fs.stat)
 
 jest.mock("util")
@@ -24,7 +23,7 @@ describe("File System tests", () => {
         rootPath = path.normalize(path.join(os.tmpdir(), "a", "test", "dir"))
         filePath = path.join(rootPath, "file.txt")
         secondPath = path.join(rootPath, "file1.txt")
-        mkdir("-p", rootPath)
+        mkdirp(rootPath)
     })
 
     beforeEach(() => {
@@ -35,9 +34,9 @@ describe("File System tests", () => {
     afterAll(async () => {
         if (isCiBuild) {
             // Do not delete the backup dir for developers
-            await rmdir(fileSystem.backupDir)
+            await remove(fileSystem.backupDir)
         }
-        await rmdir(rootPath)
+        await remove(rootPath)
     })
 
     it("Should return false is the file is too big to persist", async () => {
@@ -49,7 +48,7 @@ describe("File System tests", () => {
         expect(canPersist).toBeTruthy()
     })
     it("Should delete the file", async () => {
-        fileSystem.deleteNode({
+        await fileSystem.deleteNode({
             filePath: secondPath,
             id: "2",
             type: "file",
@@ -61,18 +60,23 @@ describe("File System tests", () => {
     })
 
     it("Should persist the file", async () => {
-        fileSystem.persistNode(secondPath)
+        await fileSystem.persistNode(secondPath)
         const stats = await stat(path.join(fileSystem.backupDir, "file1.txt"))
         expect(stats.isFile()).toBeTruthy()
     })
 
     it("Should move a collection of files to the correct directory", async () => {
-        const { backupDir: folder } = fileSystem
-        const nodes = [{ file: filePath, folder }, { file: secondPath, folder }]
-        fileSystem.moveNodes(nodes)
-        const firstStats = stat(path.join(folder, "file1.txt"))
-        const secondStats = stat(path.join(folder, "file1.txt"))
-        expect(firstStats).toBeTruthy
-        expect(secondStats).toBeTruthy
+        const { backupDir } = fileSystem
+        const locationOne = path.join(backupDir, "file.txt")
+        const locationTwo = path.join(backupDir, "file1.txt")
+        const nodes = [
+            { originalLocation: filePath, newLocation: locationOne },
+            { originalLocation: secondPath, newLocation: locationTwo },
+        ]
+        await fileSystem.moveNodesBack(nodes)
+        const firstStats = stat(locationOne)
+        const secondStats = await stat(locationTwo)
+        expect(firstStats).toBeTruthy()
+        expect(secondStats).toBeTruthy()
     })
 })

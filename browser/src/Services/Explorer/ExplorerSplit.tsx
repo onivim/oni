@@ -3,18 +3,14 @@
  *
  */
 
-import { capitalize } from "lodash"
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
 
 import { Event } from "oni-types"
 
-// import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
-
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 import { EditorManager } from "./../../Services/EditorManager"
-// import { Configuration } from "./../../Services/Configuration"
 import { getInstance as NotificationsInstance } from "./../../Services/Notifications"
 import { windowManager } from "./../../Services/WindowManager"
 import { IWorkspace } from "./../../Services/Workspace"
@@ -29,7 +25,6 @@ type Node = ExplorerSelectors.ExplorerNode
 export class ExplorerSplit {
     private _onEnterEvent: Event<void> = new Event<void>()
     private _selectedId: string = null
-    private _notifications = NotificationsInstance()
 
     private _store: Store<IExplorerState>
 
@@ -47,7 +42,7 @@ export class ExplorerSplit {
         private _commandManager: CommandManager,
         private _editorManager: EditorManager,
     ) {
-        this._store = createStore()
+        this._store = createStore({ notifications: NotificationsInstance() })
 
         this._workspace.onDirectoryChanged.subscribe(newDirectory => {
             this._store.dispatch({
@@ -74,38 +69,10 @@ export class ExplorerSplit {
         this._store.dispatch({ type: "LEAVE" })
     }
 
-    public sendExplorerNotification({ title, details }: { title: string; details: string }) {
-        const notification = this._notifications.createItem()
-        notification.setContents(title, details)
-        notification.setLevel("success")
-        notification.setExpiration(8000)
-        notification.show()
-    }
-
     public moveFileOrFolder = (source: Node, dest: Node): void => {
         this._store.dispatch({ type: "PASTE", pasted: [source], target: dest })
         this._store.dispatch({ type: "REFRESH" })
-        // this.sendExplorerNotification({
-        //     title: `${capitalize(source.type)} Moved`,
-        //     details: `Successfully moved ${source.name} to ${folderPath}`,
-        // })
     }
-    //
-    // public moveFolder = (
-    //     source: ExplorerSelectors.IFolderNode,
-    //     destination: ExplorerSelectors.IFolderNode,
-    // ) => {
-    //     if (source.folderPath === destination.folderPath) {
-    //         return
-    //     }
-    //     mv(source.folderPath, destination.folderPath)
-    //     this._store.dispatch({ type: "REFRESH" })
-    //     this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: destination.folderPath })
-    //     this.sendExplorerNotification({
-    //         title: `${capitalize(source.type)} Moved`,
-    //         details: `Successfully moved ${source.name} to ${destination.folderPath}`,
-    //     })
-    // }
 
     public render(): JSX.Element {
         return (
@@ -122,11 +89,13 @@ export class ExplorerSplit {
     private _initialiseExplorerCommands(): void {
         this._commandManager.registerCommand(
             new CallbackCommand("explorer.delete.persist", null, null, () =>
-                this._onDeletePersistItem(),
+                this._onDeleteItem({ persist: true }),
             ),
         )
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
+            new CallbackCommand("explorer.delete", null, null, () =>
+                this._onDeleteItem({ persist: false }),
+            ),
         )
         this._commandManager.registerCommand(
             new CallbackCommand(
@@ -271,30 +240,12 @@ export class ExplorerSplit {
         }
     }
 
-    private _onDeletePersistItem(): void {
+    private _onDeleteItem({ persist }: { persist: boolean }): void {
         const selectedItem = this._getSelectedItem()
 
         if (!selectedItem) {
             return
         }
-        this._store.dispatch({ type: "DELETE", target: selectedItem, persist: true })
-        this._sendDeletionNotification(selectedItem.name, selectedItem.type)
-    }
-
-    private _onDeleteItem(persist: boolean = true): void {
-        const selectedItem = this._getSelectedItem()
-
-        if (!selectedItem) {
-            return
-        }
-        this._store.dispatch({ type: "DELETE", target: selectedItem, persist: false })
-        this._sendDeletionNotification(selectedItem.name, selectedItem.type)
-    }
-
-    private _sendDeletionNotification(name: string, type: string): void {
-        this.sendExplorerNotification({
-            title: `${capitalize(type)} deleted`,
-            details: `${name} was deleted successfully`,
-        })
+        this._store.dispatch({ type: "DELETE", target: selectedItem, persist })
     }
 }
