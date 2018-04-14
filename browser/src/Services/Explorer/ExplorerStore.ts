@@ -19,6 +19,7 @@ import { configuration } from "./../Configuration"
 import { EmptyNode, ExplorerNode } from "./ExplorerSelectors"
 
 import { Notifications } from "./../../Services/Notifications"
+import { NotificationLevel } from "./../../Services/Notifications/NotificationStore"
 
 import { IFileSystem, OniFileSystem } from "./ExplorerFileSystem"
 
@@ -57,11 +58,6 @@ export interface ExpandedFolders {
 
 export interface OpenedFiles {
     [fullPath: string]: any
-}
-
-export interface IFileSystem {
-    readdir(fullPath: string): Promise<FolderOrFile[]>
-    delete(fullPath: string): Promise<void>
 }
 
 type RegisterAction =
@@ -209,23 +205,6 @@ export type ExplorerAction =
     | IUndoSuccessAction
     | IUndoFailAction
 
-export const rootFolderReducer: Reducer<IFolderState> = (
-    state: IFolderState = DefaultFolderState,
-    action: ExplorerAction,
-) => {
-    switch (action.type) {
-        case "SET_ROOT_DIRECTORY":
-            return {
-                ...state,
-                type: "folder",
-                fullPath: action.rootPath,
-            }
-
-        default:
-            return state
-    }
-}
-
 // Helper functions for Updating state ========================================================
 export const removePastedNode = (nodeArray: ExplorerNode[], ids: string[]): ExplorerNode[] => {
     const difference = nodeArray.filter(node => !ids.includes(node.id))
@@ -238,12 +217,9 @@ export const removeUndoItem = (undoArray: RegisterAction[]): RegisterAction[] =>
 const getSourceAndDestPaths = (source: ExplorerNode, dest: ExplorerNode) => {
     const sourcePath = getPathForNode(source)
     const destPath = dest.type === "file" ? path.dirname(dest.filePath) : getPathForNode(dest)
-    const destination = nameInNewDir(destPath, sourcePath)
+    const destination = path.join(destPath, path.basename(sourcePath))
     return { source: sourcePath, destination }
 }
-
-export const nameInNewDir = (dirPath: string, nodePath: string) =>
-    path.join(dirPath, path.basename(nodePath))
 
 // Do not add un-undoable action to the undo list
 export const shouldAddDeletion = (action: IDeleteSuccessAction) => (action.persist ? [action] : [])
@@ -290,6 +266,7 @@ export const getPathForNode = (node: ExplorerNode) => {
 }
 
 // Strongly typed actions/action-creators to be used in multiple epics
+
 const Actions = {
     Null: { type: null } as ExplorerAction,
 
@@ -384,6 +361,23 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
     }
 }
 
+export const rootFolderReducer: Reducer<IFolderState> = (
+    state: IFolderState = DefaultFolderState,
+    action: ExplorerAction,
+) => {
+    switch (action.type) {
+        case "SET_ROOT_DIRECTORY":
+            return {
+                ...state,
+                type: "folder",
+                fullPath: action.rootPath,
+            }
+
+        default:
+            return state
+    }
+}
+
 export const expandedFolderReducer: Reducer<ExpandedFolders> = (
     state: ExpandedFolders = {},
     action: ExplorerAction,
@@ -457,15 +451,16 @@ const sortFilesAndFoldersFunc = (a: FolderOrFile, b: FolderOrFile) => {
 interface INotificationDetails {
     title: string
     details: string
+    level?: NotificationLevel
 }
 
 const sendExplorerNotification = (
-    { title, details }: INotificationDetails,
+    { title, details, level = "success" }: INotificationDetails,
     notifications: Notifications,
 ) => {
     const notification = notifications.createItem()
     notification.setContents(title, details)
-    notification.setLevel("success")
+    notification.setLevel(level)
     notification.setExpiration(8000)
     notification.show()
 }
@@ -509,6 +504,7 @@ const errorNotification = ({ type, reason, notifications }: ErrorNotificationArg
         {
             title: `${capitalize(type)} Failed`,
             details: reason,
+            level: "warn",
         },
         notifications,
     )
@@ -527,9 +523,9 @@ const pasteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         .concatMap(async ({ target, pasted }: IPasteAction) => {
             const moved = await Promise.all(
                 pasted.map(async yankedItem => {
-                    const { destination, source } = getSourceAndDestPaths(yankedItem, target)
-                    await fileSystem.move(source, destination)
-                    return { node: yankedItem, destination }
+                    const paths = getSourceAndDestPaths(yankedItem, target)
+                    await fileSystem.move(paths.source, paths.destination)
+                    return { node: yankedItem, destination: paths.destination }
                 }),
             )
             return { moved, target }
