@@ -24,9 +24,7 @@ export interface IFileSystem {
     deleteNode(node: ExplorerNode): Promise<void>
     canPersistNode(fullPath: string, size: number): Promise<boolean>
     move(source: string, dest: string): Promise<void>
-    moveNodesBack(
-        collection: Array<{ originalLocation: string; newLocation: string }>,
-    ): Promise<void>
+    moveNodesBack(collection: Array<{ source: string; destination: string }>): Promise<void>
 }
 
 export class FileSystem implements IFileSystem {
@@ -113,8 +111,6 @@ export class FileSystem implements IFileSystem {
     public restoreNode = async (prevPath: string): Promise<void> => {
         const name = path.basename(prevPath)
         const backupPath = path.join(this._backupDirectory, name)
-        console.log("backupPath: ", backupPath)
-        console.log("prevPath: ", prevPath)
         await move(backupPath, prevPath)
     }
 
@@ -147,13 +143,12 @@ export class FileSystem implements IFileSystem {
      * @returns {void}
      */
     public moveNodesBack = async (
-        collection: Array<{ newLocation: string; originalLocation: string }>,
+        collection: Array<{ destination: string; source: string }>,
     ): Promise<void> => {
         await Promise.all(
             collection.map(
-                async ({ originalLocation, newLocation }) =>
-                    this.areDifferent(originalLocation, newLocation) &&
-                    move(newLocation, originalLocation),
+                async ({ source, destination }) =>
+                    this.areDifferent(source, destination) && move(destination, source),
             ),
         )
     }
