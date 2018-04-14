@@ -114,6 +114,7 @@ export interface IPasteAction {
     path: string
     target: ExplorerNode
     pasted: ExplorerNode[]
+    sources: ExplorerNode[]
 }
 
 export interface IDeleteAction {
@@ -252,8 +253,13 @@ export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[
     }
 }
 
-const expandOrNull = (target: ExplorerNode): IExpandDirectoryAction[] =>
-    target && target.type === "folder" ? [Actions.expandDirectory(target.folderPath)] : []
+const shouldExpandDirectory = (targets: ExplorerNode[]): IExpandDirectoryAction[] =>
+    targets.map(
+        target =>
+            target.type !== "file"
+                ? Actions.expandDirectory(getPathForNode(target))
+                : (Actions.Null as IExpandDirectoryAction),
+    )
 
 export const getPathForNode = (node: ExplorerNode) => {
     if (node.type === "file") {
@@ -329,7 +335,6 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                 yank: [...state.yank, action.target],
             }
         case "PASTE":
-            console.log("action: ", action)
             return {
                 ...state,
                 paste: action.target,
@@ -529,13 +534,13 @@ const pasteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
                     return { node: yankedItem, destination: paths.destination }
                 }),
             )
-            return { moved, target }
+            return { moved, target: [target] }
         })
         .flatMap(({ moved, target }) => {
             const ids = moved.map(item => item.node.id)
             return [
                 Actions.clearRegister(ids),
-                ...expandOrNull(target),
+                ...shouldExpandDirectory(target),
                 Actions.refresh,
                 Actions.pasteSuccess(moved),
             ]
@@ -551,27 +556,31 @@ const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         .flatMap(async action => {
             const { register: { undo } } = store.getState()
             const lastAction = last(undo)
-            const failAction = { result: Actions.undoFail, target: null as ExplorerNode }
+            const failAction = { action: Actions.undoFail, target: [] as ExplorerNode[] }
 
             switch (lastAction.type) {
                 case "PASTE":
-                    const { pasted, target: dir } = lastAction
+                    const { pasted, target: dir, sources } = lastAction
                     const filesAndFolders = pasted.map(file => getSourceAndDestPaths(file, dir))
                     await fileSystem.moveNodesBack(filesAndFolders)
-                    return { result: Actions.undoSuccess, target: dir }
+                    return { action: Actions.undoSuccess, target: sources }
 
                 case "DELETE_SUCCESS":
                     const { target } = lastAction
                     if (lastAction.persist) {
                         await fileSystem.restoreNode(getPathForNode(target))
-                        return { result: Actions.undoSuccess, target }
+                        return { action: Actions.undoSuccess, target: [target] }
                     }
                     return failAction
                 default:
                     return failAction
             }
         })
-        .flatMap(({ result, target }) => [result, ...expandOrNull(target), Actions.refresh])
+        .flatMap(({ action, target }) => [
+            action,
+            ...shouldExpandDirectory(target),
+            Actions.refresh,
+        ])
         .catch((error, observable) => {
             Log.warn(error)
             return [Actions.undoFail]

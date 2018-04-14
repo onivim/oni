@@ -3,6 +3,7 @@
  *
  */
 
+import * as path from "path"
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
@@ -175,20 +176,32 @@ export class ExplorerSplit {
         }
     }
 
-    private _getSelectedItem(id?: string): ExplorerSelectors.ExplorerNode {
+    private _getSelectedItem(id: string = this._selectedId): ExplorerSelectors.ExplorerNode {
         const state = this._store.getState()
 
         const nodes = ExplorerSelectors.mapStateToNodeList(state)
 
-        const idToUse = id || this._selectedId
-
-        const items = nodes.filter(item => item.id === idToUse)
+        const items = nodes.filter(item => item.id === id)
 
         if (!items || !items.length) {
             return null
         }
 
         return items[0]
+    }
+
+    private _getSelectedItemParent(filePath: string): ExplorerSelectors.ExplorerNode {
+        const state = this._store.getState()
+        const nodes = ExplorerSelectors.mapStateToNodeList(state)
+        const parentDir = path.dirname(filePath)
+
+        const [parentNode] = nodes.filter(
+            item =>
+                (item.type === "folder" && item.folderPath === parentDir) ||
+                (item.type === "container" && item.name === parentDir),
+        )
+
+        return parentNode
     }
 
     // This is different from on openItem since it only activates if the target is a folder
@@ -236,7 +249,15 @@ export class ExplorerSplit {
         const { register: { yank } } = this._store.getState()
 
         if (yank.length && pasteTarget) {
-            this._store.dispatch({ type: "PASTE", target: pasteTarget, pasted: yank })
+            const sources = yank.map(
+                node => (node.type === "file" ? this._getSelectedItemParent(node.filePath) : node),
+            )
+            this._store.dispatch({
+                type: "PASTE",
+                target: pasteTarget,
+                pasted: yank,
+                sources,
+            })
         }
     }
 
