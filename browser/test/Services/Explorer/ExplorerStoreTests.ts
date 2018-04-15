@@ -293,6 +293,63 @@ describe("ExplorerStore", () => {
                     assert.deepEqual(actualActions, expected)
                 })
         })
+
+        it("Should trigger a restore action if the deleted note can be restored", () => {
+            const action$ = ActionsObservable.of({
+                type: "UNDO",
+            } as ExplorerState.ExplorerAction)
+
+            const stateCopy = clone(ExplorerState.DefaultExplorerState)
+            const state = {
+                ...stateCopy,
+                register: {
+                    ...stateCopy.register,
+                    undo: [deleteAction],
+                },
+            }
+
+            const undoState = mockStore(state)
+            const expected = [
+                { type: "UNDO_SUCCESS" },
+                { type: "EXPAND_DIRECTORY", directoryPath: "/test/dir/subdir" },
+                { type: "REFRESH" },
+            ]
+
+            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications: {} as any })
+                .toArray()
+                .subscribe(actualActions => {
+                    assert.deepEqual(actualActions, expected)
+                })
+        })
+
+        it("Should return a fail action if the node was truly deleted", () => {
+            const action$ = ActionsObservable.of({
+                type: "UNDO",
+            } as ExplorerState.ExplorerAction)
+
+            const stateCopy = clone(ExplorerState.DefaultExplorerState)
+            const state = {
+                ...stateCopy,
+                register: {
+                    ...stateCopy.register,
+                    undo: [{ ...deleteAction, persist: false }],
+                },
+            }
+
+            const undoState = mockStore(state)
+            const expected = [
+                {
+                    type: "UNDO_FAIL",
+                    reason: "The last deletion cannot be undone, sorry",
+                } as ExplorerState.IUndoFailAction,
+            ]
+
+            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications: {} as any })
+                .toArray()
+                .subscribe(actualActions => {
+                    assert.deepEqual(actualActions, expected)
+                })
+        })
     })
 
     describe("Store utility helper tests", () => {

@@ -103,6 +103,7 @@ export interface IUndoSuccessAction {
 
 export interface IUndoFailAction {
     type: "UNDO_FAIL"
+    reason: string
 }
 
 export interface IYankAction {
@@ -280,7 +281,7 @@ const Actions = {
 
     pasteFail: (reason: string) => ({ type: "PASTE_FAIL", reason } as IPasteFailAction),
 
-    undoFail: { type: "UNDO_FAIL" } as IUndoFailAction,
+    undoFail: (reason: string) => ({ type: "UNDO_FAIL", reason } as IUndoFailAction),
 
     undoSuccess: { type: "UNDO_SUCCESS" } as IUndoSuccessAction,
 
@@ -555,7 +556,6 @@ export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         .flatMap(async action => {
             const { register: { undo } } = store.getState()
             const lastAction = last(undo)
-            const failAction = { action: Actions.undoFail, target: [] as ExplorerNode[] }
 
             switch (lastAction.type) {
                 case "PASTE":
@@ -570,9 +570,9 @@ export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
                         await fileSystem.restoreNode(getPathForNode(target))
                         return { action: Actions.undoSuccess, target: [target] }
                     }
-                    return failAction
+                    throw Error("The last deletion cannot be undone, sorry")
                 default:
-                    return failAction
+                    throw Error("Sorry we can't undo the last action")
             }
         })
         .flatMap(({ action, target }) => [
@@ -582,7 +582,7 @@ export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         ])
         .catch((error, observable) => {
             Log.warn(error)
-            return [Actions.undoFail]
+            return [Actions.undoFail(error.message)]
         })
 
 export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
