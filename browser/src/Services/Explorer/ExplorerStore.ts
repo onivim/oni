@@ -625,7 +625,7 @@ export const clearYankRegisterEpic: ExplorerEpic = (action$, store) =>
         return Observable.timer(oneMinute).mapTo(Actions.clearRegister([action.target.id]))
     })
 
-export const clearUpdate: ExplorerEpic = (action$, store) =>
+export const clearUpdateEpic: ExplorerEpic = (action$, store) =>
     action$
         .ofType("PASTE_SUCCESS", "UNDO_SUCCESS", "DELETE_SUCCESS")
         .mergeMap(() => Observable.timer(2_000).mapTo(Actions.clearUpdate))
@@ -702,7 +702,7 @@ export const createStore = ({
             combineEpics(
                 refreshEpic,
                 setRootDirectoryEpic,
-                clearUpdate,
+                clearUpdateEpic,
                 clearYankRegisterEpic,
                 pasteEpic,
                 undoEpic,

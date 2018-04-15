@@ -350,6 +350,25 @@ describe("ExplorerStore", () => {
                     assert.deepEqual(actualActions, expected)
                 })
         })
+
+        it("Should clear updates after a short interval", () => {
+            const action$ = ActionsObservable.of(deleteAction)
+
+            const expected = [
+                {
+                    type: "CLEAR_UPDATE",
+                } as ExplorerState.IClearUpdateAction,
+            ]
+
+            ExplorerState.clearUpdateEpic(action$, null, {
+                fileSystem: fs,
+                notifications: {} as any,
+            })
+                .toArray()
+                .subscribe(actualActions => {
+                    assert.deepEqual(actualActions, expected)
+                })
+        })
     })
 
     describe("Store utility helper tests", () => {
