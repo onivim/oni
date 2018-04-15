@@ -7,22 +7,17 @@ import * as path from "path"
 
 import { Store } from "redux"
 import { MockStoreCreator } from "redux-mock-store"
-import { createEpicMiddleware } from "redux-observable"
+import { ActionsObservable, combineEpics, createEpicMiddleware } from "redux-observable"
 
 import * as ExplorerFileSystem from "./../../../src/Services/Explorer/ExplorerFileSystem"
 import * as ExplorerState from "./../../../src/Services/Explorer/ExplorerStore"
+import { Notifications } from "./../../../src/Services/Notifications/Notifications"
 
 import * as clone from "lodash/clone"
 import * as head from "lodash/head"
 import * as TestHelpers from "./../../TestHelpers"
 
 const configureMockStore = require("redux-mock-store") // tslint:disable-line
-const epicMiddleware = createEpicMiddleware(ExplorerState.clearYankRegisterEpic)
-
-const MemoryFileSystem = require("memory-fs") // tslint:disable-line
-const mockStore: MockStoreCreator<ExplorerState.IExplorerState> = configureMockStore([
-    epicMiddleware,
-])
 
 export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
     public promises: Array<Promise<any>>
@@ -50,11 +45,22 @@ export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
     // tslint:disable
     public async restoreNode() {}
     public async persistNode() {}
-    public async moveNodesBack() {}
-    public async deleteNode() {}
-    public async move() {}
+    public async moveNodesBack(): Promise<void> {}
+    public async deleteNode(): Promise<void> {}
+    public async move(source: string, destination: string): Promise<void> {}
     // tslint:enable
 }
+
+const rootEpic = combineEpics(ExplorerState.clearYankRegisterEpic, ExplorerState.pasteEpic)
+
+const epicMiddleware = createEpicMiddleware(rootEpic, {
+    dependencies: { fileSystem: MockedFileSystem as any, notifications: {} as Notifications },
+})
+
+const MemoryFileSystem = require("memory-fs") // tslint:disable-line
+const mockStore: MockStoreCreator<ExplorerState.IExplorerState> = configureMockStore([
+    epicMiddleware,
+])
 
 describe("ExplorerStore", () => {
     let fileSystem: any
@@ -65,6 +71,39 @@ describe("ExplorerStore", () => {
     const filePath = path.join(rootPath, "file.txt")
     const target = { filePath, id: "1" }
     const epicStore = mockStore({ ...ExplorerState.DefaultExplorerState })
+
+    const pasted1 = {
+        type: "file",
+        filePath: "/test/dir/afile.txt",
+        id: "1",
+    }
+
+    const target1 = {
+        type: "folder",
+        folderPath: "/test/dir/subdir/",
+        id: "1",
+    }
+
+    const deleteAction = {
+        type: "DELETE_SUCCESS",
+        persist: true,
+        path: "/test/dir",
+        target: {
+            type: "folder",
+            folderPath: "/test/dir/subdir",
+            id: "2",
+            expanded: false,
+            name: "subdir",
+            indentationLevel: 2,
+        },
+    } as ExplorerState.IDeleteSuccessAction
+
+    const pasteAction = {
+        type: "PASTE",
+        target: target1,
+        pasted: [pasted1],
+        sources: [pasted1],
+    } as ExplorerState.IPasteAction
 
     beforeEach(() => {
         fileSystem = new MemoryFileSystem()
@@ -81,7 +120,7 @@ describe("ExplorerStore", () => {
     })
 
     afterEach(() => {
-        epicMiddleware.replaceEpic(ExplorerState.clearYankRegisterEpic)
+        epicMiddleware.replaceEpic(rootEpic)
     })
 
     describe("SET_ROOT_DIRECTORY", () => {
@@ -115,6 +154,47 @@ describe("ExplorerStore", () => {
             const clearedRegister = !!actions.find(action => action.type === "CLEAR_REGISTER")
             assert.ok(clearedRegister)
         })
+
+        it("should dispatch a paste success upon pasting successfully", done => {
+            const action$ = ActionsObservable.of({
+                type: "PASTE",
+                target: target1,
+                pasted: [pasted1],
+                sources: [pasted1],
+            } as ExplorerState.ExplorerAction)
+
+            const expected = [
+                { type: "CLEAR_REGISTER", ids: ["1"] },
+                { type: "EXPAND_DIRECTORY", directoryPath: target1.folderPath },
+                { type: "REFRESH" },
+                {
+                    type: "PASTE_SUCCESS",
+                    moved: [
+                        { destination: path.join(target1.folderPath, "afile.txt"), node: pasted1 },
+                    ],
+                },
+            ]
+
+            ExplorerState.pasteEpic(action$, null, {
+                fileSystem: {
+                    move: async (source, dest) => null,
+                    readdir: () => null as any,
+                    exists: async file => true,
+                    persistNode: file => null,
+                    restoreNode: file => null,
+                    deleteNode: file => null,
+                    canPersistNode: async (file, size) => true,
+                    moveNodesBack: collection => null,
+                },
+                notifications: {} as any,
+            })
+                .toArray()
+                .subscribe(actualActions => {
+                    assert.ok(actualActions.find(action => action.type === "PASTE_SUCCESS"))
+                    assert.deepEqual(actualActions, expected)
+                    done()
+                })
+        })
     })
 
     describe("Store utility helper tests", () => {
@@ -139,31 +219,6 @@ describe("ExplorerStore", () => {
         })
         describe("Register Reducer test", () => {
             const { yankRegisterReducer, DefaultExplorerState: { register } } = ExplorerState
-            const pasted1 = {
-                type: "file",
-                filePath: "/test/dir/",
-            }
-
-            const deleteAction = {
-                type: "DELETE_SUCCESS",
-                persist: true,
-                path: "/test/dir",
-                target: {
-                    type: "folder",
-                    folderPath: "/test/dir/subdir",
-                    id: "2",
-                    expanded: false,
-                    name: "subdir",
-                    indentationLevel: 2,
-                },
-            } as ExplorerState.IDeleteSuccessAction
-
-            const pasteAction = {
-                type: "PASTE",
-                path: "/test/dir",
-                target: { type: "folder", folderPath: "/test/dir/subdir" },
-                pasted: [pasted1],
-            } as ExplorerState.IPasteAction
 
             it("It should add paste items to both the paste and undo registers", () => {
                 const newState = yankRegisterReducer(clone(register), pasteAction)

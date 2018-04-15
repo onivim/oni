@@ -111,7 +111,6 @@ export interface IYankAction {
 
 export interface IPasteAction {
     type: "PASTE"
-    path: string
     target: ExplorerNode
     pasted: ExplorerNode[]
     sources: ExplorerNode[]
@@ -523,7 +522,7 @@ interface Dependencies {
 // EPICS =============================================================
 type ExplorerEpic = Epic<ExplorerAction, IExplorerState, Dependencies>
 
-const pasteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
+export const pasteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$
         .ofType("PASTE")
         .concatMap(async ({ target, pasted }: IPasteAction) => {
