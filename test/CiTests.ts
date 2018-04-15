@@ -53,6 +53,8 @@ const CiTests = [
     "TextmateHighlighting.ScopesOnEnterTest",
     "TextmateHighlighting.TokenColorOverrideTest",
 
+    "Theming.LightAndDarkColorsTest",
+
     // This test occasionally hangs and breaks tests after - trying to move it later...
     "LargeFileTest",
 ]
