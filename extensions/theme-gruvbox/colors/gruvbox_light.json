@@ -1,0 +1,46 @@
+{
+    "name": "gruvbox_light",
+    "baseVimTheme": "gruvbox",
+    "baseVimBackground": "light",
+    "colors": {
+        "background": "#f9f5d7",
+        "foreground": "#3c3836",
+
+        "title.background": "#f9f5d7",
+        "title.foreground": "#3c3836",
+
+        "editor.background": "#fbf1c7",
+        "editor.foreground": "#3c3836",
+
+        "tabs.background": "#ebdbb2",
+        "tabs.foreground": "#282828",
+
+        "toolTip.background": "#fbf1c7",
+        "toolTip.foreground": "#282828",
+        "toolTip.border": "#d5c4a1",
+
+        "menu.background": "#fbf1c7",
+        "menu.foreground": "#282828",
+        "menu.border": "#d5c4a1",
+
+        "contextMenu.background": "#fbf1c7",
+        "contextMenu.foreground": "#282828",
+        "contextMenu.border": "#d5c4a1",
+        "contextMenu.highlight": "#d5c4a1",
+
+        "statusBar.background": "#f9f5d7",
+        "statusBar.foreground": "#3c3836",
+
+        "highlight.mode.insert.background": "#076678",
+        "highlight.mode.insert.foreground": "#fbf1c7",
+
+        "highlight.mode.normal.background": "#928374",
+        "highlight.mode.normal.foreground": "#fbf1c7",
+
+        "highlight.mode.operator.background": "#8f3f71",
+        "highlight.mode.operator.foreground": "#fbf1c7",
+
+        "highlight.mode.visual.background": "#d65d0e",
+        "highlight.mode.visual.foreground": "#fbf1c7"
+    }
+}

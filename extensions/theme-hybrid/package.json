@@ -1,0 +1,25 @@
+{
+  "name": "onivim-theme-hybrid",
+  "version": "0.0.1",
+  "description": "Hybrid theme, ported to Oni",
+  "engines": {
+    "oni": "0.3.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "name": "hybrid_dark",
+        "path": "colors/hybrid_dark.json"
+      },
+      {
+        "name": "hybrid_light",
+        "path": "colors/hybrid_light.json"
+      }
+    ]
+  },
+  "author": "Parker Ault",
+  "license": "MIT"
+}
