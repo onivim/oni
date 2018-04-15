@@ -327,7 +327,7 @@ export class CanvasRenderer implements INeovimRenderer {
             this._canvasContext.fillText(
                 text,
                 boundsStartX,
-                y * fontHeightInPixels + linePaddingInPixels / 2,
+                normalizedBoundsY + linePaddingInPixels / 2,
             )
             this._canvasContext.font = lastFontStyle
         }
