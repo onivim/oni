@@ -546,10 +546,10 @@ export const pasteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         })
         .catch(error => {
             Log.warn(error)
-            return [Actions.pasteFail(error)]
+            return [Actions.pasteFail(error.message)]
         })
 
-const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
+export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$
         .ofType("UNDO")
         .flatMap(async action => {
@@ -603,7 +603,7 @@ export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         .flatMap(action => [action, Actions.refresh])
         .catch((error, observable) => {
             Log.warn(error)
-            return [Actions.deleteFail(error)]
+            return [Actions.deleteFail(error.message)]
         })
 
 export const clearYankRegisterEpic: ExplorerEpic = (action$, store) =>
@@ -636,7 +636,7 @@ const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         return Actions.expandDirectoryResult(pathToExpand, sortedFilesAndFolders)
     })
 
-const notificationEpic: ExplorerEpic = (action$, store, { notifications }) =>
+export const notificationEpic: ExplorerEpic = (action$, store, { notifications }) =>
     action$.ofType("PASTE_SUCCESS", "DELETE_SUCCESS", "PASTE_FAIL", "DELETE_FAIL").map(action => {
         switch (action.type) {
             case "PASTE_SUCCESS":

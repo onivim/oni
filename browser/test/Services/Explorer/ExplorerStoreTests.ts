@@ -145,6 +145,17 @@ describe("ExplorerStore", () => {
     })
 
     describe("YANK_AND_PASTE_EPICS", async () => {
+        const fs = {
+            move: async (source, dest) => null,
+            readdir: () => null as any,
+            exists: async file => true,
+            persistNode: file => null,
+            restoreNode: file => null,
+            deleteNode: file => null,
+            canPersistNode: async (file, size) => true,
+            moveNodesBack: collection => null,
+        } as ExplorerFileSystem.IFileSystem
+
         it("dispatches a clear register action after a minute", async () => {
             epicStore.dispatch({ type: "YANK", target })
             const actions = epicStore.getActions()
@@ -176,16 +187,7 @@ describe("ExplorerStore", () => {
             ]
 
             ExplorerState.pasteEpic(action$, null, {
-                fileSystem: {
-                    move: async (source, dest) => null,
-                    readdir: () => null as any,
-                    exists: async file => true,
-                    persistNode: file => null,
-                    restoreNode: file => null,
-                    deleteNode: file => null,
-                    canPersistNode: async (file, size) => true,
-                    moveNodesBack: collection => null,
-                },
+                fileSystem: fs,
                 notifications: {} as any,
             })
                 .toArray()
@@ -193,6 +195,49 @@ describe("ExplorerStore", () => {
                     assert.ok(actualActions.find(action => action.type === "PASTE_SUCCESS"))
                     assert.deepEqual(actualActions, expected)
                     done()
+                })
+        })
+
+        it("should correctly trigger a node deletion", () => {
+            const action$ = ActionsObservable.of({
+                type: "DELETE",
+                target: target1,
+                persist: true,
+            } as ExplorerState.IDeleteAction)
+
+            const expected = [
+                { type: "DELETE_SUCCESS", target: target1, persist: true },
+                { type: "REFRESH" },
+            ]
+
+            ExplorerState.deleteEpic(action$, null, { fileSystem: fs, notifications: {} as any })
+                .toArray()
+                .subscribe(actualActions => {
+                    assert.deepEqual(actualActions, expected)
+                })
+        })
+
+        it("should correctly dispatch a fail action if there is an error", () => {
+            const action$ = ActionsObservable.of({
+                type: "DELETE",
+                target: target1,
+                persist: true,
+            } as ExplorerState.IDeleteAction)
+
+            const expected = [{ type: "DELETE_FAIL", reason: "Doesnt work" }]
+
+            ExplorerState.deleteEpic(action$, null, {
+                fileSystem: {
+                    ...fs,
+                    persistNode: node => {
+                        throw new Error("Doesnt work")
+                    },
+                },
+                notifications: {} as any,
+            })
+                .toArray()
+                .subscribe(actualActions => {
+                    assert.deepEqual(actualActions, expected)
                 })
         })
     })
