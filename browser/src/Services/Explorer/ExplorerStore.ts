@@ -179,6 +179,10 @@ export interface IPasteFailAction {
     reason: string
 }
 
+export interface IClearUpdateAction {
+    type: "CLEAR_UPDATE"
+}
+
 export interface IPasteSuccessAction {
     type: "PASTE_SUCCESS"
     moved: IMovedNodes[]
@@ -204,6 +208,7 @@ export type ExplorerAction =
     | IPasteAction
     | IPasteFailAction
     | IPasteSuccessAction
+    | IClearUpdateAction
     | IClearRegisterAction
     | IUndoAction
     | IUndoSuccessAction
@@ -293,6 +298,8 @@ const Actions = {
 
     clearRegister: (ids: string[]) => ({ type: "CLEAR_REGISTER", ids } as IClearRegisterAction),
 
+    clearUpdate: { type: "CLEAR_UPDATE" } as IClearUpdateAction,
+
     deleteSuccess: (target: ExplorerNode, persist: boolean): IDeleteSuccessAction => ({
         type: "DELETE_SUCCESS",
         target,
@@ -322,7 +329,8 @@ const Actions = {
 // it is added to the back of the stack when an undo is triggered
 // it is removed.
 // The most recently actioned node(s) path(s) are set to the value of
-// the updated field, this is used to animate updated fields.
+// the updated field, this is used to animate updated fields,
+// Updates are cleared shortly after to prevent re-animating
 
 export const yankRegisterReducer: Reducer<IRegisterState> = (
     state: IRegisterState = DefaultRegisterState,
@@ -352,6 +360,11 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                 ...state,
                 paste: EmptyNode,
                 yank: removePastedNode(state.yank, action.ids),
+            }
+        case "CLEAR_UPDATE":
+            return {
+                ...state,
+                updated: null,
             }
         case "DELETE_SUCCESS":
             return {
@@ -612,6 +625,11 @@ export const clearYankRegisterEpic: ExplorerEpic = (action$, store) =>
         return Observable.timer(oneMinute).mapTo(Actions.clearRegister([action.target.id]))
     })
 
+export const clearUpdate: ExplorerEpic = (action$, store) =>
+    action$
+        .ofType("PASTE_SUCCESS", "UNDO_SUCCESS", "DELETE_SUCCESS")
+        .mergeMap(() => Observable.timer(2_000).mapTo(Actions.clearUpdate))
+
 const refreshEpic: ExplorerEpic = (action$, store) =>
     action$.ofType("REFRESH").mergeMap(() => {
         const state = store.getState()
@@ -684,6 +702,7 @@ export const createStore = ({
             combineEpics(
                 refreshEpic,
                 setRootDirectoryEpic,
+                clearUpdate,
                 clearYankRegisterEpic,
                 pasteEpic,
                 undoEpic,
