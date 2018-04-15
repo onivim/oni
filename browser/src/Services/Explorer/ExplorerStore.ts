@@ -60,7 +60,7 @@ export interface OpenedFiles {
     [fullPath: string]: any
 }
 
-type RegisterAction =
+export type RegisterAction =
     | IPasteAction
     | IDeleteSuccessAction
     | IDeleteFailAction
@@ -93,13 +93,15 @@ export const DefaultExplorerState: IExplorerState = {
     register: DefaultRegisterState,
 }
 
-interface IUndoAction {
+export interface IUndoAction {
     type: "UNDO"
 }
-interface IUndoSuccessAction {
+
+export interface IUndoSuccessAction {
     type: "UNDO_SUCCESS"
 }
-interface IUndoFailAction {
+
+export interface IUndoFailAction {
     type: "UNDO_FAIL"
 }
 
@@ -138,49 +140,50 @@ export interface IClearRegisterAction {
     ids: string[]
 }
 
-interface IExpandDirectoryAction {
+export interface IExpandDirectoryAction {
     type: "EXPAND_DIRECTORY"
     directoryPath: string
 }
 
-interface IRefreshAction {
+export interface IRefreshAction {
     type: "REFRESH"
 }
 
-interface ISetRootDirectoryAction {
+export interface ISetRootDirectoryAction {
     type: "SET_ROOT_DIRECTORY"
     rootPath: string
 }
 
-interface ICollapseDirectory {
+export interface ICollapseDirectory {
     type: "COLLAPSE_DIRECTORY"
     directoryPath: string
 }
 
-interface IExpandDirectoryResult {
+export interface IExpandDirectoryResult {
     type: "EXPAND_DIRECTORY_RESULT"
     directoryPath: string
     children: FolderOrFile[]
 }
-interface IEnterAction {
+
+export interface IEnterAction {
     type: "ENTER"
 }
 
-interface ILeaveAction {
+export interface ILeaveAction {
     type: "LEAVE"
 }
 
-interface IPasteFailAction {
+export interface IPasteFailAction {
     type: "PASTE_FAIL"
     reason: string
 }
 
-interface IPasteSuccessAction {
+export interface IPasteSuccessAction {
     type: "PASTE_SUCCESS"
     moved: IMovedNodes[]
 }
 
-interface IMovedNodes {
+export interface IMovedNodes {
     node: ExplorerNode
     destination: string
 }
@@ -253,12 +256,9 @@ export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[
 }
 
 const shouldExpandDirectory = (targets: ExplorerNode[]): IExpandDirectoryAction[] =>
-    targets.map(
-        target =>
-            target.type !== "file"
-                ? Actions.expandDirectory(getPathForNode(target))
-                : (Actions.Null as IExpandDirectoryAction),
-    )
+    targets
+        .map(target => target.type !== "file" && Actions.expandDirectory(getPathForNode(target)))
+        .filter(Boolean)
 
 export const getPathForNode = (node: ExplorerNode) => {
     if (node.type === "file") {

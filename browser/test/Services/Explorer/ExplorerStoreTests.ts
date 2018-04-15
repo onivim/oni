@@ -10,6 +10,7 @@ import { MockStoreCreator } from "redux-mock-store"
 import { ActionsObservable, combineEpics, createEpicMiddleware } from "redux-observable"
 
 import * as ExplorerFileSystem from "./../../../src/Services/Explorer/ExplorerFileSystem"
+import { ExplorerNode } from "./../../../src/Services/Explorer/ExplorerSelectors"
 import * as ExplorerState from "./../../../src/Services/Explorer/ExplorerStore"
 import { Notifications } from "./../../../src/Services/Notifications/Notifications"
 
@@ -235,6 +236,58 @@ describe("ExplorerStore", () => {
                 },
                 notifications: {} as any,
             })
+                .toArray()
+                .subscribe(actualActions => {
+                    assert.deepEqual(actualActions, expected)
+                })
+        })
+
+        it("Should correctly trigger a move action on undo of paste", () => {
+            const action$ = ActionsObservable.of({
+                type: "UNDO",
+            } as ExplorerState.ExplorerAction)
+
+            const stateCopy = clone(ExplorerState.DefaultExplorerState)
+            const state = {
+                ...stateCopy,
+                register: {
+                    ...stateCopy.register,
+                    undo: [pasteAction],
+                },
+            }
+
+            const undoState = mockStore(state)
+            const expected = [{ type: "UNDO_SUCCESS" }, { type: "REFRESH" }]
+
+            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications: {} as any })
+                .toArray()
+                .subscribe(actualActions => {
+                    assert.deepEqual(actualActions, expected)
+                })
+        })
+
+        it("Should trigger an expand directory on undo if the original source is a directory", () => {
+            const action$ = ActionsObservable.of({
+                type: "UNDO",
+            } as ExplorerState.ExplorerAction)
+
+            const stateCopy = clone(ExplorerState.DefaultExplorerState)
+            const state = {
+                ...stateCopy,
+                register: {
+                    ...stateCopy.register,
+                    undo: [{ ...pasteAction, sources: [target1] as ExplorerNode[] }],
+                },
+            }
+
+            const undoState = mockStore(state)
+            const expected = [
+                { type: "UNDO_SUCCESS" },
+                { type: "EXPAND_DIRECTORY", directoryPath: "/test/dir/subdir/" },
+                { type: "REFRESH" },
+            ]
+
+            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications: {} as any })
                 .toArray()
                 .subscribe(actualActions => {
                     assert.deepEqual(actualActions, expected)
