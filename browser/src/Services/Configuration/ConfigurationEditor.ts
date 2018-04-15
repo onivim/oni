@@ -15,6 +15,7 @@ import { EditorManager } from "./../EditorManager"
 
 import { Configuration } from "./Configuration"
 import { DefaultConfiguration } from "./DefaultConfiguration"
+import { flatMap } from "./../../Utility"
 
 // For configuring Oni, JavaScript is the de-facto language, and the configuration
 // today will _always_ happen through `config.js`
@@ -131,15 +132,31 @@ export class ConfigurationEditManager {
             openMode: Oni.FileOpenMode.NewTab,
         })
 
+        const keys = Object.keys(DefaultConfiguration)
+
+        const lines = flatMap(keys, key => this._getInfoForConfigVariable(key))
+
         // Format the default configuration values as a pretty JSON object, then
         // set it as the reference buffer content
-        const referenceContent = JSON.stringify(DefaultConfiguration, null, "  ")
         await Promise.all([
-            referenceBuffer.setLines(0, 1, referenceContent.split("\n")),
+            referenceBuffer.setLines(0, 1, ["{", ...lines, "}"]),
             // FIXME: needs to be added to the Oni.Buffers API
-            (referenceBuffer as any).setLanguage("json"),
+            (referenceBuffer as any).setLanguage("typescript"),
             (referenceBuffer as any).setScratchBuffer(),
         ])
+    }
+
+    private _getInfoForConfigVariable(key: string): string[] {
+        const metadata = this._configuration.getMetadata<any>(key)
+
+        const configurationLine = `"${key}": ${JSON.stringify(DefaultConfiguration[key])},`
+
+        if (metadata && metadata.description) {
+            const val = ` // ${metadata.description}`
+            return ["", val, configurationLine, ""]
+        } else {
+            return [configurationLine]
+        }
     }
 
     private async _transpileConfiguration(
