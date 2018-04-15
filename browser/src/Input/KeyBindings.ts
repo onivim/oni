@@ -30,7 +30,9 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     const oniWithSidebar = oni as Oni.Plugin.Api & ISidebar
     const isExplorerActive = () =>
         oniWithSidebar.sidebar.activeEntryId === "oni.sidebar.explorer" &&
-        oniWithSidebar.sidebar.isFocused
+        oniWithSidebar.sidebar.isFocused &&
+        !isInsertOrCommandMode() &&
+        !isMenuOpen()
 
     const isMenuOpen = () => menu.isMenuOpen()
 
