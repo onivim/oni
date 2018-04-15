@@ -62,7 +62,7 @@ interface State {
     waiting: boolean
 }
 
-const CommandLineIcon = (props: { iconName: string; arrow?: boolean }) => (
+export const CommandLineIcon = (props: { iconName: string; arrow?: boolean }) => (
     <span>
         {!props.arrow ? (
             <Icon name={props.iconName} />
@@ -74,7 +74,7 @@ const CommandLineIcon = (props: { iconName: string; arrow?: boolean }) => (
     </span>
 )
 
-class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> {
+export class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> {
     public state = {
         focused: false,
         waiting: true,
@@ -138,7 +138,10 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
             !waiting &&
             visible && (
                 <CommandLineBox className="command-line">
-                    <CommandLineOutput innerRef={e => (this._inputElement = e)}>
+                    <CommandLineOutput
+                        innerRef={e => (this._inputElement = e)}
+                        className="command-line-output"
+                    >
                         {this.renderIconOrChar(firstchar)}
                         {this.props.prompt}
                         {beginning}
@@ -154,7 +157,7 @@ class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> 
 const mapStateToProps = ({ commandLine, configuration }: State.IState) => {
     const { visible, position, content, firstchar, level, prompt } = commandLine
     return {
-        showIcons: configuration["experimental.commandline.icons"],
+        showIcons: configuration["commandline.icons"],
         visible,
         content,
         firstchar,

@@ -8,6 +8,7 @@
  */
 
 import * as os from "os"
+import * as path from "path"
 
 import * as Oni from "oni-api"
 import { Event, IDisposable } from "oni-types"
@@ -18,6 +19,8 @@ import { ILanguageClient } from "./LanguageClient"
 import * as LanguageClientTypes from "./LanguageClientTypes"
 import { IServerCapabilities } from "./ServerCapabilities"
 
+import * as Capabilities from "./../../Plugins/Api/Capabilities"
+import { PluginManager } from "./../../Plugins/PluginManager"
 import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientStatusBar"
 
 import { listenForWorkspaceEdits } from "./Workspace"
@@ -43,6 +46,7 @@ export class LanguageManager {
     constructor(
         private _configuration: Oni.Configuration,
         private _editorManager: Oni.EditorManager,
+        private _pluginManager: PluginManager,
         private _statusBar: Oni.StatusBar,
         private _workspace: IWorkspace,
     ) {
@@ -318,7 +322,7 @@ export class LanguageManager {
         }
     }
 
-    private _onBufferEnter(): void {
+    private async _onBufferEnter(): Promise<void> {
         if (!this._editorManager.activeEditor.activeBuffer) {
             Log.warn("[LanguageManager] No active buffer on buffer enter")
             return
@@ -326,6 +330,24 @@ export class LanguageManager {
 
         const buffer = this._editorManager.activeEditor.activeBuffer
         const { language, filePath } = buffer
+
+        if (!language && filePath) {
+            const languages = this._pluginManager.getAllContributionsOfType<
+                Capabilities.ILanguageContribution
+            >(contributes => contributes.languages)
+            const extension = path.extname(filePath)
+            const matchingLanguages = languages.filter(
+                l => l.extensions.indexOf(extension) && extension && extension.length > 0,
+            )
+            if (matchingLanguages.length > 0) {
+                Log.info(
+                    `[LanguageManager::_onBufferEnter] Setting language for file ${filePath} to ${
+                        matchingLanguages[0].id
+                    }`,
+                )
+                await (buffer as any).setLanguage(matchingLanguages[0].id)
+            }
+        }
 
         if (language) {
             this._languageClientStatusBar.show(language)
@@ -345,7 +367,7 @@ export class LanguageManager {
             return
         }
 
-        this.sendLanguageServerNotification(
+        await this.sendLanguageServerNotification(
             language,
             filePath,
             "textDocument/didOpen",
@@ -414,10 +436,17 @@ let _languageManager: LanguageManager = null
 export const activate = (
     configuration: Oni.Configuration,
     editorManager: Oni.EditorManager,
+    pluginManager: PluginManager,
     statusBar: Oni.StatusBar,
     workspace: IWorkspace,
 ): void => {
-    _languageManager = new LanguageManager(configuration, editorManager, statusBar, workspace)
+    _languageManager = new LanguageManager(
+        configuration,
+        editorManager,
+        pluginManager,
+        statusBar,
+        workspace,
+    )
 }
 
 export const getInstance = (): LanguageManager => {

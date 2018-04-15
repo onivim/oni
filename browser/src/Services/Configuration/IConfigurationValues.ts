@@ -14,8 +14,8 @@ export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiase
 export type DetectionSettings = "always" | "noworkspace" | "never"
 
 export interface IConfigurationValues {
-    activate: (oni: Oni.Plugin.Api) => void
-    deactivate: () => void
+    activate?: (oni: Oni.Plugin.Api) => void
+    deactivate?: () => void
 
     // Debug settings
     "debug.fixedSize": {
@@ -30,16 +30,24 @@ export interface IConfigurationValues {
     "debug.detailedSessionLogging": boolean
     "debug.showTypingPrediction": boolean
 
+    "browser.defaultUrl": string
+
     // Simulate slow language server, for debugging
     "debug.fakeLag.languageServer": number | null
     "debug.fakeLag.neovimInput": number | null
 
+    "debug.showNotificationOnError": boolean
+
     "editor.split.mode": string
 
     "configuration.editor": string
+    "configuration.showReferenceBuffer": boolean
 
     // - textMateHighlighting
-    "experimental.editor.textMateHighlighting.enabled": boolean
+    "editor.textMateHighlighting.enabled": boolean
+
+    // Whether or not the learning pane is available
+    "experimental.particles.enabled": boolean
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
@@ -47,6 +55,9 @@ export interface IConfigurationValues {
     "wildmenu.mode": boolean
     "commandline.mode": boolean
     "commandline.icons": boolean
+
+    // Experimental flag for 'generalized preview'
+    "experimental.preview.enabled": boolean
 
     "experimental.welcome.enabled": boolean
 
@@ -156,6 +167,9 @@ export interface IConfigurationValues {
     // (and available in terminal integration, later)
     "environment.additionalPaths": string[]
 
+    // User configurable array of files for which
+    // the image layer opens
+    "editor.imageLayerExtensions": string[]
     // Command to list files for 'quick open'
     // For example, to use 'ag': ag --nocolor -l .
     //
@@ -184,6 +198,11 @@ export interface IConfigurationValues {
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
 
+    "keyDisplayer.showInInsertMode": boolean
+
+    "learning.enabled": boolean
+    "achievements.enabled": boolean
+
     // Case-sensitivity strategy for menu filtering:
     // - if `true`, is case sensitive
     // - if `false`, is not case sensitive
@@ -204,10 +223,32 @@ export interface IConfigurationValues {
     "recorder.copyScreenshotToClipboard": boolean
 
     "sidebar.enabled": boolean
+    "sidebar.default.open": boolean
     "sidebar.width": string
 
     "sidebar.marks.enabled": boolean
     "sidebar.plugins.enabled": boolean
+
+    "oni.plugins.prettier": {
+        settings: {
+            semi: boolean
+            tabWidth: number
+            useTabs: boolean
+            singleQuote: boolean
+            trailingComma: "es5" | "all" | "none"
+            bracketSpacing: boolean
+            jsxBracketSameLine: boolean
+            arrowParens: "avoid" | "always"
+            printWidth: number
+            [key: string]: number | string | boolean
+        }
+        formatOnSave: boolean
+        enabled: boolean
+        allowedFiletypes?: string[]
+    }
+
+    "snippets.enabled": boolean
+    "snippets.userSnippetFolder": string
 
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
@@ -244,6 +285,8 @@ export interface IConfigurationValues {
     // Whether or not the file icon
     // should be shown in the tab
     "tabs.showFileIcon": boolean
+
+    "terminal.shellCommand": string
 
     "ui.animations.enabled": boolean
     "ui.iconTheme": string

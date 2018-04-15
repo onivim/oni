@@ -3,13 +3,15 @@
 ### Modern Modal Editing
 
 [![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build Status](https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)[![codecov](https://codecov.io/gh/onivim/oni/branch/master/graph/badge.svg)](https://codecov.io/gh/onivim/oni)
-[![Join the chat at https://gitter.im/onivim/Lobby](https://badges.gitter.im/onivim/Lobby.svg)](https://gitter.im/onivim/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
+[![Join the chat on discord!](https://img.shields.io/discord/417774914645262338.svg)](https://discord.gg/7maEAxV)
+[![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
 [![Total Downloads](https://img.shields.io/github/downloads/onivim/oni/total.svg)](https://github.com/onivim/oni/releases)
 
 <h2 align="center">Supporting Oni</h2>
 
 Oni is an independent, MIT-licensed open source project. Please consider supporting Oni by:
 
+* [Become a backer or sponsor on Patreon](https://www.patreon.com/onivim)
 * [Become a backer or sponsor on Open Collective](https://opencollective.com/oni)
 * [Become a backer on BountySource](https://www.bountysource.com/teams/oni)
 
@@ -63,15 +65,19 @@ Check out [Releases](https://github.com/onivim/oni/releases) for the latest bina
 
 Oni brings several IDE-like integrations to neovim:
 
+* [Embedded Browser](https://github.com/onivim/oni/wiki/Features#embedded-browser)
 * [Quick Info](https://github.com/onivim/oni/wiki/Features#quick-info)
 * [Code Completion](https://github.com/onivim/oni/wiki/Features#code-completion)
 * [Syntax / Compilation Errors](https://github.com/onivim/oni/wiki/Features#syntax--compilation-errors)
 * [Fuzzy Finding](https://github.com/onivim/oni/wiki/Features#fuzzy-finder)
 * [Status Bar](https://github.com/onivim/oni/wiki/Features#status-bar)
+* [Interactive Tutorial](https://github.com/onivim/oni/wiki/Features#interactive-tutorial)
 
 And more coming - check out our [Roadmap](https://github.com/onivim/oni/wiki/Roadmap)
 
 Oni is cross-platform and supports Windows, Mac, and Linux.
+
+> If you're a Vim power user, and don't need all these features, check out our [minimal configuration](https://github.com/onivim/oni/wiki/How-To:-Minimal-Oni-Configuration).
 
 ## Installation
 
@@ -110,15 +116,20 @@ The goal of this project is to give an editor that gives the best of both worlds
 
 There many ways to get involved & contribute to Oni:
 
-* Support Oni financially by making a donation via [OpenCollective](https://opencollective.com/oni) or [Bountysource](https://salt.bountysource.com/teams/oni)
+* Support Oni financially by making a donation via:
+    * [Patreon](https://patreon.com/onivim)
+    * [OpenCollective](https://opencollective.com/oni)
+    * [Bountysource](https://salt.bountysource.com/teams/oni)
 * Thumbs up existing [issues](https://github.com/onivim/oni/issues) if they impact you.
 * [Create an issue](https://github.com/onivim/oni/issues) for bugs or new features.
-* Review and upate our [documentation](https://github.com/onivim/oni/wiki).
+* Review and update our [documentation](https://github.com/onivim/oni/wiki).
 * Try out the latest [released build](https://github.com/onivim/oni/releases).
 * Help us [develop](https://github.com/onivim/oni/wiki/Development):
     * Review [PRs](https://github.com/onivim/oni/pulls)
     * Submit a bug fix or feature
     * Add test cases
+* Create a blog post or YouTube video
+* Follow us on [Twitter](https://twitter.com/oni_vim)
 
 ## Acknowledgements
 
@@ -156,4 +167,5 @@ Bundled plugins have their own license terms. These include:
 * [targets.vim](https://github.com/wellle/targets.vim) (`oni/vim/default/bundle/targets.vim`)
 * [vim-commentary](https://github.com/tpope/vim-commentary) (`oni/vim/default/bundle/vim-commentary`)
 * [vim-unimpaired](https://github.com/tpope/vim-unimpaired) (`oni/vim/default/bundle/vim-unimpaired`)
+* [vim-surround](https://github.com/tpope/vim-surround) (`oni/vim/default/bundle/vim-surround`)
 * [vim-reasonml](https://github.com/reasonml-editor/vim-reason) (`.vim` files in `oni/vim/core/oni-plugin-reasonml`)

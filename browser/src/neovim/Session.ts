@@ -20,12 +20,17 @@ const log = (msg: string) => {
  * Session is responsible for the Neovim msgpack session
  */
 export class Session extends EventEmitter {
+    private _isDisposed: boolean = false
     private _encoder: msgpackLite.EncodeStream
     private _decoder: msgpackLite.DecodeStream
     private _requestId: number = 0
     private _pendingRequests: { [key: number]: RequestHandlerFunction } = {}
 
-    constructor(writer: NodeJS.WritableStream, reader: NodeJS.ReadableStream) {
+    public get isDisposed(): boolean {
+        return this._isDisposed
+    }
+
+    constructor(private _writer: NodeJS.WritableStream, private _reader: NodeJS.ReadableStream) {
         super()
 
         const codec = msgpackLite.createCodec()
@@ -42,8 +47,8 @@ export class Session extends EventEmitter {
         this._encoder = msgpackLite.createEncodeStream({ codec })
         this._decoder = msgpackLite.createDecodeStream({ codec })
 
-        this._encoder.pipe(writer)
-        reader.pipe(this._decoder)
+        this._encoder.pipe(this._writer)
+        this._reader.pipe(this._decoder)
 
         this._decoder.on("data", (data: any) => {
             const [type, ...remaining] = data
@@ -70,21 +75,59 @@ export class Session extends EventEmitter {
             }
         })
 
+        this._writer.on("error", () => {
+            log("Writer error")
+        })
+
+        this._reader.on("error", () => {
+            log("Reader error")
+        })
+
         this._decoder.on("end", () => {
             log("Disconnect")
             this.emit("disconnect")
         })
 
         this._decoder.on("error", (err: Error) => {
-            Log.error("Decoder error:", err)
+            if (!this._isDisposed) {
+                Log.error("Decoder error:", err)
+            }
         })
     }
 
+    public dispose(): void {
+        this._isDisposed = true
+
+        if (this._encoder) {
+            this._encoder.end()
+            this._encoder = null
+        }
+
+        if (this._writer) {
+            this._writer.end()
+            this._writer = null
+        }
+
+        if (this._reader) {
+            this._reader = null
+        }
+
+        if (this._decoder) {
+            this._decoder.end()
+            this._decoder = null
+        }
+    }
+
     public request<T>(methodName: string, args: any): Promise<T> {
+        if (this._isDisposed) {
+            Log.warn(`[Session] Ignoring request: ${methodName} because session is disposed.`)
+            return Promise.reject(null)
+        }
+
         this._requestId++
         let r = null
-        const promise = new Promise<T>(resolve => {
-            r = (val: any) => {
+        const promise = new Promise<T>((resolve, reject) => {
+            r = (val: T) => {
                 resolve(val)
             }
         })
@@ -101,7 +144,11 @@ export class Session extends EventEmitter {
         return promise
     }
 
-    public notify(methodName: string, args: any) {
+    public notify(methodName: string, args: any): void {
+        if (this._isDisposed) {
+            Log.warn(`[Session] Ignoring notification: ${methodName} because session is disposed.`)
+            return
+        }
         log("Sending notification - " + methodName)
         this._writeImmediate([2, methodName, args])
     }

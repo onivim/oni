@@ -37,7 +37,7 @@ Anyone can file an expense. If the expense makes sense for the development of th
 
 ### Bounties
 
-The primary allotment of our [open collective](https://opencollective.com/oni) budget is dedicated to bounties. Developing features and fixing bugs is a loit of work, and those go directly to the developers doing this work via bounties. It is the role of the _maintainer_ to set bounties and clear completion criteria. Issues that have a bounty associated with them will have a `bounty` label as well as an amount, ie, `bounty-50` means a $50 bounty.
+The primary allotment of our [open collective](https://opencollective.com/oni) budget is dedicated to bounties. Developing features and fixing bugs is a lot of work, and those go directly to the developers doing this work via bounties. It is the role of the _maintainer_ to set bounties and clear completion criteria. Issues that have a bounty associated with them will have a `bounty` label as well as an amount, ie, `bounty-50` means a $50 bounty.
 
 * Guidelines:
     * The fix for the bug/feature/issue _MUST_ be complete and _MUST_ be covered by tests to be eligible for a bounty.
@@ -46,7 +46,7 @@ The primary allotment of our [open collective](https://opencollective.com/oni) b
 
 #### Claiming a bounty
 
-* Upon completion of an issue with an associated bounty, bounties are payable by [Submitting an Expense](https://opencollective.com/oni/expenses/new) on our [OpenCollective](https://opencollective.com/oni). Note that OpenCollective requires a PDF or Photo for the expense - a screenshot including the pull request number is sufficient. Check out our [expenses](https://opencollective.com/oni/expenses#) page for an example.
+* Upon completion of an issue with an associated bounty, bounties are payable by [Submitting an Expense](https://opencollective.com/oni/expenses/new) on our [OpenCollective](https://opencollective.com/oni). Note that OpenCollective requires a PDF or Photo of an expense form for an expense claim to be accepted - more information, including an example expense form can be found [here](https://opencollective.com/faq#expense). Check out our [expenses](https://opencollective.com/oni/expenses#) page for an example.
 * A collaborator will approve the expense once we have verified it meets the criteria outlined above (complete fix, covered by tests, associated documentation updated)
 
 If you questions about the guidelines, please don't hesitate to contact the maintainer.

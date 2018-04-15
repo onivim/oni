@@ -6,32 +6,39 @@
 
 import * as fs from "fs"
 import * as path from "path"
+import { promisify } from "util"
 
 import { FolderOrFile } from "./ExplorerStore"
-import { FSWatcher } from "./../../Services/FileSystemWatcher"
 
 /**
  * An abstraction of the node filesystem APIs to enable testing
  */
 export interface IFileSystem {
     readdir(fullPath: string): Promise<FolderOrFile[]>
+    exists(fullPath: string): Promise<boolean>
 }
 
 export class FileSystem implements IFileSystem {
-    private _watcher: FSWatcher
-    constructor(private _fs: typeof fs) {
-        this._watcher = new FSWatcher({ target: "." })
+    private _fs: {
+        readdir(path: string): Promise<string[]>
+        stat(path: string): Promise<fs.Stats>
+        exists(path: string): Promise<boolean>
     }
 
-    public readdir(directoryPath: string): Promise<FolderOrFile[]> {
-        const files = this._fs.readdirSync(directoryPath)
-        this._watcher.onChange.subscribe(filepath => {
-            console.log("filepath: ", filepath)
-        })
+    constructor(nfs: typeof fs) {
+        this._fs = {
+            readdir: promisify(nfs.readdir.bind(nfs)),
+            stat: promisify(nfs.stat.bind(nfs)),
+            exists: promisify(nfs.exists.bind(nfs)),
+        }
+    }
 
-        const filesAndFolders = files.map(f => {
+    public async readdir(directoryPath: string): Promise<FolderOrFile[]> {
+        const files = await this._fs.readdir(directoryPath)
+
+        const filesAndFolders = files.map(async f => {
             const fullPath = path.join(directoryPath, f)
-            const stat = this._fs.statSync(fullPath)
+            const stat = await this._fs.stat(fullPath)
             if (stat.isDirectory()) {
                 return {
                     type: "folder",
@@ -45,6 +52,10 @@ export class FileSystem implements IFileSystem {
             }
         })
 
-        return Promise.resolve(filesAndFolders)
+        return Promise.all(filesAndFolders)
+    }
+
+    public exists(fullPath: string): Promise<boolean> {
+        return this._fs.exists(fullPath)
     }
 }

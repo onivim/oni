@@ -8,11 +8,13 @@ import { Store } from "redux"
 
 import { Event, IEvent } from "oni-types"
 
-import { INotificationsState, NotificationLevel } from "./NotificationStore"
+import { INotificationButton, INotificationsState, NotificationLevel } from "./NotificationStore"
 
 export class Notification {
     private _title: string = ""
     private _detail: string = ""
+    private _buttons: INotificationButton[]
+    private _expirationTime: number
     private _level: NotificationLevel = "info"
 
     private _onClickEvent = new Event<void>()
@@ -33,8 +35,21 @@ export class Notification {
         this._detail = detail
     }
 
+    public setButtons(buttons: INotificationButton[]) {
+        // only set valid values
+        if (buttons && buttons.every(b => !!(b.title && b.callback))) {
+            this._buttons = buttons
+        }
+    }
+
     public setLevel(level: NotificationLevel): void {
         this._level = level
+    }
+
+    public setExpiration(expiration: number = 20000) {
+        if (this._level !== "error") {
+            this._expirationTime = expiration
+        }
     }
 
     public show(): void {
@@ -43,7 +58,9 @@ export class Notification {
             id: this._id,
             title: this._title,
             detail: this._detail,
+            buttons: this._buttons,
             level: this._level,
+            expirationTime: this._expirationTime,
             onClick: () => {
                 this._onClickEvent.dispatch()
                 this.hide()

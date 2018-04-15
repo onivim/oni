@@ -17,7 +17,7 @@ import { addDefaultUnitIfNeeded } from "./../../Font"
 
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { Icon } from "./../../UI/Icon"
-import { styled, withProps } from "./../components/common"
+import { styled } from "./../components/common"
 
 import { FileIcon } from "./../../Services/FileIcon"
 
@@ -57,8 +57,8 @@ export interface ITabsProps {
     fontSize: string
 }
 
-const InnerName = withProps<{ isLong?: boolean }>(styled.span)`
-    ${p => p.isLong && `width: 250px;`};
+const InnerName = styled.span`
+    max-width: 20em;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -134,11 +134,21 @@ const TabWrapper = styled.div`
     animation: ${TabEntranceKeyFrames} 0.1s ease-in forwards;
 `
 
+interface IChromeDivElement extends HTMLDivElement {
+    scrollIntoViewIfNeeded: (args: { behavior: string; block: string; inline: string }) => void
+}
+
 export class Tab extends React.Component<ITabPropsWithClick> {
-    private _tab: HTMLDivElement
+    private _tab: IChromeDivElement
     public componentWillReceiveProps(next: ITabPropsWithClick) {
         if (next.isSelected && this._tab) {
-            this._tab.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
+            if (this._tab.scrollIntoViewIfNeeded) {
+                this._tab.scrollIntoViewIfNeeded({
+                    behavior: "smooth",
+                    block: "center",
+                    inline: "center",
+                })
+            }
         }
     }
     public render() {
@@ -160,7 +170,7 @@ export class Tab extends React.Component<ITabPropsWithClick> {
         return (
             <Sneakable callback={() => this.props.onClickName()}>
                 <TabWrapper
-                    innerRef={(e: HTMLDivElement) => (this._tab = e)}
+                    innerRef={(e: IChromeDivElement) => (this._tab = e)}
                     className={cssClasses}
                     title={this.props.description}
                     style={style}
@@ -169,13 +179,11 @@ export class Tab extends React.Component<ITabPropsWithClick> {
                         <FileIcon
                             fileName={this.props.iconFileName}
                             isLarge={true}
-                            additionalClassNames={"file-icon-appear-animation"}
+                            playAppearAnimation={true}
                         />
                     </div>
                     <div className="name" onClick={this.props.onClickName}>
-                        <InnerName isLong={this.props.name.length > 50}>
-                            {this.props.name}
-                        </InnerName>
+                        <InnerName>{this.props.name}</InnerName>
                     </div>
                     <div className="corner enable-hover" onClick={this.props.onClickClose}>
                         <div className="icon-container x-icon-container">
@@ -303,7 +311,7 @@ const getTabsFromVimTabs = createSelector(
         allBuffers: State.IBuffer[],
     ) => {
         return tabState.tabs.map((t: State.ITab, idx: number) => ({
-            id: t.id,
+            id: idx + 1,
             name: getIdPrefix((idx + 1).toString(), shouldShowId) + getTabName(t.name),
             highlightColor: t.id === tabState.selectedTabId ? color : "transparent",
             iconFileName: showFileIcon ? getTabName(t.name) : "",

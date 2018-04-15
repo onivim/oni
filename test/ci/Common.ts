@@ -12,15 +12,27 @@ export const getCompletionElement = () => {
     return getElementByClassName("autocompletion")
 }
 
-export const getElementByClassName = (className: string) => {
+export const getCollateralPath = () => {
+    return path.join(__dirname, "..", "..", "..", "test", "collateral")
+}
+
+export const getElementByClassName = (className: string): HTMLElement => {
     const elements = document.body.getElementsByClassName(className)
 
     if (!elements || !elements.length) {
         return null
     } else {
-        return elements[0]
+        return elements[0] as HTMLElement
     }
 }
+
+export const getElementsBySelector = (selector: string) => {
+    const elements = document.body.querySelectorAll(selector)
+    return elements || []
+}
+
+export const getSingleElementBySelector = (selector: string) =>
+    document.body.querySelector(selector)
 
 export const createNewFile = async (
     fileExtension: string,
@@ -57,4 +69,25 @@ export const navigateToFile = async (filePath: string, oni: Oni.Plugin.Api): Pro
         () => oni.editors.activeEditor.activeBuffer.filePath === filePath,
         10000,
     )
+}
+
+export const waitForCommand = async (command: string, oni: Oni.Plugin.Api): Promise<void> => {
+    return oni.automation.waitFor(() => {
+        const anyCommands = oni.commands as any
+        return anyCommands.hasCommand(command)
+    }, 10000)
+}
+
+export async function awaitEditorMode(oni: Oni.Plugin.Api, mode: string): Promise<void> {
+    function condition(): boolean {
+        return oni.editors.activeEditor.mode === mode
+    }
+    await oni.automation.waitFor(condition)
+}
+
+export async function insertText(oni: Oni.Plugin.Api, text: string): Promise<void> {
+    oni.automation.sendKeys("i")
+    await awaitEditorMode(oni, "insert")
+    oni.automation.sendKeys(`${text}<ESC>`)
+    await awaitEditorMode(oni, "normal")
 }

@@ -37,6 +37,7 @@ export const activate = (
         editor: Oni.Editor,
         openCharacterSameAsClosed: boolean,
     ) => () => {
+        Log.verbose("[AutoClosingPairs::handleOpenCharacter] " + pair.open)
         const neovim: NeovimInstance = editor.neovim as any
         neovim.blockInput(async (inputFunc: any) => {
             await checkOpenCharacter(inputFunc, pair, editor, openCharacterSameAsClosed)
@@ -46,6 +47,7 @@ export const activate = (
     }
 
     const handleBackspaceCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
+        Log.verbose("[AutoClosingPairs::handleBackspaceCharacter]")
         const neovim: NeovimInstance = editor.neovim as any
         neovim.blockInput(async (inputFunc: any) => {
             const activeBuffer = editor.activeBuffer
@@ -84,14 +86,14 @@ export const activate = (
     }
 
     const handleEnterCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
+        Log.verbose("[AutoClosingPairs::handleEnterCharacter]")
         const neovim: NeovimInstance = editor.neovim as any
-        neovim.blockInput(async (inputFunc: any) => {
+        editor.blockInput(async (inputFunc: Oni.InputCallbackFunction) => {
             const activeBuffer = editor.activeBuffer
 
-            const lines = await (activeBuffer as any).getLines(
+            const lines = await activeBuffer.getLines(
                 activeBuffer.cursor.line,
                 activeBuffer.cursor.line + 1,
-                false,
             )
             const line = lines[0]
 
@@ -124,13 +126,12 @@ export const activate = (
     }
 
     const handleCloseCharacter = (pair: IAutoClosingPair, editor: Oni.Editor) => () => {
-        const neovim: any = editor.neovim
-        neovim.blockInput(async (inputFunc: any) => {
+        Log.verbose("[AutoClosingPairs::handleCloseCharacter]")
+        editor.blockInput(async (inputFunc: Oni.InputCallbackFunction) => {
             const activeBuffer = editor.activeBuffer
-            const lines = await (activeBuffer as any).getLines(
+            const lines = await activeBuffer.getLines(
                 activeBuffer.cursor.line,
                 activeBuffer.cursor.line + 1,
-                false,
             )
             const line = lines[0]
             if (line[activeBuffer.cursor.column] === pair.close) {
@@ -203,7 +204,7 @@ export const activate = (
         )
     }
 
-    editorManager.activeEditor.onBufferEnter.subscribe(onBufferEnter)
+    editorManager.anyEditor.onBufferEnter.subscribe(onBufferEnter)
 
     const activeEditor = editorManager.activeEditor
     if (activeEditor && activeEditor.activeBuffer) {

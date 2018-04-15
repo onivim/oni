@@ -12,6 +12,7 @@ module.exports = {
         gifshot: "require('gifshot')",
         "msgpack-lite": "require('msgpack-lite')",
         "styled-components": "require('styled-components')",
+        fsevents: "require('fsevents')",
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".less"],
@@ -55,7 +56,6 @@ module.exports = {
         new webpack.DefinePlugin({
             "process.env.NODE_ENV": '"development"',
         }),
-        new webpack.BannerPlugin({ banner: "#! /usr/bin/env node" }),
     ],
     output: {
         path: path.join(__dirname, "..", "lib", "browser"),

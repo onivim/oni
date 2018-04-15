@@ -12,12 +12,12 @@ import * as Oni from "oni-api"
 
 import { createNewFile } from "./Common"
 
-export class TestLayer implements Oni.EditorLayer {
+export class TestLayer implements Oni.BufferLayer {
     public get id(): string {
         return "automation.test.layer"
     }
 
-    public render(context: Oni.EditorLayerRenderContext): JSX.Element {
+    public render(context: Oni.BufferLayerRenderContext): JSX.Element {
         let className = "test-automation-layer "
 
         if (context.isActive) {

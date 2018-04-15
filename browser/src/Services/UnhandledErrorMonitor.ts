@@ -6,7 +6,10 @@
 
 import { Event, IEvent } from "oni-types"
 
+import { Configuration } from "./Configuration"
 import { Notifications } from "./Notifications"
+
+import * as Log from "./../Log"
 
 export class UnhandledErrorMonitor {
     private _onUnhandledErrorEvent = new Event<Error>()
@@ -33,9 +36,12 @@ export class UnhandledErrorMonitor {
             this._onUnhandledRejectionEvent.dispatch(evt.reason)
         })
 
-        window.addEventListener("error", (evt: any) => {
+        window.addEventListener("error", (evt: ErrorEvent) => {
             if (!this._started) {
-                this._queuedErrors.push(evt.error)
+                const hasOccured = this._queuedErrors.find(e => e.name === evt.error.name)
+                if (!hasOccured) {
+                    this._queuedErrors.push(evt.error)
+                }
             }
 
             this._onUnhandledErrorEvent.dispatch(evt.error)
@@ -65,8 +71,13 @@ export const activate = () => {
 
 import { remote } from "electron"
 
-export const start = (notifications: Notifications) => {
+export const start = (configuration: Configuration, notifications: Notifications) => {
     const showError = (title: string, errorText: string) => {
+        if (!configuration.getValue("debug.showNotificationOnError")) {
+            Log.error("Received notification for - " + title + ":" + errorText)
+            return
+        }
+
         const notification = notifications.createItem()
 
         notification.onClick.subscribe(() => {
@@ -80,7 +91,10 @@ export const start = (notifications: Notifications) => {
 
     _unhandledErrorMonitor.onUnhandledError.subscribe(val => {
         const errorText = val ? val.toString() : "Open the debugger for more details."
-        showError("Unhandled Exception", errorText + "\nPlease report this error.")
+        showError(
+            "Unhandled Exception",
+            errorText + "\nPlease report this error. Callstack: " + val.stack,
+        )
     })
 
     _unhandledErrorMonitor.onUnhandledRejection.subscribe(val => {

@@ -106,19 +106,13 @@ function OniGetEachContext(bufnum)
 endif
 endfunction
 
-function OniCommand(oniCommand)
-    call OniNotify(["oni_command", a:oniCommand])
-endfunction
+function OniCommand(oniCommand, ...)
+    let l:function_command_and_args = {}
+    let l:function_command_and_args.command = a:oniCommand
+    let l:function_command_and_args.args = a:000
 
-function OniOpenFile(strategy, file)
-     if bufname('%') != ''
-         exec a:strategy . a:file
-     elseif &modified
-         exec a:strategy . a:file
-     else
-         exec ":e " . a:file
-     endif
- endfunction
+    call OniNotify(["oni_command", l:function_command_and_args])
+endfunction
 
 augroup OniClipboard
     autocmd!
@@ -131,7 +125,7 @@ augroup OniEventListeners
     autocmd! BufWritePost * :call OniNotifyEvent("BufWritePost")
     autocmd! BufEnter * :call OniNotifyWithBuffers("BufEnter")
     autocmd! BufRead * :call OniNotifyWithBuffers("BufRead")
-    autocmd! BufWinEnter * :call OniNotifyEvent("BufWinEnter")
+    autocmd! BufWinEnter * :call OniNotifyWithBuffers("BufWinEnter")
     autocmd! ColorScheme * :call OniNotifyEvent("ColorScheme")
     autocmd! FileType * :call OniNotifyEvent("FileType")
     autocmd! WinEnter * :call OniNotifyEvent("WinEnter")
@@ -173,7 +167,7 @@ let context.windowTopLine = line("w0")
 let context.windowBottomLine = line("w$")
 let context.windowWidth = winwidth(winnr())
 let context.windowHeight = winheight(winnr())
-let context.byte = line2byte(line(".")) + col(".")
+let context.byte = line2byte (line ( "." ) ) + col ( "." ) - 1
 let context.filetype = eval("&filetype")
 let context.modified = &modified
 let context.hidden = &hidden
@@ -243,3 +237,8 @@ nnoremap <silent> <C-w><C-h> :<C-u>call OniNextWindow('h')<CR>
 nnoremap <silent> <C-w><C-j> :<C-u>call OniNextWindow('j')<CR>
 nnoremap <silent> <C-w><C-k> :<C-u>call OniNextWindow('k')<CR>
 nnoremap <silent> <C-w><C-l> :<C-u>call OniNextWindow('l')<CR>
+
+nnoremap <silent> <C-w><s> :<C-u>call OniCommand('editor.split.horizontal')<CR>)
+nnoremap <silent> <C-w><C-s> :<C-u>call OniCommand('editor.split.horizontal')<CR>)
+nnoremap <silent> <C-w><v> :<C-u>call OniCommand('editor.split.vertical')<CR>)
+nnoremap <silent> <C-w><C-v> :<C-u>call OniCommand('editor.split.vertical')<CR>)

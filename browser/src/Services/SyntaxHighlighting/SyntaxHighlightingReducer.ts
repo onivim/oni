@@ -113,6 +113,7 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
                 dirty: false,
                 tokens: action.tokens,
                 ruleStack: action.ruleStack,
+                version: action.version,
             }
 
             const nextLine = newState[action.lineNumber + 1]
@@ -133,7 +134,10 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
                 const oldLine = updatedBufferState[i]
                 const newLine = action.lines[i]
 
-                if (oldLine && oldLine.line === newLine) {
+                // check if the buffer version has changed and if so
+                // update the line - rather than check if specific line
+                // is changed
+                if (oldLine && oldLine.version >= action.version) {
                     continue
                 }
 

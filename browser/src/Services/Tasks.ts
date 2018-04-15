@@ -66,6 +66,10 @@ export class Tasks {
     }
 
     private async _onItemSelected(selectedOption: Oni.Menu.MenuOption): Promise<void> {
+        if (!selectedOption) {
+            return
+        }
+
         const { label, detail } = selectedOption
 
         const selectedTask = find(this._lastTasks, t => t.name === label && t.detail === detail)

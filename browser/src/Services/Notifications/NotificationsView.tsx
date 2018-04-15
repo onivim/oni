@@ -8,20 +8,24 @@ import * as React from "react"
 
 import { connect, Provider } from "react-redux"
 
-import styled, { keyframes } from "styled-components"
-
 import { CSSTransition, TransitionGroup } from "react-transition-group"
 
-import { INotification, INotificationsState } from "./NotificationStore"
+import {
+    INotification,
+    INotificationButton,
+    INotificationsState,
+    NotificationLevel,
+} from "./NotificationStore"
 
-import { boxShadow } from "./../../UI/components/common"
+import { boxShadow, keyframes, lighten, styled, withProps } from "./../../UI/components/common"
+import { Sneakable } from "./../../UI/components/Sneakable"
 import { Icon, IconSize } from "./../../UI/Icon"
 
 export interface NotificationsViewProps {
     notifications: INotification[]
 }
 
-const Transition = (props: { children: any }) => {
+const Transition = (props: { children: React.ReactNode }) => {
     return (
         <CSSTransition {...props} timeout={1000} classNames="notification">
             {props.children}
@@ -33,6 +37,14 @@ const NotificationsWrapper = styled.div`
     position: absolute;
     top: 16px;
     right: 16px;
+    max-height: 90%;
+    max-width: 25rem;
+    pointer-events: all;
+    overflow: auto;
+
+    .notification:first-child {
+        margin-top: 0;
+    }
 `
 
 export class NotificationsView extends React.PureComponent<NotificationsViewProps, {}> {
@@ -58,15 +70,35 @@ const frames = keyframes`
     100% { opacity: 1; transform: translateY(0px); }
 `
 
-const NotificationWrapper = styled.div`
-    background-color: red;
-    color: white;
-    width: 20em;
+interface IErrorStyles {
+    level?: NotificationLevel
+}
 
-    margin: 1em;
+const getColorForErrorLevel = (level: NotificationLevel) => {
+    const colorToLevel = {
+        warn: "yellow",
+        error: "red",
+        info: "#1D7CF2", // blue
+        success: "#5AB379", // green
+    }
+
+    return colorToLevel[level]
+}
+
+const NotificationWrapper = withProps<IErrorStyles>(styled.div)`
+    background-color: ${p => p.theme["toolTip.background"]};
+    border-radius: 4px;
+    border-left: solid 4px ${p => getColorForErrorLevel(p.level)};
+    padding: 0 1rem 1rem;
+    color: white;
+    margin: 1rem 0 1rem 1rem;
+    ${boxShadow};
+
+    max-height: 50%;
 
     display: flex;
-    flex-direction: row;
+    flex: auto;
+    flex-direction: column;
 
     justify-content: center;
     align-items: center;
@@ -86,15 +118,24 @@ const NotificationWrapper = styled.div`
     }
 
     &:hover {
-        ${boxShadow};
         transform: translateY(-1px);
     }
 `
 
-const NotificationIconWrapper = styled.div`
-    flex: 0 0 auto;
+const IconContainer = styled.div`
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+`
 
-    padding: 16px;
+const NotificationIconWrapper = withProps<IErrorStyles>(styled.div)`
+    ${({ level }) => level && `color: ${getColorForErrorLevel(level)};`};
+    flex: 0 0 auto;
+    align-self: flex-start;
+
+    padding: 8px;
 
     &:hover {
         ${boxShadow};
@@ -102,8 +143,9 @@ const NotificationIconWrapper = styled.div`
     }
 `
 
-const NotificationContents = styled.div`
+export const NotificationContents = styled.div`
     flex: 1 1 auto;
+    width: 100%;
 
     display: flex;
     flex-direction: column;
@@ -113,19 +155,18 @@ const NotificationContents = styled.div`
 
     overflow-y: auto;
     overflow-x: hidden;
-    height: 100%;
 `
 
-const NotificationTitle = styled.div`
+export const NotificationTitle = withProps<IErrorStyles>(styled.div)`
+    ${({ level }) => level && `color: ${getColorForErrorLevel(level)};`};
     flex: 0 0 auto;
-
+    width: 100%;
+    word-break: break-word;
     font-weight: bold;
     font-size: 1.1em;
-
-    margin-top: 0.5em;
 `
 
-const NotificationDescription = styled.div`
+export const NotificationDescription = styled.div`
     flex: 1 1 auto;
     overflow-y: auto;
     overflow-x: hidden;
@@ -134,31 +175,112 @@ const NotificationDescription = styled.div`
     font-size: 0.9em;
 `
 
-// export interface NotificationViewProps extends INotification { }
+const NotificationHeader = styled.header`
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid ${p => p.theme["toolTip.border"]};
+    padding: 0.5rem;
+`
+
+const ButtonRow = styled.div`
+    width: 100%;
+    height: 10%;
+    display: flex;
+    justify-content: flex-end;
+`
+
+export const Button = styled.button`
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    overflow: hidden;
+    min-width: 5em;
+    min-height: 2em;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: inherit;
+    display: inline-block;
+    margin: 0 0.5em;
+    ${boxShadow};
+    ${({ theme }) => `
+        background-color: ${lighten(theme["editor.background"], 0.25)};
+        color: ${theme["editor.foreground"]};
+    `};
+`
+
+interface IButtonProps {
+    buttons: INotificationButton[]
+    onClose: () => void
+}
+
+const Buttons = ({ buttons, onClose }: IButtonProps) => {
+    const executeThenClose = (callback: (args?: any) => void) => () => {
+        callback()
+        onClose()
+    }
+    return (
+        <ButtonRow data-test="notification-buttons">
+            {buttons.map(({ callback, title }, index) => (
+                <Sneakable key={`${title}-${index}`} callback={executeThenClose(callback)}>
+                    <Button data-test={`notification-${title.toLowerCase()}`} onClick={callback}>
+                        {title}
+                    </Button>
+                </Sneakable>
+            ))}
+        </ButtonRow>
+    )
+}
 
 export class NotificationView extends React.PureComponent<INotification, {}> {
+    private iconDictionary = {
+        error: "times-circle",
+        warn: "exclamation-triangle",
+        info: "info-circle",
+        success: "check-circle",
+    }
+
     public render(): JSX.Element {
+        const { level, buttons } = this.props
         return (
             <NotificationWrapper
+                data-test="notification"
                 key={this.props.id}
                 onClick={this.props.onClick}
                 className="notification"
+                level={level}
             >
-                <NotificationIconWrapper>
-                    <Icon size={IconSize.Large} name="exclamation-triangle" />
-                </NotificationIconWrapper>
+                <NotificationHeader>
+                    <IconContainer>
+                        <NotificationIconWrapper level={level}>
+                            <Sneakable callback={this.props.onClick}>
+                                <Icon size={IconSize.Large} name={this.iconDictionary[level]} />
+                            </Sneakable>
+                        </NotificationIconWrapper>
+                        <NotificationIconWrapper onClick={evt => this._onClickClose(evt)}>
+                            <Sneakable callback={this.props.onClose}>
+                                <Icon size={IconSize.Large} name="times" />
+                            </Sneakable>
+                        </NotificationIconWrapper>
+                    </IconContainer>
+                    <NotificationTitle data-test="notification-title" level={level}>
+                        {this.props.title}
+                    </NotificationTitle>
+                </NotificationHeader>
                 <NotificationContents>
-                    <NotificationTitle>{this.props.title}</NotificationTitle>
-                    <NotificationDescription>{this.props.detail}</NotificationDescription>
+                    <NotificationDescription className="notification-description">
+                        {this.props.detail}
+                    </NotificationDescription>
                 </NotificationContents>
-                <NotificationIconWrapper onClick={evt => this._onClickClose(evt)}>
-                    <Icon size={IconSize.Large} name="times" />
-                </NotificationIconWrapper>
+                {buttons && <Buttons onClose={this.props.onClose} buttons={buttons} />}
             </NotificationWrapper>
         )
     }
 
-    private _onClickClose(evt: React.MouseEvent<HTMLElement>): void {
+    private _onClickClose = (evt: React.MouseEvent<HTMLElement>): void => {
         this.props.onClose()
         evt.stopPropagation()
         evt.preventDefault()

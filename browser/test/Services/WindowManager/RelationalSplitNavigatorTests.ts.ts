@@ -9,15 +9,7 @@ import {
     SingleSplitProvider,
 } from "./../../../src/Services/WindowManager"
 
-export class MockWindowSplit {
-    public get id(): string {
-        return "mock.window"
-    }
-
-    public render(): JSX.Element {
-        return null
-    }
-}
+import { MockWindowSplit } from "./../../Mocks"
 
 describe("RelationalSplitNavigator", () => {
     let splitProvider: RelationalSplitNavigator

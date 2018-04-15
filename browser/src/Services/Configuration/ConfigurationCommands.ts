@@ -18,9 +18,16 @@ export const activate = (
     const configurationEditManager = new ConfigurationEditManager(configuration, editorManager)
 
     commandManager.registerCommand({
-        command: "oni.config.openConfigJs",
+        command: "oni.config.openUserConfig",
         name: "Configuration: Edit User Config",
         detail: "Edit user configuration file for Oni",
+        execute: () => configurationEditManager.editConfiguration(getUserConfigFilePath()),
+    })
+
+    commandManager.registerCommand({
+        command: "oni.config.openConfigJs",
+        name: null,
+        detail: null,
         execute: () => configurationEditManager.editConfiguration(getUserConfigFilePath()),
     })
 }

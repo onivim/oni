@@ -5,16 +5,21 @@
  */
 
 import * as React from "react"
-import styled from "styled-components"
 
-import { withProps } from "./common"
+import { styled, withProps } from "./common"
+
+import { Sneakable } from "./../../UI/components/Sneakable"
 
 export interface ISidebarItemViewProps {
+    isOver?: boolean
+    canDrop?: boolean
+    didDrop?: boolean
     text: string | JSX.Element
     isFocused: boolean
-    isContainer: boolean
+    isContainer?: boolean
     indentationLevel: number
     icon?: JSX.Element
+    onClick: (e: React.MouseEvent<HTMLElement>) => void
 }
 
 const px = (num: number): string => num.toString() + "px"
@@ -26,6 +31,7 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
             ? "4px solid " + props.theme["highlight.mode.normal.background"]
             : "4px solid transparent"};
 
+    ${p => p.isOver && `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -33,6 +39,9 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
     padding-top: 4px;
     padding-bottom: 4px;
     position: relative;
+
+    cursor: pointer;
+    pointer-events: all;
 
     .icon {
         flex: 0 0 auto;
@@ -74,22 +83,39 @@ export class SidebarItemView extends React.PureComponent<ISidebarItemViewProps, 
     public render(): JSX.Element {
         const icon = this.props.icon ? <div className="icon">{this.props.icon}</div> : null
         return (
-            <SidebarItemStyleWrapper {...this.props} className="item">
-                <SidebarItemBackground {...this.props} />
-                {icon}
-                <div className="name">{this.props.text}</div>
-            </SidebarItemStyleWrapper>
+            <Sneakable callback={this.props.onClick}>
+                <SidebarItemStyleWrapper
+                    {...this.props}
+                    className="item"
+                    onClick={this.props.onClick}
+                >
+                    <SidebarItemBackground {...this.props} />
+                    {icon}
+                    <div className="name">{this.props.text}</div>
+                </SidebarItemStyleWrapper>
+            </Sneakable>
         )
     }
 }
 
-export interface ISidebarContainerViewProps {
+export interface ISidebarContainerViewProps extends IContainerProps {
+    didDrop?: boolean
     text: string
     isExpanded: boolean
     isFocused: boolean
     indentationLevel?: number
     isContainer?: boolean
+    onClick: (e: React.MouseEvent<HTMLElement>) => void
 }
+
+interface IContainerProps {
+    isOver?: boolean
+    canDrop?: boolean
+}
+
+const SidebarContainer = withProps<IContainerProps>(styled.div)`
+    ${p => p.isOver && `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
+`
 
 export class SidebarContainerView extends React.PureComponent<ISidebarContainerViewProps, {}> {
     public render(): JSX.Element {
@@ -101,16 +127,18 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
         const indentationlevel = this.props.indentationLevel || 0
 
         return (
-            <div>
+            <SidebarContainer canDrop={this.props.canDrop} isOver={this.props.isOver}>
                 <SidebarItemView
+                    didDrop={this.props.didDrop}
                     indentationLevel={indentationlevel}
                     icon={icon}
                     text={this.props.text}
                     isFocused={this.props.isFocused}
                     isContainer={this.props.isContainer}
+                    onClick={this.props.onClick}
                 />
                 {this.props.isExpanded ? this.props.children : null}
-            </div>
+            </SidebarContainer>
         )
     }
 }

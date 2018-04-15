@@ -10,11 +10,11 @@ import * as path from "path"
 
 import * as Oni from "oni-api"
 
-import { INeovimInstance } from "./../../neovim"
-
-import { commandManager } from "./../CommandManager"
+import { CommandManager } from "./../CommandManager"
 import { configuration } from "./../Configuration"
-import { editorManager } from "./../EditorManager"
+import { EditorManager } from "./../EditorManager"
+import { Workspace } from "./../Workspace"
+
 import { fuseFilter, Menu, MenuManager } from "./../Menu"
 
 import { FinderProcess } from "./FinderProcess"
@@ -22,6 +22,7 @@ import { render as renderPinnedIcon } from "./PinnedIconView"
 import { QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
 import { regexFilter } from "./RegExFilter"
 import * as RipGrep from "./RipGrep"
+import { vsCodeFilter } from "./VSCodeFilter"
 
 import { getFileIcon } from "./../FileIcon"
 
@@ -29,13 +30,15 @@ export class QuickOpen {
     private _finderProcess: FinderProcess
     private _seenItems: string[] = []
     private _loadedItems: QuickOpenItem[] = []
-    private _neovimInstance: INeovimInstance
     private _menu: Menu
     private _lastCommand: string | null = null
 
-    constructor(menuManager: MenuManager, neovimInstance: INeovimInstance) {
-        this._neovimInstance = neovimInstance
-
+    constructor(
+        private _commandManager: CommandManager,
+        private _editorManager: EditorManager,
+        menuManager: MenuManager,
+        private _workspace: Workspace,
+    ) {
         this._menu = menuManager.create()
         this._menu.onItemSelected.subscribe((selectedItem: any) => {
             this._onItemSelected(selectedItem)
@@ -60,24 +63,10 @@ export class QuickOpen {
         return this._menu && this._menu.isOpen()
     }
 
-    public openFileNewTab(): void {
+    public openFile(openFileMode: Oni.FileOpenMode = Oni.FileOpenMode.NewTab): void {
         const selectedItem = this._menu.selectedItem
         if (selectedItem) {
-            this._onItemSelected(selectedItem, ":tabnew")
-        }
-    }
-
-    public openFileHorizontal(): void {
-        const selectedItem = this._menu.selectedItem
-        if (selectedItem) {
-            this._onItemSelected(selectedItem, ":sp")
-        }
-    }
-
-    public openFileVertical(): void {
-        const selectedItem = this._menu.selectedItem
-        if (selectedItem) {
-            this._onItemSelected(selectedItem, ":vsp")
+            this._onItemSelected(selectedItem, openFileMode)
         }
     }
 
@@ -89,10 +78,18 @@ export class QuickOpen {
 
         const filterStrategy = configuration.getValue("editor.quickOpen.filterStrategy")
 
-        const useRegExFilter = filterStrategy === "regex"
-
-        const filterFunction = useRegExFilter ? regexFilter : fuseFilter
-        this._menu.setFilterFunction(filterFunction)
+        switch (filterStrategy) {
+            case "fuse":
+                this._menu.setFilterFunction(fuseFilter)
+                break
+            case "regex":
+                this._menu.setFilterFunction(regexFilter)
+                break
+            case "vscode":
+            default:
+                this._menu.setFilterFunction(vsCodeFilter)
+                break
+        }
 
         //  If in exec directory or home, show bookmarks to change cwd to
         if (this._isInstallDirectoryOrHome()) {
@@ -122,7 +119,7 @@ export class QuickOpen {
     public async showBufferLines() {
         let nu = 0
 
-        const currentLines = await editorManager.activeEditor.activeBuffer.getLines()
+        const currentLines = await this._editorManager.activeEditor.activeBuffer.getLines()
 
         const options = currentLines.map((line: string) => {
             return {
@@ -199,27 +196,44 @@ export class QuickOpen {
         }
     }
 
-    private _onItemSelected(selectedOption: Oni.Menu.MenuOption, openInSplit: string = ":e"): void {
+    private async _onItemSelected(
+        selectedOption: Oni.Menu.MenuOption,
+        openInSplit: Oni.FileOpenMode = Oni.FileOpenMode.Edit,
+    ): Promise<void> {
+        if (!selectedOption) {
+            return
+        }
+
         const arg = selectedOption
 
         if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bookmarkHelp)) {
-            commandManager.executeCommand("oni.config.openConfigJs")
+            this._commandManager.executeCommand("oni.config.openConfigJs")
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folderHelp)) {
-            commandManager.executeCommand("oni.openFolder")
+            this._commandManager.executeCommand("oni.openFolder")
         } else if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.bufferLine)) {
-            if (openInSplit !== "e") {
-                this._neovimInstance.command(openInSplit + "!")
+            if (openInSplit !== Oni.FileOpenMode.Edit) {
+                await this._editorManager.openFile(
+                    this._editorManager.activeEditor.activeBuffer.filePath,
+                    {
+                        openMode: openInSplit,
+                    },
+                )
             }
-            this._neovimInstance.command(`${arg.label}`)
+            await this._editorManager.activeEditor.neovim.command(`${arg.label}`)
         } else {
-            let fullPath = path.join(arg.detail, arg.label)
+            const { activeWorkspace } = this._workspace
+            const pathArgs = activeWorkspace
+                ? [activeWorkspace, arg.detail, arg.label]
+                : [arg.detail, arg.label]
+
+            let fullPath = path.join(...pathArgs)
 
             this._seenItems.push(fullPath)
 
-            this._neovimInstance.command(openInSplit + "! " + fullPath)
+            await this._editorManager.openFile(fullPath, { openMode: openInSplit })
 
             if (arg.icon === QuickOpenItem.convertTypeToIcon(QuickOpenType.folder)) {
-                this._neovimInstance.chdir(fullPath)
+                this._workspace.changeDirectory(fullPath)
             }
 
             // If we are bookmark, and we open a file, the open it's dirname
@@ -232,9 +246,9 @@ export class QuickOpen {
                 )
 
                 if (lstatSync(fullPath).isDirectory()) {
-                    this._neovimInstance.chdir(fullPath)
+                    this._workspace.changeDirectory(fullPath)
                 } else {
-                    this._neovimInstance.chdir(arg.detail)
+                    this._workspace.changeDirectory(arg.detail)
                 }
             }
         }

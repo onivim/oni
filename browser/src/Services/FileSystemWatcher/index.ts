@@ -29,7 +29,7 @@ export class FSWatcher {
     private _onMove = new Event<IFileChangeEvent>()
     private _onChange = new Event<IFileChangeEvent>()
 
-    constructor({ options, target }: IFSOptions) {
+    constructor({ options, target }: IFSOptions = {}) {
         this._workspace = Workspace.getInstance()
         this._activeWorkspace = this._workspace.activeWorkspace
         const fileOrFolder = target || this._activeWorkspace
@@ -50,16 +50,17 @@ export class FSWatcher {
     }
 
     private _attachEventListeners(dir?: boolean) {
+        console.log("Attaching Listeners =========================")
         this._watcher.on("add", path => {
             Log.info(`File ${path} has been added`)
             return this._onAdd.dispatch(path)
         })
         this._watcher.on("change", path => {
-            Log.info(`File ${path} has been change`)
+            Log.info(`File ${path} has been changed`)
             return this._onChange.dispatch(path)
         })
         this._watcher.on("move", path => {
-            Log.info(`File ${path} has been move`)
+            Log.info(`File ${path} has been moved`)
             return this._onMove.dispatch(path)
         })
         if (dir) {
@@ -90,3 +91,5 @@ export class FSWatcher {
         return this._onAddDir
     }
 }
+
+export default new FSWatcher()

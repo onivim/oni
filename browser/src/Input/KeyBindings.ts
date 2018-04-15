@@ -84,13 +84,15 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     // QuickOpen
     input.bind("<C-/>", "quickOpen.showBufferLines", isNormalMode)
-    input.bind(["<c-enter", "<C-v>"], "quickOpen.openFileVertical")
-    input.bind(["<s-enter", "<C-s>"], "quickOpen.openFileHorizontal")
+    input.bind(["<C-v>"], "quickOpen.openFileVertical")
+    input.bind(["<C-s>"], "quickOpen.openFileHorizontal")
     input.bind("<C-t>", "quickOpen.openFileNewTab")
+    input.bind(["<C-enter>"], "quickOpen.openFileExistingTab")
 
     // Snippets
     input.bind("<tab>", "snippet.nextPlaceholder")
     input.bind("<s-tab>", "snippet.previousPlaceholder")
+    input.bind("<esc>", "snippet.cancel")
 
     // Completion
     input.bind(["<enter>"], "contextMenu.select")
@@ -116,4 +118,9 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind(["<esc>", "<c-c>"], "sneak.hide")
 
     input.bind("<s-c-b>", "sidebar.toggle", isNormalMode)
+
+    input.bind("k", "browser.scrollUp")
+    input.bind("j", "browser.scrollDown")
+    input.bind("h", "browser.scrollLeft")
+    input.bind("l", "browser.scrollRight")
 }

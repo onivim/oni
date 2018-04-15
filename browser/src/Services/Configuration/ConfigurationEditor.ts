@@ -14,6 +14,7 @@ import * as Log from "./../../Log"
 import { EditorManager } from "./../EditorManager"
 
 import { Configuration } from "./Configuration"
+import { DefaultConfiguration } from "./DefaultConfiguration"
 
 // For configuring Oni, JavaScript is the de-facto language, and the configuration
 // today will _always_ happen through `config.js`
@@ -71,7 +72,7 @@ export class ConfigurationEditManager {
     private _fileToEditor: { [filePath: string]: IConfigurationEditInfo } = {}
 
     constructor(private _configuration: Configuration, private _editorManager: EditorManager) {
-        this._editorManager.activeEditor.onBufferSaved.subscribe(evt => {
+        this._editorManager.anyEditor.onBufferSaved.subscribe(evt => {
             const activeEditingSession = this._fileToEditor[evt.filePath]
 
             if (activeEditingSession) {
@@ -88,6 +89,7 @@ export class ConfigurationEditManager {
     }
 
     public async editConfiguration(configFile: string): Promise<void> {
+        Log.info("[ConfigurationEditManager::editConfiguration]: " + configFile)
         const editor = this._configuration.editor
         const editFile = await editor.editConfiguration(configFile)
 
@@ -105,7 +107,39 @@ export class ConfigurationEditManager {
             }
         }
 
-        this._editorManager.activeEditor.openFile(normalizedEditFile)
+        const showReferenceBuffer = this._configuration.getValue(
+            "configuration.showReferenceBuffer",
+        )
+
+        if (showReferenceBuffer) {
+            // Create the buffer with the list of all the available options
+            await this._createReadonlyReferenceBuffer()
+
+            // Open the actual configuration file
+            await this._editorManager.activeEditor.openFile(normalizedEditFile, {
+                openMode: Oni.FileOpenMode.VerticalSplit,
+            })
+        } else {
+            await this._editorManager.activeEditor.openFile(normalizedEditFile, {
+                openMode: Oni.FileOpenMode.Edit,
+            })
+        }
+    }
+
+    private async _createReadonlyReferenceBuffer() {
+        const referenceBuffer = await this._editorManager.activeEditor.openFile("reference", {
+            openMode: Oni.FileOpenMode.NewTab,
+        })
+
+        // Format the default configuration values as a pretty JSON object, then
+        // set it as the reference buffer content
+        const referenceContent = JSON.stringify(DefaultConfiguration, null, "  ")
+        await Promise.all([
+            referenceBuffer.setLines(0, 1, referenceContent.split("\n")),
+            // FIXME: needs to be added to the Oni.Buffers API
+            (referenceBuffer as any).setLanguage("json"),
+            (referenceBuffer as any).setScratchBuffer(),
+        ])
     }
 
     private async _transpileConfiguration(
