@@ -157,6 +157,8 @@ describe("ExplorerStore", () => {
             moveNodesBack: async collection => null,
         } as ExplorerFileSystem.IFileSystem
 
+        const notifications = {} as Notifications
+
         it("dispatches a clear register action after a minute", async () => {
             epicStore.dispatch({ type: "YANK", target })
             const actions = epicStore.getActions()
@@ -189,7 +191,7 @@ describe("ExplorerStore", () => {
 
             ExplorerState.pasteEpic(action$, null, {
                 fileSystem: fs,
-                notifications: {} as any,
+                notifications,
             })
                 .toArray()
                 .subscribe(actualActions => {
@@ -211,7 +213,7 @@ describe("ExplorerStore", () => {
                 { type: "REFRESH" },
             ]
 
-            ExplorerState.deleteEpic(action$, null, { fileSystem: fs, notifications: {} as any })
+            ExplorerState.deleteEpic(action$, null, { fileSystem: fs, notifications })
                 .toArray()
                 .subscribe(actualActions => {
                     assert.deepEqual(actualActions, expected)
@@ -234,7 +236,7 @@ describe("ExplorerStore", () => {
                         throw new Error("Doesnt work")
                     },
                 },
-                notifications: {} as any,
+                notifications,
             })
                 .toArray()
                 .subscribe(actualActions => {
@@ -259,7 +261,7 @@ describe("ExplorerStore", () => {
             const undoState = mockStore(state)
             const expected = [{ type: "UNDO_SUCCESS" }, { type: "REFRESH" }]
 
-            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications: {} as any })
+            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications })
                 .toArray()
                 .subscribe(actualActions => {
                     assert.deepEqual(actualActions, expected)
@@ -287,7 +289,7 @@ describe("ExplorerStore", () => {
                 { type: "REFRESH" },
             ]
 
-            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications: {} as any })
+            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications })
                 .toArray()
                 .subscribe(actualActions => {
                     assert.deepEqual(actualActions, expected)
@@ -315,7 +317,7 @@ describe("ExplorerStore", () => {
                 { type: "REFRESH" },
             ]
 
-            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications: {} as any })
+            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications })
                 .toArray()
                 .subscribe(actualActions => {
                     assert.deepEqual(actualActions, expected)
@@ -344,7 +346,7 @@ describe("ExplorerStore", () => {
                 } as ExplorerState.IUndoFailAction,
             ]
 
-            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications: {} as any })
+            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications })
                 .toArray()
                 .subscribe(actualActions => {
                     assert.deepEqual(actualActions, expected)
@@ -362,7 +364,7 @@ describe("ExplorerStore", () => {
 
             ExplorerState.clearUpdateEpic(action$, null, {
                 fileSystem: fs,
-                notifications: {} as any,
+                notifications,
             })
                 .toArray()
                 .subscribe(actualActions => {

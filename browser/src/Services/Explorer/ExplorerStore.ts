@@ -11,7 +11,10 @@ import * as path from "path"
 
 import { Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
-import { Observable } from "rxjs"
+
+import { forkJoin } from "rxjs/observable/forkJoin"
+import { fromPromise } from "rxjs/observable/fromPromise"
+import { timer } from "rxjs/observable/timer"
 
 import * as Log from "./../../Log"
 import { createStore as createReduxStore } from "./../../Redux"
@@ -215,10 +218,8 @@ export type ExplorerAction =
     | IUndoFailAction
 
 // Helper functions for Updating state ========================================================
-export const removePastedNode = (nodeArray: ExplorerNode[], ids: string[]): ExplorerNode[] => {
-    const difference = nodeArray.filter(node => !ids.includes(node.id))
-    return difference
-}
+export const removePastedNode = (nodeArray: ExplorerNode[], ids: string[]): ExplorerNode[] =>
+    nodeArray.filter(node => !ids.includes(node.id))
 
 export const removeUndoItem = (undoArray: RegisterAction[]): RegisterAction[] =>
     undoArray.slice(0, undoArray.length - 1)
@@ -233,28 +234,23 @@ const getSourceAndDestPaths = (source: ExplorerNode, dest: ExplorerNode) => {
 // Do not add un-undoable action to the undo list
 export const shouldAddDeletion = (action: IDeleteSuccessAction) => (action.persist ? [action] : [])
 
-const getUpdatedPasteNode = (action: IPasteAction) =>
-    action.pasted
-        .map(node => getSourceAndDestPaths(node, action.target))
-        .map(node => node.destination)
-
-const getUpdatedDeleteNode = (action: IDeleteSuccessAction) => [getPathForNode(action.target)]
-
-type Updates = IPasteAction | IDeleteSuccessAction | IUndoSuccessAction
+type Updates = IPasteSuccessAction | IDeleteSuccessAction | IUndoSuccessAction
 
 export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[] => {
     switch (action.type) {
-        case "PASTE":
-            return getUpdatedPasteNode(action)
+        case "PASTE_SUCCESS":
+            return action.moved.map(node => node.destination)
         case "DELETE_SUCCESS":
-            return getUpdatedDeleteNode(action)
+            return [getPathForNode(action.target)]
         case "UNDO_SUCCESS":
             const lastAction = last(state.undo)
+
             if (lastAction.type === "DELETE_SUCCESS") {
-                return getUpdatedDeleteNode(lastAction)
+                return [getPathForNode(lastAction.target)]
             } else if (lastAction.type === "PASTE") {
                 return lastAction.pasted.map(node => getPathForNode(node))
             }
+
             return []
         default:
             return []
@@ -347,12 +343,12 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                 ...state,
                 paste: action.target,
                 undo: [...state.undo, action],
+            }
+        case "PASTE_SUCCESS":
+            return {
+                ...state,
                 updated: getUpdatedNode(action),
             }
-        // case "PASTE_SUCCESS":
-        //     return {
-        //         ...state,
-        //     }
         case "UNDO_SUCCESS":
             return {
                 ...state,
@@ -545,7 +541,7 @@ export const pasteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         const ids = pasted.map(item => item.id)
         const clearRegister = Actions.clearRegister(ids)
 
-        return Observable.forkJoin(
+        return forkJoin(
             pasted.map(async yankedItem => {
                 const { source, destination } = getSourceAndDestPaths(yankedItem, target)
                 await fileSystem.move(source, destination)
@@ -581,7 +577,7 @@ export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
             case "PASTE":
                 const { pasted, target: dir, sources } = lastAction
                 const filesAndFolders = pasted.map(file => getSourceAndDestPaths(file, dir))
-                return Observable.fromPromise(fileSystem.moveNodesBack(filesAndFolders))
+                return fromPromise(fileSystem.moveNodesBack(filesAndFolders))
                     .flatMap(() => successActions(sources))
                     .catch(error => {
                         Log.warn(error)
@@ -591,7 +587,7 @@ export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
             case "DELETE_SUCCESS":
                 const { target } = lastAction
                 return lastAction.persist
-                    ? Observable.fromPromise(fileSystem.restoreNode(getPathForNode(target)))
+                    ? fromPromise(fileSystem.restoreNode(getPathForNode(target)))
                           .flatMap(() => successActions([target]))
                           .catch(error => {
                               Log.warn(error)
@@ -606,15 +602,15 @@ export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
 export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("DELETE").mergeMap((action: IDeleteAction) => {
         const { target, persist } = action
-        const fullPath = getPathForNode(target)
+        const filepath = getPathForNode(target)
         const maxSize = configuration.getValue("explorer.maxUndoFileSizeInBytes")
         const persistEnabled = configuration.getValue("explorer.persistDeletedFiles")
-        const persistPromise = fileSystem.canPersistNode(fullPath, maxSize)
+        const persistPromise = fileSystem.canPersistNode(filepath, maxSize)
 
-        return Observable.fromPromise(persistPromise).flatMap(canPersistNode =>
-            Observable.fromPromise(
+        return fromPromise(persistPromise).flatMap(canPersistNode =>
+            fromPromise(
                 persistEnabled && persist && canPersistNode
-                    ? fileSystem.persistNode(fullPath)
+                    ? fileSystem.persistNode(filepath)
                     : fileSystem.deleteNode(target),
             )
                 .flatMap(() => [Actions.deleteSuccess(target, persist), Actions.refresh])
@@ -628,13 +624,13 @@ export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
 export const clearYankRegisterEpic: ExplorerEpic = (action$, store) =>
     action$.ofType("YANK").mergeMap((action: IYankAction) => {
         const oneMinute = 60_000
-        return Observable.timer(oneMinute).mapTo(Actions.clearRegister([action.target.id]))
+        return timer(oneMinute).mapTo(Actions.clearRegister([action.target.id]))
     })
 
 export const clearUpdateEpic: ExplorerEpic = (action$, store) =>
     action$
         .ofType("PASTE_SUCCESS", "UNDO_SUCCESS", "DELETE_SUCCESS")
-        .mergeMap(() => Observable.timer(2_000).mapTo(Actions.clearUpdate))
+        .mergeMap(() => timer(2_000).mapTo(Actions.clearUpdate))
 
 const refreshEpic: ExplorerEpic = (action$, store) =>
     action$.ofType("REFRESH").mergeMap(() => {
