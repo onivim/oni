@@ -60,7 +60,6 @@ export class Oni implements OniApi.Plugin.Api {
     private _dependencies: Dependencies
     private _ui: Ui
     private _services: Services
-    private _colors: Colors
 
     public get achievements(): any /* TODO: Promote to API */ {
         return getAchievementsInstance()
@@ -71,7 +70,7 @@ export class Oni implements OniApi.Plugin.Api {
     }
 
     public get colors(): Colors /* TODO: Promote to API */ {
-        return this._colors
+        return getColors()
     }
 
     public get commands(): OniApi.Commands.Api {
@@ -179,8 +178,6 @@ export class Oni implements OniApi.Plugin.Api {
     }
 
     constructor() {
-        this._colors = getColors()
-
         this._dependencies = new Dependencies()
         this._ui = new Ui(react)
         this._services = new Services()
