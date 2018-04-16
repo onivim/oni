@@ -10,6 +10,8 @@ import { remote } from "electron"
 
 import { getDistPath, getRootPath } from "./DemoCommon"
 
+// tslint:disable:no-console
+
 const getCompletionElement = () => {
     const elements = document.body.getElementsByClassName("autocompletion")
 
@@ -20,18 +22,25 @@ const getCompletionElement = () => {
     }
 }
 
+const getNotificationText = () => {
+    const elements = document.body.getElementsByClassName("notification-description")
+
+    if (!elements || !elements.length) {
+        return null
+    } else {
+        return elements[0].innerHTML
+    }
+}
+
 export const test = async (oni: any) => {
     await oni.automation.waitForEditors()
 
-    let lastAlertText = null
-    window.alert = myText => (lastAlertText = myText)
-
     // Use the `Completion.ts` file as the screenshot source
-    remote.getCurrentWindow().setSize(800, 600)
+    remote.getCurrentWindow().setSize(1200, 800)
 
     const outputPath = getDistPath()
 
-    oni.configuration.setValues({ "recorder.outputPath": outputPath })
+    await oni.workspace.changeDirectory(getRootPath())
 
     const filePath = path.join(
         getRootPath(),
@@ -71,7 +80,15 @@ export const test = async (oni: any) => {
 
     await oni.automation.sleep(500)
 
-    oni.recorder.takeScreenshot(`screenshot-${process.platform}.png`)
+    oni.configuration.setValues({ "recorder.outputPath": outputPath })
 
-    await oni.automation.waitFor(() => lastAlertText !== null, 20000)
+    oni.recorder.takeScreenshot(`screenshot-${process.platform}.png`)
+    await oni.automation.waitFor(() => getNotificationText() !== null, 20000)
+    console.log("Alert text (screenshot output path): " + getNotificationText())
+}
+
+export const settings = {
+    config: {
+        "notifications.enabled": true,
+    },
 }

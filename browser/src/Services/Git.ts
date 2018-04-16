@@ -67,7 +67,6 @@ export async function getGitRoot(): Promise<string | null> {
 export async function getGitSummary(currentDir: string): Promise<IStatus | null> {
     let status = null
     if (currentDir) {
-        // TODO: .customBinary()
         const project = git(currentDir)
         const isRepo = await project.checkIsRepo()
         if (isRepo) {

@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Tabs /> Tests should match last known snapshot unless we make a change 1`] = `
+<div
+  className="tabs horizontal enable-mouse layer"
+  style={
+    Object {
+      "borderBottom": "4px solid #fff",
+      "fontFamily": "inherit",
+      "fontSize": "1.2em",
+    }
+  }
+>
+  <Tab
+    backgroundColor="#fff"
+    description="a test tab"
+    foregroundColor="#000"
+    height="2em"
+    highlightColor="#000"
+    iconFileName="icon"
+    id={2}
+    isDirty={true}
+    isSelected={true}
+    key="2"
+    maxWidth="20em"
+    name="test"
+    onClickClose={[Function]}
+    onClickName={[Function]}
+  />
+</div>
+`;

@@ -7,6 +7,10 @@
 import { Reducer, Store } from "redux"
 import { createStore as createReduxStore } from "./../../Redux"
 
+import { WindowManager, WindowSplitHandle } from "./../WindowManager"
+import { SidebarContentSplit } from "./SidebarContentSplit"
+import { SidebarSplit } from "./SidebarSplit"
+
 import * as Oni from "oni-api"
 
 export interface ISidebarState {
@@ -25,6 +29,7 @@ export interface ISidebarEntry {
     id: string
     icon: SidebarIcon
     pane: SidebarPane
+    hasNotification?: boolean
 }
 
 export interface SidebarPane extends Oni.IWindowSplit {
@@ -38,6 +43,9 @@ export interface SidebarPane extends Oni.IWindowSplit {
 export class SidebarManager {
     private _store: Store<ISidebarState>
 
+    private _iconSplit: WindowSplitHandle
+    private _contentSplit: WindowSplitHandle
+
     public get activeEntryId(): string {
         return this._store.getState().activeEntryId
     }
@@ -50,8 +58,25 @@ export class SidebarManager {
         return this._store
     }
 
-    constructor() {
+    constructor(private _windowManager: WindowManager = null) {
         this._store = createStore()
+
+        if (_windowManager) {
+            this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
+            this._contentSplit = this._windowManager.createSplit(
+                "left",
+                new SidebarContentSplit(this),
+            )
+        }
+    }
+
+    public setNotification(id: string): void {
+        if (id) {
+            this._store.dispatch({
+                type: "SET_NOTIFICATION",
+                id,
+            })
+        }
     }
 
     public setActiveEntry(id: string): void {
@@ -60,6 +85,28 @@ export class SidebarManager {
                 type: "SET_ACTIVE_ID",
                 activeEntryId: id,
             })
+
+            if (!this._contentSplit.isVisible) {
+                this._contentSplit.show()
+            }
+        }
+    }
+
+    public focusContents(): void {
+        if (this._contentSplit.isVisible) {
+            this._contentSplit.focus()
+        }
+    }
+
+    public toggleSidebarVisibility(): void {
+        if (this._contentSplit.isVisible) {
+            this._contentSplit.hide()
+
+            if (this._contentSplit.isFocused) {
+                this._iconSplit.focus()
+            }
+        } else {
+            this._contentSplit.show()
         }
     }
 
@@ -100,6 +147,10 @@ export type SidebarActions =
           entry: ISidebarEntry
       }
     | {
+          type: "SET_NOTIFICATION"
+          id: string
+      }
+    | {
           type: "ENTER"
       }
     | {
@@ -110,37 +161,38 @@ export const sidebarReducer: Reducer<ISidebarState> = (
     state: ISidebarState = DefaultSidebarState,
     action: SidebarActions,
 ) => {
+    const newState = {
+        ...state,
+        entries: entriesReducer(state.entries, action),
+    }
+
     switch (action.type) {
         case "ENTER":
             return {
-                ...state,
+                ...newState,
                 isActive: true,
             }
         case "LEAVE":
             return {
-                ...state,
+                ...newState,
                 isActive: false,
             }
         case "SET_ACTIVE_ID":
             return {
-                ...state,
+                ...newState,
                 activeEntryId: action.activeEntryId,
             }
         case "ADD_ENTRY":
             if (!state.activeEntryId) {
                 return {
-                    ...state,
+                    ...newState,
                     activeEntryId: action.entry.pane.id,
-                    entries: entriesReducer(state.entries, action),
                 }
             } else {
-                return {
-                    ...state,
-                    entries: entriesReducer(state.entries, action),
-                }
+                return newState
             }
         default:
-            return state
+            return newState
     }
 }
 
@@ -151,6 +203,28 @@ export const entriesReducer: Reducer<ISidebarEntry[]> = (
     switch (action.type) {
         case "ADD_ENTRY":
             return [...state, action.entry]
+        case "SET_ACTIVE_ID":
+            return state.map(e => {
+                if (e.id === action.activeEntryId) {
+                    return {
+                        ...e,
+                        hasNotification: false,
+                    }
+                } else {
+                    return e
+                }
+            })
+        case "SET_NOTIFICATION":
+            return state.map(e => {
+                if (e.id !== action.id) {
+                    return e
+                } else {
+                    return {
+                        ...e,
+                        hasNotification: true,
+                    }
+                }
+            })
         default:
             return state
     }

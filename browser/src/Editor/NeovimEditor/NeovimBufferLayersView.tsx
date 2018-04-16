@@ -19,25 +19,52 @@ export interface NeovimBufferLayersViewProps {
     activeWindowId: number
     windows: State.IWindow[]
     layers: State.Layers
+    fontPixelWidth: number
+    fontPixelHeight: number
+}
+
+const InnerLayerStyle: React.CSSProperties = {
+    position: "absolute",
+    top: "0px",
+    left: "0px",
+    right: "0px",
+    bottom: "0px",
+    overflowY: "auto",
+    overflowX: "auto",
 }
 
 export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLayersViewProps, {}> {
     public render(): JSX.Element {
         const containers = this.props.windows.map(windowState => {
             const layers =
-                this.props.layers[windowState.bufferId] || (EmptyArray as Oni.EditorLayer[])
+                this.props.layers[windowState.bufferId] || (EmptyArray as Oni.BufferLayer[])
 
             const layerContext = {
                 isActive: windowState.windowId === this.props.activeWindowId,
                 windowId: windowState.windowId,
 
+                fontPixelWidth: this.props.fontPixelWidth,
+                fontPixelHeight: this.props.fontPixelHeight,
                 bufferToScreen: windowState.bufferToScreen,
                 screenToPixel: windowState.screenToPixel,
                 dimensions: windowState.dimensions,
             }
 
             const layerElements = layers.map(l => {
-                return <div key={l.id}>{l.render(layerContext)}</div>
+                return (
+                    <div
+                        key={
+                            l.id +
+                            "." +
+                            windowState.windowId.toString() +
+                            "." +
+                            windowState.bufferId.toString()
+                        }
+                        style={InnerLayerStyle}
+                    >
+                        {l.render(layerContext)}
+                    </div>
+                )
             })
 
             const dimensions = getWindowPixelDimensions(windowState)
@@ -83,13 +110,17 @@ const getWindowPixelDimensions = (win: State.IWindow) => {
     }
 }
 
+const EmptyState: NeovimBufferLayersViewProps = {
+    activeWindowId: -1,
+    layers: {},
+    windows: [],
+    fontPixelHeight: -1,
+    fontPixelWidth: -1,
+}
+
 const mapStateToProps = (state: State.IState): NeovimBufferLayersViewProps => {
     if (!state.activeVimTabPage) {
-        return {
-            activeWindowId: -1,
-            layers: {},
-            windows: [],
-        }
+        return EmptyState
     }
 
     const windows = state.activeVimTabPage.windowIds.map(windowId => {
@@ -102,6 +133,8 @@ const mapStateToProps = (state: State.IState): NeovimBufferLayersViewProps => {
         activeWindowId: state.windowState.activeWindow,
         windows: wins,
         layers: state.layers,
+        fontPixelWidth: state.fontPixelWidth,
+        fontPixelHeight: state.fontPixelHeight,
     }
 }
 

@@ -12,28 +12,9 @@
     }
 }
 
-@keyframes file-icon-appear {
-    0% {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
 .tab-icon-appear-animation {
     animation-name: tab-icon-appear;
     animation-duration: 0.6s;
-    animation-function: ease-in;
-    animation-fill-mode: forwards;
-    opacity: 1;
-}
-
-.file-icon-appear-animation {
-    animation-name: file-icon-appear;
-    animation-duration: 0.25s;
     animation-function: ease-in;
     animation-fill-mode: forwards;
     opacity: 1;
@@ -77,7 +58,6 @@
     transition: opacity 0.25s;
 
     overflow: hidden;
-    text-overflow: ellipsis;
     user-select: none;
 
     .name {

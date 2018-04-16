@@ -8,33 +8,116 @@
  * to the active editor, and managing transitions between editors.
  */
 
+import { remote } from "electron"
+
+import { Store } from "redux"
+
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 import { Direction, SplitDirection } from "./index"
 import { LinearSplitProvider } from "./LinearSplitProvider"
 import { RelationalSplitNavigator } from "./RelationalSplitNavigator"
-import { WindowDock } from "./WindowDock"
-import { ISplitInfo } from "./WindowState"
+import { WindowDockNavigator } from "./WindowDock"
+
+import {
+    createStore,
+    IAugmentedSplitInfo,
+    ISplitInfo,
+    leftDockSelector,
+    WindowState,
+} from "./WindowManagerStore"
+
+export class WindowSplitHandle implements Oni.WindowSplitHandle {
+    public get id(): string {
+        return this._id
+    }
+
+    public get isVisible(): boolean {
+        return this._store.getState().hiddenSplits.indexOf(this._id) === -1
+    }
+
+    public get isFocused(): boolean {
+        return this._store.getState().focusedSplitId === this._id
+    }
+
+    constructor(
+        private _store: Store<WindowState>,
+        private _windowManager: WindowManager,
+        private _id: string,
+    ) {}
+
+    public hide(): void {
+        this._store.dispatch({
+            type: "HIDE_SPLIT",
+            splitId: this._id,
+        })
+    }
+
+    public show(): void {
+        this._store.dispatch({
+            type: "SHOW_SPLIT",
+            splitId: this._id,
+        })
+    }
+
+    public focus(): void {
+        // TODO:
+        this._windowManager.focusSplit(this._id)
+    }
+
+    public setSize(size: number): void {
+        // TODO
+    }
+
+    public close(): void {
+        this._windowManager.close(this._id)
+    }
+}
+
+export class AugmentedWindow implements IAugmentedSplitInfo {
+    public get id(): string {
+        return this._id
+    }
+
+    constructor(private _id: string, private _innerSplit: Oni.IWindowSplit | any) {}
+
+    public get innerSplit(): Oni.IWindowSplit {
+        return this._innerSplit
+    }
+
+    public render(): JSX.Element {
+        return this._innerSplit.render()
+    }
+
+    public enter(): void {
+        if (this._innerSplit.enter) {
+            this._innerSplit.enter()
+        }
+    }
+
+    public leave(): void {
+        if (this._innerSplit.leave) {
+            this._innerSplit.leave()
+        }
+    }
+}
 
 export class WindowManager {
-    private _activeSplit: any
+    private _lastId: number = 0
+    private _idToSplit: { [key: string]: IAugmentedSplitInfo } = {}
 
-    private _onActiveSplitChangedEvent = new Event<Oni.IWindowSplit>()
-    private _onSplitChanged = new Event<ISplitInfo<Oni.IWindowSplit>>()
     private _onUnhandledMoveEvent = new Event<Direction>()
 
-    private _leftDock: WindowDock = null
+    private _leftDock: WindowDockNavigator = null
     private _primarySplit: LinearSplitProvider
     private _rootNavigator: RelationalSplitNavigator
 
-    public get onActiveSplitChanged(): IEvent<Oni.IWindowSplit> {
-        return this._onActiveSplitChangedEvent
-    }
+    // Queue of recently focused windows, to fall-back to
+    // when closing a window.
+    private _focusQueue: string[] = []
 
-    public get onSplitChanged(): IEvent<ISplitInfo<Oni.IWindowSplit>> {
-        return this._onSplitChanged
-    }
+    private _store: Store<WindowState>
 
     public get onUnhandledMove(): IEvent<Direction> {
         return this._onUnhandledMoveEvent
@@ -50,37 +133,104 @@ export class WindowManager {
         return this._primarySplit.getState() as ISplitInfo<Oni.IWindowSplit>
     }
 
-    public get activeSplit(): Oni.IWindowSplit {
-        return this._activeSplit
+    public get store(): Store<WindowState> {
+        return this._store
     }
 
-    public set activeSplit(split: Oni.IWindowSplit) {
-        this._focusNewSplit(split)
+    public get activeSplit(): IAugmentedSplitInfo {
+        const focusedSplit = this._store.getState().focusedSplitId
+
+        if (!focusedSplit) {
+            return null
+        }
+
+        return this._idToSplit[focusedSplit]
     }
 
     constructor() {
         this._rootNavigator = new RelationalSplitNavigator()
 
-        this._leftDock = new WindowDock()
-        this._primarySplit = new LinearSplitProvider("horizontal")
+        const browserWindow = remote.getCurrentWindow()
 
+        browserWindow.on("blur", () => {
+            if (this.activeSplit) {
+                this.activeSplit.leave()
+            }
+        })
+
+        browserWindow.on("focus", () => {
+            if (this.activeSplit) {
+                this.activeSplit.enter()
+            }
+        })
+
+        this._store = createStore()
+        this._leftDock = new WindowDockNavigator(() => leftDockSelector(this._store.getState()))
+        this._primarySplit = new LinearSplitProvider("horizontal")
         this._rootNavigator.setRelationship(this._leftDock, this._primarySplit, "right")
     }
 
-    public split(
-        direction: SplitDirection,
+    public createSplit(
+        splitLocation: Direction | SplitDirection,
         newSplit: Oni.IWindowSplit,
         referenceSplit?: Oni.IWindowSplit,
-    ) {
-        this._primarySplit.split(newSplit, direction, referenceSplit)
-        const newState = this._primarySplit.getState() as ISplitInfo<Oni.IWindowSplit>
+    ): WindowSplitHandle {
+        const nextId = this._lastId++
+        const windowId = "oni.window." + nextId.toString()
 
-        this._onSplitChanged.dispatch(newState)
-        this._focusNewSplit(newSplit)
+        const augmentedWindow = new AugmentedWindow(windowId, newSplit)
+
+        this._idToSplit[windowId] = augmentedWindow
+
+        switch (splitLocation) {
+            case "right":
+            case "up":
+            case "down":
+            case "left": {
+                this._store.dispatch({
+                    type: "ADD_DOCK_SPLIT",
+                    dock: splitLocation,
+                    split: augmentedWindow,
+                })
+                break
+            }
+            case "horizontal":
+            case "vertical":
+                const augmentedRefSplit =
+                    this._getAugmentedWindowSplitFromSplit(referenceSplit) || this.activeSplit
+                this._primarySplit.split(augmentedWindow, splitLocation, augmentedRefSplit)
+                const newState = this._primarySplit.getState() as ISplitInfo<Oni.IWindowSplit>
+
+                this._store.dispatch({
+                    type: "SET_PRIMARY_SPLITS",
+                    splits: newState,
+                })
+
+                this._focusNewSplit(augmentedWindow)
+        }
+
+        return new WindowSplitHandle(this._store, this, windowId)
+    }
+
+    public getSplitHandle(split: Oni.IWindowSplit): WindowSplitHandle {
+        const augmentedSplit = this._getAugmentedWindowSplitFromSplit(split)
+        return new WindowSplitHandle(this._store, this, augmentedSplit.id)
     }
 
     public move(direction: Direction): void {
-        const newSplit = this._rootNavigator.move(this._activeSplit, direction)
+        const focusedSplit = this._store.getState().focusedSplitId
+
+        if (!focusedSplit) {
+            return
+        }
+
+        const activeSplit = this._idToSplit[focusedSplit]
+
+        if (!activeSplit) {
+            return
+        }
+
+        const newSplit = this._rootNavigator.move(activeSplit, direction)
 
         if (newSplit) {
             this._focusNewSplit(newSplit)
@@ -105,40 +255,60 @@ export class WindowManager {
         this.move("down")
     }
 
-    public getDock(direction: Direction): WindowDock {
-        if (direction === "left") {
-            return this._leftDock
-        } else {
-            // TODO
-            return null
+    public close(splitId: string) {
+        const currentActiveSplit = this.activeSplit
+
+        // Send focus back to most recently focused window
+        if (currentActiveSplit.id === splitId) {
+            const candidateSplits = this._focusQueue.filter(
+                f => f !== splitId && this._idToSplit[f],
+            )
+
+            this._focusQueue = candidateSplits
+
+            if (this._focusQueue.length > 0) {
+                const splitToFocus = this._focusQueue[0]
+                this._focusNewSplit(this._idToSplit[splitToFocus])
+            }
         }
-    }
 
-    // TODO: Deprecate
-    public showDock(direction: SplitDirection, split: Oni.IWindowSplit) {
-        // TODO
-    }
-
-    public close(split: Oni.IWindowSplit) {
+        const split = this._idToSplit[splitId]
         this._primarySplit.close(split)
-        this._onSplitChanged.dispatch(this.splitRoot)
+
+        const state = this._primarySplit.getState()
+        this._store.dispatch({
+            type: "SET_PRIMARY_SPLITS",
+            splits: state,
+        })
+
+        delete this._idToSplit[splitId]
     }
 
-    public focusSplit(split: Oni.IWindowSplit): void {
+    public focusSplit(splitId: string): void {
+        const split = this._idToSplit[splitId]
         this._focusNewSplit(split)
     }
 
+    private _getAugmentedWindowSplitFromSplit(split: Oni.IWindowSplit): IAugmentedSplitInfo {
+        const augmentedWindows = Object.values(this._idToSplit)
+        return augmentedWindows.find(aw => aw.innerSplit === split) || null
+    }
+
     private _focusNewSplit(newSplit: any): void {
-        if (this._activeSplit && this._activeSplit.leave) {
-            this._activeSplit.leave()
+        if (this.activeSplit && this.activeSplit.leave) {
+            this.activeSplit.leave()
         }
 
-        this._activeSplit = newSplit
+        this._store.dispatch({
+            type: "SET_FOCUSED_SPLIT",
+            splitId: newSplit.id,
+        })
+
+        const filteredSplits = this._focusQueue.filter(f => f !== newSplit.id)
+        this._focusQueue = [newSplit.id, ...filteredSplits]
 
         if (newSplit && newSplit.enter) {
             newSplit.enter()
         }
-
-        this._onActiveSplitChangedEvent.dispatch(this._activeSplit)
     }
 }

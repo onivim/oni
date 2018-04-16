@@ -20,6 +20,8 @@ import { IConfigurationValues } from "./../../Services/Configuration"
 import { Errors } from "./../../Services/Diagnostics"
 import { IThemeColors } from "./../../Services/Themes"
 
+import { IBufferLayer } from "./../NeovimEditor/BufferLayerManager"
+
 export type DispatchFunction = (action: any) => void
 export type GetStateFunction = () => State.IState
 
@@ -45,7 +47,15 @@ export interface IAddBufferLayerAction {
     type: "ADD_BUFFER_LAYER"
     payload: {
         bufferId: number
-        layer: Oni.EditorLayer
+        layer: IBufferLayer
+    }
+}
+
+export interface IRemoveBufferLayerAction {
+    type: "REMOVE_BUFFER_LAYER"
+    payload: {
+        bufferId: number
+        layer: IBufferLayer
     }
 }
 
@@ -279,6 +289,7 @@ export type Action<K extends keyof IConfigurationValues> = SimpleAction | Action
 
 export type SimpleAction =
     | IAddBufferLayerAction
+    | IRemoveBufferLayerAction
     | IBufferEnterAction
     | IBufferSaveAction
     | IBufferUpdateAction
@@ -415,14 +426,26 @@ const formatBuffers = (buffer: InactiveBufferContext & EventContext) => {
         language: buffer.filetype,
         hidden: buffer.hidden,
         listed: buffer.listed,
+        modified: buffer.modified,
     }
 }
 
 export const addBufferLayer = (
     bufferId: number,
-    layer: Oni.EditorLayer,
+    layer: Oni.BufferLayer,
 ): IAddBufferLayerAction => ({
     type: "ADD_BUFFER_LAYER",
+    payload: {
+        bufferId,
+        layer,
+    },
+})
+
+export const removeBufferLayer = (
+    bufferId: number,
+    layer: Oni.BufferLayer,
+): IRemoveBufferLayerAction => ({
+    type: "REMOVE_BUFFER_LAYER",
     payload: {
         bufferId,
         layer,
@@ -506,10 +529,23 @@ export const setWindowState = (
 ) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { fontPixelWidth, fontPixelHeight } = getState()
 
-    const screenToPixel = (screenSpace: Oni.Coordinates.ScreenSpacePoint) => ({
-        pixelX: screenSpace.screenX * fontPixelWidth,
-        pixelY: screenSpace.screenY * fontPixelHeight,
-    })
+    const screenToPixel = (screenSpace: Oni.Coordinates.ScreenSpacePoint) => {
+        if (
+            !screenSpace ||
+            typeof screenSpace.screenX !== "number" ||
+            typeof screenSpace.screenY !== "number"
+        ) {
+            return {
+                pixelX: NaN,
+                pixelY: NaN,
+            }
+        }
+
+        return {
+            pixelX: screenSpace.screenX * fontPixelWidth,
+            pixelY: screenSpace.screenY * fontPixelHeight,
+        }
+    }
 
     dispatch({
         type: "SET_WINDOW_STATE",

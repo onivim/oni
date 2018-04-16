@@ -46,52 +46,30 @@
 
     .items {
         .item {
-            padding: 4px;
-            margin-top: 4px;
-
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-
-            user-select: none;
-            -webkit-user-drag: none;
-            cursor: pointer;
-            font-size: @font-size-normal;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-
             .fa:not(.fa-spin) {
-                padding-right: 8px;
+                padding-left: 4px;
+                padding-right: 4px;
             }
 
             &:hover {
-                background-color: rgba(0, 0, 0, 0.2);
+                background-color: rgba(0, 0, 0, 0.1);
             }
             &.selected {
-                .box-shadow;
-                background-color: rgba(0, 0, 0, 0.2);
+                background-color: rgba(0, 0, 0, 0.1);
             }
 
             .label {
                 margin: 4px;
                 padding-right: 8px;
-
-                .highlight {
-                    font-weight: bold;
-                    text-decoration: underline;
-                }
             }
 
             .detail {
                 font-size: @font-size-small;
                 color: @text-color-detail;
                 flex: 1 1 auto;
-
-                .highlight {
-                    font-weight: bold;
-                    text-decoration: underline;
-                }
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-right: 8px;
             }
         }
     }

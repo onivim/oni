@@ -8,18 +8,14 @@
 
 import * as Oni from "oni-api"
 
-import { IHighlight } from "./../SyntaxHighlighting"
-
-export interface ITokenColorsSetting {
-    scope: string
-    settings: IHighlight | string
-}
+import { TokenColor } from "./../TokenColors"
 
 export type FontSmoothingOptions = "auto" | "antialiased" | "subpixel-antialiased" | "none"
+export type DetectionSettings = "always" | "noworkspace" | "never"
 
 export interface IConfigurationValues {
-    activate: (oni: Oni.Plugin.Api) => void
-    deactivate: () => void
+    activate?: (oni: Oni.Plugin.Api) => void
+    deactivate?: () => void
 
     // Debug settings
     "debug.fixedSize": {
@@ -34,20 +30,34 @@ export interface IConfigurationValues {
     "debug.detailedSessionLogging": boolean
     "debug.showTypingPrediction": boolean
 
+    "browser.defaultUrl": string
+
     // Simulate slow language server, for debugging
     "debug.fakeLag.languageServer": number | null
     "debug.fakeLag.neovimInput": number | null
 
-    // - textMateHighlighting
-    "experimental.editor.textMateHighlighting.enabled": boolean
+    "debug.showNotificationOnError": boolean
 
-    "experimental.sidebar.enabled": boolean
+    "editor.split.mode": string
+
+    "configuration.editor": string
+    "configuration.showReferenceBuffer": boolean
+
+    // - textMateHighlighting
+    "editor.textMateHighlighting.enabled": boolean
+
+    // Whether or not the learning pane is available
+    "experimental.particles.enabled": boolean
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
-    "experimental.commandline.mode": boolean
-    "experimental.commandline.icons": boolean
+    "wildmenu.mode": boolean
+    "commandline.mode": boolean
+    "commandline.icons": boolean
+
+    // Experimental flag for 'generalized preview'
+    "experimental.preview.enabled": boolean
 
     "experimental.welcome.enabled": boolean
 
@@ -151,12 +161,15 @@ export interface IConfigurationValues {
     "editor.scrollBar.cursorTick.visible": boolean
 
     // Allow overriding token colors for specific textmate scopes
-    "editor.tokenColors": ITokenColorsSetting[]
+    "editor.tokenColors": TokenColor[]
 
     // Additional paths to include when launching sub-process from Oni
     // (and available in terminal integration, later)
     "environment.additionalPaths": string[]
 
+    // User configurable array of files for which
+    // the image layer opens
+    "editor.imageLayerExtensions": string[]
     // Command to list files for 'quick open'
     // For example, to use 'ag': ag --nocolor -l .
     //
@@ -185,12 +198,21 @@ export interface IConfigurationValues {
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
 
+    "keyDisplayer.showInInsertMode": boolean
+
+    "learning.enabled": boolean
+    "achievements.enabled": boolean
+
     // Case-sensitivity strategy for menu filtering:
     // - if `true`, is case sensitive
     // - if `false`, is not case sensitive
     // - if `'smart'`, is case sensitive if the query string
     //   contains uppercase characters
     "menu.caseSensitive": string | boolean
+    "menu.rowHeight": number
+    "menu.maxItemsToShow": number
+
+    "notifications.enabled": boolean
 
     // Output path to save screenshots and recordings
     "recorder.outputPath": string
@@ -200,7 +222,33 @@ export interface IConfigurationValues {
     // of saving to file
     "recorder.copyScreenshotToClipboard": boolean
 
+    "sidebar.enabled": boolean
+    "sidebar.default.open": boolean
     "sidebar.width": string
+
+    "sidebar.marks.enabled": boolean
+    "sidebar.plugins.enabled": boolean
+
+    "oni.plugins.prettier": {
+        settings: {
+            semi: boolean
+            tabWidth: number
+            useTabs: boolean
+            singleQuote: boolean
+            trailingComma: "es5" | "all" | "none"
+            bracketSpacing: boolean
+            jsxBracketSameLine: boolean
+            arrowParens: "avoid" | "always"
+            printWidth: number
+            [key: string]: number | string | boolean
+        }
+        formatOnSave: boolean
+        enabled: boolean
+        allowedFiletypes?: string[]
+    }
+
+    "snippets.enabled": boolean
+    "snippets.userSnippetFolder": string
 
     "statusbar.enabled": boolean
     "statusbar.fontSize": string
@@ -238,6 +286,8 @@ export interface IConfigurationValues {
     // should be shown in the tab
     "tabs.showFileIcon": boolean
 
+    "terminal.shellCommand": string
+
     "ui.animations.enabled": boolean
     "ui.iconTheme": string
     "ui.colorscheme": string
@@ -248,6 +298,8 @@ export interface IConfigurationValues {
     // Path to the default workspace. The default workspace
     // will be opened if no workspace is specified in configuration.
     "workspace.defaultWorkspace": string
+    "workspace.autoDetectWorkspace": DetectionSettings
+    "workspace.autoDetectRootFiles": string[]
 
     // Handle other, non-predefined configuration keys
     [configurationKey: string]: any

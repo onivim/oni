@@ -6,14 +6,18 @@
 
 export interface IContributions {
     commands: ICommandContribution[]
+    languages: ILanguageContribution[]
     themes: IThemeContribution[]
     iconThemes: IIconThemeContribution[]
+    snippets: ISnippetContribution[]
 }
 
 export const DefaultContributions: IContributions = {
     commands: [],
     themes: [],
     iconThemes: [],
+    snippets: [],
+    languages: [],
 }
 
 export interface ICommandContribution {
@@ -25,6 +29,16 @@ export interface ICommandContribution {
 export interface IIconThemeContribution {
     id: string
     label: string
+    path: string
+}
+
+export interface ILanguageContribution {
+    id: string
+    extensions: string[]
+}
+
+export interface ISnippetContribution {
+    language: string
     path: string
 }
 

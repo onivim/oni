@@ -32,15 +32,14 @@ export const buildMenu = (mainWindow, loadInit) => {
     const normalizePath = fileName => fileName.split("\\").join("/")
 
     const executeVimCommand = (browserWindow: BrowserWindow, command: string) => {
-        executeMenuAction(browserWindow, { evt: "menu-item-click", cmd: [command] })
+        executeMenuAction(browserWindow, {
+            evt: "execute-command",
+            cmd: ["editor.executeVimCommand", command],
+        })
     }
 
-    const executeVimCommandForMultipleFiles = (
-        browserWindow: BrowserWindow,
-        command: string,
-        files: string[],
-    ) => {
-        executeMenuAction(browserWindow, { evt: "open-files", cmd: [command, files] })
+    const openMultipleFiles = (browserWindow: BrowserWindow, files: string[]) => {
+        executeMenuAction(browserWindow, { evt: "open-files", cmd: [files] })
     }
 
     const executeOniCommand = (browserWindow: BrowserWindow, command: string) => {
@@ -162,15 +161,14 @@ export const buildMenu = (mainWindow, loadInit) => {
                     dialog.showOpenDialog(
                         focusedWindow,
                         { properties: ["openFile", "multiSelections"] },
-                        files =>
-                            executeVimCommandForMultipleFiles(focusedWindow, ":tabnew ", files),
+                        files => openMultipleFiles(focusedWindow, files),
                     )
                 },
             },
             {
                 label: "Open Folder…",
                 click(item, focusedWindow) {
-                    executeOniCommand(focusedWindow, "oni.openFolder")
+                    executeOniCommand(focusedWindow, "workspace.openFolder")
                 },
             },
             reopenWithEncoding,
@@ -252,6 +250,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             },
             {
                 label: "Exit",
+                accelerator: "CmdOrCtrl+Q",
                 click(item, focusedWindow) {
                     app.quit()
                 },
@@ -750,7 +749,7 @@ export const buildMenu = (mainWindow, loadInit) => {
                 },
             },
             {
-                label: "Github",
+                label: "GitHub",
                 sublabel: "https://github.com/onivim/oni",
                 click(item, focusedWindow) {
                     openUrl(focusedWindow, "https://github.com/onivim/oni")

@@ -5,7 +5,7 @@ import * as path from "path"
 
 import * as mkdirp from "mkdirp"
 
-import { Oni, runInProcTest } from "./common"
+import { IFailedTest, Oni, runInProcTest } from "./common"
 
 const LongTimeout = 5000
 
@@ -17,27 +17,54 @@ const CiTests = [
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
+
+    "Configuration.JavaScriptEditorTest",
+    "Configuration.TypeScriptEditor.NewConfigurationTest",
+    "Configuration.TypeScriptEditor.CompletionTest",
+
+    "initVimPromptNotificationTest",
+    "Editor.BuffersCursorTest",
     "Editor.ExternalCommandLineTest",
-    "LargeFileTest",
+    "Editor.BufferModifiedState",
+    "Editor.OpenFile.PathWithSpacesTest",
+    "Editor.TabModifiedState",
+    "Editor.CloseTabWithTabModesTabsTest",
+    "MarkdownPreviewTest",
+    "PrettierPluginTest",
     "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
+    "Neovim.InvalidInitVimHandlingTest",
+    "Neovim.CallOniCommands",
     "NoInstalledNeovim",
-    "Workspace.ConfigurationTest",
+    "Sidebar.ToggleSplitTest",
 
+    "Snippets.BasicInsertTest",
+
+    "WindowManager.ErrorBoundary",
+    "Workspace.ConfigurationTest",
     // Regression Tests
     "Regression.1251.NoAdditionalProcessesOnStartup",
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
+    "Regression.1799.MacroApplicationTest",
+
+    "TextmateHighlighting.DebugScopesTest",
+    "TextmateHighlighting.ScopesOnEnterTest",
+    "TextmateHighlighting.TokenColorOverrideTest",
+
+    "Theming.LightAndDarkColorsTest",
+
+    // This test occasionally hangs and breaks tests after - trying to move it later...
+    "LargeFileTest",
 ]
 
 const WindowsOnlyTests = [
-    // For some reason, the `beginFrameSubscription` call doesn't seem to work on OSX,
-    // so we can't properly validate that case on that platform...
-    "PaintPerformanceTest",
+    // TODO: Stabilize this test on OSX / Linux, too!
+    "Regression.1819.AutoReadCheckTimeTest",
 ]
 
-const OSXOnlyTests = ["OSX.WindowTitleTest"]
+const OSXOnlyTests = ["AutoCompletionTest-Reason", "OSX.WindowTitleTest"]
 
 // tslint:disable:no-console
 
@@ -49,13 +76,33 @@ export interface ITestCase {
     configPath: string
 }
 
+const FGRED = "\x1b[31m"
+const FGWHITE = "\x1b[37m"
+const FGGREEN = "\x1b[32m"
+const FGYELLOW = "\x1b[33m"
+
 // tslint:disable-next-line only-arrow-functions
 describe("ci tests", function() {
     const tests = Platform.isWindows()
         ? [...CiTests, ...WindowsOnlyTests]
         : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
 
-    CiTests.forEach(test => {
-        runInProcTest(path.join(__dirname, "ci"), test)
+    const testFailures: IFailedTest[] = []
+    tests.forEach(test => {
+        runInProcTest(path.join(__dirname, "ci"), test, 5000, testFailures)
+    })
+
+    // After all of the tests are completed display failures
+    after(() => {
+        if (testFailures.length > 0) {
+            console.log("\n", FGRED, "---- FAILED TESTS ----\n")
+            testFailures.forEach(failure => {
+                console.log(FGYELLOW, "  [FAILED]:", FGWHITE, failure.test)
+                console.log(FGWHITE, "     Expected:", FGGREEN, failure.expected)
+                console.log(FGWHITE, "     Actual:", FGRED, failure.actual)
+                console.log(FGWHITE, "     Path:", failure.path, "\n")
+            })
+            console.log("")
+        }
     })
 })

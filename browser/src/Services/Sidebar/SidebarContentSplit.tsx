@@ -4,8 +4,10 @@
 
 import * as React from "react"
 import { connect, Provider } from "react-redux"
+import styled, { keyframes } from "styled-components"
 
-import styled from "styled-components"
+import { Event, IDisposable, IEvent } from "oni-types"
+
 import { enableMouse, withProps } from "./../../UI/components/common"
 
 import { ISidebarEntry, ISidebarState, SidebarManager, SidebarPane } from "./SidebarStore"
@@ -22,19 +24,24 @@ export const getActiveEntry = (state: ISidebarState): ISidebarEntry => {
  * Split that is the container for the active sidebar item
  */
 export class SidebarContentSplit {
+    private _onEnterEvent = new Event<void>()
+    private _onLeaveEvent = new Event<void>()
+
     public get activePane(): SidebarPane {
         const entry = getActiveEntry(this._sidebarManager.store.getState())
 
         return entry && entry.pane ? entry.pane : null
     }
 
-    constructor(private _sidebarManager: SidebarManager = new SidebarManager()) {}
+    constructor(private _sidebarManager: SidebarManager) {}
 
     public enter(): void {
         const pane: any = this.activePane
         if (pane && pane.enter) {
             pane.enter()
         }
+
+        this._onEnterEvent.dispatch()
     }
 
     public leave(): void {
@@ -42,20 +49,36 @@ export class SidebarContentSplit {
         if (pane && pane.leave) {
             pane.leave()
         }
+
+        this._onLeaveEvent.dispatch()
     }
 
     public render(): JSX.Element {
         return (
             <Provider store={this._sidebarManager.store}>
-                <SidebarContent />
+                <SidebarContent onEnter={this._onEnterEvent} onLeave={this._onLeaveEvent} />
             </Provider>
         )
     }
 }
 
-export interface ISidebarContentViewProps {
+export interface ISidebarContentViewProps extends ISidebarContentContainerProps {
     activeEntry: ISidebarEntry
 }
+
+export interface ISidebarContentContainerProps {
+    onEnter: IEvent<void>
+    onLeave: IEvent<void>
+}
+
+export interface ISidebarContentViewState {
+    active: boolean
+}
+
+const EntranceKeyframes = keyframes`
+    0% { opacity: 0.5; transform: translateX(-5px); }
+    100%% { opacity: 1; transform: translateX(0px); }
+`
 
 export const SidebarContentWrapper = withProps<{}>(styled.div)`
     ${enableMouse}
@@ -65,6 +88,8 @@ export const SidebarContentWrapper = withProps<{}>(styled.div)`
     height: 100%;
     user-select: none;
     cursor: default;
+
+    animation: ${EntranceKeyframes} 0.25s ease-in forwards;
 
     display: flex;
     flex-direction: column;
@@ -92,7 +117,7 @@ export const SidebarHeaderWrapper = withProps<ISidebarHeaderProps>(styled.div)`
 export class SidebarHeaderView extends React.PureComponent<ISidebarHeaderProps, {}> {
     public render(): JSX.Element {
         return (
-            <SidebarHeaderWrapper {...this.props}>
+            <SidebarHeaderWrapper {...this.props} key={this.props.headerName}>
                 <span>{this.props.headerName}</span>
             </SidebarHeaderWrapper>
         )
@@ -102,9 +127,43 @@ export class SidebarHeaderView extends React.PureComponent<ISidebarHeaderProps, 
 export const SidebarInnerPaneWrapper = withProps<{}>(styled.div)`
     flex: 1 1 auto;
     overflow-y: auto;
+    position: relative;
 `
 
-export class SidebarContentView extends React.PureComponent<ISidebarContentViewProps, {}> {
+export class SidebarContentView extends React.PureComponent<
+    ISidebarContentViewProps,
+    ISidebarContentViewState
+> {
+    private _subs: IDisposable[] = []
+
+    constructor(props: ISidebarContentViewProps) {
+        super(props)
+        this.state = {
+            active: false,
+        }
+    }
+
+    public componentDidMount(): void {
+        this._cleanSubscriptions()
+        const s1 = this.props.onEnter.subscribe(() =>
+            this.setState({
+                active: true,
+            }),
+        )
+
+        const s2 = this.props.onLeave.subscribe(() =>
+            this.setState({
+                active: false,
+            }),
+        )
+
+        this._subs = [s1, s2]
+    }
+
+    public componentWillUnmount(): void {
+        this._cleanSubscriptions()
+    }
+
     public render(): JSX.Element {
         if (!this.props.activeEntry) {
             return null
@@ -114,17 +173,28 @@ export class SidebarContentView extends React.PureComponent<ISidebarContentViewP
         const header = activeEntry && activeEntry.pane ? activeEntry.pane.title : null
 
         return (
-            <SidebarContentWrapper key={activeEntry.id}>
-                <SidebarHeaderView hasFocus={true} headerName={header} />
-                <SidebarInnerPaneWrapper>{activeEntry.pane.render()}</SidebarInnerPaneWrapper>
+            <SidebarContentWrapper className="sidebar-content">
+                <SidebarHeaderView hasFocus={this.state.active} headerName={header} />
+                <SidebarInnerPaneWrapper key={activeEntry.id}>
+                    {activeEntry.pane.render()}
+                </SidebarInnerPaneWrapper>
             </SidebarContentWrapper>
         )
     }
+
+    private _cleanSubscriptions(): void {
+        this._subs.forEach(s => s.dispose())
+        this._subs = []
+    }
 }
 
-export const mapStateToProps = (state: ISidebarState): ISidebarContentViewProps => {
+export const mapStateToProps = (
+    state: ISidebarState,
+    containerProps: ISidebarContentContainerProps,
+): ISidebarContentViewProps => {
     const activeEntry = getActiveEntry(state)
     return {
+        ...containerProps,
         activeEntry,
     }
 }

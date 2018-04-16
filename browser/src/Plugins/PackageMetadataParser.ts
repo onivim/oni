@@ -33,10 +33,20 @@ const remapToAbsolutePaths = (
         }
     }
 
+    const remapSnippetPath = (
+        snippet: Capabilities.ISnippetContribution,
+    ): Capabilities.ISnippetContribution => {
+        return {
+            ...snippet,
+            path: path.join(packageRoot, snippet.path),
+        }
+    }
+
     return {
         ...contributes,
         themes: contributes.themes.map(t => remapThemePath(t)),
         iconThemes: contributes.iconThemes.map(it => remapIconPath(it)),
+        snippets: contributes.snippets.map(s => remapSnippetPath(s)),
     }
 }
 

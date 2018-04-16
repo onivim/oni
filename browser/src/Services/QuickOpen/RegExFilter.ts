@@ -1,7 +1,7 @@
 /**
- * MenuFilter.ts
+ * RegExFilter.ts
  *
- * Implements filtering logic for the menu
+ * Implements RegEx filtering logic for the menu
  */
 
 import * as sortBy from "lodash/sortBy"
@@ -37,23 +37,27 @@ export const regexFilter = (
         searchString = searchString.toLowerCase()
     }
 
-    const filterRegExp = new RegExp(".*" + searchString.split("").join(".*") + ".*")
+    const listOfSearchTerms = searchString.split(" ").filter(x => x)
 
-    const filteredOptions = options.filter(f => {
-        let textToFilterOn = f.detail + f.label
+    let filteredOptions = options
 
-        if (!isCaseSensitive) {
-            textToFilterOn = textToFilterOn.toLowerCase()
-        }
-
-        return textToFilterOn.match(filterRegExp)
+    listOfSearchTerms.map(searchTerm => {
+        filteredOptions = processSearchTerm(searchTerm, filteredOptions, isCaseSensitive)
     })
 
     const ret = filteredOptions.map(fo => {
         const letterCountDictionary = createLetterCountDictionary(searchString)
 
-        const detailHighlights = getHighlightsFromString(fo.detail, letterCountDictionary)
-        const labelHighlights = getHighlightsFromString(fo.label, letterCountDictionary)
+        const detailHighlights = getHighlightsFromString(
+            fo.detail,
+            letterCountDictionary,
+            isCaseSensitive,
+        )
+        const labelHighlights = getHighlightsFromString(
+            fo.label,
+            letterCountDictionary,
+            isCaseSensitive,
+        )
 
         return {
             ...fo,
@@ -65,9 +69,28 @@ export const regexFilter = (
     return ret
 }
 
+export const processSearchTerm = (
+    searchString: string,
+    options: Oni.Menu.MenuOption[],
+    isCaseSensitive: boolean,
+): Oni.Menu.MenuOption[] => {
+    const filterRegExp = new RegExp(".*" + searchString.split("").join(".*") + ".*")
+
+    return options.filter(f => {
+        let textToFilterOn = f.detail + f.label
+
+        if (!isCaseSensitive) {
+            textToFilterOn = textToFilterOn.toLowerCase()
+        }
+
+        return textToFilterOn.match(filterRegExp)
+    })
+}
+
 export const getHighlightsFromString = (
     text: string,
     letterCountDictionary: LetterCountDictionary,
+    isCaseSensitive: boolean = false,
 ): number[] => {
     if (!text) {
         return []
@@ -76,7 +99,7 @@ export const getHighlightsFromString = (
     const ret: number[] = []
 
     for (let i = 0; i < text.length; i++) {
-        const letter = text[i]
+        const letter = isCaseSensitive ? text[i] : text[i].toLowerCase()
         const idx = i
         if (letterCountDictionary[letter] && letterCountDictionary[letter] > 0) {
             ret.push(idx)

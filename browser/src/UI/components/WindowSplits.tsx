@@ -5,38 +5,49 @@
  */
 
 import * as React from "react"
-
-import * as Oni from "oni-api"
+import { connect } from "react-redux"
+import { AutoSizer } from "react-virtualized"
 
 import { WindowSplitHost } from "./WindowSplitHost"
 
-import { ISplitInfo, WindowManager } from "./../../Services/WindowManager"
+import {
+    IAugmentedSplitInfo,
+    ISplitInfo,
+    layoutFromSplitInfo,
+    leftDockSelector,
+    WindowManager,
+    WindowState,
+} from "./../../Services/WindowManager"
 
-export interface IWindowSplitsProps {
+import { noop } from "./../../Utility"
+
+export interface IWindowSplitsProps extends IWindowSplitsContainerProps {
+    activeSplitId: string
+    splitRoot: ISplitInfo<IAugmentedSplitInfo>
+    leftDock: IAugmentedSplitInfo[]
+}
+
+export interface IWindowSplitsContainerProps {
     windowManager: WindowManager
 }
 
-export interface IWindowSplitsState {
-    activeSplit: Oni.IWindowSplit
-    splitRoot: ISplitInfo<Oni.IWindowSplit>
-    leftDock: Oni.IWindowSplit[]
-}
-
 export interface IDockProps {
-    activeSplit: Oni.IWindowSplit
-    splits: Oni.IWindowSplit[]
+    activeSplitId: string
+    splits: IAugmentedSplitInfo[]
 }
 
 export class Dock extends React.PureComponent<IDockProps, {}> {
     public render(): JSX.Element {
         const docks = this.props.splits.map((s, i) => {
             return (
-                <div style={{ display: "flex", flexDirection: "row" }}>
+                <div style={{ display: "flex", flexDirection: "row" }} key={s.id}>
                     <WindowSplitHost
                         key={i}
+                        id={s.id}
                         containerClassName="split"
                         split={s}
-                        isFocused={this.props.activeSplit === s}
+                        isFocused={this.props.activeSplitId === s.id}
+                        onClick={noop}
                     />
                     <div className="split-spacer vertical" />
                 </div>
@@ -47,39 +58,71 @@ export class Dock extends React.PureComponent<IDockProps, {}> {
     }
 }
 
-export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindowSplitsState> {
-    constructor(props: IWindowSplitsProps) {
-        super(props)
+export interface IWindowSplitViewProps {
+    activeSplitId: string
+    split: ISplitInfo<IAugmentedSplitInfo>
+    windowManager: WindowManager
+}
 
-        this.state = {
-            activeSplit: props.windowManager.activeSplit,
-            splitRoot: props.windowManager.splitRoot,
-            leftDock: [...props.windowManager.getDock("left").splits],
-        }
+const px = (num: number): string => num.toString() + "px"
+
+const rectangleToStyleProperties = (
+    rect: Oni.Shapes.Rectangle,
+    totalHeight: number,
+): React.CSSProperties => {
+    const halfPadding = 3
+    const topPosition = rect.y === 0 ? 0 : Math.ceil(rect.y) + halfPadding
+
+    const bottomPadding = Math.ceil(rect.y + rect.height) >= totalHeight ? 0 : halfPadding * 2
+    return {
+        position: "absolute",
+        top: px(topPosition),
+        left: px(Math.ceil(rect.x) + halfPadding),
+        width: px(Math.floor(rect.width) - halfPadding * 2),
+        height: px(Math.floor(rect.height) - bottomPadding),
     }
+}
+import * as Oni from "oni-api"
 
-    public componentDidMount(): void {
-        this.props.windowManager.onSplitChanged.subscribe(newSplit => {
-            this.setState({
-                splitRoot: newSplit,
-            })
-        })
+export class WindowSplitView extends React.PureComponent<IWindowSplitViewProps, {}> {
+    public render(): JSX.Element {
+        const className = "container horizontal full"
 
-        this.props.windowManager.getDock("left").onSplitsChanged.subscribe(() => {
-            this.setState({
-                leftDock: [...this.props.windowManager.getDock("left").splits],
-            })
-        })
-
-        this.props.windowManager.onActiveSplitChanged.subscribe(newSplit => {
-            this.setState({
-                activeSplit: newSplit,
-            })
-        })
+        // TODO: Add drag handles here to allow for resizing!
+        return (
+            <div className={className}>
+                <AutoSizer>
+                    {({ height, width }) => {
+                        // return <div>{width}{height}</div>
+                        const items = layoutFromSplitInfo(this.props.split, width, height)
+                        const vals: JSX.Element[] = Object.values(items).map(item => {
+                            const style = rectangleToStyleProperties(item.rectangle, height)
+                            return (
+                                <div style={style}>
+                                    <WindowSplitHost
+                                        key={item.split.id}
+                                        id={item.split.id}
+                                        containerClassName="editor"
+                                        split={item.split}
+                                        isFocused={this.props.activeSplitId === item.split.id}
+                                        onClick={() => {
+                                            this.props.windowManager.focusSplit(item.split.id)
+                                        }}
+                                    />
+                                </div>
+                            )
+                        })
+                        return <div style={{ position: "relative" }}>{vals}</div>
+                    }}
+                </AutoSizer>
+            </div>
+        )
     }
+}
 
+export class WindowSplitsView extends React.PureComponent<IWindowSplitsProps, {}> {
     public render() {
-        if (!this.state.splitRoot) {
+        if (!this.props.splitRoot) {
             return null
         }
 
@@ -90,40 +133,31 @@ export class WindowSplits extends React.PureComponent<IWindowSplitsProps, IWindo
             height: "100%",
         }
 
-        const editors = this.state.splitRoot.splits.map((splitNode, i) => {
-            if (splitNode.type === "Split") {
-                return null
-            } else {
-                const split: Oni.IWindowSplit = splitNode.contents
-
-                if (!split) {
-                    return (
-                        <div className="container vertical full" key={i}>
-                            TODO: Implement an editor here...
-                        </div>
-                    )
-                } else {
-                    return (
-                        <WindowSplitHost
-                            containerClassName={"editor"}
-                            key={i}
-                            split={split}
-                            isFocused={split === this.state.activeSplit}
-                        />
-                    )
-                }
-            }
-        })
-
-        // const spacer = this.state.leftDock.length > 0 ? <div className="split-spacer vertical" /> : null
-
         return (
             <div style={containerStyle}>
                 <div className="container horizontal full">
-                    <Dock splits={this.state.leftDock} activeSplit={this.state.activeSplit} />
-                    {editors}
+                    <Dock splits={this.props.leftDock} activeSplitId={this.props.activeSplitId} />
+                    <WindowSplitView
+                        split={this.props.splitRoot}
+                        windowManager={this.props.windowManager}
+                        activeSplitId={this.props.activeSplitId}
+                    />
                 </div>
             </div>
         )
     }
 }
+
+const mapStateToProps = (
+    state: WindowState,
+    containerProps: IWindowSplitsContainerProps,
+): IWindowSplitsProps => {
+    return {
+        ...containerProps,
+        activeSplitId: state.focusedSplitId,
+        leftDock: leftDockSelector(state),
+        splitRoot: state.primarySplit,
+    }
+}
+
+export const WindowSplits = connect(mapStateToProps)(WindowSplitsView)

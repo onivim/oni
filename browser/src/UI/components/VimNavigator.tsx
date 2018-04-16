@@ -17,6 +17,8 @@ import { Event } from "oni-types"
 import { KeyboardInputView } from "./../../Input/KeyboardInput"
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
+import { CallbackCommand, commandManager } from "./../../Services/CommandManager"
+
 import * as Log from "./../../Log"
 
 export interface IVimNavigatorProps {
@@ -29,8 +31,11 @@ export interface IVimNavigatorProps {
     // onLeave: IEvent<void>
 
     onSelectionChanged?: (selectedId: string) => void
+    onSelected?: (selectedId: string) => void
 
     render: (selectedId: string) => JSX.Element
+
+    style?: React.CSSProperties
 }
 
 export interface IVimNavigatorState {
@@ -45,7 +50,7 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
         super(props)
 
         this.state = {
-            selectedId: null,
+            selectedId: props.ids && props.ids.length > 0 ? props.ids[0] : null,
         }
     }
 
@@ -79,7 +84,7 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
         )
 
         return (
-            <div>
+            <div style={this.props.style}>
                 <div className="items">{this.props.render(this.state.selectedId)}</div>
                 {this.props.active ? inputElement : null}
             </div>
@@ -99,11 +104,27 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
         }
     }
 
-    private _updateBasedOnProps(props: IVimNavigatorProps) {
+    private _select(): void {
+        if (this.state.selectedId && this.props.active && this.props.onSelected) {
+            this.props.onSelected(this.state.selectedId)
+        }
+    }
+
+    private async _updateBasedOnProps(props: IVimNavigatorProps) {
         if (props.active && !this._activeBinding) {
             Log.info("[VimNavigator::activating]")
             this._releaseBinding()
             this._activeBinding = getInstance().bindToMenu()
+
+            commandManager.registerCommand(
+                new CallbackCommand(
+                    "select",
+                    null,
+                    null,
+                    () => this._select(),
+                    () => this.props.active,
+                ),
+            )
 
             this._activeBinding.onCursorMoved.subscribe(newValue => {
                 Log.info("[VimNavigator::onCursorMoved] - " + newValue)
@@ -119,10 +140,10 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
                 }
             })
 
-            this._activeBinding.setItems(this.props.ids, this.state.selectedId)
+            await this._activeBinding.setItems(this.props.ids, this.state.selectedId)
             this._activateEvent.dispatch()
         } else if (props.active && this._activeBinding) {
-            this._activeBinding.setItems(this.props.ids, this.state.selectedId)
+            await this._activeBinding.setItems(this.props.ids, this.state.selectedId)
         } else if (!props.active && this._activeBinding) {
             this._releaseBinding()
         }

@@ -8,6 +8,9 @@ import { ChildProcess, spawn } from "child_process"
 
 import { Event, IEvent } from "oni-types"
 
+import * as Log from "./../../Log"
+import { getInstance } from "./../Workspace"
+
 export class FinderProcess {
     private _process: ChildProcess
 
@@ -16,6 +19,7 @@ export class FinderProcess {
     private _onData = new Event<string[]>()
     private _onError = new Event<string>()
     private _onComplete = new Event<void>()
+    private _workspace = getInstance()
 
     public get onData(): IEvent<string[]> {
         return this._onData
@@ -32,7 +36,17 @@ export class FinderProcess {
             return
         }
 
-        this._process = spawn(this._command, [], { shell: true })
+        if (Log.isDebugLoggingEnabled()) {
+            Log.debug(
+                "[FinderProcess::start] Starting finder process with this command: " +
+                    this._command,
+            )
+        }
+
+        this._process = spawn(this._command, [], {
+            shell: true,
+            cwd: this._workspace.activeWorkspace,
+        })
         this._process.stdout.on("data", data => {
             if (!data) {
                 return

@@ -8,6 +8,8 @@ export type ActionOrCommand = string | ActionFunction
 
 export type FilterFunction = () => boolean
 
+import { IKeyChord, parseKeysFromVimString } from "./../Input/KeyParser"
+
 export interface KeyBinding {
     action: ActionOrCommand
     filter?: FilterFunction
@@ -17,8 +19,56 @@ export interface KeyBindingMap {
     [key: string]: KeyBinding[]
 }
 
-export class InputManager implements Oni.InputManager {
+const MAX_DELAY_BETWEEN_KEY_CHORD = 250 /* milliseconds */
+
+import { KeyboardResolver } from "./../Input/Keyboard/KeyboardResolver"
+
+import {
+    getMetaKeyResolver,
+    ignoreMetaKeyResolver,
+    remapResolver,
+} from "./../Input/Keyboard/Resolvers"
+
+export interface KeyPressInfo {
+    keyChord: string
+    time: number
+}
+
+// Helper method to filter a set of key presses such that they are only the potential chords
+export const getRecentKeyPresses = (
+    keys: KeyPressInfo[],
+    maxTimeBetweenKeyPresses: number,
+): KeyPressInfo[] => {
+    return keys.reduce(
+        (prev, curr) => {
+            if (prev.length === 0) {
+                return [curr]
+            }
+
+            const lastItem = prev[prev.length - 1]
+
+            if (curr.time - lastItem.time > maxTimeBetweenKeyPresses) {
+                return [curr]
+            } else {
+                return [...prev, curr]
+            }
+        },
+        [] as KeyPressInfo[],
+    )
+}
+
+export class InputManager implements Oni.Input.InputManager {
     private _boundKeys: KeyBindingMap = {}
+    private _resolver: KeyboardResolver
+    private _keys: KeyPressInfo[] = []
+
+    constructor() {
+        this._resolver = new KeyboardResolver()
+
+        this._resolver.addResolver(ignoreMetaKeyResolver)
+        this._resolver.addResolver(remapResolver)
+        this._resolver.addResolver(getMetaKeyResolver())
+    }
 
     /**
      * API Methods
@@ -69,6 +119,29 @@ export class InputManager implements Oni.InputManager {
         return !!this._boundKeys[keyChord]
     }
 
+    public get resolvers(): KeyboardResolver {
+        return this._resolver
+    }
+
+    // Returns an array of keys bound to a command
+    public getBoundKeys(command: string): string[] {
+        return Object.keys(this._boundKeys).reduce(
+            (prev: string[], currentValue: string) => {
+                const bindings = this._boundKeys[currentValue]
+                if (bindings.find(b => b.action === command)) {
+                    return [...prev, currentValue]
+                } else {
+                    return prev
+                }
+            },
+            [] as string[],
+        )
+    }
+
+    public parseKeys(keys: string): IKeyChord {
+        return parseKeysFromVimString(keys)
+    }
+
     /**
      * Internal Methods
      */
@@ -76,7 +149,36 @@ export class InputManager implements Oni.InputManager {
     // Triggers an action handler if there is a bound-key that passes the filter.
     // Returns true if the key was handled and should not continue bubbling,
     // false otherwise.
-    public handleKey(keyChord: string): boolean {
+    public handleKey(keyChord: string, time: number = new Date().getTime()): boolean {
+        if (keyChord === null) {
+            return false
+        }
+
+        const newKey: KeyPressInfo = {
+            keyChord,
+            time,
+        }
+
+        this._keys.push(newKey)
+        const potentialKeys = getRecentKeyPresses(this._keys, MAX_DELAY_BETWEEN_KEY_CHORD)
+        this._keys = [...potentialKeys]
+
+        // We'll try the longest key chord to the shortest
+        while (potentialKeys.length > 0) {
+            const fullChord = potentialKeys.map(k => k.keyChord).join("")
+
+            if (this._handleKeyCore(fullChord)) {
+                this._keys = []
+                return true
+            }
+
+            potentialKeys.shift()
+        }
+
+        return false
+    }
+
+    private _handleKeyCore(keyChord: string): boolean {
         if (!this._boundKeys[keyChord]) {
             return false
         }

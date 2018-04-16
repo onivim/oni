@@ -12,6 +12,7 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 import { Configuration, configuration, GenericConfigurationValues } from "./../Configuration"
 
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
+import { TokenColor } from "./../TokenColors"
 import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
 
 export interface IThemeColors {
@@ -80,6 +81,8 @@ export interface IThemeColors {
     "fileExplorer.cursor.background": string
     "fileExplorer.cursor.foreground": string
 
+    "editor.tokenColors": TokenColor[]
+
     // LATER:
     //  - Notifications?
     //  - Alert / message?
@@ -141,9 +144,17 @@ export const getHoverColors = (
     return userHoverColors
 }
 
-export const getColorsFromConfig = (config: Configuration, colors: Partial<IThemeColors>) => {
+export const getColorsFromConfig = ({
+    config,
+    defaultTheme,
+    themeColors,
+}: {
+    config: Configuration
+    themeColors: Partial<IThemeColors>
+    defaultTheme: IThemeColors
+}) => {
     const userConfig = config.getValues()
-    const hoverColors = getHoverColors(userConfig, colors)
+    const hoverColors = getHoverColors(userConfig, themeColors)
 
     return hoverColors
 }
@@ -269,34 +280,26 @@ export const DefaultThemeColors: IThemeColors = {
     "fileExplorer.selection.foreground": HighlightForeground,
     "fileExplorer.cursor.background": NormalMode,
     "fileExplorer.cursor.foreground": NormalMode,
+    "editor.tokenColors": [],
 }
 
-// export interface ITokenTheme {
-//     name: string
-//     scope: string[]
-//     settings: ITokenColorSettings
-// }
-
-// export interface ITokenColorSettings {
-//     background?: string
-//     foreground?: string
-
-//     bold: boolean
-//     italic: boolean
-// }
+// Value used to determine whether the base Vim theme
+// should be set to 'dark' or 'light'
+export type VimBackground = "light" | "dark"
 
 export interface IThemeMetadata {
     name: string
     baseVimTheme?: string
+    baseVimBackground?: VimBackground
     colors: Partial<IThemeColors>
-    // tokenColors: ITokenTheme[]
+    tokenColors: TokenColor[]
 }
 
 export const DefaultTheme: IThemeMetadata = {
     name: "default",
     baseVimTheme: "default",
     colors: DefaultThemeColors,
-    // tokenColors: [],
+    tokenColors: [],
 }
 
 export class ThemeManager {
@@ -333,10 +336,11 @@ export class ThemeManager {
             // that.
             this._isAnonymousTheme = true
 
-            const temporaryVimTheme = {
+            const temporaryVimTheme: IThemeMetadata = {
                 name,
                 baseVimTheme: name,
                 colors: DefaultThemeColors,
+                tokenColors: [],
             }
 
             this._updateTheme(temporaryVimTheme)
@@ -345,11 +349,11 @@ export class ThemeManager {
         }
     }
 
-    public notifyVimThemeChanged(
+    public async notifyVimThemeChanged(
         vimName: string,
         backgroundColor: string,
         foregroundColor: string,
-    ): void {
+    ): Promise<void> {
         // If the vim colorscheme changed, for example, via `:co <sometheme>`,
         // then we should update our theme to match
         if (
@@ -364,6 +368,7 @@ export class ThemeManager {
                 name: vimName,
                 baseVimTheme: vimName,
                 colors: getColorsFromBackgroundAndForeground(backgroundColor, foregroundColor),
+                tokenColors: [],
             }
 
             this._updateTheme(vimTheme)
@@ -381,7 +386,11 @@ export class ThemeManager {
     private _updateTheme(theme: IThemeMetadata): void {
         this._activeTheme = theme
 
-        const userColors = getColorsFromConfig(configuration, this.activeTheme.colors)
+        const userColors = getColorsFromConfig({
+            config: configuration,
+            defaultTheme: DefaultThemeColors,
+            themeColors: this.activeTheme.colors,
+        })
 
         this._colors = {
             ...DefaultThemeColors,

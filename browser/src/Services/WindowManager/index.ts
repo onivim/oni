@@ -8,14 +8,13 @@
  * to the active editor, and managing transitions between editors.
  */
 
-import * as Oni from "oni-api"
-
+export * from "./layoutFromSplitInfo"
 export * from "./LinearSplitProvider"
 export * from "./RelationalSplitNavigator"
 export * from "./SingleSplitProvider"
 export * from "./WindowDock"
 export * from "./WindowManager"
-export * from "./WindowState"
+export * from "./WindowManagerStore"
 
 // TODO: Possible API types?
 export type Direction = "up" | "down" | "left" | "right"
@@ -36,16 +35,15 @@ export const getInverseDirection = (direction: Direction): Direction => {
     }
 }
 
-import { SplitOrLeaf } from "./WindowState"
-
 import { WindowManager } from "./WindowManager"
+import { IAugmentedSplitInfo, SplitOrLeaf } from "./WindowManagerStore"
 
 /**
  * Interface for something that can navigate between window splits
  */
 export interface IWindowSplitNavigator {
-    contains(split: Oni.IWindowSplit): boolean
-    move(startSplit: Oni.IWindowSplit, direction: Direction): Oni.IWindowSplit
+    contains(split: IAugmentedSplitInfo): boolean
+    move(startSplit: IAugmentedSplitInfo, direction: Direction): IAugmentedSplitInfo
 }
 
 /**
@@ -57,12 +55,12 @@ export interface IWindowSplitNavigator {
  */
 export interface IWindowSplitProvider extends IWindowSplitNavigator {
     split(
-        newSplit: Oni.IWindowSplit,
+        newSplit: IAugmentedSplitInfo,
         direction: SplitDirection,
-        referenceSplit?: Oni.IWindowSplit,
+        referenceSplit?: IAugmentedSplitInfo,
     ): boolean
-    close(split: Oni.IWindowSplit): boolean
-    getState(): SplitOrLeaf<Oni.IWindowSplit>
+    close(split: IAugmentedSplitInfo): boolean
+    getState(): SplitOrLeaf<IAugmentedSplitInfo>
 }
 
 export const windowManager = new WindowManager()

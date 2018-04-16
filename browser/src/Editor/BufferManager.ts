@@ -13,6 +13,8 @@ import "rxjs/add/observable/defer"
 import "rxjs/add/observable/from"
 import "rxjs/add/operator/concatMap"
 
+import { Store } from "redux"
+
 import * as Oni from "oni-api"
 
 import {
@@ -24,8 +26,6 @@ import {
 import * as LanguageManager from "./../Services/Language"
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
-import * as SyntaxHighlighting from "./../Services/SyntaxHighlighting"
-
 import {
     BufferHighlightId,
     BufferHighlightsUpdater,
@@ -33,19 +33,62 @@ import {
 } from "./BufferHighlights"
 
 import * as Actions from "./NeovimEditor/NeovimEditorActions"
+import * as State from "./NeovimEditor/NeovimEditorStore"
 
 import * as Constants from "./../Constants"
 import * as Log from "./../Log"
+import { TokenColor } from "./../Services/TokenColors"
+
+import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 
 export interface IBuffer extends Oni.Buffer {
+    setLanguage(lang: string): Promise<void>
     getCursorPosition(): Promise<types.Position>
+    handleInput(key: string): boolean
+    detectIndentation(): Promise<BufferIndentationInfo>
+    setScratchBuffer(): Promise<void>
 }
 
-export class Buffer implements Oni.Buffer {
+type NvimError = [1, string]
+
+const isStringArray = (value: NvimError | string[]): value is string[] => {
+    if (value && Array.isArray(value)) {
+        return typeof value[0] === "string"
+    }
+    return false
+}
+
+export type IndentationType = "tab" | "space"
+
+export interface BufferIndentationInfo {
+    type: IndentationType
+
+    // If indentation is 'space', this is how
+    // many spaces are at a particular tabstop
+    amount: number
+
+    // String value for indentation
+    indent: string
+}
+
+const getStringFromTypeAndAmount = (type: IndentationType, amount: number): string => {
+    if (type === "tab") {
+        return "\t"
+    } else {
+        let str = ""
+        for (let i = 0; i < amount; i++) {
+            str += " "
+        }
+        return str
+    }
+}
+
+export class Buffer implements IBuffer {
     private _id: string
     private _filePath: string
     private _language: string
     private _cursor: Oni.Cursor
+    private _cursorOffset: number
     private _version: number
     private _modified: boolean
     private _lineCount: number
@@ -69,6 +112,10 @@ export class Buffer implements Oni.Buffer {
         return this._cursor
     }
 
+    public get cursorOffset(): number {
+        return this._cursorOffset
+    }
+
     public get version(): number {
         return this._version
     }
@@ -84,13 +131,36 @@ export class Buffer implements Oni.Buffer {
     constructor(
         private _neovimInstance: NeovimInstance,
         private _actions: typeof Actions,
+        private _store: Store<State.IState>,
         evt: EventContext,
     ) {
         this.updateFromEvent(evt)
     }
 
-    public addLayer(layer: Oni.EditorLayer): void {
+    public addLayer(layer: IBufferLayer): void {
         this._actions.addBufferLayer(parseInt(this._id, 10), layer)
+    }
+
+    public getLayerById<T>(id: string): T {
+        return (this._store
+            .getState()
+            .layers[parseInt(this._id, 10)].find(layer => layer.id === id) as any) as T
+    }
+
+    public removeLayer(layer: IBufferLayer): void {
+        this._actions.removeBufferLayer(parseInt(this._id, 10), layer)
+    }
+
+    /**
+     * convertOffsetToLineColumn
+     */
+    public async convertOffsetToLineColumn(
+        cursorOffset = this._cursorOffset,
+    ): Promise<types.Position> {
+        const line: number = await this._neovimInstance.callFunction("byte2line", [cursorOffset])
+        const countFromLine: number = await this._neovimInstance.callFunction("line2byte", [line])
+        const column = cursorOffset - countFromLine
+        return types.Position.create(line - 1, column)
     }
 
     public async getCursorPosition(): Promise<types.Position> {
@@ -112,21 +182,78 @@ export class Buffer implements Oni.Buffer {
             Log.warn("getLines called with over 2500 lines, this may cause instability.")
         }
 
-        const lines = await this._neovimInstance.request<any>("nvim_buf_get_lines", [
+        // Neovim does not error if it is unable to get lines instead it returns an array
+        // of type [1, "an error message"] **on Some occasions**, we only check the first on the assumption that
+        // that is where the number is placed by neovim
+        const lines = await this._neovimInstance.request<string[]>("nvim_buf_get_lines", [
             parseInt(this._id, 10),
             start,
             end,
             false,
         ])
-        return lines
+
+        if (isStringArray(lines)) {
+            return lines
+        }
+        return []
     }
 
     public async setLanguage(language: string): Promise<void> {
-        await this._neovimInstance.request<any>("nvim_buf_set_option", [
-            parseInt(this._id, 10),
-            "filetype",
-            language,
+        this._language = language
+        await this._neovimInstance.command(`setl ft=${language}`)
+    }
+
+    public async setScratchBuffer(): Promise<void> {
+        // set the open buffer to be a readonly throw away buffer, also add scrollbind
+        // may need a config option
+        const calls = [
+            ["nvim_command", ["setlocal buftype=nofile"]],
+            ["nvim_command", ["setlocal bufhidden=hide"]],
+            ["nvim_command", ["setlocal noswapfile"]],
+            ["nvim_command", ["setlocal nobuflisted"]],
+            ["nvim_command", ["setlocal nomodifiable"]],
+            ["nvim_command", ["windo set scrollbind!"]],
+        ]
+
+        const [result, error] = await this._neovimInstance.request<any[] | NvimError>(
+            "nvim_call_atomic",
+            [calls],
+        )
+
+        if (typeof result === "number" && error) {
+            Log.info(`Failed to set scratch buffer due to ${error}`)
+        }
+        this._modified = false
+    }
+
+    public async detectIndentation(): Promise<BufferIndentationInfo> {
+        const bufferLinesPromise = this.getLines(0, 1024)
+        const detectIndentPromise = import("detect-indent")
+
+        const [bufferLines, detectIndent] = await Promise.all([
+            bufferLinesPromise,
+            detectIndentPromise,
         ])
+
+        const ret = detectIndent(bufferLines.join("\n"))
+
+        // We were able to infer tab settings from lines, so return
+        if (ret.type === "tab" || ret.type === "space") {
+            return ret
+        }
+
+        // Otherwise, we'll fall back to getting vim tab settings
+        const isSpaces = await this._neovimInstance.request<boolean>("nvim_get_option", [
+            "expandtab",
+        ])
+        const tabSize = await this._neovimInstance.request<number>("nvim_get_option", ["tabstop"])
+
+        const tabType = isSpaces ? "space" : "tab"
+        return {
+            amount: tabSize,
+            type: tabType,
+            indent: getStringFromTypeAndAmount(tabType, tabSize),
+        }
     }
 
     public async applyTextEdits(textEdits: types.TextEdit | types.TextEdit[]): Promise<void> {
@@ -179,18 +306,31 @@ export class Buffer implements Oni.Buffer {
             .toPromise()
     }
 
-    public async getOrCreateHighlightGroup(
-        highlight: SyntaxHighlighting.IHighlight | string,
-    ): Promise<SyntaxHighlighting.HighlightGroupId> {
-        if (typeof highlight === "string") {
-            return highlight
-        } else {
-            // TODO: needed for theming integration!
-            return null
-        }
-    }
+    public handleInput(key: string): boolean {
+        const state = this._store.getState()
 
+        const layers: IBufferLayer[] = state.layers[this._id]
+
+        if (!layers || !layers.length) {
+            return false
+        }
+
+        const result = layers.reduce<boolean>((prev, curr) => {
+            if (prev) {
+                return true
+            }
+
+            if (!curr || !curr.handleInput) {
+                return false
+            } else {
+                return curr.handleInput(key)
+            }
+        }, false)
+
+        return result
+    }
     public async updateHighlights(
+        tokenColors: TokenColor[],
         updateFunction: (highlightsUpdater: IBufferHighlightsUpdater) => void,
     ): Promise<void> {
         this._promiseQueue.enqueuePromise(async () => {
@@ -200,6 +340,7 @@ export class Buffer implements Oni.Buffer {
                 this._neovimInstance,
                 this._bufferHighlightId,
             )
+            await this._neovimInstance.tokenColorSynchronizer.synchronizeTokenColors(tokenColors)
             await bufferUpdater.start()
 
             updateFunction(bufferUpdater)
@@ -264,6 +405,10 @@ export class Buffer implements Oni.Buffer {
         }
 
         const getToken = (lineContents: string, character: number): Oni.IToken => {
+            if (!lineContents || !character) {
+                return null
+            }
+
             const tokenStart = getLastMatchingCharacter(lineContents, character, -1, tokenRegEx)
             const tokenEnd = getLastMatchingCharacter(lineContents, character, 1, tokenRegEx)
 
@@ -286,6 +431,7 @@ export class Buffer implements Oni.Buffer {
         this._version = evt.version
         this._modified = evt.modified
         this._lineCount = evt.bufferTotalLines
+        this._cursorOffset = evt.byte
 
         this._cursor = {
             line: evt.line - 1,
@@ -300,7 +446,11 @@ export class BufferManager {
     private _filePathToId: { [filePath: string]: string } = {}
     private _bufferList: { [id: string]: InactiveBuffer } = {}
 
-    constructor(private _neovimInstance: NeovimInstance, private _actions: typeof Actions) {}
+    constructor(
+        private _neovimInstance: NeovimInstance,
+        private _actions: typeof Actions,
+        private _store: Store<State.IState>,
+    ) {}
 
     public updateBufferFromEvent(evt: EventContext): Buffer {
         const id = evt.bufferNumber.toString()
@@ -313,7 +463,7 @@ export class BufferManager {
         if (currentBuffer) {
             currentBuffer.updateFromEvent(evt)
         } else {
-            const buf = new Buffer(this._neovimInstance, this._actions, evt)
+            const buf = new Buffer(this._neovimInstance, this._actions, this._store, evt)
             this._idToBuffer[id] = buf
         }
 

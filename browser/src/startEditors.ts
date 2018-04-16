@@ -12,12 +12,12 @@ import { Colors } from "./Services/Colors"
 import { CompletionProviders } from "./Services/Completion"
 import { Configuration } from "./Services/Configuration"
 import { IDiagnosticsDataSource } from "./Services/Diagnostics"
-import { editorManager } from "./Services/EditorManager"
 import { LanguageManager } from "./Services/Language"
 import { MenuManager } from "./Services/Menu"
 import { OverlayManager } from "./Services/Overlay"
-import { Tasks } from "./Services/Tasks"
+import { SnippetManager } from "./Services/Snippets"
 import { ThemeManager } from "./Services/Themes"
+import { TokenColors } from "./Services/TokenColors"
 import { windowManager } from "./Services/WindowManager"
 import { Workspace } from "./Services/Workspace"
 
@@ -31,8 +31,9 @@ export const startEditors = async (
     menuManager: MenuManager,
     overlayManager: OverlayManager,
     pluginManager: PluginManager,
-    tasks: Tasks,
+    snippetManager: SnippetManager,
     themeManager: ThemeManager,
+    tokenColors: TokenColors,
     workspace: Workspace,
 ): Promise<void> => {
     const editor = new OniEditor(
@@ -44,12 +45,12 @@ export const startEditors = async (
         menuManager,
         overlayManager,
         pluginManager,
-        tasks,
+        snippetManager,
         themeManager,
+        tokenColors,
         workspace,
     )
-    editorManager.setActiveEditor(editor)
-    windowManager.split("horizontal", editor)
+    windowManager.createSplit("horizontal", editor)
 
     await editor.init(args)
 }
