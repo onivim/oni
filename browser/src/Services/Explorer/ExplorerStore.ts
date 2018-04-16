@@ -537,31 +537,29 @@ interface Dependencies {
 type ExplorerEpic = Epic<ExplorerAction, IExplorerState, Dependencies>
 
 export const pasteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
-    action$
-        .ofType("PASTE")
-        .concatMap(async ({ target, pasted }: IPasteAction) => {
-            const moved = await Promise.all(
-                pasted.map(async yankedItem => {
-                    const paths = getSourceAndDestPaths(yankedItem, target)
-                    await fileSystem.move(paths.source, paths.destination)
-                    return { node: yankedItem, destination: paths.destination }
-                }),
-            )
-            return { moved, target: [target] }
-        })
-        .flatMap(({ moved, target }) => {
-            const ids = moved.map(item => item.node.id)
-            return [
-                Actions.clearRegister(ids),
-                ...shouldExpandDirectory(target),
-                Actions.refresh,
-                Actions.pasteSuccess(moved),
-            ]
-        })
-        .catch(error => {
-            Log.warn(error)
-            return [Actions.pasteFail(error.message)]
-        })
+    action$.ofType("PASTE").mergeMap(({ target, pasted }: IPasteAction) => {
+        const ids = pasted.map(item => item.id)
+        const clearRegister = Actions.clearRegister(ids)
+        return Observable.forkJoin(
+            pasted.map(async yankedItem => {
+                const paths = getSourceAndDestPaths(yankedItem, target)
+                await fileSystem.move(paths.source, paths.destination)
+                return { node: yankedItem, destination: paths.destination }
+            }),
+        )
+            .flatMap(moved => {
+                return [
+                    clearRegister,
+                    ...shouldExpandDirectory([target]),
+                    Actions.refresh,
+                    Actions.pasteSuccess(moved),
+                ]
+            })
+            .catch(error => {
+                Log.warn(error)
+                return [clearRegister, Actions.pasteFail(error.message)]
+            })
+    })
 
 export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$
