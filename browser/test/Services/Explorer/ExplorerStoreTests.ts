@@ -150,11 +150,11 @@ describe("ExplorerStore", () => {
             move: async (source, dest) => null,
             readdir: () => null as any,
             exists: async file => true,
-            persistNode: file => null,
-            restoreNode: file => null,
+            persistNode: async file => null,
+            restoreNode: async file => null,
             deleteNode: file => null,
             canPersistNode: async (file, size) => true,
-            moveNodesBack: collection => null,
+            moveNodesBack: async collection => null,
         } as ExplorerFileSystem.IFileSystem
 
         it("dispatches a clear register action after a minute", async () => {
@@ -230,7 +230,7 @@ describe("ExplorerStore", () => {
             ExplorerState.deleteEpic(action$, null, {
                 fileSystem: {
                     ...fs,
-                    persistNode: node => {
+                    persistNode: async node => {
                         throw new Error("Doesnt work")
                     },
                 },

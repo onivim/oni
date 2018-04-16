@@ -349,6 +349,10 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                 undo: [...state.undo, action],
                 updated: getUpdatedNode(action),
             }
+        // case "PASTE_SUCCESS":
+        //     return {
+        //         ...state,
+        //     }
         case "UNDO_SUCCESS":
             return {
                 ...state,
@@ -540,11 +544,12 @@ export const pasteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("PASTE").mergeMap(({ target, pasted }: IPasteAction) => {
         const ids = pasted.map(item => item.id)
         const clearRegister = Actions.clearRegister(ids)
+
         return Observable.forkJoin(
             pasted.map(async yankedItem => {
-                const paths = getSourceAndDestPaths(yankedItem, target)
-                await fileSystem.move(paths.source, paths.destination)
-                return { node: yankedItem, destination: paths.destination }
+                const { source, destination } = getSourceAndDestPaths(yankedItem, target)
+                await fileSystem.move(source, destination)
+                return { node: yankedItem, destination }
             }),
         )
             .flatMap(moved => {
@@ -561,61 +566,64 @@ export const pasteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
             })
     })
 
+const successActions = (maybeDirsNodes: ExplorerNode[]) => [
+    Actions.undoSuccess,
+    ...shouldExpandDirectory(maybeDirsNodes),
+    Actions.refresh,
+]
+
 export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
-    action$
-        .ofType("UNDO")
-        .flatMap(async action => {
-            const { register: { undo } } = store.getState()
-            const lastAction = last(undo)
+    action$.ofType("UNDO").mergeMap(action => {
+        const { register: { undo } } = store.getState()
+        const lastAction = last(undo)
 
-            switch (lastAction.type) {
-                case "PASTE":
-                    const { pasted, target: dir, sources } = lastAction
-                    const filesAndFolders = pasted.map(file => getSourceAndDestPaths(file, dir))
-                    await fileSystem.moveNodesBack(filesAndFolders)
-                    return { action: Actions.undoSuccess, target: sources }
+        switch (lastAction.type) {
+            case "PASTE":
+                const { pasted, target: dir, sources } = lastAction
+                const filesAndFolders = pasted.map(file => getSourceAndDestPaths(file, dir))
+                return Observable.fromPromise(fileSystem.moveNodesBack(filesAndFolders))
+                    .flatMap(() => successActions(sources))
+                    .catch(error => {
+                        Log.warn(error)
+                        return [Actions.undoFail("Sorry we can't undo the laste paste action")]
+                    })
 
-                case "DELETE_SUCCESS":
-                    const { target } = lastAction
-                    if (lastAction.persist) {
-                        await fileSystem.restoreNode(getPathForNode(target))
-                        return { action: Actions.undoSuccess, target: [target] }
-                    }
-                    throw Error("The last deletion cannot be undone, sorry")
-                default:
-                    throw Error("Sorry we can't undo the last action")
-            }
-        })
-        .flatMap(({ action, target }) => [
-            action,
-            ...shouldExpandDirectory(target),
-            Actions.refresh,
-        ])
-        .catch((error, observable) => {
-            Log.warn(error)
-            return [Actions.undoFail(error.message)]
-        })
+            case "DELETE_SUCCESS":
+                const { target } = lastAction
+                return lastAction.persist
+                    ? Observable.fromPromise(fileSystem.restoreNode(getPathForNode(target)))
+                          .flatMap(() => successActions([target]))
+                          .catch(error => {
+                              Log.warn(error)
+                              return [Actions.undoFail("The last deletion cannot be undone, sorry")]
+                          })
+                    : [Actions.undoFail("The last deletion cannot be undone, sorry")]
+            default:
+                return [Actions.undoFail("Sorry we can't undo the last action")]
+        }
+    })
 
 export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
-    action$
-        .ofType("DELETE")
-        .mergeMap(async (action: IDeleteAction) => {
-            const { target, persist } = action
-            const fullPath = getPathForNode(target)
-            const maxSize: number = configuration.getValue("explorer.maxUndoFileSizeInBytes")
-            const persistEnabled: boolean = configuration.getValue("explorer.persistDeletedFiles")
-            const canPersistNode = await fileSystem.canPersistNode(fullPath, maxSize)
+    action$.ofType("DELETE").mergeMap((action: IDeleteAction) => {
+        const { target, persist } = action
+        const fullPath = getPathForNode(target)
+        const maxSize = configuration.getValue("explorer.maxUndoFileSizeInBytes")
+        const persistEnabled = configuration.getValue("explorer.persistDeletedFiles")
+        const persistPromise = fileSystem.canPersistNode(fullPath, maxSize)
 
-            persistEnabled && persist && canPersistNode
-                ? await fileSystem.persistNode(fullPath)
-                : await fileSystem.deleteNode(target)
-            return Actions.deleteSuccess(target, persist)
-        })
-        .flatMap(action => [action, Actions.refresh])
-        .catch((error, observable) => {
-            Log.warn(error)
-            return [Actions.deleteFail(error.message)]
-        })
+        return Observable.fromPromise(persistPromise).flatMap(canPersistNode =>
+            Observable.fromPromise(
+                persistEnabled && persist && canPersistNode
+                    ? fileSystem.persistNode(fullPath)
+                    : fileSystem.deleteNode(target),
+            )
+                .flatMap(() => [Actions.deleteSuccess(target, persist), Actions.refresh])
+                .catch(error => {
+                    Log.warn(error)
+                    return [Actions.deleteFail(error.message)]
+                }),
+        )
+    })
 
 export const clearYankRegisterEpic: ExplorerEpic = (action$, store) =>
     action$.ofType("YANK").mergeMap((action: IYankAction) => {
