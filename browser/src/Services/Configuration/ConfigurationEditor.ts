@@ -13,9 +13,9 @@ import * as Log from "./../../Log"
 
 import { EditorManager } from "./../EditorManager"
 
+import { flatMap } from "./../../Utility"
 import { Configuration } from "./Configuration"
 import { DefaultConfiguration } from "./DefaultConfiguration"
-import { flatMap } from "./../../Utility"
 
 // For configuring Oni, JavaScript is the de-facto language, and the configuration
 // today will _always_ happen through `config.js`
