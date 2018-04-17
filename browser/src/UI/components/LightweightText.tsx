@@ -7,12 +7,20 @@ export interface ITextInputViewProps {
     onCancel?: () => void
     onComplete?: (result: string) => void
     onChange?: (evt: React.ChangeEvent<HTMLInputElement>) => void
+    styles?: any
 
     defaultValue?: string
 }
 
-const Input = withProps<{ styles?: any } & ITextInputViewProps>(styled.input)`
-    ${p => p.styles};
+export interface IInputProps extends ITextInputViewProps {
+    inputStyles?: any
+    onKeyDown: (evt: React.KeyboardEvent<HTMLInputElement>) => void
+    onChange: (evt: React.ChangeEvent<HTMLInputElement>) => void
+    onFocus: (evt: React.FocusEvent<HTMLInputElement>) => void
+}
+
+const Input = withProps<IInputProps>(styled.input)`
+    ${p => p.inputStyles};
 `
 
 // TODO: Is there a better value for this?
@@ -44,14 +52,15 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
             <div className="input-container enable-mouse">
                 <Input
                     type="text"
+                    inputStyles={this.props.styles}
                     style={inputStyle}
                     placeholder={defaultValue}
-                    onKeyDown={evt => this._onKeyDown(evt)}
-                    onChange={evt => this._onChange(evt)}
-                    onFocus={evt => evt.currentTarget.select()}
-                    ref={elem => {
-                        this._element = elem
-                    }}
+                    onKeyDown={this._onKeyDown}
+                    onChange={this._onChange}
+                    onFocus={(evt: React.FocusEvent<HTMLInputElement>) =>
+                        evt.currentTarget.select()
+                    }
+                    innerRef={(elem: HTMLInputElement) => (this._element = elem)}
                 />
             </div>
         )
@@ -64,19 +73,19 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         }
     }
 
-    private _onChange(changeEvent: React.ChangeEvent<HTMLInputElement>): void {
+    private _onChange = (changeEvent: React.ChangeEvent<HTMLInputElement>): void => {
         if (this.props.onChange) {
             this.props.onChange(changeEvent)
         }
     }
 
-    private _cancel(): void {
+    private _cancel = (): void => {
         if (this.props.onCancel) {
             this.props.onCancel()
         }
     }
 
-    private _onKeyDown(keyboardEvent: React.KeyboardEvent<HTMLInputElement>): void {
+    private _onKeyDown = (keyboardEvent: React.KeyboardEvent<HTMLInputElement>): void => {
         if (keyboardEvent.keyCode === 27) {
             this._cancel()
             return

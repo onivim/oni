@@ -11,7 +11,7 @@ import { compose } from "redux"
 
 import { CSSTransition, TransitionGroup } from "react-transition-group"
 
-import { styled } from "./../../UI/components/common"
+import { css, styled } from "./../../UI/components/common"
 import { TextInputView } from "./../../UI/components/LightweightText"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { Sneakable } from "./../../UI/components/Sneakable"
@@ -31,6 +31,7 @@ export interface INodeViewProps {
     isSelected: boolean
     onClick: () => void
     onCancelRename: () => void
+    onCompleteRename: (newName: string) => void
     yanked: string[]
     updated?: string[]
     isRenaming: Node
@@ -94,6 +95,17 @@ const Transition = ({ children, updated }: ITransitionProps) => (
     </CSSTransition>
 )
 
+const renameStyles = css`
+    width: 100%;
+    background-color: inherit;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    border: 2px solid ${p => p.theme["highlight.mode.normal.background"]} !important;
+`
+
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     public moveFileOrFolder = ({ drag, drop }: IMoveNode) => {
         this.props.moveFileOrFolder(drag.node, drop.node)
@@ -104,13 +116,19 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     }
 
     public render(): JSX.Element {
+        const renameInProgress =
+            this.props.isRenaming.name === this.props.node.name && this.props.isSelected
         return (
             <NodeWrapper
                 style={{ cursor: "pointer" }}
                 innerRef={this.props.isSelected ? scrollIntoViewIfNeeded : noop}
             >
-                {this.props.isRenaming.name === this.props.node.name && this.props.isSelected ? (
-                    <TextInputView onCancel={this.props.onCancelRename} />
+                {renameInProgress ? (
+                    <TextInputView
+                        styles={renameStyles}
+                        onCancel={this.props.onCancelRename}
+                        onComplete={this.props.onCompleteRename}
+                    />
                 ) : (
                     this.getElement()
                 )}
@@ -217,6 +235,7 @@ export interface IExplorerViewContainerProps {
     onSelectionChanged: (id: string) => void
     onClick: (id: string) => void
     onCancelRename: () => void
+    onCompleteRename: (newName: string) => void
     yanked?: string[]
     isRenaming?: Node
 }
@@ -286,13 +305,14 @@ const mapStateToProps = (
     containerProps: IExplorerViewContainerProps,
 ): IExplorerViewProps => {
     const yanked = state.register.yank.map(node => node.id)
+    const { register: { updated, rename } } = state
     return {
         ...containerProps,
         isActive: state.hasFocus,
         nodes: ExplorerSelectors.mapStateToNodeList(state),
-        updated: state.register.updated,
+        updated,
         yanked,
-        isRenaming: state.register.rename.active && state.register.rename.target,
+        isRenaming: rename.active && rename.target,
     }
 }
 

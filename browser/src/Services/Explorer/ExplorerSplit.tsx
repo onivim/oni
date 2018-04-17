@@ -79,6 +79,7 @@ export class ExplorerSplit {
         return (
             <Provider store={this._store}>
                 <Explorer
+                    onCompleteRename={this._completeRename}
                     onCancelRename={this._cancelRename}
                     onSelectionChanged={id => this._onSelectionChanged(id)}
                     onClick={id => this._onOpenItem(id)}
@@ -216,7 +217,11 @@ export class ExplorerSplit {
         if (!selected) {
             return
         }
-        this._store.dispatch({ type: "RENAME", target: selected })
+        this._store.dispatch({ type: "RENAME_START", target: selected })
+    }
+
+    private _completeRename = (newName: string) => {
+        this._store.dispatch({ type: "RENAME_COMMIT", newName })
     }
 
     private _cancelRename = () => {

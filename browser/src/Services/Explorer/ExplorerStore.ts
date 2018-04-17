@@ -75,6 +75,8 @@ export type RegisterAction =
     | IUndoAction
     | IUndoSuccessAction
     | IUndoFailAction
+    | IRenameSuccessAction
+    | IRenameFailAction
 
 interface IRegisterState {
     yank: ExplorerNode[]
@@ -199,22 +201,31 @@ export interface IPasteSuccessAction {
     moved: IMovedNodes[]
 }
 
-export interface IRenameAction {
-    type: "RENAME"
+export interface IRenameStartAction {
+    type: "RENAME_START"
     target: ExplorerNode
     active: boolean
 }
 
 export interface IRenameSuccessAction {
     type: "RENAME_SUCCESS"
+    source: string
+    destination: string
 }
 
 export interface IRenameFailAction {
     type: "RENAME_FAIL"
+    reason: string
 }
 
 export interface ICancelRenameAction {
-    type: "CANCEL_RENAME"
+    type: "RENAME_CANCEL"
+}
+
+export interface IRenameCommitAction {
+    type: "RENAME_COMMIT"
+    target: ExplorerNode
+    newName: string
 }
 
 export interface IMovedNodes {
@@ -229,9 +240,10 @@ export type ExplorerAction =
     | ICollapseDirectory
     | ISetRootDirectoryAction
     | IExpandDirectoryAction
-    | IRenameAction
+    | IRenameStartAction
     | IRenameSuccessAction
     | IRenameFailAction
+    | IRenameCommitAction
     | ICancelRenameAction
     | IDeleteFailAction
     | IRefreshAction
@@ -264,7 +276,11 @@ const getSourceAndDestPaths = (source: ExplorerNode, dest: ExplorerNode) => {
 // Do not add un-undoable action to the undo list
 export const shouldAddDeletion = (action: IDeleteSuccessAction) => (action.persist ? [action] : [])
 
-type Updates = IPasteSuccessAction | IDeleteSuccessAction | IUndoSuccessAction
+type Updates =
+    | IPasteSuccessAction
+    | IDeleteSuccessAction
+    | IUndoSuccessAction
+    | IRenameSuccessAction
 
 export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[] => {
     switch (action.type) {
@@ -272,6 +288,8 @@ export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[
             return action.moved.map(node => node.destination)
         case "DELETE_SUCCESS":
             return [getPathForNode(action.target)]
+        case "RENAME_SUCCESS":
+            return [action.destination]
         case "UNDO_SUCCESS":
             const lastAction = last(state.undo)
 
@@ -315,6 +333,11 @@ const Actions = {
     undoFail: (reason: string) => ({ type: "UNDO_FAIL", reason } as IUndoFailAction),
 
     undoSuccess: { type: "UNDO_SUCCESS" } as IUndoSuccessAction,
+
+    renameSuccess: ({ source, destination }: { source: string; destination: string }) =>
+        ({ type: "RENAME_SUCCESS", destination, source } as IRenameSuccessAction),
+
+    renameFail: (reason: string) => ({ type: "RENAME_FAIL", reason } as IRenameFailAction),
 
     paste: { type: "PASTE" } as IPasteAction,
 
@@ -363,7 +386,7 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
     action: ExplorerAction,
 ) => {
     switch (action.type) {
-        case "RENAME":
+        case "RENAME_START":
             return {
                 ...state,
                 rename: {
@@ -371,9 +394,19 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                     target: action.target,
                 },
             }
-        case "CANCEL_RENAME":
+        case "RENAME_CANCEL":
             return {
                 ...state,
+                rename: {
+                    active: false,
+                    target: null,
+                },
+            }
+        case "RENAME_SUCCESS":
+            return {
+                ...state,
+                undo: [...state.undo, action],
+                updated: getUpdatedNode(action),
                 rename: {
                     active: false,
                     target: null,
@@ -640,6 +673,15 @@ export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
                               return [Actions.undoFail("The last deletion cannot be undone, sorry")]
                           })
                     : [Actions.undoFail("The last deletion cannot be undone, sorry")]
+
+            case "RENAME_SUCCESS":
+                const { source, destination } = lastAction
+                return fromPromise(fileSystem.move(destination, source))
+                    .flatMap(() => successActions([]))
+                    .catch(error => {
+                        Log.warn(error)
+                        return [Actions.undoFail("The last rename could not be undone, sorry")]
+                    })
             default:
                 return [Actions.undoFail("Sorry we can't undo the last action")]
         }
@@ -666,6 +708,19 @@ export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
                 }),
         )
     })
+
+export const renameEpic: ExplorerEpic = (action$, store, { fileSystem }) => {
+    const state = store.getState()
+    const { register: { rename: { target } } } = state
+    return action$.ofType("RENAME_COMMIT").mergeMap(({ newName }: IRenameCommitAction) =>
+        fromPromise(fileSystem.move(getPathForNode(target), newName))
+            .flatMap(() => [
+                Actions.renameSuccess({ source: getPathForNode(target), destination: newName }),
+                Actions.refresh,
+            ])
+            .catch(error => [Actions.renameFail(error.message)]),
+    )
+}
 
 export const clearYankRegisterEpic: ExplorerEpic = (action$, store) =>
     action$.ofType("YANK").mergeMap((action: IYankAction) => {
