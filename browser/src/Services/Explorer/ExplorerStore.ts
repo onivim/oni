@@ -41,6 +41,10 @@ export const DefaultRegisterState: IRegisterState = {
     undo: [],
     paste: EmptyNode,
     updated: null,
+    rename: {
+        active: false,
+        target: null,
+    },
 }
 
 export interface IFileState {
@@ -76,6 +80,10 @@ interface IRegisterState {
     yank: ExplorerNode[]
     paste: ExplorerNode
     undo: RegisterAction[]
+    rename: {
+        active: boolean
+        target: ExplorerNode
+    }
     updated: string[]
 }
 
@@ -191,6 +199,20 @@ export interface IPasteSuccessAction {
     moved: IMovedNodes[]
 }
 
+export interface IRenameAction {
+    type: "RENAME"
+    target: ExplorerNode
+    active: boolean
+}
+
+export interface IRenameSuccessAction {
+    type: "RENAME_SUCCESS"
+}
+
+export interface IRenameFailAction {
+    type: "RENAME_FAIL"
+}
+
 export interface IMovedNodes {
     node: ExplorerNode
     destination: string
@@ -203,6 +225,9 @@ export type ExplorerAction =
     | ICollapseDirectory
     | ISetRootDirectoryAction
     | IExpandDirectoryAction
+    | IRenameAction
+    | IRenameSuccessAction
+    | IRenameFailAction
     | IDeleteFailAction
     | IRefreshAction
     | IDeleteAction
@@ -333,6 +358,14 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
     action: ExplorerAction,
 ) => {
     switch (action.type) {
+        case "RENAME":
+            return {
+                ...state,
+                rename: {
+                    active: true,
+                    target: action.target,
+                },
+            }
         case "YANK":
             return {
                 ...state,

@@ -15,6 +15,7 @@ import { styled } from "./../../UI/components/common"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
+import { TextInputView } from "./../../UI/components/LightweightText"
 import { DragAndDrop, Droppeable } from "./../DragAndDrop"
 
 import { FileIcon } from "./../FileIcon"
@@ -31,6 +32,7 @@ export interface INodeViewProps {
     onClick: () => void
     yanked: string[]
     updated?: string[]
+    isRenaming: Node
 }
 
 const NodeWrapper = styled.div`
@@ -106,7 +108,11 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                 style={{ cursor: "pointer" }}
                 innerRef={this.props.isSelected ? scrollIntoViewIfNeeded : noop}
             >
-                {this.getElement()}
+                {this.props.isRenaming.name === this.props.node.name && this.props.isSelected ? (
+                    <TextInputView onCancel={this.props.cancelRename} />
+                ) : (
+                    this.getElement()
+                )}
             </NodeWrapper>
         )
     }
@@ -210,6 +216,7 @@ export interface IExplorerViewContainerProps {
     onSelectionChanged: (id: string) => void
     onClick: (id: string) => void
     yanked?: string[]
+    isRenaming?: Node
 }
 
 export interface IExplorerViewProps extends IExplorerViewContainerProps {
@@ -248,6 +255,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                         const nodes = this.props.nodes.map(node => (
                             <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
                                 <NodeView
+                                    isRenaming={this.props.isRenaming}
                                     updated={this.props.updated}
                                     yanked={this.props.yanked}
                                     moveFileOrFolder={this.props.moveFileOrFolder}
@@ -281,6 +289,7 @@ const mapStateToProps = (
         nodes: ExplorerSelectors.mapStateToNodeList(state),
         updated: state.register.updated,
         yanked,
+        isRenaming: state.register.rename.active && state.register.rename.target,
     }
 }
 

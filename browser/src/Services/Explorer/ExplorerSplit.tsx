@@ -139,6 +139,12 @@ export class ExplorerSplit {
                 () => this._toggleDirectory("collapse"),
             ),
         )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand("explorer.rename", "Rename the selected file/folder", null, () =>
+                this._renameItem(),
+            ),
+        )
     }
 
     private _onSelectionChanged(id: string): void {
@@ -202,6 +208,18 @@ export class ExplorerSplit {
         )
 
         return parentNode
+    }
+
+    private _renameItem = () => {
+        const selected = this._getSelectedItem()
+        if (!selected) {
+            return
+        }
+        this._store.dispatch({ type: "RENAME", target: selected })
+    }
+
+    private _cancelRename = () => {
+        this._store.dispatch({ type: "CANCEL_RENAME" })
     }
 
     // This is different from on openItem since it only activates if the target is a folder
