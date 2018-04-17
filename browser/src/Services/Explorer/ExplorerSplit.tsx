@@ -72,7 +72,6 @@ export class ExplorerSplit {
 
     public moveFileOrFolder = (source: Node, dest: Node): void => {
         this._store.dispatch({ type: "PASTE", pasted: [source], target: dest })
-        this._store.dispatch({ type: "REFRESH" })
     }
 
     public render(): JSX.Element {
@@ -89,15 +88,26 @@ export class ExplorerSplit {
         )
     }
 
+    private _isRenaming = () => {
+        const { register: { rename } } = this._store.getState()
+        return rename.active
+    }
+
     private _initialiseExplorerCommands(): void {
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.delete.persist", null, null, () =>
-                this._onDeleteItem({ persist: true }),
+            new CallbackCommand(
+                "explorer.delete.persist",
+                null,
+                null,
+                () => !this._isRenaming() && this._onDeleteItem({ persist: true }),
             ),
         )
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.delete", null, null, () =>
-                this._onDeleteItem({ persist: false }),
+            new CallbackCommand(
+                "explorer.delete",
+                null,
+                null,
+                () => !this._isRenaming() && this._onDeleteItem({ persist: false }),
             ),
         )
         this._commandManager.registerCommand(
@@ -105,13 +115,16 @@ export class ExplorerSplit {
                 "explorer.yank",
                 "Yank Selected Item",
                 "Select a file to move",
-                () => this._onYankItem(),
+                () => !this._isRenaming() && this._onYankItem(),
             ),
         )
 
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.undo", "Undo last explorer action", null, () =>
-                this._onUndoItem(),
+            new CallbackCommand(
+                "explorer.undo",
+                "Undo last explorer action",
+                null,
+                () => !this._isRenaming() && this._onUndoItem(),
             ),
         )
 
@@ -120,7 +133,7 @@ export class ExplorerSplit {
                 "explorer.paste",
                 "Move/Paste Selected Item",
                 "Paste the last yanked item",
-                () => this._onPasteItem(),
+                () => !this._isRenaming() && this._onPasteItem(),
             ),
         )
 
@@ -129,7 +142,7 @@ export class ExplorerSplit {
                 "explorer.expand.directory",
                 "Expand a selected directory",
                 null,
-                () => this._toggleDirectory("expand"),
+                () => !this._isRenaming() && this._toggleDirectory("expand"),
             ),
         )
 
@@ -138,13 +151,16 @@ export class ExplorerSplit {
                 "explorer.collapse.directory",
                 "Collapse selected directory",
                 null,
-                () => this._toggleDirectory("collapse"),
+                () => !this._isRenaming() && this._toggleDirectory("collapse"),
             ),
         )
 
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.rename", "Rename the selected file/folder", null, () =>
-                this._renameItem(),
+            new CallbackCommand(
+                "explorer.rename",
+                "Rename the selected file/folder",
+                null,
+                () => !this._isRenaming() && this._renameItem(),
             ),
         )
     }

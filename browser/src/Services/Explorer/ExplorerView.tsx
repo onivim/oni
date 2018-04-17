@@ -269,13 +269,14 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
             <TransitionGroup>
                 <VimNavigator
                     ids={ids}
-                    active={this.props.isActive}
+                    active={this.props.isActive && !this.props.isRenaming}
                     onSelectionChanged={this.props.onSelectionChanged}
                     onSelected={id => this.props.onClick(id)}
                     render={(selectedId: string) => {
                         const nodes = this.props.nodes.map(node => (
                             <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
                                 <NodeView
+                                    onCompleteRename={this.props.onCompleteRename}
                                     isRenaming={this.props.isRenaming}
                                     onCancelRename={this.props.onCancelRename}
                                     updated={this.props.updated}

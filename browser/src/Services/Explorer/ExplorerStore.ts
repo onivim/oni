@@ -297,6 +297,8 @@ export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[
                 return [getPathForNode(lastAction.target)]
             } else if (lastAction.type === "PASTE") {
                 return lastAction.pasted.map(node => getPathForNode(node))
+            } else if (lastAction.type === "RENAME_SUCCESS") {
+                return [lastAction.source]
             }
 
             return []
@@ -311,7 +313,9 @@ const shouldExpandDirectory = (targets: ExplorerNode[]): IExpandDirectoryAction[
         .filter(Boolean)
 
 export const getPathForNode = (node: ExplorerNode) => {
-    if (node.type === "file") {
+    if (!node) {
+        return null
+    } else if (node.type === "file") {
         return node.filePath
     } else if (node.type === "folder") {
         return node.folderPath
@@ -387,6 +391,7 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
 ) => {
     switch (action.type) {
         case "RENAME_START":
+            console.log("action.target: ", action.target)
             return {
                 ...state,
                 rename: {
@@ -712,6 +717,7 @@ export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
 export const renameEpic: ExplorerEpic = (action$, store, { fileSystem }) => {
     const state = store.getState()
     const { register: { rename: { target } } } = state
+    console.log("state =============================: ", state)
     return action$.ofType("RENAME_COMMIT").mergeMap(({ newName }: IRenameCommitAction) =>
         fromPromise(fileSystem.move(getPathForNode(target), newName))
             .flatMap(() => [
@@ -807,6 +813,7 @@ export const createStore = ({
                 setRootDirectoryEpic,
                 clearUpdateEpic,
                 clearYankRegisterEpic,
+                renameEpic,
                 pasteEpic,
                 undoEpic,
                 deleteEpic,
