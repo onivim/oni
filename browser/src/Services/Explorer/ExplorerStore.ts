@@ -213,6 +213,10 @@ export interface IRenameFailAction {
     type: "RENAME_FAIL"
 }
 
+export interface ICancelRenameAction {
+    type: "CANCEL_RENAME"
+}
+
 export interface IMovedNodes {
     node: ExplorerNode
     destination: string
@@ -228,6 +232,7 @@ export type ExplorerAction =
     | IRenameAction
     | IRenameSuccessAction
     | IRenameFailAction
+    | ICancelRenameAction
     | IDeleteFailAction
     | IRefreshAction
     | IDeleteAction
@@ -364,6 +369,14 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                 rename: {
                     active: true,
                     target: action.target,
+                },
+            }
+        case "CANCEL_RENAME":
+            return {
+                ...state,
+                rename: {
+                    active: false,
+                    target: null,
                 },
             }
         case "YANK":

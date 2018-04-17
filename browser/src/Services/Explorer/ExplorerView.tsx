@@ -12,10 +12,10 @@ import { compose } from "redux"
 import { CSSTransition, TransitionGroup } from "react-transition-group"
 
 import { styled } from "./../../UI/components/common"
+import { TextInputView } from "./../../UI/components/LightweightText"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
-import { TextInputView } from "./../../UI/components/LightweightText"
 import { DragAndDrop, Droppeable } from "./../DragAndDrop"
 
 import { FileIcon } from "./../FileIcon"
@@ -30,6 +30,7 @@ export interface INodeViewProps {
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
     onClick: () => void
+    onCancelRename: () => void
     yanked: string[]
     updated?: string[]
     isRenaming: Node
@@ -109,7 +110,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                 innerRef={this.props.isSelected ? scrollIntoViewIfNeeded : noop}
             >
                 {this.props.isRenaming.name === this.props.node.name && this.props.isSelected ? (
-                    <TextInputView onCancel={this.props.cancelRename} />
+                    <TextInputView onCancel={this.props.onCancelRename} />
                 ) : (
                     this.getElement()
                 )}
@@ -215,6 +216,7 @@ export interface IExplorerViewContainerProps {
     moveFileOrFolder: (source: Node, dest: Node) => void
     onSelectionChanged: (id: string) => void
     onClick: (id: string) => void
+    onCancelRename: () => void
     yanked?: string[]
     isRenaming?: Node
 }
@@ -256,6 +258,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                             <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
                                 <NodeView
                                     isRenaming={this.props.isRenaming}
+                                    onCancelRename={this.props.onCancelRename}
                                     updated={this.props.updated}
                                     yanked={this.props.yanked}
                                     moveFileOrFolder={this.props.moveFileOrFolder}

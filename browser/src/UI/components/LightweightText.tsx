@@ -1,6 +1,7 @@
 import * as React from "react"
 
 import { focusManager } from "./../../Services/FocusManager"
+import { styled, withProps } from "./../components/common"
 
 export interface ITextInputViewProps {
     onCancel?: () => void
@@ -9,6 +10,10 @@ export interface ITextInputViewProps {
 
     defaultValue?: string
 }
+
+const Input = withProps<{ styles?: any } & ITextInputViewProps>(styled.input)`
+    ${p => p.styles};
+`
 
 // TODO: Is there a better value for this?
 const WordRegex = /[$_a-zA-Z0-9]/i
@@ -37,7 +42,7 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
 
         return (
             <div className="input-container enable-mouse">
-                <input
+                <Input
                     type="text"
                     style={inputStyle}
                     placeholder={defaultValue}

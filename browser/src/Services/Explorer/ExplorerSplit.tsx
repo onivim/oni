@@ -79,6 +79,7 @@ export class ExplorerSplit {
         return (
             <Provider store={this._store}>
                 <Explorer
+                    onCancelRename={this._cancelRename}
                     onSelectionChanged={id => this._onSelectionChanged(id)}
                     onClick={id => this._onOpenItem(id)}
                     moveFileOrFolder={this.moveFileOrFolder}
