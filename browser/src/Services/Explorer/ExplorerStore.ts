@@ -391,7 +391,6 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
 ) => {
     switch (action.type) {
         case "RENAME_START":
-            console.log("action.target: ", action.target)
             return {
                 ...state,
                 rename: {
@@ -714,19 +713,20 @@ export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         )
     })
 
-export const renameEpic: ExplorerEpic = (action$, store, { fileSystem }) => {
-    const state = store.getState()
-    const { register: { rename: { target } } } = state
-    console.log("state =============================: ", state)
-    return action$.ofType("RENAME_COMMIT").mergeMap(({ newName }: IRenameCommitAction) =>
-        fromPromise(fileSystem.move(getPathForNode(target), newName))
+export const renameEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
+    action$.ofType("RENAME_COMMIT").mergeMap(({ newName, target }: IRenameCommitAction) => {
+        const sourcePath = getPathForNode(target)
+        const destinationPath = path.join(path.dirname(sourcePath), newName)
+        return fromPromise(fileSystem.move(sourcePath, destinationPath))
             .flatMap(() => [
                 Actions.renameSuccess({ source: getPathForNode(target), destination: newName }),
                 Actions.refresh,
             ])
-            .catch(error => [Actions.renameFail(error.message)]),
-    )
-}
+            .catch(error => {
+                Log.warn(error)
+                return [Actions.renameFail(error.message)]
+            })
+    })
 
 export const clearYankRegisterEpic: ExplorerEpic = (action$, store) =>
     action$.ofType("YANK").mergeMap((action: IYankAction) => {
@@ -785,6 +785,7 @@ export const notificationEpic: ExplorerEpic = (action$, store, { notifications }
                 return Actions.Null
             case "PASTE_FAIL":
             case "DELETE_FAIL":
+            case "RENAME_FAIL":
                 const [type] = action.type.split("_")
                 errorNotification({
                     type,

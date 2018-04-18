@@ -237,7 +237,12 @@ export class ExplorerSplit {
     }
 
     private _completeRename = (newName: string) => {
-        this._store.dispatch({ type: "RENAME_COMMIT", newName })
+        const target = this._getSelectedItem()
+
+        if (!target) {
+            return
+        }
+        this._store.dispatch({ type: "RENAME_COMMIT", newName, target })
     }
 
     private _cancelRename = () => {
