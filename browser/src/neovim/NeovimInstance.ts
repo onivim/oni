@@ -1013,7 +1013,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         shouldExtTabs: boolean,
         shouldExtPopups: boolean,
     ) {
-        if (major >= 0 && minor >= 2 && patch >= 1) {
+        if (major > 0 || minor > 2 || (minor === 2 && patch >= 1)) {
             const useExtCmdLine = this._configuration.getValue("commandline.mode")
             const useExtWildMenu = this._configuration.getValue("wildmenu.mode")
             return {

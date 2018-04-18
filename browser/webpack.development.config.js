@@ -2,6 +2,7 @@ var path = require("path")
 var webpack = require("webpack")
 
 module.exports = {
+    mode: "development",
     entry: [path.join(__dirname, "src/index.tsx")],
     target: "electron-renderer",
     externals: {
@@ -17,7 +18,6 @@ module.exports = {
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".less"],
     },
-    devtool: "cheap-module-eval-source-map",
     module: {
         rules: [
             {
