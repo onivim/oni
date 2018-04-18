@@ -28,7 +28,7 @@ export class FileSystemWatcher {
     private _onAddDir = new Event<IStatsChangeEvent>()
     private _onMove = new Event<IFileChangeEvent>()
     private _onChange = new Event<IFileChangeEvent>()
-    private _defaultOptions = { ignored: "**/node_modules" }
+    private _defaultOptions = { ignored: "**/node_modules", ignoreInitial: true }
 
     constructor(watch: IFSOptions = {}) {
         this._workspace = Workspace.getInstance()
