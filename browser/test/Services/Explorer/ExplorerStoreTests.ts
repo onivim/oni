@@ -371,6 +371,28 @@ describe("ExplorerStore", () => {
                     assert.deepEqual(actualActions, expected)
                 })
         })
+
+        it("Should move an item when a rename is triggered", () => {
+            const action$ = ActionsObservable.of({
+                type: "RENAME_COMMIT",
+                target: target1,
+                newName: "testing",
+            } as ExplorerState.IRenameCommitAction)
+
+            const expected = [
+                {
+                    type: "RENAME_SUCCESS",
+                    targetType: "folder",
+                    source: target1.folderPath,
+                    destination: path.join(path.dirname(target1.folderPath), "testing"),
+                },
+                { type: "REFRESH" },
+            ]
+
+            ExplorerState.renameEpic(action$, null, { fileSystem: fs, notifications })
+                .toArray()
+                .subscribe(actualActions => assert.deepEqual(actualActions, expected))
+        })
     })
 
     describe("Store utility helper tests", () => {
@@ -428,6 +450,30 @@ describe("ExplorerStore", () => {
                     persist: false,
                 })
                 assert.ok(!newState.undo.length)
+            })
+
+            it("Should add a successful rename to undo register", () => {
+                const newState = yankRegisterReducer(clone(register), {
+                    type: "RENAME_SUCCESS",
+                    destination: path.basename(target1.folderPath) + "/rename",
+                    source: target1.folderPath,
+                    targetType: "folder",
+                })
+
+                assert.ok(newState.undo.length === 1)
+            })
+
+            it("Should clear the renaming if a rename cancel action is triggered", () => {
+                const state = {
+                    ...clone(register),
+                    rename: {
+                        target: target1 as ExplorerNode,
+                        active: true,
+                    },
+                }
+                const newState = yankRegisterReducer(state, { type: "RENAME_CANCEL" })
+                assert.ok(!newState.rename.active)
+                assert.ok(!newState.rename.target)
             })
         })
     })

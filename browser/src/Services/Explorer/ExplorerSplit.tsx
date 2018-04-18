@@ -246,7 +246,7 @@ export class ExplorerSplit {
     }
 
     private _cancelRename = () => {
-        this._store.dispatch({ type: "CANCEL_RENAME" })
+        this._store.dispatch({ type: "RENAME_CANCEL" })
     }
 
     // This is different from on openItem since it only activates if the target is a folder

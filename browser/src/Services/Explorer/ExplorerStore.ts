@@ -598,7 +598,7 @@ const deletionNotification = ({ type, name, notifications }: SendNotificationArg
     sendExplorerNotification(
         {
             title: `${capitalize(type)} deleted`,
-            details: `${name} was deleted successfully`,
+            details: `${path.basename(name)} was deleted successfully`,
         },
         notifications,
     )
@@ -619,7 +619,7 @@ const renameNotification = ({
     sendExplorerNotification(
         {
             title: `${capitalize(type)} renamed successfully`,
-            details: `${source} renamed to ${destination}`,
+            details: `${path.basename(source)} renamed to ${path.basename(destination)}`,
         },
         notifications,
     )
@@ -793,47 +793,56 @@ const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     })
 
 export const notificationEpic: ExplorerEpic = (action$, store, { notifications }) =>
-    action$.ofType("PASTE_SUCCESS", "DELETE_SUCCESS", "PASTE_FAIL", "DELETE_FAIL").map(action => {
-        switch (action.type) {
-            case "PASTE_SUCCESS":
-                action.moved.map(item =>
-                    moveNotification({
+    action$
+        .ofType(
+            "PASTE_SUCCESS",
+            "DELETE_SUCCESS",
+            "RENAME_SUCCESS",
+            "RENAME_FAIL",
+            "PASTE_FAIL",
+            "DELETE_FAIL",
+        )
+        .map(action => {
+            switch (action.type) {
+                case "PASTE_SUCCESS":
+                    action.moved.map(item =>
+                        moveNotification({
+                            notifications,
+                            type: item.node.type,
+                            name: item.node.name,
+                            destination: item.destination,
+                        }),
+                    )
+                    return Actions.Null
+                case "DELETE_SUCCESS":
+                    deletionNotification({
                         notifications,
-                        type: item.node.type,
-                        name: item.node.name,
-                        destination: item.destination,
-                    }),
-                )
-                return Actions.Null
-            case "DELETE_SUCCESS":
-                deletionNotification({
-                    notifications,
-                    type: action.target.type,
-                    name: action.target.name,
-                })
-                return Actions.Null
-            case "RENAME_SUCCESS":
-                renameNotification({
-                    notifications,
-                    type: action.targetType,
-                    source: action.source,
-                    destination: action.destination,
-                })
-                return Actions.Null
-            case "PASTE_FAIL":
-            case "DELETE_FAIL":
-            case "RENAME_FAIL":
-                const [type] = action.type.split("_")
-                errorNotification({
-                    type,
-                    notifications,
-                    reason: action.reason,
-                })
-                return Actions.Null
-            default:
-                return Actions.Null
-        }
-    })
+                        type: action.target.type,
+                        name: action.target.name,
+                    })
+                    return Actions.Null
+                case "RENAME_SUCCESS":
+                    renameNotification({
+                        notifications,
+                        type: action.targetType,
+                        source: action.source,
+                        destination: action.destination,
+                    })
+                    return Actions.Null
+                case "PASTE_FAIL":
+                case "DELETE_FAIL":
+                case "RENAME_FAIL":
+                    const [type] = action.type.split("_")
+                    errorNotification({
+                        type,
+                        notifications,
+                        reason: action.reason,
+                    })
+                    return Actions.Null
+                default:
+                    return Actions.Null
+            }
+        })
 
 interface ICreateStore {
     fileSystem?: IFileSystem
