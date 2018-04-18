@@ -686,7 +686,7 @@
     },
     "license": "MIT",
     "dependencies": {
-        "chokidar": "^2.0.2",
+        "chokidar": "^2.0.3",
         "dompurify": "^1.0.3",
         "electron-settings": "^3.1.4",
         "find-up": "2.1.0",
@@ -716,7 +716,7 @@
         "vscode-textmate": "3.2.0"
     },
     "devDependencies": {
-        "@types/chokidar": "^1.7.4",
+        "@types/chokidar": "^1.7.5",
         "@types/classnames": "0.0.32",
         "@types/color": "2.0.0",
         "@types/detect-indent": "^5.0.0",

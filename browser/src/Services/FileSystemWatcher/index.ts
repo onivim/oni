@@ -1,4 +1,5 @@
 import * as chokidar from "chokidar"
+import { Stats } from "fs"
 import { Event, IEvent } from "oni-types"
 
 import * as Workspace from "./../Workspace"
@@ -16,7 +17,7 @@ interface IFileChangeEvent {
 
 interface IStatsChangeEvent {
     path: string
-    stats: any
+    stats: Stats
 }
 
 export class FileSystemWatcher {
@@ -44,11 +45,11 @@ export class FileSystemWatcher {
         })
     }
 
-    public watch(target: string | string[]) {
+    public watch(target: Targets) {
         return this._watcher.add(target)
     }
 
-    public unwatch(target: string | string[]) {
+    public unwatch(target: Targets) {
         return this._watcher.unwatch(target)
     }
 
@@ -56,7 +57,7 @@ export class FileSystemWatcher {
         this._watcher.close()
     }
 
-    private _attachEventListeners(dir?: boolean) {
+    private _attachEventListeners() {
         this._watcher.on("add", path => {
             return this._onAdd.dispatch(path)
         })
@@ -69,11 +70,9 @@ export class FileSystemWatcher {
             return this._onMove.dispatch(path)
         })
 
-        if (dir) {
-            this._watcher.on("addDir", (path, stats) => {
-                return this._onAddDir.dispatch({ path, stats })
-            })
-        }
+        this._watcher.on("addDir", (path, stats) => {
+            return this._onAddDir.dispatch({ path, stats })
+        })
     }
 
     get allWatched(): chokidar.WatchedPaths {
