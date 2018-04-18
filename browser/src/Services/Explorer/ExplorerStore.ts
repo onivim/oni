@@ -715,13 +715,10 @@ export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
 
 export const renameEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("RENAME_COMMIT").mergeMap(({ newName, target }: IRenameCommitAction) => {
-        const sourcePath = getPathForNode(target)
-        const destinationPath = path.join(path.dirname(sourcePath), newName)
-        return fromPromise(fileSystem.move(sourcePath, destinationPath))
-            .flatMap(() => [
-                Actions.renameSuccess({ source: getPathForNode(target), destination: newName }),
-                Actions.refresh,
-            ])
+        const source = getPathForNode(target)
+        const destination = path.join(path.dirname(source), newName)
+        return fromPromise(fileSystem.move(source, destination))
+            .flatMap(() => [Actions.renameSuccess({ source, destination }), Actions.refresh])
             .catch(error => {
                 Log.warn(error)
                 return [Actions.renameFail(error.message)]
