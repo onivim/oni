@@ -67,6 +67,10 @@ export class ExplorerSplit {
                 rootPath: this._workspace.activeWorkspace,
             })
         }
+
+        FileSystemWatcher.onChange.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
+        FileSystemWatcher.onAdd.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
+        FileSystemWatcher.onMove.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
     }
 
     public enter(): void {
@@ -142,7 +146,6 @@ export class ExplorerSplit {
             title: `${capitalize(source.type)} Moved`,
             details: `Successfully moved ${source.name} to ${destination.folderPath}`,
         })
-        console.log("Watched paths", FileSystemWatcher.allWatched)
     }
 
     public findParentDir = (fileId: string): string => {

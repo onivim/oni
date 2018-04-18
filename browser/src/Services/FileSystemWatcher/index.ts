@@ -1,7 +1,6 @@
 import * as chokidar from "chokidar"
 import { Event, IEvent } from "oni-types"
 
-import * as Log from "./../../Log"
 import * as Workspace from "./../Workspace"
 
 export type Targets = string | string[]
@@ -20,20 +19,23 @@ interface IStatsChangeEvent {
     stats: any
 }
 
-export class FSWatcher {
+export class FileSystemWatcher {
     private _watcher: chokidar.FSWatcher
     private _workspace: Workspace.Workspace
     private _activeWorkspace: string
+
     private _onAdd = new Event<IFileChangeEvent>()
     private _onAddDir = new Event<IStatsChangeEvent>()
     private _onMove = new Event<IFileChangeEvent>()
     private _onChange = new Event<IFileChangeEvent>()
+    private _defaultOptions = { ignored: "**/node_modules" }
 
-    constructor({ options, target }: IFSOptions = {}) {
+    constructor(watch: IFSOptions = {}) {
         this._workspace = Workspace.getInstance()
         this._activeWorkspace = this._workspace.activeWorkspace
-        const fileOrFolder = target || this._activeWorkspace
-        this._watcher = chokidar.watch(fileOrFolder, options)
+        const fileOrFolder = watch.target || this._activeWorkspace
+        const optionsToUse = watch.options || this._defaultOptions
+        this._watcher = chokidar.watch(fileOrFolder, optionsToUse)
         this._attachEventListeners()
     }
 
@@ -50,22 +52,20 @@ export class FSWatcher {
     }
 
     private _attachEventListeners(dir?: boolean) {
-        console.log("Attaching Listeners =========================")
         this._watcher.on("add", path => {
-            Log.info(`File ${path} has been added`)
             return this._onAdd.dispatch(path)
         })
+
         this._watcher.on("change", path => {
-            Log.info(`File ${path} has been changed`)
             return this._onChange.dispatch(path)
         })
+
         this._watcher.on("move", path => {
-            Log.info(`File ${path} has been moved`)
             return this._onMove.dispatch(path)
         })
+
         if (dir) {
             this._watcher.on("addDir", (path, stats) => {
-                Log.info(`Dir ${path} created, size is ${stats.size}`)
                 return this._onAddDir.dispatch({ path, stats })
             })
         }
@@ -79,11 +79,11 @@ export class FSWatcher {
         return this._onChange
     }
 
-    get move(): IEvent<IFileChangeEvent> {
+    get onMove(): IEvent<IFileChangeEvent> {
         return this._onMove
     }
 
-    get add(): IEvent<IFileChangeEvent> {
+    get onAdd(): IEvent<IFileChangeEvent> {
         return this._onAdd
     }
 
@@ -92,4 +92,4 @@ export class FSWatcher {
     }
 }
 
-export default new FSWatcher()
+export default new FileSystemWatcher()
