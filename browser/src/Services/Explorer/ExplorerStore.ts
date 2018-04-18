@@ -211,6 +211,7 @@ export interface IRenameSuccessAction {
     type: "RENAME_SUCCESS"
     source: string
     destination: string
+    targetType: string
 }
 
 export interface IRenameFailAction {
@@ -338,8 +339,15 @@ const Actions = {
 
     undoSuccess: { type: "UNDO_SUCCESS" } as IUndoSuccessAction,
 
-    renameSuccess: ({ source, destination }: { source: string; destination: string }) =>
-        ({ type: "RENAME_SUCCESS", destination, source } as IRenameSuccessAction),
+    renameSuccess: ({
+        source,
+        destination,
+        targetType,
+    }: {
+        source: string
+        destination: string
+        targetType: string
+    }) => ({ type: "RENAME_SUCCESS", destination, source, targetType } as IRenameSuccessAction),
 
     renameFail: (reason: string) => ({ type: "RENAME_FAIL", reason } as IRenameFailAction),
 
@@ -595,6 +603,27 @@ const deletionNotification = ({ type, name, notifications }: SendNotificationArg
         notifications,
     )
 
+interface RenameNotificationArgs {
+    type: string
+    source: string
+    destination: string
+    notifications: Notifications
+}
+
+const renameNotification = ({
+    notifications,
+    type,
+    source,
+    destination,
+}: RenameNotificationArgs): void =>
+    sendExplorerNotification(
+        {
+            title: `${capitalize(type)} renamed successfully`,
+            details: `${source} renamed to ${destination}`,
+        },
+        notifications,
+    )
+
 interface ErrorNotificationArgs {
     type: string
     reason: string
@@ -718,7 +747,10 @@ export const renameEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         const source = getPathForNode(target)
         const destination = path.join(path.dirname(source), newName)
         return fromPromise(fileSystem.move(source, destination))
-            .flatMap(() => [Actions.renameSuccess({ source, destination }), Actions.refresh])
+            .flatMap(() => [
+                Actions.renameSuccess({ source, destination, targetType: target.type }),
+                Actions.refresh,
+            ])
             .catch(error => {
                 Log.warn(error)
                 return [Actions.renameFail(error.message)]
@@ -778,6 +810,14 @@ export const notificationEpic: ExplorerEpic = (action$, store, { notifications }
                     notifications,
                     type: action.target.type,
                     name: action.target.name,
+                })
+                return Actions.Null
+            case "RENAME_SUCCESS":
+                renameNotification({
+                    notifications,
+                    type: action.targetType,
+                    source: action.source,
+                    destination: action.destination,
                 })
                 return Actions.Null
             case "PASTE_FAIL":
