@@ -28,7 +28,7 @@ export class FileSystemWatcher {
     private _onAddDir = new Event<IStatsChangeEvent>()
     private _onMove = new Event<IFileChangeEvent>()
     private _onChange = new Event<IFileChangeEvent>()
-    private _defaultOptions = { ignored: "**/node_modules", ignoreInitial: true }
+    private _defaultOptions = { ignored: "**/node_modules" }
 
     constructor(watch: IFSOptions = {}) {
         this._workspace = Workspace.getInstance()
@@ -36,7 +36,12 @@ export class FileSystemWatcher {
         const fileOrFolder = watch.target || this._activeWorkspace
         const optionsToUse = watch.options || this._defaultOptions
         this._watcher = chokidar.watch(fileOrFolder, optionsToUse)
-        this._attachEventListeners()
+
+        // alternatively the ignoreInitial can be set in the config
+        // to avoid a flurry of events when the watcher is initialised
+        this._watcher.on("ready", () => {
+            this._attachEventListeners()
+        })
     }
 
     public watch(target: string | string[]) {
