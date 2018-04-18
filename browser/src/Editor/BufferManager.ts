@@ -15,6 +15,8 @@ import "rxjs/add/operator/concatMap"
 
 import { Store } from "redux"
 
+import * as detectIndent from "detect-indent"
+
 import * as Oni from "oni-api"
 
 import {
@@ -227,13 +229,7 @@ export class Buffer implements IBuffer {
     }
 
     public async detectIndentation(): Promise<BufferIndentationInfo> {
-        const bufferLinesPromise = this.getLines(0, 1024)
-        const detectIndentPromise = import("detect-indent")
-
-        const [bufferLines, detectIndent] = await Promise.all([
-            bufferLinesPromise,
-            detectIndentPromise,
-        ])
+        const bufferLines = await this.getLines(0, 1024)
 
         const ret = detectIndent(bufferLines.join("\n"))
 

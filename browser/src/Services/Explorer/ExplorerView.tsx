@@ -50,8 +50,10 @@ const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
     elem && elem["scrollIntoViewIfNeeded"] && elem["scrollIntoViewIfNeeded"]()
 }
 const stopPropagation = (fn: () => void) => {
-    return (e: React.MouseEvent<HTMLElement>) => {
-        e.stopPropagation()
+    return (e?: React.MouseEvent<HTMLElement>) => {
+        if (e) {
+            e.stopPropagation()
+        }
         fn()
     }
 }

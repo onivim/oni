@@ -4,8 +4,7 @@ import * as marked from "marked"
 import * as Log from "./../../Log"
 import { IGrammarPerLine, IGrammarToken } from "./../../Services/SyntaxHighlighting/TokenGenerator"
 
-// tslint:disable-next-line
-const { default: DOMPurify } = require("dompurify")
+import * as DOMPurify from "dompurify"
 
 const renderer = new marked.Renderer()
 interface IRendererArgs {
