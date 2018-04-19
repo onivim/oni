@@ -15,13 +15,12 @@ export const activate = (
     configuration: Configuration,
     editorManager: EditorManager,
 ) => {
-    const getTerminalCommand = () => {
-        const terminalCommand = configuration.getValue("terminal.shellCommand", "")
-        return `term://${terminalCommand}`
-    }
+    const openTerminal = async (openMode: Oni.FileOpenMode) => {
+        const terminalCommand =
+            configuration.getValue("terminal.shellCommand") ||
+            (await editorManager.activeEditor.neovim.callFunction("nvim_get_option", ["shell"]))
 
-    const openTerminal = (openMode: Oni.FileOpenMode) => {
-        editorManager.activeEditor.openFile(getTerminalCommand(), { openMode })
+        editorManager.activeEditor.openFile(`term://${terminalCommand}`, { openMode })
     }
 
     commandManager.registerCommand({
