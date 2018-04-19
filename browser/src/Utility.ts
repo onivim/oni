@@ -245,15 +245,3 @@ export function ignoreWhilePendingPromise<T, U>(
 
     return ret
 }
-
-export function checkIfFileExistsSync(filename: string): boolean | Error {
-    try {
-        return fs.statSync(filename).isFile()
-    } catch (e) {
-        if (e.code === "ENOENT") {
-            return false
-        } else {
-            throw e
-        }
-    }
-}

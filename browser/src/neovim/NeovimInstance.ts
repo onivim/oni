@@ -1,4 +1,5 @@
 import { EventEmitter } from "events"
+import { pathExistsSync } from "fs-extra"
 import * as path from "path"
 
 import * as mkdirp from "mkdirp"
@@ -13,8 +14,6 @@ import { EventContext } from "./EventContext"
 import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
 import * as Platform from "./../Platform"
 import { Configuration } from "./../Services/Configuration"
-
-import { checkIfFileExistsSync } from "./../Utility"
 
 import * as Actions from "./actions"
 import { NeovimBufferReference } from "./MsgPack"
@@ -569,7 +568,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     public doesInitVimExist(): string {
         const initVimPath = this.getInitVimPath()
         try {
-            return checkIfFileExistsSync(initVimPath) ? initVimPath : null
+            return pathExistsSync(initVimPath) ? initVimPath : null
         } catch (e) {
             return null
         }

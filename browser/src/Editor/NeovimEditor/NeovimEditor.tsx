@@ -745,6 +745,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         document.body.ondrop = ev => {
             ev.preventDefault()
+            // TODO: the following line currently breaks explorer drag and drop functionality
             ev.stopPropagation()
 
             const { files } = ev.dataTransfer

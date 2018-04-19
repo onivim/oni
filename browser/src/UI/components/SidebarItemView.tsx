@@ -11,6 +11,8 @@ import { styled, withProps } from "./common"
 import { Sneakable } from "./../../UI/components/Sneakable"
 
 export interface ISidebarItemViewProps {
+    yanked?: boolean
+    updated?: boolean
     isOver?: boolean
     canDrop?: boolean
     didDrop?: boolean
@@ -28,10 +30,12 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
     padding-left: ${props => px(INDENT_AMOUNT * props.indentationLevel)};
     border-left: ${props =>
         props.isFocused
-            ? "4px solid " + props.theme["highlight.mode.normal.background"]
+            ? `4px solid  ${props.theme["highlight.mode.normal.background"]}`
             : "4px solid transparent"};
 
-    ${p => p.isOver && `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
+    ${p =>
+        (p.isOver || p.yanked) &&
+        `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -99,6 +103,8 @@ export class SidebarItemView extends React.PureComponent<ISidebarItemViewProps, 
 }
 
 export interface ISidebarContainerViewProps extends IContainerProps {
+    yanked?: boolean
+    updated?: boolean
     didDrop?: boolean
     text: string
     isExpanded: boolean
@@ -111,10 +117,14 @@ export interface ISidebarContainerViewProps extends IContainerProps {
 interface IContainerProps {
     isOver?: boolean
     canDrop?: boolean
+    yanked?: boolean
+    updated?: boolean
 }
 
 const SidebarContainer = withProps<IContainerProps>(styled.div)`
-    ${p => p.isOver && `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
+    ${p =>
+        (p.isOver || p.yanked) &&
+        `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
 `
 
 export class SidebarContainerView extends React.PureComponent<ISidebarContainerViewProps, {}> {
@@ -127,8 +137,15 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
         const indentationlevel = this.props.indentationLevel || 0
 
         return (
-            <SidebarContainer canDrop={this.props.canDrop} isOver={this.props.isOver}>
+            <SidebarContainer
+                updated={this.props.updated}
+                yanked={this.props.yanked}
+                canDrop={this.props.canDrop}
+                isOver={this.props.isOver}
+            >
                 <SidebarItemView
+                    yanked={this.props.yanked}
+                    updated={this.props.updated}
                     didDrop={this.props.didDrop}
                     indentationLevel={indentationlevel}
                     icon={icon}

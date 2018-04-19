@@ -35,6 +35,15 @@ export interface IFileNode {
     indentationLevel: number
 }
 
+export const EmptyNode: ExplorerNode = {
+    type: null,
+    id: null,
+    modified: null,
+    filePath: null,
+    name: null,
+    indentationLevel: null,
+}
+
 export type ExplorerNode = IContainerNode | IFolderNode | IFileNode
 
 export const isPathExpanded = (state: IExplorerState, pathToCheck: string): boolean => {
