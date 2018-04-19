@@ -37,7 +37,7 @@ export interface INodeViewProps {
     isRenaming: Node
 }
 
-const NodeWrapper = styled.div`
+export const NodeWrapper = styled.div`
     &:hover {
         text-decoration: underline;
     }
@@ -118,8 +118,8 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     }
 
     public render(): JSX.Element {
-        const renameInProgress =
-            this.props.isRenaming.name === this.props.node.name && this.props.isSelected
+        const { isRenaming, isSelected, node } = this.props
+        const renameInProgress = isRenaming.name === node.name && isSelected
         return (
             <NodeWrapper
                 style={{ cursor: "pointer" }}
