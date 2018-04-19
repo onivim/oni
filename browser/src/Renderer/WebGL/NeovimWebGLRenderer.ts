@@ -3,6 +3,8 @@ import { IScreen } from "../../neovim"
 import { IWebGLAtlasOptions } from "./WebGLAtlas"
 import { WebGLRenderer } from "./WebGLRenderer"
 
+export const SUBPIXEL_DIVISOR = 4 // TODO move this somewhere else
+
 export class NeovimWebGLRenderer implements INeovimRenderer {
     private _previousAtlasOptions: IWebGLAtlasOptions
     private _editorElement: HTMLElement
@@ -61,6 +63,7 @@ export class NeovimWebGLRenderer implements INeovimRenderer {
             fontSize,
             lineHeight: fontHeightInPixels,
             devicePixelRatio,
+            subpixelDivisor: SUBPIXEL_DIVISOR,
         }
         if (
             !this._webGLRenderer ||

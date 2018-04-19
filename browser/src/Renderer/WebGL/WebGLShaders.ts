@@ -45,10 +45,8 @@ export const textBlendPass1Fragment = `
     uniform sampler2D atlasTexture;
 
     void main() {
-      vec3 atlasColor = texture(atlasTexture, atlasPosition).rgb;
-      vec3 textColorRGB = textColor.rgb;
-      vec3 correctedAtlasColor = mix(vec3(1.0) - atlasColor, sqrt(vec3(1.0) - atlasColor * atlasColor), textColorRGB);
-      outColor = vec4(correctedAtlasColor, 1.0);
+      vec4 atlasColor = texture(atlasTexture, atlasPosition);
+      outColor = textColor.a * atlasColor;
     }
 `.trim()
 
@@ -64,11 +62,10 @@ export const textBlendPass2Fragment = `
     uniform sampler2D atlasTexture;
 
     void main() {
-      vec3 atlasColor = texture(atlasTexture, atlasPosition).rgb;
-      vec3 textColorRGB = textColor.rgb;
-      vec3 correctedAtlasColor = mix(vec3(1.0) - atlasColor, sqrt(vec3(1.0) - atlasColor * atlasColor), textColorRGB);
-      vec3 adjustedForegroundColor = textColorRGB * correctedAtlasColor;
-      outColor = vec4(adjustedForegroundColor, 1.0);
+        vec3 atlasColor = texture(atlasTexture, atlasPosition).rgb;
+        vec3 outColorRGB = atlasColor * textColor.rgb;
+        float outColorA = max(outColorRGB.r, max(outColorRGB.g, outColorRGB.b));
+        outColor = vec4(outColorRGB, outColorA);
     }
 `.trim()
 
@@ -123,7 +120,9 @@ export const textSinglePassFragment = `
     uniform sampler2D atlasTexture;
 
     void main() {
-        vec4 atlasColor = texture(atlasTexture, atlasPosition);
-        outColor = atlasColor * textColor;
+        vec3 atlasColor = texture(atlasTexture, atlasPosition).rgb;
+        vec3 outColorRGB = atlasColor * textColor.rgb;
+        float outColorA = max(outColorRGB.r, max(outColorRGB.g, outColorRGB.b));
+        outColor = vec4(outColorRGB, outColorA);
     }
 `.trim()
