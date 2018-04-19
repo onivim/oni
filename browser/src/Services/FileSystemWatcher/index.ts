@@ -43,6 +43,11 @@ export class FileSystemWatcher {
         this._watcher.on("ready", () => {
             this._attachEventListeners()
         })
+
+        this._workspace.onDirectoryChanged.subscribe(newDirectory => {
+            this.unwatch(this._activeWorkspace)
+            this.watch(newDirectory)
+        })
     }
 
     public watch(target: Targets) {
