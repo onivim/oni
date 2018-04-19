@@ -41,9 +41,8 @@ export class WebGLRenderer {
     constructor(canvasElement: HTMLCanvasElement, atlasOptions: IWebGLAtlasOptions) {
         this._devicePixelRatio = atlasOptions.devicePixelRatio
         this._subpixelDivisor = atlasOptions.subpixelDivisor
-        this._gl = canvasElement.getContext("webgl2")
+        this._gl = canvasElement.getContext("webgl2") as WebGL2RenderingContext
         this._atlas = new Atlas(this._gl, atlasOptions)
-        this._gl.enable(this._gl.BLEND)
 
         const solidVertexShader = this.createShader(shaders.solidVertex, this._gl.VERTEX_SHADER)
         const solidFragmentShader = this.createShader(
@@ -343,8 +342,8 @@ export class WebGLRenderer {
         linePaddingInPixels: number,
         defaultBackgroundColor: string,
     ) {
-        const subpixelFontWidth = fontWidthInPixels * this._devicePixelRatio
-        const subpixelFontHeight = fontHeightInPixels * this._devicePixelRatio
+        const pixelRatioAdaptedFontWidth = fontWidthInPixels * this._devicePixelRatio
+        const pixelRatioAdaptedFontHeight = fontHeightInPixels * this._devicePixelRatio
         // TODO find out if the existing implementation uses line padding in the wrong way
         // const subpixelLinePadding = linePaddingInPixels * this._devicePixelRatio
 
@@ -356,10 +355,10 @@ export class WebGLRenderer {
         for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             let x = 0
 
-            for (let columnIndex = 0; columnIndex <= columnCount; columnIndex++) {
+            for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                 const cell = getCell(columnIndex, rowIndex)
 
-                if (cell.backgroundColor !== defaultBackgroundColor) {
+                if (cell.backgroundColor && cell.backgroundColor !== defaultBackgroundColor) {
                     const colorToUse = cell.backgroundColor || defaultBackgroundColor || "black"
                     const normalizedBackgroundColor = this._colorNormalizer.normalizeColor(
                         colorToUse,
@@ -369,18 +368,18 @@ export class WebGLRenderer {
                         solidCellCount,
                         x,
                         y,
-                        subpixelFontWidth,
-                        subpixelFontHeight,
+                        pixelRatioAdaptedFontWidth,
+                        pixelRatioAdaptedFontHeight,
                         normalizedBackgroundColor,
                     )
 
                     solidCellCount++
                 }
-                x += subpixelFontWidth
+                x += pixelRatioAdaptedFontWidth
             }
 
             // y += subpixelFontHeight + subpixelLinePadding
-            y += subpixelFontHeight
+            y += pixelRatioAdaptedFontHeight
         }
 
         return solidCellCount
@@ -396,16 +395,16 @@ export class WebGLRenderer {
     ) {
         const startOffset = SOLID_INSTANCE_FIELD_COUNT * index
         // targetOrigin
-        this.solidInstancesBuffer[0 + startOffset] = x
-        this.solidInstancesBuffer[1 + startOffset] = y
+        this.solidInstances[0 + startOffset] = x
+        this.solidInstances[1 + startOffset] = y
         // targetSize
-        this.solidInstancesBuffer[2 + startOffset] = width
-        this.solidInstancesBuffer[3 + startOffset] = height
+        this.solidInstances[2 + startOffset] = width
+        this.solidInstances[3 + startOffset] = height
         // colorRGBA
-        this.solidInstancesBuffer[4 + startOffset] = color[0]
-        this.solidInstancesBuffer[5 + startOffset] = color[1]
-        this.solidInstancesBuffer[6 + startOffset] = color[2]
-        this.solidInstancesBuffer[7 + startOffset] = color[3]
+        this.solidInstances[4 + startOffset] = color[0]
+        this.solidInstances[5 + startOffset] = color[1]
+        this.solidInstances[6 + startOffset] = color[2]
+        this.solidInstances[7 + startOffset] = color[3]
     }
 
     private drawSolidInstances(solidCount: number, viewportScaleX: number, viewportScaleY: number) {
@@ -427,8 +426,8 @@ export class WebGLRenderer {
         linePaddingInPixels: number,
         defaultForegroundColor: string,
     ) {
-        const subpixelFontWidth = fontWidthInPixels * this._devicePixelRatio
-        const subpixelFontHeight = fontHeightInPixels * this._devicePixelRatio
+        const pixelRatioAdaptedFontWidth = fontWidthInPixels * this._devicePixelRatio
+        const pixelRatioAdaptedFontHeight = fontHeightInPixels * this._devicePixelRatio
         // TODO find out if the existing implementation uses line padding in the wrong way
         // const subpixelLinePadding = linePaddingInPixels * this._devicePixelRatio
 
@@ -440,7 +439,7 @@ export class WebGLRenderer {
         for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             let x = 0
 
-            for (let columnIndex = 0; columnIndex <= columnCount; columnIndex++) {
+            for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                 const cell = getCell(columnIndex, rowIndex)
                 const char = cell.character
                 if (!isWhiteSpace(char)) {
@@ -462,11 +461,11 @@ export class WebGLRenderer {
                     glyphCount++
                     // x += glyph.subpixelWidth
                 }
-                x += subpixelFontWidth
+                x += pixelRatioAdaptedFontWidth
             }
 
             // y += subpixelFontHeight + subpixelLinePadding
-            y += subpixelFontHeight
+            y += pixelRatioAdaptedFontHeight
         }
         this._atlas.uploadTexture()
 
