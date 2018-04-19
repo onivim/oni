@@ -41,6 +41,7 @@ export interface IConfigurationValues {
     "editor.split.mode": string
 
     "configuration.editor": string
+    "configuration.showReferenceBuffer": boolean
 
     // - textMateHighlighting
     "editor.textMateHighlighting.enabled": boolean
@@ -188,6 +189,12 @@ export interface IConfigurationValues {
     // 'zero-latency' mode typing, and increases responsiveness.
     "editor.typingPrediction": boolean
 
+    // Files deleted in the explorer can be persisted for the duration
+    // of the session meaning that deletion can be undone is this is set
+    // to true
+    "explorer.persistDeletedFiles": boolean
+    "explorer.maxUndoFileSizeInBytes": number
+
     "editor.fullScreenOnStart": boolean
     "editor.maximizeScreenOnStart": boolean
 
@@ -222,10 +229,29 @@ export interface IConfigurationValues {
     "recorder.copyScreenshotToClipboard": boolean
 
     "sidebar.enabled": boolean
+    "sidebar.default.open": boolean
     "sidebar.width": string
 
     "sidebar.marks.enabled": boolean
     "sidebar.plugins.enabled": boolean
+
+    "oni.plugins.prettier": {
+        settings: {
+            semi: boolean
+            tabWidth: number
+            useTabs: boolean
+            singleQuote: boolean
+            trailingComma: "es5" | "all" | "none"
+            bracketSpacing: boolean
+            jsxBracketSameLine: boolean
+            arrowParens: "avoid" | "always"
+            printWidth: number
+            [key: string]: number | string | boolean
+        }
+        formatOnSave: boolean
+        enabled: boolean
+        allowedFiletypes?: string[]
+    }
 
     "snippets.enabled": boolean
     "snippets.userSnippetFolder": string

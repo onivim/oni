@@ -15,6 +15,8 @@ import "rxjs/add/operator/concatMap"
 
 import { Store } from "redux"
 
+import * as detectIndent from "detect-indent"
+
 import * as Oni from "oni-api"
 
 import {
@@ -88,6 +90,7 @@ export class Buffer implements IBuffer {
     private _filePath: string
     private _language: string
     private _cursor: Oni.Cursor
+    private _cursorOffset: number
     private _version: number
     private _modified: boolean
     private _lineCount: number
@@ -109,6 +112,10 @@ export class Buffer implements IBuffer {
 
     public get cursor(): Oni.Cursor {
         return this._cursor
+    }
+
+    public get cursorOffset(): number {
+        return this._cursorOffset
     }
 
     public get version(): number {
@@ -144,6 +151,18 @@ export class Buffer implements IBuffer {
 
     public removeLayer(layer: IBufferLayer): void {
         this._actions.removeBufferLayer(parseInt(this._id, 10), layer)
+    }
+
+    /**
+     * convertOffsetToLineColumn
+     */
+    public async convertOffsetToLineColumn(
+        cursorOffset = this._cursorOffset,
+    ): Promise<types.Position> {
+        const line: number = await this._neovimInstance.callFunction("byte2line", [cursorOffset])
+        const countFromLine: number = await this._neovimInstance.callFunction("line2byte", [line])
+        const column = cursorOffset - countFromLine
+        return types.Position.create(line - 1, column)
     }
 
     public async getCursorPosition(): Promise<types.Position> {
@@ -210,13 +229,7 @@ export class Buffer implements IBuffer {
     }
 
     public async detectIndentation(): Promise<BufferIndentationInfo> {
-        const bufferLinesPromise = this.getLines(0, 1024)
-        const detectIndentPromise = import("detect-indent")
-
-        await Promise.all([bufferLinesPromise, detectIndentPromise])
-
-        const bufferLines = await bufferLinesPromise
-        const detectIndent = await detectIndentPromise
+        const bufferLines = await this.getLines(0, 1024)
 
         const ret = detectIndent(bufferLines.join("\n"))
 
@@ -414,6 +427,7 @@ export class Buffer implements IBuffer {
         this._version = evt.version
         this._modified = evt.modified
         this._lineCount = evt.bufferTotalLines
+        this._cursorOffset = evt.byte
 
         this._cursor = {
             line: evt.line - 1,

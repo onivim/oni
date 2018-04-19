@@ -1,4 +1,5 @@
 import { EventEmitter } from "events"
+import { pathExistsSync } from "fs-extra"
 import * as path from "path"
 
 import * as mkdirp from "mkdirp"
@@ -544,19 +545,44 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.command(`e! ${fileName}`)
     }
 
+    /**
+     * getInitVimPath
+     * return the init vim path with no check to ensure existence
+     */
+    public getInitVimPath(): string {
+        // tslint:disable no-string-literal
+        const MYVIMRC = process.env["MYVIMRC"]
+        const rootFolder = Platform.isWindows()
+            ? // Use path from: https://github.com/neovim/neovim/wiki/FAQ
+              path.join(process.env["LOCALAPPDATA"], "nvim")
+            : path.join(Platform.getUserHome(), ".config", "nvim")
+        const initVimPath = MYVIMRC || path.join(rootFolder, "init.vim")
+        return initVimPath
+        // tslint:enable no-string-literal
+    }
+
+    /**
+     * doesInitVimExist
+     * Returns the init.vim path after checking the file exists
+     */
+    public doesInitVimExist(): string {
+        const initVimPath = this.getInitVimPath()
+        try {
+            return pathExistsSync(initVimPath) ? initVimPath : null
+        } catch (e) {
+            return null
+        }
+    }
+
     public openInitVim(): Promise<void> {
         const loadInitVim = this._configuration.getValue("oni.loadInitVim")
 
         if (typeof loadInitVim === "string") {
             return this.open(loadInitVim)
         } else {
-            // Use path from: https://github.com/neovim/neovim/wiki/FAQ
-            const rootFolder = Platform.isWindows()
-                ? path.join(process.env["LOCALAPPDATA"], "nvim") // tslint:disable-line no-string-literal
-                : path.join(Platform.getUserHome(), ".config", "nvim")
-
+            const initVimPath = this.getInitVimPath()
+            const rootFolder = path.dirname(initVimPath)
             mkdirp.sync(rootFolder)
-            const initVimPath = path.join(rootFolder, "init.vim")
 
             return this.open(initVimPath)
         }
@@ -986,7 +1012,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         shouldExtTabs: boolean,
         shouldExtPopups: boolean,
     ) {
-        if (major >= 0 && minor >= 2 && patch >= 1) {
+        if (major > 0 || minor > 2 || (minor === 2 && patch >= 1)) {
             const useExtCmdLine = this._configuration.getValue("commandline.mode")
             const useExtWildMenu = this._configuration.getValue("wildmenu.mode")
             return {

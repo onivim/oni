@@ -24,7 +24,7 @@ export class WindowTitleView extends React.PureComponent<IWindowTitleViewProps, 
             return null
         }
 
-        const style = {
+        const style: React.CSSProperties = {
             height: "22px",
             lineHeight: "22px",
             zoom: 1, // Don't allow this to be impacted by zoom

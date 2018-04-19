@@ -107,13 +107,23 @@ export class ConfigurationEditManager {
             }
         }
 
-        // Create the buffer with the list of all the available options
-        await this._createReadonlyReferenceBuffer()
+        const showReferenceBuffer = this._configuration.getValue(
+            "configuration.showReferenceBuffer",
+        )
 
-        // Open the actual configuration file
-        await this._editorManager.activeEditor.openFile(normalizedEditFile, {
-            openMode: Oni.FileOpenMode.VerticalSplit,
-        })
+        if (showReferenceBuffer) {
+            // Create the buffer with the list of all the available options
+            await this._createReadonlyReferenceBuffer()
+
+            // Open the actual configuration file
+            await this._editorManager.activeEditor.openFile(normalizedEditFile, {
+                openMode: Oni.FileOpenMode.VerticalSplit,
+            })
+        } else {
+            await this._editorManager.activeEditor.openFile(normalizedEditFile, {
+                openMode: Oni.FileOpenMode.Edit,
+            })
+        }
     }
 
     private async _createReadonlyReferenceBuffer() {

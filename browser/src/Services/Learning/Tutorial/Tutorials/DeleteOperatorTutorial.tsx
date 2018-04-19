@@ -85,7 +85,7 @@ export class DeleteOperatorTutorial implements ITutorial {
             name: "Delete Operator: d",
             description:
                 "We've stuck mostly with motions, but now we're going to learn about our first operator - delete (`d`). Operators are like _verbs_ in the vim world, and motions are like _nouns_. An operator can be paired with a motion - which means we can pair the `d` key with all sorts of motions - `dj` to delete the line and the line below, `dw` to delete a word, etc.",
-            level: 180,
+            level: 200,
         }
     }
 
