@@ -2,6 +2,8 @@ import * as chokidar from "chokidar"
 import { Stats } from "fs"
 import { Event, IEvent } from "oni-types"
 
+import * as throttle from "lodash/throttle"
+
 import * as Workspace from "./../Workspace"
 
 export type Targets = string | string[]
@@ -61,16 +63,22 @@ export class FileSystemWatcher {
     }
 
     private _attachEventListeners() {
+        const throttledAddEvent = throttle(this._onAdd.dispatch.bind(this._onAdd), 300)
+
         this._watcher.on("add", path => {
-            return this._onAdd.dispatch(path)
+            return throttledAddEvent(path)
         })
+
+        const throttledChangeEvent = throttle(this._onChange.dispatch.bind(this._onChange), 300)
 
         this._watcher.on("change", path => {
-            return this._onChange.dispatch(path)
+            return throttledChangeEvent(path)
         })
 
+        const throttledMoveEvent = throttle(this._onMove.dispatch.bind(this._onMove), 300)
+
         this._watcher.on("move", path => {
-            return this._onMove.dispatch(path)
+            return throttledMoveEvent(path)
         })
 
         this._watcher.on("addDir", (path, stats) => {
