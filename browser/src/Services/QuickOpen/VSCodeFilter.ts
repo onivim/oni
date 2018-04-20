@@ -57,7 +57,7 @@ export const vsCodeFilter = (
     // TODO: Is it worth instead persisting this cache?
     // Plus side is repeated searches are fast.
     // Down side is there will be a lot of rubbish being stored too.
-    let cache: ScorerCache = {}
+    const cache: ScorerCache = {}
 
     const filteredOptions = processSearchTerm(vsCodeSearchString, options, cache)
 

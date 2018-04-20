@@ -3,8 +3,8 @@
  */
 
 import * as assert from "assert"
-import { processSearchTerm, vsCodeFilter } from "./../../../src/Services/QuickOpen/VSCodeFilter"
 import { ScorerCache } from "../../../src/Services/QuickOpen/Scorer/QuickOpenScorer"
+import { processSearchTerm, vsCodeFilter } from "./../../../src/Services/QuickOpen/VSCodeFilter"
 
 describe("processSearchTerm", () => {
     let cache: ScorerCache
