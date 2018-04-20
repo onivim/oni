@@ -13,12 +13,19 @@ module.exports = {
         gifshot: "require('gifshot')",
         "msgpack-lite": "require('msgpack-lite')",
         "styled-components": "require('styled-components')",
+        fsevents: "require('fsevents')",
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".less"],
     },
     module: {
         rules: [
+            {
+                test: /\.(html)$/,
+                use: {
+                    loader: "html-loader",
+                },
+            },
             {
                 test: /\.less$/,
                 use: [
