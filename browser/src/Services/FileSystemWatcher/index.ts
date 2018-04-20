@@ -27,6 +27,7 @@ export class FileSystemWatcher {
 
     private _onAdd = new Event<IFileChangeEvent>()
     private _onAddDir = new Event<IStatsChangeEvent>()
+    private _onDelete = new Event<IFileChangeEvent>()
     private _onMove = new Event<IFileChangeEvent>()
     private _onChange = new Event<IFileChangeEvent>()
     private _defaultOptions = { ignored: "**/node_modules" }
@@ -42,11 +43,13 @@ export class FileSystemWatcher {
         // to avoid a flurry of events when the watcher is initialised
         this._watcher.on("ready", () => {
             this._attachEventListeners()
-        })
 
-        this._workspace.onDirectoryChanged.subscribe(newDirectory => {
-            this.unwatch(this._activeWorkspace)
-            this.watch(newDirectory)
+            if (fileOrFolder === this._activeWorkspace) {
+                this._workspace.onDirectoryChanged.subscribe(newDirectory => {
+                    this.unwatch(this._activeWorkspace)
+                    this.watch(newDirectory)
+                })
+            }
         })
     }
 
@@ -75,6 +78,10 @@ export class FileSystemWatcher {
             return this._onMove.dispatch(path)
         })
 
+        this._watcher.on("unlink", path => {
+            return this._onDelete.dispatch(path)
+        })
+
         this._watcher.on("addDir", (path, stats) => {
             return this._onAddDir.dispatch({ path, stats })
         })
@@ -86,6 +93,10 @@ export class FileSystemWatcher {
 
     get onChange(): IEvent<IFileChangeEvent> {
         return this._onChange
+    }
+
+    get onDelete(): IEvent<IFileChangeEvent> {
+        return this._onDelete
     }
 
     get onMove(): IEvent<IFileChangeEvent> {

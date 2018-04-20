@@ -63,6 +63,7 @@ export class ExplorerSplit {
         FileSystemWatcher.onChange.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
         FileSystemWatcher.onAdd.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
         FileSystemWatcher.onMove.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
+        FileSystemWatcher.onDelete.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
     }
 
     public enter(): void {
