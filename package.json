@@ -686,7 +686,6 @@
     },
     "license": "MIT",
     "dependencies": {
-        "chokidar": "^2.0.3",
         "dompurify": "^1.0.3",
         "electron-settings": "^3.1.4",
         "find-up": "2.1.0",
@@ -717,7 +716,6 @@
         "vscode-textmate": "3.2.0"
     },
     "devDependencies": {
-        "@types/chokidar": "^1.7.5",
         "@types/fs-extra": "^5.0.2",
         "@types/classnames": "0.0.32",
         "@types/color": "2.0.0",
@@ -750,7 +748,6 @@
         "@types/shelljs": "^0.7.7",
         "@types/sinon": "1.16.32",
         "autoprefixer": "6.4.0",
-        "aws-sdk": "^2.202.0",
         "azure-storage": "^2.8.1",
         "babel-minify-webpack-plugin": "^0.3.1",
         "babel-plugin-dynamic-import-node": "^1.2.0",
@@ -774,7 +771,6 @@
         "find-process": "^1.1.0",
         "fuse.js": "2.6.2",
         "github-releases": "^0.4.1",
-        "html-loader": "^0.5.5",
         "husky": "^0.14.3",
         "innosetup-compiler": "5.5.9",
         "istanbul-api": "^1.2.1",
