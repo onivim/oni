@@ -42,11 +42,11 @@ export class FileSystemWatcher {
         // to avoid a flurry of events when the watcher is initialised
         this._watcher.on("ready", () => {
             this._attachEventListeners()
+        })
 
-            this._workspace.onDirectoryChanged.subscribe(newDirectory => {
-                this.unwatch(this._activeWorkspace)
-                this.watch(newDirectory)
-            })
+        this._workspace.onDirectoryChanged.subscribe(newDirectory => {
+            this.unwatch(this._activeWorkspace)
+            this.watch(newDirectory)
         })
     }
 
