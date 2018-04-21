@@ -2,8 +2,6 @@ import * as chokidar from "chokidar"
 import { Stats } from "fs"
 import { Event, IEvent } from "oni-types"
 
-import * as throttle from "lodash/throttle"
-
 import * as Workspace from "./../Workspace"
 
 export type Targets = string | string[]
@@ -31,7 +29,7 @@ export class FileSystemWatcher {
     private _onAddDir = new Event<IStatsChangeEvent>()
     private _onMove = new Event<IFileChangeEvent>()
     private _onChange = new Event<IFileChangeEvent>()
-    private _defaultOptions = { ignored: "**/node_modules", ignoreInitial: true }
+    private _defaultOptions = { ignored: "**/node_modules" }
 
     constructor(watch: IFSOptions = {}) {
         this._workspace = Workspace.getInstance()
@@ -40,13 +38,15 @@ export class FileSystemWatcher {
         const optionsToUse = watch.options || this._defaultOptions
         this._watcher = chokidar.watch(fileOrFolder, optionsToUse)
 
+        // alternatively the ignoreInitial can be set in the config
+        // to avoid a flurry of events when the watcher is initialised
         this._watcher.on("ready", () => {
             this._attachEventListeners()
-        })
 
-        this._workspace.onDirectoryChanged.subscribe(newDirectory => {
-            this.unwatch(this._activeWorkspace)
-            this.watch(newDirectory)
+            this._workspace.onDirectoryChanged.subscribe(newDirectory => {
+                this.unwatch(this._activeWorkspace)
+                this.watch(newDirectory)
+            })
         })
     }
 
@@ -63,22 +63,16 @@ export class FileSystemWatcher {
     }
 
     private _attachEventListeners() {
-        const throttledAddEvent = throttle(this._onAdd.dispatch.bind(this._onAdd), 300)
-
         this._watcher.on("add", path => {
-            return throttledAddEvent(path)
+            return this._onAdd.dispatch(path)
         })
-
-        const throttledChangeEvent = throttle(this._onChange.dispatch.bind(this._onChange), 300)
 
         this._watcher.on("change", path => {
-            return throttledChangeEvent(path)
+            return this._onChange.dispatch(path)
         })
 
-        const throttledMoveEvent = throttle(this._onMove.dispatch.bind(this._onMove), 300)
-
         this._watcher.on("move", path => {
-            return throttledMoveEvent(path)
+            return this._onMove.dispatch(path)
         })
 
         this._watcher.on("addDir", (path, stats) => {

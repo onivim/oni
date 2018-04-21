@@ -633,13 +633,17 @@ export const clearUpdateEpic: ExplorerEpic = (action$, store) =>
         .mergeMap(() => timer(2_000).mapTo(Actions.clearUpdate))
 
 const refreshEpic: ExplorerEpic = (action$, store) =>
-    action$.ofType("REFRESH").mergeMap(() => {
-        const state = store.getState()
+    action$
+        .ofType("REFRESH")
+        .auditTime(300)
+        .mergeMap(() => {
+            console.log("REFRESHING")
+            const state = store.getState()
 
-        return Object.keys(state.expandedFolders).map(p => {
-            return Actions.expandDirectory(p)
+            return Object.keys(state.expandedFolders).map(p => {
+                return Actions.expandDirectory(p)
+            })
         })
-    })
 
 const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("EXPAND_DIRECTORY").flatMap(async (action: ExplorerAction) => {
