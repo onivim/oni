@@ -7,7 +7,7 @@ import * as path from "path"
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
-import FileSystemWatcher from "./../../Services/FileSystemWatcher"
+import { FileSystemWatcher } from "./../../Services/FileSystemWatcher"
 
 import { Event } from "oni-types"
 
@@ -46,11 +46,19 @@ export class ExplorerSplit {
     ) {
         this._store = createStore({ notifications: NotificationsInstance() })
 
+        const Watcher = new FileSystemWatcher({
+            target: this._workspace.activeWorkspace,
+            options: { ignoreInitial: true, ignored: "**/node_modules" },
+        })
+
         this._workspace.onDirectoryChanged.subscribe(newDirectory => {
             this._store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
                 rootPath: newDirectory,
             })
+
+            Watcher.unwatch(this._workspace.activeWorkspace)
+            Watcher.watch(newDirectory)
         })
 
         if (this._workspace.activeWorkspace) {
@@ -60,10 +68,10 @@ export class ExplorerSplit {
             })
         }
 
-        FileSystemWatcher.onChange.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
-        FileSystemWatcher.onAdd.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
-        FileSystemWatcher.onMove.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
-        FileSystemWatcher.onDelete.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
+        Watcher.onChange.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
+        Watcher.onAdd.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
+        Watcher.onMove.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
+        Watcher.onDelete.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
     }
 
     public enter(): void {
