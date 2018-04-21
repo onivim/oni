@@ -32,6 +32,8 @@ export interface INodeViewProps {
     onClick: () => void
     onCancelRename: () => void
     onCompleteRename: (newName: string) => void
+    onCancelCreate?: () => void
+    onCompleteCreate?: (path: string) => void
     yanked: string[]
     updated?: string[]
     isRenaming: Node
@@ -119,8 +121,9 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     }
 
     public render(): JSX.Element {
-        const { isRenaming, isSelected, node } = this.props
-        const renameInProgress = isRenaming.name === node.name && isSelected
+        const { isCreating, isRenaming, isSelected, node } = this.props
+        const renameInProgress = isRenaming.name === node.name && isSelected && !isCreating
+        const creationInProgress = isCreating && isSelected && !renameInProgress
         return (
             <NodeWrapper
                 style={{ cursor: "pointer" }}
@@ -133,7 +136,16 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         onComplete={this.props.onCompleteRename}
                     />
                 ) : (
-                    this.getElement()
+                    <div>
+                        {creationInProgress && (
+                            <TextInputView
+                                styles={renameStyles}
+                                onCancel={this.props.onCancelCreate}
+                                onComplete={this.props.onCompleteCreate}
+                            />
+                        )}
+                        {this.getElement()}
+                    </div>
                 )}
             </NodeWrapper>
         )
@@ -242,6 +254,8 @@ export interface IExplorerViewContainerProps {
     yanked?: string[]
     isCreating?: boolean
     isRenaming?: Node
+    onCancelCreate?: () => void
+    onCompleteCreate?: (path: string) => void
 }
 
 export interface IExplorerViewProps extends IExplorerViewContainerProps {
@@ -280,15 +294,17 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                         const nodes = this.props.nodes.map(node => (
                             <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
                                 <NodeView
+                                    node={node}
+                                    isSelected={node.id === selectedId}
                                     isCreating={this.props.isCreating}
+                                    onCancelCreate={this.props.onCancelCreate}
+                                    onCompleteCreate={this.props.onCompleteCreate}
                                     onCompleteRename={this.props.onCompleteRename}
                                     isRenaming={this.props.isRenaming}
                                     onCancelRename={this.props.onCancelRename}
                                     updated={this.props.updated}
                                     yanked={this.props.yanked}
                                     moveFileOrFolder={this.props.moveFileOrFolder}
-                                    node={node}
-                                    isSelected={node.id === selectedId}
                                     onClick={() => this.props.onClick(node.id)}
                                 />
                             </Sneakable>

@@ -49,6 +49,8 @@ export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
     public async moveNodesBack(): Promise<void> {}
     public async deleteNode(): Promise<void> {}
     public async move(source: string, destination: string): Promise<void> {}
+    public async writeFile(name: string): Promise<void> {}
+    public async mkdir(name: string): Promise<void> {}
     // tslint:enable
 }
 
@@ -158,6 +160,8 @@ describe("ExplorerStore", () => {
             deleteNode: file => null,
             canPersistNode: async (file, size) => true,
             moveNodesBack: async collection => null,
+            writeFile: async name => null,
+            mkdir: async name => null,
         } as ExplorerFileSystem.IFileSystem
 
         const notifications = {

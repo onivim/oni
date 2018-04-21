@@ -44,6 +44,7 @@ export const DefaultRegisterState: IRegisterState = {
     create: {
         active: false,
         name: null,
+        nodeType: null,
     },
     rename: {
         active: false,
@@ -81,6 +82,8 @@ export type RegisterAction =
     | IUndoFailAction
     | IRenameSuccessAction
     | IRenameFailAction
+    | ICreateNodeSuccessAction
+    | ICreateNodeFailAction
 
 interface IRegisterState {
     yank: ExplorerNode[]
@@ -94,6 +97,7 @@ interface IRegisterState {
     create: {
         active: boolean
         name: string
+        nodeType: "file" | "folder"
     }
 }
 
@@ -206,6 +210,7 @@ export interface IClearUpdateAction {
 
 export interface ICreateNodeStartAction {
     type: "CREATE_NODE_START"
+    nodeType: "file" | "folder"
 }
 
 export interface ICreateNodeCancelAction {
@@ -214,7 +219,6 @@ export interface ICreateNodeCancelAction {
 
 export interface ICreateNodeCommitAction {
     type: "CREATE_NODE_COMMIT"
-    nodeType: "file" | "folder"
     name: string
 }
 
@@ -325,6 +329,7 @@ type Updates =
     | IDeleteSuccessAction
     | IUndoSuccessAction
     | IRenameSuccessAction
+    | ICreateNodeSuccessAction
 
 export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[] => {
     switch (action.type) {
@@ -334,6 +339,8 @@ export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[
             return [getPathForNode(action.target)]
         case "RENAME_SUCCESS":
             return [action.destination]
+        case "CREATE_NODE_SUCCESS":
+            return [action.name]
         case "UNDO_SUCCESS":
             const lastAction = last(state.undo)
 
@@ -373,8 +380,11 @@ export const getPathForNode = (node: ExplorerNode) => {
 const Actions = {
     Null: { type: null } as ExplorerAction,
 
-    createNode: (args: { type: "file" | "folder"; name: string }) =>
+    createNode: (args: { nodeType: "file" | "folder"; name: string }) =>
         ({ type: "CREATE_NODE_SUCCESS", ...args } as ICreateNodeSuccessAction),
+
+    createNodeFail: (reason: string) =>
+        ({ type: "CREATE_NODE_FAIL", reason } as ICreateNodeFailAction),
 
     pasteSuccess: (moved: IMovedNodes[]) =>
         ({ type: "PASTE_SUCCESS", moved } as IPasteSuccessAction),
@@ -385,15 +395,14 @@ const Actions = {
 
     undoSuccess: { type: "UNDO_SUCCESS" } as IUndoSuccessAction,
 
-    renameSuccess: ({
-        source,
-        destination,
-        targetType,
-    }: {
+    renameSuccess: (args: {
         source: string
         destination: string
         targetType: string
-    }) => ({ type: "RENAME_SUCCESS", destination, source, targetType } as IRenameSuccessAction),
+    }): IRenameSuccessAction => ({
+        type: "RENAME_SUCCESS",
+        ...args,
+    }),
 
     renameFail: (reason: string) => ({ type: "RENAME_FAIL", reason } as IRenameFailAction),
 
@@ -455,7 +464,28 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                 create: {
                     active: true,
                     name: null,
+                    nodeType: action.nodeType,
                 },
+            }
+        case "CREATE_NODE_CANCEL":
+            return {
+                ...state,
+                create: {
+                    active: false,
+                    name: null,
+                    nodeType: null,
+                },
+            }
+        case "CREATE_NODE_SUCCESS":
+            return {
+                ...state,
+                create: {
+                    active: false,
+                    name: null,
+                    nodeType: null,
+                },
+                updated: getUpdatedNode(action),
+                undo: [...state.undo, action],
             }
         case "RENAME_START":
             return {
@@ -852,13 +882,14 @@ const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     })
 
 const createNodeEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
-    action$
-        .ofType("CREATE_NODE_COMMIT")
-        .mergeMap((action: ICreateNodeCommitAction) =>
-            fromPromise(fileSystem.writeFile(action.name)).map(() =>
-                Actions.createNode({ type: action.nodeType, name: action.name }),
-            ),
-        )
+    action$.ofType("CREATE_NODE_COMMIT").mergeMap(({ name }: ICreateNodeCommitAction) => {
+        const { register: { create: { nodeType } } } = store.getState()
+        const createFileOrFolder =
+            nodeType === "file" ? fileSystem.writeFile(name) : fileSystem.mkdir(name)
+        return fromPromise(createFileOrFolder)
+            .map(() => Actions.createNode({ nodeType, name }))
+            .catch(error => [Actions.createNodeFail(error.message)])
+    })
 
 export const notificationEpic: ExplorerEpic = (action$, store, { notifications }) =>
     action$

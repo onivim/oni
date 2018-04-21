@@ -5,7 +5,7 @@
  */
 
 import * as fs from "fs"
-import { emptyDirSync, ensureDirSync, move, remove, writeFile } from "fs-extra"
+import { emptyDirSync, ensureDirSync, move, remove, writeFile, mkdirp } from "fs-extra"
 import * as os from "os"
 import * as path from "path"
 import { promisify } from "util"
@@ -26,6 +26,7 @@ export interface IFileSystem {
     move(source: string, dest: string): Promise<void>
     moveNodesBack(collection: Array<{ source: string; destination: string }>): Promise<void>
     writeFile(filepath: string): Promise<void>
+    mkdir(folderpath: string): Promise<void>
 }
 
 export class FileSystem implements IFileSystem {
@@ -168,6 +169,10 @@ export class FileSystem implements IFileSystem {
      */
     public async writeFile(filepath: string) {
         await writeFile(filepath, null, null)
+    }
+
+    public async mkdir(folderpath: string) {
+        await mkdirp(folderpath)
     }
 
     private areDifferent = (src: string, dest: string) => src !== dest
