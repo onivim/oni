@@ -106,9 +106,14 @@ const renameStyles = css`
     color: inherit;
     font-size: inherit;
     font-family: inherit;
-    padding: 0.5rem;
+    padding: 0.5em;
     box-sizing: border-box;
     border: 2px solid ${p => p.theme["highlight.mode.normal.background"]} !important;
+`
+
+const createStyles = css`
+    ${renameStyles};
+    margin-bottom: 0.2em;
 `
 
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
@@ -139,7 +144,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                     <div>
                         {creationInProgress && (
                             <TextInputView
-                                styles={renameStyles}
+                                styles={createStyles}
                                 onCancel={this.props.onCancelCreate}
                                 onComplete={this.props.onCompleteCreate}
                             />

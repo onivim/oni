@@ -40,14 +40,7 @@ describe("File System tests", async () => {
         assert.ok(canPersist)
     })
     it("Should delete the file", async () => {
-        await fileSystem.deleteNode({
-            filePath: secondPath,
-            id: "2",
-            type: "file",
-            modified: false,
-            name: "file1",
-            indentationLevel: 2,
-        })
+        await fileSystem.deleteNode(secondPath)
         try {
             await stat(secondPath)
         } catch (e) {

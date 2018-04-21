@@ -224,6 +224,7 @@ export interface ICreateNodeCommitAction {
 
 export interface ICreateNodeFailAction {
     type: "CREATE_NODE_FAIL"
+    reason: string
 }
 
 export interface ICreateNodeSuccessAction {
@@ -467,6 +468,7 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
                     nodeType: action.nodeType,
                 },
             }
+        case "CREATE_NODE_FAIL":
         case "CREATE_NODE_CANCEL":
             return {
                 ...state,
@@ -660,7 +662,7 @@ const sendExplorerNotification = (
     const notification = notifications.createItem()
     notification.setContents(title, details)
     notification.setLevel(level)
-    notification.setExpiration(8000)
+    notification.setExpiration(5_000)
     notification.show()
 }
 
@@ -709,6 +711,21 @@ const renameNotification = ({
         {
             title: `${capitalize(type)} renamed successfully`,
             details: `${path.basename(source)} renamed to ${path.basename(destination)}`,
+        },
+        notifications,
+    )
+
+interface CreationNotificationArgs {
+    notifications: Notifications
+    type: "file" | "folder"
+    name: string
+}
+
+const creationNotification = ({ notifications, type, name }: CreationNotificationArgs): void =>
+    sendExplorerNotification(
+        {
+            title: `${capitalize(type)} created successfully`,
+            details: `${name} created`,
         },
         notifications,
     )
@@ -763,11 +780,24 @@ export const pasteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
             })
     })
 
-const successActions = (maybeDirsNodes: ExplorerNode[]) => [
+const successActions = (maybeDirsNodes: ExplorerNode[] = []) => [
     Actions.undoSuccess,
     ...shouldExpandDirectory(maybeDirsNodes),
     Actions.refresh,
 ]
+
+const persistOrDeleteNode = async (
+    filepath: string,
+    fileSystem: IFileSystem,
+    persist = true,
+): Promise<void> => {
+    const maxSize = configuration.getValue("explorer.maxUndoFileSizeInBytes")
+    const persistEnabled = configuration.getValue("explorer.persistDeletedFiles")
+    const canPersistNode = await fileSystem.canPersistNode(filepath, maxSize)
+    persistEnabled && persist && canPersistNode
+        ? await fileSystem.persistNode(filepath)
+        : await fileSystem.deleteNode(filepath)
+}
 
 export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("UNDO").mergeMap(action => {
@@ -799,10 +829,22 @@ export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
             case "RENAME_SUCCESS":
                 const { source, destination } = lastAction
                 return fromPromise(fileSystem.move(destination, source))
-                    .flatMap(() => successActions([]))
+                    .flatMap(() => successActions())
                     .catch(error => {
                         Log.warn(error)
                         return [Actions.undoFail("The last rename could not be undone, sorry")]
+                    })
+
+            case "CREATE_NODE_SUCCESS":
+                return fromPromise(persistOrDeleteNode(lastAction.name, fileSystem))
+                    .flatMap(() => successActions())
+                    .catch(error => {
+                        Log.warn(error)
+                        return [
+                            Actions.undoFail(
+                                "The last file/folder creation could not be undone, sorry",
+                            ),
+                        ]
                     })
             default:
                 return [Actions.undoFail("Sorry we can't undo the last action")]
@@ -813,22 +855,13 @@ export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("DELETE").mergeMap((action: IDeleteAction) => {
         const { target, persist } = action
         const filepath = getPathForNode(target)
-        const maxSize = configuration.getValue("explorer.maxUndoFileSizeInBytes")
-        const persistEnabled = configuration.getValue("explorer.persistDeletedFiles")
-        const persistPromise = fileSystem.canPersistNode(filepath, maxSize)
 
-        return fromPromise(persistPromise).flatMap(canPersistNode =>
-            fromPromise(
-                persistEnabled && persist && canPersistNode
-                    ? fileSystem.persistNode(filepath)
-                    : fileSystem.deleteNode(target),
-            )
-                .flatMap(() => [Actions.deleteSuccess(target, persist), Actions.refresh])
-                .catch(error => {
-                    Log.warn(error)
-                    return [Actions.deleteFail(error.message)]
-                }),
-        )
+        return fromPromise(persistOrDeleteNode(filepath, fileSystem, persist))
+            .flatMap(() => [Actions.deleteSuccess(target, persist), Actions.refresh])
+            .catch(error => {
+                Log.warn(error)
+                return [Actions.deleteFail(error.message)]
+            })
     })
 
 export const renameEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
@@ -887,7 +920,7 @@ const createNodeEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         const createFileOrFolder =
             nodeType === "file" ? fileSystem.writeFile(name) : fileSystem.mkdir(name)
         return fromPromise(createFileOrFolder)
-            .map(() => Actions.createNode({ nodeType, name }))
+            .flatMap(() => [Actions.createNode({ nodeType, name }), Actions.refresh])
             .catch(error => [Actions.createNodeFail(error.message)])
     })
 
@@ -897,9 +930,11 @@ export const notificationEpic: ExplorerEpic = (action$, store, { notifications }
             "PASTE_SUCCESS",
             "DELETE_SUCCESS",
             "RENAME_SUCCESS",
+            "CREATE_NODE_SUCCESS",
             "RENAME_FAIL",
             "PASTE_FAIL",
             "DELETE_FAIL",
+            "CREATE_NODE_FAIL",
         )
         .map(action => {
             switch (action.type) {
@@ -928,9 +963,17 @@ export const notificationEpic: ExplorerEpic = (action$, store, { notifications }
                         destination: action.destination,
                     })
                     return Actions.notificationSent(action.type)
+                case "CREATE_NODE_SUCCESS":
+                    creationNotification({
+                        notifications,
+                        type: action.nodeType,
+                        name: action.name,
+                    })
+                    return Actions.notificationSent(action.type)
                 case "PASTE_FAIL":
                 case "DELETE_FAIL":
                 case "RENAME_FAIL":
+                case "CREATE_NODE_FAIL":
                     const [type] = action.type.split("_")
                     errorNotification({
                         type,

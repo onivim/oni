@@ -5,12 +5,11 @@
  */
 
 import * as fs from "fs"
-import { emptyDirSync, ensureDirSync, move, remove, writeFile, mkdirp } from "fs-extra"
+import { emptyDirSync, ensureDirSync, mkdirp, move, pathExists, remove, writeFile } from "fs-extra"
 import * as os from "os"
 import * as path from "path"
 import { promisify } from "util"
 
-import { ExplorerNode } from "./ExplorerSelectors"
 import { FolderOrFile } from "./ExplorerStore"
 
 /**
@@ -21,7 +20,7 @@ export interface IFileSystem {
     exists(fullPath: string): Promise<boolean>
     persistNode(fullPath: string): Promise<void>
     restoreNode(fullPath: string): Promise<void>
-    deleteNode(node: ExplorerNode): Promise<void>
+    deleteNode(fullPath: string): Promise<void>
     canPersistNode(fullPath: string, size: number): Promise<boolean>
     move(source: string, dest: string): Promise<void>
     moveNodesBack(collection: Array<{ source: string; destination: string }>): Promise<void>
@@ -90,17 +89,8 @@ export class FileSystem implements IFileSystem {
      * @function
      * @param {ExplorerNode} node The file or folder node
      */
-    public deleteNode = async (node: ExplorerNode): Promise<void> => {
-        switch (node.type) {
-            case "folder":
-                await remove(node.folderPath)
-                break
-            case "file":
-                await remove(node.filePath)
-                break
-            default:
-                break
-        }
+    public deleteNode = async (path: string): Promise<void> => {
+        await remove(path)
     }
 
     /**
@@ -168,10 +158,16 @@ export class FileSystem implements IFileSystem {
      * createFile
      */
     public async writeFile(filepath: string) {
-        await writeFile(filepath, null, null)
+        if (await pathExists(filepath)) {
+            throw new Error("This path already exists")
+        }
+        await writeFile(filepath, "", null)
     }
 
     public async mkdir(folderpath: string) {
+        if (await pathExists(folderpath)) {
+            throw new Error("This path already exists")
+        }
         await mkdirp(folderpath)
     }
 
