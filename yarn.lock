@@ -5995,7 +5995,7 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-keyboard-layout@2.0.13:
+keyboard-layout@^2.0.13:
   version "2.0.13"
   resolved "https://registry.yarnpkg.com/keyboard-layout/-/keyboard-layout-2.0.13.tgz#5b4f5c25835e5d221a7b9da897663100d897487d"
   dependencies:
