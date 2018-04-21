@@ -7,6 +7,7 @@ import * as path from "path"
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
+import FileSystemWatcher from "./../../Services/FileSystemWatcher"
 
 import { Event } from "oni-types"
 
@@ -58,6 +59,10 @@ export class ExplorerSplit {
                 rootPath: this._workspace.activeWorkspace,
             })
         }
+
+        FileSystemWatcher.onChange.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
+        FileSystemWatcher.onAdd.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
+        FileSystemWatcher.onMove.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
     }
 
     public enter(): void {
