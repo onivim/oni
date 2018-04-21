@@ -34,6 +34,7 @@ export class TutorialGameplayManager {
     private _isTickInProgress: boolean = false
     private _isPendingTick: boolean = false
     private _buf: Oni.Buffer
+    private _pendingTimer: number | null = null
 
     private _subscriptions: IDisposable[] = []
 
@@ -68,42 +69,20 @@ export class TutorialGameplayManager {
         this._currentStageIdx = 0
         this._activeTutorial = tutorial
 
-        this._cleanPendingSubscriptions()
-
-        const s1 = this._editor.onModeChanged.subscribe((evt: string) => {
-            this._tick()
-        })
-
-        const s2 = this._editor.onBufferChanged.subscribe(() => {
-            this._tick()
-        })
-        const s3 = (this._editor as any).onCursorMoved.subscribe(() => {
-            this._tick()
-        })
-
-        const timer = window.setInterval(() => this._tick(), TICK_RATE)
-
-        const s4 = {
-            dispose: () => window.clearInterval(timer),
-        }
-
-        this._subscriptions = [s1, s2, s3, s4]
+        this._pendingTimer = window.setInterval(() => this._tick(), TICK_RATE)
 
         this._tick()
     }
 
     public stop(): void {
-        this._cleanPendingSubscriptions()
-    }
-
-    private _cleanPendingSubscriptions(): void {
-        this._subscriptions.forEach(s => s.dispose())
-        this._subscriptions = []
+        if (this._pendingTimer) {
+            window.clearInterval(this._pendingTimer)
+            this._pendingTimer = null
+        }
     }
 
     private async _tick(): Promise<void> {
         if (this._isTickInProgress) {
-            this._isPendingTick = true
             return
         }
 
@@ -126,9 +105,6 @@ export class TutorialGameplayManager {
             if (this._currentStageIdx >= this._activeTutorial.stages.length) {
                 this._onCompleted.dispatch(true)
             }
-
-            // If we're on a new change, schedule a tick
-            window.setTimeout(() => this._tick())
         }
 
         const goalsToSend = this._activeTutorial.stages.map(f => f.goalName)
@@ -144,10 +120,5 @@ export class TutorialGameplayManager {
         }
         this._currentState = newState
         this._onStateChanged.dispatch(newState)
-
-        if (this._isPendingTick) {
-            this._isPendingTick = false
-            await this._tick()
-        }
     }
 }
