@@ -914,7 +914,7 @@ const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         return Actions.expandDirectoryResult(pathToExpand, sortedFilesAndFolders)
     })
 
-const createNodeEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
+export const createNodeEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("CREATE_NODE_COMMIT").mergeMap(({ name }: ICreateNodeCommitAction) => {
         const { register: { create: { nodeType } } } = store.getState()
         const createFileOrFolder =

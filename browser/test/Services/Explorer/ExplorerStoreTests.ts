@@ -465,6 +465,75 @@ describe("ExplorerStore", () => {
                 .toArray()
                 .subscribe(actualAction => assert.deepEqual(actualAction, expected))
         })
+
+        it("Should return a create node success action if a creation is committed", () => {
+            const action$ = ActionsObservable.of({
+                type: "CREATE_NODE_COMMIT",
+                name: "/test/dir/file.txt",
+            } as ExplorerState.ICreateNodeCommitAction)
+
+            const stateCopy = clone(ExplorerState.DefaultExplorerState)
+            const state = {
+                ...stateCopy,
+                register: {
+                    ...stateCopy.register,
+                    create: {
+                        active: true,
+                        nodeType: "file" as "file" | "folder",
+                        name: "/test/dir/file.txt",
+                    },
+                },
+            }
+
+            const createState = mockStore(state)
+
+            const expected = [
+                { type: "CREATE_NODE_SUCCESS", nodeType: "file", name: "/test/dir/file.txt" },
+                { type: "REFRESH" },
+            ]
+
+            ExplorerState.createNodeEpic(action$, createState, { fileSystem: fs, notifications })
+                .toArray()
+                .subscribe(actualActions => assert.deepEqual(actualActions, expected))
+        })
+
+        it("Should return an error action if a creation fails", () => {
+            const action$ = ActionsObservable.of({
+                type: "CREATE_NODE_COMMIT",
+                name: "/test/dir/file.txt",
+            } as ExplorerState.ICreateNodeCommitAction)
+
+            const stateCopy = clone(ExplorerState.DefaultExplorerState)
+            const state = {
+                ...stateCopy,
+                register: {
+                    ...stateCopy.register,
+                    create: {
+                        active: true,
+                        nodeType: "file" as "file" | "folder",
+                        name: "/test/dir/file.txt",
+                    },
+                },
+            }
+
+            const createState = mockStore(state)
+
+            const expected = [{ type: "CREATE_NODE_FAIL", reason: "Duplicate" }]
+
+            ExplorerState.createNodeEpic(action$, createState, {
+                fileSystem: {
+                    ...fs,
+                    writeFile: async folderpath => {
+                        throw new Error("Duplicate")
+                    },
+                },
+                notifications,
+            })
+                .toArray()
+                .subscribe(actualActions => {
+                    assert.deepEqual(actualActions, expected)
+                })
+        })
     })
 
     describe("Store utility helper tests", () => {
