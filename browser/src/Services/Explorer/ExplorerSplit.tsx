@@ -17,7 +17,7 @@ import { getInstance as NotificationsInstance } from "./../../Services/Notificat
 import { windowManager } from "./../../Services/WindowManager"
 import { IWorkspace } from "./../../Services/Workspace"
 
-import { createStore, IExplorerState, getPathForNode } from "./ExplorerStore"
+import { createStore, getPathForNode, IExplorerState } from "./ExplorerStore"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"

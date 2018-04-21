@@ -89,8 +89,8 @@ export class FileSystem implements IFileSystem {
      * @function
      * @param {ExplorerNode} node The file or folder node
      */
-    public deleteNode = async (path: string): Promise<void> => {
-        await remove(path)
+    public async deleteNode(fullPath: string): Promise<void> {
+        await remove(fullPath)
     }
 
     /**
