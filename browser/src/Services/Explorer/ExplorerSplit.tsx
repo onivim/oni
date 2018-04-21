@@ -129,6 +129,15 @@ export class ExplorerSplit {
 
         this._commandManager.registerCommand(
             new CallbackCommand(
+                "explorer.new.file",
+                "Create A New File in the Explorer",
+                null,
+                () => this._onCreateNode({ type: "file" }),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
                 "explorer.expand.directory",
                 "Expand a selected directory",
                 null,
@@ -273,5 +282,9 @@ export class ExplorerSplit {
             return
         }
         this._store.dispatch({ type: "DELETE", target: selectedItem, persist })
+    }
+
+    private _onCreateNode = ({ type }: { type: "file" | "folder" }) => {
+        this._store.dispatch({ type: "CREATE_NODE_START", nodeType: type })
     }
 }

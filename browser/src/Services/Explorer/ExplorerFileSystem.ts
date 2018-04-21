@@ -5,7 +5,7 @@
  */
 
 import * as fs from "fs"
-import { emptyDirSync, ensureDirSync, move, remove } from "fs-extra"
+import { emptyDirSync, ensureDirSync, move, remove, writeFile } from "fs-extra"
 import * as os from "os"
 import * as path from "path"
 import { promisify } from "util"
@@ -25,6 +25,7 @@ export interface IFileSystem {
     canPersistNode(fullPath: string, size: number): Promise<boolean>
     move(source: string, dest: string): Promise<void>
     moveNodesBack(collection: Array<{ source: string; destination: string }>): Promise<void>
+    writeFile(filepath: string): Promise<void>
 }
 
 export class FileSystem implements IFileSystem {
@@ -160,6 +161,13 @@ export class FileSystem implements IFileSystem {
     public canPersistNode = async (fullPath: string, maxSize: number): Promise<boolean> => {
         const { size } = await this._fs.stat(fullPath)
         return size < maxSize
+    }
+
+    /**
+     * createFile
+     */
+    public async writeFile(filepath: string) {
+        await writeFile(filepath, null, null)
     }
 
     private areDifferent = (src: string, dest: string) => src !== dest

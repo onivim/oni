@@ -212,6 +212,7 @@ export interface IExplorerViewContainerProps {
     onSelectionChanged: (id: string) => void
     onClick: (id: string) => void
     yanked?: string[]
+    isCreating?: boolean
 }
 
 export interface IExplorerViewProps extends IExplorerViewContainerProps {
@@ -243,13 +244,14 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
             <TransitionGroup>
                 <VimNavigator
                     ids={ids}
-                    active={this.props.isActive}
+                    active={this.props.isActive && !this.props.isCreating}
                     onSelectionChanged={this.props.onSelectionChanged}
                     onSelected={id => this.props.onClick(id)}
                     render={(selectedId: string) => {
                         const nodes = this.props.nodes.map(node => (
                             <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
                                 <NodeView
+                                    isCreating={this.props.isCreating}
                                     updated={this.props.updated}
                                     yanked={this.props.yanked}
                                     moveFileOrFolder={this.props.moveFileOrFolder}
@@ -283,6 +285,7 @@ const mapStateToProps = (
         nodes: ExplorerSelectors.mapStateToNodeList(state),
         updated: state.register.updated,
         yanked,
+        isCreating: state.register.create.active,
     }
 }
 

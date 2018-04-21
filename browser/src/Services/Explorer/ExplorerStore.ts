@@ -41,6 +41,10 @@ export const DefaultRegisterState: IRegisterState = {
     undo: [],
     paste: EmptyNode,
     updated: null,
+    create: {
+        active: false,
+        name: null,
+    },
 }
 
 export interface IFileState {
@@ -77,6 +81,10 @@ interface IRegisterState {
     paste: ExplorerNode
     undo: RegisterAction[]
     updated: string[]
+    create: {
+        active: boolean
+        name: string
+    }
 }
 
 export interface IExplorerState {
@@ -186,6 +194,30 @@ export interface IClearUpdateAction {
     type: "CLEAR_UPDATE"
 }
 
+export interface ICreateNodeStartAction {
+    type: "CREATE_NODE_START"
+}
+
+export interface ICreateNodeCancelAction {
+    type: "CREATE_NODE_CANCEL"
+}
+
+export interface ICreateNodeCommitAction {
+    type: "CREATE_NODE_COMMIT"
+    nodeType: "file" | "folder"
+    name: string
+}
+
+export interface ICreateNodeFailAction {
+    type: "CREATE_NODE_FAIL"
+}
+
+export interface ICreateNodeSuccessAction {
+    type: "CREATE_NODE_SUCCESS"
+    nodeType: "file" | "folder"
+    name: string
+}
+
 export interface IPasteSuccessAction {
     type: "PASTE_SUCCESS"
     moved: IMovedNodes[]
@@ -216,6 +248,11 @@ export type ExplorerAction =
     | IUndoAction
     | IUndoSuccessAction
     | IUndoFailAction
+    | ICreateNodeStartAction
+    | ICreateNodeFailAction
+    | ICreateNodeCancelAction
+    | ICreateNodeCommitAction
+    | ICreateNodeSuccessAction
 
 // Helper functions for Updating state ========================================================
 export const removePastedNode = (nodeArray: ExplorerNode[], ids: string[]): ExplorerNode[] =>
@@ -277,6 +314,9 @@ export const getPathForNode = (node: ExplorerNode) => {
 const Actions = {
     Null: { type: null } as ExplorerAction,
 
+    createNode: (args: { type: "file" | "folder"; name: string }) =>
+        ({ type: "CREATE_NODE_SUCCESS", ...args } as ICreateNodeSuccessAction),
+
     pasteSuccess: (moved: IMovedNodes[]) =>
         ({ type: "PASTE_SUCCESS", moved } as IPasteSuccessAction),
 
@@ -333,6 +373,14 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
     action: ExplorerAction,
 ) => {
     switch (action.type) {
+        case "CREATE_NODE_START":
+            return {
+                ...state,
+                create: {
+                    active: true,
+                    name: null,
+                },
+            }
         case "YANK":
             return {
                 ...state,
@@ -656,6 +704,15 @@ const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         return Actions.expandDirectoryResult(pathToExpand, sortedFilesAndFolders)
     })
 
+const createNodeEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
+    action$
+        .ofType("CREATE_NODE_COMMIT")
+        .mergeMap((action: ICreateNodeCommitAction) =>
+            fromPromise(fileSystem.writeFile(action.name)).map(() =>
+                Actions.createNode({ type: action.nodeType, name: action.name }),
+            ),
+        )
+
 export const notificationEpic: ExplorerEpic = (action$, store, { notifications }) =>
     action$.ofType("PASTE_SUCCESS", "DELETE_SUCCESS", "PASTE_FAIL", "DELETE_FAIL").map(action => {
         switch (action.type) {
@@ -704,6 +761,7 @@ export const createStore = ({
             combineEpics(
                 refreshEpic,
                 setRootDirectoryEpic,
+                createNodeEpic,
                 clearUpdateEpic,
                 clearYankRegisterEpic,
                 pasteEpic,
