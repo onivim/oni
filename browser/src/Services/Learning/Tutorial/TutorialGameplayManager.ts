@@ -4,7 +4,7 @@
 
 import * as Oni from "oni-api"
 
-import { Event, IEvent } from "oni-types"
+import { Event, IDisposable, IEvent } from "oni-types"
 
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./ITutorial"
 
@@ -21,6 +21,8 @@ export interface ITutorialState {
  * - Calls the 'render' function
  */
 
+const TICK_RATE = 50 /* 50 ms, or 20 times pers second */
+
 export class TutorialGameplayManager {
     private _activeTutorial: ITutorial
     private _currentStageIdx: number
@@ -32,6 +34,8 @@ export class TutorialGameplayManager {
     private _isTickInProgress: boolean = false
     private _isPendingTick: boolean = false
     private _buf: Oni.Buffer
+
+    private _subscriptions: IDisposable[] = []
 
     public get onStateChanged(): IEvent<ITutorialState> {
         return this._onStateChanged
@@ -64,18 +68,37 @@ export class TutorialGameplayManager {
         this._currentStageIdx = 0
         this._activeTutorial = tutorial
 
-        this._editor.onModeChanged.subscribe((evt: string) => {
+        this._cleanPendingSubscriptions()
+
+        const s1 = this._editor.onModeChanged.subscribe((evt: string) => {
             this._tick()
         })
 
-        this._editor.onBufferChanged.subscribe(() => {
+        const s2 = this._editor.onBufferChanged.subscribe(() => {
             this._tick()
         })
-        ;(this._editor as any).onCursorMoved.subscribe(() => {
+        const s3 = (this._editor as any).onCursorMoved.subscribe(() => {
             this._tick()
         })
+
+        const timer = window.setInterval(() => this._tick(), TICK_RATE)
+
+        const s4 = {
+            dispose: () => window.clearInterval(timer),
+        }
+
+        this._subscriptions = [s1, s2, s3, s4]
 
         this._tick()
+    }
+
+    public stop(): void {
+        this._cleanPendingSubscriptions()
+    }
+
+    private _cleanPendingSubscriptions(): void {
+        this._subscriptions.forEach(s => s.dispose())
+        this._subscriptions = []
     }
 
     private async _tick(): Promise<void> {
