@@ -4,8 +4,7 @@
 
 import * as Oni from "oni-api"
 
-import { Event, IDisposable, IEvent } from "oni-types"
-
+import { Event, IEvent } from "oni-types"
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./ITutorial"
 
 export interface ITutorialState {
@@ -32,11 +31,8 @@ export class TutorialGameplayManager {
     private _onTick = new Event<void>()
 
     private _isTickInProgress: boolean = false
-    private _isPendingTick: boolean = false
     private _buf: Oni.Buffer
     private _pendingTimer: number | null = null
-
-    private _subscriptions: IDisposable[] = []
 
     public get onStateChanged(): IEvent<ITutorialState> {
         return this._onStateChanged
