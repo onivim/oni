@@ -534,6 +534,36 @@ describe("ExplorerStore", () => {
                     assert.deepEqual(actualActions, expected)
                 })
         })
+
+        it("Should trigger a persist/delete action if the created node is undone", () => {
+            const action$ = ActionsObservable.of({
+                type: "UNDO",
+            } as ExplorerState.ExplorerAction)
+
+            const stateCopy = clone(ExplorerState.DefaultExplorerState)
+            const state = {
+                ...stateCopy,
+                register: {
+                    ...stateCopy.register,
+                    undo: [
+                        {
+                            type: "CREATE_NODE_SUCCESS",
+                            name: "/test/dir/file.txt",
+                            nodeType: "file",
+                        } as ExplorerState.ICreateNodeSuccessAction,
+                    ],
+                },
+            }
+
+            const undoState = mockStore(state)
+            const expected = [{ type: "UNDO_SUCCESS" }, { type: "REFRESH" }]
+
+            ExplorerState.undoEpic(action$, undoState, { fileSystem: fs, notifications })
+                .toArray()
+                .subscribe(actualActions => {
+                    assert.deepEqual(actualActions, expected)
+                })
+        })
     })
 
     describe("Store utility helper tests", () => {
