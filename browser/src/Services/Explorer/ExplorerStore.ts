@@ -229,6 +229,11 @@ export interface IRenameCommitAction {
     newName: string
 }
 
+export interface INotificationSentAction {
+    type: "NOTIFICATION_SENT"
+    typeOfNotification: string
+}
+
 export interface IMovedNodes {
     node: ExplorerNode
     destination: string
@@ -259,6 +264,7 @@ export type ExplorerAction =
     | IUndoAction
     | IUndoSuccessAction
     | IUndoFailAction
+    | INotificationSentAction
 
 // Helper functions for Updating state ========================================================
 export const removePastedNode = (nodeArray: ExplorerNode[], ids: string[]): ExplorerNode[] =>
@@ -365,6 +371,11 @@ const Actions = {
         type: "DELETE_SUCCESS",
         target,
         persist,
+    }),
+
+    notificationSent: (typeOfNotification: string): INotificationSentAction => ({
+        type: "NOTIFICATION_SENT",
+        typeOfNotification,
     }),
 
     expandDirectory: (directoryPath: string): IExpandDirectoryAction => ({
@@ -813,14 +824,14 @@ export const notificationEpic: ExplorerEpic = (action$, store, { notifications }
                             destination: item.destination,
                         }),
                     )
-                    return Actions.Null
+                    return Actions.notificationSent(action.type)
                 case "DELETE_SUCCESS":
                     deletionNotification({
                         notifications,
                         type: action.target.type,
                         name: action.target.name,
                     })
-                    return Actions.Null
+                    return Actions.notificationSent(action.type)
                 case "RENAME_SUCCESS":
                     renameNotification({
                         notifications,
@@ -828,7 +839,7 @@ export const notificationEpic: ExplorerEpic = (action$, store, { notifications }
                         source: action.source,
                         destination: action.destination,
                     })
-                    return Actions.Null
+                    return Actions.notificationSent(action.type)
                 case "PASTE_FAIL":
                 case "DELETE_FAIL":
                 case "RENAME_FAIL":
@@ -838,7 +849,7 @@ export const notificationEpic: ExplorerEpic = (action$, store, { notifications }
                         notifications,
                         reason: action.reason,
                     })
-                    return Actions.Null
+                    return Actions.notificationSent(action.type)
                 default:
                     return Actions.Null
             }

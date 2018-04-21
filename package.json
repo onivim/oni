@@ -624,9 +624,8 @@
             "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
         "test": "npm run test:unit && npm run test:integration",
         "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js --bail",
-        "test:react": "ELECTRON_RUN_AS_NODE=true jest --config ./jest.config.js ./ui-tests",
-        "test:react:watch":
-            "ELECTRON_RUN_AS_NODE=true jest --config ./jest.config.js ./ui-tests --watch",
+        "test:react": "jest --config ./jest.config.js ./ui-tests",
+        "test:react:watch": "jest --config ./jest.config.js ./ui-tests --watch",
         "test:react:coverage": "jest --config ./jest.config.js ./ui-tests --coverage",
         "test:unit:browser":
             "npm run build:test:unit:browser && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
