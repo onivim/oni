@@ -637,7 +637,6 @@ const refreshEpic: ExplorerEpic = (action$, store) =>
         .ofType("REFRESH")
         .auditTime(300)
         .mergeMap(() => {
-            console.log("REFRESHING")
             const state = store.getState()
 
             return Object.keys(state.expandedFolders).map(p => {
