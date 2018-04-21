@@ -77,13 +77,14 @@ export class ExplorerSplit {
 
     public moveFileOrFolder = (source: Node, dest: Node): void => {
         this._store.dispatch({ type: "PASTE", pasted: [source], target: dest })
-        this._store.dispatch({ type: "REFRESH" })
     }
 
     public render(): JSX.Element {
         return (
             <Provider store={this._store}>
                 <Explorer
+                    onCompleteRename={this._completeRename}
+                    onCancelRename={this._cancelRename}
                     onSelectionChanged={id => this._onSelectionChanged(id)}
                     onClick={id => this._onOpenItem(id)}
                     moveFileOrFolder={this.moveFileOrFolder}
@@ -92,15 +93,26 @@ export class ExplorerSplit {
         )
     }
 
+    private _isRenaming = () => {
+        const { register: { rename } } = this._store.getState()
+        return rename.active
+    }
+
     private _initialiseExplorerCommands(): void {
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.delete.persist", null, null, () =>
-                this._onDeleteItem({ persist: true }),
+            new CallbackCommand(
+                "explorer.delete.persist",
+                null,
+                null,
+                () => !this._isRenaming() && this._onDeleteItem({ persist: true }),
             ),
         )
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.delete", null, null, () =>
-                this._onDeleteItem({ persist: false }),
+            new CallbackCommand(
+                "explorer.delete",
+                null,
+                null,
+                () => !this._isRenaming() && this._onDeleteItem({ persist: false }),
             ),
         )
         this._commandManager.registerCommand(
@@ -108,13 +120,16 @@ export class ExplorerSplit {
                 "explorer.yank",
                 "Yank Selected Item",
                 "Select a file to move",
-                () => this._onYankItem(),
+                () => !this._isRenaming() && this._onYankItem(),
             ),
         )
 
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.undo", "Undo last explorer action", null, () =>
-                this._onUndoItem(),
+            new CallbackCommand(
+                "explorer.undo",
+                "Undo last explorer action",
+                null,
+                () => !this._isRenaming() && this._onUndoItem(),
             ),
         )
 
@@ -123,7 +138,7 @@ export class ExplorerSplit {
                 "explorer.paste",
                 "Move/Paste Selected Item",
                 "Paste the last yanked item",
-                () => this._onPasteItem(),
+                () => !this._isRenaming() && this._onPasteItem(),
             ),
         )
 
@@ -141,7 +156,7 @@ export class ExplorerSplit {
                 "explorer.expand.directory",
                 "Expand a selected directory",
                 null,
-                () => this._toggleDirectory("expand"),
+                () => !this._isRenaming() && this._toggleDirectory("expand"),
             ),
         )
 
@@ -150,7 +165,16 @@ export class ExplorerSplit {
                 "explorer.collapse.directory",
                 "Collapse selected directory",
                 null,
-                () => this._toggleDirectory("collapse"),
+                () => !this._isRenaming() && this._toggleDirectory("collapse"),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.rename",
+                "Rename the selected file/folder",
+                null,
+                () => !this._isRenaming() && this._renameItem(),
             ),
         )
     }
@@ -216,6 +240,27 @@ export class ExplorerSplit {
         )
 
         return parentNode
+    }
+
+    private _renameItem = () => {
+        const selected = this._getSelectedItem()
+        if (!selected) {
+            return
+        }
+        this._store.dispatch({ type: "RENAME_START", target: selected })
+    }
+
+    private _completeRename = (newName: string) => {
+        const target = this._getSelectedItem()
+
+        if (!target) {
+            return
+        }
+        this._store.dispatch({ type: "RENAME_COMMIT", newName, target })
+    }
+
+    private _cancelRename = () => {
+        this._store.dispatch({ type: "RENAME_CANCEL" })
     }
 
     // This is different from on openItem since it only activates if the target is a folder
