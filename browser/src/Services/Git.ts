@@ -4,16 +4,8 @@
  * Utilities around Git
  */
 
-import { exec } from "child_process"
 import * as GitP from "simple-git/promise"
-import { promisify } from "util"
 import * as Log from "./../Log"
-
-const execPromise = promisify(exec)
-
-interface IExecOptions {
-    cwd?: string
-}
 
 export interface VersionControlProvider {
     // Events
@@ -23,8 +15,8 @@ export interface VersionControlProvider {
 
     // getHistory(filepath: string): Promise<DiffResult | null>
     getVCSStatus(projectRoot?: string): Promise<GitP.DiffResult | null>
-    getBranch(path?: string): Promise<Error | string>
     getVCSRoot(): Promise<string | null>
+    getBranch(path?: string): Promise<Error | string>
 }
 
 export class GitVersionControlProvider implements VersionControlProvider {
@@ -41,32 +33,18 @@ export class GitVersionControlProvider implements VersionControlProvider {
     }
 
     public async getVCSStatus(currentDir: string): Promise<GitP.DiffResult | null> {
-        console.log("this._git: ", this._git)
-        console.log("git: ", GitP)
-
-        this._git(currentDir)
-            .checkIsRepo()
-            .then(isRepo => {
-                console.log("ISREPO..........", isRepo)
-            })
-
-        return this._git()
-            .checkIsRepo()
-            .then(isRepo => (isRepo ? this._git(currentDir).diffSummary() : null))
-            .catch(error => {
-                Log.warn(`[Oni.Git.Plugin]: ${error.message}`)
-                return null
-            })
+        try {
+            const isRepo = await this._git(currentDir).checkIsRepo()
+            return isRepo ? this._git(currentDir).diffSummary() : null
+        } catch (error) {
+            Log.warn(`[Oni.Git.Plugin]: ${error.message}`)
+            return null
+        }
     }
 
-    public async getBranch(filePath?: string): Promise<string> {
-        const options: IExecOptions = {
-            cwd: filePath,
-        }
-
-        // git().branch()
-        const result: any = await execPromise("git rev-parse --abbrev-ref HEAD", options)
-        return result
+    public async getBranch(currentDir?: string): Promise<string> {
+        const status = await this._git(currentDir).status()
+        return status.current
     }
 }
 
