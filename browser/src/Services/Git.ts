@@ -5,13 +5,11 @@
  */
 
 import { exec } from "child_process"
-import * as path from "path"
 import * as git from "simple-git/promise"
 import { promisify } from "util"
 import * as Log from "./../Log"
 
-// FIXME: Returns a string however is typed to return { stderr: any; stdout: any }
-const execPromise = promisify(exec) as any
+const execPromise = promisify(exec)
 
 interface IExecOptions {
     cwd?: string
@@ -27,79 +25,24 @@ export interface GitFunctions {
     getGitRoot(): Promise<string | null>
 }
 
-const numFromString = (s: string) => {
-    const num = s.match(/\d+/)
-    if (num && num.length) {
-        return Number(num[0])
-    }
-    return null
-}
-
-const formatFileAndChanges = (files: string[]) => {
-    if (!files.length) {
-        return null
-    }
-    return files.map(unformattedStr => {
-        const [file, changes] = unformattedStr.split("|")
-        const pluses = changes.replace(/[^+]/g, "")
-        const insertions = pluses.length
-        const minuses = changes.replace(/[^-]/g, "")
-        const deletions = minuses.length
-        return {
-            file: file.trim(),
-            changes: numFromString(changes),
-            insertions,
-            deletions,
-        }
-    })
-}
-
 export async function getGitRoot(): Promise<string | null> {
     try {
-        const rootDir = await (git() as any).revparse(["--show-toplevel"])
+        const rootDir = await git().revparse(["--show-toplevel"])
         Log.info(`Git Root Directory is ${rootDir}`)
-        return path.join(__dirname, rootDir)
+        return rootDir
     } catch (e) {
         return null
     }
 }
 
-export async function getGitSummary(currentDir: string): Promise<IStatus | null> {
-    let status = null
-    if (currentDir) {
-        const project = git(currentDir)
-        const isRepo = await project.checkIsRepo()
-        if (isRepo) {
-            status = await project.diffSummary()
-            if (status.files || status.deletions || status.insertions) {
-                console.log("status: ", status)
-                return status
-            }
-            const options: IExecOptions = {
-                cwd: currentDir,
-            }
-            const cmd = `git diff --stat=4096`
-            try {
-                const output: string = await execPromise(cmd, options)
-                if (output) {
-                    const outputArray = output.split("\n").filter(v => !!v)
-                    const changeSummary = outputArray[outputArray.length - 1]
-                    const filesChanged = outputArray.slice(0, outputArray.length - 1)
-                    const [modified, insertions, deletions] = changeSummary
-                        .split(",")
-                        .map(numFromString)
-                    const files = formatFileAndChanges(filesChanged)
-
-                    status = { files, insertions, deletions, modified }
-                }
-            } catch (e) {
-                // tslint:disable-next-line
-                console.warn("[Oni.Git.Plugin]:", e)
-                return status
-            }
-        }
+export async function getGitSummary(currentDir: string = process.cwd()): Promise<IStatus | null> {
+    const isRepo = await git(currentDir).checkIsRepo()
+    try {
+        return isRepo ? git(currentDir).diffSummary() : null
+    } catch (e) {
+        Log.warn(`[Oni.Git.Plugin]: ${e.message}`)
+        return null
     }
-    return status
 }
 
 export async function getBranch(filePath?: string): Promise<string> {
@@ -108,6 +51,7 @@ export async function getBranch(filePath?: string): Promise<string> {
         options.cwd = filePath
     }
 
-    const result: string = await execPromise("git rev-parse --abbrev-ref HEAD", options)
+    // git().branch()
+    const result: any = await execPromise("git rev-parse --abbrev-ref HEAD", options)
     return result
 }
