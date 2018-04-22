@@ -25,7 +25,7 @@ const activate = Oni => {
                 let branchName, summary
                 try {
                     branchName = await Oni.services.git.getBranch(dir)
-                    summary = await Oni.services.git.getGitSummary(dir)
+                    summary = await Oni.services.git.getVCSStatus(dir)
                 } catch (e) {
                     console.warn("[Oni.Git.Plugin]: ", e)
                     gitBranchIndicator.hide()
