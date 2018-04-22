@@ -24,6 +24,7 @@ export class FileSystemWatcher {
     private _onAdd = new Event<IFileChangeEvent>()
     private _onAddDir = new Event<IStatsChangeEvent>()
     private _onDelete = new Event<IFileChangeEvent>()
+    private _onDeleteDir = new Event<IFileChangeEvent>()
     private _onMove = new Event<IFileChangeEvent>()
     private _onChange = new Event<IFileChangeEvent>()
 
@@ -64,6 +65,10 @@ export class FileSystemWatcher {
             return this._onDelete.dispatch(path)
         })
 
+        this._watcher.on("unlinkDir", path => {
+            return this._onDeleteDir.dispatch(path)
+        })
+
         this._watcher.on("addDir", (path, stats) => {
             return this._onAddDir.dispatch({ path, stats })
         })
@@ -81,6 +86,10 @@ export class FileSystemWatcher {
         return this._onDelete
     }
 
+    get onDeleteDir(): IEvent<IFileChangeEvent> {
+        return this._onDeleteDir
+    }
+
     get onMove(): IEvent<IFileChangeEvent> {
         return this._onMove
     }
@@ -89,7 +98,7 @@ export class FileSystemWatcher {
         return this._onAdd
     }
 
-    get addDir(): IEvent<IStatsChangeEvent> {
+    get onAddDir(): IEvent<IFileChangeEvent> {
         return this._onAddDir
     }
 }

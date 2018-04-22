@@ -68,10 +68,10 @@ export class ExplorerSplit {
             })
         }
 
-        Watcher.onChange.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
-        Watcher.onAdd.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
-        Watcher.onMove.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
-        Watcher.onDelete.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
+        const events = ["onChange", "onAdd", "onAddDir", "onMove", "onDelete", "onDeleteDir"]
+        events.forEach(event =>
+            Watcher[event].subscribe(() => this._store.dispatch({ type: "REFRESH" })),
+        )
     }
 
     public enter(): void {
