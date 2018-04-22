@@ -5,22 +5,24 @@
  */
 
 import { exec } from "child_process"
-import * as git from "simple-git/promise"
+import { DiffResult } from "simple-git/promise"
 import { promisify } from "util"
 import * as Log from "./../Log"
 
 const execPromise = promisify(exec)
 
+const git = require("simple-git/promise") // tslint:disable-line
+
 interface IExecOptions {
     cwd?: string
 }
 
-interface IStatus extends git.DiffResult {
+interface IStatus extends DiffResult {
     modified?: number
 }
 
 export interface GitFunctions {
-    getGitSummary(workspace: string): Promise<git.DiffResult | null>
+    getGitSummary(workspace: string): Promise<DiffResult | null>
     getBranch(path?: string): Promise<Error | string>
     getGitRoot(): Promise<string | null>
 }
@@ -35,11 +37,10 @@ export async function getGitRoot(): Promise<string | null> {
     }
 }
 
-export async function getGitSummary(currentDir: string = process.cwd()): Promise<IStatus | null> {
-    const project = git(currentDir)
-    const isRepo = await project.checkIsRepo()
+export async function getGitSummary(currentDir?: string): Promise<IStatus | null> {
     try {
-        return isRepo ? project.diffSummary() : null
+        const isRepo = await git().checkIsRepo()
+        return isRepo ? git().diffSummary() : null
     } catch (e) {
         Log.warn(`[Oni.Git.Plugin]: ${e.message}`)
         return null
