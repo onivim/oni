@@ -44,7 +44,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
     public async getBranch(currentDir?: string): Promise<string> {
         const status = await this._git(currentDir).status()
-        return status.current
+        return status.current || ""
     }
 }
 
