@@ -94,7 +94,7 @@ import WildMenu from "./../../UI/components/WildMenu"
 
 import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
-import { NeovimWebGLRenderer } from "../../Renderer/WebGL/NeovimWebGLRenderer"
+import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 
 export class NeovimEditor extends Editor implements IEditor {
@@ -293,7 +293,7 @@ export class NeovimEditor extends Editor implements IEditor {
             initVimNotification.show()
         }
 
-        this._renderer = new NeovimWebGLRenderer()
+        this._renderer = new WebGLRenderer()
 
         this._rename = new Rename(
             this,

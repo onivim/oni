@@ -1,146 +1,96 @@
-import { ICell, IScreen } from "../../neovim"
+import { INeovimRenderer } from ".."
+import { IScreen } from "../../neovim"
 import { CachedColorNormalizer } from "./CachedColorNormalizer"
 import { IColorNormalizer } from "./IColorNormalizer"
-import { Atlas, IWebGLAtlasOptions, WebGLGlyph } from "./WebGLAtlas"
-import * as shaders from "./WebGLShaders"
+import { IWebGLAtlasOptions } from "./WebGLAtlas"
+import { WebGLSolidRenderer } from "./WebGLSolidRenderer"
+import { WebGlTextRenderer } from "./WebGLTextRenderer"
 
-const isWhiteSpace = (text: string) => text === null || text === "" || text === " "
+export const subpixelDivisor = 4 // TODO move this somewhere else
 
-const UNIT_QUAD_VERTICES = new Float32Array([1, 1, 1, 0, 0, 0, 0, 1])
-const UNIT_QUAD_ELEMENT_INDICES = new Uint8Array([0, 1, 3, 1, 2, 3])
-// tslint:disable-next-line:no-bitwise
-const MAX_GLYPH_INSTANCES = 1 << 14 // TODO find a reasonable way of determining this
-const GLYPH_INSTANCE_FIELD_COUNT = 12
-const GLYPH_INSTANCE_SIZE_IN_BYTES = GLYPH_INSTANCE_FIELD_COUNT * Float32Array.BYTES_PER_ELEMENT
-const SOLID_INSTANCE_FIELD_COUNT = 8
-const SOLID_INSTANCE_SIZE_IN_BYTES = SOLID_INSTANCE_FIELD_COUNT * Float32Array.BYTES_PER_ELEMENT
-
-export class WebGLRenderer {
-    private _devicePixelRatio: number
-    private _subpixelDivisor: number
-    private _gl: WebGL2RenderingContext
-    private _atlas: Atlas
+export class WebGLRenderer implements INeovimRenderer {
+    private _editorElement: HTMLElement
     private _colorNormalizer: IColorNormalizer
-    private solidProgram: WebGLProgram
-    private solidViewportScaleLocation: WebGLUniformLocation
-    private solidVAO: WebGLVertexArrayObject
-    private solidInstances: Float32Array
-    private solidInstancesBuffer: WebGLBuffer
-    private textBlendPass1Program: WebGLProgram
-    private textBlendPass2Program: WebGLProgram
-    private textBlendPass1ViewportScaleLocation: WebGLUniformLocation
-    private textBlendPass2ViewportScaleLocation: WebGLUniformLocation
-    // private textSinglePassProgram: WebGLProgram
-    // private textSinglePassViewportScaleLocation: WebGLUniformLocation
-    private textBlendVAO: WebGLVertexArrayObject
-    private unitQuadVerticesBuffer: WebGLBuffer
-    private unitQuadElementIndicesBuffer: WebGLBuffer
-    private glyphInstances: Float32Array
-    private glyphInstancesBuffer: WebGLBuffer
+    private _previousAtlasOptions: IWebGLAtlasOptions
 
-    constructor(canvasElement: HTMLCanvasElement, atlasOptions: IWebGLAtlasOptions) {
-        this._devicePixelRatio = atlasOptions.devicePixelRatio
-        this._subpixelDivisor = atlasOptions.subpixelDivisor
-        this._gl = canvasElement.getContext("webgl2") as WebGL2RenderingContext
-        this._atlas = new Atlas(this._gl, atlasOptions)
+    private _gl: WebGL2RenderingContext
+    private _solidRenderer: WebGLSolidRenderer
+    private _textRenderer: WebGlTextRenderer
 
-        const solidVertexShader = this.createShader(shaders.solidVertex, this._gl.VERTEX_SHADER)
-        const solidFragmentShader = this.createShader(
-            shaders.solidFragment,
-            this._gl.FRAGMENT_SHADER,
-        )
-        this.solidProgram = this.createProgram(solidVertexShader, solidFragmentShader)
-        this.solidViewportScaleLocation = this._gl.getUniformLocation(
-            this.solidProgram,
-            "viewportScale",
-        )
-
-        const textBlendVertexShader = this.createShader(
-            shaders.textBlendVertex,
-            this._gl.VERTEX_SHADER,
-        )
-        const textBlendPass1FragmentShader = this.createShader(
-            shaders.textBlendPass1Fragment,
-            this._gl.FRAGMENT_SHADER,
-        )
-        const textBlendPass2FragmentShader = this.createShader(
-            shaders.textBlendPass2Fragment,
-            this._gl.FRAGMENT_SHADER,
-        )
-
-        this.textBlendPass1Program = this.createProgram(
-            textBlendVertexShader,
-            textBlendPass1FragmentShader,
-        )
-        this.textBlendPass2Program = this.createProgram(
-            textBlendVertexShader,
-            textBlendPass2FragmentShader,
-        )
-
-        this.textBlendPass1ViewportScaleLocation = this._gl.getUniformLocation(
-            this.textBlendPass1Program,
-            "viewportScale",
-        )
-        this.textBlendPass2ViewportScaleLocation = this._gl.getUniformLocation(
-            this.textBlendPass2Program,
-            "viewportScale",
-        )
-
-        // const textSinglePassFragmentShader = this.createShader(
-        //     shaders.textSinglePassFragment,
-        //     this._gl.FRAGMENT_SHADER,
-        // )
-        // this.textSinglePassProgram = this.createProgram(
-        //     textBlendVertexShader,
-        //     textSinglePassFragmentShader,
-        // )
-        // this.textSinglePassViewportScaleLocation = this._gl.getUniformLocation(
-        //     this.textSinglePassProgram,
-        //     "viewportScale",
-        // )
-
-        this.createBuffers()
-        this.solidVAO = this.createSolidVAO()
-        this.textBlendVAO = this.createTextBlendVAO()
-
+    public start(editorElement: HTMLElement): void {
+        this._editorElement = editorElement
         this._colorNormalizer = new CachedColorNormalizer()
+
+        const canvasElement = document.createElement("canvas")
+        canvasElement.style.width = `100%`
+        canvasElement.style.height = `100%`
+
+        this._editorElement.innerHTML = ""
+        this._editorElement.appendChild(canvasElement)
+
+        this._gl = canvasElement.getContext("webgl2") as WebGL2RenderingContext
     }
 
-    public draw({
+    public redrawAll(screenInfo: IScreen): void {
+        this._updateCanvasDimensions()
+        this._createNewRendererIfRequired(screenInfo)
+        this._clear(screenInfo.backgroundColor)
+        this._draw(screenInfo)
+    }
+
+    public draw(screenInfo: IScreen): void {
+        this.redrawAll(screenInfo)
+    }
+
+    public onAction(action: any): void {
+        // do nothing
+    }
+
+    private _updateCanvasDimensions() {
+        const devicePixelRatio = window.devicePixelRatio
+        this._gl.canvas.width = this._editorElement.offsetWidth * devicePixelRatio
+        this._gl.canvas.height = this._editorElement.offsetHeight * devicePixelRatio
+    }
+
+    private _createNewRendererIfRequired({
         width: columnCount,
         height: rowCount,
-        // TODO font width and height are already defined in the atlas options and might conflict with them
         fontWidthInPixels,
         fontHeightInPixels,
         linePaddingInPixels,
-        getCell,
-        foregroundColor,
-        backgroundColor,
+        fontFamily,
+        fontSize,
     }: IScreen) {
-        const canvasWidth = this._gl.canvas.width
-        const canvasHeight = this._gl.canvas.height
-        const viewportScaleX = 2 / canvasWidth
-        const viewportScaleY = -2 / canvasHeight
+        const devicePixelRatio = window.devicePixelRatio
+        const atlasOptions = {
+            fontFamily,
+            fontSize,
+            lineHeight: fontHeightInPixels,
+            devicePixelRatio,
+            subpixelDivisor,
+        }
 
-        const solidCount = this.populateSolidInstances(
-            columnCount,
-            rowCount,
-            getCell,
-            fontWidthInPixels,
-            fontHeightInPixels,
-            linePaddingInPixels,
-            backgroundColor,
-        )
-        const glyphCount = this.populateGlyphInstances(
-            columnCount,
-            rowCount,
-            getCell,
-            fontWidthInPixels,
-            fontHeightInPixels,
-            linePaddingInPixels,
-            foregroundColor,
-        )
+        if (
+            !this._solidRenderer ||
+            !this._textRenderer ||
+            !this._previousAtlasOptions ||
+            !isShallowEqual(this._previousAtlasOptions, atlasOptions)
+        ) {
+            this._solidRenderer = new WebGLSolidRenderer(
+                this._gl,
+                this._colorNormalizer,
+                atlasOptions.devicePixelRatio,
+            )
+            this._textRenderer = new WebGlTextRenderer(
+                this._gl,
+                this._colorNormalizer,
+                atlasOptions,
+            )
+            this._previousAtlasOptions = atlasOptions
+        }
+    }
 
+    private _clear(backgroundColor: string) {
         const backgroundColorToUse = backgroundColor || "black"
         const normalizedBackgroundColor = this._colorNormalizer.normalizeColor(backgroundColorToUse)
         this._gl.clearColor(
@@ -150,386 +100,58 @@ export class WebGLRenderer {
             normalizedBackgroundColor[3],
         )
         this._gl.clear(this._gl.COLOR_BUFFER_BIT)
+    }
+
+    private _draw({
+        width: columnCount,
+        height: rowCount,
+        fontWidthInPixels,
+        fontHeightInPixels,
+        getCell,
+        foregroundColor,
+        backgroundColor,
+    }: IScreen) {
+        const canvasWidth = this._gl.canvas.width
+        const canvasHeight = this._gl.canvas.height
+        const viewportScaleX = 2 / canvasWidth
+        const viewportScaleY = -2 / canvasHeight
         this._gl.viewport(0, 0, canvasWidth, canvasHeight)
 
-        this.drawSolidInstances(solidCount, viewportScaleX, viewportScaleY)
-        this.drawGlyphInstances(glyphCount, viewportScaleX, viewportScaleY)
+        this._solidRenderer.draw(
+            columnCount,
+            rowCount,
+            getCell,
+            fontWidthInPixels,
+            fontHeightInPixels,
+            backgroundColor,
+            viewportScaleX,
+            viewportScaleY,
+        )
+        this._textRenderer.draw(
+            columnCount,
+            rowCount,
+            getCell,
+            fontWidthInPixels,
+            fontHeightInPixels,
+            foregroundColor,
+            viewportScaleX,
+            viewportScaleY,
+        )
     }
+}
 
-    private createProgram(vertexShader: WebGLShader, fragmentShader: WebGLShader) {
-        const program = this._gl.createProgram()
-        this._gl.attachShader(program, vertexShader)
-        this._gl.attachShader(program, fragmentShader)
-        this._gl.linkProgram(program)
-        if (!this._gl.getProgramParameter(program, this._gl.LINK_STATUS)) {
-            const info = this._gl.getProgramInfoLog(program)
-            throw new Error("Could not compile WebGL program: \n\n" + info)
+function isShallowEqual<T>(objectA: T, objectB: T) {
+    for (const key in objectA) {
+        if (!(key in objectB) || objectA[key] !== objectB[key]) {
+            return false
         }
-        return program
     }
 
-    private createShader(source: string, type: number) {
-        const shader = this._gl.createShader(type)
-        this._gl.shaderSource(shader, source)
-        this._gl.compileShader(shader)
-
-        if (!this._gl.getShaderParameter(shader, this._gl.COMPILE_STATUS)) {
-            const info = this._gl.getShaderInfoLog(shader)
-            throw new Error("Could not compile WebGL program: \n\n" + info)
+    for (const key in objectB) {
+        if (!(key in objectA) || objectA[key] !== objectB[key]) {
+            return false
         }
-
-        return shader
     }
 
-    private createBuffers() {
-        this.unitQuadVerticesBuffer = this._gl.createBuffer()
-        this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this.unitQuadVerticesBuffer)
-        this._gl.bufferData(this._gl.ARRAY_BUFFER, UNIT_QUAD_VERTICES, this._gl.STATIC_DRAW)
-
-        this.unitQuadElementIndicesBuffer = this._gl.createBuffer()
-        this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this.unitQuadElementIndicesBuffer)
-        this._gl.bufferData(
-            this._gl.ELEMENT_ARRAY_BUFFER,
-            UNIT_QUAD_ELEMENT_INDICES,
-            this._gl.STATIC_DRAW,
-        )
-
-        this.solidInstances = new Float32Array(MAX_GLYPH_INSTANCES * SOLID_INSTANCE_FIELD_COUNT)
-        this.solidInstancesBuffer = this._gl.createBuffer()
-
-        this.glyphInstances = new Float32Array(MAX_GLYPH_INSTANCES * GLYPH_INSTANCE_FIELD_COUNT)
-        this.glyphInstancesBuffer = this._gl.createBuffer()
-    }
-
-    private createSolidVAO() {
-        const vao = this._gl.createVertexArray()
-        this._gl.bindVertexArray(vao)
-
-        this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this.unitQuadElementIndicesBuffer)
-
-        this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this.unitQuadVerticesBuffer)
-        this._gl.enableVertexAttribArray(shaders.solidAttributes.unitQuadVertex)
-        this._gl.vertexAttribPointer(
-            shaders.solidAttributes.unitQuadVertex,
-            2,
-            this._gl.FLOAT,
-            false,
-            0,
-            0,
-        )
-
-        this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this.solidInstancesBuffer)
-
-        this._gl.enableVertexAttribArray(shaders.solidAttributes.targetOrigin)
-        this._gl.vertexAttribPointer(
-            shaders.solidAttributes.targetOrigin,
-            2,
-            this._gl.FLOAT,
-            false,
-            SOLID_INSTANCE_SIZE_IN_BYTES,
-            0,
-        )
-        this._gl.vertexAttribDivisor(shaders.solidAttributes.targetOrigin, 1)
-
-        this._gl.enableVertexAttribArray(shaders.solidAttributes.targetSize)
-        this._gl.vertexAttribPointer(
-            shaders.solidAttributes.targetSize,
-            2,
-            this._gl.FLOAT,
-            false,
-            SOLID_INSTANCE_SIZE_IN_BYTES,
-            2 * Float32Array.BYTES_PER_ELEMENT,
-        )
-        this._gl.vertexAttribDivisor(shaders.solidAttributes.targetSize, 1)
-
-        this._gl.enableVertexAttribArray(shaders.solidAttributes.colorRGBA)
-        this._gl.vertexAttribPointer(
-            shaders.solidAttributes.colorRGBA,
-            4,
-            this._gl.FLOAT,
-            false,
-            SOLID_INSTANCE_SIZE_IN_BYTES,
-            4 * Float32Array.BYTES_PER_ELEMENT,
-        )
-        this._gl.vertexAttribDivisor(shaders.solidAttributes.colorRGBA, 1)
-
-        return vao
-    }
-
-    private createTextBlendVAO() {
-        const vao = this._gl.createVertexArray()
-        this._gl.bindVertexArray(vao)
-
-        this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this.unitQuadElementIndicesBuffer)
-
-        this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this.unitQuadVerticesBuffer)
-        this._gl.enableVertexAttribArray(shaders.textBlendAttributes.unitQuadVertex)
-        this._gl.vertexAttribPointer(
-            shaders.textBlendAttributes.unitQuadVertex,
-            2,
-            this._gl.FLOAT,
-            false,
-            0,
-            0,
-        )
-
-        this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this.glyphInstancesBuffer)
-
-        this._gl.enableVertexAttribArray(shaders.textBlendAttributes.targetOrigin)
-        this._gl.vertexAttribPointer(
-            shaders.textBlendAttributes.targetOrigin,
-            2,
-            this._gl.FLOAT,
-            false,
-            GLYPH_INSTANCE_SIZE_IN_BYTES,
-            0,
-        )
-        this._gl.vertexAttribDivisor(shaders.textBlendAttributes.targetOrigin, 1)
-
-        this._gl.enableVertexAttribArray(shaders.textBlendAttributes.targetSize)
-        this._gl.vertexAttribPointer(
-            shaders.textBlendAttributes.targetSize,
-            2,
-            this._gl.FLOAT,
-            false,
-            GLYPH_INSTANCE_SIZE_IN_BYTES,
-            2 * Float32Array.BYTES_PER_ELEMENT,
-        )
-        this._gl.vertexAttribDivisor(shaders.textBlendAttributes.targetSize, 1)
-
-        this._gl.enableVertexAttribArray(shaders.textBlendAttributes.textColorRGBA)
-        this._gl.vertexAttribPointer(
-            shaders.textBlendAttributes.textColorRGBA,
-            4,
-            this._gl.FLOAT,
-            false,
-            GLYPH_INSTANCE_SIZE_IN_BYTES,
-            4 * Float32Array.BYTES_PER_ELEMENT,
-        )
-        this._gl.vertexAttribDivisor(shaders.textBlendAttributes.textColorRGBA, 1)
-
-        this._gl.enableVertexAttribArray(shaders.textBlendAttributes.atlasOrigin)
-        this._gl.vertexAttribPointer(
-            shaders.textBlendAttributes.atlasOrigin,
-            2,
-            this._gl.FLOAT,
-            false,
-            GLYPH_INSTANCE_SIZE_IN_BYTES,
-            8 * Float32Array.BYTES_PER_ELEMENT,
-        )
-        this._gl.vertexAttribDivisor(shaders.textBlendAttributes.atlasOrigin, 1)
-
-        this._gl.enableVertexAttribArray(shaders.textBlendAttributes.atlasSize)
-        this._gl.vertexAttribPointer(
-            shaders.textBlendAttributes.atlasSize,
-            2,
-            this._gl.FLOAT,
-            false,
-            GLYPH_INSTANCE_SIZE_IN_BYTES,
-            10 * Float32Array.BYTES_PER_ELEMENT,
-        )
-        this._gl.vertexAttribDivisor(shaders.textBlendAttributes.atlasSize, 1)
-
-        return vao
-    }
-
-    private populateSolidInstances(
-        columnCount: number,
-        rowCount: number,
-        getCell: (columnIndex: number, rowIndex: number) => ICell,
-        fontWidthInPixels: number,
-        fontHeightInPixels: number,
-        linePaddingInPixels: number,
-        defaultBackgroundColor: string,
-    ) {
-        const pixelRatioAdaptedFontWidth = fontWidthInPixels * this._devicePixelRatio
-        const pixelRatioAdaptedFontHeight = fontHeightInPixels * this._devicePixelRatio
-        // TODO find out if the existing implementation uses line padding in the wrong way
-        // const subpixelLinePadding = linePaddingInPixels * this._devicePixelRatio
-
-        let solidCellCount = 0
-        // let y = subpixelLinePadding / 2
-        let y = 0
-
-        // TODO refactor this to not be as reliant on mutations
-        for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-            let x = 0
-
-            for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                const cell = getCell(columnIndex, rowIndex)
-
-                if (cell.backgroundColor && cell.backgroundColor !== defaultBackgroundColor) {
-                    const colorToUse = cell.backgroundColor || defaultBackgroundColor || "black"
-                    const normalizedBackgroundColor = this._colorNormalizer.normalizeColor(
-                        colorToUse,
-                    )
-
-                    this.updateSolidInstance(
-                        solidCellCount,
-                        x,
-                        y,
-                        pixelRatioAdaptedFontWidth,
-                        pixelRatioAdaptedFontHeight,
-                        normalizedBackgroundColor,
-                    )
-
-                    solidCellCount++
-                }
-                x += pixelRatioAdaptedFontWidth
-            }
-
-            // y += subpixelFontHeight + subpixelLinePadding
-            y += pixelRatioAdaptedFontHeight
-        }
-
-        return solidCellCount
-    }
-
-    private updateSolidInstance(
-        index: number,
-        x: number,
-        y: number,
-        width: number,
-        height: number,
-        color: Float32Array,
-    ) {
-        const startOffset = SOLID_INSTANCE_FIELD_COUNT * index
-        // targetOrigin
-        this.solidInstances[0 + startOffset] = x
-        this.solidInstances[1 + startOffset] = y
-        // targetSize
-        this.solidInstances[2 + startOffset] = width
-        this.solidInstances[3 + startOffset] = height
-        // colorRGBA
-        this.solidInstances[4 + startOffset] = color[0]
-        this.solidInstances[5 + startOffset] = color[1]
-        this.solidInstances[6 + startOffset] = color[2]
-        this.solidInstances[7 + startOffset] = color[3]
-    }
-
-    private drawSolidInstances(solidCount: number, viewportScaleX: number, viewportScaleY: number) {
-        this._gl.bindVertexArray(this.solidVAO)
-        this._gl.disable(this._gl.BLEND)
-        this._gl.useProgram(this.solidProgram)
-        this._gl.uniform2f(this.solidViewportScaleLocation, viewportScaleX, viewportScaleY)
-        this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this.solidInstancesBuffer)
-        this._gl.bufferData(this._gl.ARRAY_BUFFER, this.solidInstances, this._gl.STREAM_DRAW)
-        this._gl.drawElementsInstanced(this._gl.TRIANGLES, 6, this._gl.UNSIGNED_BYTE, 0, solidCount)
-    }
-
-    private populateGlyphInstances(
-        columnCount: number,
-        rowCount: number,
-        getCell: (columnIndex: number, rowIndex: number) => ICell,
-        fontWidthInPixels: number,
-        fontHeightInPixels: number,
-        linePaddingInPixels: number,
-        defaultForegroundColor: string,
-    ) {
-        const pixelRatioAdaptedFontWidth = fontWidthInPixels * this._devicePixelRatio
-        const pixelRatioAdaptedFontHeight = fontHeightInPixels * this._devicePixelRatio
-        // TODO find out if the existing implementation uses line padding in the wrong way
-        // const subpixelLinePadding = linePaddingInPixels * this._devicePixelRatio
-
-        let glyphCount = 0
-        // let y = subpixelLinePadding / 2
-        let y = 0
-
-        // TODO refactor this to not be as reliant on mutations
-        for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-            let x = 0
-
-            for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                const cell = getCell(columnIndex, rowIndex)
-                const char = cell.character
-                if (!isWhiteSpace(char)) {
-                    const variantIndex =
-                        Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
-                    const glyph = this._atlas.getGlyph(char, variantIndex)
-                    const colorToUse = cell.foregroundColor || defaultForegroundColor || "white"
-                    const normalizedTextColor = this._colorNormalizer.normalizeColor(colorToUse)
-
-                    this.updateGlyphInstance(
-                        glyphCount,
-                        Math.round(x - glyph.variantOffset), // TODO maybe remove the variantOffset here?
-                        // x,
-                        y,
-                        glyph,
-                        normalizedTextColor,
-                    )
-
-                    glyphCount++
-                    // x += glyph.subpixelWidth
-                }
-                x += pixelRatioAdaptedFontWidth
-            }
-
-            // y += subpixelFontHeight + subpixelLinePadding
-            y += pixelRatioAdaptedFontHeight
-        }
-        this._atlas.uploadTexture()
-
-        return glyphCount
-    }
-
-    private updateGlyphInstance(
-        index: number,
-        x: number,
-        y: number,
-        glyph: WebGLGlyph,
-        color: Float32Array,
-    ) {
-        const startOffset = GLYPH_INSTANCE_FIELD_COUNT * index
-        // targetOrigin
-        this.glyphInstances[0 + startOffset] = x
-        this.glyphInstances[1 + startOffset] = y
-        // targetSize
-        this.glyphInstances[2 + startOffset] = glyph.width
-        this.glyphInstances[3 + startOffset] = glyph.height
-        // textColorRGBA
-        this.glyphInstances[4 + startOffset] = color[0]
-        this.glyphInstances[5 + startOffset] = color[1]
-        this.glyphInstances[6 + startOffset] = color[2]
-        this.glyphInstances[7 + startOffset] = color[3]
-        // atlasOrigin
-        this.glyphInstances[8 + startOffset] = glyph.textureU
-        this.glyphInstances[9 + startOffset] = glyph.textureV
-        // atlasSize
-        this.glyphInstances[10 + startOffset] = glyph.textureWidth
-        this.glyphInstances[11 + startOffset] = glyph.textureHeight
-    }
-
-    private drawGlyphInstances(glyphCount: number, viewportScaleX: number, viewportScaleY: number) {
-        this._gl.bindVertexArray(this.textBlendVAO)
-        this._gl.enable(this._gl.BLEND)
-
-        this._gl.useProgram(this.textBlendPass1Program)
-        this._gl.uniform2f(this.textBlendPass1ViewportScaleLocation, viewportScaleX, viewportScaleY)
-        this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this.glyphInstancesBuffer)
-        this._gl.bufferData(this._gl.ARRAY_BUFFER, this.glyphInstances, this._gl.STREAM_DRAW)
-        this._gl.blendFuncSeparate(
-            this._gl.ZERO,
-            this._gl.ONE_MINUS_SRC_COLOR,
-            this._gl.ZERO,
-            this._gl.ONE,
-        )
-        this._gl.drawElementsInstanced(this._gl.TRIANGLES, 6, this._gl.UNSIGNED_BYTE, 0, glyphCount)
-
-        this._gl.useProgram(this.textBlendPass2Program)
-        this._gl.blendFuncSeparate(
-            this._gl.ONE,
-            this._gl.ONE,
-            this._gl.ONE,
-            this._gl.ONE_MINUS_SRC_ALPHA,
-        )
-        this._gl.uniform2f(this.textBlendPass2ViewportScaleLocation, viewportScaleX, viewportScaleY)
-        this._gl.drawElementsInstanced(this._gl.TRIANGLES, 6, this._gl.UNSIGNED_BYTE, 0, glyphCount)
-
-        // this._gl.useProgram(this.textSinglePassProgram)
-        // this._gl.uniform2f(this.textSinglePassViewportScaleLocation, viewportScaleX, viewportScaleY)
-        // this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this.glyphInstancesBuffer)
-        // this._gl.bufferData(this._gl.ARRAY_BUFFER, this.glyphInstances, this._gl.STREAM_DRAW)
-        // this._gl.blendFunc(this._gl.ONE, this._gl.ONE_MINUS_SRC_ALPHA)
-        // this._gl.drawElementsInstanced(this._gl.TRIANGLES, 6, this._gl.UNSIGNED_BYTE, 0, glyphCount)
-    }
+    return true
 }

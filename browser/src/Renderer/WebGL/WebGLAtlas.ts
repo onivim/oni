@@ -1,4 +1,5 @@
-const TEXTURE_SIZE = 512
+const defaultTextureSizeInPixels = 512
+const glyphPaddingInPixels = 2
 
 export interface IWebGLAtlasOptions {
     fontFamily: string
@@ -19,66 +20,50 @@ export interface WebGLGlyph {
     subpixelWidth: number
 }
 
-export class Atlas {
-    private glyphCanvas: HTMLCanvasElement
-    private glyphCtx: CanvasRenderingContext2D
-    private glyphPadding = 2
-    private glyphs = new Map<string, Map<number, WebGLGlyph>>()
-    private nextX = 0
-    private nextY = 0
-    private textureChangedSinceLastUpload = false
-    private texture: WebGLTexture
-    private textureSize: number
-    private uvScale: number
+export class WebGLAtlas {
+    private _glyphContext: CanvasRenderingContext2D
+    private _glyphs = new Map<string, Map<number, WebGLGlyph>>()
+    private _nextX = 0
+    private _nextY = 0
+    private _textureChangedSinceLastUpload = false
+    private _texture: WebGLTexture
+    private _textureSize: number
+    private _uvScale: number
 
-    constructor(private gl: WebGL2RenderingContext, private options: IWebGLAtlasOptions) {
-        this.textureSize = TEXTURE_SIZE * options.devicePixelRatio
-        this.uvScale = 1 / this.textureSize
+    constructor(private _gl: WebGL2RenderingContext, private _options: IWebGLAtlasOptions) {
+        this._textureSize = defaultTextureSizeInPixels * _options.devicePixelRatio
+        this._uvScale = 1 / this._textureSize
 
-        this.glyphCanvas = document.createElement("canvas")
-        this.glyphCanvas.style.backgroundColor = "red"
-        this.glyphCanvas.width = this.textureSize
-        this.glyphCanvas.height = this.textureSize
-        this.glyphCtx = this.glyphCanvas.getContext("2d", { alpha: false })
-        this.glyphCtx.font = `${this.options.fontSize} ${this.options.fontFamily}`
-        this.glyphCtx.fillStyle = "white"
+        const glyphCanvas = document.createElement("canvas")
+        glyphCanvas.width = this._textureSize
+        glyphCanvas.height = this._textureSize
+        this._glyphContext = glyphCanvas.getContext("2d", { alpha: false })
+        this._glyphContext.font = `${this._options.fontSize} ${this._options.fontFamily}`
+        this._glyphContext.fillStyle = "white"
         // this.glyphCtx.textBaseline = "bottom"
-        this.glyphCtx.textBaseline = "top"
-        this.glyphCtx.scale(options.devicePixelRatio, options.devicePixelRatio)
-        this.glyphCtx.imageSmoothingEnabled = false
+        this._glyphContext.textBaseline = "top"
+        this._glyphContext.scale(_options.devicePixelRatio, _options.devicePixelRatio)
+        this._glyphContext.imageSmoothingEnabled = false
 
-        this.texture = gl.createTexture()
-        gl.bindTexture(gl.TEXTURE_2D, this.texture)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-        gl.texImage2D(
-            gl.TEXTURE_2D,
-            0,
-            gl.RGBA,
-            this.textureSize,
-            this.textureSize,
-            0,
-            gl.RGBA,
-            gl.UNSIGNED_BYTE,
-            this.glyphCanvas,
-        )
-        document.body.appendChild(this.glyphCanvas)
-        // this.glyphCanvas.style.position = "absolute"
-        // this.glyphCanvas.style.top = "0"
-        // this.glyphCanvas.style.right = "0"
+        this._texture = _gl.createTexture()
+        _gl.bindTexture(_gl.TEXTURE_2D, this._texture)
+        _gl.texParameteri(_gl.TEXTURE_2D, _gl.TEXTURE_MIN_FILTER, _gl.LINEAR)
+        _gl.texParameteri(_gl.TEXTURE_2D, _gl.TEXTURE_WRAP_S, _gl.CLAMP_TO_EDGE)
+        _gl.texParameteri(_gl.TEXTURE_2D, _gl.TEXTURE_WRAP_T, _gl.CLAMP_TO_EDGE)
+        this._textureChangedSinceLastUpload = true
+        this.uploadTexture()
     }
 
     public getGlyph(text: string, variantIndex: number) {
-        let glyphVariants = this.glyphs.get(text)
+        let glyphVariants = this._glyphs.get(text)
         if (!glyphVariants) {
             glyphVariants = new Map()
-            this.glyphs.set(text, glyphVariants)
+            this._glyphs.set(text, glyphVariants)
         }
 
         let glyph = glyphVariants.get(variantIndex)
         if (!glyph) {
-            glyph = this.rasterizeGlyph(text, variantIndex)
+            glyph = this._rasterizeGlyph(text, variantIndex)
             glyphVariants.set(variantIndex, glyph)
         }
 
@@ -86,52 +71,54 @@ export class Atlas {
     }
 
     public uploadTexture() {
-        if (this.textureChangedSinceLastUpload) {
-            this.gl.texImage2D(
-                this.gl.TEXTURE_2D,
+        if (this._textureChangedSinceLastUpload) {
+            this._gl.texImage2D(
+                this._gl.TEXTURE_2D,
                 0,
-                this.gl.RGBA,
-                this.textureSize,
-                this.textureSize,
+                this._gl.RGBA,
+                this._textureSize,
+                this._textureSize,
                 0,
-                this.gl.RGBA,
-                this.gl.UNSIGNED_BYTE,
-                this.glyphCanvas,
+                this._gl.RGBA,
+                this._gl.UNSIGNED_BYTE,
+                this._glyphContext.canvas,
             )
-            this.textureChangedSinceLastUpload = false
+            this._textureChangedSinceLastUpload = false
         }
     }
 
-    private rasterizeGlyph(text: string, variantIndex: number) {
-        this.textureChangedSinceLastUpload = true
+    private _rasterizeGlyph(text: string, variantIndex: number) {
+        this._textureChangedSinceLastUpload = true
 
-        const { devicePixelRatio, lineHeight, subpixelDivisor } = this.options
+        const { devicePixelRatio, lineHeight, subpixelDivisor } = this._options
         const variantOffset = variantIndex / subpixelDivisor
 
         const height = lineHeight
-        const { width: subpixelWidth } = this.glyphCtx.measureText(text)
+        const { width: subpixelWidth } = this._glyphContext.measureText(text)
         const width = Math.ceil(variantOffset) + Math.ceil(subpixelWidth)
 
-        if ((this.nextX + width) * devicePixelRatio > this.textureSize) {
-            this.nextX = 0
-            this.nextY = Math.ceil(this.nextY + height + this.glyphPadding)
+        if ((this._nextX + width) * devicePixelRatio > this._textureSize) {
+            this._nextX = 0
+            this._nextY = Math.ceil(this._nextY + height + glyphPaddingInPixels)
         }
 
-        if ((this.nextY + height) * devicePixelRatio > this.textureSize) {
+        if ((this._nextY + height) * devicePixelRatio > this._textureSize) {
+            // TODO implement a fallback instead of just throwing
             throw new Error("Texture is too small")
         }
 
-        const x = this.nextX
-        const y = this.nextY
+        const x = this._nextX
+        const y = this._nextY
+        // TODO fix the 1px offset in comparison to the cursor content
         // this.glyphCtx.fillText(text, x + variantOffset, y + height)
-        this.glyphCtx.fillText(text, x + variantOffset, y)
-        this.nextX += width
+        this._glyphContext.fillText(text, x + variantOffset, y)
+        this._nextX += width
 
         return {
-            textureU: x * devicePixelRatio * this.uvScale,
-            textureV: y * devicePixelRatio * this.uvScale,
-            textureWidth: width * devicePixelRatio * this.uvScale,
-            textureHeight: height * devicePixelRatio * this.uvScale,
+            textureU: x * devicePixelRatio * this._uvScale,
+            textureV: y * devicePixelRatio * this._uvScale,
+            textureWidth: width * devicePixelRatio * this._uvScale,
+            textureHeight: height * devicePixelRatio * this._uvScale,
             width: width * devicePixelRatio,
             height: height * devicePixelRatio,
             subpixelWidth: subpixelWidth * devicePixelRatio,
