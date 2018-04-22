@@ -36,9 +36,10 @@ export async function getGitRoot(): Promise<string | null> {
 }
 
 export async function getGitSummary(currentDir: string = process.cwd()): Promise<IStatus | null> {
-    const isRepo = await git(currentDir).checkIsRepo()
+    const project = git(currentDir)
+    const isRepo = await project.checkIsRepo()
     try {
-        return isRepo ? git(currentDir).diffSummary() : null
+        return isRepo ? project.diffSummary() : null
     } catch (e) {
         Log.warn(`[Oni.Git.Plugin]: ${e.message}`)
         return null
