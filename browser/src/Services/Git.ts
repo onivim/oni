@@ -11,7 +11,7 @@ import * as Log from "./../Log"
 
 const execPromise = promisify(exec)
 
-const git = require("simple-git/promise") // tslint:disable-line
+const git = require("simple-git")() // tslint:disable-line
 
 interface IExecOptions {
     cwd?: string
@@ -39,8 +39,9 @@ export async function getGitRoot(): Promise<string | null> {
 
 export async function getGitSummary(currentDir?: string): Promise<IStatus | null> {
     try {
-        const isRepo = await git().checkIsRepo()
-        return isRepo ? git().diffSummary() : null
+        const isRepo = await git.checkIsRepo()
+        console.log("git().diffSummary(): ", git.diffSummary())
+        return isRepo ? git.diffSummary() : null
     } catch (e) {
         Log.warn(`[Oni.Git.Plugin]: ${e.message}`)
         return null
