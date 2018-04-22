@@ -128,6 +128,9 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
 
+    "explorer.persistDeletedFiles": true,
+    "explorer.maxUndoFileSizeInBytes": 500_000,
+
     "environment.additionalPaths": [],
 
     "keyDisplayer.showInInsertMode": false,
@@ -410,7 +413,7 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.showIndex": false,
     "tabs.wrap": false,
 
-    "terminal.shellCommand": os.platform() === "win32" ? "cmd" : "bash",
+    "terminal.shellCommand": null,
 
     "ui.animations.enabled": true,
     "ui.colorscheme": "nord",
