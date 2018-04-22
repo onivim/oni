@@ -285,7 +285,8 @@ export class ExplorerSplit {
             return
         }
 
-        const dirname = path.dirname(getPathForNode(target))
+        const nodePath = getPathForNode(target)
+        const dirname = target.type === "file" ? path.dirname(nodePath) : nodePath
         this._store.dispatch({ type: "CREATE_NODE_COMMIT", name: path.join(dirname, newName) })
     }
 
