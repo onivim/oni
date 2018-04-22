@@ -489,6 +489,7 @@ describe("ExplorerStore", () => {
 
             const expected = [
                 { type: "CREATE_NODE_SUCCESS", nodeType: "file", name: "/test/dir/file.txt" },
+                { type: "EXPAND_DIRECTORY", directoryPath: "/test/dir" },
                 { type: "REFRESH" },
             ]
 
