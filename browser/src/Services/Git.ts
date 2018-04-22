@@ -70,10 +70,11 @@ export async function getGitSummary(currentDir: string): Promise<IStatus | null>
         const project = git(currentDir)
         const isRepo = await project.checkIsRepo()
         if (isRepo) {
-            // status = await project.diffSummary()
-            // if (status.files || status.deletions || status.insertions) {
-            //     return status
-            // }
+            status = await project.diffSummary()
+            if (status.files || status.deletions || status.insertions) {
+                console.log("status: ", status)
+                return status
+            }
             const options: IExecOptions = {
                 cwd: currentDir,
             }
