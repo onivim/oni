@@ -917,10 +917,11 @@ const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
 export const createNodeEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("CREATE_NODE_COMMIT").mergeMap(({ name }: ICreateNodeCommitAction) => {
         const { register: { create: { nodeType } } } = store.getState()
+        const shouldExpand = Actions.expandDirectory(path.dirname(name))
         const createFileOrFolder =
             nodeType === "file" ? fileSystem.writeFile(name) : fileSystem.mkdir(name)
         return fromPromise(createFileOrFolder)
-            .flatMap(() => [Actions.createNode({ nodeType, name }), Actions.refresh])
+            .flatMap(() => [Actions.createNode({ nodeType, name }), shouldExpand, Actions.refresh])
             .catch(error => [Actions.createNodeFail(error.message)])
     })
 
