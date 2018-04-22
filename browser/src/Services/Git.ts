@@ -28,11 +28,11 @@ export interface VersionControlProvider {
 }
 
 export class GitVersionControlProvider implements VersionControlProvider {
-    constructor(private _git: GitP.SimpleGit = GitP()) {}
+    constructor(private _git = GitP) {}
 
     public async getVCSRoot(): Promise<string | null> {
         try {
-            const rootDir = await this._git.revparse(["--show-toplevel"])
+            const rootDir = await this._git().revparse(["--show-toplevel"])
             Log.info(`Git Root Directory is ${rootDir}`)
             return rootDir
         } catch (e) {
@@ -40,21 +40,28 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public async getVCSStatus(projectRoot?: string): Promise<GitP.DiffResult | null> {
-        try {
-            const isRepo = await this._git.checkIsRepo()
-            console.log("this._git().diffSummary(): ", this._git.diffSummary())
-            return isRepo ? this._git.diffSummary() : null
-        } catch (e) {
-            Log.warn(`[Oni.Git.Plugin]: ${e.message}`)
-            return null
-        }
+    public async getVCSStatus(currentDir: string): Promise<GitP.DiffResult | null> {
+        console.log("this._git: ", this._git)
+        console.log("git: ", GitP)
+
+        this._git(currentDir)
+            .checkIsRepo()
+            .then(isRepo => {
+                console.log("ISREPO..........", isRepo)
+            })
+
+        return this._git()
+            .checkIsRepo()
+            .then(isRepo => (isRepo ? this._git(currentDir).diffSummary() : null))
+            .catch(error => {
+                Log.warn(`[Oni.Git.Plugin]: ${error.message}`)
+                return null
+            })
     }
 
     public async getBranch(filePath?: string): Promise<string> {
-        const options: IExecOptions = {}
-        if (filePath) {
-            options.cwd = filePath
+        const options: IExecOptions = {
+            cwd: filePath,
         }
 
         // git().branch()

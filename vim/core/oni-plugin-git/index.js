@@ -12,20 +12,21 @@ const activate = Oni => {
                 return
             }
 
-            const filePath = evt.filePath || evt.bufferFullPath
             const gitId = "oni.status.git"
+            const filePath = evt.filePath || evt.bufferFullPath
             const gitBranchIndicator = Oni.statusBar.createItem(1, gitId)
 
             isLoaded = true
             let dir
 
             try {
-                const isDir = await Oni.workspace.pathIsDir(filePath)
-                const dir = isDir ? filePath : path.dirname(filePath)
                 let branchName, summary
+                const ws = Oni.workspace.activeWorkspace
                 try {
-                    branchName = await Oni.services.git.getBranch(dir)
-                    summary = await Oni.services.git.getVCSStatus(dir)
+                    branchName = await Oni.services.git.getBranch(ws)
+                    summary = await Oni.services.git.getVCSStatus(ws)
+
+                    console.log("summary: ", summary)
                 } catch (e) {
                     console.warn("[Oni.Git.Plugin]: ", e)
                     gitBranchIndicator.hide()
