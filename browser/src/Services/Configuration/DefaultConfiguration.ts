@@ -82,6 +82,8 @@ const BaseConfiguration: IConfigurationValues = {
     "oni.exclude": ["node_modules", ".git"],
     "oni.bookmarks": [],
 
+    "editor.renderer": "canvas",
+
     "editor.backgroundOpacity": 1.0,
     "editor.backgroundImageUrl": null,
     "editor.backgroundImageSize": "cover",

@@ -99,6 +99,11 @@ export interface IConfigurationValues {
 
     // Editor settings
 
+    // Setting this to "webgl" switches to the experimental
+    // WebGL-based renderer. Please be aware that it does not yet
+    // support all features that the canvas renderer offers
+    "editor.renderer": "canvas" | "webgl"
+
     "editor.backgroundOpacity": number
     "editor.backgroundImageUrl": string
     "editor.backgroundImageSize": string
