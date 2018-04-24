@@ -113,7 +113,7 @@ const renameStyles = css`
 
 const createStyles = css`
     ${renameStyles};
-    margin-bottom: 0.2em;
+    margin-top: 0.2em;
 `
 
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
