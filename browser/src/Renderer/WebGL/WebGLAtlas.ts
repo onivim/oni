@@ -1,5 +1,5 @@
 const defaultTextureSizeInPixels = 512
-const glyphPaddingInPixels = 2
+const glyphPaddingInPixels = 0
 
 export interface IWebGLAtlasOptions {
     fontFamily: string
