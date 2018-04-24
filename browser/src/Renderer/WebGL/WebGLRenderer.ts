@@ -6,8 +6,6 @@ import { IWebGLAtlasOptions } from "./WebGLAtlas"
 import { WebGLSolidRenderer } from "./WebGLSolidRenderer"
 import { WebGlTextRenderer } from "./WebGLTextRenderer"
 
-export const subpixelDivisor = 4 // TODO move this somewhere else
-
 export class WebGLRenderer implements INeovimRenderer {
     private _editorElement: HTMLElement
     private _colorNormalizer: IColorNormalizer
@@ -62,13 +60,15 @@ export class WebGLRenderer implements INeovimRenderer {
         fontSize,
     }: IScreen) {
         const devicePixelRatio = window.devicePixelRatio
+        const offsetGlyphVariantCount = Math.max(4 / devicePixelRatio, 1)
         const atlasOptions = {
             fontFamily,
             fontSize,
-            lineHeight: fontHeightInPixels,
+            lineHeightInPixels: fontHeightInPixels,
+            linePaddingInPixels,
             devicePixelRatio,
-            subpixelDivisor,
-        }
+            offsetGlyphVariantCount,
+        } as IWebGLAtlasOptions
 
         if (
             !this._solidRenderer ||

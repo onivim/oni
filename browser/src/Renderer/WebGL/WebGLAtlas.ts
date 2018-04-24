@@ -4,9 +4,10 @@ const glyphPaddingInPixels = 2
 export interface IWebGLAtlasOptions {
     fontFamily: string
     fontSize: string
-    lineHeight: number
+    lineHeightInPixels: number
+    linePaddingInPixels: number
     devicePixelRatio: number
-    subpixelDivisor: number
+    offsetGlyphVariantCount: number
 }
 
 export interface WebGLGlyph {
@@ -40,7 +41,6 @@ export class WebGLAtlas {
         this._glyphContext = glyphCanvas.getContext("2d", { alpha: false })
         this._glyphContext.font = `${this._options.fontSize} ${this._options.fontFamily}`
         this._glyphContext.fillStyle = "white"
-        // this.glyphCtx.textBaseline = "bottom"
         this._glyphContext.textBaseline = "top"
         this._glyphContext.scale(_options.devicePixelRatio, _options.devicePixelRatio)
         this._glyphContext.imageSmoothingEnabled = false
@@ -90,10 +90,15 @@ export class WebGLAtlas {
     private _rasterizeGlyph(text: string, variantIndex: number) {
         this._textureChangedSinceLastUpload = true
 
-        const { devicePixelRatio, lineHeight, subpixelDivisor } = this._options
-        const variantOffset = variantIndex / subpixelDivisor
+        const {
+            devicePixelRatio,
+            lineHeightInPixels,
+            linePaddingInPixels,
+            offsetGlyphVariantCount,
+        } = this._options
+        const variantOffset = variantIndex / offsetGlyphVariantCount
 
-        const height = lineHeight
+        const height = lineHeightInPixels
         const { width: subpixelWidth } = this._glyphContext.measureText(text)
         const width = Math.ceil(variantOffset) + Math.ceil(subpixelWidth)
 
@@ -109,9 +114,7 @@ export class WebGLAtlas {
 
         const x = this._nextX
         const y = this._nextY
-        // TODO fix the 1px offset in comparison to the cursor content
-        // this.glyphCtx.fillText(text, x + variantOffset, y + height)
-        this._glyphContext.fillText(text, x + variantOffset, y)
+        this._glyphContext.fillText(text, x + variantOffset, y + linePaddingInPixels / 2)
         this._nextX += width
 
         return {

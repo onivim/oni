@@ -104,7 +104,7 @@ export class WebGlTextRenderer {
         atlasOptions: IWebGLAtlasOptions,
     ) {
         this._devicePixelRatio = atlasOptions.devicePixelRatio
-        this._subpixelDivisor = atlasOptions.subpixelDivisor
+        this._subpixelDivisor = atlasOptions.offsetGlyphVariantCount
         this._atlas = new WebGLAtlas(this._gl, atlasOptions)
 
         this._firstPassProgram = createProgram(
@@ -307,13 +307,6 @@ export class WebGlTextRenderer {
         )
         this._gl.uniform2f(this._secondPassViewportScaleLocation, viewportScaleX, viewportScaleY)
         this._gl.drawElementsInstanced(this._gl.TRIANGLES, 6, this._gl.UNSIGNED_BYTE, 0, glyphCount)
-
-        // this._gl.useProgram(this.textSinglePassProgram)
-        // this._gl.uniform2f(this.textSinglePassViewportScaleLocation, viewportScaleX, viewportScaleY)
-        // this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this.glyphInstancesBuffer)
-        // this._gl.bufferData(this._gl.ARRAY_BUFFER, this.glyphInstances, this._gl.STREAM_DRAW)
-        // this._gl.blendFunc(this._gl.ONE, this._gl.ONE_MINUS_SRC_ALPHA)
-        // this._gl.drawElementsInstanced(this._gl.TRIANGLES, 6, this._gl.UNSIGNED_BYTE, 0, glyphCount)
     }
 
     private updateGlyphInstance(
