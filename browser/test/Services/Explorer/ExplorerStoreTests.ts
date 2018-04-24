@@ -55,7 +55,10 @@ export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
 const rootEpic = combineEpics(ExplorerState.clearYankRegisterEpic, ExplorerState.pasteEpic)
 
 const epicMiddleware = createEpicMiddleware(rootEpic, {
-    dependencies: { fileSystem: MockedFileSystem as any, notifications: {} as Notifications },
+    dependencies: {
+        fileSystem: MockedFileSystem as any,
+        notifications: {} as Notifications,
+    },
 })
 
 const MemoryFileSystem = require("memory-fs") // tslint:disable-line
@@ -157,7 +160,20 @@ describe("ExplorerStore", () => {
             moveNodesBack: async collection => null,
         } as ExplorerFileSystem.IFileSystem
 
-        const notifications = {} as Notifications
+        const notifications = {
+            _id: 0,
+            _overlay: null,
+            _overlayManager: null,
+            _store: null,
+            enable: true,
+            disable: false,
+            createItem: () => ({
+                setContents: (title: string, details: string) => ({ title, details }),
+                setLevel: (level: string) => ({ level }),
+                setExpiration: (expirationTime: number) => ({ expirationTime: 8_000 }),
+                show: () => ({}),
+            }),
+        } as any
 
         it("dispatches a clear register action after a minute", async () => {
             epicStore.dispatch({ type: "YANK", target })
@@ -371,6 +387,80 @@ describe("ExplorerStore", () => {
                     assert.deepEqual(actualActions, expected)
                 })
         })
+
+        it("Should move an item when a rename is triggered", () => {
+            const action$ = ActionsObservable.of({
+                type: "RENAME_COMMIT",
+                target: target1,
+                newName: "testing",
+            } as ExplorerState.IRenameCommitAction)
+
+            const expected = [
+                {
+                    type: "RENAME_SUCCESS",
+                    targetType: "folder",
+                    source: target1.folderPath,
+                    destination: path.join(path.dirname(target1.folderPath), "testing"),
+                },
+                { type: "REFRESH" },
+            ]
+
+            ExplorerState.renameEpic(action$, null, { fileSystem: fs, notifications })
+                .toArray()
+                .subscribe(actualActions => assert.deepEqual(actualActions, expected))
+        })
+
+        it("Should send a notification on paste success", () => {
+            const action$ = ActionsObservable.of({
+                type: "PASTE_SUCCESS",
+                moved: [{ node: target1, destination: "/another/test/dir" }],
+            } as ExplorerState.IPasteSuccessAction)
+
+            const expected = [{ type: "NOTIFICATION_SENT", typeOfNotification: "PASTE_SUCCESS" }]
+
+            ExplorerState.notificationEpic(action$, null, { fileSystem: fs, notifications })
+                .toArray()
+                .subscribe(actualAction => assert.deepEqual(actualAction, expected))
+        })
+
+        it("Should send a notification on paste fail", () => {
+            const action$ = ActionsObservable.of({
+                type: "PASTE_FAIL",
+            } as ExplorerState.IPasteFailAction)
+
+            const expected = [{ type: "NOTIFICATION_SENT", typeOfNotification: "PASTE_FAIL" }]
+
+            ExplorerState.notificationEpic(action$, null, { fileSystem: fs, notifications })
+                .toArray()
+                .subscribe(actualAction => assert.deepEqual(actualAction, expected))
+        })
+
+        it("Should send a notification on rename success", () => {
+            const action$ = ActionsObservable.of({
+                type: "RENAME_SUCCESS",
+                source: "/initial/test/dir",
+                destination: "/destination/test/dir",
+                targetType: "folder",
+            } as ExplorerState.IRenameSuccessAction)
+
+            const expected = [{ type: "NOTIFICATION_SENT", typeOfNotification: "RENAME_SUCCESS" }]
+
+            ExplorerState.notificationEpic(action$, null, { fileSystem: fs, notifications })
+                .toArray()
+                .subscribe(actualAction => assert.deepEqual(actualAction, expected))
+        })
+
+        it("Should send a notification on rename success", () => {
+            const action$ = ActionsObservable.of({
+                type: "RENAME_FAIL",
+            } as ExplorerState.IRenameFailAction)
+
+            const expected = [{ type: "NOTIFICATION_SENT", typeOfNotification: "RENAME_FAIL" }]
+
+            ExplorerState.notificationEpic(action$, null, { fileSystem: fs, notifications })
+                .toArray()
+                .subscribe(actualAction => assert.deepEqual(actualAction, expected))
+        })
     })
 
     describe("Store utility helper tests", () => {
@@ -428,6 +518,30 @@ describe("ExplorerStore", () => {
                     persist: false,
                 })
                 assert.ok(!newState.undo.length)
+            })
+
+            it("Should add a successful rename to undo register", () => {
+                const newState = yankRegisterReducer(clone(register), {
+                    type: "RENAME_SUCCESS",
+                    destination: path.basename(target1.folderPath) + "/rename",
+                    source: target1.folderPath,
+                    targetType: "folder",
+                })
+
+                assert.ok(newState.undo.length === 1)
+            })
+
+            it("Should clear the renaming if a rename cancel action is triggered", () => {
+                const state = {
+                    ...clone(register),
+                    rename: {
+                        target: target1 as ExplorerNode,
+                        active: true,
+                    },
+                }
+                const newState = yankRegisterReducer(state, { type: "RENAME_CANCEL" })
+                assert.ok(!newState.rename.active)
+                assert.ok(!newState.rename.target)
             })
         })
     })

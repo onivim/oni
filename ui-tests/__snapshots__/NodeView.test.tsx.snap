@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<NodeView /> Should match the snapshot 1`] = `
+<styled.div
+  innerRef={[Function]}
+  style={
+    Object {
+      "cursor": "pointer",
+    }
+  }
+>
+  <DropTarget(DragSource(DragAndDrop))
+    accepts={
+      Array [
+        "FILE",
+        "FOLDER",
+      ]
+    }
+    dragTarget="FILE"
+    isValidDrop={[Function]}
+    node={
+      Object {
+        "filePath": "/test/a/file.txt",
+        "id": "2",
+        "indentationLevel": 2,
+        "modified": false,
+        "name": "file.txt",
+        "type": "file",
+      }
+    }
+    onDrop={[Function]}
+    render={[Function]}
+  />
+</styled.div>
+`;

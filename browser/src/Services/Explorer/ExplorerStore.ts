@@ -41,6 +41,10 @@ export const DefaultRegisterState: IRegisterState = {
     undo: [],
     paste: EmptyNode,
     updated: null,
+    rename: {
+        active: false,
+        target: null,
+    },
 }
 
 export interface IFileState {
@@ -71,11 +75,17 @@ export type RegisterAction =
     | IUndoAction
     | IUndoSuccessAction
     | IUndoFailAction
+    | IRenameSuccessAction
+    | IRenameFailAction
 
 interface IRegisterState {
     yank: ExplorerNode[]
     paste: ExplorerNode
     undo: RegisterAction[]
+    rename: {
+        active: boolean
+        target: ExplorerNode
+    }
     updated: string[]
 }
 
@@ -191,6 +201,39 @@ export interface IPasteSuccessAction {
     moved: IMovedNodes[]
 }
 
+export interface IRenameStartAction {
+    type: "RENAME_START"
+    target: ExplorerNode
+    active: boolean
+}
+
+export interface IRenameSuccessAction {
+    type: "RENAME_SUCCESS"
+    source: string
+    destination: string
+    targetType: string
+}
+
+export interface IRenameFailAction {
+    type: "RENAME_FAIL"
+    reason: string
+}
+
+export interface ICancelRenameAction {
+    type: "RENAME_CANCEL"
+}
+
+export interface IRenameCommitAction {
+    type: "RENAME_COMMIT"
+    target: ExplorerNode
+    newName: string
+}
+
+export interface INotificationSentAction {
+    type: "NOTIFICATION_SENT"
+    typeOfNotification: string
+}
+
 export interface IMovedNodes {
     node: ExplorerNode
     destination: string
@@ -203,6 +246,11 @@ export type ExplorerAction =
     | ICollapseDirectory
     | ISetRootDirectoryAction
     | IExpandDirectoryAction
+    | IRenameStartAction
+    | IRenameSuccessAction
+    | IRenameFailAction
+    | IRenameCommitAction
+    | ICancelRenameAction
     | IDeleteFailAction
     | IRefreshAction
     | IDeleteAction
@@ -216,6 +264,7 @@ export type ExplorerAction =
     | IUndoAction
     | IUndoSuccessAction
     | IUndoFailAction
+    | INotificationSentAction
 
 // Helper functions for Updating state ========================================================
 export const removePastedNode = (nodeArray: ExplorerNode[], ids: string[]): ExplorerNode[] =>
@@ -234,7 +283,11 @@ const getSourceAndDestPaths = (source: ExplorerNode, dest: ExplorerNode) => {
 // Do not add un-undoable action to the undo list
 export const shouldAddDeletion = (action: IDeleteSuccessAction) => (action.persist ? [action] : [])
 
-type Updates = IPasteSuccessAction | IDeleteSuccessAction | IUndoSuccessAction
+type Updates =
+    | IPasteSuccessAction
+    | IDeleteSuccessAction
+    | IUndoSuccessAction
+    | IRenameSuccessAction
 
 export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[] => {
     switch (action.type) {
@@ -242,6 +295,8 @@ export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[
             return action.moved.map(node => node.destination)
         case "DELETE_SUCCESS":
             return [getPathForNode(action.target)]
+        case "RENAME_SUCCESS":
+            return [action.destination]
         case "UNDO_SUCCESS":
             const lastAction = last(state.undo)
 
@@ -249,6 +304,8 @@ export const getUpdatedNode = (action: Updates, state?: IRegisterState): string[
                 return [getPathForNode(lastAction.target)]
             } else if (lastAction.type === "PASTE") {
                 return lastAction.pasted.map(node => getPathForNode(node))
+            } else if (lastAction.type === "RENAME_SUCCESS") {
+                return [lastAction.source]
             }
 
             return []
@@ -263,7 +320,9 @@ const shouldExpandDirectory = (targets: ExplorerNode[]): IExpandDirectoryAction[
         .filter(Boolean)
 
 export const getPathForNode = (node: ExplorerNode) => {
-    if (node.type === "file") {
+    if (!node) {
+        return null
+    } else if (node.type === "file") {
         return node.filePath
     } else if (node.type === "folder") {
         return node.folderPath
@@ -286,6 +345,18 @@ const Actions = {
 
     undoSuccess: { type: "UNDO_SUCCESS" } as IUndoSuccessAction,
 
+    renameSuccess: ({
+        source,
+        destination,
+        targetType,
+    }: {
+        source: string
+        destination: string
+        targetType: string
+    }) => ({ type: "RENAME_SUCCESS", destination, source, targetType } as IRenameSuccessAction),
+
+    renameFail: (reason: string) => ({ type: "RENAME_FAIL", reason } as IRenameFailAction),
+
     paste: { type: "PASTE" } as IPasteAction,
 
     refresh: { type: "REFRESH" } as IRefreshAction,
@@ -300,6 +371,11 @@ const Actions = {
         type: "DELETE_SUCCESS",
         target,
         persist,
+    }),
+
+    notificationSent: (typeOfNotification: string): INotificationSentAction => ({
+        type: "NOTIFICATION_SENT",
+        typeOfNotification,
     }),
 
     expandDirectory: (directoryPath: string): IExpandDirectoryAction => ({
@@ -333,6 +409,32 @@ export const yankRegisterReducer: Reducer<IRegisterState> = (
     action: ExplorerAction,
 ) => {
     switch (action.type) {
+        case "RENAME_START":
+            return {
+                ...state,
+                rename: {
+                    active: true,
+                    target: action.target,
+                },
+            }
+        case "RENAME_CANCEL":
+            return {
+                ...state,
+                rename: {
+                    active: false,
+                    target: null,
+                },
+            }
+        case "RENAME_SUCCESS":
+            return {
+                ...state,
+                undo: [...state.undo, action],
+                updated: getUpdatedNode(action),
+                rename: {
+                    active: false,
+                    target: null,
+                },
+            }
         case "YANK":
             return {
                 ...state,
@@ -507,7 +609,28 @@ const deletionNotification = ({ type, name, notifications }: SendNotificationArg
     sendExplorerNotification(
         {
             title: `${capitalize(type)} deleted`,
-            details: `${name} was deleted successfully`,
+            details: `${path.basename(name)} was deleted successfully`,
+        },
+        notifications,
+    )
+
+interface RenameNotificationArgs {
+    type: string
+    source: string
+    destination: string
+    notifications: Notifications
+}
+
+const renameNotification = ({
+    notifications,
+    type,
+    source,
+    destination,
+}: RenameNotificationArgs): void =>
+    sendExplorerNotification(
+        {
+            title: `${capitalize(type)} renamed successfully`,
+            details: `${path.basename(source)} renamed to ${path.basename(destination)}`,
         },
         notifications,
     )
@@ -594,6 +717,15 @@ export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
                               return [Actions.undoFail("The last deletion cannot be undone, sorry")]
                           })
                     : [Actions.undoFail("The last deletion cannot be undone, sorry")]
+
+            case "RENAME_SUCCESS":
+                const { source, destination } = lastAction
+                return fromPromise(fileSystem.move(destination, source))
+                    .flatMap(() => successActions([]))
+                    .catch(error => {
+                        Log.warn(error)
+                        return [Actions.undoFail("The last rename could not be undone, sorry")]
+                    })
             default:
                 return [Actions.undoFail("Sorry we can't undo the last action")]
         }
@@ -619,6 +751,21 @@ export const deleteEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
                     return [Actions.deleteFail(error.message)]
                 }),
         )
+    })
+
+export const renameEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
+    action$.ofType("RENAME_COMMIT").mergeMap(({ newName, target }: IRenameCommitAction) => {
+        const source = getPathForNode(target)
+        const destination = path.join(path.dirname(source), newName)
+        return fromPromise(fileSystem.move(source, destination))
+            .flatMap(() => [
+                Actions.renameSuccess({ source, destination, targetType: target.type }),
+                Actions.refresh,
+            ])
+            .catch(error => {
+                Log.warn(error)
+                return [Actions.renameFail(error.message)]
+            })
     })
 
 export const clearYankRegisterEpic: ExplorerEpic = (action$, store) =>
@@ -660,38 +807,56 @@ const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     })
 
 export const notificationEpic: ExplorerEpic = (action$, store, { notifications }) =>
-    action$.ofType("PASTE_SUCCESS", "DELETE_SUCCESS", "PASTE_FAIL", "DELETE_FAIL").map(action => {
-        switch (action.type) {
-            case "PASTE_SUCCESS":
-                action.moved.map(item =>
-                    moveNotification({
+    action$
+        .ofType(
+            "PASTE_SUCCESS",
+            "DELETE_SUCCESS",
+            "RENAME_SUCCESS",
+            "RENAME_FAIL",
+            "PASTE_FAIL",
+            "DELETE_FAIL",
+        )
+        .map(action => {
+            switch (action.type) {
+                case "PASTE_SUCCESS":
+                    action.moved.map(item =>
+                        moveNotification({
+                            notifications,
+                            type: item.node.type,
+                            name: item.node.name,
+                            destination: item.destination,
+                        }),
+                    )
+                    return Actions.notificationSent(action.type)
+                case "DELETE_SUCCESS":
+                    deletionNotification({
                         notifications,
-                        type: item.node.type,
-                        name: item.node.name,
-                        destination: item.destination,
-                    }),
-                )
-                return Actions.Null
-            case "DELETE_SUCCESS":
-                deletionNotification({
-                    notifications,
-                    type: action.target.type,
-                    name: action.target.name,
-                })
-                return Actions.Null
-            case "PASTE_FAIL":
-            case "DELETE_FAIL":
-                const [type] = action.type.split("_")
-                errorNotification({
-                    type,
-                    notifications,
-                    reason: action.reason,
-                })
-                return Actions.Null
-            default:
-                return Actions.Null
-        }
-    })
+                        type: action.target.type,
+                        name: action.target.name,
+                    })
+                    return Actions.notificationSent(action.type)
+                case "RENAME_SUCCESS":
+                    renameNotification({
+                        notifications,
+                        type: action.targetType,
+                        source: action.source,
+                        destination: action.destination,
+                    })
+                    return Actions.notificationSent(action.type)
+                case "PASTE_FAIL":
+                case "DELETE_FAIL":
+                case "RENAME_FAIL":
+                    const [type] = action.type.split("_")
+                    errorNotification({
+                        type,
+                        notifications,
+                        reason: action.reason,
+                    })
+                    return Actions.notificationSent(action.type)
+                default:
+                    return Actions.Null
+            }
+        })
 
 interface ICreateStore {
     fileSystem?: IFileSystem
@@ -709,6 +874,7 @@ export const createStore = ({
                 setRootDirectoryEpic,
                 clearUpdateEpic,
                 clearYankRegisterEpic,
+                renameEpic,
                 pasteEpic,
                 undoEpic,
                 deleteEpic,
