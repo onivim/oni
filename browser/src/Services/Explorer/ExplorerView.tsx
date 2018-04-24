@@ -142,6 +142,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                     />
                 ) : (
                     <div>
+                        {this.getElement()}
                         {creationInProgress && (
                             <TextInputView
                                 styles={createStyles}
@@ -149,7 +150,6 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                                 onComplete={this.props.onCompleteCreate}
                             />
                         )}
-                        {this.getElement()}
                     </div>
                 )}
             </NodeWrapper>
