@@ -2,8 +2,6 @@ import * as chokidar from "chokidar"
 import { Stats } from "fs"
 import { Event, IEvent } from "oni-types"
 
-import * as Workspace from "./../Workspace"
-
 export type Targets = string | string[]
 
 interface IFSOptions {
@@ -22,31 +20,19 @@ interface IStatsChangeEvent {
 
 export class FileSystemWatcher {
     private _watcher: chokidar.FSWatcher
-    private _workspace: Workspace.Workspace
-    private _activeWorkspace: string
 
     private _onAdd = new Event<IFileChangeEvent>()
     private _onAddDir = new Event<IStatsChangeEvent>()
+    private _onDelete = new Event<IFileChangeEvent>()
+    private _onDeleteDir = new Event<IFileChangeEvent>()
     private _onMove = new Event<IFileChangeEvent>()
     private _onChange = new Event<IFileChangeEvent>()
-    private _defaultOptions = { ignored: "**/node_modules" }
 
-    constructor(watch: IFSOptions = {}) {
-        this._workspace = Workspace.getInstance()
-        this._activeWorkspace = this._workspace.activeWorkspace
-        const fileOrFolder = watch.target || this._activeWorkspace
-        const optionsToUse = watch.options || this._defaultOptions
-        this._watcher = chokidar.watch(fileOrFolder, optionsToUse)
+    constructor({ target, options }: IFSOptions) {
+        this._watcher = chokidar.watch(target, options)
 
-        // alternatively the ignoreInitial can be set in the config
-        // to avoid a flurry of events when the watcher is initialised
         this._watcher.on("ready", () => {
             this._attachEventListeners()
-        })
-
-        this._workspace.onDirectoryChanged.subscribe(newDirectory => {
-            this.unwatch(this._activeWorkspace)
-            this.watch(newDirectory)
         })
     }
 
@@ -75,6 +61,14 @@ export class FileSystemWatcher {
             return this._onMove.dispatch(path)
         })
 
+        this._watcher.on("unlink", path => {
+            return this._onDelete.dispatch(path)
+        })
+
+        this._watcher.on("unlinkDir", path => {
+            return this._onDeleteDir.dispatch(path)
+        })
+
         this._watcher.on("addDir", (path, stats) => {
             return this._onAddDir.dispatch({ path, stats })
         })
@@ -88,6 +82,14 @@ export class FileSystemWatcher {
         return this._onChange
     }
 
+    get onDelete(): IEvent<IFileChangeEvent> {
+        return this._onDelete
+    }
+
+    get onDeleteDir(): IEvent<IFileChangeEvent> {
+        return this._onDeleteDir
+    }
+
     get onMove(): IEvent<IFileChangeEvent> {
         return this._onMove
     }
@@ -96,9 +98,7 @@ export class FileSystemWatcher {
         return this._onAdd
     }
 
-    get addDir(): IEvent<IStatsChangeEvent> {
+    get onAddDir(): IEvent<IFileChangeEvent> {
         return this._onAddDir
     }
 }
-
-export default new FileSystemWatcher()
