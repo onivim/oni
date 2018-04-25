@@ -15,6 +15,7 @@ import {
 } from "./Scorer/OniQuickOpenScorer"
 
 import { IMenuOptionWithHighlights, shouldFilterbeCaseSensitive } from "./../Menu"
+import { ScorerCache } from "./Scorer/QuickOpenScorer"
 
 export const vsCodeFilter = (
     options: Oni.Menu.MenuOption[],
@@ -49,7 +50,16 @@ export const vsCodeFilter = (
             ? listOfSearchTerms.slice(1).join("") + listOfSearchTerms[0]
             : listOfSearchTerms[0]
 
-    const filteredOptions = processSearchTerm(vsCodeSearchString, options)
+    // Adds a cache for the scores. This is needed to stop the final score
+    // compare from repeating all the scoring logic again.
+    // Currently, this only persists for the current search, which will speed
+    // up that search only.
+    // TODO: Is it worth instead persisting this cache?
+    // Plus side is repeated searches are fast.
+    // Down side is there will be a lot of rubbish being stored too.
+    const cache: ScorerCache = {}
+
+    const filteredOptions = processSearchTerm(vsCodeSearchString, options, cache)
 
     const ret = filteredOptions.filter(fo => {
         if (fo.score === 0) {
@@ -59,15 +69,16 @@ export const vsCodeFilter = (
         }
     })
 
-    return ret.sort((e1, e2) => compareItemsByScoreOni(e1, e2, vsCodeSearchString, true))
+    return ret.sort((e1, e2) => compareItemsByScoreOni(e1, e2, vsCodeSearchString, true, cache))
 }
 
 export const processSearchTerm = (
     searchString: string,
     options: Oni.Menu.MenuOption[],
+    cache: ScorerCache,
 ): Oni.Menu.IMenuOptionWithHighlights[] => {
     const result: Oni.Menu.IMenuOptionWithHighlights[] = options.map(f => {
-        const itemScore = scoreItemOni(f, searchString, true)
+        const itemScore = scoreItemOni(f, searchString, true, cache)
         const detailHighlights = getHighlightsFromResult(itemScore.descriptionMatch)
         const labelHighlights = getHighlightsFromResult(itemScore.labelMatch)
 

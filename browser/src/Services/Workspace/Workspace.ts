@@ -138,8 +138,8 @@ export class Workspace implements IWorkspace {
 
         const filePath = await findup(projectMarkers, { cwd })
         if (filePath) {
-            const dir = path.dirname(filePath)
-            this.changeDirectory(dir)
+            const projectRoot = path.dirname(filePath)
+            return projectRoot !== this._activeWorkspace ? this.changeDirectory(projectRoot) : null
         }
     }
 
