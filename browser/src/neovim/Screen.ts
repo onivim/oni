@@ -149,7 +149,7 @@ export class NeovimScreen implements IScreen {
         return this._currentHighlight.backgroundColor || this._backgroundColor
     }
 
-    public getCell(x: number, y: number): ICell {
+    public getCell = (x: number, y: number) => {
         const cell = this._grid.getCell(x, y)
 
         if (cell) {
