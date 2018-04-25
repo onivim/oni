@@ -17,7 +17,7 @@ import { getInstance as NotificationsInstance } from "./../../Services/Notificat
 import { windowManager } from "./../../Services/WindowManager"
 import { IWorkspace } from "./../../Services/Workspace"
 
-import { createStore, IExplorerState } from "./ExplorerStore"
+import { createStore, getPathForNode, IExplorerState } from "./ExplorerStore"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
@@ -92,6 +92,8 @@ export class ExplorerSplit {
         return (
             <Provider store={this._store}>
                 <Explorer
+                    onCancelCreate={this._cancelCreation}
+                    onCompleteCreate={this._completeCreation}
                     onCompleteRename={this._completeRename}
                     onCancelRename={this._cancelRename}
                     onSelectionChanged={id => this._onSelectionChanged(id)}
@@ -102,9 +104,9 @@ export class ExplorerSplit {
         )
     }
 
-    private _isRenaming = () => {
-        const { register: { rename } } = this._store.getState()
-        return rename.active
+    private _inputInProgress = () => {
+        const { register: { rename, create } } = this._store.getState()
+        return rename.active || create.active
     }
 
     private _initialiseExplorerCommands(): void {
@@ -113,7 +115,7 @@ export class ExplorerSplit {
                 "explorer.delete.persist",
                 null,
                 null,
-                () => !this._isRenaming() && this._onDeleteItem({ persist: true }),
+                () => !this._inputInProgress() && this._onDeleteItem({ persist: true }),
             ),
         )
         this._commandManager.registerCommand(
@@ -121,7 +123,7 @@ export class ExplorerSplit {
                 "explorer.delete",
                 null,
                 null,
-                () => !this._isRenaming() && this._onDeleteItem({ persist: false }),
+                () => !this._inputInProgress() && this._onDeleteItem({ persist: false }),
             ),
         )
         this._commandManager.registerCommand(
@@ -129,7 +131,7 @@ export class ExplorerSplit {
                 "explorer.yank",
                 "Yank Selected Item",
                 "Select a file to move",
-                () => !this._isRenaming() && this._onYankItem(),
+                () => !this._inputInProgress() && this._onYankItem(),
             ),
         )
 
@@ -138,7 +140,7 @@ export class ExplorerSplit {
                 "explorer.undo",
                 "Undo last explorer action",
                 null,
-                () => !this._isRenaming() && this._onUndoItem(),
+                () => !this._inputInProgress() && this._onUndoItem(),
             ),
         )
 
@@ -147,7 +149,25 @@ export class ExplorerSplit {
                 "explorer.paste",
                 "Move/Paste Selected Item",
                 "Paste the last yanked item",
-                () => !this._isRenaming() && this._onPasteItem(),
+                () => !this._inputInProgress() && this._onPasteItem(),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.create.file",
+                "Create A New File in the Explorer",
+                null,
+                () => !this._inputInProgress() && this._onCreateNode({ type: "file" }),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.create.folder",
+                "Create A New File in the Explorer",
+                null,
+                () => !this._inputInProgress() && this._onCreateNode({ type: "folder" }),
             ),
         )
 
@@ -156,7 +176,7 @@ export class ExplorerSplit {
                 "explorer.expand.directory",
                 "Expand a selected directory",
                 null,
-                () => !this._isRenaming() && this._toggleDirectory("expand"),
+                () => !this._inputInProgress() && this._toggleDirectory("expand"),
             ),
         )
 
@@ -165,7 +185,7 @@ export class ExplorerSplit {
                 "explorer.collapse.directory",
                 "Collapse selected directory",
                 null,
-                () => !this._isRenaming() && this._toggleDirectory("collapse"),
+                () => !this._inputInProgress() && this._toggleDirectory("collapse"),
             ),
         )
 
@@ -174,7 +194,7 @@ export class ExplorerSplit {
                 "explorer.rename",
                 "Rename the selected file/folder",
                 null,
-                () => !this._isRenaming() && this._renameItem(),
+                () => !this._inputInProgress() && this._renameItem(),
             ),
         )
     }
@@ -261,6 +281,26 @@ export class ExplorerSplit {
 
     private _cancelRename = () => {
         this._store.dispatch({ type: "RENAME_CANCEL" })
+    }
+
+    private _onCreateNode = ({ type }: { type: "file" | "folder" }) => {
+        this._store.dispatch({ type: "CREATE_NODE_START", nodeType: type })
+    }
+
+    private _completeCreation = (newName: string) => {
+        const target = this._getSelectedItem()
+
+        if (!target) {
+            return
+        }
+
+        const nodePath = getPathForNode(target)
+        const dirname = target.type === "file" ? path.dirname(nodePath) : nodePath
+        this._store.dispatch({ type: "CREATE_NODE_COMMIT", name: path.join(dirname, newName) })
+    }
+
+    private _cancelCreation = () => {
+        this._store.dispatch({ type: "CREATE_NODE_CANCEL" })
     }
 
     // This is different from on openItem since it only activates if the target is a folder

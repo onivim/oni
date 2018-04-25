@@ -32,9 +32,12 @@ export interface INodeViewProps {
     onClick: () => void
     onCancelRename: () => void
     onCompleteRename: (newName: string) => void
+    onCancelCreate?: () => void
+    onCompleteCreate?: (path: string) => void
     yanked: string[]
     updated?: string[]
     isRenaming: Node
+    isCreating: boolean
 }
 
 export const NodeWrapper = styled.div`
@@ -103,9 +106,14 @@ const renameStyles = css`
     color: inherit;
     font-size: inherit;
     font-family: inherit;
-    padding: 0.5rem;
+    padding: 0.5em;
     box-sizing: border-box;
     border: 2px solid ${p => p.theme["highlight.mode.normal.background"]} !important;
+`
+
+const createStyles = css`
+    ${renameStyles};
+    margin-top: 0.2em;
 `
 
 export class NodeView extends React.PureComponent<INodeViewProps, {}> {
@@ -118,8 +126,9 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
     }
 
     public render(): JSX.Element {
-        const { isRenaming, isSelected, node } = this.props
-        const renameInProgress = isRenaming.name === node.name && isSelected
+        const { isCreating, isRenaming, isSelected, node } = this.props
+        const renameInProgress = isRenaming.name === node.name && isSelected && !isCreating
+        const creationInProgress = isCreating && isSelected && !renameInProgress
         return (
             <NodeWrapper
                 style={{ cursor: "pointer" }}
@@ -132,7 +141,16 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                         onComplete={this.props.onCompleteRename}
                     />
                 ) : (
-                    this.getElement()
+                    <div>
+                        {this.getElement()}
+                        {creationInProgress && (
+                            <TextInputView
+                                styles={createStyles}
+                                onCancel={this.props.onCancelCreate}
+                                onComplete={this.props.onCompleteCreate}
+                            />
+                        )}
+                    </div>
                 )}
             </NodeWrapper>
         )
@@ -239,7 +257,10 @@ export interface IExplorerViewContainerProps {
     onCancelRename: () => void
     onCompleteRename: (newName: string) => void
     yanked?: string[]
+    isCreating?: boolean
     isRenaming?: Node
+    onCancelCreate?: () => void
+    onCompleteCreate?: (path: string) => void
 }
 
 export interface IExplorerViewProps extends IExplorerViewContainerProps {
@@ -271,21 +292,24 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
             <TransitionGroup>
                 <VimNavigator
                     ids={ids}
-                    active={this.props.isActive && !this.props.isRenaming}
+                    active={this.props.isActive && !this.props.isRenaming && !this.props.isCreating}
                     onSelectionChanged={this.props.onSelectionChanged}
                     onSelected={id => this.props.onClick(id)}
                     render={(selectedId: string) => {
                         const nodes = this.props.nodes.map(node => (
                             <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
                                 <NodeView
+                                    node={node}
+                                    isSelected={node.id === selectedId}
+                                    isCreating={this.props.isCreating}
+                                    onCancelCreate={this.props.onCancelCreate}
+                                    onCompleteCreate={this.props.onCompleteCreate}
                                     onCompleteRename={this.props.onCompleteRename}
                                     isRenaming={this.props.isRenaming}
                                     onCancelRename={this.props.onCancelRename}
                                     updated={this.props.updated}
                                     yanked={this.props.yanked}
                                     moveFileOrFolder={this.props.moveFileOrFolder}
-                                    node={node}
-                                    isSelected={node.id === selectedId}
                                     onClick={() => this.props.onClick(node.id)}
                                 />
                             </Sneakable>
@@ -315,6 +339,7 @@ const mapStateToProps = (
         nodes: ExplorerSelectors.mapStateToNodeList(state),
         updated,
         yanked,
+        isCreating: state.register.create.active,
         isRenaming: rename.active && rename.target,
     }
 }
