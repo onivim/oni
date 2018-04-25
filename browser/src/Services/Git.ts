@@ -4,8 +4,10 @@
  * Utilities around Git
  */
 
-import * as GitP from "simple-git/promise"
+import { DiffResult } from "simple-git/promise"
 import * as Log from "./../Log"
+
+const GitP = require("simple-git") // tslint:disable-line
 
 export interface VersionControlProvider {
     // Events
@@ -14,13 +16,17 @@ export interface VersionControlProvider {
     // onStageFilesChanged: IEvent
 
     // getHistory(filepath: string): Promise<DiffResult | null>
-    getVCSStatus(projectRoot?: string): Promise<GitP.DiffResult | null>
+    getVCSStatus(projectRoot?: string): Promise<DiffResult | null>
     getVCSRoot(): Promise<string | null>
     getBranch(path?: string): Promise<Error | string>
 }
 
 export class GitVersionControlProvider implements VersionControlProvider {
-    constructor(private _git = GitP) {}
+    private _git: any
+
+    constructor(git = GitP) {
+        this._git = git()
+    }
 
     public async getVCSRoot(): Promise<string | null> {
         try {
@@ -32,19 +38,24 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public async getVCSStatus(currentDir: string): Promise<GitP.DiffResult | null> {
+    public async getVCSStatus(currentDir: string): Promise<DiffResult | null> {
         try {
-            const isRepo = await this._git(currentDir).checkIsRepo()
-            return isRepo ? this._git(currentDir).diffSummary() : null
+            console.log("Project......", this._git)
+            const isRepo = await this._git.checkIsRepo()
+            return isRepo ? this._git.diffSummary() : null
         } catch (error) {
             Log.warn(`[Oni.Git.Plugin]: ${error.message}`)
             return null
         }
     }
 
+    public async getBranches(currentDir?: string): Promise<void> {
+        return this._git.branchLocal()
+    }
+
     public async getBranch(currentDir?: string): Promise<string> {
-        const status = await this._git(currentDir).status()
-        return status.current || ""
+        const status = await this._git.status()
+        return (status && status.current) || ""
     }
 }
 
