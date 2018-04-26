@@ -9,11 +9,11 @@ import * as Oni from "oni-api"
 import { MockEditor } from "./../../../Mocks"
 import * as TestHelpers from "./../../../TestHelpers"
 
-import {
-    TutorialGameplayManager,
-    TICK_RATE,
-} from "./../../../../src/Services/Learning/Tutorial/TutorialGameplayManager"
 import { ITutorialMetadata } from "./../../../../src/Services/Learning/Tutorial"
+import {
+    TICK_RATE,
+    TutorialGameplayManager,
+} from "./../../../../src/Services/Learning/Tutorial/TutorialGameplayManager"
 
 const MockTutorialMetadata: ITutorialMetadata = {
     id: "tutorial.test",
@@ -50,7 +50,7 @@ describe("TutorialGameplayManagerTests", () => {
             metadata: MockTutorialMetadata,
             stages: [
                 {
-                    tickFunction: tickFunction,
+                    tickFunction,
                 },
             ],
         }
