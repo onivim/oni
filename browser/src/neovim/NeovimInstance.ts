@@ -384,7 +384,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             this._bufferUpdateManager.notifyModeChanged(newMode)
         })
 
-        this._disposables = [s1]
+        const dispatchScroll = () => this._dispatchScrollEvent()
+
+        const s2 = this._autoCommands.onCursorMoved.subscribe(dispatchScroll)
+        const s3 = this._autoCommands.onCursorMovedI.subscribe(dispatchScroll)
+
+        this._disposables = [s1, s2, s3]
     }
 
     public dispose(): void {
@@ -656,22 +661,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return versionInfo[1].version as any
     }
 
-    public dispatchScrollEvent(): void {
-        if (this._pendingScrollTimeout || this._isDisposed) {
-            return
-        }
-
-        this._pendingScrollTimeout = window.setTimeout(async () => {
-            if (this._isDisposed) {
-                return
-            }
-
-            const evt = await this.getContext()
-            this._onScroll.dispatch(evt)
-            this._pendingScrollTimeout = null
-        })
-    }
-
     public async quit(): Promise<void> {
         // This command won't resolve the promise (since it's quitting),
         // so we're not awaiting..
@@ -699,6 +688,22 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         } else {
             Log.info("[NeovimInstance::_checkAndFixIfBlocked] Not blocking mode.")
         }
+    }
+
+    private _dispatchScrollEvent(): void {
+        if (this._pendingScrollTimeout || this._isDisposed) {
+            return
+        }
+
+        this._pendingScrollTimeout = window.setTimeout(async () => {
+            if (this._isDisposed) {
+                return
+            }
+
+            const evt = await this.getContext()
+            this._onScroll.dispatch(evt)
+            this._pendingScrollTimeout = null
+        })
     }
 
     private _resizeInternal(rows: number, columns: number): void {
@@ -760,6 +765,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     break
                 case "scroll":
                     this.emit("action", Actions.scroll(a[0][0]))
+                    this._dispatchScrollEvent()
                     break
                 case "highlight_set":
                     const highlightInfo = a[a.length - 1][0]
