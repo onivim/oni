@@ -4,10 +4,10 @@
  * Utilities around Git
  */
 
-import { DiffResult } from "simple-git/promise"
+import * as GitP from "simple-git/promise"
 import * as Log from "./../Log"
 
-const GitP = require("simple-git") // tslint:disable-line
+// const GitP = require("simple-git") // tslint:disable-line
 
 export interface VersionControlProvider {
     // Events
@@ -16,17 +16,13 @@ export interface VersionControlProvider {
     // onStageFilesChanged: IEvent
 
     // getHistory(filepath: string): Promise<DiffResult | null>
-    getVCSStatus(projectRoot?: string): Promise<DiffResult | null>
+    getVCSStatus(projectRoot?: string): Promise<GitP.DiffResult | null>
     getVCSRoot(): Promise<string | null>
     getBranch(path?: string): Promise<Error | string>
 }
 
 export class GitVersionControlProvider implements VersionControlProvider {
-    private _git: any
-
-    constructor(git = GitP) {
-        this._git = git()
-    }
+    constructor(private _git = GitP) {}
 
     public async getVCSRoot(): Promise<string | null> {
         try {
@@ -38,24 +34,26 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public async getVCSStatus(currentDir: string): Promise<DiffResult | null> {
-        try {
-            console.log("Project......", this._git)
-            const isRepo = await this._git.checkIsRepo()
-            return isRepo ? this._git.diffSummary() : null
-        } catch (error) {
-            Log.warn(`[Oni.Git.Plugin]: ${error.message}`)
-            return null
-        }
+    public getVCSStatus(currentDir: string): Promise<GitP.DiffResult | null> {
+        return this._git(currentDir)
+            .checkIsRepo()
+            .then((isRepo: boolean) => isRepo && this._git(currentDir).diffSummary())
+            .catch((error: any): null => {
+                Log.warn(`[Oni.Git.Plugin]: ${error.message}`)
+                return null
+            })
     }
 
-    public async getBranches(currentDir?: string): Promise<void> {
-        return this._git.branchLocal()
+    public getBranches(currentDir?: string): Promise<GitP.BranchSummary> {
+        return this._git(currentDir).branchLocal()
     }
 
-    public async getBranch(currentDir?: string): Promise<string> {
-        const status = await this._git.status()
-        return (status && status.current) || ""
+    public getBranch(currentDir?: string): Promise<string> {
+        return this._git(currentDir)
+            .status()
+            .then((status: any) => {
+                return (status && status.current) || ""
+            })
     }
 }
 
