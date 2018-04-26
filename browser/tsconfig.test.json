@@ -20,7 +20,7 @@
         "suppressImplicitAnyIndexErrors": true,
         "target": "es2015",
         "sourceMap": true,
-        "types": ["mocha"]
+        "types": ["mocha", "webgl2"]
     },
     "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"],
     "exclude": ["node_modules"]

@@ -1,5 +1,5 @@
 import * as assert from "assert"
-import { emptyDir, mkdirp, remove, stat, writeFile } from "fs-extra"
+import { emptyDir, mkdirp, pathExists, remove, stat, writeFile } from "fs-extra"
 import * as os from "os"
 import * as path from "path"
 
@@ -40,14 +40,7 @@ describe("File System tests", async () => {
         assert.ok(canPersist)
     })
     it("Should delete the file", async () => {
-        await fileSystem.deleteNode({
-            filePath: secondPath,
-            id: "2",
-            type: "file",
-            modified: false,
-            name: "file1",
-            indentationLevel: 2,
-        })
+        await fileSystem.deleteNode(secondPath)
         try {
             await stat(secondPath)
         } catch (e) {
@@ -73,5 +66,37 @@ describe("File System tests", async () => {
         const secondStats = await stat(locationTwo)
         assert.ok(firstStats.isFile())
         assert.ok(secondStats.isFile())
+    })
+
+    it("Should create a new file", async () => {
+        const newPath = path.join(rootPath, "created.txt")
+        await fileSystem.writeFile(newPath)
+        const created = await pathExists(newPath)
+        assert.ok(created)
+    })
+
+    it("Should throw an error if the filepath already exists", async () => {
+        try {
+            await fileSystem.writeFile(filePath)
+        } catch (e) {
+            assert.ok(!!e)
+            assert.ok(e.message === "This path already exists")
+        }
+    })
+
+    it("Should create a new folder", async () => {
+        const newPath = path.join(rootPath, "new_dir")
+        await fileSystem.writeFile(newPath)
+        const created = await pathExists(newPath)
+        assert.ok(created)
+    })
+
+    it("Should throw an error if the folderpath already exists", async () => {
+        try {
+            await fileSystem.mkdir(rootPath)
+        } catch (e) {
+            assert.ok(!!e)
+            assert.ok(e.message === "This path already exists")
+        }
     })
 })

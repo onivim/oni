@@ -7,7 +7,7 @@ import * as path from "path"
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
-import FileSystemWatcher from "./../../Services/FileSystemWatcher"
+import { FileSystemWatcher } from "./../../Services/FileSystemWatcher"
 
 import { Event } from "oni-types"
 
@@ -17,7 +17,7 @@ import { getInstance as NotificationsInstance } from "./../../Services/Notificat
 import { windowManager } from "./../../Services/WindowManager"
 import { IWorkspace } from "./../../Services/Workspace"
 
-import { createStore, IExplorerState } from "./ExplorerStore"
+import { createStore, getPathForNode, IExplorerState } from "./ExplorerStore"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
@@ -46,11 +46,19 @@ export class ExplorerSplit {
     ) {
         this._store = createStore({ notifications: NotificationsInstance() })
 
+        const Watcher = new FileSystemWatcher({
+            target: this._workspace.activeWorkspace,
+            options: { ignoreInitial: true, ignored: "**/node_modules" },
+        })
+
         this._workspace.onDirectoryChanged.subscribe(newDirectory => {
             this._store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
                 rootPath: newDirectory,
             })
+
+            Watcher.unwatch(this._workspace.activeWorkspace)
+            Watcher.watch(newDirectory)
         })
 
         if (this._workspace.activeWorkspace) {
@@ -60,9 +68,10 @@ export class ExplorerSplit {
             })
         }
 
-        FileSystemWatcher.onChange.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
-        FileSystemWatcher.onAdd.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
-        FileSystemWatcher.onMove.subscribe(() => this._store.dispatch({ type: "REFRESH" }))
+        const events = ["onChange", "onAdd", "onAddDir", "onMove", "onDelete", "onDeleteDir"]
+        events.forEach(event =>
+            Watcher[event].subscribe(() => this._store.dispatch({ type: "REFRESH" })),
+        )
     }
 
     public enter(): void {
@@ -77,13 +86,16 @@ export class ExplorerSplit {
 
     public moveFileOrFolder = (source: Node, dest: Node): void => {
         this._store.dispatch({ type: "PASTE", pasted: [source], target: dest })
-        this._store.dispatch({ type: "REFRESH" })
     }
 
     public render(): JSX.Element {
         return (
             <Provider store={this._store}>
                 <Explorer
+                    onCancelCreate={this._cancelCreation}
+                    onCompleteCreate={this._completeCreation}
+                    onCompleteRename={this._completeRename}
+                    onCancelRename={this._cancelRename}
                     onSelectionChanged={id => this._onSelectionChanged(id)}
                     onClick={id => this._onOpenItem(id)}
                     moveFileOrFolder={this.moveFileOrFolder}
@@ -92,15 +104,26 @@ export class ExplorerSplit {
         )
     }
 
+    private _inputInProgress = () => {
+        const { register: { rename, create } } = this._store.getState()
+        return rename.active || create.active
+    }
+
     private _initialiseExplorerCommands(): void {
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.delete.persist", null, null, () =>
-                this._onDeleteItem({ persist: true }),
+            new CallbackCommand(
+                "explorer.delete.persist",
+                null,
+                null,
+                () => !this._inputInProgress() && this._onDeleteItem({ persist: true }),
             ),
         )
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.delete", null, null, () =>
-                this._onDeleteItem({ persist: false }),
+            new CallbackCommand(
+                "explorer.delete",
+                null,
+                null,
+                () => !this._inputInProgress() && this._onDeleteItem({ persist: false }),
             ),
         )
         this._commandManager.registerCommand(
@@ -108,13 +131,16 @@ export class ExplorerSplit {
                 "explorer.yank",
                 "Yank Selected Item",
                 "Select a file to move",
-                () => this._onYankItem(),
+                () => !this._inputInProgress() && this._onYankItem(),
             ),
         )
 
         this._commandManager.registerCommand(
-            new CallbackCommand("explorer.undo", "Undo last explorer action", null, () =>
-                this._onUndoItem(),
+            new CallbackCommand(
+                "explorer.undo",
+                "Undo last explorer action",
+                null,
+                () => !this._inputInProgress() && this._onUndoItem(),
             ),
         )
 
@@ -123,7 +149,25 @@ export class ExplorerSplit {
                 "explorer.paste",
                 "Move/Paste Selected Item",
                 "Paste the last yanked item",
-                () => this._onPasteItem(),
+                () => !this._inputInProgress() && this._onPasteItem(),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.create.file",
+                "Create A New File in the Explorer",
+                null,
+                () => !this._inputInProgress() && this._onCreateNode({ type: "file" }),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.create.folder",
+                "Create A New File in the Explorer",
+                null,
+                () => !this._inputInProgress() && this._onCreateNode({ type: "folder" }),
             ),
         )
 
@@ -132,7 +176,7 @@ export class ExplorerSplit {
                 "explorer.expand.directory",
                 "Expand a selected directory",
                 null,
-                () => this._toggleDirectory("expand"),
+                () => !this._inputInProgress() && this._toggleDirectory("expand"),
             ),
         )
 
@@ -141,7 +185,16 @@ export class ExplorerSplit {
                 "explorer.collapse.directory",
                 "Collapse selected directory",
                 null,
-                () => this._toggleDirectory("collapse"),
+                () => !this._inputInProgress() && this._toggleDirectory("collapse"),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.rename",
+                "Rename the selected file/folder",
+                null,
+                () => !this._inputInProgress() && this._renameItem(),
             ),
         )
     }
@@ -207,6 +260,47 @@ export class ExplorerSplit {
         )
 
         return parentNode
+    }
+
+    private _renameItem = () => {
+        const selected = this._getSelectedItem()
+        if (!selected) {
+            return
+        }
+        this._store.dispatch({ type: "RENAME_START", target: selected })
+    }
+
+    private _completeRename = (newName: string) => {
+        const target = this._getSelectedItem()
+
+        if (!target) {
+            return
+        }
+        this._store.dispatch({ type: "RENAME_COMMIT", newName, target })
+    }
+
+    private _cancelRename = () => {
+        this._store.dispatch({ type: "RENAME_CANCEL" })
+    }
+
+    private _onCreateNode = ({ type }: { type: "file" | "folder" }) => {
+        this._store.dispatch({ type: "CREATE_NODE_START", nodeType: type })
+    }
+
+    private _completeCreation = (newName: string) => {
+        const target = this._getSelectedItem()
+
+        if (!target) {
+            return
+        }
+
+        const nodePath = getPathForNode(target)
+        const dirname = target.type === "file" ? path.dirname(nodePath) : nodePath
+        this._store.dispatch({ type: "CREATE_NODE_COMMIT", name: path.join(dirname, newName) })
+    }
+
+    private _cancelCreation = () => {
+        this._store.dispatch({ type: "CREATE_NODE_CANCEL" })
     }
 
     // This is different from on openItem since it only activates if the target is a folder

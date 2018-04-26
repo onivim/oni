@@ -38,7 +38,9 @@ export class UnhandledErrorMonitor {
 
         window.addEventListener("error", (evt: ErrorEvent) => {
             if (!this._started) {
-                const hasOccured = this._queuedErrors.find(e => e.name === evt.error.name)
+                const hasOccured = this._queuedErrors.find(
+                    e => evt.error && e.name && e.name === evt.error.name,
+                )
                 if (!hasOccured) {
                     this._queuedErrors.push(evt.error)
                 }

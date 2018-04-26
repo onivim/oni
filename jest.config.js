@@ -11,6 +11,7 @@ module.exports = {
         Utility: "<rootDir>/ui-tests/mocks/Utility.ts",
         Configuration: "<rootDir>/ui-tests/mocks/Configuration.ts",
         classnames: "<rootDir>/ui-tests/mocks/classnames.ts",
+        KeyboardLayout: "<rootDir>/ui-tests/mocks/keyboardLayout.ts",
     },
     snapshotSerializers: ["enzyme-to-json/serializer"],
     transform: {

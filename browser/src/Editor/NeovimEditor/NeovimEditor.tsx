@@ -33,7 +33,7 @@ import {
     NeovimScreen,
     NeovimWindowManager,
 } from "./../../neovim"
-import { CanvasRenderer, INeovimRenderer } from "./../../Renderer"
+import { INeovimRenderer } from "./../../Renderer"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
@@ -94,6 +94,8 @@ import WildMenu from "./../../UI/components/WildMenu"
 
 import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
+import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
+import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 
 export class NeovimEditor extends Editor implements IEditor {
@@ -292,7 +294,10 @@ export class NeovimEditor extends Editor implements IEditor {
             initVimNotification.show()
         }
 
-        this._renderer = new CanvasRenderer()
+        this._renderer =
+            this._configuration.getValue("editor.renderer") === "webgl"
+                ? new WebGLRenderer()
+                : new CanvasRenderer()
 
         this._rename = new Rename(
             this,
