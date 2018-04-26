@@ -20,7 +20,7 @@ export interface ITutorialState {
  * - Calls the 'render' function
  */
 
-const TICK_RATE = 50 /* 50 ms, or 20 times pers second */
+export const TICK_RATE = 50 /* 50 ms, or 20 times pers second */
 
 export class TutorialGameplayManager {
     private _activeTutorial: ITutorial
