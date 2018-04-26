@@ -221,6 +221,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
                 renderContext={context}
                 onStateChangedEvent={this._onStateChangedEvent}
                 innerRef={elem => (this._element = elem)}
+                onWillUnmount={() => this.stop()}
             />
         )
     }
@@ -246,6 +247,10 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
         this._gameTracker.start()
 
         windowManager.focusSplit("oni.window.0")
+    }
+
+    public stop(): void {
+        this._tutorialGameplayManager.stop()
     }
 
     private _spawnParticles(
@@ -277,6 +282,8 @@ export interface ITutorialBufferLayerViewProps {
     editor: NeovimEditor
     onStateChangedEvent: IEvent<IGameplayStateChangedEvent>
     innerRef: (elem: HTMLElement) => void
+
+    onWillUnmount: () => void
 }
 
 export interface ITutorialBufferLayerState {
@@ -397,6 +404,10 @@ export class TutorialBufferLayerView extends React.PureComponent<
                 ...newState,
             })
         })
+    }
+
+    public componentWillUnmount(): void {
+        this.props.onWillUnmount()
     }
 
     public render(): JSX.Element {
