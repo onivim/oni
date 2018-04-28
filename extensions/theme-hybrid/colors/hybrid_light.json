@@ -1,0 +1,46 @@
+{
+    "name": "hybrid_light",
+    "baseVimTheme": "hybrid",
+    "baseVimBackground": "light",
+    "colors": {
+        "background": "#e4e4e4",
+        "foreground": "#000000",
+
+        "title.background": "#e4e4e4",
+        "title.foreground": "#000000",
+
+        "editor.background": "#e4e4e4",
+        "editor.foreground": "#000000",
+
+        "tabs.background": "#d0d0d0",
+        "tabs.foreground": "#000000",
+
+        "toolTip.background": "#d0d0d0",
+        "toolTip.foreground": "#000000",
+        "toolTip.border": "#bcbcbc",
+
+        "menu.background": "#d0d0d0",
+        "menu.foreground": "#000000",
+        "menu.border": "#bcbcbc",
+
+        "contextMenu.background": "#d0d0d0",
+        "contextMenu.foreground": "#000000",
+        "contextMenu.border": "#bcbcbc",
+        "contextMenu.highlight": "#bcbcbc",
+
+        "statusBar.background": "#e4e4e4",
+        "statusBar.foreground": "#000000",
+
+        "highlight.mode.insert.background": "#5f5f00",
+        "highlight.mode.insert.foreground": "#e4e4e4",
+
+        "highlight.mode.normal.background": "#00005f",
+        "highlight.mode.normal.foreground": "#e4e4e4",
+
+        "highlight.mode.operator.background": "#5f005f",
+        "highlight.mode.operator.foreground": "#e4e4e4",
+
+        "highlight.mode.visual.background": "#005f00",
+        "highlight.mode.visual.foreground": "#e4e4e4"
+    }
+}

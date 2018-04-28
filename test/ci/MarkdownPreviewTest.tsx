@@ -3,7 +3,7 @@
  */
 
 import { Assertor } from "./Assert"
-import { getTemporaryFilePath, navigateToFile } from "./Common"
+import { awaitEditorMode, getTemporaryFilePath, insertText, navigateToFile } from "./Common"
 
 import * as Oni from "oni-api"
 
@@ -45,18 +45,4 @@ export async function test(oni: Oni.Plugin.Api) {
         ">Title 1</h1>",
         "Preview pane with rendered header element",
     )
-}
-
-async function awaitEditorMode(oni: Oni.Plugin.Api, mode: string): Promise<void> {
-    function condition(): boolean {
-        return oni.editors.activeEditor.mode === mode
-    }
-    await oni.automation.waitFor(condition)
-}
-
-async function insertText(oni: Oni.Plugin.Api, text: string): Promise<void> {
-    oni.automation.sendKeys("i")
-    await awaitEditorMode(oni, "insert")
-    oni.automation.sendKeys(`${text}<ESC>`)
-    await awaitEditorMode(oni, "normal")
 }

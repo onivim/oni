@@ -214,14 +214,21 @@ export const Button = styled.button`
 
 interface IButtonProps {
     buttons: INotificationButton[]
+    onClose: () => void
 }
 
-const Buttons = ({ buttons }: IButtonProps) => {
+const Buttons = ({ buttons, onClose }: IButtonProps) => {
+    const executeThenClose = (callback: (args?: any) => void) => () => {
+        callback()
+        onClose()
+    }
     return (
-        <ButtonRow>
-            {buttons.map(({ callback, title }) => (
-                <Sneakable callback={callback}>
-                    <Button onClick={callback}>{title}</Button>
+        <ButtonRow data-test="notification-buttons">
+            {buttons.map(({ callback, title }, index) => (
+                <Sneakable key={`${title}-${index}`} callback={executeThenClose(callback)}>
+                    <Button data-test={`notification-${title.toLowerCase()}`} onClick={callback}>
+                        {title}
+                    </Button>
                 </Sneakable>
             ))}
         </ButtonRow>
@@ -240,6 +247,7 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
         const { level, buttons } = this.props
         return (
             <NotificationWrapper
+                data-test="notification"
                 key={this.props.id}
                 onClick={this.props.onClick}
                 className="notification"
@@ -258,12 +266,16 @@ export class NotificationView extends React.PureComponent<INotification, {}> {
                             </Sneakable>
                         </NotificationIconWrapper>
                     </IconContainer>
-                    <NotificationTitle level={level}>{this.props.title}</NotificationTitle>
+                    <NotificationTitle data-test="notification-title" level={level}>
+                        {this.props.title}
+                    </NotificationTitle>
                 </NotificationHeader>
                 <NotificationContents>
-                    <NotificationDescription>{this.props.detail}</NotificationDescription>
+                    <NotificationDescription className="notification-description">
+                        {this.props.detail}
+                    </NotificationDescription>
                 </NotificationContents>
-                {buttons && <Buttons buttons={buttons} />}
+                {buttons && <Buttons onClose={this.props.onClose} buttons={buttons} />}
             </NotificationWrapper>
         )
     }

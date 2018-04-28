@@ -2,6 +2,7 @@ var path = require("path")
 var webpack = require("webpack")
 
 module.exports = {
+    mode: "development",
     entry: [path.join(__dirname, "src/index.tsx")],
     target: "electron-renderer",
     externals: {
@@ -12,13 +13,19 @@ module.exports = {
         gifshot: "require('gifshot')",
         "msgpack-lite": "require('msgpack-lite')",
         "styled-components": "require('styled-components')",
+        fsevents: "require('fsevents')",
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".less"],
     },
-    devtool: "cheap-module-eval-source-map",
     module: {
         rules: [
+            {
+                test: /\.(html)$/,
+                use: {
+                    loader: "html-loader",
+                },
+            },
             {
                 test: /\.less$/,
                 use: [

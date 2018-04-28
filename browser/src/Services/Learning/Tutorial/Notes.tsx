@@ -229,7 +229,7 @@ export const DeleteOperatorKey = (): JSX.Element => {
             keyCharacter="d"
             description={
                 <span>
-                    <Bold>+ motion</Bold>: Deletes text covered by the `motion`. Examples:
+                    <Bold>+ motion</Bold>: Deletes text specified by a `motion`. Examples:
                 </span>
             }
         />
@@ -288,5 +288,39 @@ export const HJKLKeys = (): JSX.Element => {
                 icon={<Icon name="arrow-right" size={IconSize.Large} />}
             />
         </NoteWrapper>
+    )
+}
+
+export const YankOperatorKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="y"
+            description={
+                <span>
+                    <Bold>+ motion</Bold>: Yanks (copies) text specified by a `motion`
+                </span>
+            }
+        />
+    )
+}
+export const YankWordKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="yw"
+            description={<span>Yank to the end of the current word.</span>}
+        />
+    )
+}
+export const YankLineKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription keyCharacter="yy" description={<span>Yanks the CURRENT line.</span>} />
+    )
+}
+export const pasteKey = (): JSX.Element => {
+    return <KeyWithDescription keyCharacter="p" description={<span>Paste AFTER the cursor</span>} />
+}
+export const PasteKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription keyCharacter="P" description={<span>Paste BEFORE the cursor</span>} />
     )
 }

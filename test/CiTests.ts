@@ -22,12 +22,15 @@ const CiTests = [
     "Configuration.TypeScriptEditor.NewConfigurationTest",
     "Configuration.TypeScriptEditor.CompletionTest",
 
+    "initVimPromptNotificationTest",
+    "Editor.BuffersCursorTest",
     "Editor.ExternalCommandLineTest",
     "Editor.BufferModifiedState",
     "Editor.OpenFile.PathWithSpacesTest",
     "Editor.TabModifiedState",
     "Editor.CloseTabWithTabModesTabsTest",
     "MarkdownPreviewTest",
+    "PrettierPluginTest",
     "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
@@ -49,6 +52,8 @@ const CiTests = [
     "TextmateHighlighting.DebugScopesTest",
     "TextmateHighlighting.ScopesOnEnterTest",
     "TextmateHighlighting.TokenColorOverrideTest",
+
+    "Theming.LightAndDarkColorsTest",
 
     // This test occasionally hangs and breaks tests after - trying to move it later...
     "LargeFileTest",

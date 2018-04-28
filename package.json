@@ -3,16 +3,9 @@
     "author": "",
     "email": "bryphe@outlook.com",
     "homepage": "https://www.onivim.io",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "description": "Code editor with a modern twist on modal editing - powered by neovim.",
-    "keywords": [
-        "vim",
-        "neovim",
-        "text",
-        "editor",
-        "ide",
-        "vim"
-    ],
+    "keywords": ["vim", "neovim", "text", "editor", "ide", "vim"],
     "main": "./lib/main/src/main.js",
     "bin": {
         "oni": "./cli/oni",
@@ -51,39 +44,23 @@
         "mac": {
             "artifactName": "${productName}-${version}-osx.${ext}",
             "category": "public.app-category.developer-tools",
-            "target": [
-                "dmg"
-            ],
-            "files": [
-                "bin/osx/**/*"
-            ]
+            "target": ["dmg"],
+            "files": ["bin/osx/**/*"]
         },
         "linux": {
             "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
             "maintainer": "bryphe@outlook.com",
-            "target": [
-                "tar.gz",
-                "deb",
-                "rpm"
-            ]
+            "target": ["tar.gz", "deb", "rpm"]
         },
         "win": {
-            "target": [
-                "zip",
-                "dir"
-            ],
-            "files": [
-                "bin/x86/**/*"
-            ]
+            "target": ["zip", "dir"],
+            "files": ["bin/x86/**/*"]
         },
         "fileAssociations": [
             {
                 "name": "ADA source",
                 "role": "Editor",
-                "ext": [
-                    "adb",
-                    "ads"
-                ]
+                "ext": ["adb", "ads"]
             },
             {
                 "name": "Compiled AppleScript",
@@ -103,20 +80,12 @@
             {
                 "name": "ASP document",
                 "role": "Editor",
-                "ext": [
-                    "asp",
-                    "asa"
-                ]
+                "ext": ["asp", "asa"]
             },
             {
                 "name": "ASP.NET document",
                 "role": "Editor",
-                "ext": [
-                    "aspx",
-                    "ascx",
-                    "asmx",
-                    "ashx"
-                ]
+                "ext": ["aspx", "ascx", "asmx", "ashx"]
             },
             {
                 "name": "BibTeX bibliography",
@@ -131,13 +100,7 @@
             {
                 "name": "C++ source",
                 "role": "Editor",
-                "ext": [
-                    "cc",
-                    "cp",
-                    "cpp",
-                    "cxx",
-                    "c++"
-                ]
+                "ext": ["cc", "cp", "cpp", "cxx", "c++"]
             },
             {
                 "name": "C# source",
@@ -162,10 +125,7 @@
             {
                 "name": "Clojure source",
                 "role": "Editor",
-                "ext": [
-                    "clj",
-                    "cljs"
-                ]
+                "ext": ["clj", "cljs"]
             },
             {
                 "name": "Comma separated values",
@@ -180,20 +140,12 @@
             {
                 "name": "CGI script",
                 "role": "Editor",
-                "ext": [
-                    "cgi",
-                    "fcgi"
-                ]
+                "ext": ["cgi", "fcgi"]
             },
             {
                 "name": "Configuration file",
                 "role": "Editor",
-                "ext": [
-                    "cfg",
-                    "conf",
-                    "config",
-                    "htaccess"
-                ]
+                "ext": ["cfg", "conf", "config", "htaccess"]
             },
             {
                 "name": "Cascading style sheet",
@@ -218,10 +170,7 @@
             {
                 "name": "Erlang source",
                 "role": "Editor",
-                "ext": [
-                    "erl",
-                    "hrl"
-                ]
+                "ext": ["erl", "hrl"]
             },
             {
                 "name": "F-Script source",
@@ -231,32 +180,17 @@
             {
                 "name": "Fortran source",
                 "role": "Editor",
-                "ext": [
-                    "f",
-                    "for",
-                    "fpp",
-                    "f77",
-                    "f90",
-                    "f95"
-                ]
+                "ext": ["f", "for", "fpp", "f77", "f90", "f95"]
             },
             {
                 "name": "Header",
                 "role": "Editor",
-                "ext": [
-                    "h",
-                    "pch"
-                ]
+                "ext": ["h", "pch"]
             },
             {
                 "name": "C++ header",
                 "role": "Editor",
-                "ext": [
-                    "hh",
-                    "hpp",
-                    "hxx",
-                    "h++"
-                ]
+                "ext": ["hh", "hpp", "hxx", "h++"]
             },
             {
                 "name": "Go source",
@@ -266,28 +200,17 @@
             {
                 "name": "GTD document",
                 "role": "Editor",
-                "ext": [
-                    "gtd",
-                    "gtdlog"
-                ]
+                "ext": ["gtd", "gtdlog"]
             },
             {
                 "name": "Haskell source",
                 "role": "Editor",
-                "ext": [
-                    "hs",
-                    "lhs"
-                ]
+                "ext": ["hs", "lhs"]
             },
             {
                 "name": "HTML document",
                 "role": "Editor",
-                "ext": [
-                    "htm",
-                    "html",
-                    "phtml",
-                    "shtml"
-                ]
+                "ext": ["htm", "html", "phtml", "shtml"]
             },
             {
                 "name": "Include file",
@@ -327,10 +250,7 @@
             {
                 "name": "JavaScript source",
                 "role": "Editor",
-                "ext": [
-                    "js",
-                    "htc"
-                ]
+                "ext": ["js", "htc"]
             },
             {
                 "name": "Java Server Page",
@@ -355,14 +275,7 @@
             {
                 "name": "Lisp source",
                 "role": "Editor",
-                "ext": [
-                    "lisp",
-                    "cl",
-                    "l",
-                    "lsp",
-                    "mud",
-                    "el"
-                ]
+                "ext": ["lisp", "cl", "l", "lsp", "mud", "el"]
             },
             {
                 "name": "Log file",
@@ -382,12 +295,7 @@
             {
                 "name": "Markdown document",
                 "role": "Editor",
-                "ext": [
-                    "markdown",
-                    "mdown",
-                    "markdn",
-                    "md"
-                ]
+                "ext": ["markdown", "mdown", "markdn", "md"]
             },
             {
                 "name": "Makefile source",
@@ -397,29 +305,17 @@
             {
                 "name": "Mediawiki document",
                 "role": "Editor",
-                "ext": [
-                    "wiki",
-                    "wikipedia",
-                    "mediawiki"
-                ]
+                "ext": ["wiki", "wikipedia", "mediawiki"]
             },
             {
                 "name": "MIPS assembler source",
                 "role": "Editor",
-                "ext": [
-                    "s",
-                    "mips",
-                    "spim",
-                    "asm"
-                ]
+                "ext": ["s", "mips", "spim", "asm"]
             },
             {
                 "name": "Modula-3 source",
                 "role": "Editor",
-                "ext": [
-                    "m3",
-                    "cm3"
-                ]
+                "ext": ["m3", "cm3"]
             },
             {
                 "name": "MoinMoin document",
@@ -439,28 +335,17 @@
             {
                 "name": "OCaml source",
                 "role": "Editor",
-                "ext": [
-                    "ml",
-                    "mli",
-                    "mll",
-                    "mly"
-                ]
+                "ext": ["ml", "mli", "mll", "mly"]
             },
             {
                 "name": "Mustache document",
                 "role": "Editor",
-                "ext": [
-                    "mustache",
-                    "hbs"
-                ]
+                "ext": ["mustache", "hbs"]
             },
             {
                 "name": "Pascal source",
                 "role": "Editor",
-                "ext": [
-                    "pas",
-                    "p"
-                ]
+                "ext": ["pas", "p"]
             },
             {
                 "name": "Patch file",
@@ -470,11 +355,7 @@
             {
                 "name": "Perl source",
                 "role": "Editor",
-                "ext": [
-                    "pl",
-                    "pod",
-                    "perl"
-                ]
+                "ext": ["pl", "pod", "perl"]
             },
             {
                 "name": "Perl module",
@@ -484,80 +365,47 @@
             {
                 "name": "PHP source",
                 "role": "Editor",
-                "ext": [
-                    "php",
-                    "php3",
-                    "php4",
-                    "php5"
-                ]
+                "ext": ["php", "php3", "php4", "php5"]
             },
             {
                 "name": "PostScript source",
                 "role": "Editor",
-                "ext": [
-                    "ps",
-                    "eps"
-                ]
+                "ext": ["ps", "eps"]
             },
             {
                 "name": "Property list",
                 "role": "Editor",
-                "ext": [
-                    "dict",
-                    "plist",
-                    "scriptSuite",
-                    "scriptTerminology"
-                ]
+                "ext": ["dict", "plist", "scriptSuite", "scriptTerminology"]
             },
             {
                 "name": "Python source",
                 "role": "Editor",
-                "ext": [
-                    "py",
-                    "rpy",
-                    "cpy",
-                    "python"
-                ]
+                "ext": ["py", "rpy", "cpy", "python"]
             },
             {
                 "name": "R source",
                 "role": "Editor",
-                "ext": [
-                    "r",
-                    "s"
-                ]
+                "ext": ["r", "s"]
             },
             {
                 "name": "Ragel source",
                 "role": "Editor",
-                "ext": [
-                    "rl",
-                    "ragel"
-                ]
+                "ext": ["rl", "ragel"]
             },
             {
                 "name": "Remind document",
                 "role": "Editor",
-                "ext": [
-                    "rem",
-                    "remind"
-                ]
+                "ext": ["rem", "remind"]
             },
             {
                 "name": "reStructuredText document",
                 "role": "Editor",
-                "ext": [
-                    "rst",
-                    "rest"
-                ]
+                "ext": ["rst", "rest"]
             },
             {
                 "name": "HTML with embedded Ruby",
                 "role": "Editor",
-                "ext": [
-                    "rhtml",
-                    "erb"
-                ]
+                "ext": ["rhtml", "erb"]
             },
             {
                 "name": "SQL with embedded Ruby",
@@ -567,28 +415,17 @@
             {
                 "name": "Ruby source",
                 "role": "Editor",
-                "ext": [
-                    "rb",
-                    "rbx",
-                    "rjs",
-                    "rxml"
-                ]
+                "ext": ["rb", "rbx", "rjs", "rxml"]
             },
             {
                 "name": "Sass source",
                 "role": "Editor",
-                "ext": [
-                    "sass",
-                    "scss"
-                ]
+                "ext": ["sass", "scss"]
             },
             {
                 "name": "Scheme source",
                 "role": "Editor",
-                "ext": [
-                    "scm",
-                    "sch"
-                ]
+                "ext": ["scm", "sch"]
             },
             {
                 "name": "Setext document",
@@ -636,10 +473,7 @@
             {
                 "name": "SWIG source",
                 "role": "Editor",
-                "ext": [
-                    "i",
-                    "swg"
-                ]
+                "ext": ["i", "swg"]
             },
             {
                 "name": "Tcl source",
@@ -649,20 +483,12 @@
             {
                 "name": "TeX document",
                 "role": "Editor",
-                "ext": [
-                    "tex",
-                    "sty",
-                    "cls"
-                ]
+                "ext": ["tex", "sty", "cls"]
             },
             {
                 "name": "Plain text document",
                 "role": "Editor",
-                "ext": [
-                    "text",
-                    "txt",
-                    "utf8"
-                ]
+                "ext": ["text", "txt", "utf8"]
             },
             {
                 "name": "Textile document",
@@ -682,32 +508,17 @@
             {
                 "name": "XML document",
                 "role": "Editor",
-                "ext": [
-                    "xml",
-                    "xsd",
-                    "xib",
-                    "rss",
-                    "tld",
-                    "pt",
-                    "cpt",
-                    "dtml"
-                ]
+                "ext": ["xml", "xsd", "xib", "rss", "tld", "pt", "cpt", "dtml"]
             },
             {
                 "name": "XSL stylesheet",
                 "role": "Editor",
-                "ext": [
-                    "xsl",
-                    "xslt"
-                ]
+                "ext": ["xsl", "xslt"]
             },
             {
                 "name": "Electronic business card",
                 "role": "Editor",
-                "ext": [
-                    "vcf",
-                    "vcard"
-                ]
+                "ext": ["vcf", "vcard"]
             },
             {
                 "name": "Visual Basic source",
@@ -717,10 +528,7 @@
             {
                 "name": "YAML document",
                 "role": "Editor",
-                "ext": [
-                    "yaml",
-                    "yml"
-                ]
+                "ext": ["yaml", "yml"]
             },
             {
                 "name": "Text document",
@@ -782,66 +590,95 @@
     "scripts": {
         "precommit": "pretty-quick --staged",
         "prepush": "npm run build && npm run lint",
-        "build": "npm run build:browser && npm run build:webview_preload && npm run build:main && npm run build:plugins",
+        "build":
+            "npm run build:browser && npm run build:webview_preload && npm run build:main && npm run build:plugins",
         "build-debug": "npm run build:browser-debug && npm run build:main && npm run build:plugins",
         "build:browser": "webpack --config browser/webpack.production.config.js",
         "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
         "build:main": "cd main && tsc -p tsconfig.json",
-        "build:plugins": "npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-markdown-preview",
+        "build:plugins":
+            "npm run build:plugin:oni-plugin-typescript && npm run build:plugin:oni-plugin-markdown-preview",
         "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && npm run build",
-        "build:plugin:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm run build",
+        "build:plugin:oni-plugin-markdown-preview":
+            "cd extensions/oni-plugin-markdown-preview && npm run build",
         "build:test": "npm run build:test:unit && npm run build:test:integration",
         "build:test:integration": "cd test && tsc -p tsconfig.json",
         "build:test:unit": "npm run build:test:unit:browser && npm run build:test:unit:main",
-        "build:test:unit:browser": "rimraf lib_test/browser && cd browser && tsc -p tsconfig.test.json",
+        "build:test:unit:browser":
+            "rimraf lib_test/browser && cd browser && tsc -p tsconfig.test.json",
         "build:test:unit:main": "rimraf lib_test/main && cd main && tsc -p tsconfig.test.json",
         "build:webview_preload": "cd webview_preload && tsc -p tsconfig.json",
         "check-cached-binaries": "node build/script/CheckBinariesForBuild.js",
         "copy-icons": "node build/CopyIcons.js",
-        "debug:test:unit:browser": "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
-        "demo:screenshot": "npm run build:test && cross-env DEMO_TEST=HeroScreenshot mocha -t 30000000 lib_test/test/Demo.js",
-        "demo:video": "npm run build:test && cross-env DEMO_TEST=HeroDemo mocha -t 30000000 lib_test/test/Demo.js",
-        "dist:win:x86": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
-        "dist:win:x64": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch x64 --publish never",
-        "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
+        "debug:test:unit:browser":
+            "cd browser && tsc -p tsconfig.test.json && electron-mocha --interactive --debug --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+        "demo:screenshot":
+            "npm run build:test && cross-env DEMO_TEST=HeroScreenshot mocha -t 30000000 lib_test/test/Demo.js",
+        "demo:video":
+            "npm run build:test && cross-env DEMO_TEST=HeroDemo mocha -t 30000000 lib_test/test/Demo.js",
+        "dist:win:x86":
+            "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
+        "dist:win:x64":
+            "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch x64 --publish never",
+        "pack:win":
+            "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
         "test": "npm run test:unit && npm run test:integration",
         "test:integration": "npm run build:test && mocha -t 120000 lib_test/test/CiTests.js --bail",
         "test:react": "jest --config ./jest.config.js ./ui-tests",
         "test:react:watch": "jest --config ./jest.config.js ./ui-tests --watch",
         "test:react:coverage": "jest --config ./jest.config.js ./ui-tests --coverage",
-        "test:unit:browser": "npm run build:test:unit:browser && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
+        "test:unit:browser":
+            "npm run build:test:unit:browser && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
         "test:unit": "npm run test:unit:browser && npm run test:unit:main && npm run test:react",
-        "test:unit:main": "npm run build:test:unit:main && cd main && electron-mocha --renderer --recursive ../lib_test/main/test",
+        "test:unit:main":
+            "npm run build:test:unit:main && cd main && electron-mocha --renderer --recursive ../lib_test/main/test",
         "upload:dist": "node build/script/UploadDistributionBuildsToAzure",
         "fix-lint": "npm run fix-lint:browser && npm run fix-lint:main && npm run fix-lint:test",
-        "fix-lint:browser": "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+        "fix-lint:browser":
+            "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
         "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
         "lint": "npm run lint:browser && npm run lint:main && npm run lint:test",
-        "lint:browser": "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+        "lint:browser":
+            "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
-        "lint:test": "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
+        "lint:test":
+            "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
         "pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --publish never",
-        "ccov:instrument": "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
-        "ccov:test:browser": "cross-env ONI_CCOV=1 electron-mocha --renderer --require browser/testHelpers.js -R browser/testCoverageReporter --recursive lib_test/browser/test",
-        "ccov:remap:browser:html": "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output html-report --type html",
-        "ccov:remap:browser:lcov": "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output lcov.info --type lcovonly",
+        "ccov:instrument":
+            "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
+        "ccov:test:browser":
+            "cross-env ONI_CCOV=1 electron-mocha --renderer --require browser/testHelpers.js -R browser/testCoverageReporter --recursive lib_test/browser/test",
+        "ccov:remap:browser:html":
+            "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output html-report --type html",
+        "ccov:remap:browser:lcov":
+            "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output lcov.info --type lcovonly",
         "ccov:clean": "rimraf coverage",
         "ccov:upload": "codecov",
         "launch": "electron lib/main/src/main.js",
-        "start": "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
-        "start-hot": "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
+        "start":
+            "concurrently --kill-others \"npm run start-hot\" \"npm run watch:browser\" \"npm run watch:plugins\"",
+        "start-hot":
+            "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
         "start-not-dev": "cross-env electron main.js",
-        "watch:browser": "webpack-dev-server --config browser/webpack.development.config.js --host localhost --port 8191",
-        "watch:plugins": "npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
+        "watch:browser":
+            "webpack-dev-server --config browser/webpack.development.config.js --host localhost --port 8191",
+        "watch:plugins":
+            "npm run watch:plugins:oni-plugin-typescript && npm run watch:plugins:oni-plugin-markdown-preview",
         "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
-        "watch:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && tsc --watch",
+        "watch:plugins:oni-plugin-markdown-preview":
+            "cd extensions/oni-plugin-markdown-preview && tsc --watch",
         "uninstall-global": "npm rm -g oni-vim",
         "install-global": "npm install -g oni-vim",
-        "install:plugins": "npm run install:plugins:oni-plugin-markdown-preview",
-        "install:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && npm install --prod",
+        "install:plugins":
+            "npm run install:plugins:oni-plugin-markdown-preview && npm run install:plugins:oni-plugin-prettier",
+        "install:plugins:oni-plugin-markdown-preview":
+            "cd extensions/oni-plugin-markdown-preview && npm install --prod",
+        "install:plugins:oni-plugin-prettier":
+            "cd extensions/oni-plugin-prettier && npm install --prod",
         "postinstall": "npm run install:plugins && electron-rebuild && opencollective postinstall",
-        "profile:webpack": "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
+        "profile:webpack":
+            "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
     },
     "repository": {
         "type": "git",
@@ -849,15 +686,18 @@
     },
     "license": "MIT",
     "dependencies": {
+        "chokidar": "^2.0.3",
+        "color-normalize": "^1.0.3",
         "dompurify": "^1.0.3",
         "electron-settings": "^3.1.4",
         "find-up": "2.1.0",
-        "keyboard-layout": "2.0.13",
+        "fs-extra": "^5.0.0",
+        "keyboard-layout": "^2.0.13",
         "marked": "^0.3.6",
         "minimist": "1.2.0",
         "msgpack-lite": "0.1.26",
         "ocaml-language-server": "^1.0.27",
-        "oni-api": "^0.0.41",
+        "oni-api": "^0.0.42",
         "oni-neovim-binaries": "0.1.1",
         "oni-ripgrep": "0.0.4",
         "oni-types": "0.0.4",
@@ -869,7 +709,7 @@
         "shell-env": "^0.3.0",
         "shelljs": "0.7.7",
         "styled-components": "^2.3.0",
-        "typescript": "2.7.1",
+        "typescript": "^2.8.1",
         "vscode-css-languageserver-bin": "^1.2.1",
         "vscode-html-languageserver-bin": "^1.1.0",
         "vscode-jsonrpc": "3.5.0",
@@ -878,6 +718,8 @@
         "vscode-textmate": "3.2.0"
     },
     "devDependencies": {
+        "@types/chokidar": "^1.7.5",
+        "@types/fs-extra": "^5.0.2",
         "@types/classnames": "0.0.32",
         "@types/color": "2.0.0",
         "@types/detect-indent": "^5.0.0",
@@ -889,7 +731,6 @@
         "@types/lodash": "4.14.38",
         "@types/lolex": "2.1.0",
         "@types/marked": "^0.3.0",
-        "@types/memory-fs": "^0.3.0",
         "@types/minimatch": "3.0.1",
         "@types/minimist": "1.1.29",
         "@types/mkdirp": "0.3.29",
@@ -906,12 +747,15 @@
         "@types/react-virtualized": "^9.7.10",
         "@types/redux-batched-subscribe": "^0.1.2",
         "@types/redux-mock-store": "^0.0.13",
+        "@types/rimraf": "^2.0.2",
         "@types/shelljs": "^0.7.7",
         "@types/sinon": "1.16.32",
+        "@types/webgl2": "^0.0.3",
         "autoprefixer": "6.4.0",
+        "aws-sdk": "^2.202.0",
         "azure-storage": "^2.8.1",
+        "babel-minify-webpack-plugin": "^0.3.1",
         "babel-plugin-dynamic-import-node": "^1.2.0",
-        "babili-webpack-plugin": "0.1.2",
         "bs-platform": "2.1.0",
         "classnames": "2.2.5",
         "codecov": "^3.0.0",
@@ -930,9 +774,9 @@
         "enzyme-to-json": "^3.3.1",
         "extract-zip": "1.6.0",
         "find-process": "^1.1.0",
-        "fs-extra": "4.0.2",
         "fuse.js": "2.6.2",
         "github-releases": "^0.4.1",
+        "html-loader": "^0.5.5",
         "husky": "^0.14.3",
         "innosetup-compiler": "5.5.9",
         "istanbul-api": "^1.2.1",
@@ -940,7 +784,7 @@
         "jest": "^22.2.2",
         "jsdom": "11.0.0",
         "less": "2.7.1",
-        "less-loader": "4.0.5",
+        "less-loader": "^4.1.0",
         "less-plugin-autoprefix": "1.5.1",
         "lodash": "4.17.0",
         "lolex": "2.3.1",
@@ -951,10 +795,9 @@
         "nyc": "^11.4.1",
         "oni-release-downloader": "^0.0.10",
         "opencollective": "1.0.3",
-        "optimize-js-plugin": "0.0.4",
         "prettier": "^1.10.2",
         "pretty-quick": "^1.2.2",
-        "react-hot-loader": "1.3.1",
+        "react-hot-loader": "^4.0.1",
         "react-motion": "0.5.2",
         "react-redux": "5.0.6",
         "react-test-renderer": "^16.2.0",
@@ -972,14 +815,15 @@
         "style-loader": "0.18.2",
         "sudo-prompt": "7.1.1",
         "ts-jest": "^22.0.4",
-        "ts-loader": "2.3.2",
+        "ts-loader": "^4.2.0",
         "tslint": "5.9.1",
         "vscode-snippet-parser": "0.0.5",
         "wcwidth": "1.0.1",
         "webdriverio": "4.8.0",
-        "webpack": "3.5.3",
-        "webpack-bundle-analyzer": "^2.9.1",
-        "webpack-dev-server": "2.7.1"
+        "webpack": "^4.6.0",
+        "webpack-bundle-analyzer": "^2.11.1",
+        "webpack-cli": "^2.0.14",
+        "webpack-dev-server": "^3.1.3"
     },
     "collective": {
         "type": "opencollective",

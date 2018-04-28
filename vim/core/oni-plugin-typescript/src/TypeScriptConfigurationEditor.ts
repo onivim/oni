@@ -9,9 +9,9 @@ import * as path from "path"
 
 const normalizePath = (str: string) => str.split("\\").join("\\\\")
 
-const tsConfigTemplate = (typePath: string) => `
-import * as React from "${normalizePath(path.join(typePath, "react"))}"
-import * as Oni from "${normalizePath(path.join(typePath, "oni-api"))}"
+const tsConfigTemplate = `
+import * as React from "react"
+import * as Oni from "oni-api"
 
 export const activate = (oni: Oni.Plugin.Api) => {
     console.log("config activated")
@@ -58,7 +58,24 @@ const getTypeScriptConfigurationFromJavaScriptConfiguration = (configurationFile
 
 const ensureTsConfig = async (typeScriptConfigFile: string, typeRoots: string): Promise<void> => {
     if (!fs.existsSync(typeScriptConfigFile)) {
-        fs.writeFileSync(typeScriptConfigFile, tsConfigTemplate(typeRoots))
+        fs.writeFileSync(typeScriptConfigFile, tsConfigTemplate)
+    }
+    // Add a tsconfig.json file to provide completion on config
+    const tsConfig = path.join(path.dirname(typeScriptConfigFile), "tsconfig.json")
+    if (!fs.existsSync(tsConfig)) {
+        fs.writeFileSync(
+            tsConfig,
+            JSON.stringify(
+                {
+                    compilerOptions: {
+                        jsx: "react",
+                        baseUrl: typeRoots,
+                    },
+                },
+                null,
+                2,
+            ),
+        )
     }
 }
 
@@ -91,12 +108,14 @@ export class TypeScriptConfigurationEditor {
 
     public async transpileConfigurationToJavaScript(contents: string): Promise<string> {
         const ts = await import("typescript")
+        const typeRoots = path.join(this._mainProcessDirectory, "node_modules")
 
         const output = ts.transpileModule(contents, {
             reportDiagnostics: true,
             compilerOptions: {
-                jsx: "React",
-            } as any,
+                jsx: ts.JsxEmit.React,
+                baseUrl: typeRoots,
+            },
         })
 
         return output.outputText
