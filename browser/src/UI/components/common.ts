@@ -5,6 +5,8 @@ import { IThemeColors } from "../../Services/Themes/ThemeManager"
 
 export const bufferScrollBarSize = "7px"
 
+export * from "./Caret"
+
 const {
     default: styled,
     css,
@@ -20,6 +22,8 @@ export interface ContainerProps {
     direction: "horizontal" | "vertical"
     fullHeight?: boolean
     fullWidth?: boolean
+
+    backgroundFromTheme?: string
 }
 
 export const Fixed = styled.div`
@@ -36,6 +40,23 @@ export const Container = withProps<ContainerProps>(styled.div)`
 
     ${p => (p.fullHeight ? "height: 100%;" : "")}
     ${p => (p.fullWidth ? "width: 100%;" : "")}
+
+    ${p =>
+        p.backgroundFromTheme ? "background-color: " + p.theme[p.backgroundFromTheme] + ";" : ""}
+`
+
+export const Header = styled.div`
+    color: ${p => p.theme["editor.foreground"]};
+    font-size: 2em;
+`
+
+export const Subheader = styled.div`
+    color: ${p => p.theme["editor.foreground"]};
+    font-size: 1.2em;
+`
+
+export const Section = styled.div`
+    padding: 1em;
 `
 
 export const Bold = styled.span`
