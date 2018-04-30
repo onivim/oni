@@ -28,6 +28,6 @@ export const activate = (
 
     sidebarManager.add(
         "files-o",
-        new ExplorerSplit(workspace, commandManager, configuration, editorManager),
+        new ExplorerSplit(configuration, workspace, commandManager, editorManager),
     )
 }

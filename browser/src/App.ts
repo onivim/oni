@@ -262,7 +262,13 @@ export const start = async (args: string[]): Promise<void> => {
     Sidebar.activate(configuration, workspace)
     const sidebarManager = Sidebar.getInstance()
 
-    Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
+    Explorer.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        Sidebar.getInstance(),
+        workspace,
+    )
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Learning.activate(
         commandManager,

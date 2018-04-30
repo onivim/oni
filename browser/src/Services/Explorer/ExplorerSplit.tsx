@@ -100,13 +100,15 @@ export class ExplorerSplit {
     }
 
     private _initializeFileSystemWatcher(): void {
-        this._watcher = new FileSystemWatcher({
-            target: this._workspace.activeWorkspace,
-            options: { ignoreInitial: true, ignored: "**/node_modules" },
-        })
+        if (this._configuration.getValue("explorer.autoRefresh")) {
+            this._watcher = new FileSystemWatcher({
+                target: this._workspace.activeWorkspace,
+                options: { ignoreInitial: true, ignored: "**/node_modules" },
+            })
 
-        const events = ["onChange", "onAdd", "onAddDir", "onMove", "onDelete", "onDeleteDir"]
-        events.forEach(event => this._watcher[event].subscribe(() => this._refresh()))
+            const events = ["onChange", "onAdd", "onAddDir", "onMove", "onDelete", "onDeleteDir"]
+            events.forEach(event => this._watcher[event].subscribe(() => this._refresh()))
+        }
     }
 
     private _inputInProgress = () => {
