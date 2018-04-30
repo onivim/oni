@@ -12,6 +12,7 @@ import { FileSystemWatcher } from "./../../Services/FileSystemWatcher"
 import { Event } from "oni-types"
 
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
+import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
 import { getInstance as NotificationsInstance } from "./../../Services/Notifications"
 import { windowManager } from "./../../Services/WindowManager"
@@ -27,8 +28,8 @@ type Node = ExplorerSelectors.ExplorerNode
 export class ExplorerSplit {
     private _onEnterEvent: Event<void> = new Event<void>()
     private _selectedId: string = null
-
     private _store: Store<IExplorerState>
+    private _watcher: FileSystemWatcher = null
 
     public get id(): string {
         return "oni.sidebar.explorer"
@@ -39,17 +40,14 @@ export class ExplorerSplit {
     }
 
     constructor(
-        // private _configuration: Configuration,
+        private _configuration: Configuration,
         private _workspace: IWorkspace,
         private _commandManager: CommandManager,
         private _editorManager: EditorManager,
     ) {
         this._store = createStore({ notifications: NotificationsInstance() })
 
-        const Watcher = new FileSystemWatcher({
-            target: this._workspace.activeWorkspace,
-            options: { ignoreInitial: true, ignored: "**/node_modules" },
-        })
+        this._initializeFileSystemWatcher()
 
         this._workspace.onDirectoryChanged.subscribe(newDirectory => {
             this._store.dispatch({
@@ -57,8 +55,10 @@ export class ExplorerSplit {
                 rootPath: newDirectory,
             })
 
-            Watcher.unwatch(this._workspace.activeWorkspace)
-            Watcher.watch(newDirectory)
+            if (this._watcher) {
+                this._watcher.unwatch(this._workspace.activeWorkspace)
+                this._watcher.watch(newDirectory)
+            }
         })
 
         if (this._workspace.activeWorkspace) {
@@ -67,11 +67,6 @@ export class ExplorerSplit {
                 rootPath: this._workspace.activeWorkspace,
             })
         }
-
-        const events = ["onChange", "onAdd", "onAddDir", "onMove", "onDelete", "onDeleteDir"]
-        events.forEach(event =>
-            Watcher[event].subscribe(() => this._store.dispatch({ type: "REFRESH" })),
-        )
     }
 
     public enter(): void {
@@ -101,6 +96,18 @@ export class ExplorerSplit {
                     moveFileOrFolder={this.moveFileOrFolder}
                 />
             </Provider>
+        )
+    }
+
+    private _initializeFileSystemWatcher(): void {
+        this._watcher = new FileSystemWatcher({
+            target: this._workspace.activeWorkspace,
+            options: { ignoreInitial: true, ignored: "**/node_modules" },
+        })
+
+        const events = ["onChange", "onAdd", "onAddDir", "onMove", "onDelete", "onDeleteDir"]
+        events.forEach(event =>
+            this._watcher[event].subscribe(() => this._store.dispatch({ type: "REFRESH" })),
         )
     }
 
