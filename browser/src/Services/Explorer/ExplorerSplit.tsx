@@ -106,14 +106,16 @@ export class ExplorerSplit {
         })
 
         const events = ["onChange", "onAdd", "onAddDir", "onMove", "onDelete", "onDeleteDir"]
-        events.forEach(event =>
-            this._watcher[event].subscribe(() => this._store.dispatch({ type: "REFRESH" })),
-        )
+        events.forEach(event => this._watcher[event].subscribe(() => this._refresh()))
     }
 
     private _inputInProgress = () => {
         const { register: { rename, create } } = this._store.getState()
         return rename.active || create.active
+    }
+
+    private _refresh(): void {
+        this._store.dispatch({ type: "REFRESH" })
     }
 
     private _initialiseExplorerCommands(): void {
@@ -157,6 +159,15 @@ export class ExplorerSplit {
                 "Move/Paste Selected Item",
                 "Paste the last yanked item",
                 () => !this._inputInProgress() && this._onPasteItem(),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.refresh",
+                "Explorer: Refresh the tree",
+                "Updates the explorer with the latest state on the file system",
+                () => !this._inputInProgress() && this._refresh(),
             ),
         )
 
