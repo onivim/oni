@@ -144,6 +144,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("r", "explorer.rename", isExplorerActive)
     input.bind("<c-e>", "explorer.create.file", isExplorerActive)
     input.bind("<c-f>", "explorer.create.folder", isExplorerActive)
+    input.bind("<c-r>", "explorer.refresh", isExplorerActive)
 
     // Browser
     input.bind("k", "browser.scrollUp")
