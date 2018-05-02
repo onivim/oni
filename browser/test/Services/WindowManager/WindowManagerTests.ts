@@ -89,15 +89,11 @@ describe("WindowManagerTests", () => {
         split3Handle.close()
 
         const splitRoot = windowManager.splitRoot
-
         const firstChild = splitRoot.splits[0] as ISplitInfo<MockWindowSplit>
 
         assert.strictEqual(splitRoot.type, "Split")
         assert.strictEqual(splitRoot.direction, "vertical")
         assert.strictEqual(splitRoot.splits.length, 1)
-
-        console.dir(splitRoot)
-        console.dir(splitRoot.splits[0])
 
         assert.strictEqual(firstChild.type, "Split")
         assert.strictEqual(
