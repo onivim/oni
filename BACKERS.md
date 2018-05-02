@@ -63,6 +63,7 @@ Thanks you to all our backers for making Oni possible!
 ## VIP Backers via Patreon
 
 * @mikl
+* Tom Boland
 
 ## Backers via BountySource
 
