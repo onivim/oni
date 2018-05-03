@@ -12,7 +12,7 @@
         ]
     },
     "dependencies": {
-        "prettier": "^1.11.1"
+        "prettier": "^1.12.1"
     },
     "devDependencies": {}
 }

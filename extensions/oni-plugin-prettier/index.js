@@ -37,10 +37,24 @@ const activate = async Oni => {
             await applyPrettierWithState(Oni)
         }
     }
+
+    const formatCallback = async () => {
+        const isVisualMode = Oni.editors.activeEditor.mode === "visual"
+        if (isVisualMode) {
+            await applyPrettierOnSelection(Oni)
+        }
+    }
+
     Oni.commands.registerCommand({
         command: "autoformat.prettier",
         name: "Autoformat with Prettier",
         execute: callback,
+    })
+
+    Oni.commands.registerCommand({
+        command: "autoformat.prettier.selection",
+        name: "format the visually selected text with prettier",
+        execute: formatCallback,
     })
 
     const checkPrettierrc = async bufferPath => {
@@ -52,6 +66,11 @@ const activate = async Oni => {
         } catch (e) {
             throw new Error(`Error parsing config file, ${e}`)
         }
+    }
+
+    const getConfig = async (filepath, settings) => {
+        const prettierrc = await checkPrettierrc(filepath)
+        return eitherOr(prettierrc, settings)
     }
 
     // Status Bar Component ----
@@ -91,9 +110,7 @@ const activate = async Oni => {
             }
 
             try {
-                const prettierrc = await checkPrettierrc(activeBuffer.filePath)
-                const prettierConfig = eitherOr(prettierrc, config.settings)
-
+                const prettierConfig = await getConfig(activeBuffer.filePath, config.settings)
                 // Pass in the file path so prettier can infer the correct parser to use
                 const { formatted, cursorOffset } = prettier.formatWithCursor(
                     join(arrayOfLines),
@@ -196,6 +213,29 @@ function createPrettierComponent(Oni, onClick) {
         prettierElement,
         successElement,
     }
+}
+
+async function applyPrettierOnSelection(Oni) {
+    const { activeBuffer } = Oni.editors.activeEditor
+    const config = Oni.configuration.getValue("oni.plugins.prettier")
+    const range = await activeBuffer.getSelectionRange()
+
+    if (!range) return
+
+    const { start: { line: start }, end: { line: end } } = range
+
+    const [prettierConfig, arrayOfLines] = await Promise.all([
+        getConfig(activeBuffer.filePath, config.settings),
+        activeBuffer.getLines(start, end),
+    ])
+
+    console.log("arrayOfLines", arrayOfLines)
+
+    const formatted = prettier.format(
+        join(arrayOfLines),
+        Object.assign({ filepath: activeBuffer.filePath }, prettierConfig),
+    )
+    await activeBuffer.setLines(start, start + arrayOfLines.length, split(formatted))
 }
 
 module.exports = { activate }
