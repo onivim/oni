@@ -345,3 +345,20 @@ export const PasteKey = (): JSX.Element => {
         <KeyWithDescription keyCharacter="P" description={<span>Paste BEFORE the cursor</span>} />
     )
 }
+
+export const VisualModeKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="v"
+            description={<span>Move into Visual mode for selecting text</span>}
+        />
+    )
+}
+export const VisualLineModeKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="V"
+            description={<span>Move into line-wise Visual mode for selecting lines</span>}
+        />
+    )
+}

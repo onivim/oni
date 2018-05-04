@@ -97,6 +97,13 @@ export class VisualModeTutorial implements ITutorial {
     }
 
     public get notes(): JSX.Element[] {
-        return [<Notes.HJKLKeys />, <Notes.WordKey />, <Notes.BeginningKey />, <Notes.EndKey />]
+        return [
+            <Notes.HJKLKeys />,
+            <Notes.WordKey />,
+            <Notes.BeginningKey />,
+            <Notes.EndKey />,
+            <Notes.VisualModeKey />,
+            <Notes.VisualLineModeKey />,
+        ]
     }
 }
