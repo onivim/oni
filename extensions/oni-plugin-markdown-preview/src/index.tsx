@@ -24,7 +24,7 @@ interface IColors {
 }
 
 interface IMarkdownPreviewState {
-    source: string
+    rendered: string
     colors: IColors
 }
 
@@ -46,7 +46,7 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
             codeForeground: this.props.oni.colors.getColor("foreground"),
             codeBorder: this.props.oni.colors.getColor("toolTip.border"),
         }
-        this.state = { source: "", colors }
+        this.state = { rendered: "", colors }
     }
 
     public componentDidMount() {
@@ -71,9 +71,7 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 
     public render(): JSX.Element {
-        const renderedMarkdown = this.generateMarkdown()
-        this.props.instance.updateContent(this.state.source, renderedMarkdown)
-        const html = renderedMarkdown + this.generateContainerStyle()
+        const html = this.state.rendered + this.generateContainerStyle()
         const classes = "stack enable-mouse oniPluginMarkdownPreviewContainerStyle"
         return <div className={classes} dangerouslySetInnerHTML={{ __html: html }} />
     }
@@ -115,8 +113,13 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
         `
     }
 
-    private generateMarkdown(): string {
-        const markdownLines: string[] = dompurify.sanitize(this.state.source).split("\n")
+    private setContent(source: string, rendered: string): void {
+        this.props.instance.updateContent(source, rendered)
+        this.setState({ rendered })
+    }
+
+    private generateMarkdown(source: string): void {
+        const markdownLines: string[] = source.split("\n")
 
         const generateAnchor = (line: number): string => {
             return `<a id="${generateScrollingAnchorId(line)}"></a>`
@@ -139,7 +142,7 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
         markdownLines.splice(0, 0, generateAnchor(i))
         markdownLines.push(generateAnchor(originalLinesCount - 1))
 
-        return marked(markdownLines.join("\n"))
+        this.setContent(source, marked(markdownLines.join("\n")))
     }
 
     private subscribe<T>(editorEvent: IEvent<T>, eventCallback: EventCallback<T>): void {
@@ -170,7 +173,8 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 
     private previewString(str: string): void {
-        this.setState({ source: str })
+        const source = dompurify.sanitize(str)
+        this.generateMarkdown(source)
     }
 }
 
