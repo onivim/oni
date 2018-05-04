@@ -6,6 +6,8 @@
 
 import * as os from "os"
 
+import * as Oni from "oni-api"
+
 import * as path from "path"
 
 import * as Platform from "./../../Platform"
@@ -108,7 +110,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.quickOpen.execCommand": null,
     "editor.quickOpen.filterStrategy": "vscode",
-    "editor.quickOpen.openInCurrentByDefault": false,
+    "editor.quickOpen.defaultOpenMode": Oni.FileOpenMode.ExistingTab,
+    "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode.Edit,
 
     "editor.split.mode": "native",
 

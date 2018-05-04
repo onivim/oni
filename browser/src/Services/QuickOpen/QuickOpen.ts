@@ -75,25 +75,19 @@ export class QuickOpen {
             return
         }
 
-        const openInCurrentByDefault = configuration.getValue(
-            "editor.quickOpen.openInCurrentByDefault",
+        const defaultOpenMode: Oni.FileOpenMode = configuration.getValue(
+            "editor.quickOpen.defaultOpenMode",
         )
-        const openMode = openInCurrentByDefault
-            ? Oni.FileOpenMode.ExistingTab
-            : Oni.FileOpenMode.Edit
 
-        this._onItemSelected(selectedItem, openMode)
+        this._onItemSelected(selectedItem, defaultOpenMode)
     }
 
     public openFileWithAltAction(): void {
-        const openInCurrentByDefault = configuration.getValue(
-            "editor.quickOpen.openInCurrentByDefault",
+        const alternativeOpenMode: Oni.FileOpenMode = configuration.getValue(
+            "editor.quickOpen.alternativeOpenMode",
         )
-        const openMode = openInCurrentByDefault
-            ? Oni.FileOpenMode.Edit
-            : Oni.FileOpenMode.ExistingTab
 
-        this.openFile(openMode)
+        this.openFile(alternativeOpenMode)
     }
 
     public async show() {
