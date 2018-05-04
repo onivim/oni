@@ -33,7 +33,7 @@ import {
     NeovimScreen,
     NeovimWindowManager,
 } from "./../../neovim"
-import { CanvasRenderer, INeovimRenderer } from "./../../Renderer"
+import { INeovimRenderer } from "./../../Renderer"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
@@ -61,7 +61,7 @@ import {
 } from "./../../Services/SyntaxHighlighting"
 
 import { MenuManager } from "./../../Services/Menu"
-import { ThemeManager } from "./../../Services/Themes"
+import { IThemeMetadata, ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 import { Workspace } from "./../../Services/Workspace"
 
@@ -94,6 +94,8 @@ import WildMenu from "./../../UI/components/WildMenu"
 
 import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
+import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
+import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 
 export class NeovimEditor extends Editor implements IEditor {
@@ -122,6 +124,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _windowManager: NeovimWindowManager
 
     private _currentColorScheme: string = ""
+    private _currentBackground: string = ""
     private _isFirstRender: boolean = true
 
     private _lastBufferId: string = null
@@ -291,7 +294,10 @@ export class NeovimEditor extends Editor implements IEditor {
             initVimNotification.show()
         }
 
-        this._renderer = new CanvasRenderer()
+        this._renderer =
+            this._configuration.getValue("editor.renderer") === "webgl"
+                ? new WebGLRenderer()
+                : new CanvasRenderer()
 
         this._rename = new Rename(
             this,
@@ -744,6 +750,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
         document.body.ondrop = ev => {
             ev.preventDefault()
+            // TODO: the following line currently breaks explorer drag and drop functionality
             ev.stopPropagation()
 
             const { files } = ev.dataTransfer
@@ -971,15 +978,17 @@ export class NeovimEditor extends Editor implements IEditor {
         this._themeManager.onThemeChanged.subscribe(() => {
             const newTheme = this._themeManager.activeTheme
 
-            if (newTheme.baseVimTheme && newTheme.baseVimTheme !== this._currentColorScheme) {
-                this._neovimInstance.command(":color " + newTheme.baseVimTheme)
+            if (
+                newTheme.baseVimTheme &&
+                (newTheme.baseVimTheme !== this._currentColorScheme ||
+                    newTheme.baseVimBackground !== this._currentBackground)
+            ) {
+                this.setColorSchemeFromTheme(newTheme)
             }
         })
 
         if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
-            await this._neovimInstance.command(
-                ":color " + this._themeManager.activeTheme.baseVimTheme,
-            )
+            await this.setColorSchemeFromTheme(this._themeManager.activeTheme)
         }
 
         if (filesToOpen && filesToOpen.length > 0) {
@@ -996,6 +1005,18 @@ export class NeovimEditor extends Editor implements IEditor {
         this._hasLoaded = true
         this._isFirstRender = true
         this._scheduleRender()
+    }
+
+    public async setColorSchemeFromTheme(theme: IThemeMetadata): Promise<void> {
+        if (
+            (theme.baseVimBackground === "dark" || theme.baseVimBackground === "light") &&
+            theme.baseVimBackground !== this._currentBackground
+        ) {
+            await this._neovimInstance.command(":set background=" + theme.baseVimBackground)
+            this._currentBackground = theme.baseVimBackground
+        }
+
+        await this._neovimInstance.command(":color " + theme.baseVimTheme)
     }
 
     public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
@@ -1216,6 +1237,12 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _onColorsChanged(): Promise<void> {
         const newColorScheme = await this._neovimInstance.eval<string>("g:colors_name")
+
+        // In error cases, the neovim API layer returns an array
+        if (typeof newColorScheme !== "string") {
+            return
+        }
+
         this._currentColorScheme = newColorScheme
         const backgroundColor = this._screen.backgroundColor
         const foregroundColor = this._screen.foregroundColor

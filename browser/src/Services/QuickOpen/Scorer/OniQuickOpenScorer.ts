@@ -5,6 +5,7 @@ import {
     IItemScore,
     prepareQuery,
     scoreItem,
+    ScorerCache,
 } from "./QuickOpenScorer"
 import { nativeSep } from "./Utilities"
 
@@ -24,7 +25,12 @@ class OniAccessor implements IItemAccessor<any> {
     }
 }
 
-export function scoreItemOni(resultObject: any, searchString: string, fuzzy: boolean): IItemScore {
+export function scoreItemOni(
+    resultObject: any,
+    searchString: string,
+    fuzzy: boolean,
+    cache: ScorerCache,
+): IItemScore {
     if (!searchString) {
         return NO_ITEM_SCORE
     }
@@ -37,7 +43,7 @@ export function scoreItemOni(resultObject: any, searchString: string, fuzzy: boo
 
     const accessor = new OniAccessor()
 
-    return scoreItem(resultObject, query, fuzzy, accessor)
+    return scoreItem(resultObject, query, fuzzy, accessor, cache)
 }
 
 export function compareItemsByScoreOni(
@@ -45,6 +51,7 @@ export function compareItemsByScoreOni(
     resultObjectB: any,
     searchString: string,
     fuzzy: boolean,
+    cache: ScorerCache,
 ): number {
     if (!searchString) {
         return 0
@@ -58,7 +65,7 @@ export function compareItemsByScoreOni(
 
     const accessor = new OniAccessor()
 
-    return compareItemsByScore(resultObjectA, resultObjectB, query, fuzzy, accessor)
+    return compareItemsByScore(resultObjectA, resultObjectB, query, fuzzy, accessor, cache)
 }
 
 export const getHighlightsFromResult = (result: IMatch[]): number[] => {

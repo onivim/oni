@@ -82,6 +82,8 @@ const BaseConfiguration: IConfigurationValues = {
     "oni.exclude": ["node_modules", ".git"],
     "oni.bookmarks": [],
 
+    "editor.renderer": "canvas",
+
     "editor.backgroundOpacity": 1.0,
     "editor.backgroundImageUrl": null,
     "editor.backgroundImageSize": "cover",
@@ -128,6 +130,9 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.tokenColors": [],
 
     "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
+
+    "explorer.persistDeletedFiles": true,
+    "explorer.maxUndoFileSizeInBytes": 500_000,
 
     "environment.additionalPaths": [],
 
@@ -411,7 +416,7 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.showIndex": false,
     "tabs.wrap": false,
 
-    "terminal.shellCommand": os.platform() === "win32" ? "cmd" : "bash",
+    "terminal.shellCommand": null,
 
     "ui.animations.enabled": true,
     "ui.colorscheme": "nord",

@@ -125,8 +125,16 @@ export class FileConfigurationProvider implements IConfigurationProvider {
         let error: Error | null = null
         if (fs.existsSync(this._configurationFilePath)) {
             try {
-                const loadedConfig = global["require"](this._configurationFilePath) // tslint:disable-line no-string-literal
-                userRuntimeConfig = promoteConfigurationToRootLevel(loadedConfig)
+                const configurationContent = fs.readFileSync(this._configurationFilePath, "utf-8")
+
+                // Wrap as commonjs module and execute it to use current file path, and so resolve module relativly to current process
+                const module = { exports: {} }
+                Function("require", "exports", "module", configurationContent)(
+                    (global as any).require,
+                    module.exports,
+                    module,
+                )
+                userRuntimeConfig = promoteConfigurationToRootLevel(module.exports)
             } catch (e) {
                 e.message =
                     "[Config Error] Failed to parse " +

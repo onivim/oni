@@ -343,7 +343,7 @@ export function scoreItem<T>(
     query: IPreparedQuery,
     fuzzy: boolean,
     accessor: IItemAccessor<T>,
-    // cache: ScorerCache,
+    cache: ScorerCache,
 ): IItemScore {
     if (!item || !query.value) {
         return NO_ITEM_SCORE // we need an item and query to score on at least
@@ -356,20 +356,20 @@ export function scoreItem<T>(
 
     const description = accessor.getItemDescription(item)
 
-    // let cacheHash: string
-    // if (description) {
-    //     cacheHash = `${label}${description}${query.value}${fuzzy}`
-    // } else {
-    //     cacheHash = `${label}${query.value}${fuzzy}`
-    // }
+    let cacheHash: string
+    if (description) {
+        cacheHash = `${label}${description}${query.value}${fuzzy}`
+    } else {
+        cacheHash = `${label}${query.value}${fuzzy}`
+    }
 
-    // const cached = cache[cacheHash]
-    // if (cached) {
-    //     return cached
-    // }
+    const cached = cache[cacheHash]
+    if (cached) {
+        return cached
+    }
 
     const itemScore = doScoreItem(label, description, accessor.getItemPath(item), query, fuzzy)
-    // cache[cacheHash] = itemScore
+    cache[cacheHash] = itemScore
 
     return itemScore
 }
@@ -467,11 +467,11 @@ export function compareItemsByScore<T>(
     query: IPreparedQuery,
     fuzzy: boolean,
     accessor: IItemAccessor<T>,
-    // cache: ScorerCache,
+    cache: ScorerCache,
     fallbackComparer = fallbackCompare,
 ): number {
-    const itemScoreA = scoreItem(itemA, query, fuzzy, accessor)
-    const itemScoreB = scoreItem(itemB, query, fuzzy, accessor)
+    const itemScoreA = scoreItem(itemA, query, fuzzy, accessor, cache)
+    const itemScoreB = scoreItem(itemB, query, fuzzy, accessor, cache)
 
     const scoreA = itemScoreA.score
     const scoreB = itemScoreB.score

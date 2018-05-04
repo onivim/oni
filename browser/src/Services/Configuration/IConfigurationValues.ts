@@ -99,6 +99,12 @@ export interface IConfigurationValues {
 
     // Editor settings
 
+    // Setting this to "webgl" switches to the experimental
+    // WebGL-based renderer. Please be aware that this might
+    // lead to instability or unexpected behavior until it is
+    // considered stable.
+    "editor.renderer": "canvas" | "webgl"
+
     "editor.backgroundOpacity": number
     "editor.backgroundImageUrl": string
     "editor.backgroundImageSize": string
@@ -189,6 +195,12 @@ export interface IConfigurationValues {
     // Typing prediction is Oni's implementation of
     // 'zero-latency' mode typing, and increases responsiveness.
     "editor.typingPrediction": boolean
+
+    // Files deleted in the explorer can be persisted for the duration
+    // of the session meaning that deletion can be undone is this is set
+    // to true
+    "explorer.persistDeletedFiles": boolean
+    "explorer.maxUndoFileSizeInBytes": number
 
     "editor.fullScreenOnStart": boolean
     "editor.maximizeScreenOnStart": boolean

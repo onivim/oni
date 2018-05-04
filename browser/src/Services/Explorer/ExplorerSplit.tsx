@@ -3,39 +3,33 @@
  *
  */
 
-import { capitalize } from "lodash"
 import * as path from "path"
 import * as React from "react"
 import { Provider } from "react-redux"
 import { Store } from "redux"
+import { FileSystemWatcher } from "./../../Services/FileSystemWatcher"
 
 import { Event } from "oni-types"
 
-// import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
-
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
+import { Configuration } from "./../../Services/Configuration"
 import { EditorManager } from "./../../Services/EditorManager"
-// import { Configuration } from "./../../Services/Configuration"
 import { getInstance as NotificationsInstance } from "./../../Services/Notifications"
 import { windowManager } from "./../../Services/WindowManager"
 import { IWorkspace } from "./../../Services/Workspace"
 
-import { createStore, IExplorerState } from "./ExplorerStore"
+import { createStore, getPathForNode, IExplorerState } from "./ExplorerStore"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
 import { Explorer } from "./ExplorerView"
 
-import { mv, rm } from "shelljs"
-
 type Node = ExplorerSelectors.ExplorerNode
-type File = ExplorerSelectors.IFileNode
 
 export class ExplorerSplit {
     private _onEnterEvent: Event<void> = new Event<void>()
     private _selectedId: string = null
-    private _notifications = NotificationsInstance()
-
     private _store: Store<IExplorerState>
+    private _watcher: FileSystemWatcher = null
 
     public get id(): string {
         return "oni.sidebar.explorer"
@@ -46,18 +40,25 @@ export class ExplorerSplit {
     }
 
     constructor(
-        // private _configuration: Configuration,
+        private _configuration: Configuration,
         private _workspace: IWorkspace,
         private _commandManager: CommandManager,
         private _editorManager: EditorManager,
     ) {
-        this._store = createStore()
+        this._store = createStore({ notifications: NotificationsInstance() })
+
+        this._initializeFileSystemWatcher()
 
         this._workspace.onDirectoryChanged.subscribe(newDirectory => {
             this._store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
                 rootPath: newDirectory,
             })
+
+            if (this._watcher) {
+                this._watcher.unwatch(this._workspace.activeWorkspace)
+                this._watcher.watch(newDirectory)
+            }
         })
 
         if (this._workspace.activeWorkspace) {
@@ -70,10 +71,7 @@ export class ExplorerSplit {
 
     public enter(): void {
         this._store.dispatch({ type: "ENTER" })
-        this._commandManager.registerCommand(
-            new CallbackCommand("explorer.delete", null, null, () => this._onDeleteItem()),
-        )
-
+        this._initialiseExplorerCommands()
         this._onEnterEvent.dispatch()
     }
 
@@ -81,83 +79,143 @@ export class ExplorerSplit {
         this._store.dispatch({ type: "LEAVE" })
     }
 
-    public sendExplorerNotification({ title, details }: { title: string; details: string }) {
-        const notification = this._notifications.createItem()
-        notification.setContents(title, details)
-        notification.setLevel("success")
-        notification.setExpiration(8000)
-        notification.show()
-    }
-
     public moveFileOrFolder = (source: Node, dest: Node): void => {
-        if (!source || !dest) {
-            return
-        }
-
-        let folderPath
-        let sourcePath
-
-        if (source.type === "folder" && dest.type === "folder") {
-            return this.moveFolder(source, dest)
-        }
-
-        if (dest.type === "file") {
-            const parent = this.findParentDir(dest.id)
-            folderPath = parent
-        } else if (dest.type === "container") {
-            folderPath = dest.name
-        } else {
-            folderPath = dest.folderPath
-        }
-
-        if (folderPath && source.type === "file" && source.filePath) {
-            sourcePath = source.filePath
-        } else if (source.type === "folder" && folderPath) {
-            sourcePath = source.folderPath
-        }
-
-        mv(sourcePath, folderPath)
-        this._store.dispatch({ type: "REFRESH" })
-        if (dest.type === "folder") {
-            this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: dest.folderPath })
-        }
-        this.sendExplorerNotification({
-            title: `${capitalize(source.type)} Moved`,
-            details: `Successfully moved ${source.name} to ${folderPath}`,
-        })
-    }
-
-    public moveFolder = (
-        source: ExplorerSelectors.IFolderNode,
-        destination: ExplorerSelectors.IFolderNode,
-    ) => {
-        if (source.folderPath === destination.folderPath) {
-            return
-        }
-        mv(source.folderPath, destination.folderPath)
-        this._store.dispatch({ type: "REFRESH" })
-        this._store.dispatch({ type: "EXPAND_DIRECTORY", directoryPath: destination.folderPath })
-        this.sendExplorerNotification({
-            title: `${capitalize(source.type)} Moved`,
-            details: `Successfully moved ${source.name} to ${destination.folderPath}`,
-        })
-    }
-
-    public findParentDir = (fileId: string): string => {
-        const { filePath } = this._getSelectedItem(fileId) as File
-        const folder = path.dirname(filePath)
-        return folder
+        this._store.dispatch({ type: "PASTE", pasted: [source], target: dest })
     }
 
     public render(): JSX.Element {
         return (
             <Provider store={this._store}>
                 <Explorer
+                    onCancelCreate={this._cancelCreation}
+                    onCompleteCreate={this._completeCreation}
+                    onCompleteRename={this._completeRename}
+                    onCancelRename={this._cancelRename}
                     onSelectionChanged={id => this._onSelectionChanged(id)}
                     onClick={id => this._onOpenItem(id)}
                     moveFileOrFolder={this.moveFileOrFolder}
                 />
             </Provider>
+        )
+    }
+
+    private _initializeFileSystemWatcher(): void {
+        if (this._configuration.getValue("explorer.autoRefresh")) {
+            this._watcher = new FileSystemWatcher({
+                target: this._workspace.activeWorkspace,
+                options: { ignoreInitial: true, ignored: "**/node_modules" },
+            })
+
+            const events = ["onChange", "onAdd", "onAddDir", "onMove", "onDelete", "onDeleteDir"]
+            events.forEach(event => this._watcher[event].subscribe(() => this._refresh()))
+        }
+    }
+
+    private _inputInProgress = () => {
+        const { register: { rename, create } } = this._store.getState()
+        return rename.active || create.active
+    }
+
+    private _refresh(): void {
+        this._store.dispatch({ type: "REFRESH" })
+    }
+
+    private _initialiseExplorerCommands(): void {
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.delete.persist",
+                null,
+                null,
+                () => !this._inputInProgress() && this._onDeleteItem({ persist: true }),
+            ),
+        )
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.delete",
+                null,
+                null,
+                () => !this._inputInProgress() && this._onDeleteItem({ persist: false }),
+            ),
+        )
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.yank",
+                "Yank Selected Item",
+                "Select a file to move",
+                () => !this._inputInProgress() && this._onYankItem(),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.undo",
+                "Undo last explorer action",
+                null,
+                () => !this._inputInProgress() && this._onUndoItem(),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.paste",
+                "Move/Paste Selected Item",
+                "Paste the last yanked item",
+                () => !this._inputInProgress() && this._onPasteItem(),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.refresh",
+                "Explorer: Refresh the tree",
+                "Updates the explorer with the latest state on the file system",
+                () => !this._inputInProgress() && this._refresh(),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.create.file",
+                "Create A New File in the Explorer",
+                null,
+                () => !this._inputInProgress() && this._onCreateNode({ type: "file" }),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.create.folder",
+                "Create A New File in the Explorer",
+                null,
+                () => !this._inputInProgress() && this._onCreateNode({ type: "folder" }),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.expand.directory",
+                "Expand a selected directory",
+                null,
+                () => !this._inputInProgress() && this._toggleDirectory("expand"),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.collapse.directory",
+                "Collapse selected directory",
+                null,
+                () => !this._inputInProgress() && this._toggleDirectory("collapse"),
+            ),
+        )
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.rename",
+                "Rename the selected file/folder",
+                null,
+                () => !this._inputInProgress() && this._renameItem(),
+            ),
         )
     }
 
@@ -196,14 +254,12 @@ export class ExplorerSplit {
         }
     }
 
-    private _getSelectedItem(id?: string): ExplorerSelectors.ExplorerNode {
+    private _getSelectedItem(id: string = this._selectedId): ExplorerSelectors.ExplorerNode {
         const state = this._store.getState()
 
         const nodes = ExplorerSelectors.mapStateToNodeList(state)
 
-        const idToUse = id || this._selectedId
-
-        const items = nodes.filter(item => item.id === idToUse)
+        const items = nodes.filter(item => item.id === id)
 
         if (!items || !items.length) {
             return null
@@ -212,26 +268,124 @@ export class ExplorerSplit {
         return items[0]
     }
 
-    private _onDeleteItem(): void {
+    private _getSelectedItemParent(filePath: string): ExplorerSelectors.ExplorerNode {
+        const state = this._store.getState()
+        const nodes = ExplorerSelectors.mapStateToNodeList(state)
+        const parentDir = path.dirname(filePath)
+
+        const [parentNode] = nodes.filter(
+            item =>
+                (item.type === "folder" && item.folderPath === parentDir) ||
+                (item.type === "container" && item.name === parentDir),
+        )
+
+        return parentNode
+    }
+
+    private _renameItem = () => {
+        const selected = this._getSelectedItem()
+        if (!selected) {
+            return
+        }
+        this._store.dispatch({ type: "RENAME_START", target: selected })
+    }
+
+    private _completeRename = (newName: string) => {
+        const target = this._getSelectedItem()
+
+        if (!target) {
+            return
+        }
+        this._store.dispatch({ type: "RENAME_COMMIT", newName, target })
+    }
+
+    private _cancelRename = () => {
+        this._store.dispatch({ type: "RENAME_CANCEL" })
+    }
+
+    private _onCreateNode = ({ type }: { type: "file" | "folder" }) => {
+        this._store.dispatch({ type: "CREATE_NODE_START", nodeType: type })
+    }
+
+    private _completeCreation = (newName: string) => {
+        const target = this._getSelectedItem()
+
+        if (!target) {
+            return
+        }
+
+        const nodePath = getPathForNode(target)
+        const dirname = target.type === "file" ? path.dirname(nodePath) : nodePath
+        this._store.dispatch({ type: "CREATE_NODE_COMMIT", name: path.join(dirname, newName) })
+    }
+
+    private _cancelCreation = () => {
+        this._store.dispatch({ type: "CREATE_NODE_CANCEL" })
+    }
+
+    // This is different from on openItem since it only activates if the target is a folder
+    // also it means that each bound key only does one thing aka "h" collapses and "l"
+    // expands they are not toggles
+    private _toggleDirectory(action: "expand" | "collapse"): void {
+        const selectedItem = this._getSelectedItem()
+        if (!selectedItem || selectedItem.type !== "folder") {
+            return
+        }
+
+        const type = action === "expand" ? "EXPAND_DIRECTORY" : "COLLAPSE_DIRECTORY"
+        this._store.dispatch({ type, directoryPath: selectedItem.folderPath })
+    }
+
+    private _onUndoItem(): void {
+        const { register: { undo } } = this._store.getState()
+        if (undo.length) {
+            this._store.dispatch({ type: "UNDO" })
+        }
+    }
+
+    private _onYankItem(): void {
+        const selectedItem = this._getSelectedItem()
+        if (!selectedItem) {
+            return
+        }
+
+        const { register: { yank } } = this._store.getState()
+        const inYankRegister = yank.some(({ id }) => id === selectedItem.id)
+
+        if (!inYankRegister) {
+            this._store.dispatch({ type: "YANK", target: selectedItem })
+        } else {
+            this._store.dispatch({ type: "CLEAR_REGISTER", ids: [selectedItem.id] })
+        }
+    }
+
+    private _onPasteItem(): void {
+        const pasteTarget = this._getSelectedItem()
+        if (!pasteTarget) {
+            return
+        }
+
+        const { register: { yank } } = this._store.getState()
+
+        if (yank.length && pasteTarget) {
+            const sources = yank.map(
+                node => (node.type === "file" ? this._getSelectedItemParent(node.filePath) : node),
+            )
+            this._store.dispatch({
+                type: "PASTE",
+                target: pasteTarget,
+                pasted: yank,
+                sources,
+            })
+        }
+    }
+
+    private _onDeleteItem({ persist }: { persist: boolean }): void {
         const selectedItem = this._getSelectedItem()
 
         if (!selectedItem) {
             return
         }
-
-        switch (selectedItem.type) {
-            case "file":
-                rm(selectedItem.filePath)
-                break
-            case "folder":
-                rm("-rf", selectedItem.folderPath)
-                break
-            default:
-                alert("Not implemented yet")
-        }
-
-        this._store.dispatch({
-            type: "REFRESH",
-        })
+        this._store.dispatch({ type: "DELETE", target: selectedItem, persist })
     }
 }

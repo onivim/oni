@@ -3,9 +3,16 @@
  */
 
 import * as assert from "assert"
+import { ScorerCache } from "../../../src/Services/QuickOpen/Scorer/QuickOpenScorer"
 import { processSearchTerm, vsCodeFilter } from "./../../../src/Services/QuickOpen/VSCodeFilter"
 
 describe("processSearchTerm", () => {
+    let cache: ScorerCache
+
+    beforeEach(() => {
+        cache = {}
+    })
+
     it("Correctly matches word.", async () => {
         const testString = "src"
         const testList = [
@@ -13,7 +20,7 @@ describe("processSearchTerm", () => {
             { label: "index.ts", detail: "browser/test" },
         ]
 
-        const result = processSearchTerm(testString, testList)
+        const result = processSearchTerm(testString, testList, cache)
         const filteredResult = result.filter(r => r.score !== 0)
 
         // Remove the score since it can change if we updated the
@@ -39,7 +46,7 @@ describe("processSearchTerm", () => {
             { label: "index.ts", detail: "browser/SRC" },
         ]
 
-        const result = processSearchTerm(testString, testList)
+        const result = processSearchTerm(testString, testList, cache)
 
         // Check the exact case match scores higher
         const lowercase = result.find(r => r.detail === "browser/src")
@@ -57,7 +64,7 @@ describe("processSearchTerm", () => {
             { label: "index.ts", detail: "browser/test" },
         ]
 
-        const result = processSearchTerm(testString, testList)
+        const result = processSearchTerm(testString, testList, cache)
         const filteredResult = result.filter(r => r.score !== 0)
 
         assert.deepEqual(filteredResult, [])
