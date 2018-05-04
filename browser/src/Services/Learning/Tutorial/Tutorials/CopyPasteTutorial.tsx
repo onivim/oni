@@ -76,8 +76,8 @@ export class CopyPasteTutorial implements ITutorial {
             id: "oni.tutorials.copy_paste",
             name: "Copy & Paste: y, p",
             description:
-                'Now that you know about operators and motions pairing like a noun and a verb, we can start learning new operators.  The `y` operator can be used to copy ("yank") text which can then be pasted with `p`.  Using `p` pastes _after_ the cursor, and `P` pastes _before_ the cursor.  The `y` operator behaves just like the `d` operator and can be paired with any motion.',
-            level: 210,
+                "Now that you know the delete and change operators, let's learn vim's final operator: `y`.  The `y` operator can be used to copy (\"yank\") text which can then be pasted with `p`.  Using `p` pastes _after_ the cursor, and `P` pastes _before_ the cursor.  The `y` operator behaves just like the `d` and `c` operators and can be paired with any motion.",
+            level: 220,
         }
     }
 

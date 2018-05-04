@@ -268,6 +268,27 @@ export const DeleteWordKey = (): JSX.Element => {
     )
 }
 
+export const ChangeOperatorKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="c"
+            description={
+                <span>
+                    <Bold>+ motion</Bold>: Change text specified by a `motion`. Examples:
+                </span>
+            }
+        />
+    )
+}
+export const ChangeWordKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="cw"
+            description={<span>Delete to the end of the current word and enter Insert mode.</span>}
+        />
+    )
+}
+
 export const HJKLKeys = (): JSX.Element => {
     return (
         <NoteWrapper style={{ margin: "2em 0em" }}>
