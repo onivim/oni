@@ -42,7 +42,7 @@ describe("<Tabs /> Tests", () => {
 
     it("Should render the correct number of tabs", () => {
         const wrapper = shallow(TestTabs)
-        expect(wrapper.children.length).toEqual(1)
+        expect(wrapper.children().length).toEqual(1)
     })
 
     it("Should not render if the visible prop is false", () => {
