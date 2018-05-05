@@ -18,6 +18,56 @@ import { PluginManager } from "./../Plugins/PluginManager"
 
 import { noop } from "./../Utility"
 
+import * as Common from "./../UI/components/common"
+
+import styled from "styled-components"
+
+const PluginIconWrapper = styled.div`
+    background-color: rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+`
+
+const PluginCommandsWrapper = styled.div`
+    flex: 0 0 auto;
+`
+
+const PluginInfoWrapper = styled.div`
+    flex: 1 1 auto;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    margin-left: 8px;
+    margin-right: 8px;
+`
+
+const PluginTitleWrapper = styled.div`
+    font-size: 1.1em;
+`
+
+export interface PluginSidebarItemViewProps {
+    name: string
+}
+
+export class PluginSidebarItemView extends React.PureComponent<PluginSidebarItemViewProps, {}> {
+    public render(): JSX.Element {
+        return (
+            <Common.Container direction={"horizontal"} fullWidth={true}>
+                <Common.Fixed style={{ width: "40px", height: "40px" }}>
+                    <Common.Center>
+                        <PluginIconWrapper />
+                    </Common.Center>
+                </Common.Fixed>
+                <PluginInfoWrapper>
+                    <PluginTitleWrapper>{this.props.name}</PluginTitleWrapper>
+                </PluginInfoWrapper>
+                <PluginCommandsWrapper />
+            </Common.Container>
+        )
+    }
+}
+
 export class PluginsSidebarPane implements SidebarPane {
     private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
@@ -62,6 +112,7 @@ export interface IPluginsSidebarPaneViewState {
     isActive: boolean
     defaultPluginsExpanded: boolean
     userPluginsExpanded: boolean
+    workspacePluginsExpanded: boolean
 }
 
 export class PluginsSidebarPaneView extends React.PureComponent<
@@ -77,6 +128,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
             isActive: false,
             defaultPluginsExpanded: false,
             userPluginsExpanded: true,
+            workspacePluginsExpanded: false,
         }
     }
 
@@ -107,6 +159,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
         const allIds = [
             "container.default",
             ...defaultPluginIds,
+            "container.workspace",
             "container.user",
             ...userPluginIds,
         ]
@@ -122,7 +175,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                             indentationLevel={0}
                             isFocused={p.id === selectedId}
                             isContainer={false}
-                            text={p.id}
+                            text={<PluginSidebarItemView name={p.name || p.id} />}
                             onClick={noop}
                         />
                     ))
@@ -132,7 +185,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                             indentationLevel={0}
                             isFocused={p.id === selectedId}
                             isContainer={false}
-                            text={p.id}
+                            text={<PluginSidebarItemView name={p.name || p.id} />}
                             onClick={noop}
                         />
                     ))
@@ -144,16 +197,25 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                                 isContainer={true}
                                 isExpanded={this.state.defaultPluginsExpanded}
                                 isFocused={selectedId === "container.default"}
-                                onClick={noop}
+                                onClick={() => this._onSelect("container.default")}
                             >
                                 {defaultPluginItems}
+                            </SidebarContainerView>
+                            <SidebarContainerView
+                                text={"Workspace"}
+                                isContainer={true}
+                                isExpanded={this.state.workspacePluginsExpanded}
+                                isFocused={selectedId === "container.workspace"}
+                                onClick={() => this._onSelect("container.workspace")}
+                            >
+                                {[]}
                             </SidebarContainerView>
                             <SidebarContainerView
                                 text={"User"}
                                 isContainer={true}
                                 isExpanded={this.state.userPluginsExpanded}
                                 isFocused={selectedId === "container.user"}
-                                onClick={noop}
+                                onClick={() => this._onSelect("container.user")}
                             >
                                 {userPluginItems}
                             </SidebarContainerView>
