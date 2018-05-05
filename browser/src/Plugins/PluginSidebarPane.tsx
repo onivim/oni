@@ -115,6 +115,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
             <VimNavigator
                 ids={allIds}
                 active={this.state.isActive}
+                onSelected={id => this._onSelect(id)}
                 render={(selectedId: string) => {
                     const defaultPluginItems = defaultPlugins.map(p => (
                         <SidebarItemView
@@ -139,7 +140,8 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                     return (
                         <div>
                             <SidebarContainerView
-                                text={"Default"}
+                                text={"Bundled"}
+                                isContainer={true}
                                 isExpanded={this.state.defaultPluginsExpanded}
                                 isFocused={selectedId === "container.default"}
                                 onClick={noop}
@@ -148,6 +150,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                             </SidebarContainerView>
                             <SidebarContainerView
                                 text={"User"}
+                                isContainer={true}
                                 isExpanded={this.state.userPluginsExpanded}
                                 isFocused={selectedId === "container.user"}
                                 onClick={noop}
@@ -159,6 +162,29 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                 }}
             />
         )
+    }
+
+    private _onSelect(id: string): void {
+        switch (id) {
+            case "container.default":
+                this._toggleDefaultPluginsExpanded()
+                return
+            case "container.user":
+                this._toggleUserPluginsExpanded()
+                return
+        }
+    }
+
+    private _toggleDefaultPluginsExpanded(): void {
+        this.setState({
+            defaultPluginsExpanded: !this.state.defaultPluginsExpanded,
+        })
+    }
+
+    private _toggleUserPluginsExpanded(): void {
+        this.setState({
+            userPluginsExpanded: !this.state.userPluginsExpanded,
+        })
     }
 
     private _clearExistingSubscriptions(): void {
