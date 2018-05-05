@@ -337,13 +337,14 @@ const MainTutorialSectionWrapper = styled.div`
     flex: 1 1 auto;
     width: 100%;
     height: 100%;
+    min-height: 275px;
 
     display: flex;
     align-items: center;
 `
 
 const PrimaryHeader = styled.div`
-    padding-top: 2em;
+    padding-top: 1em;
     font-size: 2em;
 `
 
@@ -469,7 +470,7 @@ export class TutorialBufferLayerView extends React.PureComponent<
                         <div
                             style={{
                                 width: "75%",
-                                height: "75%",
+                                height: "90%",
                                 boxShadow: "3px 7px 10px 7px rgba(0, 0, 0, 0.2)",
                             }}
                             ref={this.props.innerRef}
