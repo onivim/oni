@@ -12,16 +12,18 @@ import VersionControlProvider, { VCSBranchChangedEvent } from "./VersionControlP
 
 export class GitVersionControlProvider implements VersionControlProvider {
     private _onBranchChange = new Event<VCSBranchChangedEvent>()
+
     constructor(private _git = GitP) {}
 
     get onBranchChanged(): IEvent<VCSBranchChangedEvent> {
         return this._onBranchChange
     }
+
     public async getVCSRoot(): Promise<string | null> {
         try {
             return this._git().revparse(["--show-toplevel"])
         } catch (e) {
-            Log.warn(`unable to find vcs root due to ${e.message}`)
+            Log.warn(`Git provider unable to find vcs root due to ${e.message}`)
             return null
         }
     }
@@ -31,7 +33,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
             const isRepo = await this._git(currentDir).checkIsRepo()
             return isRepo && this._git(currentDir).diffSummary()
         } catch (error) {
-            Log.warn(`[Oni.Git.Plugin]: ${error.message}`)
+            Log.warn(`Git privider unable to get current status because of: ${error.message}`)
         }
     }
 
@@ -48,10 +50,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public changeVCSBranch = async (
-        targetBranch: string,
-        currentDir: string,
-    ): Promise<Error | void> => {
+    public async changeVCSBranch(targetBranch: string, currentDir: string): Promise<Error | void> {
         try {
             await this._git(currentDir).checkout(targetBranch)
             this._onBranchChange.dispatch(targetBranch)

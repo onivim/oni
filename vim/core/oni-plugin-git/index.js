@@ -35,6 +35,7 @@ const activate = Oni => {
             Oni.services.git.getVCSBranch(ws),
             Oni.services.git.getLocalVCSBranches(ws),
         ])
+        console.log("branches: ", branches)
 
         const menu = Oni.menu.create()
         const branchItems = branches.all.map(branch => ({
