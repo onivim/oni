@@ -4,32 +4,37 @@
  * Utilities around Git
  */
 
+import { Event, IEvent } from "oni-types"
 import * as GitP from "simple-git/promise"
+
 import * as Log from "./../Log"
 
-// const GitP = require("simple-git") // tslint:disable-line
-
+type VCSBranchChangedEvent = string
 export interface VersionControlProvider {
     // Events
-    // onBranchChanged: IEvent
     // onFileStatusChanged: IEvent
     // onStageFilesChanged: IEvent
+    onBranchChanged: IEvent<VCSBranchChangedEvent>
 
     // getHistory(filepath: string): Promise<DiffResult | null>
     getVCSStatus(projectRoot?: string): Promise<GitP.DiffResult | null>
     getVCSRoot(): Promise<string | null>
-    getBranch(path?: string): Promise<Error | string>
+    getVCSBranch(path?: string): Promise<Error | string>
+    getLocalVCSBranches(path?: string): Promise<GitP.BranchSummary | string>
 }
 
 export class GitVersionControlProvider implements VersionControlProvider {
+    private _onBranchChange = new Event<VCSBranchChangedEvent>()
     constructor(private _git = GitP) {}
 
+    get onBranchChanged(): IEvent<VCSBranchChangedEvent> {
+        return this._onBranchChange
+    }
     public async getVCSRoot(): Promise<string | null> {
         try {
-            const rootDir = await this._git().revparse(["--show-toplevel"])
-            Log.info(`Git Root Directory is ${rootDir}`)
-            return rootDir
+            return this._git().revparse(["--show-toplevel"])
         } catch (e) {
+            Log.warn(`unable to find vcs root due to ${e.message}`)
             return null
         }
     }
@@ -44,16 +49,23 @@ export class GitVersionControlProvider implements VersionControlProvider {
             })
     }
 
-    public getBranches(currentDir?: string): Promise<GitP.BranchSummary> {
+    public getLocalVCSBranches(currentDir?: string): Promise<GitP.BranchSummary> {
         return this._git(currentDir).branchLocal()
     }
 
-    public getBranch(currentDir?: string): Promise<string> {
+    public getVCSBranch(currentDir?: string): Promise<string> {
         return this._git(currentDir)
             .status()
-            .then((status: any) => {
-                return (status && status.current) || ""
-            })
+            .then((status: GitP.StatusResult) => status.current)
+    }
+
+    public async changeVCSBranch(targetBranch: string, currentDir: string): Promise<Error | void> {
+        try {
+            await this._git(currentDir).checkout(targetBranch)
+            this._onBranchChange.dispatch(targetBranch)
+        } catch (e) {
+            return e
+        }
     }
 }
 

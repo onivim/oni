@@ -5,151 +5,140 @@ const fsStat = promisify(fs.stat)
 
 const activate = Oni => {
     const React = Oni.dependencies.React
-    let isLoaded = false
-    try {
-        const updateBranchIndicator = async evt => {
-            if (!evt) {
-                return
-            }
 
-            const gitId = "oni.status.git"
-            const filePath = evt.filePath || evt.bufferFullPath
-            const gitBranchIndicator = Oni.statusBar.createItem(1, gitId)
+    const branchIcon = Oni.ui.createIcon({
+        name: "code-fork",
+        size: Oni.ui.iconSize.Default,
+    })
 
-            isLoaded = true
-            let dir
-
-            try {
-                let branchName, summary
-                const ws = Oni.workspace.activeWorkspace
-                try {
-                    branchName = await Oni.services.git.getBranch(ws)
-                    summary = await Oni.services.git.getVCSStatus(ws)
-                    console.log("summary", summary)
-                    const branches = await Oni.services.git.getBranches(ws)
-                    console.log("branches", branches)
-                } catch (e) {
-                    console.warn("[Oni.Git.Plugin]: ", e)
-                    gitBranchIndicator.hide()
-                    return
-                }
-
-                const props = {
-                    style: {
-                        height: "100%",
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                    },
-                }
-
-                const branchContainerProps = {
-                    style: {
-                        minWidth: "10px",
-                        textAlign: "center",
-                        padding: "2px 4px 0 0",
-                    },
-                }
-
-                const branchIcon = Oni.ui.createIcon({
-                    name: "code-fork",
-                    size: Oni.ui.iconSize.Default,
-                })
-
-                let components = []
-                if (summary && (summary.insertions || summary.deletions)) {
-                    const { insertions, deletions, files } = summary
-                    const { activeBuffer: { filePath } } = Oni.editors.activeEditor
-
-                    const perFile = files.reduce((acc, modified) => {
-                        if (filePath.includes(modified.file)) {
-                            acc.insertions = modified.insertions
-                            acc.deletions = modified.deletions
-                        }
-                        return acc
-                    }, {})
-
-                    const iconStyles = { style: { fontSize: "0.7rem", paddingRight: "0.15rem" } }
-
-                    let minusIcon = null
-                    let minusContainer = null
-                    let plusIcon = null
-                    let plusContainer = null
-                    let insertionSpan = null
-                    let deletionSpan = null
-
-                    if (insertions) {
-                        plusIcon = Oni.ui.createIcon({ name: "plus" })
-                        plusContainer = React.createElement("span", iconStyles, plusIcon)
-
-                        insertionSpan = React.createElement("span", null, [
-                            plusContainer,
-                            `${insertions || ``}`,
-                        ])
-                    }
-                    if (deletions) {
-                        minusIcon = Oni.ui.createIcon({ name: "minus" })
-                        minusContainer = React.createElement("span", iconStyles, minusIcon)
-
-                        deletionSpan = React.createElement("span", null, [
-                            minusContainer,
-                            `${deletions || ``}`,
-                        ])
-                    }
-
-                    let spacer = null
-
-                    if (deletions && insertions) {
-                        spacer = React.createElement("span", null, ", ")
-                    }
-
-                    components = [...components, insertionSpan, spacer, deletionSpan]
-                }
-
-                const branchContainer = React.createElement(
-                    "span",
-                    branchContainerProps,
-                    branchIcon,
-                )
-
-                const branchNameContainer = React.createElement("div", { width: "100%" }, [
-                    `${branchName} `,
-                    ...components,
-                ])
-
-                const gitBranch = React.createElement(
-                    "div",
-                    props,
-                    branchContainer,
-                    branchNameContainer,
-                )
-
-                gitBranchIndicator.setContents(gitBranch)
-                gitBranchIndicator.show()
-            } catch (e) {
-                console.log("[Oni.plugin.git]: ", e)
-                return gitBranchIndicator.hide()
-            }
-        }
-
-        if (!isLoaded) {
-            updateBranchIndicator(Oni.editors.activeEditor.activeBuffer)
-        }
-
-        Oni.editors.activeEditor.onBufferEnter.subscribe(
-            async evt => await updateBranchIndicator(evt),
-        )
-
-        Oni.editors.activeEditor.onBufferSaved.subscribe(
-            async evt => await updateBranchIndicator(evt),
-        )
-
-        Oni.workspace.onFocusGained.subscribe(async buffer => await updateBranchIndicator(buffer))
-    } catch (e) {
-        console.warn("[Oni.plugin.git] ERROR", e)
+    const props = {
+        style: {
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+        },
     }
+
+    const branchContainerProps = {
+        style: {
+            minWidth: "10px",
+            textAlign: "center",
+            padding: "2px 4px 0 0",
+        },
+    }
+
+    const createBranchList = async Oni => {
+        const { workspace: { activeWorkspace: ws } } = Oni
+
+        const [currentBranch, branches] = await Promise.all([
+            Oni.services.git.getVCSBranch(ws),
+            Oni.services.git.getLocalVCSBranches(ws),
+        ])
+
+        const menu = Oni.menu.create()
+        const branchItems = branches.all.map(branch => ({
+            label: branch,
+            icon: branchIcon,
+            pinned: currentBranch === branch,
+        }))
+
+        menu.show()
+        menu.setItems(branchItems)
+        menu.onItemSelected.subscribe(
+            menuItem =>
+                menuItem && menuItem.label && Oni.services.git.changeVCSBranch(menuItem.label, ws),
+        )
+    }
+
+    Oni.commands.registerCommand({
+        command: "oni.git.branches",
+        name: "Local Git Branches",
+        detail: "Open a menu with a list of all local branches",
+        execute: () => createBranchList(Oni),
+    })
+
+    const createGitIcon = ({ styles, type, number }) => {
+        if (!number) return
+        const Icon = Oni.ui.createIcon({ name: `${type}-circle` })
+        const Container = React.createElement("span", styles, Icon)
+        const NumberContainer = React.createElement(
+            "span",
+            { style: { paddingLeft: "0.25rem" } },
+            number,
+        )
+
+        return React.createElement("span", null, [Container, NumberContainer])
+    }
+
+    const addDeletionsAndInsertions = (summary, filePath) => {
+        if (summary && (summary.insertions || summary.deletions)) {
+            const { insertions, deletions, files } = summary
+
+            const [insertionSpan, deletionSpan] = [
+                {
+                    type: "plus",
+                    number: insertions,
+                    style: { fontSize: "0.7rem", padding: "0 0.15rem", color: "green" },
+                },
+                {
+                    type: "minus",
+                    number: deletions,
+                    style: { fontSize: "0.7rem", padding: "0 0.15rem", color: "red" },
+                },
+            ].map(createGitIcon)
+
+            const hasBoth = deletions && insertions
+            const spacer = hasBoth && React.createElement("span", null, ", ")
+
+            return [insertionSpan, spacer, deletionSpan]
+        }
+        return []
+    }
+
+    const updateBranchIndicator = async branchName => {
+        const gitId = "oni.status.git"
+        const gitBranchIndicator = Oni.statusBar.createItem(1, gitId)
+        const { filePath } = Oni.editors.activeEditor.activeBuffer
+
+        try {
+            const { activeWorkspace: ws } = Oni.workspace
+            const branch = branchName || (await Oni.services.git.getVCSBranch(ws))
+            if (!branch) throw new Error("The branch name could not be found")
+            const summary = await Oni.services.git.getVCSStatus(ws)
+
+            const branchContainer = React.createElement("span", branchContainerProps, branchIcon)
+            const deletionsAndInsertions = addDeletionsAndInsertions(summary, filePath)
+
+            const branchNameContainer = React.createElement("div", { width: "100%" }, [
+                `${branch} `,
+                ...deletionsAndInsertions,
+            ])
+
+            const gitBranch = React.createElement(
+                "div",
+                props,
+                branchContainer,
+                branchNameContainer,
+            )
+            gitBranchIndicator.setContents(gitBranch)
+            gitBranchIndicator.show()
+        } catch (e) {
+            console.log("Oni git plugin encountered an error: ", e)
+            return gitBranchIndicator.hide()
+        }
+    }
+
+    updateBranchIndicator()
+
+    Oni.editors.activeEditor.onBufferEnter.subscribe(async () => await updateBranchIndicator())
+
+    Oni.services.git.onBranchChanged.subscribe(
+        async newBranch => await updateBranchIndicator(newBranch),
+    )
+
+    Oni.editors.activeEditor.onBufferSaved.subscribe(async () => await updateBranchIndicator())
+    Oni.workspace.onFocusGained.subscribe(async () => await updateBranchIndicator())
 }
 
-module.exports = {
-    activate,
-}
+module.exports = { activate }
