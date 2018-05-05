@@ -125,8 +125,6 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<enter>", "menu.select")
     input.bind(["<enter>", "<space>"], "select")
 
-    input.bind("<delete>", "explorer.delete")
-
     // TODO: Scope 's' to just the local window
     input.bind("<c-g>", "sneak.show", () => isNormalMode() && !menu.isMenuOpen())
     input.bind(["<esc>", "<c-c>"], "sneak.hide")
@@ -135,7 +133,9 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     // Explorer
     input.bind("d", "explorer.delete.persist", isExplorerActive)
+    input.bind("<c-delete>", "explorer.delete.persist", isExplorerActive)
     input.bind("<c-d>", "explorer.delete", isExplorerActive)
+    input.bind("<delete>", "explorer.delete", isExplorerActive)
     input.bind("y", "explorer.yank", isExplorerActive)
     input.bind("p", "explorer.paste", isExplorerActive)
     input.bind("u", "explorer.undo", isExplorerActive)
@@ -144,6 +144,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("r", "explorer.rename", isExplorerActive)
     input.bind("<c-e>", "explorer.create.file", isExplorerActive)
     input.bind("<c-f>", "explorer.create.folder", isExplorerActive)
+    input.bind("<c-r>", "explorer.refresh", isExplorerActive)
 
     // Browser
     input.bind("k", "browser.scrollUp")
