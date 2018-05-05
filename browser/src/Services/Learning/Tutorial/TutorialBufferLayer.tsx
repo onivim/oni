@@ -362,6 +362,14 @@ const Section = styled.div`
     padding-bottom: 2em;
 `
 
+const DescriptionWrapper = styled.div`
+    display: none;
+
+    @media (min-height: 800px) {
+        display: block;
+    }
+`
+
 export interface IModeStatusBarItemProps {
     mode: string
 }
@@ -536,8 +544,10 @@ export class TutorialBufferLayerView extends React.PureComponent<
                         </div>
                     </MainTutorialSectionWrapper>
                     <TutorialSectionWrapper>
-                        <SectionHeader>Description:</SectionHeader>
-                        <Section>{description}</Section>
+                        <DescriptionWrapper>
+                            <SectionHeader>Description:</SectionHeader>
+                            <Section>{description}</Section>
+                        </DescriptionWrapper>
                         <SectionHeader>Goals:</SectionHeader>
                         <Section style={{ height: "200px" }}>
                             <div>{goalsToDisplay}</div>
