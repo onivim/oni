@@ -1,4 +1,4 @@
-import { mount, shallow } from "enzyme"
+import { shallow } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
 
@@ -29,18 +29,22 @@ describe("<Tabs /> Tests", () => {
             tabs={testTabs}
         />
     )
+
     it("renders without crashing", () => {
         const wrapper = shallow(TestTabs)
         expect(wrapper.length).toEqual(1)
     })
+
     it("should match last known snapshot unless we make a change", () => {
         const wrapper = shallow(TestTabs)
         expect(shallowToJson(wrapper)).toMatchSnapshot()
     })
+
     it("Should render the correct number of tabs", () => {
         const wrapper = shallow(TestTabs)
         expect(wrapper.children.length).toEqual(1)
     })
+
     it("Should not render if the visible prop is false", () => {
         const wrapper = shallow(
             <Tabs
