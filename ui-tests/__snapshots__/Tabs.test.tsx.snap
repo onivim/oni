@@ -26,6 +26,7 @@ exports[`<Tabs /> Tests should match last known snapshot unless we make a change
     name="test"
     onClickClose={[Function]}
     onClickName={[Function]}
+    onMiddleClick={[Function]}
   />
 </div>
 `;
