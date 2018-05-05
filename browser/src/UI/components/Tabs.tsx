@@ -90,6 +90,9 @@ export class Tabs extends React.PureComponent<ITabsProps, {}> {
                     {...t}
                     onClickName={() => this._onSelect(t.id)}
                     onClickClose={() => this._onClickClose(t.id)}
+                    onMiddleClick={(event: React.MouseEvent<HTMLElement>) =>
+                        this._isMiddleClick(event) && this._onMiddleClick(t.id)
+                    }
                     backgroundColor={this.props.backgroundColor}
                     foregroundColor={this.props.foregroundColor}
                     height={this.props.height}
@@ -112,11 +115,20 @@ export class Tabs extends React.PureComponent<ITabsProps, {}> {
     private _onClickClose(id: number): void {
         this.props.onClose(id)
     }
+
+    private _onMiddleClick(id: number): void {
+        this.props.onClose(id)
+    }
+
+    private _isMiddleClick(event: React.MouseEvent<HTMLElement>): boolean {
+        return event.button === 1
+    }
 }
 
 export interface ITabPropsWithClick extends ITabProps {
     onClickName: () => void
     onClickClose: () => void
+    onMiddleClick: (e: React.MouseEvent<HTMLElement>) => void
 
     backgroundColor: string
     foregroundColor: string
@@ -175,14 +187,22 @@ export class Tab extends React.Component<ITabPropsWithClick> {
                     title={this.props.description}
                     style={style}
                 >
-                    <div className="corner" onClick={this.props.onClickName}>
+                    <div
+                        className="corner"
+                        onClick={this.props.onClickName}
+                        onMouseDown={this.props.onMiddleClick}
+                    >
                         <FileIcon
                             fileName={this.props.iconFileName}
                             isLarge={true}
                             playAppearAnimation={true}
                         />
                     </div>
-                    <div className="name" onClick={this.props.onClickName}>
+                    <div
+                        className="name"
+                        onClick={this.props.onClickName}
+                        onMouseDown={this.props.onMiddleClick}
+                    >
                         <InnerName>{this.props.name}</InnerName>
                     </div>
                     <div className="corner enable-hover" onClick={this.props.onClickClose}>
