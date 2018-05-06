@@ -7,6 +7,7 @@ import * as React from "react"
 import * as DND from "react-dnd"
 import HTML5Backend from "react-dnd-html5-backend"
 import { connect } from "react-redux"
+import { AutoSizer, List } from "react-virtualized"
 import { compose } from "redux"
 
 import { CSSTransition, TransitionGroup } from "react-transition-group"
@@ -26,7 +27,6 @@ import { IExplorerState } from "./ExplorerStore"
 type Node = ExplorerSelectors.ExplorerNode
 
 export interface INodeViewProps {
-    explorerElement?: HTMLElement
     moveFileOrFolder: (source: Node, dest: Node) => void
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
@@ -59,19 +59,9 @@ interface IChromeElement extends HTMLElement {
     scrollIntoViewIfNeeded: (opts?: ScrollViewOpts) => void
 }
 
-function isElementInViewport(el: IChromeElement) {
-    const rect = el.getBoundingClientRect()
-    const inView =
-        rect.top >= 0 &&
-        rect.left >= 0 &&
-        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-    return inView
-}
-
-const scrollIntoViewIfNeeded = (elem: IChromeElement, explorerElement: HTMLElement) => {
+const scrollIntoViewIfNeeded = (elem: IChromeElement) => {
     if (elem && elem.scrollIntoViewIfNeeded) {
-        elem.scrollIntoViewIfNeeded(isElementInViewport(elem))
+        elem.scrollIntoViewIfNeeded(false)
     }
 }
 
@@ -157,8 +147,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
                 style={{ cursor: "pointer" }}
                 innerRef={
                     this.props.isSelected
-                        ? (elem: IChromeElement) =>
-                              scrollIntoViewIfNeeded(elem, this.props.explorerElement)
+                        ? (elem: IChromeElement) => scrollIntoViewIfNeeded(elem)
                         : () => ({})
                 }
             >
@@ -301,8 +290,33 @@ import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView
 
 import { commandManager } from "./../CommandManager"
 
+interface ISneakableNode extends IExplorerViewProps {
+    node: Node
+    selectedId: string
+}
+
+const SneakableNode = ({ node, selectedId, ...props }: ISneakableNode) => {
+    return (
+        <Sneakable callback={() => props.onClick(node.id)}>
+            <NodeView
+                node={node}
+                isSelected={node.id === selectedId}
+                isCreating={props.isCreating}
+                onCancelCreate={props.onCancelCreate}
+                onCompleteCreate={props.onCompleteCreate}
+                onCompleteRename={props.onCompleteRename}
+                isRenaming={props.isRenaming}
+                onCancelRename={props.onCancelRename}
+                updated={props.updated}
+                yanked={props.yanked}
+                moveFileOrFolder={props.moveFileOrFolder}
+                onClick={() => props.onClick(node.id)}
+            />
+        </Sneakable>
+    )
+}
+
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
-    private _explorerElem: HTMLElement
     public render(): JSX.Element {
         const ids = this.props.nodes.map(node => node.id)
 
@@ -321,36 +335,35 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
             <TransitionGroup>
                 <VimNavigator
                     ids={ids}
-                    active={this.props.isActive && !this.props.isRenaming && !this.props.isCreating}
                     onSelectionChanged={this.props.onSelectionChanged}
                     onSelected={id => this.props.onClick(id)}
+                    active={this.props.isActive && !this.props.isRenaming && !this.props.isCreating}
                     render={(selectedId: string) => {
-                        const nodes = this.props.nodes.map(node => (
-                            <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
-                                <NodeView
-                                    node={node}
-                                    explorerElement={this._explorerElem}
-                                    isSelected={node.id === selectedId}
-                                    isCreating={this.props.isCreating}
-                                    onCancelCreate={this.props.onCancelCreate}
-                                    onCompleteCreate={this.props.onCompleteCreate}
-                                    onCompleteRename={this.props.onCompleteRename}
-                                    isRenaming={this.props.isRenaming}
-                                    onCancelRename={this.props.onCancelRename}
-                                    updated={this.props.updated}
-                                    yanked={this.props.yanked}
-                                    moveFileOrFolder={this.props.moveFileOrFolder}
-                                    onClick={() => this.props.onClick(node.id)}
-                                />
-                            </Sneakable>
-                        ))
-
+                        const selectedIndex = this.props.nodes.findIndex(n => selectedId === n.id)
                         return (
-                            <div
-                                ref={e => (this._explorerElem = e)}
-                                className="explorer enable-mouse"
-                            >
-                                <div className="items">{nodes}</div>
+                            <div className="explorer enable-mouse">
+                                <AutoSizer>
+                                    {({ height, width }) => (
+                                        <List
+                                            height={height}
+                                            width={width}
+                                            rowHeight={20}
+                                            rowCount={this.props.nodes.length}
+                                            scrollToIndex={selectedIndex}
+                                            rowRenderer={({ index }) => {
+                                                const node = this.props.nodes[index]
+                                                return (
+                                                    <SneakableNode
+                                                        {...this.props}
+                                                        node={node}
+                                                        key={node.id}
+                                                        selectedId={selectedId}
+                                                    />
+                                                )
+                                            }}
+                                        />
+                                    )}
+                                </AutoSizer>
                             </div>
                         )
                     }}
