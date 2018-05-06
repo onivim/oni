@@ -26,6 +26,7 @@ import { IExplorerState } from "./ExplorerStore"
 type Node = ExplorerSelectors.ExplorerNode
 
 export interface INodeViewProps {
+    explorerElement?: HTMLElement
     moveFileOrFolder: (source: Node, dest: Node) => void
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
@@ -46,12 +47,34 @@ export const NodeWrapper = styled.div`
     }
 `
 
-// tslint:disable-next-line
-const noop = (elem: HTMLElement) => {}
-const scrollIntoViewIfNeeded = (elem: HTMLElement) => {
-    // tslint:disable-next-line
-    elem && elem["scrollIntoViewIfNeeded"] && elem["scrollIntoViewIfNeeded"]()
+interface IOpts {
+    behavior: string
+    block: string
+    inline: string
 }
+
+type ScrollViewOpts = IOpts | boolean
+
+interface IChromeElement extends HTMLElement {
+    scrollIntoViewIfNeeded: (opts?: ScrollViewOpts) => void
+}
+
+function isElementInViewport(el: IChromeElement) {
+    const rect = el.getBoundingClientRect()
+    const inView =
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    return inView
+}
+
+const scrollIntoViewIfNeeded = (elem: IChromeElement, explorerElement: HTMLElement) => {
+    if (elem && elem.scrollIntoViewIfNeeded) {
+        elem.scrollIntoViewIfNeeded(isElementInViewport(elem))
+    }
+}
+
 const stopPropagation = (fn: () => void) => {
     return (e?: React.MouseEvent<HTMLElement>) => {
         if (e) {
@@ -132,7 +155,12 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
         return (
             <NodeWrapper
                 style={{ cursor: "pointer" }}
-                innerRef={this.props.isSelected ? scrollIntoViewIfNeeded : noop}
+                innerRef={
+                    this.props.isSelected
+                        ? (elem: IChromeElement) =>
+                              scrollIntoViewIfNeeded(elem, this.props.explorerElement)
+                        : () => ({})
+                }
             >
                 {renameInProgress ? (
                     <TextInputView
@@ -274,6 +302,7 @@ import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView
 import { commandManager } from "./../CommandManager"
 
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
+    private _explorerElem: HTMLElement
     public render(): JSX.Element {
         const ids = this.props.nodes.map(node => node.id)
 
@@ -300,6 +329,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                             <Sneakable callback={() => this.props.onClick(node.id)} key={node.id}>
                                 <NodeView
                                     node={node}
+                                    explorerElement={this._explorerElem}
                                     isSelected={node.id === selectedId}
                                     isCreating={this.props.isCreating}
                                     onCancelCreate={this.props.onCancelCreate}
@@ -316,7 +346,10 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                         ))
 
                         return (
-                            <div className="explorer enable-mouse">
+                            <div
+                                ref={e => (this._explorerElem = e)}
+                                className="explorer enable-mouse"
+                            >
                                 <div className="items">{nodes}</div>
                             </div>
                         )
