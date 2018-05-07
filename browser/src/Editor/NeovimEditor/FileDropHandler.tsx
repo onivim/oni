@@ -7,6 +7,14 @@ interface IFileDropHandler {
 
 type DragTypeName = "ondragover" | "ondragleave" | "ondragenter"
 
+/**
+ * Takes an element (which can accept drag and drop events) and a file drop event listener to it
+ * N.B. the element cannot be obscured as this will prevent event transmission
+ * @name FileDropHandler
+ * @function
+ *
+ * @extends {React}
+ */
 export default class FileDropHandler extends React.Component<IFileDropHandler> {
     public componentDidMount() {
         this.addDropHandler()
@@ -24,6 +32,7 @@ export default class FileDropHandler extends React.Component<IFileDropHandler> {
         }
 
         const dragTypes = ["ondragenter", "ondragover", "ondragleave"]
+
         dragTypes.map((event: DragTypeName) => {
             if (this.props.target[event]) {
                 this.props.target[event] = ev => {
