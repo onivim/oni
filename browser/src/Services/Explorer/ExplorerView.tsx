@@ -14,11 +14,13 @@ import { CSSTransition, TransitionGroup } from "react-transition-group"
 
 import { css, enableMouse, styled } from "./../../UI/components/common"
 import { TextInputView } from "./../../UI/components/LightweightText"
+import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 import { DragAndDrop, Droppeable } from "./../DragAndDrop"
 
+import { commandManager } from "./../CommandManager"
 import { FileIcon } from "./../FileIcon"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
@@ -263,24 +265,18 @@ export interface IExplorerViewProps extends IExplorerViewContainerProps {
     updated: string[]
 }
 
-import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
-
-import { commandManager } from "./../CommandManager"
-
 interface ISneakableNode extends IExplorerViewProps {
     node: Node
     selectedId: string
-    list: List
 }
 
 const SneakableNode = ({ node, selectedId, ...props }: ISneakableNode) => {
-    // if (node.type === "folder" && node.expanded) {
-    //     props.list.recomputeRowHeights()
-    //     props.list.forceUpdate()
-    // }
+    const handleClick = () => {
+        props.onClick(node.id)
+    }
 
     return (
-        <Sneakable callback={() => props.onClick(node.id)}>
+        <Sneakable callback={handleClick}>
             <NodeView
                 node={node}
                 isSelected={node.id === selectedId}
@@ -293,7 +289,7 @@ const SneakableNode = ({ node, selectedId, ...props }: ISneakableNode) => {
                 updated={props.updated}
                 yanked={props.yanked}
                 moveFileOrFolder={props.moveFileOrFolder}
-                onClick={() => props.onClick(node.id)}
+                onClick={handleClick}
             />
         </Sneakable>
     )
@@ -305,7 +301,6 @@ const ExplorerContainer = styled.div`
 `
 
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
-    private _list: List
     public render(): JSX.Element {
         const ids = this.props.nodes.map(node => node.id)
 
@@ -335,22 +330,24 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                                 <AutoSizer>
                                     {({ height, width }) => (
                                         <List
-                                            ref={e => (this._list = e)}
                                             height={height}
                                             width={width}
                                             rowHeight={25}
+                                            overscanRowCount={10}
+                                            scrollToAlignment="center"
                                             rowCount={this.props.nodes.length}
                                             scrollToIndex={selectedIndex}
-                                            rowRenderer={({ index }) => {
+                                            rowRenderer={({ index, style }) => {
                                                 const node = this.props.nodes[index]
                                                 return (
-                                                    <SneakableNode
-                                                        {...this.props}
-                                                        node={node}
-                                                        key={node.id}
-                                                        selectedId={selectedId}
-                                                        list={this._list}
-                                                    />
+                                                    <div style={style}>
+                                                        <SneakableNode
+                                                            {...this.props}
+                                                            node={node}
+                                                            key={node.id}
+                                                            selectedId={selectedId}
+                                                        />
+                                                    </div>
                                                 )
                                             }}
                                         />
