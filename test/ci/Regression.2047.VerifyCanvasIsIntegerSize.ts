@@ -11,11 +11,12 @@ const isInteger = (num: number) => {
 }
 
 const assertCanvasIsIntegerSize = (canvasElement: HTMLElement) => {
-    const offsetWidth = canvasElement.offsetWidth
-    const offsetHeight = canvasElement.offsetHeight
+    const rect = canvasElement.getBoundingClientRect()
+    const measuredWidth = rect.width
+    const measuredHeight = rect.height
 
-    assert.ok(isInteger(offsetWidth), "Validate the canvas's width is an integer value")
-    assert.ok(isInteger(offsetHeight), "Validate the canvas's height is an integer value")
+    assert.ok(isInteger(measuredWidth), "Validate the canvas's width is an integer value")
+    assert.ok(isInteger(measuredHeight), "Validate the canvas's height is an integer value")
 }
 
 export const test = async (oni: Oni.Plugin.Api) => {
