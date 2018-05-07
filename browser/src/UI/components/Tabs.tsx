@@ -65,6 +65,16 @@ const InnerName = styled.span`
 `
 
 export class Tabs extends React.PureComponent<ITabsProps, {}> {
+    private _boundOnSelect: (tabId: number) => void
+    private _boundOnClose: (tabId: number) => void
+
+    constructor(props: ITabsProps) {
+        super(props)
+
+        this._boundOnSelect = (id: number) => this._onSelect(id)
+        this._boundOnClose = (id: number) => this._onClickClose(id)
+    }
+
     public render(): JSX.Element {
         if (!this.props.visible) {
             return null
@@ -88,8 +98,8 @@ export class Tabs extends React.PureComponent<ITabsProps, {}> {
                 <Tab
                     key={t.id}
                     {...t}
-                    onClickName={() => this._onSelect(t.id)}
-                    onClickClose={() => this._onClickClose(t.id)}
+                    onClickName={this._boundOnSelect}
+                    onClickClose={this._boundOnClose}
                     onMiddleClick={(event: React.MouseEvent<HTMLElement>) =>
                         this._isMiddleClick(event) && this._onMiddleClick(t.id)
                     }
@@ -126,8 +136,8 @@ export class Tabs extends React.PureComponent<ITabsProps, {}> {
 }
 
 export interface ITabPropsWithClick extends ITabProps {
-    onClickName: () => void
-    onClickClose: () => void
+    onClickName: (id: number) => void
+    onClickClose: (id: number) => void
     onMiddleClick: (e: React.MouseEvent<HTMLElement>) => void
 
     backgroundColor: string
@@ -150,19 +160,17 @@ interface IChromeDivElement extends HTMLDivElement {
     scrollIntoViewIfNeeded: (args: { behavior: string; block: string; inline: string }) => void
 }
 
-export class Tab extends React.Component<ITabPropsWithClick> {
+export class Tab extends React.PureComponent<ITabPropsWithClick> {
     private _tab: IChromeDivElement
-    public componentWillReceiveProps(next: ITabPropsWithClick) {
-        if (next.isSelected && this._tab) {
-            if (this._tab.scrollIntoViewIfNeeded) {
-                this._tab.scrollIntoViewIfNeeded({
-                    behavior: "smooth",
-                    block: "center",
-                    inline: "center",
-                })
-            }
-        }
+
+    public componentDidUpdate() {
+        this._checkIfShouldScroll()
     }
+
+    public componentDidMount(): void {
+        this._checkIfShouldScroll()
+    }
+
     public render() {
         const cssClasses = classNames("tab", {
             selected: this.props.isSelected,
@@ -180,7 +188,7 @@ export class Tab extends React.Component<ITabPropsWithClick> {
         }
 
         return (
-            <Sneakable callback={() => this.props.onClickName()}>
+            <Sneakable callback={this.props.onClickName}>
                 <TabWrapper
                     innerRef={(e: IChromeDivElement) => (this._tab = e)}
                     className={cssClasses}
@@ -189,7 +197,7 @@ export class Tab extends React.Component<ITabPropsWithClick> {
                 >
                     <div
                         className="corner"
-                        onClick={this.props.onClickName}
+                        onClick={() => this.props.onClickName(this.props.id)}
                         onMouseDown={this.props.onMiddleClick}
                     >
                         <FileIcon
@@ -200,12 +208,15 @@ export class Tab extends React.Component<ITabPropsWithClick> {
                     </div>
                     <div
                         className="name"
-                        onClick={this.props.onClickName}
+                        onClick={() => this.props.onClickName(this.props.id)}
                         onMouseDown={this.props.onMiddleClick}
                     >
                         <InnerName>{this.props.name}</InnerName>
                     </div>
-                    <div className="corner enable-hover" onClick={this.props.onClickClose}>
+                    <div
+                        className="corner enable-hover"
+                        onClick={() => this.props.onClickClose(this.props.id)}
+                    >
                         <div className="icon-container x-icon-container">
                             <Icon name="times" />
                         </div>
@@ -216,6 +227,18 @@ export class Tab extends React.Component<ITabPropsWithClick> {
                 </TabWrapper>
             </Sneakable>
         )
+    }
+
+    private _checkIfShouldScroll(): void {
+        if (this.props.isSelected && this._tab) {
+            if (this._tab.scrollIntoViewIfNeeded) {
+                this._tab.scrollIntoViewIfNeeded({
+                    behavior: "smooth",
+                    block: "center",
+                    inline: "center",
+                })
+            }
+        }
     }
 }
 
