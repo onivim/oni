@@ -40,8 +40,8 @@ export interface ITabContainerProps {
 }
 
 export interface ITabsProps {
-    onSelect?: (id: number) => void
-    onClose?: (id: number) => void
+    onTabSelect?: (id: number) => void
+    onTabClose?: (id: number) => void
 
     visible: boolean
     tabs: ITabProps[]
@@ -65,16 +65,6 @@ const InnerName = styled.span`
 `
 
 export class Tabs extends React.PureComponent<ITabsProps, {}> {
-    private _boundOnSelect: (tabId: number) => void
-    private _boundOnClose: (tabId: number) => void
-
-    constructor(props: ITabsProps) {
-        super(props)
-
-        this._boundOnSelect = (id: number) => this._onSelect(id)
-        this._boundOnClose = (id: number) => this._onClickClose(id)
-    }
-
     public render(): JSX.Element {
         if (!this.props.visible) {
             return null
@@ -98,11 +88,8 @@ export class Tabs extends React.PureComponent<ITabsProps, {}> {
                 <Tab
                     key={t.id}
                     {...t}
-                    onClickName={this._boundOnSelect}
-                    onClickClose={this._boundOnClose}
-                    onMiddleClick={(event: React.MouseEvent<HTMLElement>) =>
-                        this._isMiddleClick(event) && this._onMiddleClick(t.id)
-                    }
+                    onSelect={this.props.onTabSelect}
+                    onClose={this.props.onTabClose}
                     backgroundColor={this.props.backgroundColor}
                     foregroundColor={this.props.foregroundColor}
                     height={this.props.height}
@@ -117,28 +104,11 @@ export class Tabs extends React.PureComponent<ITabsProps, {}> {
             </div>
         )
     }
-
-    private _onSelect(id: number): void {
-        this.props.onSelect(id)
-    }
-
-    private _onClickClose(id: number): void {
-        this.props.onClose(id)
-    }
-
-    private _onMiddleClick(id: number): void {
-        this.props.onClose(id)
-    }
-
-    private _isMiddleClick(event: React.MouseEvent<HTMLElement>): boolean {
-        return event.button === 1
-    }
 }
 
 export interface ITabPropsWithClick extends ITabProps {
-    onClickName: (id: number) => void
-    onClickClose: (id: number) => void
-    onMiddleClick: (e: React.MouseEvent<HTMLElement>) => void
+    onSelect: (id: number) => void
+    onClose: (id: number) => void
 
     backgroundColor: string
     foregroundColor: string
@@ -187,36 +157,28 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
             borderTop: "2px solid " + this.props.highlightColor,
         }
 
+        const handleTitleClick = this._handleTitleClick.bind(this)
+        const handleCloseButtonClick = this._handleCloseButtonClick.bind(this)
+
         return (
-            <Sneakable callback={this.props.onClickName}>
+            <Sneakable callback={this.props.onSelect}>
                 <TabWrapper
                     innerRef={(e: IChromeDivElement) => (this._tab = e)}
                     className={cssClasses}
                     title={this.props.description}
                     style={style}
                 >
-                    <div
-                        className="corner"
-                        onClick={() => this.props.onClickName(this.props.id)}
-                        onMouseDown={this.props.onMiddleClick}
-                    >
+                    <div className="corner" onMouseDown={handleTitleClick}>
                         <FileIcon
                             fileName={this.props.iconFileName}
                             isLarge={true}
                             playAppearAnimation={true}
                         />
                     </div>
-                    <div
-                        className="name"
-                        onClick={() => this.props.onClickName(this.props.id)}
-                        onMouseDown={this.props.onMiddleClick}
-                    >
+                    <div className="name" onMouseDown={event => handleTitleClick}>
                         <InnerName>{this.props.name}</InnerName>
                     </div>
-                    <div
-                        className="corner enable-hover"
-                        onClick={() => this.props.onClickClose(this.props.id)}
-                    >
+                    <div className="corner enable-hover" onClick={handleCloseButtonClick}>
                         <div className="icon-container x-icon-container">
                             <Icon name="times" />
                         </div>
@@ -239,6 +201,26 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
                 })
             }
         }
+    }
+
+    private _handleTitleClick(event: React.MouseEvent<HTMLElement>): void {
+        if (this._isLeftClick(event)) {
+            this.props.onSelect(this.props.id)
+        } else if (this._isMiddleClick(event)) {
+            this.props.onClose(this.props.id)
+        }
+    }
+
+    private _handleCloseButtonClick(): void {
+        this.props.onClose(this.props.id)
+    }
+
+    private _isMiddleClick(event: React.MouseEvent<HTMLElement>): boolean {
+        return event.button === 1
+    }
+
+    private _isLeftClick(event: React.MouseEvent<HTMLElement>): boolean {
+        return event.button === 0
     }
 }
 
@@ -385,8 +367,8 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
         fontSize: addDefaultUnitIfNeeded(state.configuration["ui.fontSize"]),
         backgroundColor: state.colors["tabs.background"],
         foregroundColor: state.colors["tabs.foreground"],
-        onSelect: selectFunc,
-        onClose: closeFunc,
+        onTabSelect: selectFunc,
+        onTabClose: closeFunc,
         height,
         maxWidth,
         shouldWrap,
