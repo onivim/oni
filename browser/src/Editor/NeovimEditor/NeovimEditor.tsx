@@ -741,25 +741,18 @@ export class NeovimEditor extends Editor implements IEditor {
             this._neovimInstance.command(`:e! ${path}`)
         })
 
-        // TODO: Factor this out to a react component
-        // enable opening a file via drag-drop
-        document.body.ondragover = ev => {
-            ev.preventDefault()
-            ev.stopPropagation()
-        }
-
-        document.body.ondrop = ev => {
-            ev.preventDefault()
-            // TODO: the following line currently breaks explorer drag and drop functionality
-            ev.stopPropagation()
-
-            const { files } = ev.dataTransfer
-
-            if (files.length) {
-                const normalisedPaths = Array.from(files).map(f => normalizePath(f.path))
-                this.openFiles(normalisedPaths, { openMode: Oni.FileOpenMode.Edit })
-            }
-        }
+        // document.addEventListener("dragover", ev => {
+        //     ev.preventDefault()
+        // })
+        //
+        // document.addEventListener("dragenter", ev => {
+        //     ev.preventDefault()
+        // })
+        //
+        // document.addEventListener("drop", ev => {
+        //     console.log("dropping in document: ", ev)
+        //     ev.preventDefault()
+        // })
     }
 
     public async blockInput(
@@ -946,6 +939,13 @@ export class NeovimEditor extends Editor implements IEditor {
         commandManager.executeCommand(command, null)
     }
 
+    public _onFilesDropped(files: FileList) {
+        if (files.length) {
+            const normalisedPaths = Array.from(files).map(f => normalizePath(f.path))
+            this.openFiles(normalisedPaths, { openMode: Oni.FileOpenMode.Edit })
+        }
+    }
+
     public async init(
         filesToOpen: string[],
         startOptions?: Partial<INeovimStartOptions>,
@@ -1060,6 +1060,7 @@ export class NeovimEditor extends Editor implements IEditor {
         return (
             <Provider store={this._store}>
                 <NeovimSurface
+                    onFileDrop={this._onFilesDropped}
                     autoFocus={this._autoFocus}
                     renderer={this._renderer}
                     typingPrediction={this._typingPredictionManager}
