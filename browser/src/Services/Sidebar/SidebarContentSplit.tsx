@@ -126,8 +126,8 @@ export class SidebarHeaderView extends React.PureComponent<ISidebarHeaderProps, 
 
 export const SidebarInnerPaneWrapper = withProps<{}>(styled.div)`
     flex: 1 1 auto;
-    overflow-y: auto;
     position: relative;
+    height: 100%;
 `
 
 export class SidebarContentView extends React.PureComponent<

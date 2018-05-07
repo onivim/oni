@@ -12,7 +12,7 @@ import { compose } from "redux"
 
 import { CSSTransition, TransitionGroup } from "react-transition-group"
 
-import { css, styled } from "./../../UI/components/common"
+import { css, enableMouse, styled } from "./../../UI/components/common"
 import { TextInputView } from "./../../UI/components/LightweightText"
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { Sneakable } from "./../../UI/components/Sneakable"
@@ -39,31 +39,15 @@ export interface INodeViewProps {
     updated?: string[]
     isRenaming: Node
     isCreating: boolean
+    children?: React.ReactNode
 }
 
 export const NodeWrapper = styled.div`
+    cursor: pointer;
     &:hover {
         text-decoration: underline;
     }
 `
-
-interface IOpts {
-    behavior: string
-    block: string
-    inline: string
-}
-
-type ScrollViewOpts = IOpts | boolean
-
-interface IChromeElement extends HTMLElement {
-    scrollIntoViewIfNeeded: (opts?: ScrollViewOpts) => void
-}
-
-const scrollIntoViewIfNeeded = (elem: IChromeElement) => {
-    if (elem && elem.scrollIntoViewIfNeeded) {
-        elem.scrollIntoViewIfNeeded(false)
-    }
-}
 
 const stopPropagation = (fn: () => void) => {
     return (e?: React.MouseEvent<HTMLElement>) => {
@@ -143,14 +127,7 @@ export class NodeView extends React.PureComponent<INodeViewProps, {}> {
         const renameInProgress = isRenaming.name === node.name && isSelected && !isCreating
         const creationInProgress = isCreating && isSelected && !renameInProgress
         return (
-            <NodeWrapper
-                style={{ cursor: "pointer" }}
-                innerRef={
-                    this.props.isSelected
-                        ? (elem: IChromeElement) => scrollIntoViewIfNeeded(elem)
-                        : () => ({})
-                }
-            >
+            <NodeWrapper>
                 {renameInProgress ? (
                     <TextInputView
                         styles={renameStyles}
@@ -293,9 +270,15 @@ import { commandManager } from "./../CommandManager"
 interface ISneakableNode extends IExplorerViewProps {
     node: Node
     selectedId: string
+    list: List
 }
 
 const SneakableNode = ({ node, selectedId, ...props }: ISneakableNode) => {
+    // if (node.type === "folder" && node.expanded) {
+    //     props.list.recomputeRowHeights()
+    //     props.list.forceUpdate()
+    // }
+
     return (
         <Sneakable callback={() => props.onClick(node.id)}>
             <NodeView
@@ -316,7 +299,13 @@ const SneakableNode = ({ node, selectedId, ...props }: ISneakableNode) => {
     )
 }
 
+const ExplorerContainer = styled.div`
+    height: 100%;
+    ${enableMouse};
+`
+
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
+    private _list: List
     public render(): JSX.Element {
         const ids = this.props.nodes.map(node => node.id)
 
@@ -332,22 +321,24 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
         }
 
         return (
-            <TransitionGroup>
+            <TransitionGroup style={{ height: "100%" }}>
                 <VimNavigator
                     ids={ids}
                     onSelectionChanged={this.props.onSelectionChanged}
                     onSelected={id => this.props.onClick(id)}
                     active={this.props.isActive && !this.props.isRenaming && !this.props.isCreating}
+                    style={{ height: "100%" }}
                     render={(selectedId: string) => {
                         const selectedIndex = this.props.nodes.findIndex(n => selectedId === n.id)
                         return (
-                            <div className="explorer enable-mouse">
+                            <ExplorerContainer className="explorer">
                                 <AutoSizer>
                                     {({ height, width }) => (
                                         <List
+                                            ref={e => (this._list = e)}
                                             height={height}
                                             width={width}
-                                            rowHeight={20}
+                                            rowHeight={25}
                                             rowCount={this.props.nodes.length}
                                             scrollToIndex={selectedIndex}
                                             rowRenderer={({ index }) => {
@@ -358,13 +349,14 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                                                         node={node}
                                                         key={node.id}
                                                         selectedId={selectedId}
+                                                        list={this._list}
                                                     />
                                                 )
                                             }}
                                         />
                                     )}
                                 </AutoSizer>
-                            </div>
+                            </ExplorerContainer>
                         )
                     }}
                 />
