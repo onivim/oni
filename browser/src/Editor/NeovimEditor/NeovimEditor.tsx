@@ -741,18 +741,20 @@ export class NeovimEditor extends Editor implements IEditor {
             this._neovimInstance.command(`:e! ${path}`)
         })
 
-        // document.addEventListener("dragover", ev => {
-        //     ev.preventDefault()
-        // })
-        //
-        // document.addEventListener("dragenter", ev => {
-        //     ev.preventDefault()
-        // })
-        //
-        // document.addEventListener("drop", ev => {
-        //     console.log("dropping in document: ", ev)
-        //     ev.preventDefault()
-        // })
+        // This is necessary to prevent electron's default behaviour on drag and dropping
+        // which replaces the webContent aka the entire editor with the text, NOT Good
+        // also DO Not Stop Propagation as this breaks other drag drop functionality
+        document.addEventListener("dragover", ev => {
+            ev.preventDefault()
+        })
+
+        document.addEventListener("dragenter", ev => {
+            ev.preventDefault()
+        })
+
+        document.addEventListener("drop", ev => {
+            ev.preventDefault()
+        })
     }
 
     public async blockInput(
@@ -903,10 +905,10 @@ export class NeovimEditor extends Editor implements IEditor {
         return this.activeBuffer
     }
 
-    public async openFiles(
+    public openFiles = async (
         files: string[],
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
-    ): Promise<Oni.Buffer> {
+    ): Promise<Oni.Buffer> => {
         if (!files) {
             return this.activeBuffer
         }
@@ -939,10 +941,10 @@ export class NeovimEditor extends Editor implements IEditor {
         commandManager.executeCommand(command, null)
     }
 
-    public _onFilesDropped(files: FileList) {
+    public _onFilesDropped = async (files: FileList) => {
         if (files.length) {
             const normalisedPaths = Array.from(files).map(f => normalizePath(f.path))
-            this.openFiles(normalisedPaths, { openMode: Oni.FileOpenMode.Edit })
+            await this.openFiles(normalisedPaths, { openMode: Oni.FileOpenMode.Edit })
         }
     }
 

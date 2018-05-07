@@ -11,6 +11,7 @@ import { IEvent } from "oni-types"
 
 import { NeovimInstance, NeovimScreen } from "./../../neovim"
 import { INeovimRenderer } from "./../../Renderer"
+import FileDropHandler from "./FileDropHandler"
 
 import { Cursor } from "./../../UI/components/Cursor"
 import { CursorLine } from "./../../UI/components/CursorLine"
@@ -49,67 +50,10 @@ export interface INeovimSurfaceProps {
     setViewport: any
 }
 
-interface IFileDropHandler {
-    target: HTMLElement
-    handleFiles: (files: FileList) => void
-}
-
-class FileDropHandler extends React.Component<IFileDropHandler> {
-    public componentDidMount() {
-        this.addDropHandler()
-    }
-
-    public componentDidUpdate(prevProps: IFileDropHandler) {
-        if (!prevProps.target && this.props.target) {
-            this.addDropHandler()
-        }
-    }
-
-    public addDropHandler() {
-        if (!this.props.target) {
-            return
-        }
-
-        this.props.target.ondragenter = ev => {
-            console.log("dragenter.............")
-            ev.preventDefault()
-        }
-
-        this.props.target.ondragover = ev => {
-            console.log("dragover.............")
-            ev.preventDefault()
-        }
-
-        this.props.target.ondragleave = ev => {
-            console.log("dragleave.............")
-            ev.preventDefault()
-        }
-
-        this.props.target.ondragend = ev => {
-            console.log("drag end ev ============: ", ev)
-        }
-
-        this.props.target.ondrop = ev => {
-            console.log("detecting drop event", ev)
-            ev.preventDefault()
-
-            const { files } = ev.dataTransfer
-            console.log("files: ", files)
-
-            if (files.length) {
-                this.props.handleFiles(files)
-            }
-        }
-    }
-
-    public render(): JSX.Element {
-        return null
-    }
-}
-
 class NeovimSurface extends React.Component<INeovimSurfaceProps> {
     private observer: any
     private _editor: HTMLDivElement
+    private _editorContainer: HTMLDivElement
 
     public componentDidMount(): void {
         // tslint:disable-next-line
@@ -126,7 +70,7 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
 
     public render(): JSX.Element {
         return (
-            <div className="container vertical full">
+            <div className="container vertical full" ref={e => (this._editorContainer = e)}>
                 <div className="container fixed">
                     <TabsContainer
                         onBufferSelect={this.props.onBufferSelect}
@@ -136,19 +80,11 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
                     />
                 </div>
                 <div className="container full">
-                    <div
-                        className="stack"
-                        style={{ pointerEvents: "all" }}
-                        ref={(e: HTMLDivElement) => (this._editor = e)}
-                    >
+                    <div className="stack" ref={(e: HTMLDivElement) => (this._editor = e)}>
                         <NeovimRenderer
                             renderer={this.props.renderer}
                             neovimInstance={this.props.neovimInstance}
                             screen={this.props.screen}
-                        />
-                        <FileDropHandler
-                            target={this._editor}
-                            handleFiles={this.props.onFileDrop}
                         />
                     </div>
                     <div className="stack layer">
@@ -173,6 +109,10 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
                     <div className="stack layer">
                         <ToolTips />
                     </div>
+                    <FileDropHandler
+                        target={this._editorContainer}
+                        handleFiles={this.props.onFileDrop}
+                    />
                     <NeovimEditorLoadingOverlay />
                     <InstallHelp />
                 </div>
