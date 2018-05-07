@@ -22,6 +22,7 @@
     },
     "tbd-dependencies": {
         "marked": "^0.3.6",
+        "mathjax": "^2.7.4",
         "dompurify": "1.0.2",
         "oni-types": "^0.0.4",
         "oni-api": "^0.0.9"

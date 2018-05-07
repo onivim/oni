@@ -23,9 +23,25 @@ interface IColors {
     codeBorder: string
 }
 
+enum ContentLanguage {
+    MARKDOWN,
+    LATEX,
+    OTHER,
+}
+
 interface IMarkdownPreviewState {
     rendered: string
     colors: IColors
+}
+
+function mapLanguage(language: string): ContentLanguage {
+    if (language === "markdown") {
+        return ContentLanguage.MARKDOWN
+    }
+    if (language === "plaintex") {
+        return ContentLanguage.LATEX
+    }
+    return ContentLanguage.OTHER
 }
 
 const generateScrollingAnchorId = (line: number) => {
@@ -34,6 +50,7 @@ const generateScrollingAnchorId = (line: number) => {
 
 class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdownPreviewState> {
     private _subscriptions: IDisposable[] = []
+    private _mathjax = require("mathjax-electron")
 
     constructor(props: IMarkdownPreviewProps) {
         super(props)
@@ -145,12 +162,23 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
         this.setContent(source, marked(markdownLines.join("\n")))
     }
 
+    private generateLatex(source: string): void {
+        const container = document.createElement("div")
+        container.innerHTML = source
+
+        const cb = () => {
+            this.setContent(source, container.innerHTML)
+        }
+
+        this._mathjax.loadAndTypeset(document, container, cb)
+    }
+
     private subscribe<T>(editorEvent: IEvent<T>, eventCallback: EventCallback<T>): void {
         this._subscriptions.push(editorEvent.subscribe(eventCallback))
     }
 
     private onBufferChanged(bufferInfo: Oni.EditorBufferChangedEventArgs): void {
-        if (bufferInfo.buffer.language === "markdown") {
+        if (mapLanguage(bufferInfo.buffer.language) !== ContentLanguage.OTHER) {
             this.previewBuffer(bufferInfo.buffer)
         }
     }
@@ -167,14 +195,21 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 
     private previewBuffer(buffer: Oni.Buffer): void {
+        const language = mapLanguage(buffer.language)
+
         buffer.getLines().then((lines: string[]) => {
-            this.previewString(lines.join("\n"))
+            this.previewString(lines.join("\n"), language)
         })
     }
 
-    private previewString(str: string): void {
+    private previewString(str: string, language: ContentLanguage): void {
         const source = dompurify.sanitize(str)
-        this.generateMarkdown(source)
+
+        if (language === ContentLanguage.MARKDOWN) {
+            this.generateMarkdown(source)
+        } else if (language === ContentLanguage.LATEX) {
+            this.generateLatex(source)
+        }
     }
 }
 
@@ -233,7 +268,7 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
     }
 
     private onBufferEnter(bufferInfo: Oni.EditorBufferEventArgs): void {
-        if (bufferInfo.language === "markdown") {
+        if (mapLanguage(bufferInfo.language) !== ContentLanguage.OTHER) {
             this.open()
         }
     }
