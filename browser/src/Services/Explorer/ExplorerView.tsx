@@ -337,10 +337,10 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                                             scrollToAlignment="center"
                                             rowCount={this.props.nodes.length}
                                             scrollToIndex={selectedIndex}
-                                            rowRenderer={({ index, style }) => {
+                                            rowRenderer={({ index, style, key }) => {
                                                 const node = this.props.nodes[index]
                                                 return (
-                                                    <div style={style}>
+                                                    <div style={style} key={key}>
                                                         <SneakableNode
                                                             {...this.props}
                                                             node={node}
