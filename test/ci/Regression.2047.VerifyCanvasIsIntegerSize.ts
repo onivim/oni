@@ -26,6 +26,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     assert.ok(allCanvasElements.length > 0, "Verify there is at least one canvas element")
 
+    // tslint:disable-next-line
     for (let i = 0; i < allCanvasElements.length; i++) {
         assertCanvasIsIntegerSize(allCanvasElements[i])
     }
