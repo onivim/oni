@@ -301,6 +301,36 @@ const ExplorerContainer = styled.div`
 `
 
 export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
+    private _virtualizedList: List
+
+    public componentDidUpdate(prevProps: IExplorerViewProps) {
+        if (
+            prevProps.isCreating !== this.props.isCreating ||
+            prevProps.isRenaming !== this.props.isRenaming
+        ) {
+            this._virtualizedList.recomputeRowHeights()
+            this._virtualizedList.forceUpdate()
+        }
+    }
+
+    public calculateHeight = (selectedId: string) => ({ index }: { index: number }) => {
+        const node = this.props.nodes[index]
+        const isSelected = node.id === selectedId
+
+        const renameInProgress =
+            this.props.isRenaming.name === node.name && !this.props.isCreating && isSelected
+        const creationInProgress = this.props.isCreating && isSelected && !renameInProgress
+
+        switch (true) {
+            case renameInProgress:
+                return 35
+            case creationInProgress:
+                return 65
+            default:
+                return 25
+        }
+    }
+
     public render(): JSX.Element {
         const ids = this.props.nodes.map(node => node.id)
 
@@ -332,12 +362,13 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                                         <List
                                             height={height}
                                             width={width}
-                                            rowHeight={25}
-                                            overscanRowCount={10}
+                                            ref={e => (this._virtualizedList = e)}
+                                            overscanRowCount={5}
                                             scrollToAlignment="center"
                                             rowCount={this.props.nodes.length}
                                             scrollToIndex={selectedIndex}
-                                            rowRenderer={({ index, style, key }) => {
+                                            rowHeight={this.calculateHeight(selectedId)}
+                                            rowRenderer={({ index, style, key, parent }) => {
                                                 const node = this.props.nodes[index]
                                                 return (
                                                     <div style={style} key={key}>
