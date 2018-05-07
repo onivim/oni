@@ -10,59 +10,55 @@ import { IFailedTest, Oni, runInProcTest } from "./common"
 const LongTimeout = 5000
 
 const CiTests = [
-    "Regression.2047.VerifyCanvasIsIntegerSize", 
+    // Core functionality tests
+    "Api.Buffer.AddLayer",
+    "Api.Overlays.AddRemoveTest",
+    "AutoClosingPairsTest",
+    "AutoCompletionTest-CSS",
+    "AutoCompletionTest-HTML",
+    "AutoCompletionTest-TypeScript",
+
+    "Configuration.JavaScriptEditorTest",
+    "Configuration.TypeScriptEditor.NewConfigurationTest",
+    "Configuration.TypeScriptEditor.CompletionTest",
+
+    "initVimPromptNotificationTest",
+    "Editor.BuffersCursorTest",
+    "Editor.ExternalCommandLineTest",
+    "Editor.BufferModifiedState",
+    "Editor.OpenFile.PathWithSpacesTest",
+    "Editor.TabModifiedState",
+    "Editor.CloseTabWithTabModesTabsTest",
+    "MarkdownPreviewTest",
+    "PrettierPluginTest",
+    "PaintPerformanceTest",
+    "QuickOpenTest",
+    "StatusBar-Mode",
+    "Neovim.InvalidInitVimHandlingTest",
+    "Neovim.CallOniCommands",
+    "NoInstalledNeovim",
+    "Sidebar.ToggleSplitTest",
+
+    "Snippets.BasicInsertTest",
+
+    "WindowManager.ErrorBoundary",
+    "Workspace.ConfigurationTest",
+    // Regression Tests
+    "Regression.1251.NoAdditionalProcessesOnStartup",
+    "Regression.1296.SettingColorsTest",
+    "Regression.1295.UnfocusedWindowTest",
+    "Regression.1799.MacroApplicationTest",
+    "Regression.2047.VerifyCanvasIsIntegerSize",
+
+    "TextmateHighlighting.DebugScopesTest",
+    "TextmateHighlighting.ScopesOnEnterTest",
+    "TextmateHighlighting.TokenColorOverrideTest",
+
+    "Theming.LightAndDarkColorsTest",
+
+    // This test occasionally hangs and breaks tests after - trying to move it later...
+    "LargeFileTest",
 ]
-
-// const CiTests = [
-//     // Core functionality tests
-//     "Api.Buffer.AddLayer",
-//     "Api.Overlays.AddRemoveTest",
-//     "AutoClosingPairsTest",
-//     "AutoCompletionTest-CSS",
-//     "AutoCompletionTest-HTML",
-//     "AutoCompletionTest-TypeScript",
-
-//     "Configuration.JavaScriptEditorTest",
-//     "Configuration.TypeScriptEditor.NewConfigurationTest",
-//     "Configuration.TypeScriptEditor.CompletionTest",
-
-//     "initVimPromptNotificationTest",
-//     "Editor.BuffersCursorTest",
-//     "Editor.ExternalCommandLineTest",
-//     "Editor.BufferModifiedState",
-//     "Editor.OpenFile.PathWithSpacesTest",
-//     "Editor.TabModifiedState",
-//     "Editor.CloseTabWithTabModesTabsTest",
-//     "MarkdownPreviewTest",
-//     "PrettierPluginTest",
-//     "PaintPerformanceTest",
-//     "QuickOpenTest",
-//     "StatusBar-Mode",
-//     "Neovim.InvalidInitVimHandlingTest",
-//     "Neovim.CallOniCommands",
-//     "NoInstalledNeovim",
-//     "Sidebar.ToggleSplitTest",
-
-//     "Snippets.BasicInsertTest",
-
-//     "WindowManager.ErrorBoundary",
-//     "Workspace.ConfigurationTest",
-//     // Regression Tests
-//     "Regression.1251.NoAdditionalProcessesOnStartup",
-//     "Regression.1296.SettingColorsTest",
-//     "Regression.1295.UnfocusedWindowTest",
-//     "Regression.1799.MacroApplicationTest",
-//     "Regression.2047.VerifyCanvasIsIntegerSize",
-
-//     "TextmateHighlighting.DebugScopesTest",
-//     "TextmateHighlighting.ScopesOnEnterTest",
-//     "TextmateHighlighting.TokenColorOverrideTest",
-
-//     "Theming.LightAndDarkColorsTest",
-
-//     // This test occasionally hangs and breaks tests after - trying to move it later...
-//     "LargeFileTest",
-// ]
 
 const WindowsOnlyTests = [
     // TODO: Stabilize this test on OSX / Linux, too!
