@@ -32,12 +32,12 @@ export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.sleep(1500)
 
     await oni.automation.sendKeys("<c-g>")
-    await oni.automation.sendKeys("a")
-    await oni.automation.sendKeys("e")
+    await oni.automation.sleep(500)
+    await (oni as any).automation.sendKeysV2("ae")
     await oni.automation.sleep(1500)
 
-    const buffer1 = getElementByClassName("tab selected")
-    assert.ok(buffer1.innerText === "buffer1")
+    const path = oni.editors.activeEditor.activeBuffer.filePath
+    assert.ok(path.includes("buffer1"))
 }
 
 export const settings = {
