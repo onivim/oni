@@ -155,6 +155,7 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
                             const isFocused = e.id === selectedId && this.props.isActive
                             return (
                                 <SidebarIcon
+                                    id={e.id}
                                     key={e.id}
                                     iconName={e.icon}
                                     active={isActive}
