@@ -12,7 +12,7 @@ import { Event, IDisposable, IEvent } from "oni-types"
 
 import { Overlay, OverlayManager } from "./../Overlay"
 
-import { createStore as createSneakStore, ISneakInfo, ISneakState, IAugmentedSneakInfo } from "./SneakStore"
+import { createStore as createSneakStore, IAugmentedSneakInfo, ISneakInfo, ISneakState } from "./SneakStore"
 import { ConnectedSneakView } from "./SneakView"
 
 export type SneakProvider = () => Promise<ISneakInfo[]>
@@ -55,7 +55,7 @@ export class Sneak {
         }
 
         return sneaks.find(s => s.tag && s.tag === tag)
-        
+
     }
 
     public show(): void {
