@@ -160,10 +160,14 @@ export class LinearSplitProvider implements IWindowSplitProvider {
     }
 
     public getState(): ISplitInfo<IAugmentedSplitInfo> {
+        if (this._splitProviders.length === 0) {
+            return null
+        }
+
         return {
             type: "Split",
             direction: this._direction,
-            splits: this._splitProviders.map(sp => sp.getState()),
+            splits: this._splitProviders.map(sp => sp.getState()).filter(s => s !== null),
         }
     }
 
