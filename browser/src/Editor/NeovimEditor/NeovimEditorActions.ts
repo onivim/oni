@@ -518,7 +518,6 @@ export const setWindowCursor = (windowId: number, line: number, column: number) 
     },
 })
 
-
 export const setWindowState = (
     windowId: number,
     bufferId: number,
@@ -553,7 +552,7 @@ export const setWindowState = (
 
     const bufferToPixel = (position: types.Position): Oni.Coordinates.PixelSpacePoint => {
         const screenPosition = bufferToScreen(position)
-        
+
         if (!screenPosition) {
             return null
         }
