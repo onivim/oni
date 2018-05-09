@@ -1,4 +1,7 @@
 const textureSizeInPixels = 1024 // This should be a safe size for all graphics chips
+const maxTextureCount = 8 // TODO possibly use MAX_ARRAY_TEXTURE_LAYERS here
+const backgroundColor = "black"
+const foregroundColor = "white"
 
 export interface IWebGLAtlasOptions {
     fontFamily: string
@@ -24,7 +27,7 @@ export interface WebGLGlyph {
 export class WebGLAtlas {
     private _glyphContext: CanvasRenderingContext2D
     private _glyphs = new Map<string, Map<number, WebGLGlyph>>()
-    private _currentTexture: WebGLTexture
+    private _texture: WebGLTexture
     private _currentTextureIndex = 0
     private _currentTextureChangedSinceLastUpload = false
     private _nextX = 0
@@ -36,16 +39,43 @@ export class WebGLAtlas {
         glyphCanvas.height = textureSizeInPixels
         this._glyphContext = glyphCanvas.getContext("2d", { alpha: false })
         this._glyphContext.font = `${this._options.fontSize} ${this._options.fontFamily}`
-        this._glyphContext.fillStyle = "white"
+        this._glyphContext.fillStyle = foregroundColor
         this._glyphContext.textBaseline = "top"
         this._glyphContext.scale(_options.devicePixelRatio, _options.devicePixelRatio)
         this._glyphContext.imageSmoothingEnabled = false
 
         document.body.appendChild(glyphCanvas)
 
-        this._currentTexture = this._gl.createTexture()
-        this._currentTextureChangedSinceLastUpload = true
-        this.uploadTexture()
+        this._texture = this._gl.createTexture()
+        this._gl.bindTexture(this._gl.TEXTURE_2D_ARRAY, this._texture)
+        this._gl.texParameteri(
+            this._gl.TEXTURE_2D_ARRAY,
+            this._gl.TEXTURE_MIN_FILTER,
+            this._gl.LINEAR,
+        )
+        this._gl.texParameteri(
+            this._gl.TEXTURE_2D_ARRAY,
+            this._gl.TEXTURE_WRAP_S,
+            this._gl.CLAMP_TO_EDGE,
+        )
+        this._gl.texParameteri(
+            this._gl.TEXTURE_2D_ARRAY,
+            this._gl.TEXTURE_WRAP_T,
+            this._gl.CLAMP_TO_EDGE,
+        )
+
+        this._gl.texImage3D(
+            this._gl.TEXTURE_2D_ARRAY,
+            0,
+            this._gl.RGBA,
+            textureSizeInPixels,
+            textureSizeInPixels,
+            maxTextureCount,
+            0,
+            this._gl.RGBA,
+            this._gl.UNSIGNED_BYTE,
+            new Uint8Array(textureSizeInPixels * textureSizeInPixels * maxTextureCount * 4),
+        )
     }
 
     public getGlyph(text: string, variantIndex: number) {
@@ -66,15 +96,16 @@ export class WebGLAtlas {
 
     public uploadTexture() {
         if (this._currentTextureChangedSinceLastUpload) {
-            this._gl.activeTexture(this._gl.TEXTURE0 + this._currentTextureIndex)
-            this._gl.bindTexture(this._gl.TEXTURE_2D, this._currentTexture)
-            this._gl.texImage2D(
-                this._gl.TEXTURE_2D,
+            this._gl.bindTexture(this._gl.TEXTURE_2D_ARRAY, this._texture)
+            this._gl.texSubImage3D(
+                this._gl.TEXTURE_2D_ARRAY,
                 0,
-                this._gl.RGBA,
+                0,
+                0,
+                this._currentTextureIndex,
                 textureSizeInPixels,
                 textureSizeInPixels,
-                0,
+                1,
                 this._gl.RGBA,
                 this._gl.UNSIGNED_BYTE,
                 this._glyphContext.canvas,
@@ -90,16 +121,19 @@ export class WebGLAtlas {
             )
         }
 
-        console.warn("switching to next texture...")
+        console.warn("switching to next texture #", this._currentTextureIndex + 2)
 
-        this._glyphContext.clearRect(
+        this.uploadTexture()
+
+        this._glyphContext.fillStyle = backgroundColor
+        this._glyphContext.fillRect(
             0,
             0,
             this._glyphContext.canvas.width,
             this._glyphContext.canvas.width,
         )
+        this._glyphContext.fillStyle = foregroundColor
         this._currentTextureIndex++
-        this._currentTexture = this._gl.createTexture()
         this._nextX = 0
         this._nextY = 0
         this._currentTextureChangedSinceLastUpload = true
