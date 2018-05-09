@@ -134,9 +134,9 @@ export const start = async (args: string[]): Promise<void> => {
     const pluginManager = PluginManager.getInstance()
 
     const developmentPlugin = parsedArgs["plugin-develop"]
-    alert(parsedArgs)
+
     if (developmentPlugin) {
-        alert(developmentPlugin)
+        Log.info("Registering development plugin: " + developmentPlugin)
         pluginManager.addDevelopmentPlugin(developmentPlugin)
     }
 

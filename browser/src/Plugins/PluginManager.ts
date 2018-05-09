@@ -37,7 +37,7 @@ export class PluginManager implements Oni.IPluginManager {
     constructor(private _config: Configuration) {}
 
     public addDevelopmentPlugin(pluginPath: string): void {
-       this._developmentPluginsPath.push(pluginPath) 
+       this._developmentPluginsPath.push(pluginPath)
     }
 
     public discoverPlugins(): void {
