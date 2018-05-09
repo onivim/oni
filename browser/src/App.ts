@@ -133,6 +133,13 @@ export const start = async (args: string[]): Promise<void> => {
     PluginManager.activate(configuration)
     const pluginManager = PluginManager.getInstance()
 
+    const developmentPlugin = parsedArgs["plugin-develop"]
+    alert(parsedArgs)
+    if (developmentPlugin) {
+        alert(developmentPlugin)
+        pluginManager.addDevelopmentPlugin(developmentPlugin)
+    }
+
     Performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
     Performance.endMeasure("Oni.Start.Plugins.Discover")
