@@ -53,7 +53,6 @@ export interface INeovimSurfaceProps {
 class NeovimSurface extends React.Component<INeovimSurfaceProps> {
     private observer: any
     private _editor: HTMLDivElement
-    private _editorContainer: HTMLDivElement
 
     public componentDidMount(): void {
         // tslint:disable-next-line
@@ -70,53 +69,53 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
 
     public render(): JSX.Element {
         return (
-            <div className="container vertical full" ref={e => (this._editorContainer = e)}>
-                <div className="container fixed">
-                    <TabsContainer
-                        onBufferSelect={this.props.onBufferSelect}
-                        onBufferClose={this.props.onBufferClose}
-                        onTabClose={this.props.onTabClose}
-                        onTabSelect={this.props.onTabSelect}
-                    />
-                </div>
-                <div className="container full">
-                    <div className="stack" ref={(e: HTMLDivElement) => (this._editor = e)}>
-                        <NeovimRenderer
-                            renderer={this.props.renderer}
-                            neovimInstance={this.props.neovimInstance}
-                            screen={this.props.screen}
-                        />
+            <FileDropHandler handleFiles={this.props.onFileDrop}>
+                {({ setRef }) => (
+                    <div className="container vertical full" ref={setRef}>
+                        <div className="container fixed">
+                            <TabsContainer
+                                onBufferSelect={this.props.onBufferSelect}
+                                onBufferClose={this.props.onBufferClose}
+                                onTabClose={this.props.onTabClose}
+                                onTabSelect={this.props.onTabSelect}
+                            />
+                        </div>
+                        <div className="container full">
+                            <div className="stack" ref={(e: HTMLDivElement) => (this._editor = e)}>
+                                <NeovimRenderer
+                                    renderer={this.props.renderer}
+                                    neovimInstance={this.props.neovimInstance}
+                                    screen={this.props.screen}
+                                />
+                            </div>
+                            <div className="stack layer">
+                                <TypingPrediction typingPrediction={this.props.typingPrediction} />
+                                <Cursor typingPrediction={this.props.typingPrediction} />
+                                <CursorLine lineType={"line"} />
+                                <CursorLine lineType={"column"} />
+                            </div>
+                            <NeovimInput
+                                startActive={this.props.autoFocus}
+                                onActivate={this.props.onActivate}
+                                typingPrediction={this.props.typingPrediction}
+                                neovimInstance={this.props.neovimInstance}
+                                screen={this.props.screen}
+                                onBounceStart={this.props.onBounceStart}
+                                onBounceEnd={this.props.onBounceEnd}
+                                onImeStart={this.props.onImeStart}
+                                onImeEnd={this.props.onImeEnd}
+                                onKeyDown={this.props.onKeyDown}
+                            />
+                            <NeovimBufferLayers />
+                            <div className="stack layer">
+                                <ToolTips />
+                            </div>
+                            <NeovimEditorLoadingOverlay />
+                            <InstallHelp />
+                        </div>
                     </div>
-                    <div className="stack layer">
-                        <TypingPrediction typingPrediction={this.props.typingPrediction} />
-                        <Cursor typingPrediction={this.props.typingPrediction} />
-                        <CursorLine lineType={"line"} />
-                        <CursorLine lineType={"column"} />
-                    </div>
-                    <NeovimInput
-                        startActive={this.props.autoFocus}
-                        onActivate={this.props.onActivate}
-                        typingPrediction={this.props.typingPrediction}
-                        neovimInstance={this.props.neovimInstance}
-                        screen={this.props.screen}
-                        onBounceStart={this.props.onBounceStart}
-                        onBounceEnd={this.props.onBounceEnd}
-                        onImeStart={this.props.onImeStart}
-                        onImeEnd={this.props.onImeEnd}
-                        onKeyDown={this.props.onKeyDown}
-                    />
-                    <NeovimBufferLayers />
-                    <div className="stack layer">
-                        <ToolTips />
-                    </div>
-                    <FileDropHandler
-                        target={this._editorContainer}
-                        handleFiles={this.props.onFileDrop}
-                    />
-                    <NeovimEditorLoadingOverlay />
-                    <InstallHelp />
-                </div>
-            </div>
+                )}
+            </FileDropHandler>
         )
     }
 }

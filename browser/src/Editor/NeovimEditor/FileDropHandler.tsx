@@ -1,8 +1,10 @@
 import * as React from "react"
 
+type SetRef = (elem: HTMLElement) => void
+
 interface IFileDropHandler {
-    target: HTMLElement
     handleFiles: (files: FileList) => void
+    children: (args: { setRef: SetRef }) => React.ReactElement<{ setRef: SetRef }>
 }
 
 type DragTypeName = "ondragover" | "ondragleave" | "ondragenter"
@@ -16,32 +18,48 @@ type DragTypeName = "ondragover" | "ondragleave" | "ondragenter"
  * @extends {React}
  */
 export default class FileDropHandler extends React.Component<IFileDropHandler> {
+    private _target: HTMLElement
+
     public componentDidMount() {
         this.addDropHandler()
     }
 
-    public componentDidUpdate(prevProps: IFileDropHandler) {
-        if (!prevProps.target && this.props.target) {
-            this.addDropHandler()
-        }
+    public setRef = (element: HTMLElement) => {
+        this._target = element
     }
 
     public addDropHandler() {
-        if (!this.props.target) {
+        if (!this._target) {
             return
         }
+
+        // This is necessary to prevent electron's default behaviour on drag and dropping
+        // which replaces the webContent aka the entire editor with the text, NOT Good
+        // also DO Not Stop Propagation as this breaks other drag drop functionality
+        document.addEventListener("dragover", ev => {
+            ev.preventDefault()
+        })
+
+        document.addEventListener("dragenter", ev => {
+            ev.preventDefault()
+        })
+
+        document.addEventListener("drop", ev => {
+            ev.preventDefault()
+        })
 
         const dragTypes = ["ondragenter", "ondragover", "ondragleave"]
 
         dragTypes.map((event: DragTypeName) => {
-            if (this.props.target[event]) {
-                this.props.target[event] = ev => {
+            if (this._target[event]) {
+                this._target[event] = ev => {
                     ev.preventDefault()
+                    ev.stopPropagation()
                 }
             }
         })
 
-        this.props.target.ondrop = async ev => {
+        this._target.ondrop = async ev => {
             const { files } = ev.dataTransfer
 
             if (files.length) {
@@ -51,7 +69,7 @@ export default class FileDropHandler extends React.Component<IFileDropHandler> {
         }
     }
 
-    public render(): JSX.Element {
-        return null
+    public render() {
+        return this.props.children({ setRef: this.setRef })
     }
 }
