@@ -121,8 +121,6 @@ export class WebGLAtlas {
             )
         }
 
-        console.warn("switching to next texture #", this._currentTextureIndex + 2)
-
         this.uploadTexture()
 
         this._glyphContext.fillStyle = backgroundColor
