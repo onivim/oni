@@ -91,9 +91,10 @@ export class ExplorerSplit {
                     onCompleteCreate={this._completeCreation}
                     onCompleteRename={this._completeRename}
                     onCancelRename={this._cancelRename}
-                    onSelectionChanged={id => this._onSelectionChanged(id)}
                     onClick={id => this._onOpenItem(id)}
                     moveFileOrFolder={this.moveFileOrFolder}
+                    onSelectionChanged={id => this._onSelectionChanged(id)}
+                    fontSize={this._configuration.getValue("ui.fontSize")}
                 />
             </Provider>
         )

@@ -257,6 +257,7 @@ export interface IExplorerViewContainerProps {
     isRenaming?: Node
     onCancelCreate?: () => void
     onCompleteCreate?: (path: string) => void
+    fontSize: string
 }
 
 export interface IExplorerViewProps extends IExplorerViewContainerProps {
@@ -317,17 +318,21 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
         const node = this.props.nodes[index]
         const isSelected = node.id === selectedId
 
+        const PADDING = 10
+        const fontSize = parseInt(this.props.fontSize, 10)
+        const rowSize = fontSize + PADDING
+
         const renameInProgress =
             this.props.isRenaming.name === node.name && !this.props.isCreating && isSelected
         const creationInProgress = this.props.isCreating && isSelected && !renameInProgress
 
         switch (true) {
             case renameInProgress:
-                return 35
+                return rowSize * 1.5
             case creationInProgress:
-                return 65
+                return rowSize * 2.8
             default:
-                return 25
+                return rowSize
         }
     }
 
