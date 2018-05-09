@@ -33,21 +33,6 @@ export default class FileDropHandler extends React.Component<IFileDropHandler> {
             return
         }
 
-        // This is necessary to prevent electron's default behaviour on drag and dropping
-        // which replaces the webContent aka the entire editor with the text, NOT Good
-        // also DO Not Stop Propagation as this breaks other drag drop functionality
-        document.addEventListener("dragover", ev => {
-            ev.preventDefault()
-        })
-
-        document.addEventListener("dragenter", ev => {
-            ev.preventDefault()
-        })
-
-        document.addEventListener("drop", ev => {
-            ev.preventDefault()
-        })
-
         const dragTypes = ["ondragenter", "ondragover", "ondragleave"]
 
         dragTypes.map((event: DragTypeName) => {
