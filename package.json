@@ -856,6 +856,7 @@
         "fs-extra": "^5.0.0",
         "keyboard-layout": "^2.0.13",
         "marked": "^0.3.6",
+        "mathjax-electron": "^2.0.1",
         "minimist": "1.2.0",
         "msgpack-lite": "0.1.26",
         "ocaml-language-server": "^1.0.27",
