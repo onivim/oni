@@ -42,12 +42,13 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
             const layerContext = {
                 isActive: windowState.windowId === this.props.activeWindowId,
                 windowId: windowState.windowId,
-
                 fontPixelWidth: this.props.fontPixelWidth,
                 fontPixelHeight: this.props.fontPixelHeight,
                 bufferToScreen: windowState.bufferToScreen,
                 screenToPixel: windowState.screenToPixel,
+                bufferToPixel: windowState.bufferToPixel,
                 dimensions: windowState.dimensions,
+                visibleLines: windowState.visibleLines,
             }
 
             const layerElements = layers.map(l => {

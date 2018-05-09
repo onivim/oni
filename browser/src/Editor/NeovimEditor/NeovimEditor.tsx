@@ -408,6 +408,7 @@ export class NeovimEditor extends Editor implements IEditor {
                         activeWindow.topBufferLine,
                         activeWindow.dimensions,
                         activeWindow.bufferToScreen,
+                        activeWindow.visibleLines,
                     )
                 }
 

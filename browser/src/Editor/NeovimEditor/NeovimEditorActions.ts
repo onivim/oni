@@ -225,9 +225,11 @@ export interface ISetWindowState {
 
         bufferToScreen: Oni.Coordinates.BufferToScreen
         screenToPixel: Oni.Coordinates.ScreenToPixel
+        bufferToPixel: any /* TODO */
 
         topBufferLine: number
         bottomBufferLine: number
+        visibleLines: string[]
     }
 }
 
@@ -516,6 +518,7 @@ export const setWindowCursor = (windowId: number, line: number, column: number) 
     },
 })
 
+
 export const setWindowState = (
     windowId: number,
     bufferId: number,
@@ -526,6 +529,7 @@ export const setWindowState = (
     topBufferLine: number,
     dimensions: Oni.Shapes.Rectangle,
     bufferToScreen: Oni.Coordinates.BufferToScreen,
+    visibleLines: string[],
 ) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { fontPixelWidth, fontPixelHeight } = getState()
 
@@ -547,6 +551,16 @@ export const setWindowState = (
         }
     }
 
+    const bufferToPixel = (position: types.Position): Oni.Coordinates.PixelSpacePoint => {
+        const screenPosition = bufferToScreen(position)
+        
+        if (!screenPosition) {
+            return null
+        }
+
+        return screenToPixel(screenPosition)
+    }
+
     dispatch({
         type: "SET_WINDOW_STATE",
         payload: {
@@ -558,8 +572,10 @@ export const setWindowState = (
             line,
             bufferToScreen,
             screenToPixel,
+            bufferToPixel,
             bottomBufferLine,
             topBufferLine,
+            visibleLines,
         },
     })
 }
