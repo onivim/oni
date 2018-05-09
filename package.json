@@ -836,8 +836,6 @@
         "watch:plugins": "yarn run watch:plugins:oni-plugin-typescript && yarn run watch:plugins:oni-plugin-markdown-preview",
         "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
         "watch:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && tsc --watch",
-        "uninstall-global": "yarn remove -g oni-vim",
-        "install-global": "yarn install -g oni-vim",
         "install:plugins": "yarn run install:plugins:oni-plugin-markdown-preview && yarn run install:plugins:oni-plugin-prettier",
         "install:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && yarn install --prod",
         "install:plugins:oni-plugin-prettier": "cd extensions/oni-plugin-prettier && yarn install --prod",
