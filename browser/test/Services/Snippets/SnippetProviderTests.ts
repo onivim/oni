@@ -21,6 +21,16 @@ const ArraySnippet = `
 }
 `
 
+const SingleLineSnippet = `
+{
+    "if": {
+        "prefix": "test",
+        "body": "line1",
+        "description": "Code snippet for an if statement"
+    }
+}
+`
+
 describe("SnippetProviderTests", () => {
     describe("loadSnippetsFromText", () => {
         it("parses a basic snippet", async () => {
@@ -28,7 +38,12 @@ describe("SnippetProviderTests", () => {
 
             assert.strictEqual(parsedArraySnippet.body, "line1" + os.EOL + "line2", "Validate body was parsed correctly")
         })
+
+        it("parses single-line snippet", async () => {
+            
+            const [parsedSingleLineSnippet] = loadSnippetsFromText(SingleLineSnippet)
+
+            assert.strictEqual(parsedSingleLineSnippet.body, "line1", "Validate body was parsed correctly")
+        })
     })
 })
-
-
