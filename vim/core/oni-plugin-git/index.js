@@ -35,7 +35,6 @@ const activate = Oni => {
             Oni.services.git.getVCSBranch(ws),
             Oni.services.git.getLocalVCSBranches(ws),
         ])
-        console.log("branches: ", branches)
 
         const menu = Oni.menu.create()
         const branchItems = branches.all.map(branch => ({
@@ -50,6 +49,22 @@ const activate = Oni => {
             menuItem =>
                 menuItem && menuItem.label && Oni.services.git.changeVCSBranch(menuItem.label, ws),
         )
+
+        const fetchBranch = async (Oni, menu) => {
+            if (menu.isOpen() && menu.selectedItem) {
+                const res = await Oni.services.git.fetchVCSBranchFromRemote({
+                    currentDir: ws,
+                    branch: menu.selectedItem.label,
+                })
+                console.log("res: ", res)
+            }
+        }
+
+        Oni.commands.registerCommand({
+            command: "oni.git.fetch",
+            name: "Fetch the selected branch",
+            execute: () => fetchBranch(Oni, menu),
+        })
     }
 
     Oni.commands.registerCommand({
@@ -134,9 +149,10 @@ const activate = Oni => {
 
     Oni.editors.activeEditor.onBufferEnter.subscribe(async () => await updateBranchIndicator())
 
-    Oni.services.git.onBranchChanged.subscribe(
-        async newBranch => await updateBranchIndicator(newBranch),
-    )
+    Oni.services.git.onBranchChanged.subscribe(async newBranch => {
+        await updateBranchIndicator(newBranch)
+        await Oni.editors.activeEditor.neovim.command("e!")
+    })
 
     Oni.editors.activeEditor.onBufferSaved.subscribe(async () => await updateBranchIndicator())
     Oni.workspace.onFocusGained.subscribe(async () => await updateBranchIndicator())

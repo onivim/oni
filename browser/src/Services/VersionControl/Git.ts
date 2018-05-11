@@ -33,7 +33,26 @@ export class GitVersionControlProvider implements VersionControlProvider {
             const isRepo = await this._git(currentDir).checkIsRepo()
             return isRepo && this._git(currentDir).diffSummary()
         } catch (error) {
-            Log.warn(`Git privider unable to get current status because of: ${error.message}`)
+            Log.warn(`Git provider unable to get current status because of: ${error.message}`)
+        }
+    }
+
+    public fetchVCSBranchFromRemote = async ({
+        branch,
+        remote = "origin",
+        currentDir,
+    }: {
+        branch: string
+        remote: string
+        currentDir: string
+    }) => {
+        try {
+            const fetched = await this._git(currentDir).fetch(remote, branch)
+            console.log("fetched: ", fetched)
+            return fetched
+        } catch (error) {
+            Log.warn(`Git provider unable to fetch branch because of: ${error.message}`)
+            return null
         }
     }
 
