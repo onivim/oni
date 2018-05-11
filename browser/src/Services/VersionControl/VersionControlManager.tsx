@@ -4,19 +4,14 @@ import * as React from "react"
 
 import { PluginManager } from "../../Plugins/PluginManager"
 import * as Log from "./../../Log"
-import { Icon } from "./../../UI/Icon"
 import { CommandManager } from "./../CommandManager"
 import { Menu, MenuManager } from "./../Menu"
 import { IWorkspace } from "./../Workspace"
+import { Branch, VCSIcon } from "./VCSComponents"
 import VersionControlProvider from "./VersionControlProvider"
 
-interface ICreateIconArgs {
-    type: string
-    num: number
-}
-
 export default class VersionControlManager {
-    private _gitInstance: VersionControlProvider
+    private _vcsProvider: VersionControlProvider
     private _menuInstance: Menu
     private _vcs: "git" | "svn"
 
@@ -30,13 +25,13 @@ export default class VersionControlManager {
     ) {
         pluginManager.pluginsAllLoaded.subscribe(() => {
             this.selectVCSToUse()
-            this._gitInstance = pluginManager.getPlugin(`oni-plugin-${this._vcs}`)
+            this._vcsProvider = pluginManager.getPlugin(`oni-plugin-${this._vcs}`)
             this._updateBranchIndicator()
             this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
                 await this._updateBranchIndicator()
             })
 
-            this._gitInstance.onBranchChanged.subscribe(async newBranch => {
+            this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
                 await this._updateBranchIndicator(newBranch)
                 await this._editorManager.activeEditor.neovim.command("e!")
             })
@@ -52,6 +47,7 @@ export default class VersionControlManager {
     }
 
     private selectVCSToUse() {
+        // TODO: add logic here to select the correct VCS
         this._vcs = "git"
         return this._vcs
     }
@@ -74,90 +70,36 @@ export default class VersionControlManager {
 
     private _updateBranchIndicator = async (branchName?: string) => {
         const vcsId = `oni.status.${this._vcs}`
-        const gitBranchIndicator = this._statusBar.createItem(1, vcsId)
+        const branchIndicator = this._statusBar.createItem(1, vcsId)
         const { filePath } = this._editorManager.activeEditor.activeBuffer
 
         try {
             const { activeWorkspace: ws } = this._workspace
-            const branch = branchName || (await this._gitInstance.getVCSBranch(ws))
+            const branch = branchName || (await this._vcsProvider.getVCSBranch(ws))
             if (!branch) {
                 throw new Error("The branch name could not be found")
             }
 
-            const summary = await this._gitInstance.getVCSStatus(ws)
+            const summary = await this._vcsProvider.getVCSStatus(ws)
             const deletionsAndInsertions = this._addDeletionsAndInsertions(summary, filePath)
 
-            const gitBranch = (
-                <div
-                    style={{
-                        height: "100%",
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                >
-                    <span
-                        style={{
-                            minWidth: "10px",
-                            textAlign: "center",
-                            padding: "2px 4px 0 0",
-                        }}
-                    >
-                        <Icon name="code-fork" />
-                        <div style={{ width: "100%" }}>
-                            {[`${branch} `, ...deletionsAndInsertions]}
-                        </div>
-                    </span>
-                </div>
-            )
-            gitBranchIndicator.setContents(gitBranch)
-            gitBranchIndicator.show()
+            branchIndicator.setContents(<Branch branch={branch}>{deletionsAndInsertions}</Branch>)
+            branchIndicator.show()
         } catch (e) {
-            Log.warn(`Oni git plugin encountered an error:  ${e.message}`)
-            return gitBranchIndicator.hide()
+            Log.warn(`Oni ${this._vcs} plugin encountered an error:  ${e.message}`)
+            return branchIndicator.hide()
         }
-    }
-
-    private _createGitIcon = ({ type, num }: ICreateIconArgs): JSX.Element | void => {
-        if (!num) {
-            return
-        }
-
-        return (
-            <span>
-                <span
-                    style={{
-                        fontSize: "0.7rem",
-                        padding: "0 0.15rem",
-                        color: type === "plus" ? "green" : "red",
-                    }}
-                >
-                    <Icon name={`${type}-circle`} />
-                </span>
-                <span style={{ paddingLeft: "0.25rem" }}>{num}</span>
-            </span>
-        )
     }
 
     private _addDeletionsAndInsertions = (summary: any, filePath: string) => {
         if (summary && (summary.insertions || summary.deletions)) {
             const { insertions, deletions } = summary
-
-            const [insertionSpan, deletionSpan] = [
-                {
-                    type: "plus",
-                    num: insertions,
-                },
-                {
-                    type: "minus",
-                    num: deletions,
-                },
-            ].map(this._createGitIcon)
-
             const hasBoth = deletions && insertions
-            const spacer = hasBoth && <span>, </span>
-
-            return [insertionSpan, spacer, deletionSpan]
+            return [
+                <VCSIcon type="plus" num={insertions} />,
+                hasBoth && <span>, </span>,
+                <VCSIcon type="minus" num={deletions} />,
+            ]
         }
         return []
     }
@@ -166,8 +108,8 @@ export default class VersionControlManager {
         const { activeWorkspace: ws } = this._workspace
 
         const [currentBranch, branches] = await Promise.all([
-            this._gitInstance.getVCSBranch(ws),
-            this._gitInstance.getLocalVCSBranches(ws),
+            this._vcsProvider.getVCSBranch(ws),
+            this._vcsProvider.getLocalVCSBranches(ws),
         ])
 
         this._menuInstance = this._menu.create()
@@ -181,18 +123,17 @@ export default class VersionControlManager {
         this._menuInstance.setItems(branchItems)
         this._menuInstance.onItemSelected.subscribe(
             menuItem =>
-                menuItem && menuItem.label && this._gitInstance.changeVCSBranch(menuItem.label, ws),
+                menuItem && menuItem.label && this._vcsProvider.changeVCSBranch(menuItem.label, ws),
         )
     }
 
     private _fetchBranch = async () => {
         const { activeWorkspace: ws } = this._workspace
         if (this._menuInstance.isOpen() && this._menuInstance.selectedItem) {
-            const res = await this._gitInstance.fetchVCSBranchFromRemote({
+            await this._vcsProvider.fetchVCSBranchFromRemote({
                 currentDir: ws,
                 branch: this._menuInstance.selectedItem.label,
             })
-            console.log("res: ", res) //tslint:disable-line
         }
     }
 }
