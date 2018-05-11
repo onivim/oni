@@ -99,6 +99,16 @@ export const loadSnippetsFromFile = async (
         })
     })
 
+    const snippets = loadSnippetsFromText(contents)
+
+    Log.verbose(
+        `[loadSnippetsFromFile] - Loaded ${snippets.length} snippets from ${snippetFilePath}`,
+    )
+
+    return snippets
+}
+
+export const loadSnippetsFromText = (contents: string): Oni.Snippets.Snippet[] => {
     let snippets: ISnippetPluginContribution[] = []
     try {
         snippets = Object.values(JSON.parse(contents)) as ISnippetPluginContribution[]
@@ -106,10 +116,6 @@ export const loadSnippetsFromFile = async (
         Log.error(ex)
         snippets = []
     }
-
-    Log.verbose(
-        `[loadSnippetsFromFile] - Loaded ${snippets.length} snippets from ${snippetFilePath}`,
-    )
 
     const normalizedSnippets = snippets.map(
         (snip: ISnippetPluginContribution): Oni.Snippets.Snippet => {
