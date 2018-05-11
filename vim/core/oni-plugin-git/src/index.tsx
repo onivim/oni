@@ -7,8 +7,20 @@
 import { Event, IEvent } from "oni-types"
 import * as GitP from "simple-git/promise"
 
-import * as Log from "./../../Log"
-import VersionControlProvider, { VCSBranchChangedEvent } from "./VersionControlProvider"
+export type VCSBranchChangedEvent = string
+
+export interface VersionControlProvider {
+    // Events
+    // onFileStatusChanged: IEvent
+    // onStageFilesChanged: IEvent
+    onBranchChanged: IEvent<VCSBranchChangedEvent>
+
+    // getHistory(filepath: string): Promise<DiffResult | null>
+    getVCSStatus(projectRoot?: string): Promise<GitP.DiffResult | void>
+    getVCSRoot(): Promise<string | void>
+    getVCSBranch(path?: string): Promise<string | void>
+    getLocalVCSBranches(path?: string): Promise<GitP.BranchSummary | string>
+}
 
 export class GitVersionControlProvider implements VersionControlProvider {
     private _onBranchChange = new Event<VCSBranchChangedEvent>()
@@ -23,7 +35,8 @@ export class GitVersionControlProvider implements VersionControlProvider {
         try {
             return this._git().revparse(["--show-toplevel"])
         } catch (e) {
-            Log.warn(`Git provider unable to find vcs root due to ${e.message}`)
+            // tslint:disable-next-line
+            console.warn(`Git provider unable to find vcs root due to ${e.message}`)
             return null
         }
     }
@@ -33,7 +46,8 @@ export class GitVersionControlProvider implements VersionControlProvider {
             const isRepo = await this._git(currentDir).checkIsRepo()
             return isRepo && this._git(currentDir).diffSummary()
         } catch (error) {
-            Log.warn(`Git provider unable to get current status because of: ${error.message}`)
+            // tslint:disable-next-line
+            console.warn(`Git provider unable to get current status because of: ${error.message}`)
         }
     }
 
@@ -51,7 +65,8 @@ export class GitVersionControlProvider implements VersionControlProvider {
             console.log("fetched: ", fetched)
             return fetched
         } catch (error) {
-            Log.warn(`Git provider unable to fetch branch because of: ${error.message}`)
+            // tslint:disable-next-line
+            console.warn(`Git provider unable to fetch branch because of: ${error.message}`)
             return null
         }
     }
@@ -65,7 +80,8 @@ export class GitVersionControlProvider implements VersionControlProvider {
             const status = await this._git(currentDir).status()
             return status.current
         } catch (e) {
-            Log.warn(`Git Provider was unable to get current status because of: ${e.message}`)
+            // tslint:disable-next-line
+            console.warn(`Git Provider was unable to get current status because of: ${e.message}`)
         }
     }
 
@@ -79,4 +95,6 @@ export class GitVersionControlProvider implements VersionControlProvider {
     }
 }
 
-export default new GitVersionControlProvider()
+export const activate = oni => {
+    return new GitVersionControlProvider()
+}

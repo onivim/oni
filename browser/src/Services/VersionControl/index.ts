@@ -1,2 +1,2 @@
 export { default as VersionControlProvider } from "./VersionControlProvider"
-export { default as GitVersionControlProvider } from "./Git"
+export { activate } from "./VersionControlManager"

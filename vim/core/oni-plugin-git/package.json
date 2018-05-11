@@ -1,11 +1,14 @@
 {
     "name": "oni-plugin-git",
     "version": "1.0.0",
-    "main": "index.js",
+    "main": "lib/index.js",
     "engines": {
         "oni": "^0.2.6"
     },
-    "scripts": {},
+    "scripts": {
+        "build": "rimraf lib && tsc",
+        "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
+    },
     "oni": {
         "supportedFileTypes": ["*"]
     },

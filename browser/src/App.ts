@@ -83,6 +83,7 @@ export const start = async (args: string[]): Promise<void> => {
     const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const vcsManagerPromise = import("./Services/VersionControl")
     const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
@@ -211,6 +212,9 @@ export const start = async (args: string[]): Promise<void> => {
     const LanguageManager = await languageManagerPromise
     LanguageManager.activate(configuration, editorManager, pluginManager, statusBar, workspace)
     const languageManager = LanguageManager.getInstance()
+
+    const VCSManager = await vcsManagerPromise
+    VCSManager.activate(workspace, editorManager, statusBar, pluginManager)
 
     Performance.startMeasure("Oni.Start.Editors")
     const SharedNeovimInstance = await sharedNeovimInstancePromise
