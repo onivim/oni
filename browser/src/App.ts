@@ -214,7 +214,14 @@ export const start = async (args: string[]): Promise<void> => {
     const languageManager = LanguageManager.getInstance()
 
     const VCSManager = await vcsManagerPromise
-    VCSManager.activate(workspace, editorManager, statusBar, pluginManager)
+    VCSManager.activate(
+        workspace,
+        editorManager,
+        statusBar,
+        pluginManager,
+        commandManager,
+        menuManager,
+    )
 
     Performance.startMeasure("Oni.Start.Editors")
     const SharedNeovimInstance = await sharedNeovimInstancePromise
