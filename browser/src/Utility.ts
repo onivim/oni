@@ -15,8 +15,8 @@ import * as reduce from "lodash/reduce"
 import { Observable } from "rxjs/Observable"
 import { Subject } from "rxjs/Subject"
 
-import { IDisposable } from "oni-types"
 import * as JSON5 from "json5"
+import { IDisposable } from "oni-types"
 
 import * as types from "vscode-languageserver-types"
 

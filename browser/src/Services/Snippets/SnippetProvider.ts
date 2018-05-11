@@ -109,7 +109,9 @@ export const loadSnippetsFromFile = async (
     return snippets
 }
 
-type KeyToSnippet = { [key: string]: ISnippetPluginContribution }
+interface KeyToSnippet {
+    [key: string]: ISnippetPluginContribution
+}
 
 export const loadSnippetsFromText = (contents: string): Oni.Snippets.Snippet[] => {
     let snippets: ISnippetPluginContribution[] = []

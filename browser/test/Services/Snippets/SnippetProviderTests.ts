@@ -7,7 +7,6 @@ import * as os from "os"
 
 import { loadSnippetsFromText } from "./../../../src/Services/Snippets/SnippetProvider"
 
-
 const ArraySnippet = `
 {
     "if": {
@@ -46,17 +45,29 @@ describe("SnippetProviderTests", () => {
         it("parses a basic snippet", async () => {
             const [parsedArraySnippet] = loadSnippetsFromText(ArraySnippet)
 
-            assert.strictEqual(parsedArraySnippet.body, "line1" + os.EOL + "line2", "Validate body was parsed correctly")
+            assert.strictEqual(
+                parsedArraySnippet.body,
+                "line1" + os.EOL + "line2",
+                "Validate body was parsed correctly",
+            )
         })
 
         it("parses single-line snippet", async () => {
             const [parsedSingleLineSnippet] = loadSnippetsFromText(SingleLineSnippet)
-            assert.strictEqual(parsedSingleLineSnippet.body, "line1", "Validate body was parsed correctly")
+            assert.strictEqual(
+                parsedSingleLineSnippet.body,
+                "line1",
+                "Validate body was parsed correctly",
+            )
         })
 
         it("parses snippet with trailing comma", async () => {
             const [parsedTrailingCommaSnippet] = loadSnippetsFromText(TrailingCommaSnippet)
-            assert.strictEqual(parsedTrailingCommaSnippet.body, "line1", "Validate body was parsed correctly")
+            assert.strictEqual(
+                parsedTrailingCommaSnippet.body,
+                "line1",
+                "Validate body was parsed correctly",
+            )
         })
     })
 })
