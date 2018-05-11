@@ -62,7 +62,6 @@ export class GitVersionControlProvider implements VersionControlProvider {
     }) => {
         try {
             const fetched = await this._git(currentDir).fetch(remote, branch)
-            console.log("fetched: ", fetched)
             return fetched
         } catch (error) {
             // tslint:disable-next-line
