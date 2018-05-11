@@ -46,6 +46,21 @@ export class Sneak {
         return { dispose }
     }
 
+    // Get the first sneak with a 'tag' matching the passed in tag
+    public getSneakMatchingTag(tag: string): IAugmentedSneakInfo | null {
+        if (!this.isActive) {
+            return null
+        }
+
+        const sneaks = this._store.getState().sneaks
+
+        if (sneaks || sneaks.length === 0) {
+            return null
+        }
+
+        return sneaks.find(s => s.tag && s.tag === tag)
+    }
+
     public show(): void {
         if (this._activeOverlay) {
             this._activeOverlay.hide()

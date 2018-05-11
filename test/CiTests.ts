@@ -22,6 +22,7 @@ const CiTests = [
     "Configuration.TypeScriptEditor.NewConfigurationTest",
     "Configuration.TypeScriptEditor.CompletionTest",
 
+    "initVimPromptNotificationTest",
     "Editor.BuffersCursorTest",
     "Editor.ExternalCommandLineTest",
     "Editor.BufferModifiedState",
@@ -47,10 +48,13 @@ const CiTests = [
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
     "Regression.1799.MacroApplicationTest",
+    "Regression.2047.VerifyCanvasIsIntegerSize",
 
     "TextmateHighlighting.DebugScopesTest",
     "TextmateHighlighting.ScopesOnEnterTest",
     "TextmateHighlighting.TokenColorOverrideTest",
+
+    "Theming.LightAndDarkColorsTest",
 
     // This test occasionally hangs and breaks tests after - trying to move it later...
     "LargeFileTest",

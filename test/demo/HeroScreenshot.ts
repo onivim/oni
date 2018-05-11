@@ -22,11 +22,18 @@ const getCompletionElement = () => {
     }
 }
 
+const getNotificationText = () => {
+    const elements = document.body.getElementsByClassName("notification-description")
+
+    if (!elements || !elements.length) {
+        return null
+    } else {
+        return elements[0].innerHTML
+    }
+}
+
 export const test = async (oni: any) => {
     await oni.automation.waitForEditors()
-
-    let lastAlertText = null
-    window.alert = myText => (lastAlertText = myText)
 
     // Use the `Completion.ts` file as the screenshot source
     remote.getCurrentWindow().setSize(1200, 800)
@@ -76,13 +83,12 @@ export const test = async (oni: any) => {
     oni.configuration.setValues({ "recorder.outputPath": outputPath })
 
     oni.recorder.takeScreenshot(`screenshot-${process.platform}.png`)
-
-    await oni.automation.waitFor(() => lastAlertText !== null, 20000)
-    console.log("Alert text (screenshot output path): " + lastAlertText)
+    await oni.automation.waitFor(() => getNotificationText() !== null, 20000)
+    console.log("Alert text (screenshot output path): " + getNotificationText())
 }
 
 export const settings = {
     config: {
-        "notifications.enabled": false,
+        "notifications.enabled": true,
     },
 }

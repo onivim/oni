@@ -6,6 +6,8 @@
 
 import * as os from "os"
 
+import * as Oni from "oni-api"
+
 import * as path from "path"
 
 import * as Platform from "./../../Platform"
@@ -82,6 +84,8 @@ const BaseConfiguration: IConfigurationValues = {
     "oni.exclude": ["node_modules", ".git"],
     "oni.bookmarks": [],
 
+    "editor.renderer": "canvas",
+
     "editor.backgroundOpacity": 1.0,
     "editor.backgroundImageUrl": null,
     "editor.backgroundImageSize": "cover",
@@ -106,6 +110,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.quickOpen.execCommand": null,
     "editor.quickOpen.filterStrategy": "vscode",
+    "editor.quickOpen.defaultOpenMode": Oni.FileOpenMode.Edit,
+    "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode.ExistingTab,
 
     "editor.split.mode": "native",
 
@@ -127,6 +133,9 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.tokenColors": [],
 
     "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
+
+    "explorer.persistDeletedFiles": true,
+    "explorer.maxUndoFileSizeInBytes": 500_000,
 
     "environment.additionalPaths": [],
 
@@ -213,6 +222,128 @@ const BaseConfiguration: IConfigurationValues = {
             "TypeScriptReact.tmLanguage.json",
         ),
     },
+    "language.lua.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "lua",
+        "syntaxes",
+        "lua.tmLanguage.json",
+    ),
+    "language.clojure.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "clojure",
+        "syntaxes",
+        "clojure.tmLanguage.json",
+    ),
+    "language.ruby.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "ruby",
+        "syntaxes",
+        "ruby.tmLanguage.json",
+    ),
+    "language.swift.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "swift",
+        "syntaxes",
+        "swift.tmLanguage.json",
+    ),
+    "language.rust.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "rust",
+        "syntaxes",
+        "rust.tmLanguage.json",
+    ),
+    "language.php.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "php",
+        "syntaxes",
+        "php.tmLanguage.json",
+    ),
+    "language.objc.textMateGrammar": {
+        ".m": path.join(
+            __dirname,
+            "extensions",
+            "objective-c",
+            "syntaxes",
+            "objective-c.tmLanguage.json",
+        ),
+        ".h": path.join(
+            __dirname,
+            "extensions",
+            "objective-c",
+            "syntaxes",
+            "objective-c.tmLanguage.json",
+        ),
+    },
+    "language.objcpp.textMateGrammar": {
+        ".mm": path.join(
+            __dirname,
+            "extensions",
+            "objective-c++",
+            "syntaxes",
+            "objective-c++.tmLanguage.json",
+        ),
+    },
+    "language.python.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "python",
+        "syntaxes",
+        "python.tmLanguage.json",
+    ),
+    "language.sh.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "shell",
+        "syntaxes",
+        "shell.tmLanguage.json",
+    ),
+    "language.zsh.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "shell",
+        "syntaxes",
+        "shell.tmLanguage.json",
+    ),
+    "language.markdown.textMateGrammar": {
+        ".md": path.join(
+            __dirname,
+            "extensions",
+            "markdown",
+            "syntaxes",
+            "markdown.tmLanguage.json",
+        ),
+        ".markdown": path.join(
+            __dirname,
+            "extensions",
+            "markdown",
+            "syntaxes",
+            "markdown.tmLanguage.json",
+        ),
+        ".mkd": path.join(
+            __dirname,
+            "extensions",
+            "markdown",
+            "syntaxes",
+            "markdown.tmLanguage.json",
+        ),
+        ".mdown": path.join(
+            __dirname,
+            "extensions",
+            "markdown",
+            "syntaxes",
+            "markdown.tmLanguage.json",
+        ),
+    },
+    "language.java.textMateGrammar": {
+        ".java": path.join(__dirname, "extensions", "java", "syntaxes", "Java.tmLanguage.json"),
+        ".jar": path.join(__dirname, "extensions", "java", "syntaxes", "Java.tmLanguage.json"),
+    },
     "language.javascript.completionTriggerCharacters": [".", "/", "\\"],
     "language.javascript.textMateGrammar": {
         ".js": path.join(
@@ -288,7 +419,7 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.showIndex": false,
     "tabs.wrap": false,
 
-    "terminal.shellCommand": os.platform() === "win32" ? "cmd" : "bash",
+    "terminal.shellCommand": null,
 
     "ui.animations.enabled": true,
     "ui.colorscheme": "nord",

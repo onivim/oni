@@ -27,7 +27,7 @@ install:
   - node --version
   - npm --version
   # install modules
-  - yarn install --verbose
+  - yarn install
   - npm run check-cached-binaries
 
 artifacts:

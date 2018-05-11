@@ -31,6 +31,9 @@ export const getElementsBySelector = (selector: string) => {
     return elements || []
 }
 
+export const getSingleElementBySelector = (selector: string) =>
+    document.body.querySelector(selector)
+
 export const createNewFile = async (
     fileExtension: string,
     oni: Oni.Plugin.Api,
