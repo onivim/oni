@@ -122,7 +122,7 @@ export const loadSnippetsFromText = (contents: string): Oni.Snippets.Snippet[] =
             return {
                 prefix: snip.prefix,
                 description: snip.description,
-                body: snip.body.join(os.EOL),
+                body: typeof snip.body === "string" ? snip.body : snip.body.join(os.EOL),
             }
         },
     )
