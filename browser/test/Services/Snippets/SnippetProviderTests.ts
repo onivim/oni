@@ -31,6 +31,16 @@ const SingleLineSnippet = `
 }
 `
 
+const TrailingCommaSnippet = `
+{
+    "if": {
+        "prefix": "test",
+        "body": ["line1"],
+        "description": "Code snippet for an if statement"
+    },
+}
+`
+
 describe("SnippetProviderTests", () => {
     describe("loadSnippetsFromText", () => {
         it("parses a basic snippet", async () => {
@@ -40,10 +50,13 @@ describe("SnippetProviderTests", () => {
         })
 
         it("parses single-line snippet", async () => {
-            
             const [parsedSingleLineSnippet] = loadSnippetsFromText(SingleLineSnippet)
-
             assert.strictEqual(parsedSingleLineSnippet.body, "line1", "Validate body was parsed correctly")
+        })
+
+        it("parses snippet with trailing comma", async () => {
+            const [parsedTrailingCommaSnippet] = loadSnippetsFromText(TrailingCommaSnippet)
+            assert.strictEqual(parsedTrailingCommaSnippet.body, "line1", "Validate body was parsed correctly")
         })
     })
 })
