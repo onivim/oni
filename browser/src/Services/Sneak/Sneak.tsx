@@ -84,20 +84,6 @@ export class Sneak {
         this._activeOverlay.show()
     }
 
-    public getSneakMatchingTag(tag: string): IAugmentedSneakInfo {
-        if (!this.isActive) {
-            return null
-        }
-
-        const sneaks = this._store.getState().sneaks
-
-        if (!sneaks || sneaks.length === 0) {
-            return null
-        }
-
-        return sneaks.find(s => s.tag && s.tag === tag)
-    }
-
     public close(): void {
         if (this._activeOverlay) {
             this._store.dispatch({ type: "END" })
