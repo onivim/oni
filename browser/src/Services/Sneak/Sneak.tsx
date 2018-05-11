@@ -14,9 +14,9 @@ import { Overlay, OverlayManager } from "./../Overlay"
 
 import {
     createStore as createSneakStore,
+    IAugmentedSneakInfo,
     ISneakInfo,
     ISneakState,
-    IAugmentedSneakInfo,
 } from "./SneakStore"
 import { ConnectedSneakView } from "./SneakView"
 
