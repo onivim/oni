@@ -166,10 +166,6 @@ export class Oni implements OniApi.Plugin.Api {
         return this._services
     }
 
-    public get sneak(): any /* todo */ {
-        return getSneakInstance()
-    }
-
     public get tutorials(): any /* todo */ {
         return getTutorialManagerInstance()
     }
