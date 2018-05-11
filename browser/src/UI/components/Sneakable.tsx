@@ -16,7 +16,6 @@ import { EmptyArray } from "./../../Utility"
 export interface ISneakableProps {
     tag?: string
     callback?: (evt?: any) => void
-    tag?: string
 }
 
 export class Sneakable extends React.PureComponent<ISneakableProps, {}> {
