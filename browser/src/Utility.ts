@@ -16,6 +16,7 @@ import { Observable } from "rxjs/Observable"
 import { Subject } from "rxjs/Subject"
 
 import { IDisposable } from "oni-types"
+import * as JSON5 from "json5"
 
 import * as types from "vscode-languageserver-types"
 
@@ -244,4 +245,8 @@ export function ignoreWhilePendingPromise<T, U>(
     )
 
     return ret
+}
+
+export const parseJson5 = <T>(text: string): T => {
+    return JSON5.parse(text) as T
 }
