@@ -9,15 +9,17 @@ export default interface VersionControlProvider {
     // onStageFilesChanged: IEvent
     onBranchChanged: IEvent<VCSBranchChangedEvent>
 
-    // getHistory(filepath: string): Promise<DiffResult | null>
-    getVCSStatus(projectRoot?: string): Promise<DiffResult | void>
-    getVCSRoot(): Promise<string | void>
-    getVCSBranch(path?: string): Promise<string | void>
-    getLocalVCSBranches(path?: string): Promise<BranchSummary>
-    changeVCSBranch(branch: string, currentDir: string): Promise<void>
-    fetchVCSBranchFromRemote(args: {
+    getStatus(projectRoot?: string): Promise<DiffResult | void>
+    getRoot(): Promise<string | void>
+    getBranch(path?: string): Promise<string | void>
+    getLocalBranches(path?: string): Promise<BranchSummary>
+    changeBranch(branch: string, currentDir: string): Promise<void>
+    fetchBranchFromRemote(args: {
         branch: string
         origin?: string
         currentDir: string
     }): Promise<FetchResult>
 }
+
+export type Summary = DiffResult
+export type SupportedProviders = "git" | "svn"

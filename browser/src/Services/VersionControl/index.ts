@@ -1,2 +1,2 @@
 export { default as VersionControlProvider } from "./VersionControlProvider"
-export { activate } from "./VersionControlManager"
+export { activate, getInstance, VersionControlManager } from "./VersionControlManager"

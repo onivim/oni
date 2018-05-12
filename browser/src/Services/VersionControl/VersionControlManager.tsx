@@ -2,18 +2,18 @@ import * as capitalize from "lodash/capitalize"
 import * as Oni from "oni-api"
 import * as React from "react"
 
-import { PluginManager } from "../../Plugins/PluginManager"
 import * as Log from "./../../Log"
 import { CommandManager } from "./../CommandManager"
 import { Menu, MenuManager } from "./../Menu"
 import { IWorkspace } from "./../Workspace"
 import { Branch, VCSIcon } from "./VCSComponents"
-import VersionControlProvider from "./VersionControlProvider"
+import VersionControlProvider, { Summary, SupportedProviders } from "./VersionControlProvider"
 
-export default class VersionControlManager {
+export class VersionControlManager {
     private _vcsProvider: VersionControlProvider
     private _menuInstance: Menu
-    private _vcs: "git" | "svn"
+    private _vcs: SupportedProviders
+    private _currentBranch: string | void
 
     constructor(
         private _workspace: IWorkspace,
@@ -21,35 +21,40 @@ export default class VersionControlManager {
         private _statusBar: Oni.StatusBar,
         private _menu: MenuManager,
         private _commands: CommandManager,
-        pluginManager: PluginManager,
-    ) {
-        pluginManager.pluginsAllLoaded.subscribe(() => {
-            this.selectVCSToUse()
-            this._vcsProvider = pluginManager.getPlugin(`oni-plugin-${this._vcs}`)
-            this._updateBranchIndicator()
-            this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
-                await this._updateBranchIndicator()
-            })
+    ) {}
 
-            this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
-                await this._updateBranchIndicator(newBranch)
-                await this._editorManager.activeEditor.neovim.command("e!")
-            })
-
-            this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
-                await this._updateBranchIndicator()
-            })
-            ;(this._workspace as any).onFocusGained.subscribe(async () => {
-                await this._updateBranchIndicator()
-            })
-            this._registerCommands()
-        })
+    public registerProvider({
+        provider,
+        name,
+    }: {
+        provider: VersionControlProvider
+        name: SupportedProviders
+    }): void {
+        if (provider) {
+            this._vcs = name
+            this._vcsProvider = provider
+            this._initialize()
+        }
     }
 
-    private selectVCSToUse() {
-        // TODO: add logic here to select the correct VCS
-        this._vcs = "git"
-        return this._vcs
+    private _initialize() {
+        this._updateBranchIndicator()
+        this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
+            await this._updateBranchIndicator()
+        })
+
+        this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
+            await this._updateBranchIndicator(newBranch)
+            await this._editorManager.activeEditor.neovim.command("e!")
+        })
+
+        this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
+            await this._updateBranchIndicator()
+        })
+        ;(this._workspace as any).onFocusGained.subscribe(async () => {
+            await this._updateBranchIndicator()
+        })
+        this._registerCommands()
     }
 
     private _registerCommands = () => {
@@ -75,15 +80,25 @@ export default class VersionControlManager {
 
         try {
             const { activeWorkspace: ws } = this._workspace
-            const branch = branchName || (await this._vcsProvider.getVCSBranch(ws))
-            if (!branch) {
+            const branch = await this._vcsProvider.getBranch(ws)
+            const isSameBranch =
+                (this._currentBranch && this._currentBranch === branchName) ||
+                this._currentBranch === branch
+            if (isSameBranch) {
+                return
+            }
+
+            this._currentBranch = branchName || branch
+            const summary = await this._vcsProvider.getStatus(ws)
+            if (!this._currentBranch || !summary) {
                 throw new Error("The branch name could not be found")
             }
 
-            const summary = await this._vcsProvider.getVCSStatus(ws)
             const deletionsAndInsertions = this._addDeletionsAndInsertions(summary, filePath)
 
-            branchIndicator.setContents(<Branch branch={branch}>{deletionsAndInsertions}</Branch>)
+            branchIndicator.setContents(
+                <Branch branch={this._currentBranch}>{deletionsAndInsertions}</Branch>,
+            )
             branchIndicator.show()
         } catch (e) {
             Log.warn(`Oni ${this._vcs} plugin encountered an error:  ${e.message}`)
@@ -91,7 +106,7 @@ export default class VersionControlManager {
         }
     }
 
-    private _addDeletionsAndInsertions = (summary: any, filePath: string) => {
+    private _addDeletionsAndInsertions = (summary: Summary, filePath: string) => {
         if (summary && (summary.insertions || summary.deletions)) {
             const { insertions, deletions } = summary
             const hasBoth = deletions && insertions
@@ -108,8 +123,8 @@ export default class VersionControlManager {
         const { activeWorkspace: ws } = this._workspace
 
         const [currentBranch, branches] = await Promise.all([
-            this._vcsProvider.getVCSBranch(ws),
-            this._vcsProvider.getLocalVCSBranches(ws),
+            this._vcsProvider.getBranch(ws),
+            this._vcsProvider.getLocalBranches(ws),
         ])
 
         this._menuInstance = this._menu.create()
@@ -121,16 +136,17 @@ export default class VersionControlManager {
 
         this._menuInstance.show()
         this._menuInstance.setItems(branchItems)
-        this._menuInstance.onItemSelected.subscribe(
-            menuItem =>
-                menuItem && menuItem.label && this._vcsProvider.changeVCSBranch(menuItem.label, ws),
-        )
+        this._menuInstance.onItemSelected.subscribe(menuItem => {
+            if (menuItem && menuItem.label) {
+                this._vcsProvider.changeBranch(menuItem.label, ws)
+            }
+        })
     }
 
     private _fetchBranch = async () => {
         const { activeWorkspace: ws } = this._workspace
         if (this._menuInstance.isOpen() && this._menuInstance.selectedItem) {
-            await this._vcsProvider.fetchVCSBranchFromRemote({
+            await this._vcsProvider.fetchBranchFromRemote({
                 currentDir: ws,
                 branch: this._menuInstance.selectedItem.label,
             })
@@ -138,11 +154,16 @@ export default class VersionControlManager {
     }
 }
 
+let Provider: VersionControlManager
+
 export const activate = (
     workspace: IWorkspace,
     editorManager: Oni.EditorManager,
     statusBar: Oni.StatusBar,
-    pluginManager: PluginManager,
     commands: CommandManager,
     menu: MenuManager,
-) => new VersionControlManager(workspace, editorManager, statusBar, menu, commands, pluginManager)
+) => (Provider = new VersionControlManager(workspace, editorManager, statusBar, menu, commands))
+
+export const getInstance = () => {
+    return Provider
+}

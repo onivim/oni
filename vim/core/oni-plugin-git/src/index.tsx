@@ -1,9 +1,9 @@
 /**
  * Git.ts
  *
- * Utilities around Git
  */
 
+import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 import * as GitP from "simple-git/promise"
 
@@ -15,11 +15,15 @@ export interface VersionControlProvider {
     // onStageFilesChanged: IEvent
     onBranchChanged: IEvent<VCSBranchChangedEvent>
 
-    // getHistory(filepath: string): Promise<DiffResult | null>
-    getVCSStatus(projectRoot?: string): Promise<GitP.DiffResult | void>
-    getVCSRoot(): Promise<string | void>
-    getVCSBranch(path?: string): Promise<string | void>
-    getLocalVCSBranches(path?: string): Promise<GitP.BranchSummary | string>
+    getStatus(projectRoot?: string): Promise<GitP.DiffResult | void>
+    getRoot(): Promise<string | void>
+    getBranch(path?: string): Promise<string | void>
+    getLocalBranches(path?: string): Promise<GitP.BranchSummary | string>
+    fetchBranchFromRemote(args: {
+        branch: string
+        origin?: string
+        currentDir: string
+    }): Promise<GitP.FetchResult>
 }
 
 export class GitVersionControlProvider implements VersionControlProvider {
@@ -31,7 +35,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
         return this._onBranchChange
     }
 
-    public async getVCSRoot(): Promise<string | null> {
+    public async getRoot(): Promise<string | null> {
         try {
             return this._git().revparse(["--show-toplevel"])
         } catch (e) {
@@ -41,7 +45,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public getVCSStatus = async (currentDir: string): Promise<GitP.DiffResult | void> => {
+    public getStatus = async (currentDir: string): Promise<GitP.DiffResult | void> => {
         try {
             const isRepo = await this._git(currentDir).checkIsRepo()
             return isRepo && this._git(currentDir).diffSummary()
@@ -51,7 +55,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public fetchVCSBranchFromRemote = async ({
+    public fetchBranchFromRemote = async ({
         branch,
         remote = "origin",
         currentDir,
@@ -70,11 +74,11 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public getLocalVCSBranches = (currentDir?: string): Promise<GitP.BranchSummary> => {
+    public getLocalBranches = (currentDir?: string): Promise<GitP.BranchSummary> => {
         return this._git(currentDir).branchLocal()
     }
 
-    public getVCSBranch = async (currentDir?: string): Promise<string | void> => {
+    public getBranch = async (currentDir?: string): Promise<string | void> => {
         try {
             const status = await this._git(currentDir).status()
             return status.current
@@ -84,7 +88,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public async changeVCSBranch(targetBranch: string, currentDir: string): Promise<Error | void> {
+    public async changeBranch(targetBranch: string, currentDir: string): Promise<Error | void> {
         try {
             await this._git(currentDir).checkout(targetBranch)
             this._onBranchChange.dispatch(targetBranch)
@@ -95,5 +99,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
 }
 
 export const activate = oni => {
-    return new GitVersionControlProvider()
+    const provider = new GitVersionControlProvider()
+    oni.services.vcs.registerProvider({ provider, name: "git" })
+    return provider
 }
