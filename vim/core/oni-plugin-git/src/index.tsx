@@ -9,13 +9,32 @@ import * as GitP from "simple-git/promise"
 
 export type VCSBranchChangedEvent = string
 
+interface FileSummary {
+    index: string
+    path: string
+    working_dir: string
+}
+
+export interface StatusResult {
+    ahead: number
+    behind: number
+    currentBranch: string
+    modified: string[]
+    staged: string[]
+    conflicted: string[]
+    created: string[]
+    deleted: string[]
+    untracked: string[]
+    remoteTrackingBranch: string
+}
+
 export interface VersionControlProvider {
     // Events
     // onFileStatusChanged: IEvent
     // onStageFilesChanged: IEvent
     onBranchChanged: IEvent<VCSBranchChangedEvent>
 
-    getStatus(projectRoot?: string): Promise<GitP.DiffResult | void>
+    getStatus(projectRoot?: string): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
     getBranch(path?: string): Promise<string | void>
     getLocalBranches(path?: string): Promise<GitP.BranchSummary | string>
@@ -48,7 +67,30 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public getStatus = async (currentDir: string): Promise<GitP.DiffResult | void> => {
+    public getStatus = async (currentDir: string): Promise<StatusResult | void> => {
+        try {
+            const isRepo = await this._git(currentDir).checkIsRepo()
+            if (isRepo) {
+                const status = await this._git(currentDir).status()
+                return {
+                    ahead: status.ahead,
+                    behind: status.behind,
+                    created: status.created,
+                    deleted: status.deleted,
+                    currentBranch: status.current,
+                    conflicted: status.conflicted,
+                    untracked: status.not_added,
+                    staged: this._getStaged(status.files),
+                    modified: this._getModified(status.files),
+                    remoteTrackingBranch: status.tracking,
+                }
+            }
+        } catch (error) {
+            this._log(`Git provider unable to get current status because of: ${error.message}`)
+        }
+    }
+
+    public getDiff = async (currentDir: string): Promise<GitP.DiffResult | void> => {
         try {
             const isRepo = await this._git(currentDir).checkIsRepo()
             return isRepo && this._git(currentDir).diffSummary()
@@ -57,7 +99,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public stageFile = async (file: string, dir?: string) => {
+    public stageFile = async (file: string, dir?: string): Promise<void> => {
         try {
             await this._git(dir).add(file)
         } catch (e) {
@@ -105,6 +147,14 @@ export class GitVersionControlProvider implements VersionControlProvider {
         } catch (e) {
             return e
         }
+    }
+
+    private _getModified(files: FileSummary[]): string[] {
+        return files.map(({ working_dir, path }) => working_dir === "M" && path).filter(Boolean)
+    }
+
+    private _getStaged(files: FileSummary[]): string[] {
+        return files.map(({ index, path }) => index === "M" && path).filter(Boolean)
     }
 }
 

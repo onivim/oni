@@ -1,7 +1,8 @@
 export {
-    default as VersionControlProvider,
+    Diff,
     Summary,
     SupportedProviders,
+    default as VersionControlProvider,
 } from "./VersionControlProvider"
 export { activate, getInstance, VersionControlManager } from "./VersionControlManager"
 export { default as VersionControlPane } from "./VersionControlPane"

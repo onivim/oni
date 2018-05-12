@@ -30,12 +30,9 @@ const BranchNameContainer = styled.span`
 
 const selectColorByType = (type: ChangeTypes, theme: IThemeColors) => {
     switch (type) {
-        // case "addition":
-        //     return theme["highlight.mode.insert.background"]
-        // case "deletion":
-        //     return "#ff6961"
-        // case "change":
-        //     return theme["highlight.mode.operator.foreground"]
+        case "addition":
+        case "deletion":
+        case "change":
         default:
             return ""
     }

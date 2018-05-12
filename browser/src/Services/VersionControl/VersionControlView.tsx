@@ -3,8 +3,8 @@ import { connect } from "react-redux"
 
 import { styled, withProps } from "./../../UI/components/common"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
-import { VCSIcon } from "./VersionControlComponents"
-import { IState, ModifiedFile } from "./VersionControlStore"
+import { StatusResult } from "./VersionControlProvider"
+import { IState } from "./VersionControlStore"
 
 const Row = styled.div`
     display: flex;
@@ -33,58 +33,96 @@ const Title = styled.h4`
 const SectionTitle = styled.div`
     margin: 0.2em 0;
     padding: 0.2em;
-    background-color: rgb(0, 0, 0);
-    opacity: 0.2;
+    background-color: rgba(0, 0, 0, 0.2);
     display: flex;
     justify-content: space-between;
 `
 
 interface IModifiedFilesProps {
-    files?: ModifiedFile[]
+    files?: string[]
+    title: string
     selectedId: string
+    symbol: string
 }
 
-const ModifiedFiles = ({ files, selectedId }: IModifiedFilesProps) => (
+const GitStatus = ({ title, files, selectedId, symbol }: IModifiedFilesProps) => (
     <div>
-        <SectionTitle>
-            <Title>Modified Files</Title>
-            <strong>{files.length}</strong>
-        </SectionTitle>
-        {files &&
-            files.map(({ changes, deletions, file }) => (
-                <Column key={file} isSelected={selectedId === file}>
-                    <Name>{file}</Name>
-                    <Row>
-                        {changes && <VCSIcon type="change" num={changes} />}
-                        {deletions && <VCSIcon type="deletion" num={deletions} />}
-                    </Row>
-                </Column>
-            ))}
+        {files && (
+            <div>
+                <SectionTitle>
+                    <Title>{title}</Title>
+                    <strong>{files.length}</strong>
+                </SectionTitle>
+                {files.map(path => (
+                    <Column key={path} isSelected={selectedId === path}>
+                        <Name>{path}</Name>
+                        <Row>{symbol}</Row>
+                    </Column>
+                ))}
+            </div>
+        )}
     </div>
 )
 
 interface IProps {
-    files: ModifiedFile[]
+    status: StatusResult
     hasFocus: boolean
     getStatus?: () => void
     handleSelection?: (selection: string) => void
     children?: React.ReactNode
 }
 
-class VersionControlContainer extends React.Component<IProps> {
+interface ILocalState {
+    error: boolean
+}
+
+class VersionControlContainer extends React.Component<IProps, ILocalState> {
+    public state: ILocalState = {
+        error: null,
+    }
+
     public async componentDidMount() {
         await this.props.getStatus()
     }
 
+    public async componentDidCatch(e: Error) {
+        // tslint:disable-next-line
+        console.warn(e)
+        this.setState({ error: true })
+    }
+
     public render() {
-        const names = this.props.files.map(f => f.file)
-        return (
+        const { modified, staged, untracked } = this.props.status
+        return this.state.error ? (
+            <SectionTitle>
+                <Title>Something Went Wrong</Title>
+            </SectionTitle>
+        ) : (
             <VimNavigator
-                ids={names}
+                ids={[...modified, ...untracked, ...staged]}
                 active={this.props.hasFocus}
                 onSelected={this.props.handleSelection}
                 render={selectedId => (
-                    <ModifiedFiles selectedId={selectedId} files={this.props.files} />
+                    <div>
+                        <GitStatus
+                            selectedId={selectedId}
+                            files={modified}
+                            title="Modified Files"
+                            symbol="M"
+                        />
+                        <GitStatus
+                            selectedId={selectedId}
+                            files={staged}
+                            title="Staged Files"
+                            symbol="S"
+                        />
+                        <GitStatus
+                            selectedId={selectedId}
+                            files={untracked}
+                            title="Untracked Files"
+                            symbol="?"
+                        />
+                    </div>
                 )}
             />
         )
@@ -92,8 +130,8 @@ class VersionControlContainer extends React.Component<IProps> {
 }
 
 export default connect<IState>(
-    (state): IProps => ({
-        files: state.files,
+    (state: IState): IProps => ({
+        status: state.status,
         hasFocus: state.hasFocus,
     }),
     null,

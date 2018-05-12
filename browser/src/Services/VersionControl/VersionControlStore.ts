@@ -1,14 +1,8 @@
 import { createStore as createReduxStore } from "./../../Redux"
-
-export interface ModifiedFile {
-    changes: number
-    deletions: number
-    binary: boolean
-    file: string
-}
+import { StatusResult } from "./VersionControlProvider"
 
 export interface IState {
-    files: ModifiedFile[]
+    status: StatusResult
     hasFocus: boolean
 }
 
@@ -18,14 +12,25 @@ interface IGenericAction<T, P = undefined> {
 }
 
 const DefaultState: IState = {
-    files: [],
+    status: {
+        currentBranch: null,
+        staged: [],
+        conflicted: [],
+        created: [],
+        modified: [],
+        remoteTrackingBranch: null,
+        deleted: [],
+        untracked: [],
+        ahead: null,
+        behind: null,
+    },
     hasFocus: null,
 }
 
 type IEnterAction = IGenericAction<"ENTER">
 type ILeaveAction = IGenericAction<"LEAVE">
-type IModifiedFilesAction = IGenericAction<"MODIFIED_FILES", { files: ModifiedFile[] }>
-type IAction = IModifiedFilesAction | IEnterAction | ILeaveAction
+type IStatusAction = IGenericAction<"STATUS", { status: StatusResult }>
+type IAction = IStatusAction | IEnterAction | ILeaveAction
 
 function reducer(state: IState, action: IAction) {
     switch (action.type) {
@@ -33,10 +38,10 @@ function reducer(state: IState, action: IAction) {
             return { ...state, hasFocus: true }
         case "LEAVE":
             return { ...state, hasFocus: false }
-        case "MODIFIED_FILES":
+        case "STATUS":
             return {
                 ...state,
-                files: action.payload.files,
+                status: action.payload.status,
             }
         default:
             return state

@@ -3,16 +3,30 @@ import { BranchSummary, DiffResult, FetchResult } from "simple-git/promise"
 
 export type VCSBranchChangedEvent = string
 
+export interface StatusResult {
+    ahead: number
+    behind: number
+    currentBranch: string
+    modified: string[]
+    staged: string[]
+    conflicted: string[]
+    created: string[]
+    deleted: string[]
+    untracked: string[]
+    remoteTrackingBranch: string
+}
+
 export default interface VersionControlProvider {
     // Events
     // onFileStatusChanged: IEvent
     // onStageFilesChanged: IEvent
     onBranchChanged: IEvent<VCSBranchChangedEvent>
 
-    getStatus(projectRoot?: string): Promise<DiffResult | void>
+    getStatus(projectRoot?: string): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
+    getDiff(projectRoot?: string): Promise<DiffResult | void>
     getBranch(path?: string): Promise<string | void>
-    getLocalBranches(path?: string): Promise<BranchSummary>
+    getLocalBranches(path?: string): Promise<BranchSummary | void>
     changeBranch(branch: string, currentDir: string): Promise<void>
     stageFile(file: string, projectRoot?: string): Promise<void>
     fetchBranchFromRemote(args: {
@@ -22,5 +36,6 @@ export default interface VersionControlProvider {
     }): Promise<FetchResult>
 }
 
-export type Summary = DiffResult
+export type Diff = DiffResult
+export type Summary = StatusResult
 export type SupportedProviders = "git" | "svn"

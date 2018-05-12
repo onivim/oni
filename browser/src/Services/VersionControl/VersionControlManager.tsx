@@ -2,7 +2,7 @@ import * as capitalize from "lodash/capitalize"
 import * as Oni from "oni-api"
 import * as React from "react"
 
-import { Summary, SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
+import { Diff, SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
 import * as Log from "./../../Log"
 import { CommandManager } from "./../CommandManager"
 import { Menu, MenuManager } from "./../Menu"
@@ -97,7 +97,7 @@ export class VersionControlManager {
             }
 
             this._currentBranch = branchName || branch
-            const summary = await this._vcsProvider.getStatus(ws)
+            const summary = await this._vcsProvider.getDiff(ws)
             if (!this._currentBranch || !summary) {
                 throw new Error("The branch name could not be found")
             }
@@ -114,9 +114,9 @@ export class VersionControlManager {
         }
     }
 
-    private _addDeletionsAndInsertions = (summary: Summary, filePath: string) => {
-        if (summary && (summary.insertions || summary.deletions)) {
-            const { insertions, deletions } = summary
+    private _addDeletionsAndInsertions = (diff: Diff, filePath: string) => {
+        if (diff && (diff.insertions || diff.deletions)) {
+            const { insertions, deletions } = diff
             const hasBoth = deletions && insertions
             return [
                 <VCSIcon key={1} type="addition" num={insertions} />,
@@ -136,6 +136,10 @@ export class VersionControlManager {
         ])
 
         this._menuInstance = this._menu.create()
+        if (!branches) {
+            return
+        }
+
         const branchItems = branches.all.map(branch => ({
             label: branch,
             icon: "code-fork",
