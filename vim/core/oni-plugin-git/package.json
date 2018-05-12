@@ -10,8 +10,14 @@
         "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
     },
     "oni": {
-        "supportedFileTypes": ["*"]
+        "supportedFileTypes": [
+            "*"
+        ]
     },
-    "dependencies": {},
-    "devDependencies": {}
+    "dependencies": {
+        "simple-git": "^1.92.0"
+    },
+    "devDependencies": {
+        "typescript": "^2.8.3"
+    }
 }
