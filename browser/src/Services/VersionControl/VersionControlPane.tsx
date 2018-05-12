@@ -21,6 +21,9 @@ export default class VersionControlPane {
     ) {}
     public enter(): void {
         this._store.dispatch({ type: "ENTER" })
+        this._workspace.onDirectoryChanged.subscribe(async () => {
+            await this.getStatus()
+        })
     }
 
     public leave(): void {
