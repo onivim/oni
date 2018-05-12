@@ -126,6 +126,10 @@
     "@types/tough-cookie" "*"
     parse5 "^3.0.2"
 
+"@types/json5@^0.0.29":
+  version "0.0.29"
+  resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
+
 "@types/lodash@4.14.38":
   version "4.14.38"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.38.tgz#fcbd51e740c5e260652cad975dd26c5c4151cb11"
@@ -3503,9 +3507,9 @@ electron-window@^0.8.0:
   dependencies:
     is-electron-renderer "^2.0.0"
 
-electron@^1.8.4:
-  version "1.8.4"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-1.8.4.tgz#cca8d0e6889f238f55b414ad224f03e03b226a38"
+electron@1.8.6:
+  version "1.8.6"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-1.8.6.tgz#6d45e377b321a35b78a794b64e40b2cf8face6ae"
   dependencies:
     "@types/node" "^8.0.24"
     electron-download "^3.0.1"
@@ -6074,6 +6078,12 @@ json3@3.3.2, json3@^3.3.2:
 json5@^0.5.0, json5@^0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/json5/-/json5-0.5.1.tgz#1eade7acc012034ad84e2396767ead9fa5495821"
+
+json5@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/json5/-/json5-1.0.1.tgz#779fb0018604fa854eacbf6252180d83543e3dbe"
+  dependencies:
+    minimist "^1.2.0"
 
 jsonfile@^2.1.0:
   version "2.4.0"

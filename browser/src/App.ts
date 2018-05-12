@@ -133,6 +133,13 @@ export const start = async (args: string[]): Promise<void> => {
     PluginManager.activate(configuration)
     const pluginManager = PluginManager.getInstance()
 
+    const developmentPlugin = parsedArgs["plugin-develop"]
+
+    if (developmentPlugin) {
+        Log.info("Registering development plugin: " + developmentPlugin)
+        pluginManager.addDevelopmentPlugin(developmentPlugin)
+    }
+
     Performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
     Performance.endMeasure("Oni.Start.Plugins.Discover")
@@ -262,7 +269,13 @@ export const start = async (args: string[]): Promise<void> => {
     Sidebar.activate(configuration, workspace)
     const sidebarManager = Sidebar.getInstance()
 
-    Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
+    Explorer.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        Sidebar.getInstance(),
+        workspace,
+    )
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Learning.activate(
         commandManager,

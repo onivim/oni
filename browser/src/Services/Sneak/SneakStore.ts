@@ -13,6 +13,9 @@ import { createStore as createReduxStore } from "./../../Redux"
 export interface ISneakInfo {
     rectangle: Shapes.Rectangle
     callback: () => void
+
+    // `tag` is an optional string used to identify the sneak
+    tag?: string
 }
 
 export interface IAugmentedSneakInfo extends ISneakInfo {
