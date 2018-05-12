@@ -22,9 +22,9 @@ const DefaultState: IState = {
     hasFocus: null,
 }
 
-type IModifiedFilesAction = IGenericAction<"MODIFIED_FILES", { files: string[] }>
 type IEnterAction = IGenericAction<"ENTER">
 type ILeaveAction = IGenericAction<"LEAVE">
+type IModifiedFilesAction = IGenericAction<"MODIFIED_FILES", { files: ModifiedFile[] }>
 type IAction = IModifiedFilesAction | IEnterAction | ILeaveAction
 
 function reducer(state: IState, action: IAction) {
