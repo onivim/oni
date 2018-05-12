@@ -27,10 +27,16 @@ const Name = styled.span`
 `
 
 const Title = styled.h4`
+    margin: 0;
+`
+
+const SectionTitle = styled.div`
+    margin: 0.2em 0;
+    padding: 0.2em;
     background-color: rgb(0, 0, 0);
     opacity: 0.2;
-    padding: 0.2em;
-    margin: 0.2em 0;
+    display: flex;
+    justify-content: space-between;
 `
 
 interface IModifiedFilesProps {
@@ -40,7 +46,10 @@ interface IModifiedFilesProps {
 
 const ModifiedFiles = ({ files, selectedId }: IModifiedFilesProps) => (
     <div>
-        <Title>Modified Files</Title>
+        <SectionTitle>
+            <Title>Modified Files</Title>
+            <strong>{files.length}</strong>
+        </SectionTitle>
         {files &&
             files.map(({ changes, deletions, file }) => (
                 <Column key={file} isSelected={selectedId === file}>
@@ -57,13 +66,14 @@ const ModifiedFiles = ({ files, selectedId }: IModifiedFilesProps) => (
 interface IProps {
     files: ModifiedFile[]
     hasFocus: boolean
-    getModifiedFiles?: () => void
+    getStatus?: () => void
+    handleSelection?: (selection: string) => void
     children?: React.ReactNode
 }
 
 class VersionControlContainer extends React.Component<IProps> {
     public async componentDidMount() {
-        await this.props.getModifiedFiles()
+        await this.props.getStatus()
     }
 
     public render() {
@@ -72,6 +82,7 @@ class VersionControlContainer extends React.Component<IProps> {
             <VimNavigator
                 ids={names}
                 active={this.props.hasFocus}
+                onSelected={this.props.handleSelection}
                 render={selectedId => (
                     <ModifiedFiles selectedId={selectedId} files={this.props.files} />
                 )}

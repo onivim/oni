@@ -27,7 +27,7 @@ export default class VersionControlPane {
         this._store.dispatch({ type: "LEAVE" })
     }
 
-    public getModifiedFiles = async () => {
+    public getStatus = async () => {
         const { activeWorkspace } = this._workspace
         const status = await this._vcsProvider.getStatus(activeWorkspace)
         if (status) {
@@ -36,15 +36,16 @@ export default class VersionControlPane {
         return status
     }
 
-    public stageFile = (file: string) => {
+    public stageFile = async (file: string) => {
         const { activeWorkspace } = this._workspace
-        this._vcsProvider.stageFile(file, activeWorkspace)
+        await this._vcsProvider.stageFile(file, activeWorkspace)
+        await this.getStatus()
     }
 
     public render(): JSX.Element {
         return (
             <Provider store={this._store}>
-                <VersionControlView getModifiedFiles={this.getModifiedFiles} />
+                <VersionControlView handleSelection={this.stageFile} getStatus={this.getStatus} />
             </Provider>
         )
     }
