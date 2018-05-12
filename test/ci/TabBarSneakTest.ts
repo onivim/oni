@@ -33,8 +33,12 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     await oni.automation.sendKeys("<c-g>")
     await oni.automation.sleep(500)
-    await (oni as any).automation.sendKeysV2("ae")
-    await oni.automation.sleep(1500)
+
+    const anyOni = oni as any
+    const sneak = anyOni.sneak.getSneakMatchingTag("buffer1")
+    const keys: string = sneak.triggerKeys.toLowerCase()
+    await anyOni.automation.sendKeysV2(keys)
+    await oni.automation.sleep(2500)
 
     const path = oni.editors.activeEditor.activeBuffer.filePath
     assert.ok(path.includes("buffer1"))
@@ -43,6 +47,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
 export const settings = {
     config: {
         "tabs.mode": "buffers",
+        "oni.loadInitVim": false,
     },
     allowLogFailures: true,
 }

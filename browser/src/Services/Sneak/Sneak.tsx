@@ -12,7 +12,12 @@ import { Event, IDisposable, IEvent } from "oni-types"
 
 import { Overlay, OverlayManager } from "./../Overlay"
 
-import { createStore as createSneakStore, IAugmentedSneakInfo, ISneakInfo, ISneakState } from "./SneakStore"
+import {
+    createStore as createSneakStore,
+    IAugmentedSneakInfo,
+    ISneakInfo,
+    ISneakState,
+} from "./SneakStore"
 import { ConnectedSneakView } from "./SneakView"
 
 export type SneakProvider = () => Promise<ISneakInfo[]>
@@ -43,19 +48,17 @@ export class Sneak {
 
     // Get the first sneak with a 'tag' matching the passed in tag
     public getSneakMatchingTag(tag: string): IAugmentedSneakInfo | null {
-
         if (!this.isActive) {
             return null
         }
 
         const sneaks = this._store.getState().sneaks
 
-        if (sneaks || sneaks.length === 0) {
+        if (!sneaks || sneaks.length === 0) {
             return null
         }
 
         return sneaks.find(s => s.tag && s.tag === tag)
-
     }
 
     public show(): void {
