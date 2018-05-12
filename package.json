@@ -624,12 +624,12 @@
         "test": "yarn run test:unit && yarn run test:integration",
         "test:integration":
             "yarn run build:test && mocha -t 120000 lib_test/test/CiTests.js --bail",
-        "test:react": "jest --config ./jest.config.js ./ui-tests",
-        "test:react:watch": "jest --config ./jest.config.js ./ui-tests --watch",
-        "test:react:coverage": "jest --config ./jest.config.js ./ui-tests --coverage",
+        "test:unit:react": "jest --config ./jest.config.js ./ui-tests",
+        "test:unit:react:watch": "jest --config ./jest.config.js ./ui-tests --watch",
+        "test:unit:react:coverage": "jest --config ./jest.config.js ./ui-tests --coverage",
         "test:unit:browser":
             "yarn run build:test:unit:browser && cd browser && electron-mocha --renderer --require testHelpers.js --recursive ../lib_test/browser/test",
-        "test:unit": "yarn run test:unit:browser && yarn run test:unit:main && yarn run test:react",
+        "test:unit": "run-s test:unit:*",
         "test:unit:main":
             "yarn run build:test:unit:main && cd main && electron-mocha --renderer --recursive ../lib_test/main/test",
         "upload:dist": "node build/script/UploadDistributionBuildsToAzure",
