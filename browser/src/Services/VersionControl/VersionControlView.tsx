@@ -1,3 +1,4 @@
+import * as path from "path"
 import * as React from "react"
 import { connect } from "react-redux"
 
@@ -45,6 +46,12 @@ interface IModifiedFilesProps {
     symbol: string
 }
 
+const truncate = (str: string) =>
+    str
+        .split(path.sep)
+        .slice(-2)
+        .join(path.sep)
+
 const GitStatus = ({ title, files, selectedId, symbol }: IModifiedFilesProps) => (
     <div>
         {files && (
@@ -53,9 +60,9 @@ const GitStatus = ({ title, files, selectedId, symbol }: IModifiedFilesProps) =>
                     <Title>{title}</Title>
                     <strong>{files.length}</strong>
                 </SectionTitle>
-                {files.map(path => (
-                    <Column key={path} isSelected={selectedId === path}>
-                        <Name>{path}</Name>
+                {files.map(filePath => (
+                    <Column key={filePath} isSelected={selectedId === filePath}>
+                        <Name>{truncate(filePath)}</Name>
                         <Row>{symbol}</Row>
                     </Column>
                 ))}

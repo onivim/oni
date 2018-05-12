@@ -2,6 +2,8 @@ import { IEvent } from "oni-types"
 import { BranchSummary, DiffResult, FetchResult } from "simple-git/promise"
 
 export type VCSBranchChangedEvent = string
+export type VCSStagedFilesChangedEvent = string
+export type VCSFileStatusChangedEvent = string
 
 export interface StatusResult {
     ahead: number
@@ -18,8 +20,8 @@ export interface StatusResult {
 
 export default interface VersionControlProvider {
     // Events
-    // onFileStatusChanged: IEvent
-    // onStageFilesChanged: IEvent
+    onFileStatusChanged: IEvent<VCSFileStatusChangedEvent>
+    onStageFilesChanged: IEvent<VCSStagedFilesChangedEvent>
     onBranchChanged: IEvent<VCSBranchChangedEvent>
 
     getStatus(projectRoot?: string): Promise<StatusResult | void>

@@ -8,6 +8,11 @@ import { Event, IEvent } from "oni-types"
 import * as GitP from "simple-git/promise"
 
 export type VCSBranchChangedEvent = string
+export type VCSStagedFilesChangedEvent = string
+export interface VCSFileStatusChangedEvent {
+    path: string
+    status: "staged"
+}
 
 interface FileSummary {
     index: string
@@ -30,8 +35,8 @@ export interface StatusResult {
 
 export interface VersionControlProvider {
     // Events
-    // onFileStatusChanged: IEvent
-    // onStageFilesChanged: IEvent
+    onFileStatusChanged: IEvent<VCSFileStatusChangedEvent>
+    onStagedFilesChanged: IEvent<VCSStagedFilesChangedEvent>
     onBranchChanged: IEvent<VCSBranchChangedEvent>
 
     getStatus(projectRoot?: string): Promise<StatusResult | void>
@@ -48,6 +53,8 @@ export interface VersionControlProvider {
 
 export class GitVersionControlProvider implements VersionControlProvider {
     private _onBranchChange = new Event<VCSBranchChangedEvent>()
+    private _onStagedFilesChanged = new Event<VCSStagedFilesChangedEvent>()
+    private _onFileStatusChanged = new Event<VCSFileStatusChangedEvent>()
     private _log: (...args: any[]) => void
 
     constructor(private _oni: Oni.Plugin.Api, private _git = GitP) {
@@ -56,6 +63,14 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
     get onBranchChanged(): IEvent<VCSBranchChangedEvent> {
         return this._onBranchChange
+    }
+
+    get onFileStatusChanged(): IEvent<VCSFileStatusChangedEvent> {
+        return this._onFileStatusChanged
+    }
+
+    get onStagedFilesChanged(): IEvent<VCSStagedFilesChangedEvent> {
+        return this._onStagedFilesChanged
     }
 
     public async getRoot(): Promise<string | null> {
@@ -72,7 +87,10 @@ export class GitVersionControlProvider implements VersionControlProvider {
             const isRepo = await this._git(currentDir).checkIsRepo()
             if (isRepo) {
                 const status = await this._git(currentDir).status()
+                const { modified, staged } = this._getModifiedAndStaged(status.files)
                 return {
+                    staged,
+                    modified,
                     ahead: status.ahead,
                     behind: status.behind,
                     created: status.created,
@@ -80,8 +98,6 @@ export class GitVersionControlProvider implements VersionControlProvider {
                     currentBranch: status.current,
                     conflicted: status.conflicted,
                     untracked: status.not_added,
-                    staged: this._getStaged(status.files),
-                    modified: this._getModified(status.files),
                     remoteTrackingBranch: status.tracking,
                 }
             }
@@ -102,6 +118,8 @@ export class GitVersionControlProvider implements VersionControlProvider {
     public stageFile = async (file: string, dir?: string): Promise<void> => {
         try {
             await this._git(dir).add(file)
+            this._onStagedFilesChanged.dispatch(file)
+            this._onFileStatusChanged.dispatch({ path: file, status: "staged" })
         } catch (e) {
             const error = `Git provider unable to add ${file} because ${e.message}`
             this._log(error)
@@ -149,12 +167,18 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    private _getModified(files: FileSummary[]): string[] {
-        return files.map(({ working_dir, path }) => working_dir === "M" && path).filter(Boolean)
-    }
-
-    private _getStaged(files: FileSummary[]): string[] {
-        return files.map(({ index, path }) => index === "M" && path).filter(Boolean)
+    private _getModifiedAndStaged(files: FileSummary[]): { modified: string[]; staged: string[] } {
+        return files.reduce(
+            (acc, file) => {
+                if (file.working_dir === "M") {
+                    acc.modified.push(file.path)
+                } else if (file.index === "M") {
+                    acc.staged.push(file.path)
+                }
+                return acc
+            },
+            { modified: [], staged: [] },
+        )
     }
 }
 
