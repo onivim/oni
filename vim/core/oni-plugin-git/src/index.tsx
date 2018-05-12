@@ -19,6 +19,7 @@ export interface VersionControlProvider {
     getRoot(): Promise<string | void>
     getBranch(path?: string): Promise<string | void>
     getLocalBranches(path?: string): Promise<GitP.BranchSummary | string>
+    stageFile(file: string, projectRoot?: string): Promise<void>
     fetchBranchFromRemote(args: {
         branch: string
         origin?: string
@@ -52,6 +53,17 @@ export class GitVersionControlProvider implements VersionControlProvider {
         } catch (error) {
             // tslint:disable-next-line
             console.warn(`Git provider unable to get current status because of: ${error.message}`)
+        }
+    }
+
+    public stageFile = async (file: string, dir?: string) => {
+        try {
+            await this._git(dir).add(file)
+        } catch (e) {
+            const error = `Git provider unable to add ${file} because ${e.message}`
+            // tslint:disable-next-line
+            console.warn(error)
+            throw new Error(error)
         }
     }
 

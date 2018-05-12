@@ -213,9 +213,6 @@ export const start = async (args: string[]): Promise<void> => {
     LanguageManager.activate(configuration, editorManager, pluginManager, statusBar, workspace)
     const languageManager = LanguageManager.getInstance()
 
-    const VCSManager = await vcsManagerPromise
-    VCSManager.activate(workspace, editorManager, statusBar, commandManager, menuManager)
-
     Performance.startMeasure("Oni.Start.Editors")
     const SharedNeovimInstance = await sharedNeovimInstancePromise
     const { startEditors } = await startEditorsPromise
@@ -265,6 +262,16 @@ export const start = async (args: string[]): Promise<void> => {
 
     Sidebar.activate(configuration, workspace)
     const sidebarManager = Sidebar.getInstance()
+
+    const VCSManager = await vcsManagerPromise
+    VCSManager.activate(
+        workspace,
+        editorManager,
+        statusBar,
+        commandManager,
+        menuManager,
+        sidebarManager,
+    )
 
     Explorer.activate(
         commandManager,

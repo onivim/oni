@@ -14,6 +14,7 @@ export default interface VersionControlProvider {
     getBranch(path?: string): Promise<string | void>
     getLocalBranches(path?: string): Promise<BranchSummary>
     changeBranch(branch: string, currentDir: string): Promise<void>
+    stageFile(file: string, projectRoot?: string): Promise<void>
     fetchBranchFromRemote(args: {
         branch: string
         origin?: string

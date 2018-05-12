@@ -2,12 +2,13 @@ import * as capitalize from "lodash/capitalize"
 import * as Oni from "oni-api"
 import * as React from "react"
 
+import { Summary, SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
 import * as Log from "./../../Log"
 import { CommandManager } from "./../CommandManager"
 import { Menu, MenuManager } from "./../Menu"
+import { SidebarManager } from "./../Sidebar"
 import { IWorkspace } from "./../Workspace"
-import { Branch, VCSIcon } from "./VCSComponents"
-import VersionControlProvider, { Summary, SupportedProviders } from "./VersionControlProvider"
+import { Branch, VCSIcon } from "./VersionControlComponents"
 
 export class VersionControlManager {
     private _vcsProvider: VersionControlProvider
@@ -21,6 +22,7 @@ export class VersionControlManager {
         private _statusBar: Oni.StatusBar,
         private _menu: MenuManager,
         private _commands: CommandManager,
+        private _sidebar: SidebarManager,
     ) {}
 
     public registerProvider({
@@ -54,6 +56,11 @@ export class VersionControlManager {
         ;(this._workspace as any).onFocusGained.subscribe(async () => {
             await this._updateBranchIndicator()
         })
+
+        this._sidebar.add(
+            "code-fork",
+            new VersionControlPane(this._workspace, this._vcsProvider, this._vcs),
+        )
         this._registerCommands()
     }
 
@@ -82,8 +89,9 @@ export class VersionControlManager {
             const { activeWorkspace: ws } = this._workspace
             const branch = await this._vcsProvider.getBranch(ws)
             const isSameBranch =
-                (this._currentBranch && this._currentBranch === branchName) ||
-                this._currentBranch === branch
+                this._currentBranch &&
+                (this._currentBranch === branchName || this._currentBranch === branch)
+
             if (isSameBranch) {
                 return
             }
@@ -111,9 +119,9 @@ export class VersionControlManager {
             const { insertions, deletions } = summary
             const hasBoth = deletions && insertions
             return [
-                <VCSIcon type="plus" num={insertions} />,
-                hasBoth && <span>, </span>,
-                <VCSIcon type="minus" num={deletions} />,
+                <VCSIcon key={1} type="addition" num={insertions} />,
+                hasBoth && <span key={2}>, </span>,
+                <VCSIcon key={3} type="deletion" num={deletions} />,
             ]
         }
         return []
@@ -162,7 +170,16 @@ export const activate = (
     statusBar: Oni.StatusBar,
     commands: CommandManager,
     menu: MenuManager,
-) => (Provider = new VersionControlManager(workspace, editorManager, statusBar, menu, commands))
+    sidebar: SidebarManager,
+) =>
+    (Provider = new VersionControlManager(
+        workspace,
+        editorManager,
+        statusBar,
+        menu,
+        commands,
+        sidebar,
+    ))
 
 export const getInstance = () => {
     return Provider
