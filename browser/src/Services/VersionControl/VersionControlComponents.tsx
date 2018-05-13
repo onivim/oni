@@ -22,6 +22,8 @@ const BranchText = styled.span`
     min-width: 10px;
     text-align: center;
     padding: 2px 4px 0 0;
+    display: flex;
+    align-items: center;
 `
 
 export const BranchNameContainer = styled.span`
@@ -91,11 +93,11 @@ interface ChangesProps {
 }
 
 export const DeletionsAndInsertions = ({ deletions, insertions, hasBoth }: ChangesProps) => (
-    <div>
+    <span>
         <VCSIcon type="addition" num={insertions} />
         {hasBoth && <span key={2}>, </span>}
         <VCSIcon type="deletion" num={deletions} />
-    </div>
+    </span>
 )
 
 export const VCSIcon = ({ type, num }: ICreateIconArgs) =>
