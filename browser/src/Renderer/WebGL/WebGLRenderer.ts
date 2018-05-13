@@ -20,10 +20,19 @@ export class WebGLRenderer implements INeovimRenderer {
     public start(editorElement: HTMLElement): void {
         this._editorElement = editorElement
         this._colorNormalizer = new CachedColorNormalizer()
+
+        const canvasElement = document.createElement("canvas")
+        this._editorElement.innerHTML = ""
+        this._editorElement.appendChild(canvasElement)
+
+        this._gl = canvasElement.getContext("webgl2") as WebGL2RenderingContext
     }
 
     public redrawAll(screenInfo: IScreen): void {
-        this._initializeCanvasIfRequired()
+        if (!this._editorElement) {
+            return
+        }
+
         this._updateCanvasDimensions()
         this._createNewRendererIfRequired(screenInfo)
         this._clear(screenInfo.backgroundColor)
@@ -46,16 +55,6 @@ export class WebGLRenderer implements INeovimRenderer {
 
     public onAction(action: any): void {
         // do nothing
-    }
-
-    private _initializeCanvasIfRequired() {
-        if (!this._gl) {
-            const canvasElement = document.createElement("canvas")
-            this._editorElement.innerHTML = ""
-            this._editorElement.appendChild(canvasElement)
-
-            this._gl = canvasElement.getContext("webgl2") as WebGL2RenderingContext
-        }
     }
 
     private _updateCanvasDimensions() {
