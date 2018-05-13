@@ -14,7 +14,7 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 import { Configuration } from "./../Configuration"
 
 import * as Log from "./../../Log"
-import { flatMap } from "./../../Utility"
+import * as Utility from "./../../Utility"
 
 export class CompositeSnippetProvider implements Oni.Snippets.SnippetProvider {
     private _providers: Oni.Snippets.SnippetProvider[] = []
@@ -64,9 +64,10 @@ export class PluginSnippetProvider implements Oni.Snippets.SnippetProvider {
             p => p.metadata && p.metadata.contributes && p.metadata.contributes.snippets,
         )
 
-        const snippets = flatMap(filteredPlugins, pc => pc.metadata.contributes.snippets).filter(
-            s => s.language === language,
-        )
+        const snippets = Utility.flatMap(
+            filteredPlugins,
+            pc => pc.metadata.contributes.snippets,
+        ).filter(s => s.language === language)
 
         const snippetLoadPromises = snippets.map(s => this._loadSnippetsFromFile(s.path))
         const loadedSnippets = await Promise.all(snippetLoadPromises)
@@ -99,24 +100,35 @@ export const loadSnippetsFromFile = async (
         })
     })
 
-    let snippets: ISnippetPluginContribution[] = []
-    try {
-        snippets = Object.values(JSON.parse(contents)) as ISnippetPluginContribution[]
-    } catch (ex) {
-        Log.error(ex)
-        snippets = []
-    }
+    const snippets = loadSnippetsFromText(contents)
 
     Log.verbose(
         `[loadSnippetsFromFile] - Loaded ${snippets.length} snippets from ${snippetFilePath}`,
     )
+
+    return snippets
+}
+
+interface KeyToSnippet {
+    [key: string]: ISnippetPluginContribution
+}
+
+export const loadSnippetsFromText = (contents: string): Oni.Snippets.Snippet[] => {
+    let snippets: ISnippetPluginContribution[] = []
+    try {
+        const snippetObject = Utility.parseJson5<KeyToSnippet>(contents)
+        snippets = Object.values(snippetObject)
+    } catch (ex) {
+        Log.error(ex)
+        snippets = []
+    }
 
     const normalizedSnippets = snippets.map(
         (snip: ISnippetPluginContribution): Oni.Snippets.Snippet => {
             return {
                 prefix: snip.prefix,
                 description: snip.description,
-                body: snip.body.join(os.EOL),
+                body: typeof snip.body === "string" ? snip.body : snip.body.join(os.EOL),
             }
         },
     )
