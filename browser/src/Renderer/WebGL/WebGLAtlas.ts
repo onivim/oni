@@ -15,7 +15,7 @@ export interface IWebGLAtlasOptions {
 export interface WebGLGlyph {
     width: number
     height: number
-    textureIndex: number
+    textureLayerIndex: number
     textureWidth: number
     textureHeight: number
     textureU: number
@@ -152,7 +152,7 @@ export class WebGLAtlas {
         return {
             width: width * devicePixelRatio,
             height: height * devicePixelRatio,
-            textureIndex: this._currentTextureLayerIndex,
+            textureLayerIndex: this._currentTextureLayerIndex,
             textureU: x * devicePixelRatio / this._options.textureSizeInPixels,
             textureV: y * devicePixelRatio / this._options.textureSizeInPixels,
             textureWidth: width * devicePixelRatio / this._options.textureSizeInPixels,

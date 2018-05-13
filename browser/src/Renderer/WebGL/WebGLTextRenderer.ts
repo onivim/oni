@@ -17,7 +17,7 @@ const vertexShaderAttributes = {
     targetOrigin: 1,
     targetSize: 2,
     textColorRGBA: 3,
-    atlasIndex: 4,
+    atlasLayerIndex: 4,
     atlasOrigin: 5,
     atlasSize: 6,
 }
@@ -29,14 +29,14 @@ const vertexShaderSource = `
     layout (location = 1) in vec2 targetOrigin;
     layout (location = 2) in vec2 targetSize;
     layout (location = 3) in vec4 textColorRGBA;
-    layout (location = 4) in float atlasIndex;
+    layout (location = 4) in float atlasLayerIndex;
     layout (location = 5) in vec2 atlasOrigin;
     layout (location = 6) in vec2 atlasSize;
 
     uniform vec2 viewportScale;
 
     flat out vec4 textColor;
-    flat out int convertedAtlasIndex;
+    flat out int convertedAtlasLayerIndex;
     out vec2 atlasPosition;
 
     void main() {
@@ -44,7 +44,7 @@ const vertexShaderSource = `
         vec2 targetPosition = targetPixelPosition * viewportScale + vec2(-1.0, 1.0);
         gl_Position = vec4(targetPosition, 0.0, 1.0);
         textColor = textColorRGBA;
-        convertedAtlasIndex = int(atlasIndex);
+        convertedAtlasLayerIndex = int(atlasLayerIndex);
         atlasPosition = atlasOrigin + unitQuadVertex * atlasSize;
     }
 `.trim()
@@ -57,13 +57,13 @@ const firstPassFragmentShaderSource = `
 
     layout(location = 0) out vec4 outColor;
     flat in vec4 textColor;
-    flat in int convertedAtlasIndex;
+    flat in int convertedAtlasLayerIndex;
     in vec2 atlasPosition;
 
     uniform sampler2DArray atlasTextures;
 
     void main() {
-      vec4 atlasColor = texture(atlasTextures, vec3(atlasPosition, convertedAtlasIndex));
+      vec4 atlasColor = texture(atlasTextures, vec3(atlasPosition, convertedAtlasLayerIndex));
       outColor = textColor.a * atlasColor;
     }
 `.trim()
@@ -76,13 +76,13 @@ const secondPassFragmentShaderSource = `
 
     layout(location = 0) out vec4 outColor;
     flat in vec4 textColor;
-    flat in int convertedAtlasIndex;
+    flat in int convertedAtlasLayerIndex;
     in vec2 atlasPosition;
 
     uniform sampler2DArray atlasTextures;
 
     void main() {
-        vec3 atlasColor = texture(atlasTextures, vec3(atlasPosition, convertedAtlasIndex)).rgb;
+        vec3 atlasColor = texture(atlasTextures, vec3(atlasPosition, convertedAtlasLayerIndex)).rgb;
         vec3 outColorRGB = atlasColor * textColor.rgb;
         float outColorA = max(outColorRGB.r, max(outColorRGB.g, outColorRGB.b));
         outColor = vec4(outColorRGB, outColorA);
@@ -230,16 +230,16 @@ export class WebGlTextRenderer {
         )
         this._gl.vertexAttribDivisor(vertexShaderAttributes.textColorRGBA, 1)
 
-        this._gl.enableVertexAttribArray(vertexShaderAttributes.atlasIndex)
+        this._gl.enableVertexAttribArray(vertexShaderAttributes.atlasLayerIndex)
         this._gl.vertexAttribPointer(
-            vertexShaderAttributes.atlasIndex,
+            vertexShaderAttributes.atlasLayerIndex,
             1,
             this._gl.FLOAT,
             false,
             glyphInstanceSizeInBytes,
             8 * Float32Array.BYTES_PER_ELEMENT,
         )
-        this._gl.vertexAttribDivisor(vertexShaderAttributes.atlasIndex, 1)
+        this._gl.vertexAttribDivisor(vertexShaderAttributes.atlasLayerIndex, 1)
 
         this._gl.enableVertexAttribArray(vertexShaderAttributes.atlasOrigin)
         this._gl.vertexAttribPointer(
@@ -366,8 +366,8 @@ export class WebGlTextRenderer {
         this._glyphInstances[5 + startOffset] = color[1]
         this._glyphInstances[6 + startOffset] = color[2]
         this._glyphInstances[7 + startOffset] = color[3]
-        // atlasIndex
-        this._glyphInstances[8 + startOffset] = glyph.textureIndex
+        // atlasLayerIndex
+        this._glyphInstances[8 + startOffset] = glyph.textureLayerIndex
         // atlasOrigin
         this._glyphInstances[9 + startOffset] = glyph.textureU
         this._glyphInstances[10 + startOffset] = glyph.textureV
