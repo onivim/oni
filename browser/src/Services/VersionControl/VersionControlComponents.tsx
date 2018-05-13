@@ -1,5 +1,6 @@
 import * as React from "react"
 
+import { Diff } from "./"
 import styled, { IThemeColors, withProps } from "./../../UI/components/common"
 import { Icon } from "./../../UI/Icon"
 
@@ -23,7 +24,7 @@ const BranchText = styled.span`
     padding: 2px 4px 0 0;
 `
 
-const BranchNameContainer = styled.span`
+export const BranchNameContainer = styled.span`
     width: 100%;
     margin-left: 4px;
 `
@@ -48,12 +49,24 @@ const ChangeSpan = styled.span`
     padding-left: 0.25rem;
 `
 
-export const Branch = (props: { branch: string; children: React.ReactNode }) => (
+interface BranchProps {
+    branch: string
+    children?: React.ReactNode
+    diff: Diff
+}
+
+export const Branch = (props: BranchProps) => (
     <BranchContainer>
         <BranchText>
             <Icon name="code-fork" />
             <BranchNameContainer>
-                {`${props.branch} `} {props.children}
+                {`${props.branch} `}
+                <DeletionsAndInsertions
+                    hasBoth={!!(props.diff.deletions && props.diff.insertions)}
+                    deletions={props.diff.deletions}
+                    insertions={props.diff.insertions}
+                />
+                {props.children}
             </BranchNameContainer>
         </BranchText>
     </BranchContainer>
@@ -71,11 +84,26 @@ const getClassNameForType = (type: ChangeTypes) => {
     }
 }
 
-export const VCSIcon = ({ type, num }: ICreateIconArgs) => (
-    <span>
-        <ChangeSpanContainer type={type}>
-            <Icon name={getClassNameForType(type)} />
-        </ChangeSpanContainer>
-        <ChangeSpan>{num}</ChangeSpan>
-    </span>
+interface ChangesProps {
+    deletions: number
+    insertions: number
+    hasBoth: boolean
+}
+
+export const DeletionsAndInsertions = ({ deletions, insertions, hasBoth }: ChangesProps) => (
+    <div>
+        <VCSIcon type="addition" num={insertions} />
+        {hasBoth && <span key={2}>, </span>}
+        <VCSIcon type="deletion" num={deletions} />
+    </div>
 )
+
+export const VCSIcon = ({ type, num }: ICreateIconArgs) =>
+    !!num && (
+        <span>
+            <ChangeSpanContainer type={type}>
+                <Icon name={getClassNameForType(type)} />
+            </ChangeSpanContainer>
+            <ChangeSpan data-test={`${type}-${num}`}>{num}</ChangeSpan>
+        </span>
+    )

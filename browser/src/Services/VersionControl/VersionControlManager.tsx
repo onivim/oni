@@ -2,13 +2,13 @@ import * as capitalize from "lodash/capitalize"
 import * as Oni from "oni-api"
 import * as React from "react"
 
-import { Diff, SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
+import { SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
 import * as Log from "./../../Log"
 import { CommandManager } from "./../CommandManager"
 import { Menu, MenuManager } from "./../Menu"
 import { SidebarManager } from "./../Sidebar"
 import { IWorkspace } from "./../Workspace"
-import { Branch, VCSIcon } from "./VersionControlComponents"
+import { Branch } from "./VersionControlComponents"
 
 export class VersionControlManager {
     private _vcsProvider: VersionControlProvider
@@ -83,11 +83,10 @@ export class VersionControlManager {
     private _updateBranchIndicator = async (branchName?: string) => {
         const vcsId = `oni.status.${this._vcs}`
         const branchIndicator = this._statusBar.createItem(1, vcsId)
-        const { filePath } = this._editorManager.activeEditor.activeBuffer
 
         try {
-            const { activeWorkspace: ws } = this._workspace
-            const branch = await this._vcsProvider.getBranch(ws)
+            const branch = await this._vcsProvider.getBranch(this._workspace.activeWorkspace)
+
             const isSameBranch =
                 this._currentBranch &&
                 (this._currentBranch === branchName || this._currentBranch === branch)
@@ -97,16 +96,16 @@ export class VersionControlManager {
             }
 
             this._currentBranch = branchName || branch
-            const summary = await this._vcsProvider.getDiff(ws)
-            if (!this._currentBranch || !summary) {
+
+            const diff = await this._vcsProvider.getDiff(this._workspace.activeWorkspace)
+
+            if (!this._currentBranch) {
                 throw new Error("The branch name could not be found")
+            } else if (!diff) {
+                throw new Error("A diff of the current directory couldn't be found")
             }
 
-            const deletionsAndInsertions = this._addDeletionsAndInsertions(summary, filePath)
-
-            branchIndicator.setContents(
-                <Branch branch={this._currentBranch}>{deletionsAndInsertions}</Branch>,
-            )
+            branchIndicator.setContents(<Branch branch={this._currentBranch} diff={diff} />)
             branchIndicator.show()
         } catch (e) {
             Log.warn(`Oni ${this._vcs} plugin encountered an error:  ${e.message}`)
@@ -114,25 +113,10 @@ export class VersionControlManager {
         }
     }
 
-    private _addDeletionsAndInsertions = (diff: Diff, filePath: string) => {
-        if (diff && (diff.insertions || diff.deletions)) {
-            const { insertions, deletions } = diff
-            const hasBoth = deletions && insertions
-            return [
-                <VCSIcon key={1} type="addition" num={insertions} />,
-                hasBoth && <span key={2}>, </span>,
-                <VCSIcon key={3} type="deletion" num={deletions} />,
-            ]
-        }
-        return []
-    }
-
     private _createBranchList = async () => {
-        const { activeWorkspace: ws } = this._workspace
-
         const [currentBranch, branches] = await Promise.all([
-            this._vcsProvider.getBranch(ws),
-            this._vcsProvider.getLocalBranches(ws),
+            this._vcsProvider.getBranch(this._workspace.activeWorkspace),
+            this._vcsProvider.getLocalBranches(this._workspace.activeWorkspace),
         ])
 
         this._menuInstance = this._menu.create()
@@ -148,18 +132,18 @@ export class VersionControlManager {
 
         this._menuInstance.show()
         this._menuInstance.setItems(branchItems)
+
         this._menuInstance.onItemSelected.subscribe(menuItem => {
             if (menuItem && menuItem.label) {
-                this._vcsProvider.changeBranch(menuItem.label, ws)
+                this._vcsProvider.changeBranch(menuItem.label, this._workspace.activeWorkspace)
             }
         })
     }
 
     private _fetchBranch = async () => {
-        const { activeWorkspace: ws } = this._workspace
         if (this._menuInstance.isOpen() && this._menuInstance.selectedItem) {
             await this._vcsProvider.fetchBranchFromRemote({
-                currentDir: ws,
+                currentDir: this._workspace.activeWorkspace,
                 branch: this._menuInstance.selectedItem.label,
             })
         }

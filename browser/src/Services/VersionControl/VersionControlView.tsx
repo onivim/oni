@@ -63,7 +63,9 @@ const GitStatus = ({ title, files, selectedId, symbol }: IModifiedFilesProps) =>
                 {files.map(filePath => (
                     <Column key={filePath} isSelected={selectedId === filePath}>
                         <Name>{truncate(filePath)}</Name>
-                        <Row>{symbol}</Row>
+                        <Row>
+                            <strong>{symbol}</strong>
+                        </Row>
                     </Column>
                 ))}
             </div>

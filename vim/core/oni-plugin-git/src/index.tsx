@@ -39,6 +39,7 @@ export interface VersionControlProvider {
     onStagedFilesChanged: IEvent<VCSStagedFilesChangedEvent>
     onBranchChanged: IEvent<VCSBranchChangedEvent>
 
+    canHandleWorkspace(dir?: string): Promise<boolean>
     getStatus(projectRoot?: string): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
     getBranch(path?: string): Promise<string | void>
@@ -71,6 +72,10 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
     get onStagedFilesChanged(): IEvent<VCSStagedFilesChangedEvent> {
         return this._onStagedFilesChanged
+    }
+
+    public canHandleWorkspace(dir: string): Promise<boolean> {
+        return this._git(dir).checkIsRepo()
     }
 
     public async getRoot(): Promise<string | null> {

@@ -24,6 +24,7 @@ export default interface VersionControlProvider {
     onStageFilesChanged: IEvent<VCSStagedFilesChangedEvent>
     onBranchChanged: IEvent<VCSBranchChangedEvent>
 
+    canHandleWorkspace(dir?: string): Promise<boolean>
     getStatus(projectRoot?: string): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
     getDiff(projectRoot?: string): Promise<DiffResult | void>
