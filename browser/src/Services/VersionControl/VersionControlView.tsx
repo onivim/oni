@@ -21,11 +21,7 @@ const Column = withProps<{ isSelected: boolean }>(styled.div)`
     padding: 0.3em;
 `
 
-const Name = styled.span`
-    max-width: 8em;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-`
+const Name = styled.span``
 
 const Title = styled.h4`
     margin: 0;

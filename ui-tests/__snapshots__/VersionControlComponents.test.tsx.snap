@@ -10,7 +10,6 @@ exports[`<Branch /> should match last known snapshot unless we make a change 1`]
       test-branch 
       <Component
         deletions={8}
-        hasBoth={true}
         insertions={2}
       />
     </styled.span>

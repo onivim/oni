@@ -57,18 +57,14 @@ interface BranchProps {
     diff: Diff
 }
 
-export const Branch = (props: BranchProps) => (
+export const Branch = ({ diff, branch, children }: BranchProps) => (
     <BranchContainer>
         <BranchText>
             <Icon name="code-fork" />
             <BranchNameContainer>
-                {`${props.branch} `}
-                <DeletionsAndInsertions
-                    hasBoth={!!(props.diff.deletions && props.diff.insertions)}
-                    deletions={props.diff.deletions}
-                    insertions={props.diff.insertions}
-                />
-                {props.children}
+                {`${branch} `}
+                <DeletionsAndInsertions deletions={diff.deletions} insertions={diff.insertions} />
+                {children}
             </BranchNameContainer>
         </BranchText>
     </BranchContainer>
@@ -89,13 +85,12 @@ const getClassNameForType = (type: ChangeTypes) => {
 interface ChangesProps {
     deletions: number
     insertions: number
-    hasBoth: boolean
 }
 
-export const DeletionsAndInsertions = ({ deletions, insertions, hasBoth }: ChangesProps) => (
+export const DeletionsAndInsertions = ({ deletions, insertions }: ChangesProps) => (
     <span>
         <VCSIcon type="addition" num={insertions} />
-        {hasBoth && <span key={2}>, </span>}
+        {!!(deletions && insertions) && <span key={2}>, </span>}
         <VCSIcon type="deletion" num={deletions} />
     </span>
 )
