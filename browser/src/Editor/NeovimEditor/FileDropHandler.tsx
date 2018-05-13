@@ -10,7 +10,7 @@ interface IFileDropHandler {
 type DragTypeName = "ondragover" | "ondragleave" | "ondragenter"
 
 /**
- * Gets a target child element via a callback ref and attaches a file drop event listener callback
+ * Gets a target element via a callback ref and attaches a file drop event listener callback
  * N.B. the element cannot be obscured as this will prevent event transmission
  * @name FileDropHandler
  * @function
