@@ -2,7 +2,7 @@ import { INeovimRenderer } from ".."
 import { IScreen } from "../../neovim"
 import { CachedColorNormalizer } from "./CachedColorNormalizer"
 import { IColorNormalizer } from "./IColorNormalizer"
-import { IWebGLAtlasOptions } from "./WebGLAtlas"
+import { IWebGLAtlasOptions, WebGLTextureSpaceExceededError } from "./WebGLAtlas"
 import { WebGLSolidRenderer } from "./WebGLSolidRenderer"
 import { WebGlTextRenderer } from "./WebGLTextRenderer"
 
@@ -10,6 +10,8 @@ export class WebGLRenderer implements INeovimRenderer {
     private _editorElement: HTMLElement
     private _colorNormalizer: IColorNormalizer
     private _previousAtlasOptions: IWebGLAtlasOptions
+    private _textureSizeInPixels = 1024
+    private _textureLayerCount = 2
 
     private _gl: WebGL2RenderingContext
     private _solidRenderer: WebGLSolidRenderer
@@ -18,22 +20,24 @@ export class WebGLRenderer implements INeovimRenderer {
     public start(editorElement: HTMLElement): void {
         this._editorElement = editorElement
         this._colorNormalizer = new CachedColorNormalizer()
-
-        const canvasElement = document.createElement("canvas")
-        canvasElement.style.width = `100%`
-        canvasElement.style.height = `100%`
-
-        this._editorElement.innerHTML = ""
-        this._editorElement.appendChild(canvasElement)
-
-        this._gl = canvasElement.getContext("webgl2") as WebGL2RenderingContext
     }
 
     public redrawAll(screenInfo: IScreen): void {
+        this._initializeCanvasIfRequired()
         this._updateCanvasDimensions()
         this._createNewRendererIfRequired(screenInfo)
         this._clear(screenInfo.backgroundColor)
-        this._draw(screenInfo)
+
+        try {
+            this._draw(screenInfo)
+        } catch (error) {
+            if (error instanceof WebGLTextureSpaceExceededError) {
+                this._textureLayerCount *= 2
+                this.redrawAll(screenInfo)
+            } else {
+                throw error
+            }
+        }
     }
 
     public draw(screenInfo: IScreen): void {
@@ -44,10 +48,23 @@ export class WebGLRenderer implements INeovimRenderer {
         // do nothing
     }
 
+    private _initializeCanvasIfRequired() {
+        if (!this._gl) {
+            const canvasElement = document.createElement("canvas")
+            this._editorElement.innerHTML = ""
+            this._editorElement.appendChild(canvasElement)
+
+            this._gl = canvasElement.getContext("webgl2") as WebGL2RenderingContext
+        }
+    }
+
     private _updateCanvasDimensions() {
         const devicePixelRatio = window.devicePixelRatio
-        this._gl.canvas.width = this._editorElement.offsetWidth * devicePixelRatio
-        this._gl.canvas.height = this._editorElement.offsetHeight * devicePixelRatio
+        const canvas = this._gl.canvas
+        canvas.width = this._editorElement.offsetWidth * devicePixelRatio
+        canvas.height = this._editorElement.offsetHeight * devicePixelRatio
+        canvas.style.width = `${canvas.width / devicePixelRatio}px`
+        canvas.style.height = `${canvas.height / devicePixelRatio}px`
     }
 
     private _createNewRendererIfRequired({
@@ -68,6 +85,8 @@ export class WebGLRenderer implements INeovimRenderer {
             linePaddingInPixels,
             devicePixelRatio,
             offsetGlyphVariantCount,
+            textureSizeInPixels: this._textureSizeInPixels,
+            textureLayerCount: this._textureLayerCount,
         } as IWebGLAtlasOptions
 
         if (
