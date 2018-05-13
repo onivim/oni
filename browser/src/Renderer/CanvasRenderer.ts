@@ -345,19 +345,20 @@ export class CanvasRenderer implements INeovimRenderer {
 
     private _setContext(): void {
         this._editorElement.innerHTML = ""
+        this._devicePixelRatio = window.devicePixelRatio
+
+        // offsetWidth and offsetHeight always return an integer
+        const editorWidth = this._editorElement.offsetWidth
+        const editorHeight = this._editorElement.offsetHeight
 
         this._canvasElement = document.createElement("canvas")
-        this._canvasElement.style.width = "100%"
-        this._canvasElement.style.height = "100%"
-
-        this._devicePixelRatio = window.devicePixelRatio
+        this._canvasElement.style.width = editorWidth + "px"
+        this._canvasElement.style.height = editorHeight + "px"
 
         this._editorElement.appendChild(this._canvasElement)
 
-        this._width = this._canvasElement.width =
-            this._canvasElement.offsetWidth * this._devicePixelRatio
-        this._height = this._canvasElement.height =
-            this._canvasElement.offsetHeight * this._devicePixelRatio
+        this._width = this._canvasElement.width = editorWidth * this._devicePixelRatio
+        this._height = this._canvasElement.height = editorHeight * this._devicePixelRatio
 
         if (
             configuration.getValue("editor.backgroundImageUrl") &&

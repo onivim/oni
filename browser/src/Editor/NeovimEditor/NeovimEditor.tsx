@@ -307,16 +307,6 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         // Services
-        this._commands = new NeovimEditorCommands(
-            commandManager,
-            this._contextMenuManager,
-            this._definition,
-            this._languageIntegration,
-            this._neovimInstance,
-            this._rename,
-            this._symbols,
-        )
-
         const onColorsChanged = () => {
             const updatedColors: any = this._colors.getColors()
             this._actions.setColors(updatedColors)
@@ -721,6 +711,16 @@ export class NeovimEditor extends Editor implements IEditor {
             this._languageIntegration.onHideDefinition.subscribe(definition => {
                 this._actions.hideDefinition()
             }),
+        )
+
+        this._commands = new NeovimEditorCommands(
+            commandManager,
+            this._contextMenuManager,
+            this._definition,
+            this._languageIntegration,
+            this._neovimInstance,
+            this._rename,
+            this._symbols,
         )
 
         this._render()
