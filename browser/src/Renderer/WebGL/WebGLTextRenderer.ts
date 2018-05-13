@@ -258,7 +258,7 @@ export class WebGlTextRenderer {
                 if (!isWhiteSpace(char)) {
                     const variantIndex =
                         Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
-                    const glyph = this._atlas.getGlyph(char, variantIndex)
+                    const glyph = this._atlas.getGlyph(char, cell.bold, cell.italic, variantIndex)
                     const colorToUse = cell.foregroundColor || defaultForegroundColor || "white"
                     const normalizedTextColor = this._colorNormalizer.normalizeColor(colorToUse)
 

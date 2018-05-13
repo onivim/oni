@@ -23,7 +23,7 @@ export interface WebGLGlyph {
 
 export class WebGLAtlas {
     private _glyphContext: CanvasRenderingContext2D
-    private _glyphs = new Map<string, Map<number, WebGLGlyph>>()
+    private _glyphs = new Map<string, WebGLGlyph[][]>()
     private _nextX = 0
     private _nextY = 0
     private _textureChangedSinceLastUpload = false
@@ -39,7 +39,6 @@ export class WebGLAtlas {
         glyphCanvas.width = this._textureSize
         glyphCanvas.height = this._textureSize
         this._glyphContext = glyphCanvas.getContext("2d", { alpha: false })
-        this._glyphContext.font = `${this._options.fontSize} ${this._options.fontFamily}`
         this._glyphContext.fillStyle = "white"
         this._glyphContext.textBaseline = "top"
         this._glyphContext.scale(_options.devicePixelRatio, _options.devicePixelRatio)
@@ -54,17 +53,26 @@ export class WebGLAtlas {
         this.uploadTexture()
     }
 
-    public getGlyph(text: string, variantIndex: number) {
-        let glyphVariants = this._glyphs.get(text)
-        if (!glyphVariants) {
-            glyphVariants = new Map()
-            this._glyphs.set(text, glyphVariants)
+    public getGlyph(text: string, isBold: boolean, isItalic: boolean, variantIndex: number) {
+        // The mapping goes from character to styles (bold etc.) to subpixel-offset variant,
+        // e.g. this._glyphs.get("a")[0][0] is the regular "a" with 0 offset,
+        // while this._glyphs.get("a")[3][1] is the bold italic "a" with 1/offsetGlyphVariantCount px offset
+        let glyphStyleVariants = this._glyphs.get(text)
+        if (!glyphStyleVariants) {
+            glyphStyleVariants = new Array<WebGLGlyph[]>(glyphStyles.length)
+            this._glyphs.set(text, glyphStyleVariants)
+        }
+        const glyphStyleIndex = getGlyphStyleIndex(isBold, isItalic)
+        let glyphOffsetVariants = glyphStyleVariants[glyphStyleIndex]
+        if (!glyphOffsetVariants) {
+            glyphOffsetVariants = new Array<WebGLGlyph>(this._options.offsetGlyphVariantCount)
+            glyphStyleVariants[glyphStyleIndex] = glyphOffsetVariants
         }
 
-        let glyph = glyphVariants.get(variantIndex)
+        let glyph = glyphOffsetVariants[variantIndex]
         if (!glyph) {
-            glyph = this._rasterizeGlyph(text, variantIndex)
-            glyphVariants.set(variantIndex, glyph)
+            glyph = this._rasterizeGlyph(text, isBold, isItalic, variantIndex)
+            glyphOffsetVariants[variantIndex] = glyph
         }
 
         return glyph
@@ -87,7 +95,12 @@ export class WebGLAtlas {
         }
     }
 
-    private _rasterizeGlyph(text: string, variantIndex: number) {
+    private _rasterizeGlyph(
+        text: string,
+        isBold: boolean,
+        isItalic: boolean,
+        variantIndex: number,
+    ) {
         this._textureChangedSinceLastUpload = true
 
         const {
@@ -114,6 +127,8 @@ export class WebGLAtlas {
 
         const x = this._nextX
         const y = this._nextY
+        const style = getGlyphStyleString(isBold, isItalic)
+        this._glyphContext.font = `${style} ${this._options.fontSize} ${this._options.fontFamily}`
         this._glyphContext.fillText(text, x + variantOffset, y + linePaddingInPixels / 2)
         this._nextX += width
 
@@ -129,3 +144,15 @@ export class WebGLAtlas {
         } as WebGLGlyph
     }
 }
+
+const getGlyphStyleIndex = (isBold: boolean, isItalic: boolean) =>
+    isBold ? (isItalic ? 3 : 1) : isItalic ? 2 : 0
+
+const glyphStyles = [
+    "", // regular, 0
+    "bold", // 1
+    "italic", // 2
+    "bold italic", // 3
+]
+const getGlyphStyleString = (isBold: boolean, isItalic: boolean) =>
+    glyphStyles[getGlyphStyleIndex(isBold, isItalic)]
