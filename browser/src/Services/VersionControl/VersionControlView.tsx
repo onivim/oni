@@ -27,7 +27,7 @@ const Title = styled.h4`
     margin: 0;
 `
 
-const SectionTitle = styled.div`
+export const SectionTitle = styled.div`
     margin: 0.2em 0;
     padding: 0.2em;
     background-color: rgba(0, 0, 0, 0.2);
@@ -48,11 +48,11 @@ const truncate = (str: string) =>
         .slice(-2)
         .join(path.sep)
 
-const GitStatus = ({ title, files, selectedId, symbol }: IModifiedFilesProps) => (
+export const GitStatus = ({ title, files, selectedId, symbol }: IModifiedFilesProps) => (
     <div>
         {files && (
             <div>
-                <SectionTitle>
+                <SectionTitle data-test={`${title}-${files.length}`}>
                     <Title>{title}</Title>
                     <strong>{files.length}</strong>
                 </SectionTitle>
@@ -81,7 +81,7 @@ interface ILocalState {
     error: boolean
 }
 
-class VersionControlContainer extends React.Component<IProps, ILocalState> {
+class VersionControlView extends React.Component<IProps, ILocalState> {
     public state: ILocalState = {
         error: null,
     }
@@ -140,4 +140,4 @@ export default connect<IState>(
         hasFocus: state.hasFocus,
     }),
     null,
-)(VersionControlContainer)
+)(VersionControlView)

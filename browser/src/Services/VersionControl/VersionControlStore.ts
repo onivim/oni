@@ -11,7 +11,7 @@ interface IGenericAction<T, P = undefined> {
     payload?: P
 }
 
-const DefaultState: IState = {
+export const DefaultState: IState = {
     status: {
         currentBranch: null,
         staged: [],

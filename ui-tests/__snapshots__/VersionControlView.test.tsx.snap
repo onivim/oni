@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<VersionControlView /> should match the last recorded snapshot unless a change was made 1`] = `
+<div>
+  <div>
+    <styled.div
+      data-test="modified files-2"
+    >
+      <styled.h4>
+        modified files
+      </styled.h4>
+      <strong>
+        2
+      </strong>
+    </styled.div>
+    <styled.div
+      isSelected={false}
+      key="test1"
+    >
+      <styled.span>
+        test1
+      </styled.span>
+      <styled.div>
+        <strong>
+          M
+        </strong>
+      </styled.div>
+    </styled.div>
+    <styled.div
+      isSelected={false}
+      key="test2"
+    >
+      <styled.span>
+        test2
+      </styled.span>
+      <styled.div>
+        <strong>
+          M
+        </strong>
+      </styled.div>
+    </styled.div>
+  </div>
+</div>
+`;
