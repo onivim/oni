@@ -21,7 +21,7 @@ export interface StatusResult {
 export default interface VersionControlProvider {
     // Events
     onFileStatusChanged: IEvent<VCSFileStatusChangedEvent>
-    onStageFilesChanged: IEvent<VCSStagedFilesChangedEvent>
+    onStagedFilesChanged: IEvent<VCSStagedFilesChangedEvent>
     onBranchChanged: IEvent<VCSBranchChangedEvent>
 
     canHandleWorkspace(dir?: string): Promise<boolean>

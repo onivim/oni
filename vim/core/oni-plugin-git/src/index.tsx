@@ -49,7 +49,7 @@ export interface VersionControlProvider {
         branch: string
         origin?: string
         currentDir: string
-    }): Promise<GitP.FetchResult>
+    }): Promise<GitP.FetchResult | void>
 }
 
 export class GitVersionControlProvider implements VersionControlProvider {
@@ -134,8 +134,8 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
     public fetchBranchFromRemote = async ({
         branch,
-        remote = "origin",
         currentDir,
+        remote = null,
     }: {
         branch: string
         remote: string
@@ -146,7 +146,6 @@ export class GitVersionControlProvider implements VersionControlProvider {
             return fetched
         } catch (error) {
             this._log(`Git provider unable to fetch branch because of: ${error.message}`)
-            return null
         }
     }
 

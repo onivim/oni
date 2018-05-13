@@ -18,7 +18,16 @@ export default class VersionControlPane {
         private _workspace: IWorkspace,
         private _vcsProvider: VersionControlProvider,
         private _name: SupportedProviders,
-    ) {}
+    ) {
+        this._vcsProvider.onBranchChanged.subscribe(async () => {
+            await this.getStatus()
+        })
+
+        this._vcsProvider.onStagedFilesChanged.subscribe(async () => {
+            await this.getStatus()
+        })
+    }
+
     public enter(): void {
         this._store.dispatch({ type: "ENTER" })
         this._workspace.onDirectoryChanged.subscribe(async () => {
@@ -42,7 +51,6 @@ export default class VersionControlPane {
     public stageFile = async (file: string) => {
         const { activeWorkspace } = this._workspace
         await this._vcsProvider.stageFile(file, activeWorkspace)
-        await this.getStatus()
     }
 
     public handleSelection = async (file: string): Promise<void> => {
