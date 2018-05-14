@@ -144,7 +144,7 @@ export class VersionControlManager {
 }
 
 // Shelter the instance from the global scope -> globals are evil.
-export default function init() {
+function init() {
     let Provider: VersionControlManager
 
     const Activate = (
