@@ -6,6 +6,7 @@ export interface IWebGLAtlasOptions {
     fontSize: string
     lineHeightInPixels: number
     linePaddingInPixels: number
+    glyphPaddingInPixels: number
     devicePixelRatio: number
     offsetGlyphVariantCount: number
     textureSizeInPixels: number
@@ -21,7 +22,7 @@ export interface WebGLGlyph {
     textureU: number
     textureV: number
     variantOffset: number
-    subpixelWidth: number
+    subpixelWidth: number // TODO remove this as it is unused
 }
 
 export class WebGLTextureSpaceExceededError extends Error {}
@@ -140,13 +141,17 @@ export class WebGLAtlas {
             devicePixelRatio,
             lineHeightInPixels,
             linePaddingInPixels,
+            glyphPaddingInPixels,
             offsetGlyphVariantCount,
         } = this._options
+        const style = getGlyphStyleString(isBold, isItalic)
+        this._glyphContext.font = `${style} ${this._options.fontSize} ${this._options.fontFamily}`
         const variantOffset = variantIndex / offsetGlyphVariantCount
 
-        const height = lineHeightInPixels
-        const { width: subpixelWidth } = this._glyphContext.measureText(text)
-        const width = Math.ceil(variantOffset) + Math.ceil(subpixelWidth)
+        const height = lineHeightInPixels + 2 * glyphPaddingInPixels
+        const { width: measuredGlyphWidth } = this._glyphContext.measureText(text)
+        const width =
+            Math.ceil(variantOffset) + Math.ceil(measuredGlyphWidth) + 2 * glyphPaddingInPixels
 
         if ((this._nextX + width) * devicePixelRatio > this._options.textureSizeInPixels) {
             this._nextX = 0
@@ -159,9 +164,11 @@ export class WebGLAtlas {
 
         const x = this._nextX
         const y = this._nextY
-        const style = getGlyphStyleString(isBold, isItalic)
-        this._glyphContext.font = `${style} ${this._options.fontSize} ${this._options.fontFamily}`
-        this._glyphContext.fillText(text, x + variantOffset, y + linePaddingInPixels / 2)
+        this._glyphContext.fillText(
+            text,
+            x + glyphPaddingInPixels + variantOffset,
+            y + glyphPaddingInPixels + linePaddingInPixels / 2,
+        )
         this._nextX += width
 
         return {
@@ -172,7 +179,7 @@ export class WebGLAtlas {
             textureV: y * devicePixelRatio / this._options.textureSizeInPixels,
             textureWidth: width * devicePixelRatio / this._options.textureSizeInPixels,
             textureHeight: height * devicePixelRatio / this._options.textureSizeInPixels,
-            subpixelWidth: subpixelWidth * devicePixelRatio,
+            subpixelWidth: measuredGlyphWidth * devicePixelRatio,
             variantOffset,
         } as WebGLGlyph
     }

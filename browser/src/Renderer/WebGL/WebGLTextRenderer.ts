@@ -93,6 +93,7 @@ const isWhiteSpace = (text: string) => text === null || text === "" || text === 
 
 export class WebGlTextRenderer {
     private _atlas: WebGLAtlas
+    private _glyphOverlapInPixels: number
     private _subpixelDivisor: number
     private _devicePixelRatio: number
 
@@ -113,8 +114,9 @@ export class WebGlTextRenderer {
         private _colorNormalizer: IColorNormalizer,
         atlasOptions: IWebGLAtlasOptions,
     ) {
-        this._devicePixelRatio = atlasOptions.devicePixelRatio
+        this._glyphOverlapInPixels = atlasOptions.glyphPaddingInPixels
         this._subpixelDivisor = atlasOptions.offsetGlyphVariantCount
+        this._devicePixelRatio = atlasOptions.devicePixelRatio
         this._atlas = new WebGLAtlas(this._gl, atlasOptions)
 
         this._firstPassProgram = createProgram(
@@ -274,6 +276,7 @@ export class WebGlTextRenderer {
     ) {
         const pixelRatioAdaptedFontWidth = fontWidthInPixels * this._devicePixelRatio
         const pixelRatioAdaptedFontHeight = fontHeightInPixels * this._devicePixelRatio
+        const pixelRatioAdaptedGlyphOverlap = this._glyphOverlapInPixels * this._devicePixelRatio
 
         let glyphCount = 0
         let y = 0
@@ -294,8 +297,8 @@ export class WebGlTextRenderer {
 
                     this.updateGlyphInstance(
                         glyphCount,
-                        Math.round(x - glyph.variantOffset),
-                        y,
+                        Math.round(x - glyph.variantOffset) - pixelRatioAdaptedGlyphOverlap,
+                        y - pixelRatioAdaptedGlyphOverlap,
                         glyph,
                         normalizedTextColor,
                     )
