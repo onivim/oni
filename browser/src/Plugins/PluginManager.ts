@@ -37,7 +37,7 @@ export class PluginManager implements Oni.IPluginManager {
     constructor(private _config: Configuration) {}
 
     public addDevelopmentPlugin(pluginPath: string): void {
-       this._developmentPluginsPath.push(pluginPath)
+        this._developmentPluginsPath.push(pluginPath)
     }
 
     public discoverPlugins(): void {
@@ -61,7 +61,9 @@ export class PluginManager implements Oni.IPluginManager {
             this._createPlugin(p, "user"),
         )
 
-        const developmentPlugins = this._developmentPluginsPath.map((dev) => this._createPlugin(dev, "development"))
+        const developmentPlugins = this._developmentPluginsPath.map(dev =>
+            this._createPlugin(dev, "development"),
+        )
 
         this._rootPluginPaths = [
             ...corePluginRootPaths,
@@ -84,7 +86,10 @@ export class PluginManager implements Oni.IPluginManager {
     }
 
     public getAllRuntimePaths(): string[] {
-        const pluginPaths = [...this._getAllPluginPaths(this._rootPluginPaths), ...this._developmentPluginsPath]
+        const pluginPaths = [
+            ...this._getAllPluginPaths(this._rootPluginPaths),
+            ...this._developmentPluginsPath,
+        ]
 
         return pluginPaths.concat(this._rootPluginPaths)
     }
