@@ -54,7 +54,7 @@ export class Sneak {
 
         const sneaks = this._store.getState().sneaks
 
-        if (sneaks || sneaks.length === 0) {
+        if (!sneaks || sneaks.length === 0) {
             return null
         }
 
