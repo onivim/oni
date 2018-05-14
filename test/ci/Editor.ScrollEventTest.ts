@@ -18,6 +18,18 @@ const createLines = (num: number): string => {
     return ret.join(os.EOL)
 }
 
+const assertValue = (actual: number, expected: number, msg: string, oni: Oni.Plugin.Api) => {
+    const passed = actual === expected
+
+    const notification = oni.notifications.createItem()
+    const title = passed ? "Assertion Passed" : "Assertion Failed"
+    notification.setContents(title, `${msg}\nActual: ${actual}\nExpected:${expected}`)
+    ;(notification as any).setLevel(passed ? "success" : "error")
+    notification.show()
+
+    assert.strictEqual(actual, expected, msg)
+}
+
 export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitForEditors()
 
@@ -32,21 +44,36 @@ export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.sendKeys("G")
 
     await oni.automation.waitFor(() => scrollEventHitCount === 1)
-    assert.strictEqual(scrollEventHitCount, 1, "A single scroll event should've been triggered")
+    assertValue(scrollEventHitCount, 1, "A single scroll event should've been triggered by G", oni)
 
     await oni.automation.sendKeys("gg")
     await oni.automation.waitFor(() => scrollEventHitCount === 2)
-    assert.strictEqual(scrollEventHitCount, 2, "Another scroll event should've been triggered")
+    assertValue(scrollEventHitCount, 2, "Another scroll event should've been triggered by gg", oni)
 
     await oni.automation.sendKeys(":50<cr>")
     await oni.automation.waitFor(() => scrollEventHitCount === 3)
-    assert.strictEqual(scrollEventHitCount, 3, "Another scroll event should've been triggered")
+    assertValue(
+        scrollEventHitCount,
+        3,
+        "Another scroll event should've been triggered by navigating to a line",
+        oni,
+    )
 
     await oni.automation.sendKeys("<c-e>")
     await oni.automation.waitFor(() => scrollEventHitCount === 4)
-    assert.strictEqual(scrollEventHitCount, 4, "Another scroll event should've been triggered")
+    assertValue(
+        scrollEventHitCount,
+        4,
+        "Another scroll event should've been triggered by scrolling up one line",
+        oni,
+    )
 
     await oni.automation.sendKeys("<c-d>")
     await oni.automation.waitFor(() => scrollEventHitCount === 5)
-    assert.strictEqual(scrollEventHitCount, 5, "Another scroll event should've been triggered")
+    assertValue(
+        scrollEventHitCount,
+        5,
+        "Another scroll event should've been triggered by scrolling down one line",
+        oni,
+    )
 }
