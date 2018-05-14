@@ -50,10 +50,10 @@ export const activate = (
     })
 
     commandManager.registerCommand({
-        command: "quickOpen.openFileExistingTab",
+        command: "quickOpen.openFileAlternative",
         name: null,
         detail: null,
-        execute: () => _quickOpen.openFile(Oni.FileOpenMode.ExistingTab),
+        execute: () => _quickOpen.openFileWithAltAction(),
         enabled: isOpen,
     })
 

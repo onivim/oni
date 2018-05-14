@@ -2,6 +2,8 @@ import * as chokidar from "chokidar"
 import { Stats } from "fs"
 import { Event, IEvent } from "oni-types"
 
+import * as Log from "./../../Log"
+
 export type Targets = string | string[]
 
 interface IFSOptions {
@@ -33,6 +35,10 @@ export class FileSystemWatcher {
 
         this._watcher.on("ready", () => {
             this._attachEventListeners()
+        })
+
+        this._watcher.on("error", err => {
+            Log.warn("FileSystemWatcher encountered an error: " + err)
         })
     }
 

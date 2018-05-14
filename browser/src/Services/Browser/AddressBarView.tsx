@@ -80,7 +80,7 @@ export class AddressBarView extends React.PureComponent<
 
     private _renderAddressSpan(): JSX.Element {
         return (
-            <Sneakable callback={() => this._setActive()}>
+            <Sneakable callback={() => this._setActive()} tag={"browser.address"}>
                 <span onClick={() => this._setActive()}>{this.props.url}</span>
             </Sneakable>
         )
