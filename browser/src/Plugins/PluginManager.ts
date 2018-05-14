@@ -24,6 +24,8 @@ export class PluginManager implements Oni.IPluginManager {
     private _pluginsActivated: boolean = false
     private _installer: IPluginInstaller = new YarnPluginInstaller()
 
+    private _developmentPluginsPath: string[] = []
+
     public get plugins(): Plugin[] {
         return this._plugins
     }
@@ -33,6 +35,10 @@ export class PluginManager implements Oni.IPluginManager {
     }
 
     constructor(private _config: Configuration) {}
+
+    public addDevelopmentPlugin(pluginPath: string): void {
+        this._developmentPluginsPath.push(pluginPath)
+    }
 
     public discoverPlugins(): void {
         const corePluginRootPaths: string[] = [corePluginsRoot, extensionsRoot]
@@ -55,12 +61,16 @@ export class PluginManager implements Oni.IPluginManager {
             this._createPlugin(p, "user"),
         )
 
+        const developmentPlugins = this._developmentPluginsPath.map(dev =>
+            this._createPlugin(dev, "development"),
+        )
+
         this._rootPluginPaths = [
             ...corePluginRootPaths,
             ...defaultPluginRootPaths,
             ...userPluginsRootPath,
         ]
-        this._plugins = [...corePlugins, ...defaultPlugins, ...userPlugins]
+        this._plugins = [...corePlugins, ...defaultPlugins, ...userPlugins, ...developmentPlugins]
 
         this._anonymousPlugin = new AnonymousPlugin()
     }
@@ -76,7 +86,10 @@ export class PluginManager implements Oni.IPluginManager {
     }
 
     public getAllRuntimePaths(): string[] {
-        const pluginPaths = this._getAllPluginPaths(this._rootPluginPaths)
+        const pluginPaths = [
+            ...this._getAllPluginPaths(this._rootPluginPaths),
+            ...this._developmentPluginsPath,
+        ]
 
         return pluginPaths.concat(this._rootPluginPaths)
     }

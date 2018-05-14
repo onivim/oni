@@ -6,6 +6,7 @@
 
 import * as React from "react"
 import { connect } from "react-redux"
+import { createSelector } from "reselect"
 
 import * as Oni from "oni-api"
 
@@ -119,20 +120,30 @@ const EmptyState: NeovimBufferLayersViewProps = {
     fontPixelWidth: -1,
 }
 
+const getActiveVimTabPage = (state: State.IState) => state.activeVimTabPage
+const getWindowState = (state: State.IState) => state.windowState
+
+const windowSelector = createSelector(
+    [getActiveVimTabPage, getWindowState],
+    (tabPage: State.IVimTabPage, windowState: State.IWindowState) => {
+        const windows = tabPage.windowIds.map(windowId => {
+            return windowState.windows[windowId]
+        })
+
+        return windows.sort((a, b) => a.windowId - b.windowId)
+    },
+)
+
 const mapStateToProps = (state: State.IState): NeovimBufferLayersViewProps => {
     if (!state.activeVimTabPage) {
         return EmptyState
     }
 
-    const windows = state.activeVimTabPage.windowIds.map(windowId => {
-        return state.windowState.windows[windowId]
-    })
-
-    const wins = windows.sort((a, b) => a.windowId - b.windowId)
+    const windows = windowSelector(state)
 
     return {
         activeWindowId: state.windowState.activeWindow,
-        windows: wins,
+        windows,
         layers: state.layers,
         fontPixelWidth: state.fontPixelWidth,
         fontPixelHeight: state.fontPixelHeight,
