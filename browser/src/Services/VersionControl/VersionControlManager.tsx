@@ -4,6 +4,7 @@ import * as React from "react"
 
 import { SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
 import * as Log from "./../../Log"
+import { MenuManager } from "./../Menu"
 import { SidebarManager } from "./../Sidebar"
 import { IWorkspace } from "./../Workspace"
 import { Branch } from "./VersionControlComponents"
@@ -19,7 +20,7 @@ export class VersionControlManager {
         private _workspace: IWorkspace,
         private _editorManager: Oni.EditorManager,
         private _statusBar: Oni.StatusBar,
-        private _menu: Oni.Menu.Api,
+        private _menu: MenuManager,
         private _commands: Oni.Commands.Api,
         private _sidebar: SidebarManager,
     ) {}
@@ -95,6 +96,7 @@ export class VersionControlManager {
                 throw new Error("A diff of the current directory couldn't be found")
             }
 
+            // TODO: disable repeated enter animations of this status item
             this._gitStatusItem.setContents(<Branch branch={this._currentBranch} diff={diff} />)
             this._gitStatusItem.show()
         } catch (e) {
@@ -150,7 +152,7 @@ export default function init() {
         editorManager: Oni.EditorManager,
         statusBar: Oni.StatusBar,
         commands: Oni.Commands.Api,
-        menu: Oni.Menu.Api,
+        menu: MenuManager,
         sidebar: SidebarManager,
     ): void => {
         Provider = new VersionControlManager(
