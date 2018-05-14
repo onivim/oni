@@ -4,24 +4,23 @@ import * as React from "react"
 
 import { SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
 import * as Log from "./../../Log"
-import { CommandManager } from "./../CommandManager"
-import { Menu, MenuManager } from "./../Menu"
 import { SidebarManager } from "./../Sidebar"
 import { IWorkspace } from "./../Workspace"
 import { Branch } from "./VersionControlComponents"
 
 export class VersionControlManager {
-    private _vcsProvider: VersionControlProvider
-    private _menuInstance: Menu
     private _vcs: SupportedProviders
+    private _vcsProvider: VersionControlProvider
+    private _menuInstance: Oni.Menu.MenuInstance
+    private _gitStatusItem: Oni.StatusBarItem
     private _currentBranch: string | void
 
     constructor(
         private _workspace: IWorkspace,
         private _editorManager: Oni.EditorManager,
         private _statusBar: Oni.StatusBar,
-        private _menu: MenuManager,
-        private _commands: CommandManager,
+        private _menu: Oni.Menu.Api,
+        private _commands: Oni.Commands.Api,
         private _sidebar: SidebarManager,
     ) {}
 
@@ -82,20 +81,11 @@ export class VersionControlManager {
 
     private _updateBranchIndicator = async (branchName?: string) => {
         const vcsId = `oni.status.${this._vcs}`
-        const branchIndicator = this._statusBar.createItem(1, vcsId)
+        this._gitStatusItem = this._statusBar.createItem(1, vcsId)
 
         try {
-            const branch = await this._vcsProvider.getBranch(this._workspace.activeWorkspace)
-
-            const isSameBranch =
-                this._currentBranch &&
-                (this._currentBranch === branchName || this._currentBranch === branch)
-
-            if (isSameBranch) {
-                return
-            }
-
-            this._currentBranch = branchName || branch
+            this._currentBranch =
+                branchName || (await this._vcsProvider.getBranch(this._workspace.activeWorkspace))
 
             const diff = await this._vcsProvider.getDiff(this._workspace.activeWorkspace)
 
@@ -105,11 +95,11 @@ export class VersionControlManager {
                 throw new Error("A diff of the current directory couldn't be found")
             }
 
-            branchIndicator.setContents(<Branch branch={this._currentBranch} diff={diff} />)
-            branchIndicator.show()
+            this._gitStatusItem.setContents(<Branch branch={this._currentBranch} diff={diff} />)
+            this._gitStatusItem.show()
         } catch (e) {
             Log.warn(`Oni ${this._vcs} plugin encountered an error:  ${e.message}`)
-            return branchIndicator.hide()
+            return this._gitStatusItem.hide()
         }
     }
 
@@ -120,6 +110,7 @@ export class VersionControlManager {
         ])
 
         this._menuInstance = this._menu.create()
+
         if (!branches) {
             return
         }
@@ -150,25 +141,36 @@ export class VersionControlManager {
     }
 }
 
-let Provider: VersionControlManager
+// Shelter the instance from the global scope -> globals are evil.
+export default function init() {
+    let Provider: VersionControlManager
 
-export const activate = (
-    workspace: IWorkspace,
-    editorManager: Oni.EditorManager,
-    statusBar: Oni.StatusBar,
-    commands: CommandManager,
-    menu: MenuManager,
-    sidebar: SidebarManager,
-) =>
-    (Provider = new VersionControlManager(
-        workspace,
-        editorManager,
-        statusBar,
-        menu,
-        commands,
-        sidebar,
-    ))
+    const Activate = (
+        workspace: IWorkspace,
+        editorManager: Oni.EditorManager,
+        statusBar: Oni.StatusBar,
+        commands: Oni.Commands.Api,
+        menu: Oni.Menu.Api,
+        sidebar: SidebarManager,
+    ): void => {
+        Provider = new VersionControlManager(
+            workspace,
+            editorManager,
+            statusBar,
+            menu,
+            commands,
+            sidebar,
+        )
+    }
 
-export const getInstance = () => {
-    return Provider
+    const GetInstance = () => {
+        return Provider
+    }
+
+    return {
+        activate: Activate,
+        getInstance: GetInstance,
+    }
 }
+
+export const { activate, getInstance } = init()

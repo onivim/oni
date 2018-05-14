@@ -155,8 +155,8 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
     public getBranch = async (currentDir?: string): Promise<string | void> => {
         try {
-            const status = await this._git(currentDir).status()
-            return status.current
+            const { current } = await this._git(currentDir).status()
+            return current
         } catch (e) {
             this._log(`Git Provider was unable to get current status because of: ${e.message}`)
         }
