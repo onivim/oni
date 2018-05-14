@@ -38,7 +38,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitFor(() => scrollEventHitCount === 2)
     assert.strictEqual(scrollEventHitCount, 2, "Another scroll event should've been triggered")
 
-    await oni.automation.sendKeys(":50")
+    await oni.automation.sendKeys(":50<cr>")
     await oni.automation.waitFor(() => scrollEventHitCount === 3)
     assert.strictEqual(scrollEventHitCount, 3, "Another scroll event should've been triggered")
 
