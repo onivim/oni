@@ -740,26 +740,6 @@ export class NeovimEditor extends Editor implements IEditor {
         ipcRenderer.on("open-file", (_evt: any, path: string) => {
             this._neovimInstance.command(`:e! ${path}`)
         })
-
-        // TODO: Factor this out to a react component
-        // enable opening a file via drag-drop
-        document.body.ondragover = ev => {
-            ev.preventDefault()
-            ev.stopPropagation()
-        }
-
-        document.body.ondrop = ev => {
-            ev.preventDefault()
-            // TODO: the following line currently breaks explorer drag and drop functionality
-            ev.stopPropagation()
-
-            const { files } = ev.dataTransfer
-
-            if (files.length) {
-                const normalisedPaths = Array.from(files).map(f => normalizePath(f.path))
-                this.openFiles(normalisedPaths, { openMode: Oni.FileOpenMode.Edit })
-            }
-        }
     }
 
     public async blockInput(
@@ -910,10 +890,10 @@ export class NeovimEditor extends Editor implements IEditor {
         return this.activeBuffer
     }
 
-    public async openFiles(
+    public openFiles = async (
         files: string[],
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
-    ): Promise<Oni.Buffer> {
+    ): Promise<Oni.Buffer> => {
         if (!files) {
             return this.activeBuffer
         }
@@ -944,6 +924,13 @@ export class NeovimEditor extends Editor implements IEditor {
 
     public executeCommand(command: string): void {
         commandManager.executeCommand(command, null)
+    }
+
+    public _onFilesDropped = async (files: FileList) => {
+        if (files.length) {
+            const normalisedPaths = Array.from(files).map(f => normalizePath(f.path))
+            await this.openFiles(normalisedPaths, { openMode: Oni.FileOpenMode.Edit })
+        }
     }
 
     public async init(
@@ -1060,6 +1047,7 @@ export class NeovimEditor extends Editor implements IEditor {
         return (
             <Provider store={this._store}>
                 <NeovimSurface
+                    onFileDrop={this._onFilesDropped}
                     autoFocus={this._autoFocus}
                     renderer={this._renderer}
                     typingPrediction={this._typingPredictionManager}

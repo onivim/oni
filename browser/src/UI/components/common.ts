@@ -58,6 +58,8 @@ export function withProps<T, U extends HTMLElement = HTMLElement>(
     return styledFunction
 }
 
+export const pixel = (v: string | number): string => `${v}px`
+
 const darken = (c: string, deg = 0.15) =>
     Color(c)
         .darken(deg)

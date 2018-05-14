@@ -176,7 +176,7 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
         }
 
         return (
-            <Sneakable callback={this.props.onClickName}>
+            <Sneakable callback={() => this.props.onClickName(this.props.id)} tag={this.props.name}>
                 <TabWrapper
                     innerRef={(e: IChromeDivElement) => (this._tab = e)}
                     className={cssClasses}
