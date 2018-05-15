@@ -55,10 +55,6 @@
     "@types/events" "*"
     "@types/node" "*"
 
-"@types/classnames@0.0.32":
-  version "0.0.32"
-  resolved "https://registry.yarnpkg.com/@types/classnames/-/classnames-0.0.32.tgz#449abcd9a826807811ef101e58df9f83cfc61713"
-
 "@types/color-convert@*":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@types/color-convert/-/color-convert-1.9.0.tgz#bfa8203e41e7c65471e9841d7e306a7cd8b5172d"
@@ -2243,9 +2239,9 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@2.2.5, classnames@^2.2.3, classnames@^2.2.5:
+classnames@JedWatson/classnames, classnames@^2.2.3, classnames@^2.2.5:
   version "2.2.5"
-  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.5.tgz#fb3801d453467649ef3603c7d61a02bd129bde6d"
+  resolved "https://codeload.github.com/JedWatson/classnames/tar.gz/34a05a53d31d35879ec7088949ae5a1b2224043a"
 
 clean-css@4.1.x:
   version "4.1.11"

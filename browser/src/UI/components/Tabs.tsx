@@ -7,7 +7,7 @@ import * as path from "path"
 import * as React from "react"
 import { connect } from "react-redux"
 
-import * as classNames from "classnames"
+import classNames from "classnames"
 import { keyframes } from "styled-components"
 
 import * as BufferSelectors from "./../../Editor/NeovimEditor/NeovimEditorSelectors"

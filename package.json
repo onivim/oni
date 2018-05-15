@@ -882,7 +882,6 @@
     },
     "devDependencies": {
         "@types/chokidar": "^1.7.5",
-        "@types/classnames": "0.0.32",
         "@types/color": "2.0.0",
         "@types/detect-indent": "^5.0.0",
         "@types/dompurify": "^0.0.31",
@@ -921,7 +920,7 @@
         "babel-minify-webpack-plugin": "^0.3.1",
         "babel-plugin-dynamic-import-node": "^1.2.0",
         "bs-platform": "2.1.0",
-        "classnames": "2.2.5",
+        "classnames": "JedWatson/classnames",
         "codecov": "^3.0.0",
         "color": "2.0.0",
         "concurrently": "3.1.0",
