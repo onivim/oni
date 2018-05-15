@@ -1,15 +1,42 @@
-import { shallow } from "enzyme"
+import { mount, shallow } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
+
+import * as IconThemes from "../browser/src/Services/IconThemes"
+import * as Sneak from "../browser/src/Services/Sneak"
 
 import { Tab, Tabs } from "../browser/src/UI/components/Tabs"
 
 describe("<Tabs /> Tests", () => {
-    const tab = {
-        id: 2,
+    IconThemes.activate = jest.fn().mockResolvedValue()
+    IconThemes.getInstance = jest.fn().mockReturnValue({
+        getIconClassForFile: jest.fn().mockReturnValue("testClass"),
+    })
+
+    Sneak.getInstance = jest.fn().mockReturnValue({
+        addSneakProvider: jest.fn().mockReturnValue({
+            dispose: jest.fn(),
+        }),
+    })
+
+    const tabCloseFunction = jest.fn()
+    const tabSelectFunction = jest.fn()
+
+    const tab1 = {
+        id: 1,
         name: "test",
         description: "a test tab",
         isSelected: true,
+        isDirty: true,
+        iconFileName: "icon",
+        highlightColor: "#000",
+    }
+
+    const tab2 = {
+        id: 2,
+        name: "test",
+        description: "a test tab",
+        isSelected: false,
         isDirty: true,
         iconFileName: "icon",
         highlightColor: "#000",
@@ -25,7 +52,9 @@ describe("<Tabs /> Tests", () => {
             foregroundColor="#000"
             shouldWrap={false}
             visible={true}
-            tabs={[tab]}
+            onTabClose={tabCloseFunction}
+            onTabSelect={tabSelectFunction}
+            tabs={[tab1]}
         />
     )
 
@@ -39,7 +68,9 @@ describe("<Tabs /> Tests", () => {
             foregroundColor="#000"
             shouldWrap={false}
             visible={true}
-            tabs={[tab, tab]}
+            onTabClose={tabCloseFunction}
+            onTabSelect={tabSelectFunction}
+            tabs={[tab1, tab2]}
         />
     )
 
@@ -53,7 +84,7 @@ describe("<Tabs /> Tests", () => {
             foregroundColor="#000"
             shouldWrap={false}
             visible={false}
-            tabs={[tab]}
+            tabs={[tab1]}
         />
     )
 
@@ -67,13 +98,73 @@ describe("<Tabs /> Tests", () => {
         expect(shallowToJson(wrapper)).toMatchSnapshot()
     })
 
-    it("Should render the correct number of tabs", () => {
+    it("should render the correct number of tabs", () => {
         expect(shallow(TabsContainingSingleTab).children().length).toEqual(1)
         expect(shallow(TabsContainingTwoTabs).children().length).toEqual(2)
     })
 
-    it("Should not render if the visible prop is false", () => {
+    it("should not render if the visible prop is false", () => {
         const wrapper = shallow(TabsNotVisible)
         expect(wrapper.getElement()).toBe(null)
+    })
+
+    it("should call onTabClose callback on tab close button click", () => {
+        const wrapper = mount(TabsContainingSingleTab)
+        const clickedTabId = wrapper.find(Tab).props().id
+
+        wrapper
+            .find(".corner")
+            .last()
+            .simulate("click")
+
+        expect(tabCloseFunction).toHaveBeenCalledWith(clickedTabId)
+
+        wrapper.unmount()
+    })
+
+    it("should call onTabSelect callback on tab title click", () => {
+        const wrapper = mount(TabsContainingTwoTabs)
+        const clickedTab = wrapper.find(Tab).last()
+
+        clickedTab.find(".name").simulate("mouseDown", { button: 0 })
+        expect(tabSelectFunction).toHaveBeenCalledWith(clickedTab.props().id)
+
+        wrapper.unmount()
+    })
+
+    it("should call onTabClose callback on tab title middle click", () => {
+        const wrapper = mount(TabsContainingTwoTabs)
+        const clickedTab = wrapper.find(Tab).first()
+
+        clickedTab.find(".name").simulate("mouseDown", { button: 1 })
+        expect(tabCloseFunction).toHaveBeenCalledWith(clickedTab.props().id)
+
+        wrapper.unmount()
+    })
+
+    it("should call onTabSelect callback on tab file icon click", () => {
+        const wrapper = mount(TabsContainingTwoTabs)
+        const clickedTab = wrapper.find(Tab).last()
+
+        clickedTab
+            .find(".corner")
+            .first()
+            .simulate("mouseDown", { button: 0 })
+        expect(tabSelectFunction).toHaveBeenCalledWith(clickedTab.props().id)
+
+        wrapper.unmount()
+    })
+
+    it("should call onTabClose callback on tab file icon middle click", () => {
+        const wrapper = mount(TabsContainingTwoTabs)
+        const clickedTab = wrapper.find(Tab).first()
+
+        clickedTab
+            .find(".corner")
+            .first()
+            .simulate("mouseDown", { button: 1 })
+        expect(tabCloseFunction).toHaveBeenCalledWith(clickedTab.props().id)
+
+        wrapper.unmount()
     })
 })
