@@ -8,6 +8,7 @@ import styled, { keyframes } from "styled-components"
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { configuration } from "../Configuration"
 import { enableMouse, withProps } from "./../../UI/components/common"
 
 import { ISidebarEntry, ISidebarState, SidebarManager, SidebarPane } from "./SidebarStore"
@@ -82,7 +83,7 @@ const EntranceKeyframes = keyframes`
 
 export const SidebarContentWrapper = withProps<{}>(styled.div)`
     ${enableMouse}
-    width: 200px;
+    width: ${props => props.width};
     color: ${props => props.theme["editor.foreground"]};
     background-color: ${props => props.theme["editor.background"]};
     height: 100%;
@@ -173,7 +174,10 @@ export class SidebarContentView extends React.PureComponent<
         const header = activeEntry && activeEntry.pane ? activeEntry.pane.title : null
 
         return (
-            <SidebarContentWrapper className="sidebar-content">
+            <SidebarContentWrapper
+                className="sidebar-content"
+                width={configuration.getValue("sidebar.width")}
+            >
                 <SidebarHeaderView hasFocus={this.state.active} headerName={header} />
                 <SidebarInnerPaneWrapper key={activeEntry.id}>
                     {activeEntry.pane.render()}
