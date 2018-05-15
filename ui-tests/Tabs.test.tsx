@@ -2,22 +2,18 @@ import { mount, shallow } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
 
-import * as IconThemes from "../browser/src/Services/IconThemes"
-import * as Sneak from "../browser/src/Services/Sneak"
+jest.mock("../browser/src/Services/FileIcon")
+import { FileIcon } from "../browser/src/Services/FileIcon"
+jest.mock("../browser/src/UI/components/Sneakable")
+import { Sneakable } from "../browser/src/UI/components/Sneakable"
 
 import { Tab, Tabs } from "../browser/src/UI/components/Tabs"
 
 describe("<Tabs /> Tests", () => {
-    IconThemes.activate = jest.fn().mockResolvedValue()
-    IconThemes.getInstance = jest.fn().mockReturnValue({
-        getIconClassForFile: jest.fn().mockReturnValue("testClass"),
-    })
-
-    Sneak.getInstance = jest.fn().mockReturnValue({
-        addSneakProvider: jest.fn().mockReturnValue({
-            dispose: jest.fn(),
-        }),
-    })
+    FileIcon.mockImplementation(() => ({ render: jest.fn() }))
+    Sneakable.mockImplementation((props) => ({
+        render: () => props.children,
+    }))
 
     const tabCloseFunction = jest.fn()
     const tabSelectFunction = jest.fn()
