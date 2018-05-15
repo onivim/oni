@@ -13,14 +13,14 @@ const Line1a = "The Targets.vim plugin is very useful!"
 const Line1b = "It was created by Christian Wellenbrock."
 const Line1c = "Targets.vim adds text objects for additional (operations)."
 
-const Line2a = "'cin(' selects inside the next pair of (parenthesis)."
-const Line2b = "'can(' selects around the next pair of (parenthesis)."
-const Line2c = "Replacing 'n' with 'l' will move to the previous pair."
-const Line2d = "Omitting either will select the (current pair) or the (next)."
+const Line2a = "'cin(' changes inside the next pair of (parenthesis)."
+const Line2b = "'can(' changes the next pair of (parenthesis)."
+const Line2c = "Replacing 'n' with 'l' will change the previous pair."
+const Line2d = "Omitting either will change the (current pair) or the (next)."
 
 const Line3a = "Quote objects can 'also' be used."
-const Line3b = '\'cIn"\' selects the first characters inside of " quotes ".'
-const Line3c = '\'cAn"\' selects around the "quotes" .'
+const Line3b = '\'cIn"\' changes the first characters inside of " quotes ".'
+const Line3c = '\'cAn"\' changes around the "quotes" .'
 
 const Line4a = "'din,' will delete inside the next list, with, commas."
 const Line4b = "Many different seperators are possible."
@@ -28,7 +28,7 @@ const Line4c = "Some applications you might consider not_a_list."
 
 const Line5a = "Replacing the text character with 'a' will find the next programming argument."
 const Line5b = "'dina' will select inside the (next, argument)."
-const Line5c = "'dana' selects around the (next, argument)"
+const Line5c = "'dana' deletes the (next, argument)"
 
 const Line6a = "These are only a brief overview of Targets.vim."
 const Line6b = "More advanced features can be found on its github repository."
@@ -41,7 +41,7 @@ export class TargetsVimPluginTutorial implements ITutorial {
         this._stages = [
             new Stages.SetBufferStage([Line1a, Line1b, Line1c]),
             new Stages.SetCursorPositionStage(0, 0),
-            new Stages.MoveToGoalStage("Use 'cin(' to move inside the paranthesis", 2, 46),
+            new Stages.MoveToGoalStage("Use 'cin(' to change inside the next parenthesis", 2, 46),
             new Stages.MoveToGoalStage("Type 'foo'", 2, 49),
             new Stages.WaitForModeStage("Press ESC to go back to normal mode", "normal"),
             Stages.combine(
@@ -52,22 +52,18 @@ export class TargetsVimPluginTutorial implements ITutorial {
                 new Stages.SetBufferStage([Line2a, Line2b, Line2c, Line2d]),
             ),
             new Stages.SetCursorPositionStage(0, 7),
-            new Stages.MoveToGoalStage("Use 'cin(' to move inside the paranthesis", 0, 40),
+            new Stages.MoveToGoalStage("Use 'cin(' to change inside the next parenthesis", 0, 40),
             new Stages.WaitForModeStage("Press ESC to go back to normal mode", "normal"),
             new Stages.SetCursorPositionStage(1, 7),
-            new Stages.MoveToGoalStage("Use 'can(' to move around the paranthesis", 1, 39),
-            new Stages.MoveToGoalStage("Type 'bar'", 1, 42),
+            new Stages.MoveToGoalStage("Use 'can(' to change the next parenthesis", 1, 32),
+            new Stages.MoveToGoalStage("Type 'bar'", 1, 35),
             new Stages.WaitForModeStage("Press ESC to go back to normal mode", "normal"),
-            new Stages.MoveToGoalStage(
-                "Use 'cil(' to move back inside the last paranthesis",
-                0,
-                40,
-            ),
+            new Stages.MoveToGoalStage("Use 'cil(' to change inside the last parenthesis", 0, 40),
             new Stages.WaitForModeStage("Press ESC to go back to normal mode", "normal"),
             new Stages.SetCursorPositionStage(3, 34),
-            new Stages.MoveToGoalStage("Use 'ca(' to select inside the current paranthesis", 3, 32),
+            new Stages.MoveToGoalStage("Use 'ca(' to change the current parenthesis", 3, 32),
             new Stages.WaitForModeStage("Press ESC to go back to normal mode", "normal"),
-            new Stages.MoveToGoalStage("Use 'ca(' to select the next paranthesis", 3, 40),
+            new Stages.MoveToGoalStage("Use 'ca(' to change the next parenthesis", 3, 40),
             new Stages.WaitForModeStage("Press ESC to go back to normal mode", "normal"),
             Stages.combine(
                 null,
@@ -76,17 +72,17 @@ export class TargetsVimPluginTutorial implements ITutorial {
                 new Stages.SetBufferStage([Line3a, Line3b, Line3c]),
             ),
             new Stages.SetCursorPositionStage(0, 0),
-            new Stages.MoveToGoalStage("Use 'cin'' to move inside the single quotes", 0, 19),
+            new Stages.MoveToGoalStage("Use 'cin'' to change inside the next single quotes", 0, 19),
             new Stages.WaitForModeStage("Press ESC to go back to normal mode", "normal"),
             new Stages.SetCursorPositionStage(1, 7),
             new Stages.MoveToGoalStage(
-                "Use 'cIn\"' to move to first character inside double quotes",
+                "Use 'cIn\"' to change the first character inside the next double quotes",
                 1,
                 48,
             ),
             new Stages.WaitForModeStage("Press ESC to go back to normal mode", "normal"),
             new Stages.SetCursorPositionStage(2, 7),
-            new Stages.MoveToGoalStage("Use 'cAn\"' to select around the double quotes", 2, 26),
+            new Stages.MoveToGoalStage("Use 'cAn\"' to change the next double quotes", 2, 26),
             new Stages.WaitForModeStage("Press ESC to go back to normal mode", "normal"),
             Stages.combine(
                 null,
@@ -97,7 +93,7 @@ export class TargetsVimPluginTutorial implements ITutorial {
             new Stages.SetCursorPositionStage(0, 7),
             new Stages.MoveToGoalStage("Use 'din,' to delete the next item in the list", 0, 40),
             new Stages.MoveToGoalStage(
-                "Use 'din_' to delete from the middle of the variable",
+                "Use 'din_' to delete inside the next underline in the variable",
                 2,
                 41,
             ),
@@ -110,8 +106,12 @@ export class TargetsVimPluginTutorial implements ITutorial {
                 new Stages.SetBufferStage([Line5a, Line5b, Line5c]),
             ),
             new Stages.SetCursorPositionStage(0, 0),
-            new Stages.MoveToGoalStage("Use 'dina' to delete the next programming argument", 1, 31),
-            new Stages.MoveToGoalStage("Use 'dana' to delete around the next argument", 2, 27),
+            new Stages.MoveToGoalStage(
+                "Use 'dina' to delete inside the next programming argument",
+                1,
+                31,
+            ),
+            new Stages.MoveToGoalStage("Use 'dana' to delete the next argument", 2, 20),
             new Stages.MoveToGoalStage("Type gg to go to the beginning.", 0, 0),
             Stages.combine(
                 null,
