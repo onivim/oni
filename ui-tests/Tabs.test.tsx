@@ -84,6 +84,11 @@ describe("<Tabs /> Tests", () => {
         />
     )
 
+    afterEach(() => {
+        tabCloseFunction.mockReset()
+        tabSelectFunction.mockReset()
+    })
+
     it("renders without crashing", () => {
         const wrapper = shallow(TabsContainingSingleTab)
         expect(wrapper.length).toEqual(1)
