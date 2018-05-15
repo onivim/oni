@@ -3,6 +3,7 @@ import * as React from "react"
 import { Provider } from "react-redux"
 
 import { store, SupportedProviders, VersionControlProvider, VersionControlView } from "./"
+import * as Log from "./../../Log"
 import { IWorkspace } from "./../Workspace"
 
 export default class VersionControlPane {
@@ -53,6 +54,11 @@ export default class VersionControlPane {
         await this._vcsProvider.stageFile(file, activeWorkspace)
     }
 
+    public setError = async (e: Error) => {
+        Log.warn(`version control pane failed to render due to ${e.message}`)
+        this._store.dispatch({ type: "ERROR" })
+    }
+
     public handleSelection = async (file: string): Promise<void> => {
         const { status } = this._store.getState()
         switch (true) {
@@ -70,6 +76,7 @@ export default class VersionControlPane {
         return (
             <Provider store={this._store}>
                 <VersionControlView
+                    setError={this.setError}
                     getStatus={this.getStatus}
                     handleSelection={this.handleSelection}
                 />

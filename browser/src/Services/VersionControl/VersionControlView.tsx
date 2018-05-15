@@ -72,33 +72,25 @@ export const GitStatus = ({ title, files, selectedId, symbol }: IModifiedFilesPr
 interface IProps {
     status: StatusResult
     hasFocus: boolean
+    hasError: boolean
+    setError?: (e: Error) => void
     getStatus?: () => void
     handleSelection?: (selection: string) => void
     children?: React.ReactNode
 }
 
-interface ILocalState {
-    error: boolean
-}
-
-class VersionControlView extends React.Component<IProps, ILocalState> {
-    public state: ILocalState = {
-        error: null,
-    }
-
+class VersionControlView extends React.Component<IProps> {
     public async componentDidMount() {
         await this.props.getStatus()
     }
 
     public async componentDidCatch(e: Error) {
-        // tslint:disable-next-line
-        console.warn(e)
-        this.setState({ error: true })
+        this.props.setError(e)
     }
 
     public render() {
         const { modified, staged, untracked } = this.props.status
-        return this.state.error ? (
+        return this.props.hasError ? (
             <SectionTitle>
                 <Title>Something Went Wrong</Title>
             </SectionTitle>
@@ -138,6 +130,7 @@ export default connect<IState>(
     (state: IState): IProps => ({
         status: state.status,
         hasFocus: state.hasFocus,
+        hasError: state.hasError,
     }),
     null,
 )(VersionControlView)

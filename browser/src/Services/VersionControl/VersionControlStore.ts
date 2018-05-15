@@ -4,6 +4,7 @@ import { StatusResult } from "./VersionControlProvider"
 export interface IState {
     status: StatusResult
     hasFocus: boolean
+    hasError: boolean
 }
 
 interface IGenericAction<T, P = undefined> {
@@ -25,12 +26,14 @@ export const DefaultState: IState = {
         behind: null,
     },
     hasFocus: null,
+    hasError: false,
 }
 
 type IEnterAction = IGenericAction<"ENTER">
 type ILeaveAction = IGenericAction<"LEAVE">
+type IErrorAction = IGenericAction<"ERROR">
 type IStatusAction = IGenericAction<"STATUS", { status: StatusResult }>
-type IAction = IStatusAction | IEnterAction | ILeaveAction
+type IAction = IStatusAction | IEnterAction | ILeaveAction | IErrorAction
 
 function reducer(state: IState, action: IAction) {
     switch (action.type) {
@@ -42,6 +45,11 @@ function reducer(state: IState, action: IAction) {
             return {
                 ...state,
                 status: action.payload.status,
+            }
+        case "ERROR":
+            return {
+                ...state,
+                hasError: true,
             }
         default:
             return state

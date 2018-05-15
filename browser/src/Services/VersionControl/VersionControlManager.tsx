@@ -39,6 +39,10 @@ export class VersionControlManager {
         }
     }
 
+    get activeVCSName(): string {
+        return this._vcs
+    }
+
     private _initialize() {
         this._updateBranchIndicator()
         this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
