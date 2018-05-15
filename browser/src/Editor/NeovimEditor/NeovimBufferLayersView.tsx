@@ -40,7 +40,7 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
             const layers =
                 this.props.layers[windowState.bufferId] || (EmptyArray as Oni.BufferLayer[])
 
-            const layerContext = {
+            const layerContext: Oni.BufferLayerRenderContext = {
                 isActive: windowState.windowId === this.props.activeWindowId,
                 windowId: windowState.windowId,
                 fontPixelWidth: this.props.fontPixelWidth,
@@ -50,6 +50,8 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
                 bufferToPixel: windowState.bufferToPixel,
                 dimensions: windowState.dimensions,
                 visibleLines: windowState.visibleLines,
+                topBufferLine: windowState.topBufferLine,
+                bottomBufferLine: windowState.bottomBufferLine,
             }
 
             const layerElements = layers.map(l => {

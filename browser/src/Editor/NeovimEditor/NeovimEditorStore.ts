@@ -159,7 +159,7 @@ export interface IWindow {
 
     bufferToScreen: Oni.Coordinates.BufferToScreen
     screenToPixel: Oni.Coordinates.ScreenToPixel
-    bufferToPixel: any /* TODO: Oni.Coordinates.BufferToPixel */
+    bufferToPixel: Oni.Coordinates.BufferToPixel
 
     dimensions: Oni.Shapes.Rectangle
     topBufferLine: number

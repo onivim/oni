@@ -225,7 +225,7 @@ export interface ISetWindowState {
 
         bufferToScreen: Oni.Coordinates.BufferToScreen
         screenToPixel: Oni.Coordinates.ScreenToPixel
-        bufferToPixel: any /* TODO */
+        bufferToPixel: Oni.Coordinates.BufferToPixel
 
         topBufferLine: number
         bottomBufferLine: number

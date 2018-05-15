@@ -26,9 +26,7 @@ export class TestLayer implements Oni.BufferLayer {
             className += "inactive"
         }
 
-        const contextAsAny = context as any
-
-        return <div className={className}>{contextAsAny.visibleLines.join(os.EOL)}</div>
+        return <div className={className}>{context.visibleLines.join(os.EOL)}</div>
     }
 }
 
