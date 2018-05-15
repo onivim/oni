@@ -175,7 +175,7 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
                             playAppearAnimation={true}
                         />
                     </div>
-                    <div className="name" onMouseDown={event => handleTitleClick}>
+                    <div className="name" onMouseDown={handleTitleClick}>
                         <InnerName>{this.props.name}</InnerName>
                     </div>
                     <div className="corner enable-hover" onClick={handleCloseButtonClick}>
