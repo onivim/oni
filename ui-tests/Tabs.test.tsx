@@ -111,14 +111,14 @@ describe("<Tabs /> Tests", () => {
 
     it("should call onTabClose callback on tab close button click", () => {
         const wrapper = mount(TabsContainingSingleTab)
-        const clickedTabId = wrapper.find(Tab).props().id
+        const clickedTab = wrapper.find(Tab)
 
         wrapper
             .find(".corner")
             .last()
             .simulate("click")
 
-        expect(tabCloseFunction).toHaveBeenCalledWith(clickedTabId)
+        expect(tabCloseFunction).toHaveBeenCalledWith(clickedTab.props().id)
 
         wrapper.unmount()
     })
@@ -168,4 +168,37 @@ describe("<Tabs /> Tests", () => {
 
         wrapper.unmount()
     })
+
+    it("should pass tab name as Sneakable tag property", () => {
+        const wrapper = mount(TabsContainingSingleTab)
+        const tab = wrapper.find(Tab)
+        const sneakable = wrapper.find(Sneakable)
+
+        expect(sneakable.props().tag).toEqual(tab.props().name)
+
+        wrapper.unmount()
+    });
+
+    it("should call onTabSelect callback as Sneakable callback", () => {
+        Sneakable.mockImplementationOnce((props) => {
+            props.callback()
+        }
+
+        const wrapper = mount(TabsContainingSingleTab)
+        const sneakableTab = wrapper.find(Tab)
+
+        expect(tabSelectFunction).toHaveBeenCalledWith(sneakableTab.props().id)
+
+        wrapper.unmount()
+    });
+
+    it("should pass tab icon file name as FileIcon fileName property ", () => {
+        const wrapper = mount(TabsContainingSingleTab)
+        const tab = wrapper.find(Tab)
+        const fileIcon = wrapper.find(FileIcon)
+
+        expect(fileIcon.props().fileName).toEqual(tab.props().iconFileName)
+
+        wrapper.unmount()
+    });
 })
