@@ -13,8 +13,8 @@ import { LanguageManager } from "./../../Services/Language"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import { Definition } from "./Definition"
 import { asObservable } from "./../../Utility"
+import { Definition } from "./Definition"
 
 export class Symbols {
     constructor(

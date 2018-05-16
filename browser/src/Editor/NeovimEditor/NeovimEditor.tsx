@@ -75,7 +75,7 @@ import NeovimSurface from "./NeovimSurface"
 
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 
-import { normalizePath, sleep, asObservable } from "./../../Utility"
+import { asObservable, normalizePath, sleep } from "./../../Utility"
 
 import * as VimConfigurationSynchronizer from "./../../Services/VimConfigurationSynchronizer"
 
