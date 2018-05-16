@@ -120,6 +120,7 @@ Thanks you to all our backers for making Oni possible!
 * Nicolaus Hepler
 * Nick Price
 * Domenico Maisano
+* Daniel Polanco
 
 <a href="https://opencollective.com/oni/tiers/backer/0/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/0/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/backer/1/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/1/avatar.png"></a>
