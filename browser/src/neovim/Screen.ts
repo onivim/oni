@@ -41,11 +41,67 @@ export interface IScreen {
 export interface MinimalScreenForRendering {
     backgroundColor: string
     foregroundColor: string
-    rowCount: number
-    columnCount: number
+    width: number
+    height: number
+    fontFamily: string
+    fontSize: string
     fontWidthInPixels: number
     fontHeightInPixels: number
+    linePaddingInPixels: number
     getCell(x: number, y: number): ICell
+}
+
+export class ScreenWithPredictions {
+    constructor(private _screen: IScreen) {}
+
+    public getCell = (x: number, y: number) => {
+        const cell = this._screen.getCell(x, y)
+
+        if (cell && cell.character === "a") {
+            return {
+                ...cell,
+                character: "A",
+            }
+        }
+
+        return cell
+    }
+
+    public get linePaddingInPixels(): number {
+        return this._screen.linePaddingInPixels
+    }
+
+    public get fontFamily(): string {
+        return this._screen.fontFamily
+    }
+
+    public get fontSize(): string {
+        return this._screen.fontSize
+    }
+
+    public get backgroundColor(): string {
+        return this._screen.backgroundColor
+    }
+
+    public get foregroundColor(): string {
+        return this._screen.foregroundColor
+    }
+
+    public get width(): number {
+        return this._screen.width
+    }
+
+    public get height(): number {
+        return this._screen.height
+    }
+
+    public get fontWidthInPixels(): number {
+        return this._screen.fontWidthInPixels
+    }
+
+    public get fontHeightInPixels(): number {
+        return this._screen.fontHeightInPixels
+    }
 }
 
 export interface ICell {

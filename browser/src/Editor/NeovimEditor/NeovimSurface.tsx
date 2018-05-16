@@ -18,8 +18,6 @@ import { CursorLine } from "./../../UI/components/CursorLine"
 import { InstallHelp } from "./../../UI/components/InstallHelp"
 import { TabsContainer } from "./../../UI/components/Tabs"
 import { ToolTips } from "./../../UI/components/ToolTip"
-import { TypingPrediction } from "./../../UI/components/TypingPredictions"
-
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
 import { setViewport } from "./../NeovimEditor/NeovimEditorActions"
@@ -89,7 +87,6 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
                                 />
                             </div>
                             <div className="stack layer">
-                                <TypingPrediction typingPrediction={this.props.typingPrediction} />
                                 <Cursor typingPrediction={this.props.typingPrediction} />
                                 <CursorLine lineType={"line"} />
                                 <CursorLine lineType={"column"} />

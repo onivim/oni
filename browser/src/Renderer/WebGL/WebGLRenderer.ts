@@ -1,5 +1,5 @@
 import { INeovimRenderer } from ".."
-import { IScreen } from "../../neovim"
+import { MinimalScreenForRendering } from "../../neovim"
 import { CachedColorNormalizer } from "./CachedColorNormalizer"
 import { IColorNormalizer } from "./IColorNormalizer"
 import { IWebGLAtlasOptions, WebGLTextureSpaceExceededError } from "./WebGLAtlas"
@@ -28,7 +28,7 @@ export class WebGLRenderer implements INeovimRenderer {
         this._gl = canvasElement.getContext("webgl2") as WebGL2RenderingContext
     }
 
-    public redrawAll(screenInfo: IScreen): void {
+    public redrawAll(screenInfo: MinimalScreenForRendering): void {
         if (!this._editorElement) {
             return
         }
@@ -49,7 +49,7 @@ export class WebGLRenderer implements INeovimRenderer {
         }
     }
 
-    public draw(screenInfo: IScreen): void {
+    public draw(screenInfo: MinimalScreenForRendering): void {
         this.redrawAll(screenInfo)
     }
 
@@ -74,7 +74,7 @@ export class WebGLRenderer implements INeovimRenderer {
         linePaddingInPixels,
         fontFamily,
         fontSize,
-    }: IScreen) {
+    }: MinimalScreenForRendering) {
         const devicePixelRatio = window.devicePixelRatio
         const offsetGlyphVariantCount = Math.max(4 / devicePixelRatio, 1)
         const atlasOptions = {
@@ -129,7 +129,7 @@ export class WebGLRenderer implements INeovimRenderer {
         getCell,
         foregroundColor,
         backgroundColor,
-    }: IScreen) {
+    }: MinimalScreenForRendering) {
         const canvasWidth = this._gl.canvas.width
         const canvasHeight = this._gl.canvas.height
         const viewportScaleX = 2 / canvasWidth
