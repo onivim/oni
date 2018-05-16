@@ -7348,9 +7348,9 @@ oni-ripgrep@0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/oni-ripgrep/-/oni-ripgrep-0.0.4.tgz#8eb52383f4a3f92b8b5d8fe29d52e9d728a46b50"
 
-oni-types@0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/oni-types/-/oni-types-0.0.4.tgz#97bc435565d5f4c3bdc50bd1700fd24dd5b6704b"
+oni-types@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/oni-types/-/oni-types-0.0.8.tgz#1dfe97eda3f2b97dfcb94609af25fc2e4172fa33"
 
 oniguruma@^6.0.1:
   version "6.2.1"
