@@ -26,7 +26,7 @@ export class TestLayer implements Oni.BufferLayer {
             className += "inactive"
         }
 
-        return <div className={className} />
+        return <div className={className}>{context.visibleLines.join(os.EOL)}</div>
     }
 }
 
@@ -45,12 +45,17 @@ const getInactiveLayerElements = () => {
 export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitForEditors()
 
-    await createNewFile("js", oni)
+    await createNewFile("js", oni, "line1\nline2")
 
     oni.editors.activeEditor.activeBuffer.addLayer(new TestLayer())
 
     // Wait for layer to appear
     await oni.automation.waitFor(() => getLayerElements().length === 1)
+
+    // Validate the buffer layer has rendered the 'visibleLines'
+    const element = getLayerElements()[0]
+    assert.ok(element.textContent.indexOf("line1") >= 0, "Validate line1 is present in the layer")
+    assert.ok(element.textContent.indexOf("line2") >= 0, "Validate line2 is present in the layer")
 
     // Validate elements
     assert.strictEqual(getActiveLayerElements().length, 1)
