@@ -43,7 +43,7 @@ export interface VersionControlProvider {
     getStatus(projectRoot?: string): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
     getBranch(path?: string): Promise<string | void>
-    getLocalBranches(path?: string): Promise<GitP.BranchSummary | string>
+    getLocalBranches(path?: string): Promise<GitP.BranchSummary | void>
     stageFile(file: string, projectRoot?: string): Promise<void>
     fetchBranchFromRemote(args: {
         branch: string
@@ -149,8 +149,12 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public getLocalBranches = (currentDir?: string): Promise<GitP.BranchSummary> => {
-        return this._git(currentDir).branchLocal()
+    public getLocalBranches = (currentDir?: string): Promise<GitP.BranchSummary | void> => {
+        try {
+            return this._git(currentDir).branchLocal()
+        } catch (e) {
+            this._log(`Git provider unable to get local branches because of: ${e.message}`)
+        }
     }
 
     public getBranch = async (currentDir?: string): Promise<string | void> => {
@@ -162,12 +166,12 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public async changeBranch(targetBranch: string, currentDir: string): Promise<Error | void> {
+    public async changeBranch(targetBranch: string, currentDir: string): Promise<void> {
         try {
             await this._git(currentDir).checkout(targetBranch)
             this._onBranchChange.dispatch(targetBranch)
         } catch (e) {
-            return e
+            this._log(`Git Provider was unable change branch because of: ${e.message}`)
         }
     }
 
