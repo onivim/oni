@@ -18,14 +18,14 @@ exports[`<Tabs /> Tests should match last known snapshot unless we make a change
     height="2em"
     highlightColor="#000"
     iconFileName="icon"
-    id={2}
+    id={1}
     isDirty={true}
     isSelected={true}
-    key="2"
+    key="1"
     maxWidth="20em"
     name="test"
-    onClickClose={[Function]}
-    onClickName={[Function]}
+    onClose={[MockFunction]}
+    onSelect={[MockFunction]}
   />
 </div>
 `;

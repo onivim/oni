@@ -26,6 +26,6 @@
         "sourceMap": true,
         "types": ["mocha", "webgl2"]
     },
-    "include": ["src/**/*.ts", "test/**/*.ts"],
+    "include": ["../@types/**/*.d.ts", "src/**/*.ts", "test/**/*.ts"],
     "exclude": ["node_modules"]
 }
