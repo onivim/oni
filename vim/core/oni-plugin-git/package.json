@@ -16,7 +16,7 @@
     },
     "dependencies": {
         "oni-api": "^0.0.42",
-        "oni-types": "github:Akin909/oni-types#feature/fix-rxjs-subject-import",
+        "oni-types": "^0.0.6",
         "simple-git": "^1.92.0"
     },
     "devDependencies": {
