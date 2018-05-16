@@ -107,7 +107,6 @@ export class NeovimWindowManager extends Utility.Disposable {
             })
             .subscribe((tabState: NeovimTabPageState) => {
                 this._onWindowStateChangedEvent.dispatch(tabState)
-                this._neovimInstance.dispatchScrollEvent()
             })
     }
 

@@ -6,6 +6,7 @@ export interface IWebGLAtlasOptions {
     fontSize: string
     lineHeightInPixels: number
     linePaddingInPixels: number
+    glyphPaddingInPixels: number
     devicePixelRatio: number
     offsetGlyphVariantCount: number
     textureSizeInPixels: number
@@ -21,14 +22,14 @@ export interface WebGLGlyph {
     textureU: number
     textureV: number
     variantOffset: number
-    subpixelWidth: number
+    subpixelWidth: number // TODO remove this as it is unused
 }
 
 export class WebGLTextureSpaceExceededError extends Error {}
 
 export class WebGLAtlas {
     private _glyphContext: CanvasRenderingContext2D
-    private _glyphs = new Map<string, Map<number, WebGLGlyph>>()
+    private _glyphs = new Map<string, WebGLGlyph[][]>()
     private _texture: WebGLTexture
     private _currentTextureLayerIndex = 0
     private _currentTextureLayerChangedSinceLastUpload = false
@@ -40,7 +41,6 @@ export class WebGLAtlas {
         glyphCanvas.width = this._options.textureSizeInPixels
         glyphCanvas.height = this._options.textureSizeInPixels
         this._glyphContext = glyphCanvas.getContext("2d", { alpha: false })
-        this._glyphContext.font = `${this._options.fontSize} ${this._options.fontFamily}`
         this._glyphContext.fillStyle = foregroundColor
         this._glyphContext.textBaseline = "top"
         this._glyphContext.scale(_options.devicePixelRatio, _options.devicePixelRatio)
@@ -84,17 +84,26 @@ export class WebGLAtlas {
         )
     }
 
-    public getGlyph(text: string, variantIndex: number) {
-        let glyphVariants = this._glyphs.get(text)
-        if (!glyphVariants) {
-            glyphVariants = new Map()
-            this._glyphs.set(text, glyphVariants)
+    public getGlyph(text: string, isBold: boolean, isItalic: boolean, variantIndex: number) {
+        // The mapping goes from character to styles (bold etc.) to subpixel-offset variant,
+        // e.g. this._glyphs.get("a")[0][0] is the regular "a" with 0 offset,
+        // while this._glyphs.get("a")[3][1] is the bold italic "a" with 1/offsetGlyphVariantCount px offset
+        let glyphStyleVariants = this._glyphs.get(text)
+        if (!glyphStyleVariants) {
+            glyphStyleVariants = new Array<WebGLGlyph[]>(glyphStyles.length)
+            this._glyphs.set(text, glyphStyleVariants)
+        }
+        const glyphStyleIndex = getGlyphStyleIndex(isBold, isItalic)
+        let glyphOffsetVariants = glyphStyleVariants[glyphStyleIndex]
+        if (!glyphOffsetVariants) {
+            glyphOffsetVariants = new Array<WebGLGlyph>(this._options.offsetGlyphVariantCount)
+            glyphStyleVariants[glyphStyleIndex] = glyphOffsetVariants
         }
 
-        let glyph = glyphVariants.get(variantIndex)
+        let glyph = glyphOffsetVariants[variantIndex]
         if (!glyph) {
-            glyph = this._rasterizeGlyph(text, variantIndex)
-            glyphVariants.set(variantIndex, glyph)
+            glyph = this._rasterizeGlyph(text, isBold, isItalic, variantIndex)
+            glyphOffsetVariants[variantIndex] = glyph
         }
 
         return glyph
@@ -120,20 +129,29 @@ export class WebGLAtlas {
         }
     }
 
-    private _rasterizeGlyph(text: string, variantIndex: number) {
+    private _rasterizeGlyph(
+        text: string,
+        isBold: boolean,
+        isItalic: boolean,
+        variantIndex: number,
+    ) {
         this._currentTextureLayerChangedSinceLastUpload = true
 
         const {
             devicePixelRatio,
             lineHeightInPixels,
             linePaddingInPixels,
+            glyphPaddingInPixels,
             offsetGlyphVariantCount,
         } = this._options
+        const style = getGlyphStyleString(isBold, isItalic)
+        this._glyphContext.font = `${style} ${this._options.fontSize} ${this._options.fontFamily}`
         const variantOffset = variantIndex / offsetGlyphVariantCount
 
-        const height = lineHeightInPixels
-        const { width: subpixelWidth } = this._glyphContext.measureText(text)
-        const width = Math.ceil(variantOffset) + Math.ceil(subpixelWidth)
+        const height = lineHeightInPixels + 2 * glyphPaddingInPixels
+        const { width: measuredGlyphWidth } = this._glyphContext.measureText(text)
+        const width =
+            Math.ceil(variantOffset) + Math.ceil(measuredGlyphWidth) + 2 * glyphPaddingInPixels
 
         if ((this._nextX + width) * devicePixelRatio > this._options.textureSizeInPixels) {
             this._nextX = 0
@@ -146,7 +164,11 @@ export class WebGLAtlas {
 
         const x = this._nextX
         const y = this._nextY
-        this._glyphContext.fillText(text, x + variantOffset, y + linePaddingInPixels / 2)
+        this._glyphContext.fillText(
+            text,
+            x + glyphPaddingInPixels + variantOffset,
+            y + glyphPaddingInPixels + linePaddingInPixels / 2,
+        )
         this._nextX += width
 
         return {
@@ -157,7 +179,7 @@ export class WebGLAtlas {
             textureV: y * devicePixelRatio / this._options.textureSizeInPixels,
             textureWidth: width * devicePixelRatio / this._options.textureSizeInPixels,
             textureHeight: height * devicePixelRatio / this._options.textureSizeInPixels,
-            subpixelWidth: subpixelWidth * devicePixelRatio,
+            subpixelWidth: measuredGlyphWidth * devicePixelRatio,
             variantOffset,
         } as WebGLGlyph
     }
@@ -186,3 +208,15 @@ export class WebGLAtlas {
         this._currentTextureLayerChangedSinceLastUpload = true
     }
 }
+
+const getGlyphStyleIndex = (isBold: boolean, isItalic: boolean) =>
+    isBold ? (isItalic ? 3 : 1) : isItalic ? 2 : 0
+
+const glyphStyles = [
+    "", // regular, 0
+    "bold", // 1
+    "italic", // 2
+    "bold italic", // 3
+]
+const getGlyphStyleString = (isBold: boolean, isItalic: boolean) =>
+    glyphStyles[getGlyphStyleIndex(isBold, isItalic)]

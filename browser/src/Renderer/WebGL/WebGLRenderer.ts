@@ -82,6 +82,7 @@ export class WebGLRenderer implements INeovimRenderer {
             fontSize,
             lineHeightInPixels: fontHeightInPixels,
             linePaddingInPixels,
+            glyphPaddingInPixels: Math.ceil(fontHeightInPixels / 4),
             devicePixelRatio,
             offsetGlyphVariantCount,
             textureSizeInPixels: this._textureSizeInPixels,
