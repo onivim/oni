@@ -21,7 +21,9 @@ const Column = withProps<{ isSelected: boolean }>(styled.div)`
     padding: 0.3em;
 `
 
-const Name = styled.span``
+const Name = styled.span`
+    word-wrap: break-word;
+`
 
 const Title = styled.h4`
     margin: 0;
@@ -69,6 +71,11 @@ export const GitStatus = ({ title, files, selectedId, symbol }: IModifiedFilesPr
     </div>
 )
 
+const StatusContainer = styled.div`
+    overflow-x: hidden;
+    overflow-y: auto;
+`
+
 interface IProps {
     status: StatusResult
     hasFocus: boolean
@@ -100,7 +107,7 @@ class VersionControlView extends React.Component<IProps> {
                 active={this.props.hasFocus}
                 onSelected={this.props.handleSelection}
                 render={selectedId => (
-                    <div>
+                    <StatusContainer>
                         <GitStatus
                             selectedId={selectedId}
                             files={modified}
@@ -119,7 +126,7 @@ class VersionControlView extends React.Component<IProps> {
                             title="Untracked Files"
                             symbol="?"
                         />
-                    </div>
+                    </StatusContainer>
                 )}
             />
         )
