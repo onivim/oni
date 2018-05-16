@@ -38,6 +38,16 @@ export interface IScreen {
     getScrollRegion(): IScrollRegion
 }
 
+export interface MinimalScreenForRendering {
+    backgroundColor: string
+    foregroundColor: string
+    rowCount: number
+    columnCount: number
+    fontWidthInPixels: number
+    fontHeightInPixels: number
+    getCell(x: number, y: number): ICell
+}
+
 export interface ICell {
     character: string
 
