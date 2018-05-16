@@ -14,6 +14,7 @@ import { LanguageManager } from "./../../Services/Language"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import { Definition } from "./Definition"
+import { asObservable } from "./../../Utility"
 
 export class Symbols {
     constructor(
@@ -34,7 +35,7 @@ export class Symbols {
         ])
         menu.setLoading(true)
 
-        const filterTextChanged$ = menu.onFilterTextChanged.asObservable()
+        const filterTextChanged$ = asObservable(menu.onFilterTextChanged)
 
         menu.onItemSelected.subscribe((selectedItem: Oni.Menu.MenuOption) => {
             const key = selectedItem.label + selectedItem.detail
