@@ -1,5 +1,6 @@
 import * as capitalize from "lodash/capitalize"
 import * as Oni from "oni-api"
+import { IDisposable } from "oni-types"
 import * as React from "react"
 
 import { SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
@@ -13,8 +14,8 @@ export class VersionControlManager {
     private _vcs: SupportedProviders
     private _vcsProvider: VersionControlProvider
     private _menuInstance: Oni.Menu.MenuInstance
-    private _gitStatusItem: Oni.StatusBarItem
-    private _currentBranch: string | void
+    private _vcsStatusItem: Oni.StatusBarItem
+    private _subscriptions: IDisposable[]
 
     constructor(
         private _workspace: IWorkspace,
@@ -39,32 +40,41 @@ export class VersionControlManager {
         }
     }
 
-    get activeVCSName(): string {
-        return this._vcs
+    public unregisterProvider(): void {
+        this._subscriptions.map(s => s.dispose())
+        this._vcsStatusItem.hide()
+        this._vcsStatusItem.dispose()
+        this._vcsProvider = null
+        this._vcs = null
     }
 
     private _initialize() {
         this._updateBranchIndicator()
-        this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
+
+        const s1 = this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
             await this._updateBranchIndicator()
         })
 
-        this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
+        const s2 = this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
             await this._updateBranchIndicator(newBranch)
             await this._editorManager.activeEditor.neovim.command("e!")
         })
 
-        this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
+        const s3 = this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
             await this._updateBranchIndicator()
         })
-        ;(this._workspace as any).onFocusGained.subscribe(async () => {
+        const s4 = (this._workspace as any).onFocusGained.subscribe(async () => {
             await this._updateBranchIndicator()
         })
 
-        this._sidebar.add(
-            "code-fork",
-            new VersionControlPane(this._workspace, this._vcsProvider, this._vcs),
-        )
+        const vcsPane = new VersionControlPane(this._workspace, this._vcsProvider, this._vcs)
+        const hasSidebar = this._sidebar.entries.some(({ id }) => id === vcsPane.id)
+
+        if (!hasSidebar) {
+            this._sidebar.add("code-fork", vcsPane)
+        }
+
+        this._subscriptions = [s1, s2, s3, s4]
         this._registerCommands()
     }
 
@@ -73,43 +83,49 @@ export class VersionControlManager {
             command: `oni.${this._vcs}.fetch`,
             name: "Fetch the selected branch",
             detail: "",
-            execute: () => this._fetchBranch(),
+            execute: this._fetchBranch,
         })
 
         this._commands.registerCommand({
             command: `oni.${this._vcs}.branches`,
             name: `Local ${capitalize(this._vcs)} Branches`,
             detail: "Open a menu with a list of all local branches",
-            execute: () => this._createBranchList(),
+            execute: this._createBranchList,
         })
     }
 
     private _updateBranchIndicator = async (branchName?: string) => {
+        if (!this._vcsProvider) {
+            return
+        }
         const vcsId = `oni.status.${this._vcs}`
-        this._gitStatusItem = this._statusBar.createItem(1, vcsId)
+        this._vcsStatusItem = this._statusBar.createItem(1, vcsId)
 
         try {
-            this._currentBranch =
+            const branch =
                 branchName || (await this._vcsProvider.getBranch(this._workspace.activeWorkspace))
 
             const diff = await this._vcsProvider.getDiff(this._workspace.activeWorkspace)
 
-            if (!this._currentBranch) {
+            if (!branch) {
                 throw new Error("The branch name could not be found")
             } else if (!diff) {
-                throw new Error("A diff of the current directory couldn't be found")
+                Log.info("A diff of the current directory couldn't be found")
             }
 
             // TODO: disable repeated enter animations of this status item
-            this._gitStatusItem.setContents(<Branch branch={this._currentBranch} diff={diff} />)
-            this._gitStatusItem.show()
+            this._vcsStatusItem.setContents(<Branch branch={branch} diff={diff} />)
+            this._vcsStatusItem.show()
         } catch (e) {
             Log.warn(`Oni ${this._vcs} plugin encountered an error:  ${e.message}`)
-            return this._gitStatusItem.hide()
+            return this._vcsStatusItem.hide()
         }
     }
 
     private _createBranchList = async () => {
+        if (!this._vcsProvider) {
+            return
+        }
         const [currentBranch, branches] = await Promise.all([
             this._vcsProvider.getBranch(this._workspace.activeWorkspace),
             this._vcsProvider.getLocalBranches(this._workspace.activeWorkspace),

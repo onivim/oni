@@ -54,7 +54,7 @@ const ChangeSpan = styled.span`
 interface BranchProps {
     branch: string
     children?: React.ReactNode
-    diff: Diff
+    diff: Diff | void
 }
 
 export const Branch = ({ diff, branch, children }: BranchProps) => (
@@ -63,7 +63,12 @@ export const Branch = ({ diff, branch, children }: BranchProps) => (
             <Icon name="code-fork" />
             <BranchNameContainer>
                 {`${branch} `}
-                <DeletionsAndInsertions deletions={diff.deletions} insertions={diff.insertions} />
+                {diff && (
+                    <DeletionsAndInsertions
+                        deletions={diff.deletions}
+                        insertions={diff.insertions}
+                    />
+                )}
                 {children}
             </BranchNameContainer>
         </BranchText>

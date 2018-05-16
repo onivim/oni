@@ -27,6 +27,14 @@ export default class VersionControlPane {
         this._vcsProvider.onStagedFilesChanged.subscribe(async () => {
             await this.getStatus()
         })
+
+        this._vcsProvider.onPluginActivated.subscribe(() => {
+            this._store.dispatch({ type: "ACTIVATE" })
+        })
+
+        this._vcsProvider.onPluginDeactivated.subscribe(() => {
+            this._store.dispatch({ type: "DEACTIVATE" })
+        })
     }
 
     public enter(): void {

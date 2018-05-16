@@ -23,7 +23,11 @@ export default interface VersionControlProvider {
     onFileStatusChanged: IEvent<VCSFileStatusChangedEvent>
     onStagedFilesChanged: IEvent<VCSStagedFilesChangedEvent>
     onBranchChanged: IEvent<VCSBranchChangedEvent>
+    onPluginActivated: IEvent<void>
+    onPluginDeactivated: IEvent<void>
 
+    deactivate(): void
+    activate(): void
     canHandleWorkspace(dir?: string): Promise<boolean>
     getStatus(projectRoot?: string): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
