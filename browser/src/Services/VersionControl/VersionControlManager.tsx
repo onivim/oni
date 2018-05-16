@@ -109,10 +109,7 @@ export class VersionControlManager {
 
             if (!branch) {
                 throw new Error("The branch name could not be found")
-            } else if (!diff) {
-                Log.info("A diff of the current directory couldn't be found")
             }
-
             // TODO: disable repeated enter animations of this status item
             this._vcsStatusItem.setContents(<Branch branch={branch} diff={diff} />)
             this._vcsStatusItem.show()

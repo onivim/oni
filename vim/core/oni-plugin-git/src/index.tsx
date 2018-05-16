@@ -41,6 +41,7 @@ export interface VersionControlProvider {
     onPluginActivated: IEvent<void>
     onPluginDeactivated: IEvent<void>
 
+    isActivated: boolean
     deactivate(): void
     activate(): void
     canHandleWorkspace(dir?: string): Promise<boolean>
@@ -60,8 +61,8 @@ export class GitVersionControlProvider implements VersionControlProvider {
     private _onBranchChange = new Event<VCSBranchChangedEvent>()
     private _onStagedFilesChanged = new Event<VCSStagedFilesChangedEvent>()
     private _onFileStatusChanged = new Event<VCSFileStatusChangedEvent>()
-    private _pluginActivatedEvent = new Event<void>()
-    private _pluginDeactivatedEvent = new Event<void>()
+    private _onPluginActivated = new Event<void>()
+    private _onPluginDeactivated = new Event<void>()
     private _isActivated = false
     private _log: (...args: any[]) => void
 
@@ -90,21 +91,21 @@ export class GitVersionControlProvider implements VersionControlProvider {
     }
 
     get onPluginActivated(): IEvent<void> {
-        return this._pluginActivatedEvent
+        return this._onPluginActivated
     }
 
     get onPluginDeactivated(): IEvent<void> {
-        return this._pluginDeactivatedEvent
+        return this._onPluginDeactivated
     }
 
     public activate() {
         this._isActivated = true
-        this._pluginActivatedEvent.dispatch()
+        this._onPluginActivated.dispatch()
     }
 
     public deactivate() {
         this._isActivated = false
-        this._pluginDeactivatedEvent.dispatch()
+        this._onPluginDeactivated.dispatch()
     }
 
     public async canHandleWorkspace(dir: string): Promise<boolean> {
@@ -236,8 +237,9 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
 export const activate = async oni => {
     const provider = new GitVersionControlProvider(oni)
+
     if (await provider.canHandleWorkspace(oni.workspace.activeWorkspace)) {
-        oni.services.vcs.registerProvider({ provider, name: "git" })
+        provider.activate()
     }
 
     provider.onPluginActivated.subscribe(() => {

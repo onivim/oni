@@ -80,6 +80,7 @@ interface IProps {
     status: StatusResult
     hasFocus: boolean
     hasError: boolean
+    activated: boolean
     setError?: (e: Error) => void
     getStatus?: () => void
     handleSelection?: (selection: string) => void
@@ -97,9 +98,12 @@ class VersionControlView extends React.Component<IProps> {
 
     public render() {
         const { modified, staged, untracked } = this.props.status
-        return this.props.hasError ? (
+        const error = this.props.hasError && "Something Went Wrong!"
+        const inactive = !this.props.activated && "Version Control Not Available"
+        const warning = error || inactive
+        return warning ? (
             <SectionTitle>
-                <Title>Something Went Wrong</Title>
+                <Title>{warning}</Title>
             </SectionTitle>
         ) : (
             <VimNavigator
@@ -138,6 +142,7 @@ export default connect<IState>(
         status: state.status,
         hasFocus: state.hasFocus,
         hasError: state.hasError,
+        activated: state.activated,
     }),
     null,
 )(VersionControlView)

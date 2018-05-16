@@ -5,6 +5,7 @@ export interface IState {
     status: StatusResult
     hasFocus: boolean
     hasError: boolean
+    activated: boolean
 }
 
 interface IGenericAction<T, P = undefined> {
@@ -26,14 +27,23 @@ export const DefaultState: IState = {
         behind: null,
     },
     hasFocus: null,
+    activated: null,
     hasError: false,
 }
 
+type IActivateAction = IGenericAction<"ACTIVATE">
+type IDeactivateAction = IGenericAction<"DEACTIVATE">
 type IEnterAction = IGenericAction<"ENTER">
 type ILeaveAction = IGenericAction<"LEAVE">
 type IErrorAction = IGenericAction<"ERROR">
 type IStatusAction = IGenericAction<"STATUS", { status: StatusResult }>
-type IAction = IStatusAction | IEnterAction | ILeaveAction | IErrorAction
+type IAction =
+    | IStatusAction
+    | IEnterAction
+    | ILeaveAction
+    | IErrorAction
+    | IDeactivateAction
+    | IActivateAction
 
 function reducer(state: IState, action: IAction) {
     switch (action.type) {
@@ -45,6 +55,17 @@ function reducer(state: IState, action: IAction) {
             return {
                 ...state,
                 status: action.payload.status,
+            }
+        case "DEACTIVATE":
+            return {
+                ...state,
+                activated: false,
+                status: DefaultState.status,
+            }
+        case "ACTIVATE":
+            return {
+                ...state,
+                activated: true,
             }
         case "ERROR":
             return {

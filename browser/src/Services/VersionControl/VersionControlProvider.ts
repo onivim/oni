@@ -26,6 +26,7 @@ export default interface VersionControlProvider {
     onPluginActivated: IEvent<void>
     onPluginDeactivated: IEvent<void>
 
+    isActivated: boolean
     deactivate(): void
     activate(): void
     canHandleWorkspace(dir?: string): Promise<boolean>

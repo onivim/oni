@@ -29,6 +29,7 @@ export default class VersionControlPane {
         })
 
         this._vcsProvider.onPluginActivated.subscribe(() => {
+            console.log("dispatching activate")
             this._store.dispatch({ type: "ACTIVATE" })
         })
 
@@ -49,12 +50,14 @@ export default class VersionControlPane {
     }
 
     public getStatus = async () => {
-        const { activeWorkspace } = this._workspace
-        const status = await this._vcsProvider.getStatus(activeWorkspace)
-        if (status) {
-            this._store.dispatch({ type: "STATUS", payload: { status } })
+        if (this._vcsProvider.isActivated) {
+            const { activeWorkspace } = this._workspace
+            const status = await this._vcsProvider.getStatus(activeWorkspace)
+            if (status) {
+                this._store.dispatch({ type: "STATUS", payload: { status } })
+            }
+            return status
         }
-        return status
     }
 
     public stageFile = async (file: string) => {
