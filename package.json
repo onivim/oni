@@ -978,7 +978,7 @@
         "redux-thunk": "2.2.0",
         "remap-istanbul": "^0.10.1",
         "reselect": "3.0.1",
-        "rxjs": "5.5.10",
+        "rxjs": "5.5.8",
         "sinon": "1.17.6",
         "spectron": "^3.8.0",
         "style-loader": "0.18.2",
