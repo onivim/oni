@@ -112,6 +112,10 @@ export const OKey = (): JSX.Element => {
     )
 }
 
+export const UKey = (): JSX.Element => {
+    return <KeyWithDescription keyCharacter="u" description={<span>Undo a single change</span>} />
+}
+
 export const GGKey = (): JSX.Element => {
     return (
         <KeyWithDescription

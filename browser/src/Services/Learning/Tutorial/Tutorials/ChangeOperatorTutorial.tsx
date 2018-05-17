@@ -14,6 +14,9 @@ const Line1 = "The change operator can be used for quikcly fixing typos"
 const Line1Marker = "The change operator can be used for ".length
 const Line1Pending = "The change operator can be used for  fixing typos"
 const Line1Fixed = "The change operator can be used for quickly fixing typos"
+const Line2 = "Learning Vim can be tedious and repetitive"
+const Line2Fix1 = "Learning Vim can be fun and repetitive"
+const Line2Fix2 = "Learning Vim can be fun and exciting"
 
 export class ChangeOperatorTutorial implements ITutorial {
     private _stages: ITutorialStage[]
@@ -24,6 +27,20 @@ export class ChangeOperatorTutorial implements ITutorial {
             new Stages.MoveToGoalStage("Move to the goal marker", 0, Line1Marker),
             new Stages.WaitForStateStage("Fix the typo by hitting 'cw'", [Line1Pending]),
             new Stages.WaitForStateStage("Enter the word 'quickly'", [Line1Fixed]),
+            new Stages.WaitForModeStage("Exit Insert mode by hitting <esc>", "normal"),
+            new Stages.SetBufferStage([Line1Fixed, Line2]),
+            new Stages.MoveToGoalStage("Move to the goal marker", 1, Line2.indexOf("tedious")),
+            new Stages.WaitForStateStage("Change 'tedious' to 'fun'", [Line1Fixed, Line2Fix1]),
+            new Stages.WaitForModeStage("Exit Insert mode by hitting <esc>", "normal"),
+            new Stages.MoveToGoalStage(
+                "Move to the goal marker",
+                1,
+                Line2Fix1.indexOf("repetitive"),
+            ),
+            new Stages.WaitForStateStage("Change 'repetitive' to 'exciting'", [
+                Line1Fixed,
+                Line2Fix2,
+            ]),
             new Stages.WaitForModeStage("Exit Insert mode by hitting <esc>", "normal"),
         ]
     }
@@ -43,6 +60,11 @@ export class ChangeOperatorTutorial implements ITutorial {
     }
 
     public get notes(): JSX.Element[] {
-        return [<Notes.HJKLKeys />, <Notes.ChangeOperatorKey />, <Notes.ChangeWordKey />]
+        return [
+            <Notes.HJKLKeys />,
+            <Notes.ChangeOperatorKey />,
+            <Notes.ChangeWordKey />,
+            <Notes.EscKey />,
+        ]
     }
 }

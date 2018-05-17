@@ -33,7 +33,11 @@ export class SearchInBufferTutorial implements ITutorial {
         this._stages = [
             // Forward search
             new Stages.SetBufferStage([Line1, Line2]),
-            new Stages.MoveToGoalStage("Use '/' to search for the word 'move'", 1, 28),
+            new Stages.MoveToGoalStage(
+                "Use '/' to enter search mode, type the word 'move', then hit <enter>",
+                1,
+                28,
+            ),
             new Stages.SetBufferStage([Line1, Line2, Line3]),
             new Stages.MoveToGoalStage("Use 'n' to go to the next instance of 'move'", 2, 21),
             new Stages.SetBufferStage([Line1, Line2, Line3, EmptyLine, EmptyLine, Line4]),
@@ -53,11 +57,19 @@ export class SearchInBufferTutorial implements ITutorial {
             // Backward search
             new Stages.SetBufferStage([Line7]),
             new Stages.SetCursorPositionStage(0, 48),
-            new Stages.MoveToGoalStage("Use '?' to search for the word 'you'", 0, 21),
+            new Stages.MoveToGoalStage("Use '?' to search backwards for the word 'you'", 0, 21),
             new Stages.SetBufferStage([Line7, Line8, Line9]),
-            new Stages.MoveToGoalStage("Use 'N' to go to the previous instance of 'you'", 2, 14),
+            new Stages.MoveToGoalStage(
+                "Use 'N' to go to the previous (backwards) instance of 'you'",
+                2,
+                14,
+            ),
             new Stages.SetBufferStage([Line7, Line8, Line9, Line10]),
-            new Stages.MoveToGoalStage("Use 'n' to go to the next instance of 'move'", 0, 21),
+            new Stages.MoveToGoalStage(
+                "Use 'n' to go to the next (backwards) instance of 'move'",
+                0,
+                21,
+            ),
         ]
     }
 
@@ -67,7 +79,7 @@ export class SearchInBufferTutorial implements ITutorial {
             name: "Motion: /, ?, n, N",
             description:
                 "To navigate a buffer efficiently, Oni lets you search for strings with `/` and `?`. `n` and `N` let you navigate quickly between the matches!",
-            level: 180,
+            level: 160,
         }
     }
 
