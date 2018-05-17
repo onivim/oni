@@ -73,6 +73,7 @@ export class SidebarManager {
                 this.setWidth(val["sidebar.width"])
             }
         })
+        this.setWidth(configuration.getValue("sidebar.width"))
 
         if (_windowManager) {
             this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
@@ -157,7 +158,7 @@ const DefaultSidebarState: ISidebarState = {
     entries: [],
     activeEntryId: null,
     isActive: false,
-    width: configuration.getValue("sidebar.width"),
+    width: null,
 }
 
 export type SidebarActions =
