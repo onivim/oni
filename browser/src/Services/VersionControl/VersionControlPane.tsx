@@ -29,7 +29,6 @@ export default class VersionControlPane {
         })
 
         this._vcsProvider.onPluginActivated.subscribe(() => {
-            console.log("dispatching activate")
             this._store.dispatch({ type: "ACTIVATE" })
         })
 
