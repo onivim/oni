@@ -8,7 +8,6 @@ import styled, { keyframes } from "styled-components"
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
-import { configuration } from "../Configuration"
 import { enableMouse, withProps } from "./../../UI/components/common"
 
 import { ISidebarEntry, ISidebarState, SidebarManager, SidebarPane } from "./SidebarStore"
@@ -65,6 +64,7 @@ export class SidebarContentSplit {
 
 export interface ISidebarContentViewProps extends ISidebarContentContainerProps {
     activeEntry: ISidebarEntry
+    width: string
 }
 
 export interface ISidebarContentContainerProps {
@@ -174,10 +174,7 @@ export class SidebarContentView extends React.PureComponent<
         const header = activeEntry && activeEntry.pane ? activeEntry.pane.title : null
 
         return (
-            <SidebarContentWrapper
-                className="sidebar-content"
-                width={configuration.getValue("sidebar.width")}
-            >
+            <SidebarContentWrapper className="sidebar-content" width={this.props.width}>
                 <SidebarHeaderView hasFocus={this.state.active} headerName={header} />
                 <SidebarInnerPaneWrapper key={activeEntry.id}>
                     {activeEntry.pane.render()}
@@ -200,6 +197,7 @@ export const mapStateToProps = (
     return {
         ...containerProps,
         activeEntry,
+        width: state.width,
     }
 }
 
