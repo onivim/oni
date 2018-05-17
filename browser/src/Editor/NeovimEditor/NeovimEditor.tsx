@@ -75,7 +75,7 @@ import NeovimSurface from "./NeovimSurface"
 
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 
-import { normalizePath, sleep } from "./../../Utility"
+import { asObservable, normalizePath, sleep } from "./../../Utility"
 
 import * as VimConfigurationSynchronizer from "./../../Services/VimConfigurationSynchronizer"
 
@@ -575,25 +575,25 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         // TODO: Does any disposal need to happen for the observables?
-        this._cursorMoved$ = this._neovimInstance.autoCommands.onCursorMoved
-            .asObservable()
-            .map((evt): Oni.Cursor => ({
+        this._cursorMoved$ = asObservable(this._neovimInstance.autoCommands.onCursorMoved).map(
+            (evt): Oni.Cursor => ({
                 line: evt.line - 1,
                 column: evt.column - 1,
-            }))
+            }),
+        )
 
-        this._cursorMovedI$ = this._neovimInstance.autoCommands.onCursorMovedI
-            .asObservable()
-            .map((evt): Oni.Cursor => ({
+        this._cursorMovedI$ = asObservable(this._neovimInstance.autoCommands.onCursorMovedI).map(
+            (evt): Oni.Cursor => ({
                 line: evt.line - 1,
                 column: evt.column - 1,
-            }))
+            }),
+        )
 
         Observable.merge(this._cursorMoved$, this._cursorMovedI$).subscribe(cursorMoved => {
             this.notifyCursorMoved(cursorMoved)
         })
 
-        this._modeChanged$ = this._neovimInstance.onModeChanged.asObservable()
+        this._modeChanged$ = asObservable(this._neovimInstance.onModeChanged)
 
         this.trackDisposable(
             this._neovimInstance.onModeChanged.subscribe(newMode => this._onModeChanged(newMode)),
