@@ -87,7 +87,7 @@ export class SidebarManager {
         if (width) {
             this._store.dispatch({
                 type: "SET_WIDTH",
-                width: width,
+                width,
             })
         }
     }
