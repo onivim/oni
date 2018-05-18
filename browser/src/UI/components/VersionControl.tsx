@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { Diff } from "./"
+import { Diff } from "./../../Services/VersionControl"
 import styled, { IThemeColors, withProps } from "./../../UI/components/common"
 import { Icon } from "./../../UI/Icon"
 

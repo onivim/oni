@@ -2,10 +2,7 @@ import { mount, shallow } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
 
-import {
-    Branch,
-    BranchNameContainer,
-} from "./../browser/src/Services/VersionControl/VersionControlComponents"
+import { Branch, BranchNameContainer } from "./../browser/src/UI/components/VersionControl"
 
 describe("<Branch />", () => {
     const diff = {

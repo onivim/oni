@@ -2,6 +2,7 @@ import * as path from "path"
 import * as React from "react"
 import { connect } from "react-redux"
 
+import Caret from "./../../UI/components/Caret"
 import { css, styled, withProps } from "./../../UI/components/common"
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
@@ -81,6 +82,7 @@ export const GitStatus = ({
                     data-test={`${titleId}-${files.length}`}
                     onClick={toggleVisibility}
                 >
+                    <Caret active={visibility && !!files.length} />
                     <Title>{titleId.toUpperCase()}</Title>
                     <strong>{files.length}</strong>
                 </SectionTitle>
