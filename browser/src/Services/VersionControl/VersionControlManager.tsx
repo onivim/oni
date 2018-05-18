@@ -43,7 +43,6 @@ export class VersionControlManager {
                 if (isSameProvider) {
                     return null
                 }
-
                 if (this._vcsProvider) {
                     return this.deactivateProvider()
                 }
