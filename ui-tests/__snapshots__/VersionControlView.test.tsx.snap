@@ -8,6 +8,9 @@ exports[`<VersionControlView /> should match the last recorded snapshot unless a
       isSelected={false}
       onClick={[Function]}
     >
+      <Caret
+        active={true}
+      />
       <styled.h4>
         MODIFIED
       </styled.h4>
