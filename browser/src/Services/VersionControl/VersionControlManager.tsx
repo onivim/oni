@@ -33,27 +33,20 @@ export class VersionControlManager {
             await this._activateVCSProviderIfCompatible(provider)
 
             this._workspace.onDirectoryChanged.subscribe(async dir => {
-                const allCompatibleProviders: VersionControlProvider[] = []
-                this._providers.forEach(async vcs => {
-                    const isCompatible = await vcs.canHandleWorkspace(dir)
-                    if (isCompatible) {
-                        allCompatibleProviders.push(vcs)
-                    }
-                })
+                const providerToUse = await this.getCompatibleProvider(dir)
 
-                const [providerToUse] = allCompatibleProviders
-                if (
+                const isSameProvider =
                     this._vcsProvider &&
                     providerToUse &&
                     this._vcsProvider.name === providerToUse.name
-                ) {
-                    return
+
+                if (isSameProvider) {
+                    return null
                 }
 
                 if (this._vcsProvider) {
                     return this.deactivateProvider()
                 }
-
                 if (providerToUse) {
                     return this._activateVCSProviderIfCompatible(providerToUse)
                 }
@@ -68,6 +61,22 @@ export class VersionControlManager {
         this._vcsStatusItem.dispose()
         this._vcsProvider = null
         this._vcs = null
+    }
+
+    private async getCompatibleProvider(dir: string): Promise<VersionControlProvider | null> {
+        const allCompatibleProviders: VersionControlProvider[] = []
+        for (const [, vcs] of this._providers) {
+            const isCompatible = await vcs.canHandleWorkspace(dir)
+            if (isCompatible) {
+                allCompatibleProviders.push(vcs)
+            }
+        }
+
+        // TODO: when we have multiple provides we will need logic to determine which to
+        // use if more than one is comatible
+        const [providerToUse] = allCompatibleProviders
+
+        return providerToUse
     }
 
     private _activateVCSProviderIfCompatible = async (provider: VersionControlProvider) => {
