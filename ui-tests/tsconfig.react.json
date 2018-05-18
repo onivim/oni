@@ -18,7 +18,7 @@
         "skipLibCheck": true,
         "strictNullChecks": false,
         "suppressImplicitAnyIndexErrors": true,
-        "target": "es2015",
+        "target": "ES2015",
         "sourceMap": true,
         "types": ["jest", "electron", "react", "webgl2"]
     },

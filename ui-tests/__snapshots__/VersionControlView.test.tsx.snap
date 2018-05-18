@@ -4,41 +4,53 @@ exports[`<VersionControlView /> should match the last recorded snapshot unless a
 <div>
   <div>
     <styled.div
-      data-test="modified files-2"
+      data-test="modified-2"
+      isSelected={false}
+      onClick={[Function]}
     >
       <styled.h4>
-        modified files
+        MODIFIED
       </styled.h4>
       <strong>
         2
       </strong>
     </styled.div>
-    <styled.div
-      isSelected={false}
+    <Sneakable
+      callback={[Function]}
       key="test1"
     >
-      <styled.span>
-        test1
-      </styled.span>
-      <styled.div>
-        <strong>
-          M
-        </strong>
+      <styled.div
+        isSelected={false}
+        onClick={[Function]}
+      >
+        <styled.span>
+          test1
+        </styled.span>
+        <styled.div>
+          <strong>
+            M
+          </strong>
+        </styled.div>
       </styled.div>
-    </styled.div>
-    <styled.div
-      isSelected={false}
+    </Sneakable>
+    <Sneakable
+      callback={[Function]}
       key="test2"
     >
-      <styled.span>
-        test2
-      </styled.span>
-      <styled.div>
-        <strong>
-          M
-        </strong>
+      <styled.div
+        isSelected={false}
+        onClick={[Function]}
+      >
+        <styled.span>
+          test2
+        </styled.span>
+        <styled.div>
+          <strong>
+            M
+          </strong>
+        </styled.div>
       </styled.div>
-    </styled.div>
+    </Sneakable>
   </div>
 </div>
 `;

@@ -1,4 +1,3 @@
-import * as capitalize from "lodash/capitalize"
 import * as path from "path"
 import * as React from "react"
 import { connect } from "react-redux"
@@ -82,7 +81,7 @@ export const GitStatus = ({
                     data-test={`${titleId}-${files.length}`}
                     onClick={toggleVisibility}
                 >
-                    <Title>{capitalize(titleId)}</Title>
+                    <Title>{titleId.toUpperCase()}</Title>
                     <strong>{files.length}</strong>
                 </SectionTitle>
                 {visibility &&

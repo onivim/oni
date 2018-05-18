@@ -4,19 +4,26 @@ import * as React from "react"
 import { Provider } from "react-redux"
 import configureStore, { MockStore, MockStoreCreator } from "redux-mock-store"
 
-const mockStore: MockStoreCreator<IState> = configureStore()
-
 import { DefaultState, IState } from "./../browser/src/Services/VersionControl/VersionControlStore"
 import VersionControlView, {
     GitStatus,
     SectionTitle,
 } from "./../browser/src/Services/VersionControl/VersionControlView"
 
+const mockStore: MockStoreCreator<IState> = configureStore()
+
+const noop = () => ({})
+
+jest.mock("../browser/src/UI/components/Sneakable", () => {
+    const React = require("react") // tslint:disable-line
+    return { Sneakable: () => <div /> }
+})
+
 describe("<VersionControlView />", () => {
-    const store = mockStore(DefaultState)
+    const store = mockStore({ ...DefaultState, activated: true, hasFocus: true })
     const container = mount(
         <Provider store={store}>
-            <VersionControlView getStatus={() => ({})} />
+            <VersionControlView getStatus={() => Promise.resolve({})} />
         </Provider>,
     )
     it("renders without crashing", () => {
@@ -30,7 +37,15 @@ describe("<VersionControlView />", () => {
 
     it("shouldn't show a section if it has no content", () => {
         const wrapper = shallow(
-            <GitStatus title="modified files" selectedId="file1" symbol="M" files={null} />,
+            <GitStatus
+                onClick={noop}
+                toggleVisibility={noop}
+                visibility={true}
+                titleId="modified"
+                selectedId="file1"
+                symbol="M"
+                files={null}
+            />,
         )
         expect(wrapper.find(SectionTitle).length).toBe(0)
     })
@@ -38,7 +53,10 @@ describe("<VersionControlView />", () => {
     it("should match the last recorded snapshot unless a change was made", () => {
         const wrapper = shallow(
             <GitStatus
-                title="modified files"
+                titleId="modified"
+                visibility={true}
+                toggleVisibility={noop}
+                onClick={noop}
                 selectedId="file1"
                 symbol="M"
                 files={["test1", "test2"]}
@@ -50,6 +68,8 @@ describe("<VersionControlView />", () => {
     it("should render the correct number of modified files from the store in the correct section from of the pane", () => {
         const stateCopy = {
             ...DefaultState,
+            activated: true,
+            hasFocus: true,
             status: {
                 currentBranch: null,
                 staged: [],
@@ -66,11 +86,11 @@ describe("<VersionControlView />", () => {
         const storeWithMods = mockStore(stateCopy)
         const containerWithMods = mount(
             <Provider store={storeWithMods}>
-                <VersionControlView getStatus={() => ({})} />
+                <VersionControlView getStatus={() => Promise.resolve({})} />
             </Provider>,
         )
 
-        const modified = containerWithMods.find("[data-test='Modified Files-2'] > strong")
+        const modified = containerWithMods.find("[data-test='modified-2'] > strong")
         expect(modified.text()).toBe("2")
     })
 })
