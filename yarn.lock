@@ -7322,9 +7322,9 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@^0.0.42:
-  version "0.0.42"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.42.tgz#79cab4289809bda1c7b86590119f0c7aaa5a053e"
+oni-api@^0.0.44:
+  version "0.0.44"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.44.tgz#26e4999ba5da0be0e7f25b6705c2d5412fe4eb23"
 
 oni-neovim-binaries@0.1.1:
   version "0.1.1"
@@ -7344,9 +7344,9 @@ oni-ripgrep@0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/oni-ripgrep/-/oni-ripgrep-0.0.4.tgz#8eb52383f4a3f92b8b5d8fe29d52e9d728a46b50"
 
-oni-types@0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/oni-types/-/oni-types-0.0.4.tgz#97bc435565d5f4c3bdc50bd1700fd24dd5b6704b"
+oni-types@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/oni-types/-/oni-types-0.0.8.tgz#1dfe97eda3f2b97dfcb94609af25fc2e4172fa33"
 
 oniguruma@^6.0.1:
   version "6.2.1"

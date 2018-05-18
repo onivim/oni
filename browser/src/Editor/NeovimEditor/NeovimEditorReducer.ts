@@ -413,10 +413,12 @@ export const windowStateReducer = (
                         line: a.payload.line,
                         bufferToScreen: a.payload.bufferToScreen,
                         screenToPixel: a.payload.screenToPixel,
+                        bufferToPixel: a.payload.bufferToPixel,
                         dimensions: a.payload.dimensions,
 
                         topBufferLine: a.payload.topBufferLine,
                         bottomBufferLine: a.payload.bottomBufferLine,
+                        visibleLines: a.payload.visibleLines,
                     },
                 },
             }
