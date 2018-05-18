@@ -51,20 +51,41 @@ export interface MinimalScreenForRendering {
     getCell(x: number, y: number): ICell
 }
 
+import { ITypingPrediction } from "./../Services/TypingPredictionManager"
+
 export class ScreenWithPredictions {
+    private _predictedRow: number = -1
+    private _predictions: { [key: number]: ICell } = {}
+
     constructor(private _screen: IScreen) {}
 
     public getCell = (x: number, y: number) => {
-        const cell = this._screen.getCell(x, y)
-
-        if (cell && cell.character === "a") {
-            return {
-                ...cell,
-                character: "A",
-            }
+        if (y === this._predictedRow && this._predictions[x]) {
+            return this._predictions[x]
         }
 
+        const cell = this._screen.getCell(x, y)
         return cell
+    }
+
+    public updatePredictions(predictions: ITypingPrediction, row: number): void {
+        this._predictedRow = row
+        this._predictions = {}
+
+        for (let i = 0; i < predictions.predictedCharacters.length; i++) {
+            const column =
+                predictions.predictedCursorColumn - (predictions.predictedCharacters.length - i)
+            const cell: ICell = {
+                character: predictions.predictedCharacters[i].character,
+                characterWidth: 1,
+                backgroundColor: "red",
+                foregroundColor: "white",
+                // backgroundColor: predictions.backgroundColor,
+                // foregroundColor: predictions.foregroundColor,
+            }
+
+            this._predictions[column] = cell
+        }
     }
 
     public get linePaddingInPixels(): number {

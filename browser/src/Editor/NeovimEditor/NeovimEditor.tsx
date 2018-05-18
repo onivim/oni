@@ -545,6 +545,11 @@ export class NeovimEditor extends Editor implements IEditor {
             this._scheduleRender()
         })
 
+        this._typingPredictionManager.onPredictionsChanged.subscribe(predictions => {
+            this._screenWithPredictions.updatePredictions(predictions, this._screen.cursorRow)
+            this._renderImmediate()
+        })
+
         this.trackDisposable(
             this._neovimInstance.onRedrawComplete.subscribe(() => {
                 const isCursorInCommandRow = this._screen.cursorRow === this._screen.height - 1
