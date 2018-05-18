@@ -1271,8 +1271,6 @@ export class NeovimEditor extends Editor implements IEditor {
     private _renderImmediate(): void {
         this._pendingAnimationFrame = false
 
-        console.log(this._screenWithPredictions)
-
         if (this._hasLoaded) {
             if (this._isFirstRender) {
                 this._isFirstRender = false

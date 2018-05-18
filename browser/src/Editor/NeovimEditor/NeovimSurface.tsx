@@ -13,12 +13,12 @@ import { NeovimInstance, NeovimScreen } from "./../../neovim"
 import { INeovimRenderer } from "./../../Renderer"
 import FileDropHandler from "./FileDropHandler"
 
+import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 import { Cursor } from "./../../UI/components/Cursor"
 import { CursorLine } from "./../../UI/components/CursorLine"
 import { InstallHelp } from "./../../UI/components/InstallHelp"
 import { TabsContainer } from "./../../UI/components/Tabs"
 import { ToolTips } from "./../../UI/components/ToolTip"
-import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 
 import { setViewport } from "./../NeovimEditor/NeovimEditorActions"
 import { NeovimBufferLayers } from "./NeovimBufferLayersView"
