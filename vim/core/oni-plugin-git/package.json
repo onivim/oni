@@ -16,7 +16,7 @@
     },
     "dependencies": {
         "oni-api": "^0.0.42",
-        "oni-types": "^0.0.6",
+        "oni-types": "^0.0.8",
         "simple-git": "^1.92.0"
     },
     "devDependencies": {
