@@ -41,7 +41,7 @@ export class VersionControlManager {
                     this._vcsProvider.name === providerToUse.name
 
                 if (isSameProvider) {
-                    return null
+                    return
                 }
                 if (this._vcsProvider) {
                     return this.deactivateProvider()
@@ -71,8 +71,8 @@ export class VersionControlManager {
             }
         }
 
-        // TODO: when we have multiple provides we will need logic to determine which to
-        // use if more than one is comatible
+        // TODO: when we have multiple providers we will need logic to determine which to
+        // use if more than one is compatible
         const [providerToUse] = allCompatibleProviders
 
         return providerToUse
