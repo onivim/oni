@@ -103,7 +103,7 @@ export class InputManager implements Oni.Input.InputManager {
 
     public unbind(keyChord: string | string[]) {
         if (Array.isArray(keyChord)) {
-            keyChord.forEach(key => this.unbind(keyChord))
+            keyChord.forEach(key => this.unbind(key))
             return
         }
 
