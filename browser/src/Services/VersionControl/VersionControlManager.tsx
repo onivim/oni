@@ -64,13 +64,12 @@ export class VersionControlManager {
 
     private async getCompatibleProvider(dir: string): Promise<VersionControlProvider | null> {
         const allCompatibleProviders: VersionControlProvider[] = []
-        for (const [, vcs] of this._providers) {
+        for (const vcs of this._providers.values()) {
             const isCompatible = await vcs.canHandleWorkspace(dir)
             if (isCompatible) {
                 allCompatibleProviders.push(vcs)
             }
         }
-
         // TODO: when we have multiple providers we will need logic to determine which to
         // use if more than one is compatible
         const [providerToUse] = allCompatibleProviders

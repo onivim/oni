@@ -1,3 +1,4 @@
+import * as capitalize from "lodash/capitalize"
 import * as path from "path"
 import * as React from "react"
 import { connect } from "react-redux"
@@ -50,7 +51,7 @@ export const SectionTitle = withProps<SelectionProps>(styled.div)`
 
 interface IModifiedFilesProps {
     files?: string[]
-    title: string
+    titleId: string
     selectedId: string
     symbol: string
     onClick: (id: string) => void
@@ -65,23 +66,23 @@ const truncate = (str: string) =>
         .join(path.sep)
 
 export const GitStatus = ({
-    title,
     files,
     selectedId,
     symbol,
     onClick,
     toggleVisibility,
+    titleId,
     visibility,
 }: IModifiedFilesProps) => (
     <div>
         {files && (
             <div>
                 <SectionTitle
-                    isSelected={selectedId === title}
-                    data-test={`${title}-${files.length}`}
+                    isSelected={selectedId === titleId}
+                    data-test={`${titleId}-${files.length}`}
                     onClick={toggleVisibility}
                 >
-                    <Title>{title}</Title>
+                    <Title>{capitalize(titleId)}</Title>
                     <strong>{files.length}</strong>
                 </SectionTitle>
                 {visibility &&
@@ -114,7 +115,7 @@ interface IProps {
     hasError: boolean
     activated: boolean
     setError?: (e: Error) => void
-    getStatus?: () => void
+    getStatus?: () => Promise<StatusResult | void>
     handleSelection?: (selection: string) => void
     children?: React.ReactNode
 }
@@ -126,7 +127,7 @@ interface State {
 }
 
 class VersionControlView extends React.Component<IProps, State> {
-    public state = {
+    public state: State = {
         modified: true,
         staged: true,
         untracked: true,
@@ -140,23 +141,35 @@ class VersionControlView extends React.Component<IProps, State> {
         this.props.setError(e)
     }
 
-    public toggleVisibility = (section: keyof State) => () => {
+    public toggleVisibility = (section: keyof State) => {
         this.setState(prevState => ({ [section]: !prevState[section] }))
     }
 
+    public toggleOrAction = (id: string) => {
+        if (id === "modified" || id === "staged" || id === "untracked") {
+            this.toggleVisibility(id)
+        }
+        this.props.handleSelection(id)
+    }
+
+    public insertIf(condition: boolean, element: string[]) {
+        return condition ? element : []
+    }
+
     public render() {
-        const { modified, staged, untracked } = this.props.status
         const error = this.props.hasError && "Something Went Wrong!"
         const inactive = !this.props.activated && "Version Control Not Available"
         const warning = error || inactive
+        const { modified, staged, untracked } = this.props.status
         const ids = [
-            "Modified Files",
-            ...modified,
-            "Staged Files",
-            ...staged,
-            "Untracked Files",
-            ...untracked,
+            "modified",
+            ...this.insertIf(this.state.modified, modified),
+            "staged",
+            ...this.insertIf(this.state.staged, staged),
+            "untracked",
+            ...this.insertIf(this.state.untracked, untracked),
         ]
+
         return warning ? (
             <SectionTitle>
                 <Title>{warning}</Title>
@@ -165,35 +178,35 @@ class VersionControlView extends React.Component<IProps, State> {
             <VimNavigator
                 ids={ids}
                 active={this.props.hasFocus}
-                onSelected={this.props.handleSelection}
+                onSelected={this.toggleOrAction}
                 render={selectedId => (
                     <StatusContainer>
                         <GitStatus
                             symbol="M"
                             files={modified}
-                            title="Modified Files"
+                            titleId="modified"
                             selectedId={selectedId}
                             visibility={this.state.modified}
                             onClick={this.props.handleSelection}
-                            toggleVisibility={this.toggleVisibility("modified")}
+                            toggleVisibility={() => this.toggleVisibility("modified")}
                         />
                         <GitStatus
                             symbol="S"
+                            titleId="staged"
                             files={staged}
-                            title="Staged Files"
                             selectedId={selectedId}
                             visibility={this.state.staged}
                             onClick={this.props.handleSelection}
-                            toggleVisibility={this.toggleVisibility("staged")}
+                            toggleVisibility={() => this.toggleVisibility("staged")}
                         />
                         <GitStatus
                             files={untracked}
                             symbol="?"
-                            title="Untracked Files"
+                            titleId="untracked"
                             selectedId={selectedId}
                             visibility={this.state.untracked}
                             onClick={this.props.handleSelection}
-                            toggleVisibility={this.toggleVisibility("untracked")}
+                            toggleVisibility={() => this.toggleVisibility("untracked")}
                         />
                     </StatusContainer>
                 )}
