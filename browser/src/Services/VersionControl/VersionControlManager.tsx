@@ -16,6 +16,7 @@ export class VersionControlManager {
     private _menuInstance: Oni.Menu.MenuInstance
     private _vcsStatusItem: Oni.StatusBarItem
     private _subscriptions: IDisposable[]
+    private _providers = new Map<string, VersionControlProvider>()
 
     constructor(
         private _workspace: IWorkspace,
@@ -26,26 +27,56 @@ export class VersionControlManager {
         private _sidebar: SidebarManager,
     ) {}
 
-    public registerProvider({
-        provider,
-        name,
-    }: {
-        provider: VersionControlProvider
-        name: SupportedProviders
-    }): void {
+    public async registerProvider(provider: VersionControlProvider): Promise<void> {
         if (provider) {
-            this._vcs = name
-            this._vcsProvider = provider
-            this._initialize()
+            this._providers.set(provider.name, provider)
+            await this._activateVCSProviderIfCompatible(provider)
+
+            this._workspace.onDirectoryChanged.subscribe(async dir => {
+                const allCompatibleProviders: VersionControlProvider[] = []
+                this._providers.forEach(async vcs => {
+                    const isCompatible = await vcs.canHandleWorkspace(dir)
+                    if (isCompatible) {
+                        allCompatibleProviders.push(vcs)
+                    }
+                })
+
+                const [providerToUse] = allCompatibleProviders
+                if (
+                    this._vcsProvider &&
+                    providerToUse &&
+                    this._vcsProvider.name === providerToUse.name
+                ) {
+                    return
+                }
+
+                if (this._vcsProvider) {
+                    return this.deactivateProvider()
+                }
+
+                if (providerToUse) {
+                    return this._activateVCSProviderIfCompatible(providerToUse)
+                }
+            })
         }
     }
 
-    public unregisterProvider(): void {
+    public deactivateProvider(): void {
+        this._vcsProvider.deactivate()
         this._subscriptions.map(s => s.dispose())
         this._vcsStatusItem.hide()
         this._vcsStatusItem.dispose()
         this._vcsProvider = null
         this._vcs = null
+    }
+
+    private _activateVCSProviderIfCompatible = async (provider: VersionControlProvider) => {
+        if (await provider.canHandleWorkspace(this._workspace.activeWorkspace)) {
+            this._vcs = provider.name
+            this._vcsProvider = provider
+            this._initialize()
+            provider.activate()
+        }
     }
 
     private _initialize() {
@@ -191,5 +222,4 @@ function init() {
         getInstance: GetInstance,
     }
 }
-
 export const { activate, getInstance } = init()

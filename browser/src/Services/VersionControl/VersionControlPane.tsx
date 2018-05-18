@@ -28,8 +28,12 @@ export default class VersionControlPane {
             await this.getStatus()
         })
 
-        this._vcsProvider.onPluginActivated.subscribe(() => {
+        this._vcsProvider.onPluginActivated.subscribe(async () => {
+            const status = await this.getStatus()
             this._store.dispatch({ type: "ACTIVATE" })
+            if (status) {
+                this._store.dispatch({ type: "STATUS", payload: { status } })
+            }
         })
 
         this._vcsProvider.onPluginDeactivated.subscribe(() => {

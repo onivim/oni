@@ -41,9 +41,7 @@ export interface VersionControlProvider {
     onPluginActivated: IEvent<void>
     onPluginDeactivated: IEvent<void>
 
-    isActivated: boolean
-    deactivate(): void
-    activate(): void
+    name: string
     canHandleWorkspace(dir?: string): Promise<boolean>
     getStatus(projectRoot?: string): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
@@ -64,18 +62,11 @@ export class GitVersionControlProvider implements VersionControlProvider {
     private _onPluginActivated = new Event<void>()
     private _onPluginDeactivated = new Event<void>()
     private _isActivated = false
+    private _name = "git"
     private _log: (...args: any[]) => void
 
     constructor(private _oni: Oni.Plugin.Api, private _git = GitP) {
         this._log = this._oni.log.warn || console.warn
-        this._oni.workspace.onDirectoryChanged.subscribe(async dir => {
-            const isRepo = await this.canHandleWorkspace(dir)
-            return isRepo ? this.activate() : this.deactivate()
-        })
-    }
-
-    get isActivated(): boolean {
-        return this._isActivated
     }
 
     get onBranchChanged(): IEvent<VCSBranchChangedEvent> {
@@ -96,6 +87,10 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
     get onPluginDeactivated(): IEvent<void> {
         return this._onPluginDeactivated
+    }
+
+    get name(): string {
+        return this._name
     }
 
     public activate() {
@@ -120,6 +115,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
                     e.message
                 }`,
             )
+            return false
         }
     }
 
@@ -237,18 +233,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
 export const activate = async oni => {
     const provider = new GitVersionControlProvider(oni)
-
-    if (await provider.canHandleWorkspace(oni.workspace.activeWorkspace)) {
-        provider.activate()
-    }
-
-    provider.onPluginActivated.subscribe(() => {
-        oni.services.vcs.registerProvider({ provider, name: "git" })
-    })
-
-    provider.onPluginDeactivated.subscribe(() => {
-        oni.services.vcs.unregisterProvider()
-    })
+    await oni.services.vcs.registerProvider(provider)
 
     return provider
 }
