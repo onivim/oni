@@ -44,8 +44,7 @@ export class LanguageManager {
         this._languageClientStatusBar = new LanguageClientStatusBar(_oni)
 
         this._oni.editors.anyEditor.onBufferEnter.subscribe(async () => this._onBufferEnter())
-
-        this._oni.editors.anyEditor.onBufferLeave.subscribe(
+        ;(this._oni.editors.anyEditor as any).onBufferDelete.subscribe(
             (bufferInfo: Oni.EditorBufferEventArgs) => {
                 const { language, filePath } = bufferInfo
 

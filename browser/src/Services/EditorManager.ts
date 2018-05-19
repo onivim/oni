@@ -100,6 +100,7 @@ class AnyEditorProxy implements Oni.Editor {
     private _onModeChanged = new Event<Oni.Vim.Mode>()
     private _onBufferEnter = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeave = new Event<Oni.EditorBufferEventArgs>()
+    private _onBufferDelete = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChanged = new Event<Oni.EditorBufferChangedEventArgs>()
     private _onBufferSaved = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferScrolled = new Event<Oni.EditorBufferScrolledEventArgs>()
@@ -155,6 +156,10 @@ class AnyEditorProxy implements Oni.Editor {
 
     public get onBufferLeave(): IEvent<Oni.EditorBufferEventArgs> {
         return this._onBufferLeave
+    }
+
+    public get onBufferDelete(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferDelete
     }
 
     public get onBufferSaved(): IEvent<Oni.EditorBufferEventArgs> {
