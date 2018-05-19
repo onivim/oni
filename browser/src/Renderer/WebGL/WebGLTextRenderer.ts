@@ -7,8 +7,6 @@ import {
     createUnitQuadVerticesBuffer,
 } from "./WebGLUtilities"
 
-// tslint:disable-next-line:no-bitwise
-const maxGlyphInstances = 1 << 14 // TODO find a reasonable way of determining this
 const glyphInstanceFieldCount = 13
 const glyphInstanceSizeInBytes = glyphInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT
 
@@ -162,6 +160,8 @@ export class WebGlTextRenderer {
         viewportScaleX: number,
         viewportScaleY: number,
     ) {
+        const cellCount = columnCount * rowCount
+        this.recreateGlyphInstancesArrayIfRequired(cellCount)
         const glyphInstanceCount = this.populateGlyphInstances(
             columnCount,
             rowCount,
@@ -176,7 +176,6 @@ export class WebGlTextRenderer {
     private createBuffers() {
         this._unitQuadVerticesBuffer = createUnitQuadVerticesBuffer(this._gl)
         this._unitQuadElementIndicesBuffer = createUnitQuadElementIndicesBuffer(this._gl)
-        this._glyphInstances = new Float32Array(maxGlyphInstances * glyphInstanceFieldCount)
         this._glyphInstancesBuffer = this._gl.createBuffer()
     }
 
@@ -264,6 +263,13 @@ export class WebGlTextRenderer {
             11 * Float32Array.BYTES_PER_ELEMENT,
         )
         this._gl.vertexAttribDivisor(vertexShaderAttributes.atlasSize, 1)
+    }
+
+    private recreateGlyphInstancesArrayIfRequired(cellCount: number) {
+        const requiredBufferLength = cellCount * glyphInstanceFieldCount
+        if (!this._glyphInstances || this._glyphInstances.length < requiredBufferLength) {
+            this._glyphInstances = new Float32Array(requiredBufferLength)
+        }
     }
 
     private populateGlyphInstances(
