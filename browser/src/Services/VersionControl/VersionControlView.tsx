@@ -11,7 +11,7 @@ import { IState } from "./VersionControlStore"
 
 const Row = styled.div`
     display: flex;
-    span >  {
+    span > {
         margin-right: 0.2em;
     }
 `
@@ -73,37 +73,34 @@ export const GitStatus = ({
     toggleVisibility,
     titleId,
     visibility,
-}: IModifiedFilesProps) => (
-    <div>
-        {files && (
-            <div>
-                <SectionTitle
-                    isSelected={selectedId === titleId}
-                    data-test={`${titleId}-${files.length}`}
-                    onClick={toggleVisibility}
-                >
-                    <Caret active={visibility && !!files.length} />
-                    <Title>{titleId.toUpperCase()}</Title>
-                    <strong>{files.length}</strong>
-                </SectionTitle>
-                {visibility &&
-                    files.map(filePath => (
-                        <Sneakable callback={() => onClick(filePath)} key={filePath}>
-                            <Column
-                                onClick={() => onClick(filePath)}
-                                isSelected={selectedId === filePath}
-                            >
-                                <Name>{truncate(filePath)}</Name>
-                                <Row>
-                                    <strong>{symbol}</strong>
-                                </Row>
-                            </Column>
-                        </Sneakable>
-                    ))}
-            </div>
-        )}
-    </div>
-)
+}: IModifiedFilesProps) =>
+    files && (
+        <div>
+            <SectionTitle
+                isSelected={selectedId === titleId}
+                data-test={`${titleId}-${files.length}`}
+                onClick={toggleVisibility}
+            >
+                <Caret active={visibility && !!files.length} />
+                <Title>{titleId.toUpperCase()}</Title>
+                <strong>{files.length}</strong>
+            </SectionTitle>
+            {visibility &&
+                files.map(filePath => (
+                    <Sneakable callback={() => onClick(filePath)} key={filePath}>
+                        <Column
+                            onClick={() => onClick(filePath)}
+                            isSelected={selectedId === filePath}
+                        >
+                            <Name>{truncate(filePath)}</Name>
+                            <Row>
+                                <strong>{symbol}</strong>
+                            </Row>
+                        </Column>
+                    </Sneakable>
+                ))}
+        </div>
+    )
 
 const StatusContainer = styled.div`
     overflow-x: hidden;
