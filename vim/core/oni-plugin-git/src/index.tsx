@@ -56,13 +56,13 @@ export interface VersionControlProvider {
 }
 
 export class GitVersionControlProvider implements VersionControlProvider {
+    private readonly _name = "git"
     private _onBranchChange = new Event<VCSBranchChangedEvent>()
     private _onStagedFilesChanged = new Event<VCSStagedFilesChangedEvent>()
     private _onFileStatusChanged = new Event<VCSFileStatusChangedEvent>()
     private _onPluginActivated = new Event<void>()
     private _onPluginDeactivated = new Event<void>()
     private _isActivated = false
-    private _name = "git"
     private _log: (...args: any[]) => void
 
     constructor(private _oni: Oni.Plugin.Api, private _git = GitP) {

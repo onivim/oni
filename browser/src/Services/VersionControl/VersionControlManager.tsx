@@ -36,7 +36,7 @@ export class VersionControlManager {
 
             this._workspace.onDirectoryChanged.subscribe(async dir => {
                 const providerToUse = await this.getCompatibleProvider(dir)
-                return this.handleProviderStatus(providerToUse)
+                this.handleProviderStatus(providerToUse)
             })
         }
     }
@@ -50,19 +50,19 @@ export class VersionControlManager {
         this._vcs = null
     }
 
-    public handleProviderStatus(providerToUse: VersionControlProvider) {
+    public handleProviderStatus(providerToUse: VersionControlProvider): void {
         const isSameProvider =
             this._vcsProvider && providerToUse && this._vcsProvider.name === providerToUse.name
 
         if (isSameProvider) {
             return
         } else if (this._vcsProvider && !providerToUse) {
-            return this.deactivateProvider()
+            this.deactivateProvider()
         } else if (this._vcsProvider && providerToUse) {
             this.deactivateProvider()
-            return this._activateVCSProvider(providerToUse)
+            this._activateVCSProvider(providerToUse)
         } else if (!this._vcsProvider && providerToUse) {
-            return this._activateVCSProvider(providerToUse)
+            this._activateVCSProvider(providerToUse)
         }
     }
 
@@ -108,10 +108,10 @@ export class VersionControlManager {
         ]
 
         this._subscriptions = subscriptions
+        const hasVcsSidebar = this._sidebar.entries.some(({ id }) => id.includes("vcs"))
 
-        const vcsPane = new VersionControlPane(this._workspace, this._vcsProvider, this._vcs)
-        const hasSidebar = this._sidebar.entries.some(({ id }) => id === vcsPane.id)
-        if (!hasSidebar) {
+        if (!hasVcsSidebar) {
+            const vcsPane = new VersionControlPane(this._workspace, this._vcsProvider, this._vcs)
             this._sidebar.add("code-fork", vcsPane)
         }
 
