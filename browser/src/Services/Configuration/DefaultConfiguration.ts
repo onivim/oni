@@ -255,15 +255,12 @@ const BaseConfiguration: IConfigurationValues = {
     "language.ocaml.languageServer.arguments": ["--stdio"],
     "language.ocaml.languageServer.configuration": ocamlAndReasonConfiguration,
 
-<<<<<<< HEAD
     "language.haskell.languageServer.command": "stack",
     "language.haskell.languageServer.arguments": ["exec", "--", "hie", "--lsp"],
     "language.haskell.languageServer.rootFiles": [".git"],
     "language.haskell.languageServer.configuration": {},
 
-=======
     "language.typescript.rootFiles": ["tsconfig.json", "package.json"],
->>>>>>> add root files config option
     "language.typescript.languageServer.command": "typescript-language-server",
     "language.typescript.languageServer.arguments": ["--stdio"],
     "language.typescript.completionTriggerCharacters": [".", "/", "\\"],

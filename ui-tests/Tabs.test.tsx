@@ -12,6 +12,9 @@ import { Corner, getHighlightColor, Name, Tab, Tabs } from "../browser/src/UI/co
 const MockFileIcon = FileIcon as jest.Mock<{}>
 const MockSneakable = Sneakable as jest.Mock<Sneakable>
 
+const MockFileIcon = FileIcon as jest.Mock<{}>
+const MockSneakable = Sneakable as jest.Mock<Sneakable>
+
 describe("<Tabs /> Tests", () => {
     MockFileIcon.mockImplementation(() => ({ render: jest.fn() }))
     MockSneakable.mockImplementation(props => ({
