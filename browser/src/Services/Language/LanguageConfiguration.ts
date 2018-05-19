@@ -102,16 +102,20 @@ const createLanguageClientFromConfig = (
         ? { module: lightweightCommand }
         : { command: lightweightCommand }
 
-    const getWorkingDirectory = rootFiles ? simplePathResolver : getRootProjectFile(rootFiles)
+    let getWorkingOrRootDirectory = simplePathResolver
+
+    if (rootFiles) {
+        getWorkingOrRootDirectory = getRootProjectFile(rootFiles)
+    }
 
     const serverRunOptions: ServerRunOptions = {
         ...commandOrModule,
         args,
-        workingDirectory: getWorkingDirectory,
+        workingDirectory: getWorkingOrRootDirectory,
     }
 
     const initializationOptions: InitializationOptions = {
-        rootPath: getWorkingDirectory,
+        rootPath: getWorkingOrRootDirectory,
     }
     const languageClient = new LanguageClient(
         language,

@@ -86,7 +86,6 @@ export class LanguageClientProcess {
 
     public async ensureActive(fileName: string): Promise<rpc.MessageConnection> {
         const rootDir = normalizePath(path.dirname(fileName))
-        // FIXME: these checks do not work as the directory is incorrect
         const workingDirectory = await this._serverOptions.workingDirectory(rootDir)
         const rootPath = await this._initializationOptions.rootPath(rootDir)
 
