@@ -40,8 +40,8 @@ export class BeginningsAndEndingsTutorial implements ITutorial {
                 2,
                 Line3.length - 1,
             ),
-            new Stages.MoveToGoalStage("Use '0' to move to the BEGINNING of the line", 2, 0),
             new Stages.MoveToGoalStage("Use '_' to move to the FIRST CHARACTER", 2, 4),
+            new Stages.MoveToGoalStage("Use '0' to move to the BEGINNING of the line", 2, 0),
             new Stages.MoveToGoalStage(
                 "Use '$' to move to the END of the line",
                 2,
@@ -55,8 +55,8 @@ export class BeginningsAndEndingsTutorial implements ITutorial {
             id: "oni.tutorials.beginnings_and_endings",
             name: "Motion: _, 0, $",
             description:
-                "Using `h` and `l` isn't always the most efficient way to get around a line. You can use the `0` key to move to the very beginning a line, and `$` to move to the end. `_` moves to the first character in the line, which is often more convenient than `0`.",
-            level: 160,
+                "You don't need to keep hitting `w` or `b` when you need to go all the way to the beginning or the end of a line. You can use the `0` key to move to the very beginning a line, and `$` to move to the end. Also, `_` moves to the first character in the line, which is often more convenient than `0`.",
+            level: 140,
         }
     }
 

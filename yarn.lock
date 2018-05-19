@@ -55,10 +55,6 @@
     "@types/events" "*"
     "@types/node" "*"
 
-"@types/classnames@0.0.32":
-  version "0.0.32"
-  resolved "https://registry.yarnpkg.com/@types/classnames/-/classnames-0.0.32.tgz#449abcd9a826807811ef101e58df9f83cfc61713"
-
 "@types/color-convert@*":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@types/color-convert/-/color-convert-1.9.0.tgz#bfa8203e41e7c65471e9841d7e306a7cd8b5172d"
@@ -2243,9 +2239,9 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@2.2.5, classnames@^2.2.3, classnames@^2.2.5:
+classnames@JedWatson/classnames, classnames@^2.2.3, classnames@^2.2.5:
   version "2.2.5"
-  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.5.tgz#fb3801d453467649ef3603c7d61a02bd129bde6d"
+  resolved "https://codeload.github.com/JedWatson/classnames/tar.gz/34a05a53d31d35879ec7088949ae5a1b2224043a"
 
 clean-css@4.1.x:
   version "4.1.11"
@@ -7364,9 +7360,9 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@^0.0.42:
-  version "0.0.42"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.42.tgz#79cab4289809bda1c7b86590119f0c7aaa5a053e"
+oni-api@^0.0.44:
+  version "0.0.44"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.44.tgz#26e4999ba5da0be0e7f25b6705c2d5412fe4eb23"
 
 oni-neovim-binaries@0.1.1:
   version "0.1.1"
@@ -7386,9 +7382,9 @@ oni-ripgrep@0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/oni-ripgrep/-/oni-ripgrep-0.0.4.tgz#8eb52383f4a3f92b8b5d8fe29d52e9d728a46b50"
 
-oni-types@0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/oni-types/-/oni-types-0.0.4.tgz#97bc435565d5f4c3bdc50bd1700fd24dd5b6704b"
+oni-types@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/oni-types/-/oni-types-0.0.8.tgz#1dfe97eda3f2b97dfcb94609af25fc2e4172fa33"
 
 oniguruma@^6.0.1:
   version "6.2.1"
@@ -8056,11 +8052,7 @@ preserve@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
 
-prettier@^1.10.2:
-  version "1.10.2"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.10.2.tgz#1af8356d1842276a99a5b5529c82dd9e9ad3cc93"
-
-prettier@^1.5.3:
+prettier@^1.12.1, prettier@^1.5.3:
   version "1.12.1"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.12.1.tgz#c1ad20e803e7749faf905a409d2367e06bbe7325"
 
@@ -8082,9 +8074,9 @@ pretty-format@^22.1.0:
     ansi-regex "^3.0.0"
     ansi-styles "^3.2.0"
 
-pretty-quick@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/pretty-quick/-/pretty-quick-1.2.2.tgz#4ebb2bafa86aa5f67948c3d2ead6f196770f9e32"
+pretty-quick@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/pretty-quick/-/pretty-quick-1.5.0.tgz#304853ece7f8cb56bec74ba3ccd978037e7f2117"
   dependencies:
     chalk "^2.3.0"
     execa "^0.8.0"

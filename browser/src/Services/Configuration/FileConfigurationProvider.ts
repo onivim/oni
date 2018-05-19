@@ -9,7 +9,7 @@ import * as isError from "lodash/isError"
 import * as mkdirp from "mkdirp"
 import * as path from "path"
 
-import { Subject } from "rxjs/Subject"
+import { Subject } from "rxjs"
 
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"

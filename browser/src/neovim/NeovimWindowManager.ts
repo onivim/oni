@@ -39,6 +39,8 @@ export interface NeovimActiveWindowState {
     topBufferLine: number
     bottomBufferLine: number
 
+    visibleLines: string[]
+
     bufferToScreen: Oni.Coordinates.BufferToScreen
     dimensions: Oni.Shapes.Rectangle
 }
@@ -234,6 +236,7 @@ export class NeovimWindowManager extends Utility.Disposable {
                 bottomBufferLine: context.windowBottomLine - 1,
                 topBufferLine: context.windowTopLine,
                 dimensions,
+                visibleLines: lines || [],
                 bufferToScreen: getBufferToScreenFromRanges(offset, expandedWidthRanges),
             }
 
