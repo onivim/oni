@@ -7,6 +7,7 @@
 import { Reducer, Store } from "redux"
 import { createStore as createReduxStore } from "./../../Redux"
 
+import { configuration } from "../Configuration"
 import { WindowManager, WindowSplitHandle } from "./../WindowManager"
 import { SidebarContentSplit } from "./SidebarContentSplit"
 import { SidebarSplit } from "./SidebarSplit"
@@ -20,6 +21,8 @@ export interface ISidebarState {
     activeEntryId: string
 
     isActive: boolean
+
+    width: string
 }
 
 export type SidebarIcon = string
@@ -65,12 +68,28 @@ export class SidebarManager {
     constructor(private _windowManager: WindowManager = null) {
         this._store = createStore()
 
+        configuration.onConfigurationChanged.subscribe(val => {
+            if (typeof val["sidebar.width"] === "string") {
+                this.setWidth(val["sidebar.width"])
+            }
+        })
+        this.setWidth(configuration.getValue("sidebar.width"))
+
         if (_windowManager) {
             this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
             this._contentSplit = this._windowManager.createSplit(
                 "left",
                 new SidebarContentSplit(this),
             )
+        }
+    }
+
+    public setWidth(width: string): void {
+        if (width) {
+            this._store.dispatch({
+                type: "SET_WIDTH",
+                width,
+            })
         }
     }
 
@@ -139,6 +158,7 @@ const DefaultSidebarState: ISidebarState = {
     entries: [],
     activeEntryId: null,
     isActive: false,
+    width: null,
 }
 
 export type SidebarActions =
@@ -153,6 +173,10 @@ export type SidebarActions =
     | {
           type: "SET_NOTIFICATION"
           id: string
+      }
+    | {
+          type: "SET_WIDTH"
+          width: string
       }
     | {
           type: "ENTER"
@@ -180,6 +204,11 @@ export const sidebarReducer: Reducer<ISidebarState> = (
             return {
                 ...newState,
                 isActive: false,
+            }
+        case "SET_WIDTH":
+            return {
+                ...newState,
+                width: action.width,
             }
         case "SET_ACTIVE_ID":
             return {

@@ -9,7 +9,7 @@ import {
 
 // tslint:disable-next-line:no-bitwise
 const maxGlyphInstances = 1 << 14 // TODO find a reasonable way of determining this
-const glyphInstanceFieldCount = 12
+const glyphInstanceFieldCount = 13
 const glyphInstanceSizeInBytes = glyphInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT
 
 const vertexShaderAttributes = {
@@ -17,8 +17,9 @@ const vertexShaderAttributes = {
     targetOrigin: 1,
     targetSize: 2,
     textColorRGBA: 3,
-    atlasOrigin: 4,
-    atlasSize: 5,
+    atlasLayerIndex: 4,
+    atlasOrigin: 5,
+    atlasSize: 6,
 }
 
 const vertexShaderSource = `
@@ -28,12 +29,14 @@ const vertexShaderSource = `
     layout (location = 1) in vec2 targetOrigin;
     layout (location = 2) in vec2 targetSize;
     layout (location = 3) in vec4 textColorRGBA;
-    layout (location = 4) in vec2 atlasOrigin;
-    layout (location = 5) in vec2 atlasSize;
+    layout (location = 4) in float atlasLayerIndex;
+    layout (location = 5) in vec2 atlasOrigin;
+    layout (location = 6) in vec2 atlasSize;
 
     uniform vec2 viewportScale;
 
     flat out vec4 textColor;
+    flat out int convertedAtlasLayerIndex;
     out vec2 atlasPosition;
 
     void main() {
@@ -41,6 +44,7 @@ const vertexShaderSource = `
         vec2 targetPosition = targetPixelPosition * viewportScale + vec2(-1.0, 1.0);
         gl_Position = vec4(targetPosition, 0.0, 1.0);
         textColor = textColorRGBA;
+        convertedAtlasLayerIndex = int(atlasLayerIndex);
         atlasPosition = atlasOrigin + unitQuadVertex * atlasSize;
     }
 `.trim()
@@ -49,15 +53,17 @@ const firstPassFragmentShaderSource = `
     #version 300 es
 
     precision mediump float;
+    precision mediump sampler2DArray;
 
     layout(location = 0) out vec4 outColor;
     flat in vec4 textColor;
+    flat in int convertedAtlasLayerIndex;
     in vec2 atlasPosition;
 
-    uniform sampler2D atlasTexture;
+    uniform sampler2DArray atlasTextures;
 
     void main() {
-      vec4 atlasColor = texture(atlasTexture, atlasPosition);
+      vec4 atlasColor = texture(atlasTextures, vec3(atlasPosition, convertedAtlasLayerIndex));
       outColor = textColor.a * atlasColor;
     }
 `.trim()
@@ -66,15 +72,17 @@ const secondPassFragmentShaderSource = `
     #version 300 es
 
     precision mediump float;
+    precision mediump sampler2DArray;
 
     layout(location = 0) out vec4 outColor;
     flat in vec4 textColor;
+    flat in int convertedAtlasLayerIndex;
     in vec2 atlasPosition;
 
-    uniform sampler2D atlasTexture;
+    uniform sampler2DArray atlasTextures;
 
     void main() {
-        vec3 atlasColor = texture(atlasTexture, atlasPosition).rgb;
+        vec3 atlasColor = texture(atlasTextures, vec3(atlasPosition, convertedAtlasLayerIndex)).rgb;
         vec3 outColorRGB = atlasColor * textColor.rgb;
         float outColorA = max(outColorRGB.r, max(outColorRGB.g, outColorRGB.b));
         outColor = vec4(outColorRGB, outColorA);
@@ -85,13 +93,16 @@ const isWhiteSpace = (text: string) => text === null || text === "" || text === 
 
 export class WebGlTextRenderer {
     private _atlas: WebGLAtlas
+    private _glyphOverlapInPixels: number
     private _subpixelDivisor: number
     private _devicePixelRatio: number
 
     private _firstPassProgram: WebGLProgram
     private _firstPassViewportScaleLocation: WebGLUniformLocation
+    private _firstPassAtlasTexturesLocation: WebGLUniformLocation
     private _secondPassProgram: WebGLProgram
     private _secondPassViewportScaleLocation: WebGLUniformLocation
+    private _secondPassAtlasTexturesLocation: WebGLUniformLocation
     private _unitQuadVerticesBuffer: WebGLBuffer
     private _unitQuadElementIndicesBuffer: WebGLBuffer
     private _glyphInstances: Float32Array
@@ -103,8 +114,9 @@ export class WebGlTextRenderer {
         private _colorNormalizer: IColorNormalizer,
         atlasOptions: IWebGLAtlasOptions,
     ) {
-        this._devicePixelRatio = atlasOptions.devicePixelRatio
+        this._glyphOverlapInPixels = atlasOptions.glyphPaddingInPixels
         this._subpixelDivisor = atlasOptions.offsetGlyphVariantCount
+        this._devicePixelRatio = atlasOptions.devicePixelRatio
         this._atlas = new WebGLAtlas(this._gl, atlasOptions)
 
         this._firstPassProgram = createProgram(
@@ -125,6 +137,15 @@ export class WebGlTextRenderer {
         this._secondPassViewportScaleLocation = this._gl.getUniformLocation(
             this._secondPassProgram,
             "viewportScale",
+        )
+
+        this._firstPassAtlasTexturesLocation = this._gl.getUniformLocation(
+            this._firstPassProgram,
+            "atlasTextures",
+        )
+        this._secondPassAtlasTexturesLocation = this._gl.getUniformLocation(
+            this._secondPassProgram,
+            "atlasTextures",
         )
 
         this.createBuffers()
@@ -211,6 +232,17 @@ export class WebGlTextRenderer {
         )
         this._gl.vertexAttribDivisor(vertexShaderAttributes.textColorRGBA, 1)
 
+        this._gl.enableVertexAttribArray(vertexShaderAttributes.atlasLayerIndex)
+        this._gl.vertexAttribPointer(
+            vertexShaderAttributes.atlasLayerIndex,
+            1,
+            this._gl.FLOAT,
+            false,
+            glyphInstanceSizeInBytes,
+            8 * Float32Array.BYTES_PER_ELEMENT,
+        )
+        this._gl.vertexAttribDivisor(vertexShaderAttributes.atlasLayerIndex, 1)
+
         this._gl.enableVertexAttribArray(vertexShaderAttributes.atlasOrigin)
         this._gl.vertexAttribPointer(
             vertexShaderAttributes.atlasOrigin,
@@ -218,7 +250,7 @@ export class WebGlTextRenderer {
             this._gl.FLOAT,
             false,
             glyphInstanceSizeInBytes,
-            8 * Float32Array.BYTES_PER_ELEMENT,
+            9 * Float32Array.BYTES_PER_ELEMENT,
         )
         this._gl.vertexAttribDivisor(vertexShaderAttributes.atlasOrigin, 1)
 
@@ -229,7 +261,7 @@ export class WebGlTextRenderer {
             this._gl.FLOAT,
             false,
             glyphInstanceSizeInBytes,
-            10 * Float32Array.BYTES_PER_ELEMENT,
+            11 * Float32Array.BYTES_PER_ELEMENT,
         )
         this._gl.vertexAttribDivisor(vertexShaderAttributes.atlasSize, 1)
     }
@@ -244,6 +276,7 @@ export class WebGlTextRenderer {
     ) {
         const pixelRatioAdaptedFontWidth = fontWidthInPixels * this._devicePixelRatio
         const pixelRatioAdaptedFontHeight = fontHeightInPixels * this._devicePixelRatio
+        const pixelRatioAdaptedGlyphOverlap = this._glyphOverlapInPixels * this._devicePixelRatio
 
         let glyphCount = 0
         let y = 0
@@ -258,14 +291,14 @@ export class WebGlTextRenderer {
                 if (!isWhiteSpace(char)) {
                     const variantIndex =
                         Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
-                    const glyph = this._atlas.getGlyph(char, variantIndex)
+                    const glyph = this._atlas.getGlyph(char, cell.bold, cell.italic, variantIndex)
                     const colorToUse = cell.foregroundColor || defaultForegroundColor || "white"
                     const normalizedTextColor = this._colorNormalizer.normalizeColor(colorToUse)
 
                     this.updateGlyphInstance(
                         glyphCount,
-                        Math.round(x - glyph.variantOffset),
-                        y,
+                        Math.round(x - glyph.variantOffset) - pixelRatioAdaptedGlyphOverlap,
+                        y - pixelRatioAdaptedGlyphOverlap,
                         glyph,
                         normalizedTextColor,
                     )
@@ -287,9 +320,13 @@ export class WebGlTextRenderer {
         this._gl.enable(this._gl.BLEND)
 
         this._gl.useProgram(this._firstPassProgram)
+
         this._gl.uniform2f(this._firstPassViewportScaleLocation, viewportScaleX, viewportScaleY)
+        this._gl.uniform1i(this._firstPassAtlasTexturesLocation, 0)
+
         this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this._glyphInstancesBuffer)
         this._gl.bufferData(this._gl.ARRAY_BUFFER, this._glyphInstances, this._gl.STREAM_DRAW)
+
         this._gl.blendFuncSeparate(
             this._gl.ZERO,
             this._gl.ONE_MINUS_SRC_COLOR,
@@ -299,13 +336,17 @@ export class WebGlTextRenderer {
         this._gl.drawElementsInstanced(this._gl.TRIANGLES, 6, this._gl.UNSIGNED_BYTE, 0, glyphCount)
 
         this._gl.useProgram(this._secondPassProgram)
+
         this._gl.blendFuncSeparate(
             this._gl.ONE,
             this._gl.ONE,
             this._gl.ONE,
             this._gl.ONE_MINUS_SRC_ALPHA,
         )
+
         this._gl.uniform2f(this._secondPassViewportScaleLocation, viewportScaleX, viewportScaleY)
+        this._gl.uniform1i(this._secondPassAtlasTexturesLocation, 0)
+
         this._gl.drawElementsInstanced(this._gl.TRIANGLES, 6, this._gl.UNSIGNED_BYTE, 0, glyphCount)
     }
 
@@ -328,11 +369,13 @@ export class WebGlTextRenderer {
         this._glyphInstances[5 + startOffset] = color[1]
         this._glyphInstances[6 + startOffset] = color[2]
         this._glyphInstances[7 + startOffset] = color[3]
+        // atlasLayerIndex
+        this._glyphInstances[8 + startOffset] = glyph.textureLayerIndex
         // atlasOrigin
-        this._glyphInstances[8 + startOffset] = glyph.textureU
-        this._glyphInstances[9 + startOffset] = glyph.textureV
+        this._glyphInstances[9 + startOffset] = glyph.textureU
+        this._glyphInstances[10 + startOffset] = glyph.textureV
         // atlasSize
-        this._glyphInstances[10 + startOffset] = glyph.textureWidth
-        this._glyphInstances[11 + startOffset] = glyph.textureHeight
+        this._glyphInstances[11 + startOffset] = glyph.textureWidth
+        this._glyphInstances[12 + startOffset] = glyph.textureHeight
     }
 }

@@ -55,10 +55,6 @@
     "@types/events" "*"
     "@types/node" "*"
 
-"@types/classnames@0.0.32":
-  version "0.0.32"
-  resolved "https://registry.yarnpkg.com/@types/classnames/-/classnames-0.0.32.tgz#449abcd9a826807811ef101e58df9f83cfc61713"
-
 "@types/color-convert@*":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@types/color-convert/-/color-convert-1.9.0.tgz#bfa8203e41e7c65471e9841d7e306a7cd8b5172d"
@@ -2243,9 +2239,9 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@2.2.5, classnames@^2.2.3, classnames@^2.2.5:
+classnames@JedWatson/classnames, classnames@^2.2.3, classnames@^2.2.5:
   version "2.2.5"
-  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.5.tgz#fb3801d453467649ef3603c7d61a02bd129bde6d"
+  resolved "https://codeload.github.com/JedWatson/classnames/tar.gz/34a05a53d31d35879ec7088949ae5a1b2224043a"
 
 clean-css@4.1.x:
   version "4.1.11"
@@ -4037,7 +4033,7 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "^2.0.0"
 
-fbjs@^0.8.16, fbjs@^0.8.5, fbjs@^0.8.9:
+fbjs@^0.8.16, fbjs@^0.8.5:
   version "0.8.16"
   resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.16.tgz#5e67432f550dc41b572bf55847b8aca64e5337db"
   dependencies:
@@ -4804,10 +4800,6 @@ hoek@4.x.x:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-4.2.0.tgz#72d9d0754f7fe25ca2d01ad8f8f9a9449a89526d"
 
-hoist-non-react-statics@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-1.2.0.tgz#aa448cf0986d55cc40773b17174b7dd066cb7cfb"
-
 hoist-non-react-statics@^2.1.0, hoist-non-react-statics@^2.2.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-2.3.1.tgz#343db84c6018c650778898240135a1420ee22ce0"
@@ -5289,10 +5281,6 @@ is-fullwidth-code-point@^1.0.0:
 is-fullwidth-code-point@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/is-fullwidth-code-point/-/is-fullwidth-code-point-2.0.0.tgz#a3b30a5c4f199183167aaab93beefae3ddfb654f"
-
-is-function@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/is-function/-/is-function-1.0.1.tgz#12cfb98b65b57dd3d193a3121f5f6e2f437602b5"
 
 is-generator-fn@^1.0.0:
   version "1.0.0"
@@ -7334,9 +7322,9 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@^0.0.42:
-  version "0.0.42"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.42.tgz#79cab4289809bda1c7b86590119f0c7aaa5a053e"
+oni-api@^0.0.44:
+  version "0.0.44"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.44.tgz#26e4999ba5da0be0e7f25b6705c2d5412fe4eb23"
 
 oni-neovim-binaries@0.1.1:
   version "0.1.1"
@@ -7356,9 +7344,9 @@ oni-ripgrep@0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/oni-ripgrep/-/oni-ripgrep-0.0.4.tgz#8eb52383f4a3f92b8b5d8fe29d52e9d728a46b50"
 
-oni-types@0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/oni-types/-/oni-types-0.0.4.tgz#97bc435565d5f4c3bdc50bd1700fd24dd5b6704b"
+oni-types@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/oni-types/-/oni-types-0.0.8.tgz#1dfe97eda3f2b97dfcb94609af25fc2e4172fa33"
 
 oniguruma@^6.0.1:
   version "6.2.1"
@@ -8310,6 +8298,10 @@ react-hot-loader@^4.0.1:
     prop-types "^15.6.1"
     react-lifecycles-compat "^2.0.0"
     shallowequal "^1.0.2"
+
+react-is@^16.3.1:
+  version "16.3.2"
+  resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.3.2.tgz#f4d3d0e2f5fbb6ac46450641eb2e25bf05d36b22"
 
 react-lifecycles-compat@^2.0.0:
   version "2.0.2"
@@ -9642,23 +9634,28 @@ style-loader@0.18.2:
     loader-utils "^1.0.2"
     schema-utils "^0.3.0"
 
-styled-components@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/styled-components/-/styled-components-2.3.0.tgz#d9cf4574e140fea6426e48632ed0ca4494537718"
+styled-components@^3.2.6:
+  version "3.2.6"
+  resolved "https://registry.yarnpkg.com/styled-components/-/styled-components-3.2.6.tgz#99e6e75a746bdedd295a17e03dd1493055a1cc3b"
   dependencies:
     buffer "^5.0.3"
     css-to-react-native "^2.0.3"
-    fbjs "^0.8.9"
-    hoist-non-react-statics "^1.2.0"
-    is-function "^1.0.1"
+    fbjs "^0.8.16"
+    hoist-non-react-statics "^2.5.0"
     is-plain-object "^2.0.1"
     prop-types "^15.5.4"
-    stylis "^3.4.0"
+    react-is "^16.3.1"
+    stylis "^3.5.0"
+    stylis-rule-sheet "^0.0.10"
     supports-color "^3.2.3"
 
-stylis@^3.4.0:
-  version "3.4.5"
-  resolved "https://registry.yarnpkg.com/stylis/-/stylis-3.4.5.tgz#d7b9595fc18e7b9c8775eca8270a9a1d3e59806e"
+stylis-rule-sheet@^0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/stylis-rule-sheet/-/stylis-rule-sheet-0.0.10.tgz#44e64a2b076643f4b52e5ff71efc04d8c3c4a430"
+
+stylis@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/stylis/-/stylis-3.5.0.tgz#016fa239663d77f868fef5b67cf201c4b7c701e1"
 
 subarg@^1.0.0:
   version "1.0.0"

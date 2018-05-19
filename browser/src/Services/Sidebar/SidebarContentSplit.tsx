@@ -64,6 +64,7 @@ export class SidebarContentSplit {
 
 export interface ISidebarContentViewProps extends ISidebarContentContainerProps {
     activeEntry: ISidebarEntry
+    width: string
 }
 
 export interface ISidebarContentContainerProps {
@@ -82,7 +83,7 @@ const EntranceKeyframes = keyframes`
 
 export const SidebarContentWrapper = withProps<{}>(styled.div)`
     ${enableMouse}
-    width: 200px;
+    width: ${props => props.width};
     color: ${props => props.theme["editor.foreground"]};
     background-color: ${props => props.theme["editor.background"]};
     height: 100%;
@@ -173,7 +174,7 @@ export class SidebarContentView extends React.PureComponent<
         const header = activeEntry && activeEntry.pane ? activeEntry.pane.title : null
 
         return (
-            <SidebarContentWrapper className="sidebar-content">
+            <SidebarContentWrapper className="sidebar-content" width={this.props.width}>
                 <SidebarHeaderView hasFocus={this.state.active} headerName={header} />
                 <SidebarInnerPaneWrapper key={activeEntry.id}>
                     {activeEntry.pane.render()}
@@ -196,6 +197,7 @@ export const mapStateToProps = (
     return {
         ...containerProps,
         activeEntry,
+        width: state.width,
     }
 }
 

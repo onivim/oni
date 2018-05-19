@@ -107,10 +107,13 @@ export class AchievementsManager {
     }
 
     public clearAchievements(): void {
-        this._persistentStore.set({
+        const clearedState: IPersistedAchievementState = {
             goalCounts: {},
             achievedIds: [],
-        })
+        }
+
+        this._goalState = clearedState
+        this._persistentStore.set(clearedState)
     }
 
     public registerAchievement(definition: AchievementDefinition): void {

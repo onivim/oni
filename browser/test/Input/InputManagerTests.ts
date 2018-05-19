@@ -53,6 +53,15 @@ describe("InputManager", () => {
             assert.strictEqual(handled, false)
         })
 
+        it("can unbind an array of keys", () => {
+            const im = new InputManager()
+            im.bind(["a", "b"], "test.command")
+            im.unbind(["a", "b"])
+
+            const boundKeys = im.getBoundKeys("test.command")
+            assert.deepEqual(boundKeys, [], "Validate no bound keys are returned")
+        })
+
         describe("getBoundKeys", () => {
             it("returns empty array if no key bound to command", () => {
                 const im = new InputManager()

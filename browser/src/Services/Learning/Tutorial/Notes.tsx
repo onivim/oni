@@ -112,6 +112,10 @@ export const OKey = (): JSX.Element => {
     )
 }
 
+export const UKey = (): JSX.Element => {
+    return <KeyWithDescription keyCharacter="u" description={<span>Undo a single change</span>} />
+}
+
 export const GGKey = (): JSX.Element => {
     return (
         <KeyWithDescription
@@ -359,6 +363,78 @@ export const VisualLineModeKey = (): JSX.Element => {
         <KeyWithDescription
             keyCharacter="V"
             description={<span>Move into line-wise Visual mode for selecting lines</span>}
+        />
+    )
+}
+
+export const Targetckey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="c"
+            description={<span>Delete AND INSERT between next pair characters</span>}
+        />
+    )
+}
+
+export const Targetdkey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="d"
+            description={<span>Delete between next pair characters</span>}
+        />
+    )
+}
+
+export const Targetikey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="i"
+            description={<span>Select first character inside of pair characters</span>}
+        />
+    )
+}
+
+export const Targetakey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="a"
+            description={<span>Select next pair including the pair characters</span>}
+        />
+    )
+}
+
+export const TargetIkey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="I"
+            description={<span>Select contents of pair characters</span>}
+        />
+    )
+}
+
+export const TargetAkey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="A"
+            description={<span>Select around the pair characters</span>}
+        />
+    )
+}
+
+export const Targetnkey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="n"
+            description={<span>Select the next pair characters</span>}
+        />
+    )
+}
+
+export const Targetlkey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="l"
+            description={<span>Select the previous pair characters</span>}
         />
     )
 }

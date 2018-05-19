@@ -10,5 +10,5 @@ const TestToRun = process.env["DEMO_TEST"] // tslint:disable-line
 console.log("Running test: " + TestToRun)
 
 describe("demo tests", () => {
-    runInProcTest(path.join(__dirname, "demo"), TestToRun)
+    runInProcTest(path.join(__dirname, "demo"), TestToRun, 50000)
 })

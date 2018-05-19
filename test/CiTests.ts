@@ -8,7 +8,6 @@ import * as mkdirp from "mkdirp"
 import { IFailedTest, Oni, runInProcTest } from "./common"
 
 const LongTimeout = 5000
-
 const CiTests = [
     // Core functionality tests
     "Api.Buffer.AddLayer",
@@ -22,11 +21,13 @@ const CiTests = [
     "Configuration.TypeScriptEditor.NewConfigurationTest",
     "Configuration.TypeScriptEditor.CompletionTest",
 
+    "TabBarSneakTest",
     "initVimPromptNotificationTest",
     "Editor.BuffersCursorTest",
     "Editor.ExternalCommandLineTest",
     "Editor.BufferModifiedState",
     "Editor.OpenFile.PathWithSpacesTest",
+    "Editor.ScrollEventTest",
     "Editor.TabModifiedState",
     "Editor.CloseTabWithTabModesTabsTest",
     "MarkdownPreviewTest",
