@@ -315,16 +315,17 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
     }
 
     public calculateHeight = (selectedId: string) => ({ index }: { index: number }) => {
-        const node = this.props.nodes[index]
-        const isSelected = node.id === selectedId
+        const { nodes, isCreating, isRenaming } = this.props
+        const node = nodes[index]
+        const { id, name } = node
+        const isSelected = id === selectedId
 
         const PADDING = 10
         const fontSize = parseInt(this.props.fontSize, 10)
         const rowSize = fontSize + PADDING
 
-        const renameInProgress =
-            this.props.isRenaming.name === node.name && !this.props.isCreating && isSelected
-        const creationInProgress = this.props.isCreating && isSelected && !renameInProgress
+        const renameInProgress = isRenaming.name === name && !isCreating && isSelected
+        const creationInProgress = isCreating && isSelected && !renameInProgress
 
         switch (true) {
             case renameInProgress:
@@ -403,7 +404,9 @@ const mapStateToProps = (
     containerProps: IExplorerViewContainerProps,
 ): IExplorerViewProps => {
     const yanked = state.register.yank.map(node => node.id)
-    const { register: { updated, rename } } = state
+    const {
+        register: { updated, rename },
+    } = state
     return {
         ...containerProps,
         isActive: state.hasFocus,
