@@ -2,58 +2,56 @@
 
 exports[`<VersionControlView /> should match the last recorded snapshot unless a change was made 1`] = `
 <div>
-  <div>
+  <styled.div
+    data-test="modified-2"
+    isSelected={false}
+    onClick={[Function]}
+  >
+    <Caret
+      active={true}
+    />
+    <styled.h4>
+      MODIFIED
+    </styled.h4>
+    <strong>
+      2
+    </strong>
+  </styled.div>
+  <Sneakable
+    callback={[Function]}
+    key="test1"
+  >
     <styled.div
-      data-test="modified-2"
       isSelected={false}
       onClick={[Function]}
     >
-      <Caret
-        active={true}
-      />
-      <styled.h4>
-        MODIFIED
-      </styled.h4>
-      <strong>
-        2
-      </strong>
+      <styled.span>
+        test1
+      </styled.span>
+      <styled.div>
+        <strong>
+          M
+        </strong>
+      </styled.div>
     </styled.div>
-    <Sneakable
-      callback={[Function]}
-      key="test1"
+  </Sneakable>
+  <Sneakable
+    callback={[Function]}
+    key="test2"
+  >
+    <styled.div
+      isSelected={false}
+      onClick={[Function]}
     >
-      <styled.div
-        isSelected={false}
-        onClick={[Function]}
-      >
-        <styled.span>
-          test1
-        </styled.span>
-        <styled.div>
-          <strong>
-            M
-          </strong>
-        </styled.div>
+      <styled.span>
+        test2
+      </styled.span>
+      <styled.div>
+        <strong>
+          M
+        </strong>
       </styled.div>
-    </Sneakable>
-    <Sneakable
-      callback={[Function]}
-      key="test2"
-    >
-      <styled.div
-        isSelected={false}
-        onClick={[Function]}
-      >
-        <styled.span>
-          test2
-        </styled.span>
-        <styled.div>
-          <strong>
-            M
-          </strong>
-        </styled.div>
-      </styled.div>
-    </Sneakable>
-  </div>
+    </styled.div>
+  </Sneakable>
 </div>
 `;
