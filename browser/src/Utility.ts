@@ -4,11 +4,9 @@
  * Grab bag for functions that don't have another home.
  */
 
-import * as fs from "fs"
-import * as minimatch from "minimatch"
+import * as findup from "find-up"
 import * as path from "path"
 
-import * as find from "lodash/find"
 import * as isEqual from "lodash/isEqual"
 import * as reduce from "lodash/reduce"
 
@@ -100,59 +98,12 @@ export const delay = (timeoutInMs: number = 100): Promise<void> => {
     return new Promise<void>(r => window.setTimeout(() => r(), timeoutInMs))
 }
 
-export const doesFileNameMatchGlobPatterns = (
-    fileName: string,
-    globPatterns: string[],
-): boolean => {
-    if (!fileName) {
-        return false
-    }
-
-    if (!globPatterns || !globPatterns.length) {
-        return false
-    }
-
-    for (const filePattern of globPatterns) {
-        if (minimatch(fileName, filePattern)) {
-            return true
-        }
-    }
-
-    return false
-}
-
-export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
-    const getFilesForDirectory = (fullPath: string): Promise<string[]> => {
-        return new Promise((res, rej) => {
-            fs.readdir(fullPath, (err, files) => {
-                if (err) {
-                    rej(err)
-                } else {
-                    res(files)
-                }
-            })
-        })
-    }
-
-    const getRootProjectFile = async (fullPath: string): Promise<string> => {
-        const parentDir = path.dirname(fullPath)
-
-        // Test for root folder
-        if (parentDir === fullPath) {
-            return Promise.reject("Unable to find root csproj file")
-        }
-
-        const files = await getFilesForDirectory(fullPath)
-        const proj = find(files, f => doesFileNameMatchGlobPatterns(f, patternsToMatch))
-
-        if (proj) {
-            return fullPath
-        } else {
-            return getRootProjectFile(path.dirname(fullPath))
-        }
-    }
-
-    return getRootProjectFile
+export const getRootProjectFile = (rootMarkers: string[]) => async (
+    fullPath: string,
+): Promise<string> => {
+    const parentDir = path.dirname(fullPath)
+    const root = await findup(rootMarkers, parentDir)
+    return path.dirname(root)
 }
 
 export const requestIdleCallback = (fn: () => void): number => {
