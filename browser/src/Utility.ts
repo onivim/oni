@@ -5,7 +5,7 @@
  */
 
 import * as findup from "find-up"
-import * as path from "path"
+import { dirname } from "path"
 
 import * as isEqual from "lodash/isEqual"
 import * as reduce from "lodash/reduce"
@@ -17,6 +17,8 @@ import * as JSON5 from "json5"
 import { IDisposable, IEvent } from "oni-types"
 
 import * as types from "vscode-languageserver-types"
+
+import * as Log from "./Log"
 
 export class Disposable implements IDisposable {
     private _disposables: IDisposable[] = []
@@ -101,9 +103,22 @@ export const delay = (timeoutInMs: number = 100): Promise<void> => {
 export const getRootProjectFile = (rootMarkers: string[]) => async (
     fullPath: string,
 ): Promise<string> => {
-    const parentDir = path.dirname(fullPath)
-    const root = await findup(rootMarkers, { cwd: parentDir })
-    return path.dirname(root)
+    if (!fullPath) {
+        return null
+    }
+
+    const parentDirectory = dirname(fullPath)
+    if (!rootMarkers) {
+        return parentDirectory
+    }
+
+    try {
+        const projectRoot = await findup(rootMarkers, { cwd: parentDirectory })
+        return dirname(projectRoot)
+    } catch (e) {
+        Log.warn(`error in getting project root: ${e.message}`)
+        return parentDirectory
+    }
 }
 
 export const requestIdleCallback = (fn: () => void): number => {
