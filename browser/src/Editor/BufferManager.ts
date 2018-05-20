@@ -287,6 +287,7 @@ export class Buffer implements IBuffer {
 
     public async applyTextEdits(textEdits: types.TextEdit | types.TextEdit[]): Promise<void> {
         const textEditsAsArray = textEdits instanceof Array ? textEdits : [textEdits]
+        console.log("textEditsAsArray: ", textEditsAsArray)
 
         const sortedEdits = LanguageManager.sortTextEdits(textEditsAsArray)
 

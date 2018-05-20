@@ -71,16 +71,13 @@ export class Workspace implements Oni.Workspace.Api {
     }
 
     public async applyEdits(edits: types.WorkspaceEdit): Promise<void> {
-        let editsToUse = edits
-        if (edits.documentChanges) {
-            editsToUse = convertTextDocumentChangesToFileMap(edits.documentChanges)
-        }
-
-        const files = Object.keys(editsToUse)
+        const editsToUse = edits.documentChanges
+            ? convertTextDocumentChangesToFileMap(edits.documentChanges)
+            : edits.changes
 
         // TODO: Show modal to grab input
-        // await editorManager.activeEditor.openFiles(files)
 
+        const files = Object.keys(editsToUse)
         const deferredEdits = await files.map((fileUri: string) => {
             return Observable.defer(async () => {
                 const changes = editsToUse[fileUri]
@@ -101,7 +98,6 @@ export class Workspace implements Oni.Workspace.Api {
             .toPromise()
 
         Log.verbose("[Workspace] Completed applying edits")
-
         // Hide modal
     }
 
