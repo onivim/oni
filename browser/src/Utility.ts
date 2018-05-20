@@ -102,7 +102,7 @@ export const getRootProjectFile = (rootMarkers: string[]) => async (
     fullPath: string,
 ): Promise<string> => {
     const parentDir = path.dirname(fullPath)
-    const root = await findup(rootMarkers, parentDir)
+    const root = await findup(rootMarkers, { cwd: parentDir })
     return path.dirname(root)
 }
 

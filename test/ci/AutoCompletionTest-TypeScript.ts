@@ -26,3 +26,9 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     assert.ok(textContent.indexOf("alert") >= 0, "Verify 'alert' was presented as a completion")
 }
+
+const settings = {
+    config: {
+        "oni.useDefaultConfig": true,
+    },
+}

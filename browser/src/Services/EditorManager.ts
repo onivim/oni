@@ -15,6 +15,10 @@ import * as types from "vscode-languageserver-types"
 
 import { remote } from "electron"
 
+export interface IEditorWithCandidates extends Oni.Editor {
+    onBufferDelete: IEvent<Oni.EditorBufferEventArgs>
+}
+
 export class EditorManager implements Oni.EditorManager {
     private _allEditors: Oni.Editor[] = []
     private _activeEditor: Oni.Editor = null
@@ -225,7 +229,12 @@ class AnyEditorProxy implements Oni.Editor {
             return
         }
 
+        const newEditorWithCandidates = newEditor as IEditorWithCandidates
+
         this._subscriptions = [
+            newEditorWithCandidates.onBufferDelete.subscribe(val =>
+                this._onBufferDelete.dispatch(val),
+            ),
             newEditor.onModeChanged.subscribe(val => this._onModeChanged.dispatch(val)),
             newEditor.onBufferEnter.subscribe(val => this._onBufferEnter.dispatch(val)),
             newEditor.onBufferLeave.subscribe(val => this._onBufferLeave.dispatch(val)),

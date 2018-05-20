@@ -18,6 +18,8 @@ export interface IDefinitionResult {
     token: Oni.IToken | null
 }
 
+type Location = types.Location | types.Location[]
+
 export interface IDefinitionRequestor {
     getDefinition(
         fileLanguage: string,
@@ -47,7 +49,7 @@ export class LanguageServiceDefinitionRequestor {
             }
         }
 
-        let result: types.Location | types.Location[] = null
+        let result: Location = null
         try {
             result = await this._languageManager.sendLanguageServerRequest(
                 fileLanguage,
@@ -66,9 +68,7 @@ export class LanguageServiceDefinitionRequestor {
     }
 }
 
-export const getFirstLocationFromArray = (
-    result: types.Location | types.Location[],
-): types.Location => {
+export const getFirstLocationFromArray = (result: Location): types.Location => {
     if (!result) {
         return null
     }
