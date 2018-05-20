@@ -17,7 +17,13 @@ import { ocamlAndReasonConfiguration, ocamlLanguageServerPath } from "./ReasonCo
 
 const noop = () => {} // tslint:disable-line no-empty
 
-export const typescriptLanguageServerPath = path.join(__dirname, "node_modules", "lib", "cli.js")
+export const typescriptLanguageServerPath = path.join(
+    __dirname,
+    "node_modules",
+    "typescript-language-server",
+    "lib",
+    "cli.js",
+)
 
 const cssLanguageServerPath = path.join(
     __dirname,
