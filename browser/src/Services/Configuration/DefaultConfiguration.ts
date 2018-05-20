@@ -104,6 +104,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.fontLigatures": true,
     "editor.fontSize": "12px",
+    "editor.fontWeight": "normal",
     "editor.fontFamily": "",
 
     "editor.linePadding": 2,
