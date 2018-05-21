@@ -157,8 +157,10 @@ export class GitVersionControlProvider implements VersionControlProvider {
             if (isRepo) {
                 this._git(currentDir).diffSummary()
             }
-        } catch (error) {
-            this._log(`Git provider unable to get current status because of: ${error.message}`)
+        } catch (e) {
+            const error = `Git provider unable to get current status because of: ${e.message}`
+            this._log(error)
+            throw new Error(error)
         }
     }
 
@@ -168,7 +170,9 @@ export class GitVersionControlProvider implements VersionControlProvider {
             this._onStagedFilesChanged.dispatch(file)
             this._onFileStatusChanged.dispatch({ path: file, status: "staged" })
         } catch (e) {
-            this._log(`Git provider unable to add ${file} because ${e.message}`)
+            const error = `Git provider unable to add ${file} because ${e.message}`
+            this._log(error)
+            throw new Error(error)
         }
     }
 
@@ -184,8 +188,10 @@ export class GitVersionControlProvider implements VersionControlProvider {
         try {
             const fetched = await this._git(currentDir).fetch(remote, branch)
             return fetched
-        } catch (error) {
-            this._log(`Git provider unable to fetch branch because of: ${error.message}`)
+        } catch (e) {
+            const error = `Git provider unable to fetch branch because of: ${e.message}`
+            this._log(error)
+            throw new Error(error)
         }
     }
 
@@ -194,7 +200,9 @@ export class GitVersionControlProvider implements VersionControlProvider {
             const summary = await this._git(currentDir).branchLocal()
             return summary
         } catch (e) {
-            this._log(`Git provider unable to get local branches because of: ${e.message}`)
+            const error = `Git provider unable to get local branches because of: ${e.message}`
+            this._log(error)
+            throw new Error(error)
         }
     }
 
@@ -203,7 +211,9 @@ export class GitVersionControlProvider implements VersionControlProvider {
             const { current } = await this._git(currentDir).status()
             return current
         } catch (e) {
-            this._log(`Git Provider was unable to get current status because of: ${e.message}`)
+            const error = `Git Provider was unable to get current status because of: ${e.message}`
+            this._log(error)
+            throw new Error(error)
         }
     }
 
@@ -212,7 +222,9 @@ export class GitVersionControlProvider implements VersionControlProvider {
             await this._git(currentDir).checkout(targetBranch)
             this._onBranchChange.dispatch(targetBranch)
         } catch (e) {
-            this._log(`Git Provider was unable change branch because of: ${e.message}`)
+            const error = `Git Provider was unable change branch because of: ${e.message}`
+            this._log(error)
+            throw new Error(error)
         }
     }
 

@@ -5,6 +5,7 @@ import * as React from "react"
 
 import { SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
 import * as Log from "./../../Log"
+import { Notifications } from "./../../Services/Notifications"
 import { Branch } from "./../../UI/components/VersionControl"
 import { MenuManager } from "./../Menu"
 import { SidebarManager } from "./../Sidebar"
@@ -25,7 +26,12 @@ export class VersionControlManager {
         private _menu: MenuManager,
         private _commands: Oni.Commands.Api,
         private _sidebar: SidebarManager,
+        private _notifications: Notifications,
     ) {}
+
+    public get providers() {
+        return this._providers
+    }
 
     public async registerProvider(provider: VersionControlProvider): Promise<void> {
         if (provider) {
@@ -134,6 +140,22 @@ export class VersionControlManager {
         })
     }
 
+    private sendNotification({
+        detail,
+        level,
+        title,
+    }: {
+        level: "info" | "warn"
+        title: string
+        detail: string
+    }) {
+        const notification = this._notifications.createItem()
+        notification.setContents(title, detail)
+        notification.setExpiration(3_000)
+        notification.setLevel(level)
+        notification.show()
+    }
+
     private _updateBranchIndicator = async (branchName?: string) => {
         if (!this._vcsProvider) {
             return
@@ -153,7 +175,11 @@ export class VersionControlManager {
             this._vcsStatusItem.setContents(<Branch branch={branch} diff={diff} />)
             this._vcsStatusItem.show()
         } catch (e) {
-            Log.warn(`Oni ${this._vcs} plugin encountered an error:  ${e.message}`)
+            this.sendNotification({
+                title: `${capitalize(this._vcsProvider.name)} Plugin Error:`,
+                detail: `Oni ${this._vcs} plugin encountered an error:  ${e.message}`,
+                level: "warn",
+            })
             return this._vcsStatusItem.hide()
         }
     }
@@ -182,19 +208,38 @@ export class VersionControlManager {
         this._menuInstance.show()
         this._menuInstance.setItems(branchItems)
 
-        this._menuInstance.onItemSelected.subscribe(menuItem => {
+        this._menuInstance.onItemSelected.subscribe(async menuItem => {
             if (menuItem && menuItem.label) {
-                this._vcsProvider.changeBranch(menuItem.label, this._workspace.activeWorkspace)
+                try {
+                    await this._vcsProvider.changeBranch(
+                        menuItem.label,
+                        this._workspace.activeWorkspace,
+                    )
+                } catch (e) {
+                    this.sendNotification({
+                        title: `${capitalize(this._vcsProvider.name)} Plugin Error:`,
+                        detail: e.message,
+                        level: "warn",
+                    })
+                }
             }
         })
     }
 
     private _fetchBranch = async () => {
         if (this._menuInstance.isOpen() && this._menuInstance.selectedItem) {
-            await this._vcsProvider.fetchBranchFromRemote({
-                currentDir: this._workspace.activeWorkspace,
-                branch: this._menuInstance.selectedItem.label,
-            })
+            try {
+                await this._vcsProvider.fetchBranchFromRemote({
+                    currentDir: this._workspace.activeWorkspace,
+                    branch: this._menuInstance.selectedItem.label,
+                })
+            } catch (e) {
+                this.sendNotification({
+                    title: `${capitalize(this._vcsProvider.name)} Plugin Error:`,
+                    detail: e.message,
+                    level: "warn",
+                })
+            }
         }
     }
 }
@@ -210,6 +255,7 @@ function init() {
         commands: Oni.Commands.Api,
         menu: MenuManager,
         sidebar: SidebarManager,
+        notifications: Notifications,
     ): void => {
         Provider = new VersionControlManager(
             workspace,
@@ -218,6 +264,7 @@ function init() {
             menu,
             commands,
             sidebar,
+            notifications,
         )
     }
 
