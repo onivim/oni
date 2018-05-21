@@ -266,9 +266,9 @@ export class WebGlTextRenderer {
     }
 
     private recreateGlyphInstancesArrayIfRequired(cellCount: number) {
-        const requiredBufferLength = cellCount * glyphInstanceFieldCount
-        if (!this._glyphInstances || this._glyphInstances.length < requiredBufferLength) {
-            this._glyphInstances = new Float32Array(requiredBufferLength)
+        const requiredArrayLength = cellCount * glyphInstanceFieldCount
+        if (!this._glyphInstances || this._glyphInstances.length < requiredArrayLength) {
+            this._glyphInstances = new Float32Array(requiredArrayLength)
         }
     }
 
