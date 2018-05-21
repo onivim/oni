@@ -4,7 +4,6 @@ import { IDisposable } from "oni-types"
 import * as React from "react"
 
 import { SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
-import * as Log from "./../../Log"
 import { Notifications } from "./../../Services/Notifications"
 import { Branch } from "./../../UI/components/VersionControl"
 import { MenuManager } from "./../Menu"
