@@ -130,6 +130,24 @@ describe("InputManager", () => {
         })
     })
 
+    describe("onUnhandledKey", () => {
+        it("doesn't dispatch if key wasn't bound", () => {
+            assert.ok(false)
+        })
+
+        it("doesn't dispatch if chord was successfully executed", () => {
+            assert.ok(false)
+        })
+
+        it("dispatches key if chord was missed", () => {
+            assert.ok(false)
+        })
+
+        it("dispatches keys if chord is past the max length", () => {
+            assert.ok(false)
+        })
+    })
+
     describe("getRecentKeyPresses", () => {
         const createKeyPressInfo = (keyChord: string, time: number): KeyPressInfo => ({
             keyChord,

@@ -1,4 +1,5 @@
 import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
 
 import { commandManager } from "./CommandManager"
 
@@ -64,6 +65,25 @@ export class InputManager implements Oni.Input.InputManager {
     private _boundKeys: KeyBindingMap = {}
     private _resolver: KeyboardResolver
     private _keys: KeyPressInfo[] = []
+    private _onUnhandledKeyEvent = new Event<string>()
+
+    /**
+     * Event that is dispatched when a potential chorded input was
+     * picked up, but the chord ended up not being completed
+     *
+     * If there were multiple keys in the chord that were not handled,
+     * this event will be dispatched multiple times, in order.
+     *
+     * An example would be:
+     * `input.bind("abc")`
+     *
+     * And then the user typing: `abd`. Initially, the 'a' and 'b'
+     * characters would be swallowed, but upon the 'd' keypress,
+     * the 'a' and 'b' key events would be dispatched.
+     */
+    public get onUnhandledKey(): IEvent<string> {
+        return this._onUnhandledKeyEvent
+    }
 
     constructor() {
         this._resolver = new KeyboardResolver()
