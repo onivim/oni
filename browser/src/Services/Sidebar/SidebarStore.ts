@@ -7,7 +7,7 @@
 import { Reducer, Store } from "redux"
 import { createStore as createReduxStore } from "./../../Redux"
 
-import { configuration } from "../Configuration"
+import { Configuration } from "../Configuration"
 import { WindowManager, WindowSplitHandle } from "./../WindowManager"
 import { SidebarContentSplit } from "./SidebarContentSplit"
 import { SidebarSplit } from "./SidebarSplit"
@@ -65,15 +65,19 @@ export class SidebarManager {
         return this._store
     }
 
-    constructor(private _windowManager: WindowManager = null) {
+    constructor(
+        private _windowManager: WindowManager = null,
+        private _configuration: Configuration,
+    ) {
         this._store = createStore()
 
-        configuration.onConfigurationChanged.subscribe(val => {
+        this._configuration.onConfigurationChanged.subscribe(val => {
             if (typeof val["sidebar.width"] === "string") {
                 this.setWidth(val["sidebar.width"])
             }
         })
-        this.setWidth(configuration.getValue("sidebar.width"))
+
+        this.setWidth(this._configuration.getValue("sidebar.width"))
 
         if (_windowManager) {
             this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
@@ -82,6 +86,14 @@ export class SidebarManager {
                 new SidebarContentSplit(this),
             )
         }
+    }
+
+    public increaseWidth(): void {
+        this.store.dispatch({ type: "INCREASE_WIDTH" })
+    }
+
+    public decreaseWidth(): void {
+        this.store.dispatch({ type: "DECREASE_WIDTH" })
     }
 
     public setWidth(width: string): void {
@@ -184,6 +196,21 @@ export type SidebarActions =
     | {
           type: "LEAVE"
       }
+    | {
+          type: "INCREASE_WIDTH"
+      }
+    | {
+          type: "DECREASE_WIDTH"
+      }
+
+const changeSize = (change: "increase" | "decrease") => (size: string) => {
+    const [numbers, letters] = size.match(/[a-zA-Z]+|[0-9]+/g)
+    const changed = change === "increase" ? Number(numbers) + 1 : Number(numbers) - 1
+    return `${changed}${letters}`
+}
+
+const increaseWidth = changeSize("increase")
+const decreaseWidth = changeSize("decrease")
 
 export const sidebarReducer: Reducer<ISidebarState> = (
     state: ISidebarState = DefaultSidebarState,
@@ -223,6 +250,18 @@ export const sidebarReducer: Reducer<ISidebarState> = (
                 }
             } else {
                 return newState
+            }
+        case "DECREASE_WIDTH":
+            console.log("Decrease width")
+            return {
+                ...newState,
+                width: decreaseWidth(newState.width),
+            }
+        case "INCREASE_WIDTH":
+            console.log("Increase width")
+            return {
+                ...newState,
+                width: increaseWidth(newState.width),
             }
         default:
             return newState
