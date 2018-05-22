@@ -131,20 +131,58 @@ describe("InputManager", () => {
     })
 
     describe("onUnhandledKey", () => {
+        let inputManager: InputManager
+        let unhandledKeys: string[]
+
+        beforeEach(() => {
+            inputManager = new InputManager()
+            unhandledKeys = []
+            inputManager.onUnhandledKey.subscribe(key => unhandledKeys.push(key))
+        })
+
         it("doesn't dispatch if key wasn't bound", () => {
-            assert.ok(false)
+            const val = inputManager.handleKey("a", 1)
+            assert.strictEqual(val, false)
+            assert.deepEqual(unhandledKeys, [])
         })
 
         it("doesn't dispatch if chord was successfully executed", () => {
-            assert.ok(false)
+            let hitCount = 0
+            inputManager.bind("abc", () => {
+                hitCount++
+                return true
+            })
+
+            let h1 = inputManager.handleKey("a")
+            let h2 = inputManager.handleKey("b")
+            let h3 = inputManager.handleKey("c")
+
+            assert.strictEqual(h1, true)
+            assert.strictEqual(h2, true)
+            assert.strictEqual(h3, true)
+
+            assert.strictEqual(hitCount, 1)
+            assert.deepEqual(unhandledKeys, [])
         })
 
         it("dispatches key if chord was missed", () => {
-            assert.ok(false)
-        })
+            let hitCount = 0
+            inputManager.bind("abc", () => {
+                hitCount++
+                return true
+            })
 
-        it("dispatches keys if chord is past the max length", () => {
-            assert.ok(false)
+            let h1 = inputManager.handleKey("a")
+            let h2 = inputManager.handleKey("b")
+            let h3 = inputManager.handleKey("d")
+
+            assert.strictEqual(h1, true)
+            assert.strictEqual(h2, true)
+            assert.strictEqual(h3, false)
+
+            assert.strictEqual(hitCount, 1)
+
+            assert.deepEqual(["a", "b"], unhandledKeys)
         })
     })
 
