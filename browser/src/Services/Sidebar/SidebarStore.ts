@@ -212,8 +212,13 @@ export const changeSize = (change: "increase" | "decrease") => (
     const isAllowedUnit = ["em", "px", "vw"].includes(letters)
     const unitsToUse = isAllowedUnit ? letters : "em"
     const convertedNumber = Number(numberString)
-    if (isNaN(convertedNumber) || convertedNumber <= 1) {
+    if (isNaN(convertedNumber)) {
         return defaultValue
+    }
+
+    // Apply a min size and max size for the split
+    if (convertedNumber <= 1 || convertedNumber >= 50) {
+        return size
     }
     const changed = change === "increase" ? convertedNumber + 1 : convertedNumber - 1
 
