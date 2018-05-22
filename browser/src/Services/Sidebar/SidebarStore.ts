@@ -203,14 +203,14 @@ export type SidebarActions =
           type: "DECREASE_WIDTH"
       }
 
-const changeSize = (change: "increase" | "decrease") => (size: string) => {
+export const changeSize = (change: "increase" | "decrease") => (size: string) => {
     const [numbers, letters] = size.match(/[a-zA-Z]+|[0-9]+/g)
     const changed = change === "increase" ? Number(numbers) + 1 : Number(numbers) - 1
     return `${changed}${letters}`
 }
 
-const increaseWidth = changeSize("increase")
-const decreaseWidth = changeSize("decrease")
+export const increaseWidth = changeSize("increase")
+export const decreaseWidth = changeSize("decrease")
 
 export const sidebarReducer: Reducer<ISidebarState> = (
     state: ISidebarState = DefaultSidebarState,
@@ -252,13 +252,11 @@ export const sidebarReducer: Reducer<ISidebarState> = (
                 return newState
             }
         case "DECREASE_WIDTH":
-            console.log("Decrease width")
             return {
                 ...newState,
                 width: decreaseWidth(newState.width),
             }
         case "INCREASE_WIDTH":
-            console.log("Increase width")
             return {
                 ...newState,
                 width: increaseWidth(newState.width),
