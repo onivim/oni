@@ -1,7 +1,7 @@
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
-import { commandManager } from "./CommandManager"
+import { commandManager } from "./../CommandManager"
 
 export type ActionFunction = () => boolean
 
@@ -9,27 +9,18 @@ export type ActionOrCommand = string | ActionFunction
 
 export type FilterFunction = () => boolean
 
-import { IKeyChord, parseKeysFromVimString } from "./../Input/KeyParser"
-
-export interface KeyBinding {
-    action: ActionOrCommand
-    filter?: FilterFunction
-}
-
-export interface KeyBindingMap {
-    [key: string]: KeyBinding[]
-}
+import * as KeyBindingTree from "./KeyBindingTree"
 
 const MAX_DELAY_BETWEEN_KEY_CHORD = 250 /* milliseconds */
 const MAX_CHORD_SIZE = 4
 
-import { KeyboardResolver } from "./../Input/Keyboard/KeyboardResolver"
+import { KeyboardResolver } from "./../../Input/Keyboard/KeyboardResolver"
 
 import {
     getMetaKeyResolver,
     ignoreMetaKeyResolver,
     remapResolver,
-} from "./../Input/Keyboard/Resolvers"
+} from "./../../Input/Keyboard/Resolvers"
 
 export interface KeyPressInfo {
     keyChord: string
@@ -66,6 +57,8 @@ export class InputManager implements Oni.Input.InputManager {
     private _resolver: KeyboardResolver
     private _keys: KeyPressInfo[] = []
     private _onUnhandledKeyEvent = new Event<string>()
+
+    private _bindingTree: KeyBindingTree.KeyBindingTree = KeyBindingTree.create()
 
     /**
      * Event that is dispatched when a potential chorded input was
@@ -107,10 +100,19 @@ export class InputManager implements Oni.Input.InputManager {
         }
 
         const normalizedKeyChord = keyChord.toLowerCase()
-        const currentBinding = this._boundKeys[normalizedKeyChord] || []
+
+        // const currentBinding = this._boundKeys[normalizedKeyChord] || []
         const newBinding = { action, filter: filterFunction }
 
-        this._boundKeys[normalizedKeyChord] = [...currentBinding, newBinding]
+        const currentBindings = getKeyBindingsForChord(keyChord)
+
+        this._bindingTree = setKeyBindingsForChord(
+            keyChord,
+            [...currentBindings, newBinding],
+            this._bindingTree,
+        )
+
+        // this._boundKeys[normalizedKeyChord] = [...currentBinding, newBinding]
 
         return () => {
             const existingBindings = this._boundKeys[normalizedKeyChord]
@@ -127,12 +129,15 @@ export class InputManager implements Oni.Input.InputManager {
             return
         }
 
-        const normalizedKeyChord = keyChord.toLowerCase()
-        this._boundKeys[normalizedKeyChord] = []
+        this._bindingTree = setKeyBindingsForChord(keyChord, [], this._bindingTree)
+
+        // const normalizedKeyChord = keyChord.toLowerCase()
+        // this._boundKeys[normalizedKeyChord] = []
     }
 
     public unbindAll() {
-        this._boundKeys = {}
+        this._bindingTree = { children: [] }
+        // this._boundKeys = {}
     }
 
     /**
