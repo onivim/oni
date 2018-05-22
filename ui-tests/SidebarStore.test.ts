@@ -28,6 +28,17 @@ describe("Change size function", () => {
         const newSize = decreaseWidth("1em", "15em")
         expect(newSize).toBe("1em")
     })
+
+    it("Should decrease a value if at top limit", () => {
+        const newSize = decreaseWidth("50em", null)
+        expect(newSize).toBe("49em")
+    })
+
+    it("Should increase a value if at bottom limit", () => {
+        const newSize = increaseWidth("1em", null)
+        expect(newSize).toBe("2em")
+    })
+
     it("Should use a default unit if the user passes an invalid unit value", () => {
         const newSize = decreaseWidth("15apples", "12em")
         expect(newSize).toBe("14em")

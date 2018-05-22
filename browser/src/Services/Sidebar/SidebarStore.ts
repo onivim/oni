@@ -90,11 +90,15 @@ export class SidebarManager {
     }
 
     public increaseWidth(): void {
-        this.store.dispatch({ type: "INCREASE_WIDTH" })
+        if (this._contentSplit.isVisible) {
+            this.store.dispatch({ type: "INCREASE_WIDTH" })
+        }
     }
 
     public decreaseWidth(): void {
-        this.store.dispatch({ type: "DECREASE_WIDTH" })
+        if (this._contentSplit.isVisible) {
+            this.store.dispatch({ type: "DECREASE_WIDTH" })
+        }
     }
 
     public setWidth(width: string): void {
@@ -215,14 +219,17 @@ export const changeSize = (change: "increase" | "decrease") => (
     if (isNaN(convertedNumber)) {
         return defaultValue
     }
-    // Apply a min size and max size for the split
-    const tooBigOrSmall = convertedNumber <= 1 || convertedNumber >= 50
 
-    const changed = tooBigOrSmall
-        ? convertedNumber
-        : change === "increase"
-            ? convertedNumber + 1
-            : convertedNumber - 1
+    // If too small don't allow a decrease and vice versa
+    const tooSmall = convertedNumber - 1 < 1 && change === "decrease"
+    const tooBig = convertedNumber + 1 > 50 && change === "increase"
+
+    const changed =
+        tooBig || tooSmall
+            ? convertedNumber
+            : change === "increase"
+                ? convertedNumber + 1
+                : convertedNumber - 1
 
     return `${changed}${unitsToUse}`
 }
