@@ -7,7 +7,7 @@
 import { Reducer, Store } from "redux"
 import { createStore as createReduxStore } from "./../../Redux"
 
-import { Configuration } from "../Configuration"
+import { Configuration, configuration } from "../Configuration"
 import { WindowManager, WindowSplitHandle } from "./../WindowManager"
 import { SidebarContentSplit } from "./SidebarContentSplit"
 import { SidebarSplit } from "./SidebarSplit"
@@ -203,9 +203,17 @@ export type SidebarActions =
           type: "DECREASE_WIDTH"
       }
 
-export const changeSize = (change: "increase" | "decrease") => (size: string) => {
-    const [numbers, letters] = size.match(/[a-zA-Z]+|[0-9]+/g)
-    const changed = change === "increase" ? Number(numbers) + 1 : Number(numbers) - 1
+export const changeSize = (change: "increase" | "decrease") => (
+    size: string,
+    defaultValue = configuration.getValue("sidebar.width"),
+): string => {
+    const [numberString, letters = "em"] = size.match(/[a-zA-Z]+|[0-9]+/g)
+    const convertedNumber = Number(numberString)
+    if (isNaN(convertedNumber)) {
+        return defaultValue
+    }
+    const changed = change === "increase" ? convertedNumber + 1 : convertedNumber - 1
+
     return `${changed}${letters}`
 }
 
