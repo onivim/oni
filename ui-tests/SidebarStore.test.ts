@@ -28,4 +28,8 @@ describe("Change size function", () => {
         const newSize = decreaseWidth("15apples", "12em")
         expect(newSize).toBe("14em")
     })
+    it("Should use default unit if the value passed in does not have any units", () => {
+        const newSize = increaseWidth("15", "11em")
+        expect(newSize).toBe("16em")
+    })
 })
