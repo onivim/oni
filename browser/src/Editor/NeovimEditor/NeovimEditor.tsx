@@ -1205,10 +1205,11 @@ export class NeovimEditor extends Editor implements IEditor {
     private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
         const fontFamily = this._configuration.getValue("editor.fontFamily")
         const fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
+        const fontWeight = this._configuration.getValue("editor.fontWeight")
         const linePadding = this._configuration.getValue("editor.linePadding")
 
-        this._actions.setFont(fontFamily, fontSize)
-        this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
+        this._actions.setFont(fontFamily, fontSize, fontWeight)
+        this._neovimInstance.setFont(fontFamily, fontSize, fontWeight, linePadding)
 
         Object.keys(newValues).forEach(key => {
             const value = newValues[key]

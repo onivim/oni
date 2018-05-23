@@ -153,6 +153,7 @@ export interface IConfigurationValues {
     // If true (default), ligatures are enabled
     "editor.fontLigatures": boolean
     "editor.fontSize": string
+    "editor.fontWeight": string
     "editor.fontFamily": string // Platform specific
 
     // Additional padding between lines

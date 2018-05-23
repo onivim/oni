@@ -42,6 +42,7 @@ export interface IKeyboardInputAction extends IAction {
 interface ISetFontArguments {
     fontFamily: string
     fontSize: string
+    fontWeight: string
     fontWidthInPixels: number
     fontHeightInPixels: number
     linePaddingInPixels: number
@@ -52,6 +53,7 @@ interface ISetFontArguments {
 export interface ISetFontAction extends IAction {
     fontFamily: string
     fontSize: string
+    fontWeight: string
     fontWidthInPixels: number
     fontHeightInPixels: number
     linePaddingInPixels: number
@@ -204,6 +206,7 @@ export function changeMode(mode: string): IChangeModeAction {
 export function setFont({
     fontFamily,
     fontSize,
+    fontWeight,
     fontWidthInPixels,
     fontHeightInPixels,
     linePaddingInPixels,
@@ -214,6 +217,7 @@ export function setFont({
         type: SET_FONT,
         fontFamily,
         fontSize,
+        fontWeight,
         fontWidthInPixels,
         fontHeightInPixels,
         linePaddingInPixels,

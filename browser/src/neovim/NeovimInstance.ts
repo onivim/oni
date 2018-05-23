@@ -182,7 +182,7 @@ export interface INeovimInstance {
     // - Refactor remaining events into strongly typed events, as part of the interface
     on(event: string, handler: NeovimEventHandler): void
 
-    setFont(fontFamily: string, fontSize: string, linePadding: number): void
+    setFont(fontFamily: string, fontSize: string, fontWeight: string, linePadding: number): void
 
     getBufferIds(): Promise<number[]>
 
@@ -209,6 +209,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _fontFamily: string
     private _fontSize: string
+    private _fontWeight: string
     private _fontWidthInPixels: number
     private _fontHeightInPixels: number
 
@@ -369,6 +370,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._configuration = configuration
         this._fontFamily = this._configuration.getValue("editor.fontFamily")
         this._fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
+        this._fontWeight = this._configuration.getValue("editor.fontWeight")
 
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
@@ -518,13 +520,20 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return ret
     }
 
-    public setFont(fontFamily: string, fontSize: string, linePadding: number): void {
+    public setFont(
+        fontFamily: string,
+        fontSize: string,
+        fontWeight: string,
+        linePadding: number,
+    ): void {
         this._fontFamily = fontFamily
         this._fontSize = fontSize
+        this._fontWeight = fontWeight
 
         const { width, height, isBoldAvailable, isItalicAvailable } = measureFont(
             this._fontFamily,
             this._fontSize,
+            this._fontWeight,
         )
 
         this._fontWidthInPixels = width
@@ -535,6 +544,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             Actions.setFont({
                 fontFamily,
                 fontSize,
+                fontWeight,
                 fontWidthInPixels: width,
                 fontHeightInPixels: height + linePadding,
                 linePaddingInPixels: linePadding,
