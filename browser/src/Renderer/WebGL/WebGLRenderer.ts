@@ -76,7 +76,7 @@ export class WebGLRenderer implements INeovimRenderer {
         fontSize,
     }: IScreen) {
         const devicePixelRatio = window.devicePixelRatio
-        const offsetGlyphVariantCount = Math.max(4 / devicePixelRatio, 1)
+        const offsetGlyphVariantCount = Math.max(Math.ceil(4 / devicePixelRatio), 1)
         const atlasOptions = {
             fontFamily,
             fontSize,

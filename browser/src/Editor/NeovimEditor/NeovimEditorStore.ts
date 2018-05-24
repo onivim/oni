@@ -58,6 +58,7 @@ export interface IState {
     fontPixelHeight: number
     fontFamily: string
     fontSize: string
+    fontWeight: string
     hasFocus: boolean
     mode: string
     definition: null | IDefinition
@@ -189,6 +190,7 @@ export const createDefaultState = (): IState => ({
     fontPixelHeight: 10,
     fontFamily: "",
     fontSize: "",
+    fontWeight: "",
     hasFocus: false,
     imeActive: false,
     mode: "normal",

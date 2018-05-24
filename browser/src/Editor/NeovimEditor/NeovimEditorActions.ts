@@ -142,6 +142,7 @@ export interface ISetFont {
     payload: {
         fontFamily: string
         fontSize: string
+        fontWeight: string
     }
 }
 
@@ -493,11 +494,12 @@ export const setImeActive = (imeActive: boolean) => ({
     },
 })
 
-export const setFont = (fontFamily: string, fontSize: string) => ({
+export const setFont = (fontFamily: string, fontSize: string, fontWeight: string) => ({
     type: "SET_FONT",
     payload: {
         fontFamily,
         fontSize,
+        fontWeight,
     },
 })
 
