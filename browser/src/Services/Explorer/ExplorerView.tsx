@@ -368,7 +368,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                                         <List
                                             height={height}
                                             width={width}
-                                            scrollToAlignment="center"
+                                            scrollToAlignment="end"
                                             ref={e => (this._virtualizedList = e)}
                                             overscanRowCount={3}
                                             rowCount={this.props.nodes.length}
