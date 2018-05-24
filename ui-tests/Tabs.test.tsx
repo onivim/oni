@@ -9,9 +9,12 @@ import { Sneakable } from "../browser/src/UI/components/Sneakable"
 
 import { Tab, Tabs } from "../browser/src/UI/components/Tabs"
 
+const MockFileIcon = FileIcon as jest.Mock<{}>
+const MockSneakable = Sneakable as jest.Mock<Sneakable>
+
 describe("<Tabs /> Tests", () => {
-    FileIcon.mockImplementation(() => ({ render: jest.fn() }))
-    Sneakable.mockImplementation((props) => ({
+    MockFileIcon.mockImplementation(() => ({ render: jest.fn() }))
+    MockSneakable.mockImplementation(props => ({
         render: () => props.children,
     }))
 
@@ -177,12 +180,12 @@ describe("<Tabs /> Tests", () => {
         expect(sneakable.props().tag).toEqual(tab.props().name)
 
         wrapper.unmount()
-    });
+    })
 
     it("should call onTabSelect callback as Sneakable callback", () => {
-        Sneakable.mockImplementationOnce((props) => {
+        MockSneakable.mockImplementationOnce(props => {
             props.callback()
-        }
+        })
 
         const wrapper = mount(TabsContainingSingleTab)
         const sneakableTab = wrapper.find(Tab)
@@ -190,7 +193,7 @@ describe("<Tabs /> Tests", () => {
         expect(tabSelectFunction).toHaveBeenCalledWith(sneakableTab.props().id)
 
         wrapper.unmount()
-    });
+    })
 
     it("should pass tab icon file name as FileIcon fileName property ", () => {
         const wrapper = mount(TabsContainingSingleTab)
@@ -200,5 +203,5 @@ describe("<Tabs /> Tests", () => {
         expect(fileIcon.props().fileName).toEqual(tab.props().iconFileName)
 
         wrapper.unmount()
-    });
+    })
 })

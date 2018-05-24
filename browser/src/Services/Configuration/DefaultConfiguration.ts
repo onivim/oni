@@ -104,6 +104,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.fontLigatures": true,
     "editor.fontSize": "12px",
+    "editor.fontWeight": "normal",
     "editor.fontFamily": "",
 
     "editor.linePadding": 2,
@@ -376,7 +377,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "sidebar.enabled": true,
     "sidebar.default.open": true,
-    "sidebar.width": "50px",
+    "sidebar.width": "15em",
 
     "sidebar.marks.enabled": false,
     "sidebar.plugins.enabled": false,

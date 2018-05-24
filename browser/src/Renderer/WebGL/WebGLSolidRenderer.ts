@@ -6,8 +6,6 @@ import {
     createUnitQuadVerticesBuffer,
 } from "./WebGLUtilities"
 
-// tslint:disable-next-line:no-bitwise
-const maxCellInstances = 1 << 14 // TODO find a reasonable way of determining this
 const solidInstanceFieldCount = 8
 const solidInstanceSizeInBytes = solidInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT
 
@@ -81,6 +79,8 @@ export class WebGLSolidRenderer {
         viewportScaleX: number,
         viewportScaleY: number,
     ) {
+        const cellCount = columnCount * rowCount
+        this.recreateSolidInstancesArrayIfRequired(cellCount)
         const solidInstanceCount = this.populateSolidInstances(
             columnCount,
             rowCount,
@@ -95,7 +95,6 @@ export class WebGLSolidRenderer {
     private createBuffers() {
         this._unitQuadVerticesBuffer = createUnitQuadVerticesBuffer(this._gl)
         this._unitQuadElementIndicesBuffer = createUnitQuadElementIndicesBuffer(this._gl)
-        this._solidInstances = new Float32Array(maxCellInstances * solidInstanceFieldCount)
         this._solidInstancesBuffer = this._gl.createBuffer()
     }
 
@@ -150,6 +149,13 @@ export class WebGLSolidRenderer {
             4 * Float32Array.BYTES_PER_ELEMENT,
         )
         this._gl.vertexAttribDivisor(vertexShaderAttributes.colorRGBA, 1)
+    }
+
+    private recreateSolidInstancesArrayIfRequired(cellCount: number) {
+        const requiredArrayLength = cellCount * solidInstanceFieldCount
+        if (!this._solidInstances || this._solidInstances.length < requiredArrayLength) {
+            this._solidInstances = new Float32Array(requiredArrayLength)
+        }
     }
 
     private populateSolidInstances(

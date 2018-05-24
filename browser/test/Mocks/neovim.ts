@@ -34,6 +34,9 @@ export class MockScreen implements Neovim.IScreen {
     public get fontSize(): null | string {
         return null
     }
+    public get fontWeight(): null | string {
+        return null
+    }
     public get fontWidthInPixels(): number {
         return null
     }
