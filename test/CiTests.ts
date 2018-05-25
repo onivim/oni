@@ -8,7 +8,6 @@ import * as mkdirp from "mkdirp"
 import { IFailedTest, Oni, runInProcTest } from "./common"
 
 const LongTimeout = 5000
-
 const CiTests = [
     // Core functionality tests
     "Api.Buffer.AddLayer",
@@ -22,16 +21,22 @@ const CiTests = [
     "Configuration.TypeScriptEditor.NewConfigurationTest",
     "Configuration.TypeScriptEditor.CompletionTest",
 
+    "TabBarSneakTest",
+    "initVimPromptNotificationTest",
+    "Editor.BuffersCursorTest",
     "Editor.ExternalCommandLineTest",
     "Editor.BufferModifiedState",
     "Editor.OpenFile.PathWithSpacesTest",
+    "Editor.ScrollEventTest",
     "Editor.TabModifiedState",
     "Editor.CloseTabWithTabModesTabsTest",
     "MarkdownPreviewTest",
+    "PrettierPluginTest",
     "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
     "Neovim.InvalidInitVimHandlingTest",
+    "Neovim.CallOniCommands",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
 
@@ -44,10 +49,13 @@ const CiTests = [
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
     "Regression.1799.MacroApplicationTest",
+    "Regression.2047.VerifyCanvasIsIntegerSize",
 
     "TextmateHighlighting.DebugScopesTest",
     "TextmateHighlighting.ScopesOnEnterTest",
     "TextmateHighlighting.TokenColorOverrideTest",
+
+    "Theming.LightAndDarkColorsTest",
 
     // This test occasionally hangs and breaks tests after - trying to move it later...
     "LargeFileTest",

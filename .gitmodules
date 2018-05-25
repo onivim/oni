@@ -7,6 +7,9 @@
 [submodule "vim/default/bundle/vim-unimpaired"]
 	path = vim/default/bundle/vim-unimpaired
 	url = https://github.com/tpope/vim-unimpaired
+[submodule "vim/default/bundle/vim-surround"]
+	path = vim/default/bundle/vim-surround
+	url = https://github.com/tpope/vim-surround.git
 [submodule "vim/core/typescript-vim"]
 	path = vim/core/typescript-vim
 	url = https://github.com/leafgarland/typescript-vim

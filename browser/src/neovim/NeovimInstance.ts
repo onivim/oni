@@ -1,4 +1,5 @@
 import { EventEmitter } from "events"
+import { pathExistsSync } from "fs-extra"
 import * as path from "path"
 
 import * as mkdirp from "mkdirp"
@@ -7,6 +8,7 @@ import { Event, IDisposable, IEvent } from "oni-types"
 
 import * as Log from "./../Log"
 import * as Performance from "./../Performance"
+import { CommandContext } from "./CommandContext"
 import { EventContext } from "./EventContext"
 
 import { addDefaultUnitIfNeeded, measureFont } from "./../Font"
@@ -131,7 +133,7 @@ export interface INeovimInstance {
     onTitleChanged: IEvent<string>
 
     // When an OniCommand is requested, ie :OniCommand("quickOpen.show")
-    onOniCommand: IEvent<string>
+    onOniCommand: IEvent<CommandContext>
 
     onHidePopupMenu: IEvent<void>
     onShowPopupMenu: IEvent<INeovimCompletionInfo>
@@ -180,7 +182,7 @@ export interface INeovimInstance {
     // - Refactor remaining events into strongly typed events, as part of the interface
     on(event: string, handler: NeovimEventHandler): void
 
-    setFont(fontFamily: string, fontSize: string, linePadding: number): void
+    setFont(fontFamily: string, fontSize: string, fontWeight: string, linePadding: number): void
 
     getBufferIds(): Promise<number[]>
 
@@ -207,6 +209,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _fontFamily: string
     private _fontSize: string
+    private _fontWeight: string
     private _fontWidthInPixels: number
     private _fontHeightInPixels: number
 
@@ -223,7 +226,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onDirectoryChanged = new Event<string>()
     private _onErrorEvent = new Event<Error | string>()
     private _onYank = new Event<INeovimYankInfo>()
-    private _onOniCommand = new Event<string>()
+    private _onOniCommand = new Event<CommandContext>()
     private _onRedrawComplete = new Event<void>()
     private _onScroll = new Event<EventContext>()
     private _onTitleChanged = new Event<string>()
@@ -286,7 +289,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this._onModeChanged
     }
 
-    public get onOniCommand(): IEvent<string> {
+    public get onOniCommand(): IEvent<CommandContext> {
         return this._onOniCommand
     }
 
@@ -367,6 +370,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._configuration = configuration
         this._fontFamily = this._configuration.getValue("editor.fontFamily")
         this._fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
+        this._fontWeight = this._configuration.getValue("editor.fontWeight")
 
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
@@ -382,7 +386,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             this._bufferUpdateManager.notifyModeChanged(newMode)
         })
 
-        this._disposables = [s1]
+        const dispatchScroll = () => this._dispatchScrollEvent()
+
+        const s2 = this._autoCommands.onCursorMoved.subscribe(dispatchScroll)
+        const s3 = this._autoCommands.onCursorMovedI.subscribe(dispatchScroll)
+
+        this._disposables = [s1, s2, s3]
     }
 
     public dispose(): void {
@@ -511,13 +520,20 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return ret
     }
 
-    public setFont(fontFamily: string, fontSize: string, linePadding: number): void {
+    public setFont(
+        fontFamily: string,
+        fontSize: string,
+        fontWeight: string,
+        linePadding: number,
+    ): void {
         this._fontFamily = fontFamily
         this._fontSize = fontSize
+        this._fontWeight = fontWeight
 
         const { width, height, isBoldAvailable, isItalicAvailable } = measureFont(
             this._fontFamily,
             this._fontSize,
+            this._fontWeight,
         )
 
         this._fontWidthInPixels = width
@@ -528,6 +544,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             Actions.setFont({
                 fontFamily,
                 fontSize,
+                fontWeight,
                 fontWidthInPixels: width,
                 fontHeightInPixels: height + linePadding,
                 linePaddingInPixels: linePadding,
@@ -543,19 +560,44 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return this.command(`e! ${fileName}`)
     }
 
+    /**
+     * getInitVimPath
+     * return the init vim path with no check to ensure existence
+     */
+    public getInitVimPath(): string {
+        // tslint:disable no-string-literal
+        const MYVIMRC = process.env["MYVIMRC"]
+        const rootFolder = Platform.isWindows()
+            ? // Use path from: https://github.com/neovim/neovim/wiki/FAQ
+              path.join(process.env["LOCALAPPDATA"], "nvim")
+            : path.join(Platform.getUserHome(), ".config", "nvim")
+        const initVimPath = MYVIMRC || path.join(rootFolder, "init.vim")
+        return initVimPath
+        // tslint:enable no-string-literal
+    }
+
+    /**
+     * doesInitVimExist
+     * Returns the init.vim path after checking the file exists
+     */
+    public doesInitVimExist(): string {
+        const initVimPath = this.getInitVimPath()
+        try {
+            return pathExistsSync(initVimPath) ? initVimPath : null
+        } catch (e) {
+            return null
+        }
+    }
+
     public openInitVim(): Promise<void> {
         const loadInitVim = this._configuration.getValue("oni.loadInitVim")
 
         if (typeof loadInitVim === "string") {
             return this.open(loadInitVim)
         } else {
-            // Use path from: https://github.com/neovim/neovim/wiki/FAQ
-            const rootFolder = Platform.isWindows()
-                ? path.join(process.env["LOCALAPPDATA"], "nvim") // tslint:disable-line no-string-literal
-                : path.join(Platform.getUserHome(), ".config", "nvim")
-
+            const initVimPath = this.getInitVimPath()
+            const rootFolder = path.dirname(initVimPath)
             mkdirp.sync(rootFolder)
-            const initVimPath = path.join(rootFolder, "init.vim")
 
             return this.open(initVimPath)
         }
@@ -629,22 +671,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return versionInfo[1].version as any
     }
 
-    public dispatchScrollEvent(): void {
-        if (this._pendingScrollTimeout || this._isDisposed) {
-            return
-        }
-
-        this._pendingScrollTimeout = window.setTimeout(async () => {
-            if (this._isDisposed) {
-                return
-            }
-
-            const evt = await this.getContext()
-            this._onScroll.dispatch(evt)
-            this._pendingScrollTimeout = null
-        })
-    }
-
     public async quit(): Promise<void> {
         // This command won't resolve the promise (since it's quitting),
         // so we're not awaiting..
@@ -672,6 +698,22 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         } else {
             Log.info("[NeovimInstance::_checkAndFixIfBlocked] Not blocking mode.")
         }
+    }
+
+    private _dispatchScrollEvent(): void {
+        if (this._pendingScrollTimeout || this._isDisposed) {
+            return
+        }
+
+        this._pendingScrollTimeout = window.setTimeout(async () => {
+            if (this._isDisposed) {
+                return
+            }
+
+            const evt = await this.getContext()
+            this._onScroll.dispatch(evt)
+            this._pendingScrollTimeout = null
+        })
     }
 
     private _resizeInternal(rows: number, columns: number): void {
@@ -733,6 +775,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     break
                 case "scroll":
                     this.emit("action", Actions.scroll(a[0][0]))
+                    this._dispatchScrollEvent()
                     break
                 case "highlight_set":
                     const highlightInfo = a[a.length - 1][0]
@@ -985,7 +1028,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         shouldExtTabs: boolean,
         shouldExtPopups: boolean,
     ) {
-        if (major >= 0 && minor >= 2 && patch >= 1) {
+        if (major > 0 || minor > 2 || (minor === 2 && patch >= 1)) {
             const useExtCmdLine = this._configuration.getValue("commandline.mode")
             const useExtWildMenu = this._configuration.getValue("wildmenu.mode")
             return {

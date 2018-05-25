@@ -4,6 +4,7 @@
 
 const path = require("path")
 const fs = require("fs")
+const os = require("os")
 
 const _ = require("lodash")
 const shelljs = require("shelljs")
@@ -20,14 +21,20 @@ const packageMeta = JSON.parse(packageJsonContents)
 const { version, name } = packageMeta
 const prodName = packageMeta.build.productName
 
+let buildFolderPrefix = os.arch() === "x32" ? "ia32-" : ""
+
+if (process.env["APPVEYOR"]) {
+    buildFolderPrefix = process.env["PLATFORM"] === "x86" ? "ia32-" : ""
+}
+
 // Replace template variables
 
 const valuesToReplace = {
     AppName: prodName,
     AppExecutableName: `${prodName}.exe`,
-    AppSetupExecutableName: `${prodName}-${version}-ia32-win`,
+    AppSetupExecutableName: `${prodName}-${version}-${buildFolderPrefix}win`,
     Version: version,
-    SourcePath: path.join(__dirname, "..", "dist", "win-ia32-unpacked", "*"),
+    SourcePath: path.join(__dirname, "..", "dist", `win-${buildFolderPrefix}unpacked`, "*"),
     WizardImageFilePath: path.join(__dirname, "setup", "Oni_128.bmp"),
     WizardSmallImageFilePath: path.join(__dirname, "setup", "Oni_54.bmp"),
 }

@@ -24,12 +24,14 @@ import { getInstance as getDiagnosticsInstance } from "./../../Services/Diagnost
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
+import { getTutorialManagerInstance } from "./../../Services/Learning"
 import { getInstance as getAchievementsInstance } from "./../../Services/Learning/Achievements"
 import { getInstance as getMenuManagerInstance } from "./../../Services/Menu"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
 import { recorder } from "./../../Services/Recorder"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
+import { getInstance as getSneakInstance } from "./../../Services/Sneak"
 import { getInstance as getSnippetsInstance } from "./../../Services/Snippets"
 import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
 import { getInstance as getTokenColorsInstance } from "./../../Services/TokenColors"
@@ -59,7 +61,6 @@ export class Oni implements OniApi.Plugin.Api {
     private _dependencies: Dependencies
     private _ui: Ui
     private _services: Services
-    private _colors: Colors
 
     public get achievements(): any /* TODO: Promote to API */ {
         return getAchievementsInstance()
@@ -70,7 +71,7 @@ export class Oni implements OniApi.Plugin.Api {
     }
 
     public get colors(): Colors /* TODO: Promote to API */ {
-        return this._colors
+        return getColors()
     }
 
     public get commands(): OniApi.Commands.Api {
@@ -141,6 +142,10 @@ export class Oni implements OniApi.Plugin.Api {
         return getSidebarInstance()
     }
 
+    public get sneak(): any {
+        return getSneakInstance()
+    }
+
     public get snippets(): OniApi.Snippets.SnippetManager {
         return getSnippetsInstance()
     }
@@ -161,6 +166,10 @@ export class Oni implements OniApi.Plugin.Api {
         return this._services
     }
 
+    public get tutorials(): any /* todo */ {
+        return getTutorialManagerInstance()
+    }
+
     public get windows(): OniApi.IWindowManager {
         return windowManager as any
     }
@@ -174,8 +183,6 @@ export class Oni implements OniApi.Plugin.Api {
     }
 
     constructor() {
-        this._colors = getColors()
-
         this._dependencies = new Dependencies()
         this._ui = new Ui(react)
         this._services = new Services()

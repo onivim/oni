@@ -22,6 +22,7 @@ import { render as renderPinnedIcon } from "./PinnedIconView"
 import { QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
 import { regexFilter } from "./RegExFilter"
 import * as RipGrep from "./RipGrep"
+import { vsCodeFilter } from "./VSCodeFilter"
 
 import { getFileIcon } from "./../FileIcon"
 
@@ -40,7 +41,7 @@ export class QuickOpen {
     ) {
         this._menu = menuManager.create()
         this._menu.onItemSelected.subscribe((selectedItem: any) => {
-            this._onItemSelected(selectedItem)
+            this.openFileWithDefaultAction(selectedItem)
         })
 
         this._menu.onHide.subscribe(() => {
@@ -69,6 +70,26 @@ export class QuickOpen {
         }
     }
 
+    public openFileWithDefaultAction(selectedItem: Oni.Menu.MenuOption): void {
+        if (!selectedItem) {
+            return
+        }
+
+        const defaultOpenMode: Oni.FileOpenMode = configuration.getValue(
+            "editor.quickOpen.defaultOpenMode",
+        )
+
+        this._onItemSelected(selectedItem, defaultOpenMode)
+    }
+
+    public openFileWithAltAction(): void {
+        const alternativeOpenMode: Oni.FileOpenMode = configuration.getValue(
+            "editor.quickOpen.alternativeOpenMode",
+        )
+
+        this.openFile(alternativeOpenMode)
+    }
+
     public async show() {
         // reset list and show loading indicator
         this._loadedItems = []
@@ -77,10 +98,18 @@ export class QuickOpen {
 
         const filterStrategy = configuration.getValue("editor.quickOpen.filterStrategy")
 
-        const useRegExFilter = filterStrategy === "regex"
-
-        const filterFunction = useRegExFilter ? regexFilter : fuseFilter
-        this._menu.setFilterFunction(filterFunction)
+        switch (filterStrategy) {
+            case "fuse":
+                this._menu.setFilterFunction(fuseFilter)
+                break
+            case "regex":
+                this._menu.setFilterFunction(regexFilter)
+                break
+            case "vscode":
+            default:
+                this._menu.setFilterFunction(vsCodeFilter)
+                break
+        }
 
         //  If in exec directory or home, show bookmarks to change cwd to
         if (this._isInstallDirectoryOrHome()) {

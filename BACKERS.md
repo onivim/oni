@@ -4,6 +4,7 @@ Oni is an MIT-licensed open-source project. It's an independent project without 
 
 If you use Oni, please consider joining them via the following options:
 
+* Become a backer on [Patreon](https://patreon.com/onivim)
 * Become a backer on [OpenCollective](https://opencollective.com/oni#backer)
 * Become a backer on [Bountysource](https://salt.bountysource.com/teams/oni)
 * Make a donation via [PayPal](https://www.paypal.me/bryphe/25)
@@ -56,6 +57,13 @@ Thanks you to all our backers for making Oni possible!
 
 * @jordwalke
 * @mhartington
+* @MikaAK
+* @emolitor
+
+## VIP Backers via Patreon
+
+* @mikl
+* Tom Boland
 
 ## Backers via BountySource
 
@@ -68,10 +76,17 @@ Thanks you to all our backers for making Oni possible!
 * @robtrac
 * @rrichardson
 * @sbuljac
+* @parkerault
+* @city41
+* @nithesh
+* @erandac
+* @appelgriebsch
 
 ## Backers via PayPal
 
 * @mchalkley
+* @am2605
+* Nathan Ensmenger
 
 ## Backers via OpenCollective
 
@@ -79,6 +94,36 @@ Thanks you to all our backers for making Oni possible!
 * Akinola Sowemimo
 * Martijn Arts
 * Amadeus Folego
+* Kiyoshi Murata
+* @Himura2la
+
+## Backers via Patreon
+
+* @bennettrogers
+* @muream
+* Johnnie Hård
+* @robin-pham
+* Ryan Campbell
+* Balint Fulop
+* Quasar Jarosz
+* Channing Conger
+* Clinton Bloodworth
+* Lex Song
+* Paul Baumgart
+* Kaiden Sin
+* Troy Vitullo
+* Leo Critchley
+* Patrick Massot
+* Jerome Pellois
+* Wesley Moore
+* Kim Fiedler
+* Nicolaus Hepler
+* Nick Price
+* Domenico Maisano
+* Daniel Polanco
+* Eric Hall
+* Dimas Cyriaco
+* Carlos Coves Prieto
 
 <a href="https://opencollective.com/oni/tiers/backer/0/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/0/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/backer/1/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/1/avatar.png"></a>

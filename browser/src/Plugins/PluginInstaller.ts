@@ -4,7 +4,6 @@
  * Responsible for installing, updating, and uninstalling plugins.
  */
 
-import * as fs from "fs"
 import * as path from "path"
 
 import { Event, IEvent } from "oni-types"
@@ -17,7 +16,7 @@ import { getUserConfigFolderPath } from "./../Services/Configuration"
 // import { AnonymousPlugin } from "./AnonymousPlugin"
 // import { Plugin } from "./Plugin"
 
-import { FileSystem, IFileSystem } from "./../Services/Explorer/ExplorerFileSystem"
+import { IFileSystem, OniFileSystem } from "./../Services/Explorer/ExplorerFileSystem"
 
 import Process from "./Api/Process"
 
@@ -62,7 +61,7 @@ export class YarnPluginInstaller implements IPluginInstaller {
         return this._onOperationError
     }
 
-    constructor(private _fileSystem: IFileSystem = new FileSystem(fs)) {}
+    constructor(private _fileSystem: IFileSystem = OniFileSystem) {}
 
     public async install(identifier: string): Promise<void> {
         const eventInfo: IPluginInstallerOperationEvent = {

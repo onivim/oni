@@ -13,6 +13,9 @@ import { createStore as createReduxStore } from "./../../Redux"
 export interface ISneakInfo {
     rectangle: Shapes.Rectangle
     callback: () => void
+
+    // `tag` is an optional string used to identify the sneak
+    tag?: string
 }
 
 export interface IAugmentedSneakInfo extends ISneakInfo {
@@ -22,16 +25,22 @@ export interface IAugmentedSneakInfo extends ISneakInfo {
 export interface ISneakState {
     isActive: boolean
     sneaks: IAugmentedSneakInfo[]
+    width: number
+    height: number
 }
 
 const DefaultSneakState: ISneakState = {
     isActive: true,
     sneaks: [],
+    width: 0,
+    height: 0,
 }
 
 export type SneakAction =
     | {
           type: "START"
+          width: number
+          height: number
       }
     | {
           type: "END"
@@ -47,7 +56,11 @@ export const sneakReducer: Reducer<ISneakState> = (
 ) => {
     switch (action.type) {
         case "START":
-            return DefaultSneakState
+            return {
+                ...DefaultSneakState,
+                width: action.width,
+                height: action.height,
+            }
         case "END":
             return {
                 ...DefaultSneakState,
@@ -58,7 +71,12 @@ export const sneakReducer: Reducer<ISneakState> = (
                 return state
             }
 
-            const newSneaks: IAugmentedSneakInfo[] = action.sneaks.map((sneak, idx) => {
+            const filteredSneaks = action.sneaks.filter(sneak => {
+                const { x, y } = sneak.rectangle
+                return x >= 0 && y >= 0 && x < state.width && y < state.height
+            })
+
+            const newSneaks: IAugmentedSneakInfo[] = filteredSneaks.map((sneak, idx) => {
                 return {
                     ...sneak,
                     triggerKeys: getLabelFromIndex(idx + state.sneaks.length),

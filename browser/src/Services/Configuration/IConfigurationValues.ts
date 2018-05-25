@@ -41,13 +41,12 @@ export interface IConfigurationValues {
     "editor.split.mode": string
 
     "configuration.editor": string
+    "configuration.showReferenceBuffer": boolean
 
     // - textMateHighlighting
     "editor.textMateHighlighting.enabled": boolean
 
     // Whether or not the learning pane is available
-    "experimental.achievements.enabled": boolean
-    "experimental.learning.enabled": boolean
     "experimental.particles.enabled": boolean
 
     // The transport to use for Neovim
@@ -100,6 +99,12 @@ export interface IConfigurationValues {
 
     // Editor settings
 
+    // Setting this to "webgl" switches to the experimental
+    // WebGL-based renderer. Please be aware that this might
+    // lead to instability or unexpected behavior until it is
+    // considered stable.
+    "editor.renderer": "canvas" | "webgl"
+
     "editor.backgroundOpacity": number
     "editor.backgroundImageUrl": string
     "editor.backgroundImageSize": string
@@ -126,6 +131,8 @@ export interface IConfigurationValues {
     "editor.quickInfo.enabled": boolean
     // Delay (in ms) for showing QuickInfo, when the cursor is on a term
     "editor.quickInfo.delay": number
+    "editor.quickOpen.defaultOpenMode": Oni.FileOpenMode
+    "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode
 
     "editor.errors.slideOnFocus": boolean
     "editor.formatting.formatOnSwitchToNormalMode": boolean // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun
@@ -146,6 +153,7 @@ export interface IConfigurationValues {
     // If true (default), ligatures are enabled
     "editor.fontLigatures": boolean
     "editor.fontSize": string
+    "editor.fontWeight": string
     "editor.fontFamily": string // Platform specific
 
     // Additional padding between lines
@@ -200,6 +208,12 @@ export interface IConfigurationValues {
     // 'zero-latency' mode typing, and increases responsiveness.
     "editor.typingPrediction": boolean
 
+    // Files deleted in the explorer can be persisted for the duration
+    // of the session meaning that deletion can be undone is this is set
+    // to true
+    "explorer.persistDeletedFiles": boolean
+    "explorer.maxUndoFileSizeInBytes": number
+
     "editor.fullScreenOnStart": boolean
     "editor.maximizeScreenOnStart": boolean
 
@@ -210,6 +224,9 @@ export interface IConfigurationValues {
     "editor.cursorColumnOpacity": number
 
     "keyDisplayer.showInInsertMode": boolean
+
+    "learning.enabled": boolean
+    "achievements.enabled": boolean
 
     // Case-sensitivity strategy for menu filtering:
     // - if `true`, is case sensitive
@@ -231,10 +248,29 @@ export interface IConfigurationValues {
     "recorder.copyScreenshotToClipboard": boolean
 
     "sidebar.enabled": boolean
+    "sidebar.default.open": boolean
     "sidebar.width": string
 
     "sidebar.marks.enabled": boolean
     "sidebar.plugins.enabled": boolean
+
+    "oni.plugins.prettier": {
+        settings: {
+            semi: boolean
+            tabWidth: number
+            useTabs: boolean
+            singleQuote: boolean
+            trailingComma: "es5" | "all" | "none"
+            bracketSpacing: boolean
+            jsxBracketSameLine: boolean
+            arrowParens: "avoid" | "always"
+            printWidth: number
+            [key: string]: number | string | boolean
+        }
+        formatOnSave: boolean
+        enabled: boolean
+        allowedFiletypes?: string[]
+    }
 
     "snippets.enabled": boolean
     "snippets.userSnippetFolder": string

@@ -196,7 +196,8 @@ export class WindowManager {
             }
             case "horizontal":
             case "vertical":
-                const augmentedRefSplit = this._getAugmentedWindowSplitFromSplit(referenceSplit)
+                const augmentedRefSplit =
+                    this._getAugmentedWindowSplitFromSplit(referenceSplit) || this.activeSplit
                 this._primarySplit.split(augmentedWindow, splitLocation, augmentedRefSplit)
                 const newState = this._primarySplit.getState() as ISplitInfo<Oni.IWindowSplit>
 

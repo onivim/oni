@@ -5,21 +5,13 @@
 import * as Oni from "oni-api"
 
 import { Event, IEvent } from "oni-types"
-
 import { ITutorial, ITutorialMetadata, ITutorialStage } from "./ITutorial"
-
-export interface ITutorialCompletionInfo {
-    completed: boolean
-    timeInMilliseconds?: number
-    keyPresses?: number
-}
 
 export interface ITutorialState {
     metadata: ITutorialMetadata
     renderFunc?: (context: Oni.BufferLayerRenderContext) => JSX.Element
     activeGoalIndex: number
     goals: string[]
-    completionInfo: ITutorialCompletionInfo
 }
 
 /**
@@ -28,17 +20,19 @@ export interface ITutorialState {
  * - Calls the 'render' function
  */
 
+export const TICK_RATE = 50 /* 50 ms, or 20 times pers second */
+
 export class TutorialGameplayManager {
     private _activeTutorial: ITutorial
     private _currentStageIdx: number
     private _onStateChanged = new Event<ITutorialState>()
     private _onCompleted = new Event<boolean>()
     private _currentState: ITutorialState = null
-    private _completionInfo: ITutorialCompletionInfo
+    private _onTick = new Event<void>()
 
     private _isTickInProgress: boolean = false
-    private _isPendingTick: boolean = false
     private _buf: Oni.Buffer
+    private _pendingTimer: number | null = null
 
     public get onStateChanged(): IEvent<ITutorialState> {
         return this._onStateChanged
@@ -46,6 +40,10 @@ export class TutorialGameplayManager {
 
     public get onCompleted(): IEvent<boolean> {
         return this._onCompleted
+    }
+
+    public get onTick(): IEvent<void> {
+        return this._onTick
     }
 
     public get currentState(): ITutorialState {
@@ -66,25 +64,21 @@ export class TutorialGameplayManager {
         this._buf = buffer
         this._currentStageIdx = 0
         this._activeTutorial = tutorial
-        this._completionInfo = { completed: false, keyPresses: 0, timeInMilliseconds: 0 }
 
-        this._editor.onModeChanged.subscribe((evt: string) => {
-            this._tick()
-        })
-
-        this._editor.onBufferChanged.subscribe(() => {
-            this._tick()
-        })
-        ;(this._editor as any).onCursorMoved.subscribe(() => {
-            this._tick()
-        })
+        this._pendingTimer = window.setInterval(() => this._tick(), TICK_RATE)
 
         this._tick()
     }
 
+    public stop(): void {
+        if (this._pendingTimer) {
+            window.clearInterval(this._pendingTimer)
+            this._pendingTimer = null
+        }
+    }
+
     private async _tick(): Promise<void> {
         if (this._isTickInProgress) {
-            this._isPendingTick = true
             return
         }
 
@@ -98,17 +92,13 @@ export class TutorialGameplayManager {
             editor: this._editor,
             buffer: this._buf,
         })
+        this._onTick.dispatch()
 
         this._isTickInProgress = false
         if (result) {
             this._currentStageIdx++
 
             if (this._currentStageIdx >= this._activeTutorial.stages.length) {
-                this._completionInfo = {
-                    completed: true,
-                    timeInMilliseconds: 100,
-                    keyPresses: 100,
-                }
                 this._onCompleted.dispatch(true)
             }
         }
@@ -123,14 +113,8 @@ export class TutorialGameplayManager {
                 this.currentStage && this.currentStage.render
                     ? this.currentStage.render(context)
                     : null,
-            completionInfo: this._completionInfo,
         }
         this._currentState = newState
         this._onStateChanged.dispatch(newState)
-
-        if (this._isPendingTick) {
-            this._isPendingTick = false
-            await this._tick()
-        }
     }
 }

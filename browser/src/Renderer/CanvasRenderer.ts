@@ -123,13 +123,16 @@ export class CanvasRenderer implements INeovimRenderer {
     public _draw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
         Performance.mark("CanvasRenderer.update.start")
 
-        this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
+        this._canvasContext.font = `${screenInfo.fontWeight} ${screenInfo.fontSize} ${
+            screenInfo.fontFamily
+        }`
         this._canvasContext.textBaseline = "top"
         this._canvasContext.setTransform(this._devicePixelRatio, 0, 0, this._devicePixelRatio, 0, 0)
         this._canvasContext.imageSmoothingEnabled = false
 
         this._editorElement.style.fontFamily = screenInfo.fontFamily
         this._editorElement.style.fontSize = screenInfo.fontSize
+        this._editorElement.style.fontWeight = screenInfo.fontWeight
 
         const rowsToEdit = getSpansToEdit(this._grid, modifiedCells)
 
@@ -327,7 +330,7 @@ export class CanvasRenderer implements INeovimRenderer {
             this._canvasContext.fillText(
                 text,
                 boundsStartX,
-                y * fontHeightInPixels + linePaddingInPixels / 2,
+                normalizedBoundsY + linePaddingInPixels / 2,
             )
             this._canvasContext.font = lastFontStyle
         }
@@ -345,19 +348,20 @@ export class CanvasRenderer implements INeovimRenderer {
 
     private _setContext(): void {
         this._editorElement.innerHTML = ""
+        this._devicePixelRatio = window.devicePixelRatio
+
+        // offsetWidth and offsetHeight always return an integer
+        const editorWidth = this._editorElement.offsetWidth
+        const editorHeight = this._editorElement.offsetHeight
 
         this._canvasElement = document.createElement("canvas")
-        this._canvasElement.style.width = "100%"
-        this._canvasElement.style.height = "100%"
-
-        this._devicePixelRatio = window.devicePixelRatio
+        this._canvasElement.style.width = editorWidth + "px"
+        this._canvasElement.style.height = editorHeight + "px"
 
         this._editorElement.appendChild(this._canvasElement)
 
-        this._width = this._canvasElement.width =
-            this._canvasElement.offsetWidth * this._devicePixelRatio
-        this._height = this._canvasElement.height =
-            this._canvasElement.offsetHeight * this._devicePixelRatio
+        this._width = this._canvasElement.width = editorWidth * this._devicePixelRatio
+        this._height = this._canvasElement.height = editorHeight * this._devicePixelRatio
 
         if (
             configuration.getValue("editor.backgroundImageUrl") &&

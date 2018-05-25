@@ -19,10 +19,21 @@ const isCiBuild = () => {
     return ciBuild
 }
 
+const getWindowsExcutablePathOnCiMachine = () => {
+    switch (process.env.PLATFORM) {
+        case "x86":
+            return path.join(__dirname, "..", "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
+        case "x64":
+            return path.join(__dirname, "..", "..", "..", "dist", "win-unpacked", "Oni.exe")
+        default:
+            throw new Error(`Unable to find Oni executable for Windows arch ${process.arch}`)
+    }
+}
+
 const getExecutablePathOnCiMachine = () => {
     switch (process.platform) {
         case "win32":
-            return path.join(__dirname, "..", "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
+            return getWindowsExcutablePathOnCiMachine()
         case "darwin":
             return path.join(
                 __dirname,
@@ -65,7 +76,11 @@ const getArgsForLocalExecution = () => [
 ]
 
 export interface OniStartOptions {
-    configurationPath?: string
+    env?: {
+        ONI_CONFIG_FILE?: string
+        MYVIMRC?: string
+        [key: string]: string
+    }
 }
 
 export class Oni {
@@ -87,7 +102,7 @@ export class Oni {
         this._app = new Application({
             path: executablePath,
             args: executableArgs,
-            env: options.configurationPath ? { ONI_CONFIG_FILE: options.configurationPath } : {},
+            env: options.env,
         })
 
         log("Oni starting...")

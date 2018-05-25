@@ -53,6 +53,15 @@ describe("InputManager", () => {
             assert.strictEqual(handled, false)
         })
 
+        it("can unbind an array of keys", () => {
+            const im = new InputManager()
+            im.bind(["a", "b"], "test.command")
+            im.unbind(["a", "b"])
+
+            const boundKeys = im.getBoundKeys("test.command")
+            assert.deepEqual(boundKeys, [], "Validate no bound keys are returned")
+        })
+
         describe("getBoundKeys", () => {
             it("returns empty array if no key bound to command", () => {
                 const im = new InputManager()
@@ -110,6 +119,23 @@ describe("InputManager", () => {
             im.handleKey("g", 1000)
 
             assert.strictEqual(hitCount, 0, "Validate the binding was not executed")
+        })
+
+        it("doesn't re-dispatch if key was null", () => {
+            const im = new InputManager()
+            let hitCount: number = 0
+            im.bind("[", () => {
+                hitCount++
+                return true
+            })
+
+            im.handleKey("[", 1)
+
+            // For control keys like 'shift', we get a null value passed
+            // to the key-chord logic.
+            im.handleKey(null, 2)
+
+            assert.strictEqual(hitCount, 1, "Verify handler was only hit once")
         })
     })
 

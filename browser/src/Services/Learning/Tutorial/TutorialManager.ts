@@ -2,15 +2,16 @@
  * TutorialManager
  */
 
+import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
 import { EditorManager } from "./../../EditorManager"
+import { WindowManager } from "./../../WindowManager"
 
 import { IPersistentStore } from "./../../../PersistentStore"
 
 import { ITutorial, ITutorialMetadata } from "./ITutorial"
 import { TutorialBufferLayer } from "./TutorialBufferLayer"
-import * as Tutorials from "./Tutorials"
 
 export interface ITutorialPersistedState {
     completedTutorialIds: string[]
@@ -40,14 +41,20 @@ export class TutorialManager {
 
     private _persistedState: IPersistedTutorialState = { completionInfo: {} }
     private _onTutorialCompletedEvent: Event<void> = new Event<void>()
+    private _onTutorialProgressChanged: Event<void> = new Event<void>()
 
     public get onTutorialCompletedEvent(): IEvent<void> {
         return this._onTutorialCompletedEvent
     }
 
+    public get onTutorialProgressChangedEvent(): IEvent<void> {
+        return this._onTutorialProgressChanged
+    }
+
     constructor(
         private _editorManager: EditorManager,
         private _persistentStore: IPersistentStore<IPersistedTutorialState>,
+        private _windowManager: WindowManager,
     ) {}
 
     public async start(): Promise<IPersistedTutorialState> {
@@ -58,7 +65,7 @@ export class TutorialManager {
         this._initPromise = this._persistentStore.get()
 
         this._persistedState = await this._initPromise
-        this._onTutorialCompletedEvent.dispatch()
+        this._onTutorialProgressChanged.dispatch()
         return this._persistedState
     }
 
@@ -67,6 +74,10 @@ export class TutorialManager {
             tutorialInfo: tut.metadata,
             completionInfo: this._getCompletionState(tut.metadata.id),
         }))
+    }
+
+    public getTutorial(id: string): ITutorial {
+        return this._tutorials.find(t => t.metadata.id === id)
     }
 
     public registerTutorial(tutorial: ITutorial): void {
@@ -81,6 +92,16 @@ export class TutorialManager {
         this._persistedState.completionInfo[id] = completionInfo
         await this._persistentStore.set(this._persistedState)
         this._onTutorialCompletedEvent.dispatch()
+        this._onTutorialProgressChanged.dispatch()
+    }
+
+    public async clearProgress(): Promise<void> {
+        await this.start()
+        this._persistedState = {
+            completionInfo: {},
+        }
+        await this._persistentStore.set(this._persistedState)
+        this._onTutorialProgressChanged.dispatch()
     }
 
     public getNextTutorialId(currentTutorialId?: string): string {
@@ -108,11 +129,20 @@ export class TutorialManager {
     }
 
     public async startTutorial(id: string): Promise<void> {
-        // const tutorial = this._getTutorialById(id)
-        const buf = await this._editorManager.activeEditor.openFile("Tutorial")
-        const layer = new TutorialBufferLayer()
-        layer.startTutorial(new Tutorials.BasicMovementTutorial())
-        buf.addLayer(layer)
+        const buf = await this._editorManager.activeEditor.openFile("oni://Tutorial", {
+            openMode: Oni.FileOpenMode.Edit,
+        })
+        let tutorialLayer = (buf as any).getLayerById("oni.layer.tutorial") as TutorialBufferLayer
+        if (!tutorialLayer) {
+            tutorialLayer = new TutorialBufferLayer(this)
+            buf.addLayer(tutorialLayer)
+        }
+
+        tutorialLayer.startTutorial(id)
+        // Focus the editor
+        const splitHandle = this._windowManager.getSplitHandle(this._editorManager
+            .activeEditor as any)
+        splitHandle.focus()
     }
 
     private _getSortedTutorials(): ITutorial[] {
@@ -122,6 +152,6 @@ export class TutorialManager {
     }
 
     private _getCompletionState(id: string): ITutorialCompletionInfo {
-        return this._persistedState[id] || null
+        return this._persistedState.completionInfo[id] || null
     }
 }

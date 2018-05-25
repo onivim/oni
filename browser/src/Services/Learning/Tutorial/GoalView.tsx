@@ -29,7 +29,7 @@ const GoalWrapper = withProps<IGoalViewProps>(styled.div)`
     align-items: center;
     flex-direction: row;
 
-    margin: 1em;
+    margin: 1em 0em;
 `
 
 const IconWrapper = withProps<IGoalViewProps>(styled.div)`

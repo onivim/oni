@@ -6,6 +6,8 @@
 
 import * as os from "os"
 
+import * as Oni from "oni-api"
+
 import * as path from "path"
 
 import * as Platform from "./../../Platform"
@@ -36,6 +38,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "browser.defaultUrl": "https://duckduckgo.com",
     "configuration.editor": "typescript",
+    "configuration.showReferenceBuffer": true,
 
     "debug.fixedSize": null,
     "debug.neovimPath": null,
@@ -50,7 +53,6 @@ const BaseConfiguration: IConfigurationValues = {
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
-    "experimental.learning.enabled": false,
     "experimental.particles.enabled": false,
     "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
@@ -62,8 +64,6 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.detectIndentation": true,
     "editor.maxLinesForLanguageServices": 2500,
     "editor.textMateHighlighting.enabled": true,
-
-    "experimental.achievements.enabled": false,
 
     "autoClosingPairs.enabled": true,
     "autoClosingPairs.default": [
@@ -85,6 +85,8 @@ const BaseConfiguration: IConfigurationValues = {
     "oni.exclude": ["node_modules", ".git"],
     "oni.bookmarks": [],
 
+    "editor.renderer": "canvas",
+
     "editor.backgroundOpacity": 1.0,
     "editor.backgroundImageUrl": null,
     "editor.backgroundImageSize": "cover",
@@ -103,12 +105,15 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.fontLigatures": true,
     "editor.fontSize": "12px",
+    "editor.fontWeight": "normal",
     "editor.fontFamily": "",
 
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
-    "editor.quickOpen.filterStrategy": "regex",
+    "editor.quickOpen.filterStrategy": "vscode",
+    "editor.quickOpen.defaultOpenMode": Oni.FileOpenMode.Edit,
+    "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode.ExistingTab,
 
     "editor.split.mode": "native",
 
@@ -133,6 +138,9 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.tokenColors": [],
 
     "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
+
+    "explorer.persistDeletedFiles": true,
+    "explorer.maxUndoFileSizeInBytes": 500_000,
 
     "environment.additionalPaths": [],
 
@@ -197,6 +205,11 @@ const BaseConfiguration: IConfigurationValues = {
     "language.ocaml.languageServer.arguments": ["--stdio"],
     "language.ocaml.languageServer.configuration": ocamlAndReasonConfiguration,
 
+    "language.haskell.languageServer.command": "stack",
+    "language.haskell.languageServer.arguments": ["exec", "--", "hie", "--lsp"],
+    "language.haskell.languageServer.rootFiles": [".git"],
+    "language.haskell.languageServer.configuration": {},
+
     "language.typescript.completionTriggerCharacters": [".", "/", "\\"],
     "language.typescript.textMateGrammar": {
         ".ts": path.join(
@@ -213,6 +226,128 @@ const BaseConfiguration: IConfigurationValues = {
             "syntaxes",
             "TypeScriptReact.tmLanguage.json",
         ),
+    },
+    "language.lua.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "lua",
+        "syntaxes",
+        "lua.tmLanguage.json",
+    ),
+    "language.clojure.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "clojure",
+        "syntaxes",
+        "clojure.tmLanguage.json",
+    ),
+    "language.ruby.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "ruby",
+        "syntaxes",
+        "ruby.tmLanguage.json",
+    ),
+    "language.swift.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "swift",
+        "syntaxes",
+        "swift.tmLanguage.json",
+    ),
+    "language.rust.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "rust",
+        "syntaxes",
+        "rust.tmLanguage.json",
+    ),
+    "language.php.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "php",
+        "syntaxes",
+        "php.tmLanguage.json",
+    ),
+    "language.objc.textMateGrammar": {
+        ".m": path.join(
+            __dirname,
+            "extensions",
+            "objective-c",
+            "syntaxes",
+            "objective-c.tmLanguage.json",
+        ),
+        ".h": path.join(
+            __dirname,
+            "extensions",
+            "objective-c",
+            "syntaxes",
+            "objective-c.tmLanguage.json",
+        ),
+    },
+    "language.objcpp.textMateGrammar": {
+        ".mm": path.join(
+            __dirname,
+            "extensions",
+            "objective-c++",
+            "syntaxes",
+            "objective-c++.tmLanguage.json",
+        ),
+    },
+    "language.python.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "python",
+        "syntaxes",
+        "python.tmLanguage.json",
+    ),
+    "language.sh.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "shell",
+        "syntaxes",
+        "shell.tmLanguage.json",
+    ),
+    "language.zsh.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "shell",
+        "syntaxes",
+        "shell.tmLanguage.json",
+    ),
+    "language.markdown.textMateGrammar": {
+        ".md": path.join(
+            __dirname,
+            "extensions",
+            "markdown",
+            "syntaxes",
+            "markdown.tmLanguage.json",
+        ),
+        ".markdown": path.join(
+            __dirname,
+            "extensions",
+            "markdown",
+            "syntaxes",
+            "markdown.tmLanguage.json",
+        ),
+        ".mkd": path.join(
+            __dirname,
+            "extensions",
+            "markdown",
+            "syntaxes",
+            "markdown.tmLanguage.json",
+        ),
+        ".mdown": path.join(
+            __dirname,
+            "extensions",
+            "markdown",
+            "syntaxes",
+            "markdown.tmLanguage.json",
+        ),
+    },
+    "language.java.textMateGrammar": {
+        ".java": path.join(__dirname, "extensions", "java", "syntaxes", "Java.tmLanguage.json"),
+        ".jar": path.join(__dirname, "extensions", "java", "syntaxes", "Java.tmLanguage.json"),
     },
     "language.javascript.completionTriggerCharacters": [".", "/", "\\"],
     "language.javascript.textMateGrammar": {
@@ -232,6 +367,9 @@ const BaseConfiguration: IConfigurationValues = {
         ),
     },
 
+    "learning.enabled": true,
+    "achievements.enabled": true,
+
     "menu.caseSensitive": "smart",
     "menu.rowHeight": 40,
     "menu.maxItemsToShow": 8,
@@ -242,7 +380,8 @@ const BaseConfiguration: IConfigurationValues = {
     "recorder.outputPath": os.tmpdir(),
 
     "sidebar.enabled": true,
-    "sidebar.width": "50px",
+    "sidebar.default.open": true,
+    "sidebar.width": "15em",
 
     "sidebar.marks.enabled": false,
     "sidebar.plugins.enabled": false,
@@ -261,6 +400,22 @@ const BaseConfiguration: IConfigurationValues = {
         "oni.status.git": 3,
     },
 
+    "oni.plugins.prettier": {
+        settings: {
+            semi: false,
+            tabWidth: 2,
+            useTabs: false,
+            singleQuote: false,
+            trailingComma: "es5",
+            bracketSpacing: true,
+            jsxBracketSameLine: false,
+            arrowParens: "avoid",
+            printWidth: 80,
+        },
+        formatOnSave: false,
+        enabled: false,
+    },
+
     "tabs.mode": "tabs",
     "tabs.height": "2.5em",
     "tabs.highlight": true,
@@ -269,7 +424,7 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.showIndex": false,
     "tabs.wrap": false,
 
-    "terminal.shellCommand": os.platform() === "win32" ? "cmd" : "bash",
+    "terminal.shellCommand": null,
 
     "ui.animations.enabled": true,
     "ui.colorscheme": "nord",

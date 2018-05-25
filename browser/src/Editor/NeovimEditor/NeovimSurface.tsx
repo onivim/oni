@@ -11,6 +11,7 @@ import { IEvent } from "oni-types"
 
 import { NeovimInstance, NeovimScreen } from "./../../neovim"
 import { INeovimRenderer } from "./../../Renderer"
+import FileDropHandler from "./FileDropHandler"
 
 import { Cursor } from "./../../UI/components/Cursor"
 import { CursorLine } from "./../../UI/components/CursorLine"
@@ -28,6 +29,7 @@ import { NeovimInput } from "./NeovimInput"
 import { NeovimRenderer } from "./NeovimRenderer"
 
 export interface INeovimSurfaceProps {
+    autoFocus: boolean
     neovimInstance: NeovimInstance
     renderer: INeovimRenderer
     screen: NeovimScreen
@@ -38,6 +40,7 @@ export interface INeovimSurfaceProps {
     onKeyDown?: (key: string) => void
     onBufferClose?: (bufferId: number) => void
     onBufferSelect?: (bufferId: number) => void
+    onFileDrop?: (files: FileList) => void
     onImeStart: () => void
     onImeEnd: () => void
     onBounceStart: () => void
@@ -66,49 +69,53 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
 
     public render(): JSX.Element {
         return (
-            <div className="container vertical full">
-                <div className="container fixed">
-                    <TabsContainer
-                        onBufferSelect={this.props.onBufferSelect}
-                        onBufferClose={this.props.onBufferClose}
-                        onTabClose={this.props.onTabClose}
-                        onTabSelect={this.props.onTabSelect}
-                    />
-                </div>
-                <div className="container full">
-                    <div className="stack" ref={(e: HTMLDivElement) => (this._editor = e)}>
-                        <NeovimRenderer
-                            renderer={this.props.renderer}
-                            neovimInstance={this.props.neovimInstance}
-                            screen={this.props.screen}
-                        />
+            <FileDropHandler handleFiles={this.props.onFileDrop}>
+                {({ setRef }) => (
+                    <div className="container vertical full" ref={setRef}>
+                        <div className="container fixed">
+                            <TabsContainer
+                                onBufferSelect={this.props.onBufferSelect}
+                                onBufferClose={this.props.onBufferClose}
+                                onTabClose={this.props.onTabClose}
+                                onTabSelect={this.props.onTabSelect}
+                            />
+                        </div>
+                        <div className="container full">
+                            <div className="stack" ref={(e: HTMLDivElement) => (this._editor = e)}>
+                                <NeovimRenderer
+                                    renderer={this.props.renderer}
+                                    neovimInstance={this.props.neovimInstance}
+                                    screen={this.props.screen}
+                                />
+                            </div>
+                            <div className="stack layer">
+                                <TypingPrediction typingPrediction={this.props.typingPrediction} />
+                                <Cursor typingPrediction={this.props.typingPrediction} />
+                                <CursorLine lineType={"line"} />
+                                <CursorLine lineType={"column"} />
+                            </div>
+                            <NeovimInput
+                                startActive={this.props.autoFocus}
+                                onActivate={this.props.onActivate}
+                                typingPrediction={this.props.typingPrediction}
+                                neovimInstance={this.props.neovimInstance}
+                                screen={this.props.screen}
+                                onBounceStart={this.props.onBounceStart}
+                                onBounceEnd={this.props.onBounceEnd}
+                                onImeStart={this.props.onImeStart}
+                                onImeEnd={this.props.onImeEnd}
+                                onKeyDown={this.props.onKeyDown}
+                            />
+                            <NeovimBufferLayers />
+                            <div className="stack layer">
+                                <ToolTips />
+                            </div>
+                            <NeovimEditorLoadingOverlay />
+                            <InstallHelp />
+                        </div>
                     </div>
-                    <div className="stack layer">
-                        <TypingPrediction typingPrediction={this.props.typingPrediction} />
-                        <Cursor typingPrediction={this.props.typingPrediction} />
-                        <CursorLine lineType={"line"} />
-                        <CursorLine lineType={"column"} />
-                    </div>
-                    <NeovimInput
-                        startActive={true}
-                        onActivate={this.props.onActivate}
-                        typingPrediction={this.props.typingPrediction}
-                        neovimInstance={this.props.neovimInstance}
-                        screen={this.props.screen}
-                        onBounceStart={this.props.onBounceStart}
-                        onBounceEnd={this.props.onBounceEnd}
-                        onImeStart={this.props.onImeStart}
-                        onImeEnd={this.props.onImeEnd}
-                        onKeyDown={this.props.onKeyDown}
-                    />
-                    <NeovimBufferLayers />
-                    <div className="stack layer">
-                        <ToolTips />
-                    </div>
-                    <NeovimEditorLoadingOverlay />
-                    <InstallHelp />
-                </div>
-            </div>
+                )}
+            </FileDropHandler>
         )
     }
 }

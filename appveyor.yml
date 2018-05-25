@@ -10,7 +10,7 @@ branches:
     - /^release.*/
 
 cache:
-    - "%LOCALAPPDATA%\\Yarn"
+    - .oni_build_cache -> package.json 
 
 platform:
     - x86
@@ -28,6 +28,7 @@ install:
   - npm --version
   # install modules
   - yarn install
+  - npm run check-cached-binaries
 
 artifacts:
     - path: dist/*.exe
@@ -52,22 +53,7 @@ deploy:
 
 # Post-install test scripts.
 test_script:
-  # Output useful info for debugging.
-  - node --version
-  - npm --version
-  # build
-  - npm run build
-  - npm run lint
-  - npm run test:unit
-  # create setup package
-  - npm run copy-icons
-  - npm run dist:win
-  - npm run pack:win
-  # run integration tests
-  - npm run test:integration
-  - npm run demo:screenshot
-  # Upload bits to azure
-  - npm run upload:dist
+  - powershell build/script/appveyor-test.ps1
 
 # Don't actually build.
 build: off

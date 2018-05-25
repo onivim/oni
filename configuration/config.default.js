@@ -9,10 +9,11 @@ const activate = oni => {
     //
     // Add input bindings here:
     //
+    oni.input.bind("<f11>", "oni.debug.openDevTools")
     oni.input.bind("<c-enter>", () => console.log("Control+Enter was pressed"))
 
     //
-    // Or remove the default bindings here by uncommenting the below line:
+    // Or remove the default bindings:
     //
     // oni.input.unbind("<c-p>")
 }

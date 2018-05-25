@@ -189,9 +189,9 @@ export class OniEditor extends Utility.Disposable implements IEditor {
 
     public enter(): void {
         Log.info("[OniEditor::enter]")
-        this._neovimEditor.enter()
-
         editorManager.setActiveEditor(this)
+
+        this._neovimEditor.enter()
 
         commandManager.registerCommand({
             command: "editor.split.horizontal",

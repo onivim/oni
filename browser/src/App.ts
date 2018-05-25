@@ -64,6 +64,7 @@ export const start = async (args: string[]): Promise<void> => {
 
     const configurationPromise = import("./Services/Configuration")
     const configurationCommandsPromise = import("./Services/Configuration/ConfigurationCommands")
+    const debugPromise = import("./Services/Debug")
     const pluginManagerPromise = import("./Plugins/PluginManager")
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
@@ -132,6 +133,13 @@ export const start = async (args: string[]): Promise<void> => {
     PluginManager.activate(configuration)
     const pluginManager = PluginManager.getInstance()
 
+    const developmentPlugin = parsedArgs["plugin-develop"]
+
+    if (developmentPlugin) {
+        Log.info("Registering development plugin: " + developmentPlugin)
+        pluginManager.addDevelopmentPlugin(developmentPlugin)
+    }
+
     Performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
     Performance.endMeasure("Oni.Start.Plugins.Discover")
@@ -146,6 +154,7 @@ export const start = async (args: string[]): Promise<void> => {
 
     const Colors = await colorsPromise
     Colors.activate(configuration, Themes.getThemeManagerInstance())
+    const colors = Colors.getInstance()
     Shell.initializeColors(Colors.getInstance())
     Performance.endMeasure("Oni.Start.Themes")
 
@@ -177,7 +186,7 @@ export const start = async (args: string[]): Promise<void> => {
     const sneakPromise = import("./Services/Sneak")
     const { commandManager } = await import("./Services/CommandManager")
     const Sneak = await sneakPromise
-    Sneak.activate(commandManager, overlayManager)
+    Sneak.activate(colors, commandManager, configuration, overlayManager)
 
     const Menu = await menuPromise
     Menu.activate(configuration, overlayManager)
@@ -260,7 +269,13 @@ export const start = async (args: string[]): Promise<void> => {
     Sidebar.activate(configuration, workspace)
     const sidebarManager = Sidebar.getInstance()
 
-    Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
+    Explorer.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        Sidebar.getInstance(),
+        workspace,
+    )
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Learning.activate(
         commandManager,
@@ -268,6 +283,7 @@ export const start = async (args: string[]): Promise<void> => {
         editorManager,
         overlayManager,
         Sidebar.getInstance(),
+        WindowManager.windowManager,
     )
     Performance.endMeasure("Oni.Start.Sidebar")
 
@@ -305,6 +321,9 @@ export const start = async (args: string[]): Promise<void> => {
     const GlobalCommands = await globalCommandsPromise
     GlobalCommands.activate(commandManager, editorManager, menuManager, tasks)
 
+    const Debug = await debugPromise
+    Debug.activate(commandManager)
+
     const WorkspaceCommands = await workspaceCommandsPromise
     WorkspaceCommands.activateCommands(
         configuration,
@@ -339,6 +358,18 @@ export const start = async (args: string[]): Promise<void> => {
 
     const Particles = await import("./Services/Particles")
     Particles.activate(commandManager, configuration, editorManager, overlayManager)
+
+    const PluginConfigurationSynchronizer = await import("./Plugins/PluginConfigurationSynchronizer")
+    PluginConfigurationSynchronizer.activate(configuration, pluginManager)
+
+    const Achievements = await import("./Services/Learning/Achievements")
+    const achievements = Achievements.getInstance()
+
+    if (achievements) {
+        Debug.registerAchievements(achievements)
+        Sneak.registerAchievements(achievements)
+        Browser.registerAchievements(achievements)
+    }
 
     Performance.endMeasure("Oni.Start.Activate")
 

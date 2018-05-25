@@ -90,6 +90,11 @@ ipcMain.on("move-to-next-oni-instance", (event, direction: string) => {
     moveToNextOniInstance(windows, direction)
 })
 
+ipcMain.on("open-oni-window", () => {
+    Log.info("opening window")
+    createWindow([], process.cwd())
+})
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let windows: BrowserWindow[] = []

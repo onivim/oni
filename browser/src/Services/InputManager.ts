@@ -20,6 +20,7 @@ export interface KeyBindingMap {
 }
 
 const MAX_DELAY_BETWEEN_KEY_CHORD = 250 /* milliseconds */
+const MAX_CHORD_SIZE = 4
 
 import { KeyboardResolver } from "./../Input/Keyboard/KeyboardResolver"
 
@@ -39,7 +40,7 @@ export const getRecentKeyPresses = (
     keys: KeyPressInfo[],
     maxTimeBetweenKeyPresses: number,
 ): KeyPressInfo[] => {
-    return keys.reduce(
+    const chords = keys.reduce(
         (prev, curr) => {
             if (prev.length === 0) {
                 return [curr]
@@ -55,6 +56,8 @@ export const getRecentKeyPresses = (
         },
         [] as KeyPressInfo[],
     )
+
+    return chords.slice(0, MAX_CHORD_SIZE)
 }
 
 export class InputManager implements Oni.Input.InputManager {
@@ -100,7 +103,7 @@ export class InputManager implements Oni.Input.InputManager {
 
     public unbind(keyChord: string | string[]) {
         if (Array.isArray(keyChord)) {
-            keyChord.forEach(key => this.unbind(keyChord))
+            keyChord.forEach(key => this.unbind(key))
             return
         }
 
@@ -150,6 +153,10 @@ export class InputManager implements Oni.Input.InputManager {
     // Returns true if the key was handled and should not continue bubbling,
     // false otherwise.
     public handleKey(keyChord: string, time: number = new Date().getTime()): boolean {
+        if (keyChord === null) {
+            return false
+        }
+
         const newKey: KeyPressInfo = {
             keyChord,
             time,
@@ -164,6 +171,7 @@ export class InputManager implements Oni.Input.InputManager {
             const fullChord = potentialKeys.map(k => k.keyChord).join("")
 
             if (this._handleKeyCore(fullChord)) {
+                this._keys = []
                 return true
             }
 

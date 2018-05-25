@@ -33,7 +33,7 @@ import {
     NeovimScreen,
     NeovimWindowManager,
 } from "./../../neovim"
-import { CanvasRenderer, INeovimRenderer } from "./../../Renderer"
+import { INeovimRenderer } from "./../../Renderer"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
@@ -61,7 +61,7 @@ import {
 } from "./../../Services/SyntaxHighlighting"
 
 import { MenuManager } from "./../../Services/Menu"
-import { ThemeManager } from "./../../Services/Themes"
+import { IThemeMetadata, ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 import { Workspace } from "./../../Services/Workspace"
 
@@ -75,7 +75,7 @@ import NeovimSurface from "./NeovimSurface"
 
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 
-import { normalizePath, sleep } from "./../../Utility"
+import { asObservable, normalizePath, sleep } from "./../../Utility"
 
 import * as VimConfigurationSynchronizer from "./../../Services/VimConfigurationSynchronizer"
 
@@ -94,6 +94,8 @@ import WildMenu from "./../../UI/components/WildMenu"
 
 import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
+import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
+import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 
 export class NeovimEditor extends Editor implements IEditor {
@@ -122,6 +124,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _windowManager: NeovimWindowManager
 
     private _currentColorScheme: string = ""
+    private _currentBackground: string = ""
     private _isFirstRender: boolean = true
 
     private _lastBufferId: string = null
@@ -141,6 +144,8 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private _onNeovimQuit: Event<void> = new Event<void>()
 
+    private _autoFocus: boolean = true
+
     public get onNeovimQuit(): IEvent<void> {
         return this._onNeovimQuit
     }
@@ -156,6 +161,17 @@ export class NeovimEditor extends Editor implements IEditor {
 
     public get bufferLayers(): BufferLayerManager {
         return this._bufferLayerManager
+    }
+
+    /**
+     * Gets whether or not the editor should autoFocus,
+     * meaning, grab focus on first mount
+     */
+    public get autoFocus(): boolean {
+        return this._autoFocus
+    }
+    public set autoFocus(val: boolean) {
+        this._autoFocus = val
     }
 
     public get syntaxHighlighter(): ISyntaxHighlighter {
@@ -229,9 +245,9 @@ export class NeovimEditor extends Editor implements IEditor {
             this._toolTipsProvider,
         )
 
+        const notificationManager = getNotificationsInstance()
         this._neovimInstance.onMessage.subscribe(messageInfo => {
             // TODO: Hook up real notifications
-            const notificationManager = getNotificationsInstance()
             const notification = notificationManager.createItem()
             notification.setLevel("error")
             notification.setContents(messageInfo.title, messageInfo.details)
@@ -241,7 +257,47 @@ export class NeovimEditor extends Editor implements IEditor {
             notification.show()
         })
 
-        this._renderer = new CanvasRenderer()
+        const initVimPath = this._neovimInstance.doesInitVimExist()
+        const initVimInUse = this._configuration.getValue("oni.loadInitVim")
+        const hasCheckedInitVim = this._configuration.getValue("_internal.hasCheckedInitVim")
+
+        if (initVimPath && !initVimInUse && !hasCheckedInitVim) {
+            const initVimNotification = notificationManager.createItem()
+            initVimNotification.setLevel("info")
+            initVimNotification.setContents(
+                "init.vim found",
+                `We found an init.vim file would you like Oni to use it?
+                This will result in Oni being reloaded`,
+            )
+
+            initVimNotification.setButtons([
+                {
+                    title: "Yes",
+                    callback: () => {
+                        this._configuration.setValues(
+                            { "_internal.hasCheckedInitVim": true, "oni.loadInitVim": true },
+                            true,
+                        )
+                        commandManager.executeCommand("oni.debug.reload")
+                    },
+                },
+                {
+                    title: "No",
+                    callback: () => {
+                        this._configuration.setValues(
+                            { "oni.loadInitVim": false, "_internal.hasCheckedInitVim": true },
+                            true,
+                        )
+                    },
+                },
+            ])
+            initVimNotification.show()
+        }
+
+        this._renderer =
+            this._configuration.getValue("editor.renderer") === "webgl"
+                ? new WebGLRenderer()
+                : new CanvasRenderer()
 
         this._rename = new Rename(
             this,
@@ -251,16 +307,6 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         // Services
-        this._commands = new NeovimEditorCommands(
-            commandManager,
-            this._contextMenuManager,
-            this._definition,
-            this._languageIntegration,
-            this._neovimInstance,
-            this._rename,
-            this._symbols,
-        )
-
         const onColorsChanged = () => {
             const updatedColors: any = this._colors.getColors()
             this._actions.setColors(updatedColors)
@@ -352,6 +398,7 @@ export class NeovimEditor extends Editor implements IEditor {
                         activeWindow.topBufferLine,
                         activeWindow.dimensions,
                         activeWindow.bufferToScreen,
+                        activeWindow.visibleLines,
                     )
                 }
 
@@ -393,8 +440,11 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         this.trackDisposable(
-            this._neovimInstance.onOniCommand.subscribe(command => {
-                commandManager.executeCommand(command)
+            this._neovimInstance.onOniCommand.subscribe(context => {
+                const commandToExecute = context.command
+                const commandArgs = context.args
+
+                commandManager.executeCommand(commandToExecute, commandArgs)
             }),
         )
 
@@ -525,25 +575,25 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         // TODO: Does any disposal need to happen for the observables?
-        this._cursorMoved$ = this._neovimInstance.autoCommands.onCursorMoved
-            .asObservable()
-            .map((evt): Oni.Cursor => ({
+        this._cursorMoved$ = asObservable(this._neovimInstance.autoCommands.onCursorMoved).map(
+            (evt): Oni.Cursor => ({
                 line: evt.line - 1,
                 column: evt.column - 1,
-            }))
+            }),
+        )
 
-        this._cursorMovedI$ = this._neovimInstance.autoCommands.onCursorMovedI
-            .asObservable()
-            .map((evt): Oni.Cursor => ({
+        this._cursorMovedI$ = asObservable(this._neovimInstance.autoCommands.onCursorMovedI).map(
+            (evt): Oni.Cursor => ({
                 line: evt.line - 1,
                 column: evt.column - 1,
-            }))
+            }),
+        )
 
         Observable.merge(this._cursorMoved$, this._cursorMovedI$).subscribe(cursorMoved => {
             this.notifyCursorMoved(cursorMoved)
         })
 
-        this._modeChanged$ = this._neovimInstance.onModeChanged.asObservable()
+        this._modeChanged$ = asObservable(this._neovimInstance.onModeChanged)
 
         this.trackDisposable(
             this._neovimInstance.onModeChanged.subscribe(newMode => this._onModeChanged(newMode)),
@@ -664,6 +714,16 @@ export class NeovimEditor extends Editor implements IEditor {
             }),
         )
 
+        this._commands = new NeovimEditorCommands(
+            commandManager,
+            this._contextMenuManager,
+            this._definition,
+            this._languageIntegration,
+            this._neovimInstance,
+            this._rename,
+            this._symbols,
+        )
+
         this._render()
 
         this._onConfigChanged(this._configuration.getValues())
@@ -681,25 +741,6 @@ export class NeovimEditor extends Editor implements IEditor {
         ipcRenderer.on("open-file", (_evt: any, path: string) => {
             this._neovimInstance.command(`:e! ${path}`)
         })
-
-        // TODO: Factor this out to a react component
-        // enable opening a file via drag-drop
-        document.body.ondragover = ev => {
-            ev.preventDefault()
-            ev.stopPropagation()
-        }
-
-        document.body.ondrop = ev => {
-            ev.preventDefault()
-            ev.stopPropagation()
-
-            const { files } = ev.dataTransfer
-
-            if (files.length) {
-                const normalisedPaths = Array.from(files).map(f => normalizePath(f.path))
-                this.openFiles(normalisedPaths, { openMode: Oni.FileOpenMode.Edit })
-            }
-        }
     }
 
     public async blockInput(
@@ -755,6 +796,10 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this._neovimInstance.autoCommands.executeAutoCommand("FocusGained")
         this.checkAutoRead()
+
+        if (this.activeBuffer) {
+            this.notifyBufferEnter(this.activeBuffer)
+        }
     }
 
     public checkAutoRead(): void {
@@ -846,10 +891,10 @@ export class NeovimEditor extends Editor implements IEditor {
         return this.activeBuffer
     }
 
-    public async openFiles(
+    public openFiles = async (
         files: string[],
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
-    ): Promise<Oni.Buffer> {
+    ): Promise<Oni.Buffer> => {
         if (!files) {
             return this.activeBuffer
         }
@@ -882,9 +927,19 @@ export class NeovimEditor extends Editor implements IEditor {
         commandManager.executeCommand(command, null)
     }
 
-    public async init(filesToOpen: string[]): Promise<void> {
+    public _onFilesDropped = async (files: FileList) => {
+        if (files.length) {
+            const normalisedPaths = Array.from(files).map(f => normalizePath(f.path))
+            await this.openFiles(normalisedPaths, { openMode: Oni.FileOpenMode.Edit })
+        }
+    }
+
+    public async init(
+        filesToOpen: string[],
+        startOptions?: Partial<INeovimStartOptions>,
+    ): Promise<void> {
         Log.info("[NeovimEditor::init] Called with filesToOpen: " + filesToOpen)
-        const startOptions: INeovimStartOptions = {
+        const defaultOptions: INeovimStartOptions = {
             runtimePaths: this._pluginManager.getAllRuntimePaths(),
             transport: this._configuration.getValue("experimental.neovim.transport"),
             neovimPath: this._configuration.getValue("debug.neovimPath"),
@@ -892,7 +947,12 @@ export class NeovimEditor extends Editor implements IEditor {
             useDefaultConfig: this._configuration.getValue("oni.useDefaultConfig"),
         }
 
-        await this._neovimInstance.start(startOptions)
+        const combinedOptions = {
+            ...defaultOptions,
+            ...startOptions,
+        }
+
+        await this._neovimInstance.start(combinedOptions)
 
         if (this._errorInitializing) {
             return
@@ -906,15 +966,17 @@ export class NeovimEditor extends Editor implements IEditor {
         this._themeManager.onThemeChanged.subscribe(() => {
             const newTheme = this._themeManager.activeTheme
 
-            if (newTheme.baseVimTheme && newTheme.baseVimTheme !== this._currentColorScheme) {
-                this._neovimInstance.command(":color " + newTheme.baseVimTheme)
+            if (
+                newTheme.baseVimTheme &&
+                (newTheme.baseVimTheme !== this._currentColorScheme ||
+                    newTheme.baseVimBackground !== this._currentBackground)
+            ) {
+                this.setColorSchemeFromTheme(newTheme)
             }
         })
 
         if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
-            await this._neovimInstance.command(
-                ":color " + this._themeManager.activeTheme.baseVimTheme,
-            )
+            await this.setColorSchemeFromTheme(this._themeManager.activeTheme)
         }
 
         if (filesToOpen && filesToOpen.length > 0) {
@@ -931,6 +993,18 @@ export class NeovimEditor extends Editor implements IEditor {
         this._hasLoaded = true
         this._isFirstRender = true
         this._scheduleRender()
+    }
+
+    public async setColorSchemeFromTheme(theme: IThemeMetadata): Promise<void> {
+        if (
+            (theme.baseVimBackground === "dark" || theme.baseVimBackground === "light") &&
+            theme.baseVimBackground !== this._currentBackground
+        ) {
+            await this._neovimInstance.command(":set background=" + theme.baseVimBackground)
+            this._currentBackground = theme.baseVimBackground
+        }
+
+        await this._neovimInstance.command(":color " + theme.baseVimTheme)
     }
 
     public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
@@ -974,6 +1048,8 @@ export class NeovimEditor extends Editor implements IEditor {
         return (
             <Provider store={this._store}>
                 <NeovimSurface
+                    onFileDrop={this._onFilesDropped}
+                    autoFocus={this._autoFocus}
                     renderer={this._renderer}
                     typingPrediction={this._typingPredictionManager}
                     neovimInstance={this._neovimInstance}
@@ -1129,10 +1205,11 @@ export class NeovimEditor extends Editor implements IEditor {
     private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
         const fontFamily = this._configuration.getValue("editor.fontFamily")
         const fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
+        const fontWeight = this._configuration.getValue("editor.fontWeight")
         const linePadding = this._configuration.getValue("editor.linePadding")
 
-        this._actions.setFont(fontFamily, fontSize)
-        this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
+        this._actions.setFont(fontFamily, fontSize, fontWeight)
+        this._neovimInstance.setFont(fontFamily, fontSize, fontWeight, linePadding)
 
         Object.keys(newValues).forEach(key => {
             const value = newValues[key]
@@ -1150,6 +1227,12 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _onColorsChanged(): Promise<void> {
         const newColorScheme = await this._neovimInstance.eval<string>("g:colors_name")
+
+        // In error cases, the neovim API layer returns an array
+        if (typeof newColorScheme !== "string") {
+            return
+        }
+
         this._currentColorScheme = newColorScheme
         const backgroundColor = this._screen.backgroundColor
         const foregroundColor = this._screen.foregroundColor

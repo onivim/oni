@@ -34,12 +34,23 @@ const getVersion = () => {
     return version
 }
 
+const getBuildsForWindows = version => {
+    switch (process.env["PLATFORM"]) {
+        case "x86":
+            return [`Oni-${version}-ia32-win.exe`, `Oni-${version}-ia32-win.zip`]
+        case "x64":
+            return [`Oni-${version}-win.exe`, `Oni-${version}-win.zip`]
+        default:
+            return []
+    }
+}
+
 const getBuildsForPlatform = version => {
     const platform = os.platform()
 
     switch (platform) {
         case "win32":
-            return [`Oni-${version}-ia32-win.exe`, `Oni-${version}-ia32-win.zip`]
+            return getBuildsForWindows(version)
         case "darwin":
             return [`Oni-${version}-osx.dmg`]
         case "linux":
@@ -80,21 +91,63 @@ const createBlockBlobFromFile = (containerName, blobName, filePath) => {
                 console.log("createBlockBlobFromLocalFile complete")
                 if (err) {
                     reject(err)
-                    return
+                } else {
+                    resolve(result)
                 }
-
-                resolve(result)
             },
         )
     })
+}
+
+const createBlockBlobFromText = (containerName, blobName, text) => {
+    console.log(`Uploading text - containerName: ${containerName} blobName: ${blobName}`)
+
+    return new Promise((resolve, reject) => {
+        blobService.createBlockBlobFromText(containerName, blobName, text, (err, result) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(result)
+            }
+        })
+    })
+}
+
+const getBlobsInContainer = containerName => {
+    return new Promise((resolve, reject) => {
+        blobService.listBlobsSegmented(containerName, null, (err, result) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(result)
+            }
+        })
+    })
+}
+
+const generateBuildMetadata = (branch, version) => {
+    return {
+        branch,
+        version,
+        commit: COMMIT_ID,
+        releaseNotesUrl: "https://github.com/onivim/oni/wiki/Whats-New-in-Oni",
+        releaseDate: new Date().getTime(),
+        containerName: getContainerName(branch, version, COMMIT_ID),
+    }
+}
+
+const getContainerName = (branch, version, commit) => {
+    return branch + "-" + version.split(".").join("-") + "-" + commit
 }
 
 const start = async () => {
     console.log("Creating download meta container...")
     await createContainerIfNotExists("downloadmeta")
 
-    console.log("Creating container for commit: " + COMMIT_ID)
-    await createContainerIfNotExists(COMMIT_ID)
+    const containerName = getContainerName(getBranch(), getVersion(), COMMIT_ID)
+
+    console.log("Creating container for commit  " + COMMIT_ID + ":" + containerName)
+    await createContainerIfNotExists(containerName)
 
     const version = getVersion()
     console.log("Version: " + version)
@@ -106,10 +159,26 @@ const start = async () => {
 
     const allPromises = builds.map(build => {
         console.log("Uploading build: " + build)
-        return createBlockBlobFromFile(COMMIT_ID, build, path.join(distFolder, build))
+        return createBlockBlobFromFile(containerName, build, path.join(distFolder, build))
     })
 
-    await Promise.all([allPromises])
+    await Promise.all(allPromises)
+
+    console.log("Reading blobs for commit...")
+    const currentBlobs = await getBlobsInContainer(containerName)
+    const blobCount = currentBlobs.entries.length
+    console.log("Found " + blobCount + " uploaded.")
+
+    if (blobCount === 8) {
+        console.log("All builds are uploaded. Creating metadata...")
+        const metadata = generateBuildMetadata(getBranch(), getVersion())
+        console.dir(metadata)
+        const metadataAsString = JSON.stringify(metadata)
+        await createBlockBlobFromText("downloadmeta", getBranch() + ".json", metadataAsString)
+        console.log("Metadata uploaded!")
+    } else {
+        console.log("Not all blobs have been uploaded; skipping metadata")
+    }
 }
 
 start()

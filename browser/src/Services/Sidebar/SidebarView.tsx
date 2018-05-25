@@ -17,9 +17,11 @@ import { withProps } from "./../../UI/components/common"
 import { Sneakable } from "./../../UI/components/Sneakable"
 
 export interface ISidebarIconProps {
+    id: string
     active: boolean
     focused: boolean
     iconName: string
+    hasNotification: boolean
     onClick: () => void
 }
 
@@ -31,6 +33,7 @@ const EntranceKeyframes = keyframes`
 `
 
 const SidebarIconWrapper = withProps<ISidebarIconProps>(styled.div)`
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -57,6 +60,28 @@ const SidebarIconWrapper = withProps<ISidebarIconProps>(styled.div)`
     }
     `
 
+const NotificationEnterKeyFrames = keyframes`
+    0% { opacity: 0; transform: scale(0.5); translateY(6px); }
+    75% { opacity: 0.75; transform: scale(1.25); translateY(2px); }
+    100% { opacity: 1; transform: scale(1); translateY(0px); }
+`
+
+const SidebarIconNotification = withProps<{}>(styled.div)`
+    animation: ${NotificationEnterKeyFrames} 0.35s linear forwards;
+    animation-delay: 1s;
+
+    opacity: 0;
+
+    position:absolute;
+    top: 10px;
+    right: 10px;
+    width: 0.4rem;
+    height: 0.4rem;
+
+    background-color: ${p => p.theme["highlight.mode.normal.background"]};
+    border-radius: 1rem;
+`
+
 const SidebarIconInner = styled.div`
     margin-top: 16px;
     margin-bottom: 16px;
@@ -64,12 +89,14 @@ const SidebarIconInner = styled.div`
 
 export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
     public render(): JSX.Element {
+        const notification = this.props.hasNotification ? <SidebarIconNotification /> : null
         return (
-            <Sneakable callback={this.props.onClick}>
+            <Sneakable callback={this.props.onClick} tag={this.props.id}>
                 <SidebarIconWrapper {...this.props} tabIndex={0}>
                     <SidebarIconInner>
                         <Icon name={this.props.iconName} size={IconSize.Large} />
                     </SidebarIconInner>
+                    {notification}
                 </SidebarIconWrapper>
             </Sneakable>
         )
@@ -128,10 +155,12 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
                             const isFocused = e.id === selectedId && this.props.isActive
                             return (
                                 <SidebarIcon
+                                    id={e.id}
                                     key={e.id}
                                     iconName={e.icon}
                                     active={isActive}
                                     focused={isFocused}
+                                    hasNotification={e.hasNotification}
                                     onClick={() => this.props.onSelectionChanged(e.id)}
                                 />
                             )
