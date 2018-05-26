@@ -184,11 +184,15 @@ export const runInProcTest = (
             writeLogs(rendererLogs)
             console.log("--- " + testName + " ---")
 
-            const mainProcessLogs: any[] = await oni.client.getMainProcessLogs()
             console.log("---LOGS (Main): " + testName)
-            mainProcessLogs.forEach(l => {
-                console.log(l)
-            })
+            if (!result.passed) {
+                const mainProcessLogs: any[] = await oni.client.getMainProcessLogs()
+                mainProcessLogs.forEach(l => {
+                    console.log(l)
+                })
+            } else {
+                console.log("Skipping log output since test passed.")
+            }
             console.log("--- " + testName + " ---")
 
             console.log("")
