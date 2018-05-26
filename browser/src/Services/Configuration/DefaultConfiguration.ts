@@ -99,6 +99,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickInfo.delay": 500,
 
     "editor.completions.mode": "oni",
+    "editor.completions.caseSensitive": true,
     "editor.errors.slideOnFocus": true,
     "editor.formatting.formatOnSwitchToNormalMode": false,
 
@@ -459,7 +460,9 @@ const LinuxConfigOverrides: Partial<IConfigurationValues> = {
 
 const PlatformConfigOverride = Platform.isWindows()
     ? WindowsConfigOverrides
-    : Platform.isLinux() ? LinuxConfigOverrides : MacConfigOverrides
+    : Platform.isLinux()
+        ? LinuxConfigOverrides
+        : MacConfigOverrides
 
 export const DefaultConfiguration = {
     ...BaseConfiguration,

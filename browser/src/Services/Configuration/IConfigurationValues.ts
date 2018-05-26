@@ -150,6 +150,9 @@ export interface IConfigurationValues {
     // a custom init.vim, as that may cause problematic behavior
     "editor.completions.mode": string
 
+    // Decide whether or not the completion matching should be case sensitive
+    "editor.completions.caseSensitive": boolean
+
     // If true (default), ligatures are enabled
     "editor.fontLigatures": boolean
     "editor.fontSize": string

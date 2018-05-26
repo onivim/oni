@@ -4,6 +4,7 @@
  * Selectors are functions that take a state and derive a value from it.
  */
 
+import { configuration } from "./../Configuration"
 import { ICompletionState } from "./CompletionState"
 
 import * as types from "vscode-languageserver-types"
@@ -72,11 +73,24 @@ export const filterCompletionOptions = (
         return null
     }
 
-    const filterRegEx = new RegExp("^" + searchText.split("").join(".*") + ".*")
+    const shouldFilterBeCaseSensitive = configuration.getValue("editor.completions.caseSensitive")
+
+    const filterRegEx = shouldFilterBeCaseSensitive
+        ? new RegExp("^" + searchText.split("").join(".*") + ".*")
+        : new RegExp(
+              "^" +
+                  searchText
+                      .toLowerCase()
+                      .split("")
+                      .join(".*") +
+                  ".*",
+          )
 
     const filteredOptions = items.filter(f => {
         const textToFilterOn = f.filterText || f.label
-        return textToFilterOn.match(filterRegEx)
+        return shouldFilterBeCaseSensitive
+            ? textToFilterOn.match(filterRegEx)
+            : textToFilterOn.toLowerCase().match(filterRegEx)
     })
 
     return filteredOptions.sort((itemA, itemB) => {
