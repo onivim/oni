@@ -61,7 +61,6 @@ const BaseConfiguration: IConfigurationValues = {
     // TODO: Enable pipe transport for Windows
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
 
-    "editor.detectIndentation": true,
     "editor.maxLinesForLanguageServices": 2500,
     "editor.textMateHighlighting.enabled": true,
 
@@ -131,9 +130,6 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.cursorColumn": false,
     "editor.cursorColumnOpacity": 0.1,
-
-    "editor.tabSize": null,
-    "editor.insertSpaces": null,
 
     "editor.tokenColors": [],
 

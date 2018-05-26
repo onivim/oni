@@ -172,16 +172,6 @@ export interface IConfigurationValues {
     // Allow overriding token colors for specific textmate scopes
     "editor.tokenColors": TokenColor[]
 
-    // Whether to enable auto-detecting and setting of indentation
-    "editor.detectIndentation": boolean
-
-    // The number of spaces a tab is equal to.
-    "editor.tabSize": number | null
-
-    // Insert spaces when pressing Tab.
-    // Set to 'null' to defer to Vim's configuration.
-    "editor.insertSpaces": boolean | null
-
     // Additional paths to include when launching sub-process from Oni
     // (and available in terminal integration, later)
     "environment.additionalPaths": string[]
