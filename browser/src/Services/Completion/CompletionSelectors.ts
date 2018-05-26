@@ -100,9 +100,11 @@ export const filterCompletionOptions = (
 
     const isCaseSensitive = shouldFilterBeCaseSensitive(searchText)
 
-    let filteredOptions = items
+    if (!isCaseSensitive) {
+        searchText = searchText.toLocaleLowerCase()
+    }
 
-    filteredOptions = processSearchText(searchText, filteredOptions, isCaseSensitive)
+    const filteredOptions = processSearchText(searchText, items, isCaseSensitive)
 
     return filteredOptions.sort((itemA, itemB) => {
         const itemAFilterText = itemA.filterText || itemA.label
@@ -120,8 +122,7 @@ export const processSearchText = (
     items: types.CompletionItem[],
     isCaseSensitive: boolean,
 ): types.CompletionItem[] => {
-    const properCaseStr = isCaseSensitive ? searchText : searchText.toLowerCase()
-    const filterRegExp = new RegExp(".*" + properCaseStr.split("").join(".*") + ".*")
+    const filterRegExp = new RegExp(".*" + searchText.split("").join(".*") + ".*")
 
     return items.filter(f => {
         let textToFilterOn = f.filterText || f.label
