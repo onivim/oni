@@ -151,7 +151,7 @@ export interface IConfigurationValues {
     "editor.completions.mode": string
 
     // Decide whether or not the completion matching should be case sensitive
-    "editor.completions.caseSensitive": boolean
+    "editor.completions.caseSensitive": boolean | string
 
     // If true (default), ligatures are enabled
     "editor.fontLigatures": boolean
