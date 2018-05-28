@@ -138,6 +138,7 @@ Oni is an independent project and is made possible by the support of some except
 * the [neovim team](https://neovim.io/), especially [justinmk](https://github.com/justinmk) and [tarruda](https://github.com/tarruda) - Oni would not be possible without their vision
 * [jordwalke](https://github.com/jordwalke) for his generous support, inspiration, and ideas. And React ;)
 * [keforbes](https://github.com/keforbes) for helping to get this project off the ground
+* [Akin909](https://github.com/Akin909) for his extensive contributions
 * [tillarnold](https://github.com/tillarnold) for giving us the `oni` npm package name
 * [mhartington](https://github.com/mhartington) for his generous support
 * [badosu](https://github.com/badosu) for his support, contributions, and managing the AUR releases
