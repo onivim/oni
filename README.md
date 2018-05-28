@@ -140,6 +140,7 @@ Oni is an independent project and is made possible by the support of some except
 * [keforbes](https://github.com/keforbes) for helping to get this project off the ground
 * [Akin909](https://github.com/Akin909) for his extensive contributions
 * [CrossR](https://github.com/CrossR) for polishing features and configurations
+* [Cryza](https://github.com/Cryza) for the webgl renderer
 * [tillarnold](https://github.com/tillarnold) for giving us the `oni` npm package name
 * [mhartington](https://github.com/mhartington) for his generous support
 * [badosu](https://github.com/badosu) for his support, contributions, and managing the AUR releases
