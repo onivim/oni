@@ -192,7 +192,7 @@ export class Automation implements OniApi.Automation.Api {
         if (exception && exception.code && exception.code === "ERR_ASSERTION") {
             resultElement.textContent = JSON.stringify({
                 passed,
-                exception: exception,
+                exception,
                 expected: exception.expected,
                 actual: exception.actual,
                 message: exception.message,
