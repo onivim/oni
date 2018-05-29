@@ -177,6 +177,10 @@ class AnyEditorProxy implements Oni.Editor {
         return this._activeEditor.getBuffers()
     }
 
+    public setTextOptions(options: Oni.EditorTextOptions): Promise<void> {
+        return this._activeEditor.setTextOptions(options)
+    }
+
     /**
      * Internal methods
      */
