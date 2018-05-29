@@ -189,10 +189,21 @@ export class Automation implements OniApi.Automation.Api {
             this._getOrCreateTestContainer("automated-test-container"),
         )
 
-        resultElement.textContent = JSON.stringify({
-            passed,
-            exception: exception || null,
-        })
+        if (exception && exception.code && exception.code === "ERR_ASSERTION") {
+            resultElement.textContent = JSON.stringify({
+                passed,
+                exception: exception,
+                expected: exception.expected,
+                actual: exception.actual,
+                message: exception.message,
+                operator: exception.operator,
+            })
+        } else {
+            resultElement.textContent = JSON.stringify({
+                passed,
+                exception: exception || null,
+            })
+        }
     }
 
     private _createElement(className: string, parentElement: HTMLElement): HTMLDivElement {
