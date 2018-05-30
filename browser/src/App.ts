@@ -5,6 +5,7 @@
  */
 
 import { ipcRenderer } from "electron"
+import * as fs from "fs"
 import * as minimist from "minimist"
 import * as path from "path"
 
@@ -135,9 +136,15 @@ export const start = async (args: string[]): Promise<void> => {
 
     const developmentPlugin = parsedArgs["plugin-develop"]
 
-    if (developmentPlugin) {
+    if (typeof developmentPlugin === "string") {
         Log.info("Registering development plugin: " + developmentPlugin)
-        pluginManager.addDevelopmentPlugin(developmentPlugin)
+        if (fs.existsSync(developmentPlugin)) {
+            pluginManager.addDevelopmentPlugin(developmentPlugin)
+        } else {
+            Log.info("Could not find plugin: " + developmentPlugin)
+        }
+    } else if (typeof developmentPlugin === "boolean") {
+        Log.info("--plugin-develop must be followed by a plugin path")
     }
 
     Performance.startMeasure("Oni.Start.Plugins.Discover")
