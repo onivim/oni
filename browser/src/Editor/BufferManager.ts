@@ -214,7 +214,6 @@ export class Buffer implements IBuffer {
             ["nvim_command", ["setlocal noswapfile"]],
             ["nvim_command", ["setlocal nobuflisted"]],
             ["nvim_command", ["setlocal nomodifiable"]],
-            ["nvim_command", ["windo set scrollbind!"]],
         ]
 
         const [result, error] = await this._neovimInstance.request<any[] | NvimError>(
