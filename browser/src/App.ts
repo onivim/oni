@@ -5,8 +5,8 @@
  */
 
 import { ipcRenderer } from "electron"
-import * as minimist from "minimist"
 import * as fs from "fs"
+import * as minimist from "minimist"
 import * as path from "path"
 
 import { IDisposable } from "oni-types"
@@ -110,8 +110,8 @@ export const start = async (args: string[]): Promise<void> => {
         f => fs.existsSync(f) && fs.statSync(f).isDirectory(),
     )
 
-    console.log("Files to open: " + JSON.stringify(filesToOpen))
-    console.log("Folders to open: " + JSON.stringify(foldersToOpen))
+    Log.info("Files to open: " + JSON.stringify(filesToOpen))
+    Log.info("Folders to open: " + JSON.stringify(foldersToOpen))
 
     let workspaceToLoad = null
 
