@@ -86,6 +86,10 @@ export class Editor extends Disposable implements Oni.Editor {
         return Promise.reject("Not implemented")
     }
 
+    public setTextOptions(options: Oni.EditorTextOptions): Promise<void> {
+        return Promise.reject("Not implemented")
+    }
+
     protected setMode(mode: Oni.Vim.Mode): void {
         if (mode !== this._currentMode) {
             this._currentMode = mode
