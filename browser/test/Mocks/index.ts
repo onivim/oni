@@ -153,8 +153,14 @@ export class MockEditor extends Editor {
     private _activeBuffer: MockBuffer = null
     private _currentSelection: types.Range = null
 
+    private _textOptions: Oni.EditorTextOptions | null = null
+
     public get activeBuffer(): Oni.Buffer {
         return this._activeBuffer as any
+    }
+
+    public get textOptions(): Oni.EditorTextOptions | null {
+        return this._textOptions
     }
 
     public simulateModeChange(newMode: string): void {
@@ -175,6 +181,10 @@ export class MockEditor extends Editor {
 
     public async setSelection(range: types.Range): Promise<void> {
         this._currentSelection = range
+    }
+
+    public async setTextOptions(options: Oni.EditorTextOptions): Promise<void> {
+        this._textOptions = options
     }
 
     public async getSelection(): Promise<types.Range> {

@@ -4,13 +4,9 @@
  * Service to enable auto-indent
  */
 
-import * as Oni from "oni-api"
-
 import { IBuffer } from "./../Editor/BufferManager"
 import { Configuration } from "./Configuration"
 import { EditorManager } from "./EditorManager"
-
-import * as Log from "./../Log"
 
 export const activate = (configuration: Configuration, editorManager: EditorManager) => {
     const autoDetectIndentationSetting = configuration.registerSetting("editor.detectIndentation", {
@@ -31,34 +27,9 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
         defaultValue: null,
     })
 
-    // TODO: Factor this to an API on the Editor:
-    // - setExpandTab(true / false)
-    // - setTabSpaces(number)
-    const setNeovimTabSettings = (
-        useSpaces: boolean | null,
-        spaceCount: number | null,
-        neovim: Oni.NeovimEditorCapability,
-    ) => {
-        if (typeof useSpaces === "boolean") {
-            Log.info(`[Indentation] Setting useSpaces: ${useSpaces}`)
-
-            if (!useSpaces) {
-                neovim.command("set noexpandtab")
-            } else {
-                neovim.command("set expandtab")
-            }
-        }
-
-        if (typeof spaceCount === "number") {
-            Log.info(`[Indentation] Setting spaceCount: ${spaceCount}`)
-            neovim.command(
-                `set tabstop=${spaceCount} shiftwidth=${spaceCount} softtabstop=${spaceCount}`,
-            )
-        }
-    }
-
     editorManager.anyEditor.onBufferEnter.subscribe(async bufEnter => {
-        const currentBuffer = editorManager.activeEditor.activeBuffer as IBuffer
+        const editor = editorManager.activeEditor
+        const currentBuffer = editor.activeBuffer as IBuffer
 
         if (!currentBuffer) {
             return
@@ -66,11 +37,11 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
 
         if (autoDetectIndentationSetting.getValue()) {
             const settings = await currentBuffer.detectIndentation()
-            setNeovimTabSettings(
-                settings.type === "space",
-                settings.amount,
-                editorManager.activeEditor.neovim,
-            )
+
+            editor.setTextOptions({
+                insertSpacesForTab: settings.type === "space",
+                tabSize: settings.type === "space" ? settings.amount : null,
+            })
         } else {
             const baseExpandTab = configuration.getValue(`editor.insertSpaces`, null)
             const expandTab = configuration.getValue(
@@ -84,7 +55,10 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
                 baseSpaceCount,
             )
 
-            setNeovimTabSettings(expandTab, spaceCount, editorManager.activeEditor.neovim)
+            editor.setTextOptions({
+                insertSpacesForTab: expandTab,
+                tabSize: spaceCount,
+            })
         }
     })
 }
