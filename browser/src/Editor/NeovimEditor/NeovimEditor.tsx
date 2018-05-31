@@ -866,6 +866,19 @@ export class NeovimEditor extends Editor implements IEditor {
         await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
     }
 
+    public async setTextOptions(textOptions: Oni.EditorTextOptions): Promise<void> {
+        const { insertSpacesForTab, tabSize } = textOptions
+        if (insertSpacesForTab) {
+            await this._neovimInstance.command("set expandtab")
+        } else {
+            await this._neovimInstance.command("set noexpandtab")
+        }
+
+        await this._neovimInstance.command(
+            `set tabstop=${tabSize} shiftwidth=${tabSize} softtabstop=${tabSize}`,
+        )
+    }
+
     public async openFile(
         file: string,
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
