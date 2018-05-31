@@ -6,22 +6,26 @@ import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
 
 export interface IShellEnvironmentFetcher {
-    getEnvironmentVariables(): Promise<any>
+    getEnvironmentVariables(): NodeJS.ProcessEnv
 }
 
 export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
-    private _shellEnvPromise: Promise<any>
-    private _shellEnv: any
+    private _env: NodeJS.ProcessEnv
 
-    constructor() {
-        this._shellEnvPromise = import("shell-env")
+    constructor(private _shellEnv = require("shell-env")) {
+        this._env = this._shellEnv.sync()
+        this._fixPath()
     }
 
-    public async getEnvironmentVariables(): Promise<any> {
-        if (!this._shellEnv) {
-            this._shellEnv = await this._shellEnvPromise
-            return this._shellEnv.sync()
+    private _fixPath() {
+        // Set the PATH to a derived path on MacOS as this is not set correctly in electron
+        if (Platform.isMac() && this._env.PATH) {
+            process.env.PATH = this._env.PATH
         }
+    }
+
+    public getEnvironmentVariables(): NodeJS.ProcessEnv {
+        return this._env || this._shellEnv.sync()
     }
 }
 
@@ -121,30 +125,31 @@ export class Process implements Oni.Process {
         return proc
     }
 
+    public getPath() {
+        return this._env ? this._env.PATH : process.env.Path || process.env.PATH
+    }
+
     public mergeSpawnOptions = async (
         originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions,
     ): Promise<any> => {
-        let existingPath: string
-
         try {
             if (!this._env) {
-                this._env = (await this._shellEnvironmentFetcher.getEnvironmentVariables()) || {}
+                this._env = this._shellEnvironmentFetcher.getEnvironmentVariables()
             }
-            existingPath = process.env.Path || process.env.PATH
         } catch (e) {
-            existingPath = process.env.Path || process.env.PATH
+            Log.error(`[Oni Merge Spawn Options Error]: ${e.message}`)
         }
 
         const requiredOptions = {
             env: {
                 ...process.env,
-                ...this._env,
+                ...(this._env || {}),
                 ...originalSpawnOptions.env,
             },
         }
 
         requiredOptions.env.PATH = this.mergePathEnvironmentVariable(
-            existingPath,
+            this.getPath(),
             configuration.getValue("environment.additionalPaths"),
         )
 
