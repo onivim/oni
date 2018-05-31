@@ -134,7 +134,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     // Explorer
     input.bind("d", "explorer.delete.persist", isExplorerActive)
     input.bind("<c-delete>", "explorer.delete.persist", isExplorerActive)
-    input.bind("<c-d>", "explorer.delete", isExplorerActive)
+    input.bind("<c-s-d>", "explorer.delete", isExplorerActive)
     input.bind("<delete>", "explorer.delete", isExplorerActive)
     input.bind("y", "explorer.yank", isExplorerActive)
     input.bind("p", "explorer.paste", isExplorerActive)
