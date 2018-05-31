@@ -17,16 +17,16 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
         this._fixPath()
     }
 
+    public getEnvironmentVariables(): NodeJS.ProcessEnv {
+        return this._env || this._shellEnv.sync()
+    }
+
     private _fixPath() {
         // Set the PATH to a derived path on MacOS as this is not set correctly in electron
         // the idea is based on https://github.com/sindresorhus/fix-path
         if (Platform.isMac() && this._env.PATH) {
             process.env.PATH = this._env.PATH
         }
-    }
-
-    public getEnvironmentVariables(): NodeJS.ProcessEnv {
-        return this._env || this._shellEnv.sync()
     }
 }
 
