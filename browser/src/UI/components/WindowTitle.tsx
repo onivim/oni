@@ -30,22 +30,18 @@ const WindowTitleContainer = styled.div`
     pointer-events: all;
 `
 
-export class WindowTitleView extends React.PureComponent<IWindowTitleViewProps, {}> {
-    public render(): null | JSX.Element {
-        if (!this.props.visible) {
-            return null
-        }
+const onDoubleClick = () => {
+    commandManager.executeCommand("oni.editor.maximize")
+}
 
-        return (
-            <WindowTitleContainer id="oni-titlebar" onDoubleClick={this.onDoubleClick}>
-                {this.props.title}
+export const WindowTitleView = (props: IWindowTitleViewProps) => {
+    return (
+        props.visible && (
+            <WindowTitleContainer id="oni-titlebar" onDoubleClick={onDoubleClick}>
+                {props.title}
             </WindowTitleContainer>
         )
-    }
-
-    private onDoubleClick() {
-        commandManager.executeCommand("oni.editor.maximize")
-    }
+    )
 }
 
 export interface IWindowTitleProps {
