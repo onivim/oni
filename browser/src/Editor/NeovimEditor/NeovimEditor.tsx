@@ -4,6 +4,7 @@
  * IEditor implementation for Neovim
  */
 
+import * as os from "os"
 import * as React from "react"
 
 import "rxjs/add/observable/defer"
@@ -420,7 +421,9 @@ export class NeovimEditor extends Editor implements IEditor {
                     const isAllowed = isYankAndAllowed || isDeleteAndAllowed
 
                     if (isAllowed) {
-                        clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+                        const content = yankInfo.regcontents.join(os.EOL)
+                        const postfix = yankInfo.regtype === "V" ? os.EOL : ""
+                        clipboard.writeText(content + postfix)
                     }
                 }
             }),
