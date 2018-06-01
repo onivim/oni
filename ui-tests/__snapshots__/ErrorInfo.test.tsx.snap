@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<ErrorInfo /> Should match the last snapshot on record unless a purposeful change was made 1`] = `
+<styled.div
+  hasQuickInfo={true}
+>
+  <styled.div
+    key="5an error heretest0"
+  >
+    <Component
+      color="yellow"
+    />
+    <styled.span
+      data-id="diagnostic-message"
+    >
+      an error here
+    </styled.span>
+  </styled.div>
+  <styled.div
+    key="5an error heretest1"
+  >
+    <Component
+      color="yellow"
+    />
+    <styled.span
+      data-id="diagnostic-message"
+    >
+      an error here
+    </styled.span>
+  </styled.div>
+  <styled.div
+    key="5an error heretest2"
+  >
+    <Component
+      color="yellow"
+    />
+    <styled.span
+      data-id="diagnostic-message"
+    >
+      an error here
+    </styled.span>
+  </styled.div>
+</styled.div>
+`;
