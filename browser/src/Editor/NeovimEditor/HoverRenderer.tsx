@@ -13,18 +13,15 @@ import QuickInfoWithTheme from "./../../UI/components/QuickInfoContainer"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import { IColors } from "./../../Services/Colors"
 import { Configuration } from "./../../Services/Configuration"
 import { convertMarkdown } from "./markdown"
 
-import * as Selectors from "./NeovimEditorSelectors"
 import { IToolTipsProvider } from "./ToolTipsProvider"
 
 const HoverToolTipId = "hover-tool-tip"
 
 export class HoverRenderer {
     constructor(
-        private _colors: IColors,
         private _editor: Oni.Editor,
         private _configuration: Configuration,
         private _toolTipsProvider: IToolTipsProvider,
@@ -58,42 +55,36 @@ export class HoverRenderer {
         errors: types.Diagnostic[],
     ): Promise<JSX.Element> {
         const titleAndContents = await getTitleAndContents(hover)
-        const quickInfoElement = !!titleAndContents ? (
-            <QuickInfoWithTheme titleAndContents={titleAndContents} key="quick-info-element" />
-        ) : null
 
-        const borderColor = this._colors.getColor("toolTip.border")
+        const showDebugScope = this._configuration.getValue(
+            "editor.textMateHighlighting.debugScopes",
+        )
 
-        let customErrorStyle = {}
-        if (quickInfoElement) {
-            // TODO:
-            customErrorStyle = {
-                "border-bottom": "1px solid " + borderColor,
-            }
-        }
+        const errorsExist = Boolean(errors && errors.length)
+        const contentExists = Boolean(errorsExist || titleAndContents || showDebugScope)
 
-        const errorElements = getErrorElements(errors, customErrorStyle)
-        let debugScopeElement: JSX.Element = null
-
-        if (this._configuration.getValue("editor.textMateHighlighting.debugScopes")) {
-            debugScopeElement = this._getDebugScopesElement()
-        }
-
-        // Remove falsy values as check below [null] is truthy
-        const elements = [...errorElements, quickInfoElement, debugScopeElement].filter(Boolean)
-
-        if (!elements.length) {
-            return null
-        }
+        const elements = (
+            <React.Fragment>
+                <ErrorElement
+                    isVisible={errorsExist}
+                    errors={errors}
+                    hasQuickInfo={!!titleAndContents}
+                />
+                <QuickInfoWithTheme titleAndContents={titleAndContents} key="quick-info-element" />
+                {showDebugScope && this._getDebugScopesElement()}
+            </React.Fragment>
+        )
 
         return (
-            <div className="quickinfo-container enable-mouse">
-                <div className="quickinfo">
-                    <div className="container horizontal center">
-                        <div className="container full">{elements}</div>
+            contentExists && (
+                <div className="quickinfo-container enable-mouse">
+                    <div className="quickinfo">
+                        <div className="container horizontal center">
+                            <div className="container full">{elements}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )
         )
     }
 
@@ -121,7 +112,7 @@ export class HoverRenderer {
                 style={{ margin: "16px" }}
             >
                 <div>DEBUG: TextMate Scopes:</div>
-                <ul style={{ webkitPaddingStart: "20px" }}>{items}</ul>
+                <ul style={{ paddingBlockStart: "20px" }}>{items}</ul>
             </div>
         )
     }
@@ -129,12 +120,18 @@ export class HoverRenderer {
 
 const html = (str: string) => ({ __html: str })
 
-const getErrorElements = (errors: types.Diagnostic[], style: any): JSX.Element[] => {
-    if (!errors || !errors.length) {
-        return Selectors.EmptyArray
-    } else {
-        return [<ErrorInfo errors={errors} style={style} key="quickInfo.errorInfo" />]
-    }
+interface ErrorElementProps {
+    errors: types.Diagnostic[]
+    hasQuickInfo: boolean
+    isVisible: boolean
+}
+
+const ErrorElement = ({ isVisible, errors, hasQuickInfo }: ErrorElementProps) => {
+    return (
+        isVisible && (
+            <ErrorInfo errors={errors} hasQuickInfo={hasQuickInfo} key="quickInfo.errorInfo" />
+        )
+    )
 }
 
 const getTitleAndContents = async (result: types.Hover) => {
