@@ -11,7 +11,7 @@ export interface IErrorInfoProps {
     errors: types.Diagnostic[]
 }
 
-const DiagnosticMessage = styled.span`
+export const DiagnosticMessage = styled.span`
     margin-left: 1em;
 `
 
@@ -23,7 +23,7 @@ const DiagnosticContainer = styled<StyleProps, "div">("div")`
     border-bottom: ${p => (p.hasQuickInfo ? `1px solid ${p.theme["toolTip.border"]}` : "")};
 `
 
-const Diagnostic = styled.div`
+export const Diagnostic = styled.div`
     margin: 8px;
     display: flex;
     flex-direction: row;
@@ -33,15 +33,18 @@ const Diagnostic = styled.div`
  * Helper component to render errors in the QuickInfo bubble
  */
 export const ErrorInfo = (props: IErrorInfoProps) => {
-    const errors = props.errors.map((e, idx) => (
-        <Diagnostic key={e.code + e.message + e.source + idx}>
-            <ErrorIcon color={getColorFromSeverity(e.severity)} />
-            <DiagnosticMessage>{e.message}</DiagnosticMessage>
-        </Diagnostic>
-    ))
     return (
         props.errors && (
-            <DiagnosticContainer hasQuickInfo={props.hasQuickInfo}>{errors}</DiagnosticContainer>
+            <DiagnosticContainer hasQuickInfo={props.hasQuickInfo}>
+                {props.errors.map((e, idx) => (
+                    <Diagnostic key={e.code + e.message + e.source + idx}>
+                        <ErrorIcon color={getColorFromSeverity(e.severity)} />
+                        <DiagnosticMessage data-id="diagnostic-message">
+                            {e.message}
+                        </DiagnosticMessage>
+                    </Diagnostic>
+                ))}
+            </DiagnosticContainer>
         )
     )
 }
