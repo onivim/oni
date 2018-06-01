@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<Text/SelectedText /> Text component should match the last snapshot on record 1`] = `
+exports[`<WindowTitleView /> Text component should match the last snapshot on record 1`] = `
 <styled.div
   id="oni-titlebar"
   onDoubleClick={[Function]}
