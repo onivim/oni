@@ -21,6 +21,12 @@ const DiagnosticContainer = styled<{ hasQuickInfo: boolean }, "div">("div")`
     cursor: default;
 `
 
+const Diagnostic = styled.div`
+    margin: 8px;
+    display: flex;
+    flex-direction: row;
+`
+
 /**
  * Helper component to render errors in the QuickInfo bubble
  */
@@ -31,10 +37,10 @@ export class ErrorInfo extends React.PureComponent<IErrorInfoProps, {}> {
         }
 
         const errs = this.props.errors.map((e, idx) => (
-            <div className="diagnostic" key={e.code + e.message + e.source + idx}>
+            <Diagnostic key={e.code + e.message + e.source + idx}>
                 <ErrorIcon color={getColorFromSeverity(e.severity)} />
                 <DiagnosticMessage>{e.message}</DiagnosticMessage>
-            </div>
+            </Diagnostic>
         ))
 
         return (

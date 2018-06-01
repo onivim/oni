@@ -6,6 +6,7 @@ import TokenThemeProvider from "./../../Services/SyntaxHighlighting/TokenThemePr
 
 interface IQuickInfoProps {
     titleAndContents: ITitleAndContents
+    isVisible: boolean
 }
 
 interface ITitleAndContents {
@@ -19,7 +20,7 @@ interface ITitleAndContents {
 
 class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
     public render() {
-        const { titleAndContents } = this.props
+        const { titleAndContents, isVisible } = this.props
         const hasTitle = !!(titleAndContents && titleAndContents.title.__html)
         const hasDocs =
             hasTitle &&
@@ -30,7 +31,7 @@ class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
             )
 
         return (
-            !!titleAndContents && (
+            isVisible && (
                 <TokenThemeProvider
                     render={({ theme, styles }) => (
                         <QuickInfoContainer hasDocs={hasDocs}>

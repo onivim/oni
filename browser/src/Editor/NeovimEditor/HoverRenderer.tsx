@@ -8,7 +8,9 @@ import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
 import getTokens from "./../../Services/SyntaxHighlighting/TokenGenerator"
+import { enableMouse } from "./../../UI/components/common"
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
+import { QuickInfoElement, QuickInfoWrapper } from "./../../UI/components/QuickInfo"
 import QuickInfoWithTheme from "./../../UI/components/QuickInfoContainer"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
@@ -19,6 +21,10 @@ import { convertMarkdown } from "./markdown"
 import { IToolTipsProvider } from "./ToolTipsProvider"
 
 const HoverToolTipId = "hover-tool-tip"
+
+const HoverRendererContainer = QuickInfoWrapper.extend`
+    ${enableMouse};
+`
 
 export class HoverRenderer {
     constructor(
@@ -55,7 +61,6 @@ export class HoverRenderer {
         errors: types.Diagnostic[],
     ): Promise<JSX.Element> {
         const titleAndContents = await getTitleAndContents(hover)
-
         const showDebugScope = this._configuration.getValue(
             "editor.textMateHighlighting.debugScopes",
         )
@@ -63,27 +68,26 @@ export class HoverRenderer {
         const errorsExist = Boolean(errors && errors.length)
         const contentExists = Boolean(errorsExist || titleAndContents || showDebugScope)
 
-        const elements = (
-            <React.Fragment>
-                <ErrorElement
-                    isVisible={errorsExist}
-                    errors={errors}
-                    hasQuickInfo={!!titleAndContents}
-                />
-                <QuickInfoWithTheme titleAndContents={titleAndContents} key="quick-info-element" />
-                {showDebugScope && this._getDebugScopesElement()}
-            </React.Fragment>
-        )
-
         return (
             contentExists && (
-                <div className="quickinfo-container enable-mouse">
-                    <div className="quickinfo">
+                <HoverRendererContainer>
+                    <QuickInfoElement>
                         <div className="container horizontal center">
-                            <div className="container full">{elements}</div>
+                            <div className="container full">
+                                <ErrorElement
+                                    isVisible={errorsExist}
+                                    errors={errors}
+                                    hasQuickInfo={!!titleAndContents}
+                                />
+                                <QuickInfoWithTheme
+                                    isVisible={!!titleAndContents}
+                                    titleAndContents={titleAndContents}
+                                />
+                                {showDebugScope && this._getDebugScopesElement()}
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </QuickInfoElement>
+                </HoverRendererContainer>
             )
         )
     }
@@ -104,7 +108,8 @@ export class HoverRenderer {
         if (!scopeInfo || !scopeInfo.scopes) {
             return null
         }
-        const items = scopeInfo.scopes.map((si: string) => <li>{si}</li>)
+
+        const items = scopeInfo.scopes.map((si: string) => <li key={si}>{si}</li>)
         return (
             <div
                 className="quick-info-debug-scopes"
