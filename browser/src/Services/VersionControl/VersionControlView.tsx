@@ -140,7 +140,7 @@ class VersionControlView extends React.Component<IProps, State> {
     }
 
     public toggleVisibility = (section: keyof State) => {
-        this.setState(prevState => ({ [section]: !prevState[section] }))
+        this.setState(prevState => ({ ...prevState, [section]: !prevState[section] }))
     }
 
     public toggleOrAction = (id: string) => {
