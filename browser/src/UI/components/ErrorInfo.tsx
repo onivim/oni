@@ -33,16 +33,15 @@ const Diagnostic = styled.div`
  * Helper component to render errors in the QuickInfo bubble
  */
 export const ErrorInfo = (props: IErrorInfoProps) => {
+    const errors = props.errors.map((e, idx) => (
+        <Diagnostic key={e.code + e.message + e.source + idx}>
+            <ErrorIcon color={getColorFromSeverity(e.severity)} />
+            <DiagnosticMessage>{e.message}</DiagnosticMessage>
+        </Diagnostic>
+    ))
     return (
         props.errors && (
-            <DiagnosticContainer hasQuickInfo={props.hasQuickInfo}>
-                {props.errors.map((e, idx) => (
-                    <Diagnostic key={e.code + e.message + e.source + idx}>
-                        <ErrorIcon color={getColorFromSeverity(e.severity)} />
-                        <DiagnosticMessage>{e.message}</DiagnosticMessage>
-                    </Diagnostic>
-                ))}
-            </DiagnosticContainer>
+            <DiagnosticContainer hasQuickInfo={props.hasQuickInfo}>{errors}</DiagnosticContainer>
         )
     )
 }
