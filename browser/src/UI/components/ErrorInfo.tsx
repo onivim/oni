@@ -15,10 +15,12 @@ const DiagnosticMessage = styled.span`
     margin-left: 1em;
 `
 
-const DiagnosticContainer = styled<{ hasQuickInfo: boolean }, "div">("div")`
-    border-bottom: ${p => (p.hasQuickInfo ? `1px solid ${p.theme["toolTip.border"]}` : "")};
+type StyleProps = Pick<IErrorInfoProps, "hasQuickInfo">
+
+const DiagnosticContainer = styled<StyleProps, "div">("div")`
     user-select: none;
     cursor: default;
+    border-bottom: ${p => (p.hasQuickInfo ? `1px solid ${p.theme["toolTip.border"]}` : "")};
 `
 
 const Diagnostic = styled.div`
@@ -30,21 +32,17 @@ const Diagnostic = styled.div`
 /**
  * Helper component to render errors in the QuickInfo bubble
  */
-export class ErrorInfo extends React.PureComponent<IErrorInfoProps, {}> {
-    public render(): null | JSX.Element {
-        if (!this.props.errors) {
-            return null
-        }
-
-        const errs = this.props.errors.map((e, idx) => (
-            <Diagnostic key={e.code + e.message + e.source + idx}>
-                <ErrorIcon color={getColorFromSeverity(e.severity)} />
-                <DiagnosticMessage>{e.message}</DiagnosticMessage>
-            </Diagnostic>
-        ))
-
-        return (
-            <DiagnosticContainer hasQuickInfo={this.props.hasQuickInfo}>{errs}</DiagnosticContainer>
+export const ErrorInfo = (props: IErrorInfoProps) => {
+    return (
+        props.errors && (
+            <DiagnosticContainer hasQuickInfo={props.hasQuickInfo}>
+                {props.errors.map((e, idx) => (
+                    <Diagnostic key={e.code + e.message + e.source + idx}>
+                        <ErrorIcon color={getColorFromSeverity(e.severity)} />
+                        <DiagnosticMessage>{e.message}</DiagnosticMessage>
+                    </Diagnostic>
+                ))}
+            </DiagnosticContainer>
         )
-    }
+    )
 }
