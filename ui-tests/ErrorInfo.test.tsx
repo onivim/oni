@@ -50,4 +50,11 @@ describe("<ErrorInfo />", () => {
         )
         expect(wrapper.dive().find("[data-id='diagnostic-message']").length).toBe(3)
     })
+
+    it("Should match the last snapshot on record unless a purposeful change was made", () => {
+        const wrapper = shallow(
+            <ErrorInfo hasQuickInfo={true} errors={[...errors, ...errors, ...errors]} />,
+        )
+        expect(wrapper).toMatchSnapshot()
+    })
 })
