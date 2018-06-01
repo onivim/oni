@@ -1,42 +1,17 @@
 import * as ChildProcess from "child_process"
-
 import * as Oni from "oni-api"
+import * as ShellEnv from "shell-env"
+
 import * as Log from "./../../Log"
 import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
 
-export interface IShellEnvironmentFetcher {
-    getEnvironmentVariables(): NodeJS.ProcessEnv
-}
-
-export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
-    private _env: NodeJS.ProcessEnv
-
-    constructor(private _shellEnv = require("shell-env")) {
-        this._env = this._shellEnv.sync()
-        this._fixPath()
-    }
-
-    public getEnvironmentVariables(): NodeJS.ProcessEnv {
-        return this._env || this._shellEnv.sync()
-    }
-
-    private _fixPath() {
-        // Set the PATH to a derived path on MacOS as this is not set correctly in electron
-        // the idea is based on https://github.com/sindresorhus/fix-path
-        if (Platform.isMac() && this._env.PATH) {
-            process.env.PATH = this._env.PATH
-        }
-    }
-}
-
 export class Process implements Oni.Process {
     public _spawnedProcessIds: number[] = []
-    private _env: NodeJS.ProcessEnv
 
-    constructor(
-        private _shellEnvironmentFetcher: IShellEnvironmentFetcher = new ShellEnvironmentFetcher(),
-    ) {}
+    constructor(private _env = ShellEnv.sync()) {
+        this._fixPath()
+    }
 
     public getPathSeparator = () => {
         return Platform.isWindows() ? ";" : ":"
@@ -133,20 +108,12 @@ export class Process implements Oni.Process {
     public mergeSpawnOptions = async (
         originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions,
     ): Promise<any> => {
-        try {
-            if (!this._env) {
-                this._env = this._shellEnvironmentFetcher.getEnvironmentVariables()
-            }
-        } catch (e) {
-            Log.error(`[Oni Merge Spawn Options Error]: ${e.message}`)
-        }
-
         const requiredOptions = {
             env: {
                 ...process.env,
-                ...(this._env || {}),
+                ...this._env,
                 ...originalSpawnOptions.env,
-            },
+            } as NodeJS.ProcessEnv,
         }
 
         requiredOptions.env.PATH = this.mergePathEnvironmentVariable(
@@ -157,6 +124,14 @@ export class Process implements Oni.Process {
         return {
             ...originalSpawnOptions,
             ...requiredOptions,
+        }
+    }
+
+    private _fixPath() {
+        // Set the PATH to a derived path on MacOS as this is not set correctly in electron
+        // the idea is based on https://github.com/sindresorhus/fix-path
+        if (Platform.isMac() && this._env.PATH) {
+            process.env.PATH = this._env.PATH
         }
     }
 }

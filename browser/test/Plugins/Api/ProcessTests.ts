@@ -4,21 +4,12 @@
 
 import * as assert from "assert"
 
-import { IShellEnvironmentFetcher, Process } from "./../../../src/Plugins/Api/Process"
-
-class MockShellEnvironmentFetcher implements IShellEnvironmentFetcher {
-    constructor(private _env: NodeJS.ProcessEnv) {}
-
-    public getEnvironmentVariables() {
-        return this._env
-    }
-}
+import { Process } from "./../../../src/Plugins/Api/Process"
 
 describe("ProcessTests", () => {
     it("mergeSpawnOptions takes into account shell environment", async () => {
         const env = { test2: "true" } as NodeJS.ProcessEnv
-        const mockShellEnv = new MockShellEnvironmentFetcher(env)
-        const process = new Process(mockShellEnv)
+        const process = new Process(env)
 
         const newOptions = await process.mergeSpawnOptions({
             env: {
