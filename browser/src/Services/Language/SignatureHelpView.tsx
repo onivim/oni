@@ -3,9 +3,9 @@ import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
 import {
-    QuickInfoWrapper,
-    QuickInfoElement,
     QuickInfoDocumentation,
+    QuickInfoElement,
+    QuickInfoWrapper,
     Title,
 } from "./../../UI/components/QuickInfo"
 import { SelectedText, Text } from "./../../UI/components/Text"
