@@ -9,7 +9,11 @@ import { Process } from "./../../../src/Plugins/Api/Process"
 describe("ProcessTests", () => {
     it("mergeSpawnOptions takes into account shell environment", async () => {
         const env = { test2: "true" } as NodeJS.ProcessEnv
-        const process = new Process(env)
+        const mockShellEnvFetcher = {
+            getEnvironmentVariables: () => Promise.resolve(env),
+        }
+
+        const process = new Process(mockShellEnvFetcher)
 
         const newOptions = await process.mergeSpawnOptions({
             env: {

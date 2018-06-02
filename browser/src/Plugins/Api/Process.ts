@@ -1,17 +1,52 @@
 import * as ChildProcess from "child_process"
 import * as Oni from "oni-api"
-import * as ShellEnv from "shell-env"
 
 import * as Log from "./../../Log"
 import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
 
+export interface IShellEnvironmentFetcher {
+    getEnvironmentVariables(): Promise<NodeJS.ProcessEnv>
+}
+
+export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
+    public _env: NodeJS.ProcessEnv
+
+    constructor(private _shellEnvPromise = import("shell-env")) {}
+
+    public async getEnvironmentVariables(): Promise<NodeJS.ProcessEnv> {
+        if (!this._env) {
+            const shellEnv = await this._shellEnvPromise
+            // Shell Env's currently doesn't derive the users
+            // shell correctly for non-Windows systems
+            // https://github.com/sindresorhus/default-shell/issues/3
+            // const { shell } = os.userInfo() - this is how you could do that
+            // Issue here is that it reads the relevant dotfile...
+            try {
+                this._env = shellEnv.default.sync()
+            } catch {
+                this._env = process.env
+            }
+            this._fixPath()
+        }
+
+        return this._env
+    }
+
+    private _fixPath() {
+        // Set the PATH to a derived path on MacOS as this is not set correctly in electron
+        // the idea is based on https://github.com/sindresorhus/fix-path
+        if (Platform.isMac() && this._env.PATH) {
+            process.env.PATH = this._env.PATH
+        }
+    }
+}
+
 export class Process implements Oni.Process {
     public _spawnedProcessIds: number[] = []
+    private _env: NodeJS.ProcessEnv
 
-    constructor(private _env = ShellEnv.sync()) {
-        this._fixPath()
-    }
+    constructor(private _shellEnvFetcher: IShellEnvironmentFetcher) {}
 
     public getPathSeparator = () => {
         return Platform.isWindows() ? ";" : ":"
@@ -108,6 +143,16 @@ export class Process implements Oni.Process {
     public mergeSpawnOptions = async (
         originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions,
     ): Promise<any> => {
+        if (!this._env) {
+            try {
+                this._env = await this._shellEnvFetcher.getEnvironmentVariables()
+            } catch (e) {
+                Log.error(
+                    `[Oni Process Error]: failed to fetch shell environment because ${e.message}`,
+                )
+            }
+        }
+
         const requiredOptions = {
             env: {
                 ...process.env,
@@ -126,14 +171,9 @@ export class Process implements Oni.Process {
             ...requiredOptions,
         }
     }
-
-    private _fixPath() {
-        // Set the PATH to a derived path on MacOS as this is not set correctly in electron
-        // the idea is based on https://github.com/sindresorhus/fix-path
-        if (Platform.isMac() && this._env.PATH) {
-            process.env.PATH = this._env.PATH
-        }
-    }
 }
 
-export default new Process()
+const shellEnvFetcher = new ShellEnvironmentFetcher()
+const OniProcess = new Process(shellEnvFetcher)
+
+export default OniProcess
