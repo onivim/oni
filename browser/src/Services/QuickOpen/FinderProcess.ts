@@ -63,6 +63,8 @@ export class FinderProcess {
 
             if (!isCleanEnd) {
                 this._lastData = splitData.pop()
+            } else {
+                splitData.splice(-1, 1)
             }
 
             this._onData.dispatch(splitData)
