@@ -1,5 +1,6 @@
 import * as ChildProcess from "child_process"
 import * as Oni from "oni-api"
+import * as os from "os"
 
 import * as Log from "./../../Log"
 import * as Platform from "./../../Platform"
@@ -20,10 +21,10 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
             // Shell Env's currently doesn't derive the users
             // shell correctly for non-Windows systems
             // https://github.com/sindresorhus/default-shell/issues/3
-            // const { shell } = os.userInfo() - this is how you could do that
             // Issue here is that it reads the relevant dotfile...
             try {
-                this._env = shellEnv.default.sync()
+                const { shell } = os.userInfo()
+                this._env = shellEnv.default.sync(shell)
             } catch {
                 this._env = process.env
             }
