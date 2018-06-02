@@ -77,6 +77,7 @@ export function reducer<K extends keyof IConfigurationValues>(
                 ...s,
                 fontFamily: a.payload.fontFamily,
                 fontSize: a.payload.fontSize,
+                fontWeight: a.payload.fontWeight,
             }
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }

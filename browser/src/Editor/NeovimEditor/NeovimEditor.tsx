@@ -866,6 +866,19 @@ export class NeovimEditor extends Editor implements IEditor {
         await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
     }
 
+    public async setTextOptions(textOptions: Oni.EditorTextOptions): Promise<void> {
+        const { insertSpacesForTab, tabSize } = textOptions
+        if (insertSpacesForTab) {
+            await this._neovimInstance.command("set expandtab")
+        } else {
+            await this._neovimInstance.command("set noexpandtab")
+        }
+
+        await this._neovimInstance.command(
+            `set tabstop=${tabSize} shiftwidth=${tabSize} softtabstop=${tabSize}`,
+        )
+    }
+
     public async openFile(
         file: string,
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
@@ -1205,10 +1218,11 @@ export class NeovimEditor extends Editor implements IEditor {
     private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
         const fontFamily = this._configuration.getValue("editor.fontFamily")
         const fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
+        const fontWeight = this._configuration.getValue("editor.fontWeight")
         const linePadding = this._configuration.getValue("editor.linePadding")
 
-        this._actions.setFont(fontFamily, fontSize)
-        this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
+        this._actions.setFont(fontFamily, fontSize, fontWeight)
+        this._neovimInstance.setFont(fontFamily, fontSize, fontWeight, linePadding)
 
         Object.keys(newValues).forEach(key => {
             const value = newValues[key]

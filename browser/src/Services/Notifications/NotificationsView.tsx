@@ -35,10 +35,10 @@ const Transition = (props: { children: React.ReactNode }) => {
 
 const NotificationsWrapper = styled.div`
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 1em;
+    right: 1em;
     max-height: 90%;
-    max-width: 25rem;
+    max-width: 33vw;
     pointer-events: all;
     overflow: auto;
 
