@@ -7,7 +7,7 @@ import * as React from "react"
 import * as DND from "react-dnd"
 import HTML5Backend from "react-dnd-html5-backend"
 import { connect } from "react-redux"
-import { AutoSizer, List } from "react-virtualized"
+import { AutoSizer, CellMeasurer, CellMeasurerCache, List } from "react-virtualized"
 import { compose } from "redux"
 
 import { CSSTransition, TransitionGroup } from "react-transition-group"
@@ -18,9 +18,11 @@ import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView
 import { SidebarContainerView, SidebarItemView } from "./../../UI/components/SidebarItemView"
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
+import { fontSizeInPx } from "./../../Utility"
 import { DragAndDrop, Droppeable } from "./../DragAndDrop"
 
 import { commandManager } from "./../CommandManager"
+import { configuration } from "./../Configuration"
 import { FileIcon } from "./../FileIcon"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
@@ -29,6 +31,7 @@ import { IExplorerState } from "./ExplorerStore"
 type Node = ExplorerSelectors.ExplorerNode
 
 export interface INodeViewProps {
+    measure: () => void
     moveFileOrFolder: (source: Node, dest: Node) => void
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
@@ -115,13 +118,22 @@ const createStyles = css`
     margin-top: 0.2em;
 `
 
-export class NodeView extends React.PureComponent<INodeViewProps, {}> {
+export class NodeView extends React.PureComponent<INodeViewProps> {
     public moveFileOrFolder = ({ drag, drop }: IMoveNode) => {
         this.props.moveFileOrFolder(drag.node, drop.node)
     }
 
     public isSameNode = ({ drag, drop }: IMoveNode) => {
         return !(drag.node.name === drop.node.name)
+    }
+
+    public componentDidUpdate(prevProps: INodeViewProps) {
+        if (
+            prevProps.isCreating !== this.props.isCreating ||
+            prevProps.isRenaming !== this.props.isRenaming
+        ) {
+            this.props.measure()
+        }
     }
 
     public render(): JSX.Element {
@@ -269,6 +281,7 @@ export interface IExplorerViewProps extends IExplorerViewContainerProps {
 interface ISneakableNode extends IExplorerViewProps {
     node: Node
     selectedId: string
+    measure: () => void
 }
 
 const SneakableNode = ({ node, selectedId, ...props }: ISneakableNode) => {
@@ -276,11 +289,13 @@ const SneakableNode = ({ node, selectedId, ...props }: ISneakableNode) => {
         props.onClick(node.id)
     }
 
+    const isSelected = node.id === selectedId
+
     return (
         <Sneakable callback={handleClick}>
             <NodeView
                 node={node}
-                isSelected={node.id === selectedId}
+                isSelected={isSelected}
                 isCreating={props.isCreating}
                 onCancelCreate={props.onCancelCreate}
                 onCompleteCreate={props.onCompleteCreate}
@@ -290,6 +305,7 @@ const SneakableNode = ({ node, selectedId, ...props }: ISneakableNode) => {
                 updated={props.updated}
                 yanked={props.yanked}
                 moveFileOrFolder={props.moveFileOrFolder}
+                measure={props.measure}
                 onClick={handleClick}
             />
         </Sneakable>
@@ -301,44 +317,29 @@ const ExplorerContainer = styled.div`
     ${enableMouse};
 `
 
-export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
-    private _virtualizedList: List
+function getDefaultHeight(fontSize: string) {
+    const size = fontSizeInPx({ fontSize })
+    const padding = 5
+    return size + padding
+}
 
-    public componentDidUpdate(prevProps: IExplorerViewProps) {
-        if (
-            prevProps.isCreating !== this.props.isCreating ||
-            prevProps.isRenaming !== this.props.isRenaming
-        ) {
-            this._virtualizedList.recomputeRowHeights()
-            this._virtualizedList.forceUpdate()
-        }
+const cache = new CellMeasurerCache({
+    defaultHeight: getDefaultHeight(configuration.getValue("ui.fontSize")),
+    fixedWidth: true,
+})
+
+export class ExplorerView extends React.PureComponent<IExplorerViewProps> {
+    public openWorkspaceFolder = () => {
+        commandManager.executeCommand("workspace.openFolder")
     }
 
-    public calculateHeight = (selectedId: string) => ({ index }: { index: number }) => {
-        const { nodes, isCreating, isRenaming } = this.props
-        const node = nodes[index]
-        const { id, name } = node
-        const isSelected = id === selectedId
-
-        const PADDING = 10
-        const fontSize = parseInt(this.props.fontSize, 10)
-        const rowSize = fontSize + PADDING
-
-        const renameInProgress = isRenaming.name === name && !isCreating && isSelected
-        const creationInProgress = isCreating && isSelected && !renameInProgress
-
-        switch (true) {
-            case renameInProgress:
-                return rowSize * 1.5
-            case creationInProgress:
-                return rowSize * 2.8
-            default:
-                return rowSize
-        }
+    public getSelectedNode = (selectedId: string) => {
+        return this.props.nodes.findIndex(n => selectedId === n.id)
     }
 
     public render(): JSX.Element {
         const ids = this.props.nodes.map(node => node.id)
+        const isActive = this.props.isActive && !this.props.isRenaming && !this.props.isCreating
 
         if (!this.props.nodes || !this.props.nodes.length) {
             return (
@@ -346,7 +347,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                     active={this.props.isActive}
                     contentsText="Nothing to show here, yet!"
                     actionButtonText="Open a Folder"
-                    onClickButton={() => commandManager.executeCommand("workspace.openFolder")}
+                    onClickButton={this.openWorkspaceFolder}
                 />
             )
         }
@@ -355,36 +356,46 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
             <TransitionGroup style={{ height: "100%" }}>
                 <VimNavigator
                     ids={ids}
-                    onSelectionChanged={this.props.onSelectionChanged}
-                    onSelected={id => this.props.onClick(id)}
-                    active={this.props.isActive && !this.props.isRenaming && !this.props.isCreating}
+                    active={isActive}
                     style={{ height: "100%" }}
-                    render={(selectedId: string) => {
-                        const selectedIndex = this.props.nodes.findIndex(n => selectedId === n.id)
+                    onSelected={id => this.props.onClick(id)}
+                    onSelectionChanged={this.props.onSelectionChanged}
+                    render={selectedId => {
                         return (
                             <ExplorerContainer className="explorer">
                                 <AutoSizer>
-                                    {({ height, width }) => (
+                                    {measurements => (
                                         <List
-                                            height={height}
-                                            width={width}
-                                            scrollToAlignment="end"
-                                            ref={e => (this._virtualizedList = e)}
+                                            {...measurements}
                                             overscanRowCount={3}
+                                            scrollToAlignment="end"
+                                            rowHeight={cache.rowHeight}
+                                            deferredMeasurementCache={cache}
                                             rowCount={this.props.nodes.length}
-                                            scrollToIndex={selectedIndex}
-                                            rowHeight={this.calculateHeight(selectedId)}
+                                            scrollToIndex={this.getSelectedNode(selectedId)}
                                             rowRenderer={({ index, style, key, parent }) => {
+                                                const typelessParent = parent as any
                                                 const node = this.props.nodes[index]
                                                 return (
-                                                    <div style={style} key={key}>
-                                                        <SneakableNode
-                                                            {...this.props}
-                                                            node={node}
-                                                            key={node.id}
-                                                            selectedId={selectedId}
-                                                        />
-                                                    </div>
+                                                    <CellMeasurer
+                                                        key={key}
+                                                        cache={cache}
+                                                        columnIndex={0}
+                                                        rowIndex={index}
+                                                        parent={typelessParent}
+                                                    >
+                                                        {({ measure }) => (
+                                                            <div style={style}>
+                                                                <SneakableNode
+                                                                    {...this.props}
+                                                                    node={node}
+                                                                    key={node.id}
+                                                                    selectedId={selectedId}
+                                                                    measure={measure}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </CellMeasurer>
                                                 )
                                             }}
                                         />
