@@ -18,11 +18,11 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
         if (!this._env) {
             const shellEnv = await this._shellEnvPromise
             // TODO:
-            // Shell Env's currently doesn't derive the users
+            // Shell Env currently doesn't derive the users
             // shell correctly for non-Windows systems
             // https://github.com/sindresorhus/default-shell/issues/3
             // const { shell } = os.userInfo() - this accomplishes that
-            // Issue here is that it reads the relevant dotfile which
+            // though issue here is that it reads the relevant dotfile which
             // if it has issues will stop oni from starting up
             try {
                 this._env = shellEnv.default.sync()
