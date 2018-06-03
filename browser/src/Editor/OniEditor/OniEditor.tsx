@@ -246,6 +246,10 @@ export class OniEditor extends Utility.Disposable implements IEditor {
         return this._neovimEditor.setSelection(range)
     }
 
+    public async setTextOptions(textOptions: Oni.EditorTextOptions): Promise<void> {
+        return this._neovimEditor.setTextOptions(textOptions)
+    }
+
     public async blockInput(
         inputFunction: (input: Oni.InputCallbackFunction) => Promise<void>,
     ): Promise<void> {

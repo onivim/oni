@@ -49,6 +49,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-s-f>", "search.searchAllFiles")
         input.bind("<m-s-_>", "sidebar.decreaseWidth")
         input.bind("<m-s-+>", "sidebar.increaseWidth")
+        input.bind("<m-,>", "oni.config.openConfigJs")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
@@ -70,6 +71,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<s-c-t>", "language.symbols.document")
         input.bind("<c-tab>", "buffer.toggle")
         input.bind("<s-c-f>", "search.searchAllFiles")
+        input.bind("<c-,>", "oni.config.openConfigJs")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<c-c>", "editor.clipboard.yank", isVisualMode)
@@ -138,7 +140,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     // Explorer
     input.bind("d", "explorer.delete.persist", isExplorerActive)
     input.bind("<c-delete>", "explorer.delete.persist", isExplorerActive)
-    input.bind("<c-d>", "explorer.delete", isExplorerActive)
+    input.bind("<c-s-d>", "explorer.delete", isExplorerActive)
     input.bind("<delete>", "explorer.delete", isExplorerActive)
     input.bind("y", "explorer.yank", isExplorerActive)
     input.bind("p", "explorer.paste", isExplorerActive)
