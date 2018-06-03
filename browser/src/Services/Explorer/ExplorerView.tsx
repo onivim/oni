@@ -323,10 +323,8 @@ function getDefaultHeight(fontSize: string) {
     return size + padding
 }
 
-const fontSize = configuration.getValue("ui.fontSize")
-
 const cache = new CellMeasurerCache({
-    defaultHeight: getDefaultHeight(fontSize),
+    defaultHeight: getDefaultHeight(configuration.getValue("ui.fontSize")),
     fixedWidth: true,
 })
 
