@@ -1,4 +1,4 @@
-import { mount, shallow } from "enzyme"
+import { shallow } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
 
@@ -20,6 +20,8 @@ describe("<NodeView />", () => {
     const Node = (
         <NodeView
             yanked={[] as string[]}
+            measure={() => null}
+            isCreating={false}
             isRenaming={testNode}
             moveFileOrFolder={() => ({})}
             node={testNode}
@@ -38,6 +40,8 @@ describe("<NodeView />", () => {
         const wrapper = shallow(
             <NodeView
                 yanked={[] as string[]}
+                measure={() => null}
+                isCreating={false}
                 isRenaming={testNode}
                 moveFileOrFolder={() => ({})}
                 node={testNode}
