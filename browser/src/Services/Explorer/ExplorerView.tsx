@@ -374,7 +374,6 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps> {
                                             rowCount={this.props.nodes.length}
                                             scrollToIndex={this.getSelectedNode(selectedId)}
                                             rowRenderer={({ index, style, key, parent }) => {
-                                                const typelessParent = parent as any
                                                 const node = this.props.nodes[index]
                                                 return (
                                                     <CellMeasurer
@@ -382,7 +381,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps> {
                                                         cache={cache}
                                                         columnIndex={0}
                                                         rowIndex={index}
-                                                        parent={typelessParent}
+                                                        parent={parent}
                                                     >
                                                         {({ measure }) => (
                                                             <div style={style}>
