@@ -5,6 +5,7 @@
  */
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 
 import { IBuffer } from "./../Editor/BufferManager"
 import { Configuration } from "./Configuration"
@@ -13,8 +14,6 @@ import { InputManager } from "./InputManager"
 import { LanguageManager } from "./Language"
 
 import { NeovimInstance } from "./../neovim"
-
-import * as Log from "./../Log"
 
 export interface IAutoClosingPair {
     open: string

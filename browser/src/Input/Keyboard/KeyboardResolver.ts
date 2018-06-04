@@ -4,8 +4,7 @@
  * Manages set of resolvers, and adding/removing resolvers.
  */
 import { IDisposable } from "oni-types"
-
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
 
 import { KeyResolver } from "./Resolvers"
 

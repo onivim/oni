@@ -6,7 +6,7 @@
 
 import { remote } from "electron"
 
-import * as Log from "./Log"
+import * as Log from "oni-core-logging"
 
 // We need to use the 'main process' version of electron-settings.
 // See: https://github.com/nathanbuchar/electron-settings/wiki/FAQs

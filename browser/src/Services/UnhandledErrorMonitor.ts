@@ -9,7 +9,7 @@ import { Event, IEvent } from "oni-types"
 import { Configuration } from "./Configuration"
 import { Notifications } from "./Notifications"
 
-import * as Log from "./../Log"
+import * as Log from "oni-core-logging"
 
 export class UnhandledErrorMonitor {
     private _onUnhandledErrorEvent = new Event<Error>()

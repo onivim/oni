@@ -1,5 +1,5 @@
 import * as Constants from "./Constants"
-import * as Log from "./Log"
+import * as Log from "oni-core-logging"
 
 // IPeriodicJob implements the interface for a long-running job
 // that would be expensive to run synchronously, so it is
