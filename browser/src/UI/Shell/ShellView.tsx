@@ -4,28 +4,27 @@
 
 import * as React from "react"
 
-import { Provider } from "react-redux"
-
 import * as Platform from "./../../Platform"
 
 import { focusManager } from "./../../Services/FocusManager"
 import { inputManager } from "./../../Services/InputManager"
 import { IThemeColors } from "./../../Services/Themes/ThemeManager"
-import * as WindowManager from "./../../Services/WindowManager"
+import { windowManager } from "./../../Services/WindowManager"
+
+import { WindowSplitsView, WindowManager } from "oni-core-window-manager"
 
 import { Background } from "./../components/Background"
 import { ThemeProvider } from "./../components/common"
 import { Loading } from "./../components/Loading"
 import StatusBar from "./../components/StatusBar"
 
-import { WindowSplits } from "./../components/WindowSplits"
 import { WindowTitle } from "./../components/WindowTitle"
 
 import { Overlays } from "./OverlayView"
 
 interface IShellViewComponentProps {
     theme: IThemeColors
-    windowManager: WindowManager.WindowManager
+    windowManager: WindowManager
 }
 
 const titleBarVisible = Platform.isMac()
@@ -48,9 +47,7 @@ export class ShellView extends React.PureComponent<IShellViewComponentProps, {}>
                             </div>
                             <div className="container full">
                                 <div className="stack">
-                                    <Provider store={this.props.windowManager.store}>
-                                        <WindowSplits windowManager={this.props.windowManager} />
-                                    </Provider>
+                                    <WindowSplitsView windowManager={windowManager} />
                                 </div>
                                 <Overlays />
                             </div>
