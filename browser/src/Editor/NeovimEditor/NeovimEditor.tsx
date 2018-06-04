@@ -20,9 +20,8 @@ import { bindActionCreators, Store } from "redux"
 import { clipboard, ipcRenderer } from "electron"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
-
-import * as Log from "./../../Log"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
 import {

@@ -8,7 +8,7 @@ import { ChildProcess, spawn } from "child_process"
 
 import { Event, IEvent } from "oni-types"
 
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
 import { getInstance } from "./../Workspace"
 
 export class FinderProcess {
