@@ -5,6 +5,7 @@
  */
 
 import { ipcRenderer } from "electron"
+import * as fs from "fs"
 import * as minimist from "minimist"
 import * as path from "path"
 
@@ -100,9 +101,26 @@ export const start = async (args: string[]): Promise<void> => {
 
     const parsedArgs = minimist(args)
     const currentWorkingDirectory = process.cwd()
-    const filesToOpen = parsedArgs._.map(
+    const normalizedFiles = parsedArgs._.map(
         arg => (path.isAbsolute(arg) ? arg : path.join(currentWorkingDirectory, arg)),
     )
+
+    const filesToOpen = normalizedFiles.filter(f => fs.existsSync(f) && fs.statSync(f).isFile())
+    const foldersToOpen = normalizedFiles.filter(
+        f => fs.existsSync(f) && fs.statSync(f).isDirectory(),
+    )
+
+    Log.info("Files to open: " + JSON.stringify(filesToOpen))
+    Log.info("Folders to open: " + JSON.stringify(foldersToOpen))
+
+    let workspaceToLoad = null
+
+    // If a folder has been specified, we'll change directory to it
+    if (foldersToOpen.length > 0) {
+        workspaceToLoad = foldersToOpen[0]
+    } else if (filesToOpen.length > 0) {
+        workspaceToLoad = path.dirname(filesToOpen[0])
+    }
 
     // Helper for debugging:
     Performance.startMeasure("Oni.Start.Config")
@@ -133,6 +151,13 @@ export const start = async (args: string[]): Promise<void> => {
     PluginManager.activate(configuration)
     const pluginManager = PluginManager.getInstance()
 
+    const developmentPlugin = parsedArgs["plugin-develop"]
+
+    if (developmentPlugin) {
+        Log.info("Registering development plugin: " + developmentPlugin)
+        pluginManager.addDevelopmentPlugin(developmentPlugin)
+    }
+
     Performance.startMeasure("Oni.Start.Plugins.Discover")
     pluginManager.discoverPlugins()
     Performance.endMeasure("Oni.Start.Plugins.Discover")
@@ -160,7 +185,7 @@ export const start = async (args: string[]): Promise<void> => {
     const { editorManager } = await editorManagerPromise
 
     const Workspace = await workspacePromise
-    Workspace.activate(configuration, editorManager)
+    Workspace.activate(configuration, editorManager, workspaceToLoad)
     const workspace = Workspace.getInstance()
 
     const WindowManager = await windowManagerPromise
@@ -262,7 +287,13 @@ export const start = async (args: string[]): Promise<void> => {
     Sidebar.activate(configuration, workspace)
     const sidebarManager = Sidebar.getInstance()
 
-    Explorer.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
+    Explorer.activate(
+        commandManager,
+        configuration,
+        editorManager,
+        Sidebar.getInstance(),
+        workspace,
+    )
     Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Learning.activate(
         commandManager,

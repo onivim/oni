@@ -17,6 +17,7 @@ import { withProps } from "./../../UI/components/common"
 import { Sneakable } from "./../../UI/components/Sneakable"
 
 export interface ISidebarIconProps {
+    id: string
     active: boolean
     focused: boolean
     iconName: string
@@ -90,7 +91,7 @@ export class SidebarIcon extends React.PureComponent<ISidebarIconProps, {}> {
     public render(): JSX.Element {
         const notification = this.props.hasNotification ? <SidebarIconNotification /> : null
         return (
-            <Sneakable callback={this.props.onClick}>
+            <Sneakable callback={this.props.onClick} tag={this.props.id}>
                 <SidebarIconWrapper {...this.props} tabIndex={0}>
                     <SidebarIconInner>
                         <Icon name={this.props.iconName} size={IconSize.Large} />
@@ -154,6 +155,7 @@ export class SidebarView extends React.PureComponent<ISidebarViewProps, {}> {
                             const isFocused = e.id === selectedId && this.props.isActive
                             return (
                                 <SidebarIcon
+                                    id={e.id}
                                     key={e.id}
                                     iconName={e.icon}
                                     active={isActive}

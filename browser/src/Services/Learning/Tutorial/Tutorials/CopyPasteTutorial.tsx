@@ -16,7 +16,12 @@ const Line2YankMarker = "Any deleted ".length
 const Line2PasteMarker = "Any deleted text or yanked".length
 const Line2PostPaste1 = "Any deleted text or yanked text can then be pasted with 'p'"
 const Line2PostPaste2 = "text Any deleted text or yanked text can then be pasted with 'p'"
-const Line1PostTranspose = "iLke the 'd' operator, 'y' can be used to yank (copy) text"
+
+const TransposeLine = "Sipmle tpyos can aslo be fiexd with 'xp'"
+const TransposeLine1 = "Simple tpyos can aslo be fiexd with 'xp'"
+const TransposeLine2 = "Simple typos can aslo be fiexd with 'xp'"
+const TransposeLine3 = "Simple typos can also be fiexd with 'xp'"
+const TransposeLine4 = "Simple typos can also be fixed with 'xp'"
 
 export class CopyPasteTutorial implements ITutorial {
     private _stages: ITutorialStage[]
@@ -65,9 +70,21 @@ export class CopyPasteTutorial implements ITutorial {
                 Line2PostPaste2,
             ]),
             new Stages.WaitForStateStage(
-                "Since deleted text is also copied, transposing characters is simple.  Try 'xp'",
-                [Line2PostPaste2, Line2PostPaste2, Line1PostTranspose, Line2PostPaste2],
+                "Copied text can be pasted multiple times, past again with 'p'",
+                [Line2PostPaste2, Line2PostPaste2, Line1, Line1, Line2PostPaste2],
             ),
+            new Stages.SetBufferStage([TransposeLine]),
+            new Stages.MoveToGoalStage("Move to the first typo", 0, 2),
+            new Stages.WaitForStateStage(
+                "Since deleted text is also copied, transposing characters is simple.  Try 'xp'",
+                [TransposeLine1],
+            ),
+            new Stages.MoveToGoalStage("Move to the next typo", 0, 8),
+            new Stages.WaitForStateStage("Again, fix the typo with 'xp'", [TransposeLine2]),
+            new Stages.MoveToGoalStage("Move to the next typo", 0, 18),
+            new Stages.WaitForStateStage("Again, fix the typo with 'xp'", [TransposeLine3]),
+            new Stages.MoveToGoalStage("Move to the next typo", 0, 27),
+            new Stages.WaitForStateStage("Again, fix the typo with 'xp'", [TransposeLine4]),
         ]
     }
 
@@ -76,8 +93,8 @@ export class CopyPasteTutorial implements ITutorial {
             id: "oni.tutorials.copy_paste",
             name: "Copy & Paste: y, p",
             description:
-                'Now that you know about operators and motions pairing like a noun and a verb, we can start learning new operators.  The `y` operator can be used to copy ("yank") text which can then be pasted with `p`.  Using `p` pastes _after_ the cursor, and `P` pastes _before_ the cursor.  The `y` operator behaves just like the `d` operator and can be paired with any motion.',
-            level: 210,
+                "Now that you know the delete and change operators, let's learn vim's final operator: `y`.  The `y` operator can be used to copy (\"yank\") text which can then be pasted with `p`.  Using `p` pastes _after_ the cursor, and `P` pastes _before_ the cursor.  The `y` operator behaves just like the `d` and `c` operators and can be paired with any motion.",
+            level: 220,
         }
     }
 

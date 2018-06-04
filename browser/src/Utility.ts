@@ -15,7 +15,8 @@ import * as reduce from "lodash/reduce"
 import { Observable } from "rxjs/Observable"
 import { Subject } from "rxjs/Subject"
 
-import { IDisposable } from "oni-types"
+import * as JSON5 from "json5"
+import { IDisposable, IEvent } from "oni-types"
 
 import * as types from "vscode-languageserver-types"
 
@@ -38,6 +39,14 @@ export class Disposable implements IDisposable {
     protected trackDisposable(disposable: IDisposable) {
         this._disposables.push(disposable)
     }
+}
+
+export const asObservable = <T>(event: IEvent<T>): Observable<T> => {
+    const subject = new Subject<T>()
+
+    event.subscribe((val: T) => subject.next(val))
+
+    return subject
 }
 
 /**
@@ -246,14 +255,6 @@ export function ignoreWhilePendingPromise<T, U>(
     return ret
 }
 
-export function checkIfFileExistsSync(filename: string): boolean | Error {
-    try {
-        return fs.statSync(filename).isFile()
-    } catch (e) {
-        if (e.code === "ENOENT") {
-            return false
-        } else {
-            throw e
-        }
-    }
+export const parseJson5 = <T>(text: string): T => {
+    return JSON5.parse(text) as T
 }

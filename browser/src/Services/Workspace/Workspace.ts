@@ -138,8 +138,8 @@ export class Workspace implements IWorkspace {
 
         const filePath = await findup(projectMarkers, { cwd })
         if (filePath) {
-            const dir = path.dirname(filePath)
-            this.changeDirectory(dir)
+            const projectRoot = path.dirname(filePath)
+            return projectRoot !== this._activeWorkspace ? this.changeDirectory(projectRoot) : null
         }
     }
 
@@ -183,12 +183,16 @@ export class Workspace implements IWorkspace {
 let _workspace: Workspace = null
 let _workspaceConfiguration: WorkspaceConfiguration = null
 
-export const activate = (configuration: Configuration, editorManager: EditorManager): void => {
+export const activate = (
+    configuration: Configuration,
+    editorManager: EditorManager,
+    workspaceToLoad?: string,
+): void => {
     _workspace = new Workspace(editorManager, configuration)
 
     _workspaceConfiguration = new WorkspaceConfiguration(configuration, _workspace)
 
-    const defaultWorkspace = configuration.getValue("workspace.defaultWorkspace")
+    const defaultWorkspace = workspaceToLoad || configuration.getValue("workspace.defaultWorkspace")
 
     if (defaultWorkspace) {
         _workspace.changeDirectory(defaultWorkspace)

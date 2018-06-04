@@ -15,6 +15,8 @@ import "rxjs/add/operator/concatMap"
 
 import { Store } from "redux"
 
+import * as detectIndent from "detect-indent"
+
 import * as Oni from "oni-api"
 
 import {
@@ -212,7 +214,6 @@ export class Buffer implements IBuffer {
             ["nvim_command", ["setlocal noswapfile"]],
             ["nvim_command", ["setlocal nobuflisted"]],
             ["nvim_command", ["setlocal nomodifiable"]],
-            ["nvim_command", ["windo set scrollbind!"]],
         ]
 
         const [result, error] = await this._neovimInstance.request<any[] | NvimError>(
@@ -227,13 +228,7 @@ export class Buffer implements IBuffer {
     }
 
     public async detectIndentation(): Promise<BufferIndentationInfo> {
-        const bufferLinesPromise = this.getLines(0, 1024)
-        const detectIndentPromise = import("detect-indent")
-
-        const [bufferLines, detectIndent] = await Promise.all([
-            bufferLinesPromise,
-            detectIndentPromise,
-        ])
+        const bufferLines = await this.getLines(0, 1024)
 
         const ret = detectIndent(bufferLines.join("\n"))
 

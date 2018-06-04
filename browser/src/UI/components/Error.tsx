@@ -12,7 +12,7 @@ import * as Oni from "oni-api"
 import { getColorFromSeverity } from "./../../Services/Diagnostics"
 
 import { Icon } from "./../Icon"
-import { bufferScrollBarSize, styled, withProps } from "./common"
+import { bufferScrollBarSize, pixel, styled, withProps } from "./common"
 
 export interface IErrorsProps {
     errors: types.Diagnostic[]
@@ -102,9 +102,16 @@ const ErrorMarker = (props: IErrorMarkerProps) => (
     </ErrorMarkerWrapper>
 )
 
-const ErrorMarkerWrapper = withProps<{ topOffset: number }>(styled.div)`
+interface ErrorMarkerProps {
+    topOffset: number
+}
+
+const ErrorMarkerWrapper = withProps<ErrorMarkerProps>(styled.div).attrs({
+    style: (props: ErrorMarkerProps) => ({
+        top: pixel(props.topOffset),
+    }),
+})`
     position: absolute;
-    top: ${props => props.topOffset}px;
     right: ${bufferScrollBarSize};
     opacity: 0.5;
     background-color: rgb(80, 80, 80);
@@ -132,13 +139,15 @@ interface IErrorSquiggleProps {
     width: number
     color: string
 }
-const ErrorSquiggle = withProps<IErrorSquiggleProps>(styled.div)`
+
+const ErrorSquiggle = withProps<IErrorSquiggleProps>(styled.div).attrs({
+    style: (props: IErrorSquiggleProps) => ({
+        top: pixel(props.y),
+        left: pixel(props.x),
+        height: pixel(props.height),
+        width: pixel(props.width),
+        borderBottom: `1px dashed ${props.color}`,
+    }),
+})`
     position: absolute;
-    ${props => `
-        top: ${props.y}px;
-        left: ${props.x}px;
-        height: ${props.height}px;
-        width: ${props.width}px;
-        border-bottom: 1px dashed ${props.color};
-    `}
 `

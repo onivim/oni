@@ -6,6 +6,8 @@
 
 import * as os from "os"
 
+import * as Oni from "oni-api"
+
 import * as path from "path"
 
 import * as Platform from "./../../Platform"
@@ -82,6 +84,8 @@ const BaseConfiguration: IConfigurationValues = {
     "oni.exclude": ["node_modules", ".git"],
     "oni.bookmarks": [],
 
+    "editor.renderer": "canvas",
+
     "editor.backgroundOpacity": 1.0,
     "editor.backgroundImageUrl": null,
     "editor.backgroundImageSize": "cover",
@@ -100,12 +104,15 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.fontLigatures": true,
     "editor.fontSize": "12px",
+    "editor.fontWeight": "normal",
     "editor.fontFamily": "",
 
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
     "editor.quickOpen.filterStrategy": "vscode",
+    "editor.quickOpen.defaultOpenMode": Oni.FileOpenMode.Edit,
+    "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode.ExistingTab,
 
     "editor.split.mode": "native",
 
@@ -127,6 +134,9 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.tokenColors": [],
 
     "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
+
+    "explorer.persistDeletedFiles": true,
+    "explorer.maxUndoFileSizeInBytes": 500_000,
 
     "environment.additionalPaths": [],
 
@@ -367,7 +377,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "sidebar.enabled": true,
     "sidebar.default.open": true,
-    "sidebar.width": "50px",
+    "sidebar.width": "15em",
 
     "sidebar.marks.enabled": false,
     "sidebar.plugins.enabled": false,
@@ -410,7 +420,7 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.showIndex": false,
     "tabs.wrap": false,
 
-    "terminal.shellCommand": os.platform() === "win32" ? "cmd" : "bash",
+    "terminal.shellCommand": null,
 
     "ui.animations.enabled": true,
     "ui.colorscheme": "nord",
