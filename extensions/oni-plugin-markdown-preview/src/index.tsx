@@ -176,12 +176,14 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
 
 class MarkdownPreviewEditor implements Oni.IWindowSplit {
     private _open: boolean = false
+    private _manuallyClosed: boolean = false
     private _unrenderedContent: string = ""
     private _renderedContent: string = ""
     private _split: Oni.WindowSplitHandle
 
     constructor(private _oni: Oni.Plugin.Api) {
         this._oni.editors.activeEditor.onBufferEnter.subscribe(args => this.onBufferEnter(args))
+        this._oni.editors.activeEditor.onBufferLeave.subscribe(args => this.onBufferLeave(args))
     }
 
     public isPaneOpen(): boolean {
@@ -212,14 +214,17 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
     public open(): void {
         if (!this._open) {
             this._open = true
+            this._manuallyClosed = false
+
             // TODO: Update API
             this._split = this._oni.windows.createSplit("vertical", this)
         }
     }
 
-    public close(): void {
+    public close(manuallyClosed = false): void {
         if (this._open) {
             this._open = false
+            this._manuallyClosed = manuallyClosed
             this._split.close()
         }
     }
@@ -229,8 +234,14 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
     }
 
     private onBufferEnter(bufferInfo: Oni.EditorBufferEventArgs): void {
-        if (bufferInfo.language === "markdown") {
+        if (bufferInfo.language === "markdown" && this._manuallyClosed === false) {
             this.open()
+        }
+    }
+
+    private onBufferLeave(bufferInfo: Oni.EditorBufferEventArgs): void {
+        if (bufferInfo.language === "markdown") {
+            this.close()
         }
     }
 }
@@ -259,7 +270,7 @@ export function activate(oni: any): any {
             "Close Markdown Preview",
             "Close the Markdown preview pane if it is not already closed",
             () => {
-                preview.close()
+                preview.close(true)
             },
         ),
     )
