@@ -240,9 +240,7 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
     }
 
     private onBufferLeave(bufferInfo: Oni.EditorBufferEventArgs): void {
-        if (bufferInfo.language === "markdown") {
-            this.close()
-        }
+        this.close()
     }
 }
 
