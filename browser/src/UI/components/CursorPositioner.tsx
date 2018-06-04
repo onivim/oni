@@ -53,17 +53,21 @@ interface ArrowContainerProps {
     hideArrow: boolean
     shouldOpenDownwards: boolean
 }
+
 interface ChildProps {
     adjustedX: number
     isFullWidth: boolean
     shouldOpenDownwards: boolean
 }
 
+type VisibilityProperty = "hidden" | "visible"
+
 const PositionerContainer = withProps<ContainerProps>(styled.div).attrs({
     style: ({ adjustedY, containerWidth, isMeasured }: ContainerProps) => ({
         top: pixel(adjustedY),
         width: pixel(containerWidth),
-        visibility: isMeasured ? "visible" : "hidden", // Wait until we've measured the bounds to show..
+        // Wait until we've measured the bounds to show..
+        visibility: (isMeasured ? "visible" : "hidden") as VisibilityProperty,
     }),
 })`
     position: absolute;
@@ -89,7 +93,7 @@ const ArrowContainer = withProps<ArrowContainerProps>(styled.div).attrs({
     style: (props: ArrowContainerProps) => ({
         ...(props.shouldOpenDownwards ? openFromBottomStyle : openFromTopStyle),
         left: pixel(props.x + props.fontPixelWidth / 2),
-        visibility: props.hideArrow ? "hidden" : "visible",
+        visibility: (props.hideArrow ? "hidden" : "visible") as VisibilityProperty,
     }),
 })`
         position: absolute;
