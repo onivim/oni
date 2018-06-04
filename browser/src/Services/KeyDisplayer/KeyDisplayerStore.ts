@@ -5,7 +5,7 @@
  */
 
 import { Reducer, Store } from "redux"
-import { createStore as createReduxStore } from "./../../Redux"
+import { createStore as createReduxStore } from "oni-core-redux"
 
 import { createEpicMiddleware, Epic } from "redux-observable"
 import "rxjs/add/operator/delay"

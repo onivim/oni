@@ -11,7 +11,7 @@ import { Observable } from "rxjs/Observable"
 import { combineReducers, Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 
-import { createStore as oniCreateStore } from "./../../Redux"
+import { createStore as oniCreateStore } from "oni-core-redux"
 
 import { Configuration } from "./../Configuration"
 

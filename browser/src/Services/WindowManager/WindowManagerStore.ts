@@ -7,7 +7,7 @@
 import * as Oni from "oni-api"
 
 import { Reducer, Store } from "redux"
-import { createStore as createReduxStore } from "./../../Redux"
+import { createStore as createReduxStore } from "oni-core-redux"
 
 import { Direction, ISplitInfo, SplitDirection } from "./index"
 

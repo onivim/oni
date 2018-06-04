@@ -7,8 +7,7 @@
 import { Reducer, Store } from "redux"
 
 import { Shapes } from "oni-api"
-
-import { createStore as createReduxStore } from "./../../Redux"
+import { createStore as createReduxStore } from "oni-core-redux"
 
 export interface ISneakInfo {
     rectangle: Shapes.Rectangle

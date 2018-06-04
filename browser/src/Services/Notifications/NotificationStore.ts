@@ -7,7 +7,7 @@
 import { Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 import { Observable } from "rxjs"
-import { createStore as createReduxStore } from "./../../Redux"
+import { createStore as createReduxStore } from "oni-core-redux"
 
 export type NotificationLevel = "info" | "warn" | "error" | "success"
 

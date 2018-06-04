@@ -14,6 +14,8 @@ import { remote } from "electron"
 import { bindActionCreators } from "redux"
 import thunk from "redux-thunk"
 
+import { createStore } from "oni-core-redux"
+
 import { ShellView } from "./ShellView"
 
 import * as ActionCreators from "./ShellActionCreators"
@@ -23,8 +25,6 @@ import * as State from "./ShellState"
 import { Colors } from "./../../Services/Colors"
 import { focusManager } from "./../../Services/FocusManager"
 import { windowManager } from "./../../Services/WindowManager"
-
-import { createStore } from "./../../Redux"
 
 const defaultState = State.createDefaultState()
 

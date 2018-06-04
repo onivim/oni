@@ -16,8 +16,9 @@ import { forkJoin } from "rxjs/observable/forkJoin"
 import { fromPromise } from "rxjs/observable/fromPromise"
 import { timer } from "rxjs/observable/timer"
 
+import { createStore as createReduxStore } from "oni-core-redux"
+
 import * as Log from "./../../Log"
-import { createStore as createReduxStore } from "./../../Redux"
 import { configuration } from "./../Configuration"
 import { EmptyNode, ExplorerNode } from "./ExplorerSelectors"
 

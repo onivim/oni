@@ -5,14 +5,13 @@
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
+import { createStore as oniCreateStore } from "oni-core-redux"
 
 import "rxjs/add/operator/mergeMap"
 import { Observable } from "rxjs/Observable"
 
 import { combineReducers, Reducer, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
-
-import { createStore as oniCreateStore } from "./../../Redux"
 
 import { Configuration } from "./../Configuration"
 import { LanguageManager } from "./../Language"

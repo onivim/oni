@@ -6,15 +6,15 @@
 
 import * as types from "vscode-languageserver-types"
 
-import * as Oni from "oni-api"
 import { Store } from "redux"
 import thunk from "redux-thunk"
+
+import * as Oni from "oni-api"
+import { createStore as createReduxStore } from "oni-core-redux"
 
 import { IConfigurationValues } from "./../../Services/Configuration"
 
 import { DefaultThemeColors, IThemeColors } from "./../../Services/Themes"
-
-import { createStore as createReduxStore } from "./../../Redux"
 
 import { IBufferLayer } from "./../NeovimEditor/BufferLayerManager"
 
