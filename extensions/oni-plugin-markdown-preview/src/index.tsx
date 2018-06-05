@@ -58,7 +58,10 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
 
         this.subscribe(activeEditor.onBufferChanged, args => this.onBufferChanged(args))
         // TODO: Subscribe "onFocusChanged"
-        this.subscribe(activeEditor.onBufferScrolled, args => this.onBufferScrolled(args))
+
+        if (this.props.oni.configuration.getValue("experimental.markdownPreview.autoScroll")) {
+            this.subscribe(activeEditor.onBufferScrolled, args => this.onBufferScrolled(args))
+        }
 
         this.previewBuffer(activeEditor.activeBuffer)
     }
