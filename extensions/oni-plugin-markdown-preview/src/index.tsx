@@ -218,9 +218,11 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
         if (!this._open) {
             this._open = true
             this._manuallyClosed = false
+            const currentSplit = this._oni.windows.activeSplit
 
             // TODO: Update API
             this._split = this._oni.windows.createSplit("vertical", this)
+            this._oni.windows.focusSplit(currentSplit.id)
         }
     }
 
