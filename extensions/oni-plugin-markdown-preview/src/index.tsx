@@ -156,6 +156,10 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
     }
 
     private onBufferScrolled(args: Oni.EditorBufferScrolledEventArgs): void {
+        if (this.props.oni.editors.activeEditor.activeBuffer.language !== "markdown") {
+            return
+        }
+
         let anchor = null
         for (let line = args.windowTopLine - 1; !anchor && line < args.bufferTotalLines; line++) {
             anchor = document.getElementById(generateScrollingAnchorId(line))
@@ -208,7 +212,7 @@ class MarkdownPreviewEditor implements Oni.IWindowSplit {
 
     public toggle(): void {
         if (this._open) {
-            this.close()
+            this.close(true)
         } else {
             this.open()
         }
