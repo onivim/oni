@@ -6,7 +6,7 @@
  * deprecation policy in place - like we'll support deprecated configurations for x releases.
  */
 
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
 
 export interface IDeprecatedConfigurationInfo {
     replacementConfigurationName: string

@@ -7337,6 +7337,10 @@ oni-api@^0.0.45:
   version "0.0.45"
   resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.45.tgz#e9191fbc5069e01b3cbea644bc697be9aaf1d699"
 
+oni-core-logging@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/oni-core-logging/-/oni-core-logging-1.0.0.tgz#7ad6c0ad8b06c23255202f97e229c2b0947dcf0b"
+
 oni-neovim-binaries@0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/oni-neovim-binaries/-/oni-neovim-binaries-0.1.1.tgz#7aed74c14bca2581e1447c557541192dd5e89cdd"

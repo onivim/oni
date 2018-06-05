@@ -8,6 +8,7 @@
 import * as ChildProcess from "child_process"
 
 import * as OniApi from "oni-api"
+import * as Log from "oni-core-logging"
 
 import Process from "./Process"
 import { Services } from "./Services"
@@ -37,8 +38,6 @@ import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
 import { getInstance as getTokenColorsInstance } from "./../../Services/TokenColors"
 import { windowManager } from "./../../Services/WindowManager"
 import { getInstance as getWorkspaceInstance } from "./../../Services/Workspace"
-
-import * as Log from "./../../Log"
 
 import * as throttle from "lodash/throttle"
 

@@ -6,9 +6,9 @@
 
 import * as path from "path"
 
-import * as Platform from "./../../Platform"
+import * as Log from "oni-core-logging"
 
-import * as Log from "./../../Log"
+import * as Platform from "./../../Platform"
 
 export const getUserConfigFilePath = (): string => {
     const configFileFromEnv = process.env["ONI_CONFIG_FILE"] as string // tslint:disable-line

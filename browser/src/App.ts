@@ -11,7 +11,7 @@ import * as path from "path"
 
 import { IDisposable } from "oni-types"
 
-import * as Log from "./Log"
+import * as Log from "oni-core-logging"
 import * as Performance from "./Performance"
 import * as Utility from "./Utility"
 

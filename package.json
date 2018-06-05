@@ -958,6 +958,7 @@
         "mocha": "3.1.2",
         "node-abi": "^2.4.1",
         "nyc": "^11.4.1",
+        "oni-core-logging": "^1.0.0",
         "oni-release-downloader": "^0.0.10",
         "opencollective": "1.0.3",
         "prettier": "^1.12.1",

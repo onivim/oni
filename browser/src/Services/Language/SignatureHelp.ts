@@ -7,8 +7,8 @@ import { Observable } from "rxjs/Observable"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 
-import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import { IToolTipsProvider } from "./../../Editor/NeovimEditor/ToolTipsProvider"

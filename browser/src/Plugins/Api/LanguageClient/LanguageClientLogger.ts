@@ -4,7 +4,7 @@
  * Helper utility for handling logging from language service clients
  */
 
-import * as Log from "./../../../Log"
+import * as Log from "oni-core-logging"
 
 export class LanguageClientLogger {
     public error(message: string): void {
