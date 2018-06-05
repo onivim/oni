@@ -7,7 +7,7 @@
 import * as fs from "fs"
 import * as path from "path"
 
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
 
 import { Configuration } from "./../Configuration"
 import { IWorkspace } from "./Workspace"

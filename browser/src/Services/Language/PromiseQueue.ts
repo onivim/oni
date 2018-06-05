@@ -1,4 +1,4 @@
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
 
 export class PromiseQueue {
     private _currentPromise: Promise<any> = Promise.resolve(null)

@@ -5,12 +5,13 @@
  */
 
 import { ipcRenderer } from "electron"
+import * as fs from "fs"
 import * as minimist from "minimist"
 import * as path from "path"
 
 import { IDisposable } from "oni-types"
 
-import * as Log from "./Log"
+import * as Log from "oni-core-logging"
 import * as Performance from "./Performance"
 import * as Utility from "./Utility"
 
@@ -100,9 +101,26 @@ export const start = async (args: string[]): Promise<void> => {
 
     const parsedArgs = minimist(args)
     const currentWorkingDirectory = process.cwd()
-    const filesToOpen = parsedArgs._.map(
+    const normalizedFiles = parsedArgs._.map(
         arg => (path.isAbsolute(arg) ? arg : path.join(currentWorkingDirectory, arg)),
     )
+
+    const filesToOpen = normalizedFiles.filter(f => fs.existsSync(f) && fs.statSync(f).isFile())
+    const foldersToOpen = normalizedFiles.filter(
+        f => fs.existsSync(f) && fs.statSync(f).isDirectory(),
+    )
+
+    Log.info("Files to open: " + JSON.stringify(filesToOpen))
+    Log.info("Folders to open: " + JSON.stringify(foldersToOpen))
+
+    let workspaceToLoad = null
+
+    // If a folder has been specified, we'll change directory to it
+    if (foldersToOpen.length > 0) {
+        workspaceToLoad = foldersToOpen[0]
+    } else if (filesToOpen.length > 0) {
+        workspaceToLoad = path.dirname(filesToOpen[0])
+    }
 
     // Helper for debugging:
     Performance.startMeasure("Oni.Start.Config")
@@ -167,7 +185,7 @@ export const start = async (args: string[]): Promise<void> => {
     const { editorManager } = await editorManagerPromise
 
     const Workspace = await workspacePromise
-    Workspace.activate(configuration, editorManager)
+    Workspace.activate(configuration, editorManager, workspaceToLoad)
     const workspace = Workspace.getInstance()
 
     const WindowManager = await windowManagerPromise

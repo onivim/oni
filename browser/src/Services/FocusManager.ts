@@ -2,7 +2,7 @@
  * FocusManager.ts
  */
 
-import * as Log from "./../Log"
+import * as Log from "oni-core-logging"
 
 class FocusManager {
     private _focusElementStack: HTMLElement[] = []

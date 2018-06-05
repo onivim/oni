@@ -6,6 +6,7 @@
 
 import * as path from "path"
 
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
 
 // import * as Oni from "oni-api"
@@ -19,8 +20,6 @@ import { getUserConfigFolderPath } from "./../Services/Configuration"
 import { IFileSystem, OniFileSystem } from "./../Services/Explorer/ExplorerFileSystem"
 
 import Process from "./Api/Process"
-
-import * as Log from "./../Log"
 
 /**
  * Plugin identifier:

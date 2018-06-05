@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Text/SelectedText /> SelectedText component should match the last snapshot on record 1`] = `
+<styled.span>
+  Test
+</styled.span>
+`;
+
+exports[`<Text/SelectedText /> Text component should match the last snapshot on record 1`] = `
+<span>
+  Test
+</span>
+`;
