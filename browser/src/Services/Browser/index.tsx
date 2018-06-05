@@ -4,7 +4,7 @@
  * Entry point for browser integration plugin
  */
 
-import { shell, ipcRenderer } from "electron"
+import { ipcRenderer, shell } from "electron"
 import * as React from "react"
 
 import * as Oni from "oni-api"
