@@ -4,7 +4,7 @@
  * Entry point for browser integration plugin
  */
 
-import { shell } from "electron"
+import { shell, ipcRenderer } from "electron"
 import * as React from "react"
 
 import * as Oni from "oni-api"
@@ -236,6 +236,10 @@ export const activate = (
         name: "Browser: Scroll Right",
         detail: "",
         enabled: isBrowserLayerActive,
+    })
+
+    ipcRenderer.on("open-oni-browser", (event: string, args: string) => {
+        openUrl(args)
     })
 }
 
