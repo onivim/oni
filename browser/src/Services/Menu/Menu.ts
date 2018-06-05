@@ -8,6 +8,7 @@ import { bindActionCreators } from "redux"
 import thunk from "redux-thunk"
 
 import * as Oni from "oni-api"
+import { createStore } from "oni-core-redux"
 import { Event, IEvent } from "oni-types"
 
 import * as ActionCreators from "./MenuActionCreators"
@@ -19,8 +20,6 @@ import { MenuContainer } from "./MenuComponent"
 
 import { Configuration } from "./../Configuration"
 import { Overlay, OverlayManager } from "./../Overlay"
-
-import { createStore } from "./../../Redux"
 
 export interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
     labelHighlights: number[]

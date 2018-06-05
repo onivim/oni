@@ -16,8 +16,9 @@ import { forkJoin } from "rxjs/observable/forkJoin"
 import { fromPromise } from "rxjs/observable/fromPromise"
 import { timer } from "rxjs/observable/timer"
 
+import { createStore as createReduxStore } from "oni-core-redux"
+
 import * as Log from "./../../Log"
-import { createStore as createReduxStore } from "./../../Redux"
 import { configuration } from "./../Configuration"
 import { EmptyNode, ExplorerNode } from "./ExplorerSelectors"
 
@@ -801,7 +802,9 @@ const persistOrDeleteNode = async (
 
 export const undoEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("UNDO").mergeMap(action => {
-        const { register: { undo } } = store.getState()
+        const {
+            register: { undo },
+        } = store.getState()
         const lastAction = last(undo)
 
         switch (lastAction.type) {
@@ -919,7 +922,11 @@ const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
 
 export const createNodeEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("CREATE_NODE_COMMIT").mergeMap(({ name }: ICreateNodeCommitAction) => {
-        const { register: { create: { nodeType } } } = store.getState()
+        const {
+            register: {
+                create: { nodeType },
+            },
+        } = store.getState()
         const shouldExpand = Actions.expandDirectory(path.dirname(name))
         const createFileOrFolder =
             nodeType === "file" ? fileSystem.writeFile(name) : fileSystem.mkdir(name)

@@ -11,10 +11,10 @@ import thunk from "redux-thunk"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
+import { createStore } from "oni-core-redux"
 import { Event, IEvent } from "oni-types"
 
 import { IToolTipsProvider } from "./../../Editor/NeovimEditor/ToolTipsProvider"
-import { createStore } from "./../../Redux"
 import { IColors } from "./../../Services/Colors"
 
 import * as ActionCreators from "./../Menu/MenuActionCreators"

@@ -4,8 +4,8 @@
  * State management for the sidebar split
  */
 
+import { createStore as createReduxStore } from "oni-core-redux"
 import { Reducer, Store } from "redux"
-import { createStore as createReduxStore } from "./../../Redux"
 
 import { configuration } from "../Configuration"
 import { WindowManager, WindowSplitHandle } from "./../WindowManager"
