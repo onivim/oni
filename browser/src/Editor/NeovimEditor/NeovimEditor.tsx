@@ -20,9 +20,8 @@ import { bindActionCreators, Store } from "redux"
 import { clipboard, ipcRenderer } from "electron"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
-
-import * as Log from "./../../Log"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
 import {
@@ -206,12 +205,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._bufferManager = new BufferManager(this._neovimInstance, this._actions, this._store)
         this._screen = new NeovimScreen()
 
-        this._hoverRenderer = new HoverRenderer(
-            this._colors,
-            this,
-            this._configuration,
-            this._toolTipsProvider,
-        )
+        this._hoverRenderer = new HoverRenderer(this, this._configuration, this._toolTipsProvider)
 
         this._definition = new Definition(this, this._store)
         this._symbols = new Symbols(

@@ -2,20 +2,15 @@ import * as React from "react"
 
 import * as types from "vscode-languageserver-types"
 
-import { QuickInfoDocumentation, Title } from "./../../UI/components/QuickInfo"
+import {
+    QuickInfoDocumentation,
+    QuickInfoElement,
+    QuickInfoWrapper,
+    Title,
+} from "./../../UI/components/QuickInfo"
 import { SelectedText, Text } from "./../../UI/components/Text"
 
-export class SignatureHelpView extends React.PureComponent<types.SignatureHelp, {}> {
-    public render(): JSX.Element {
-        return (
-            <div className="quickinfo-container">
-                <div className="quickinfo">{getElementsFromType(this.props)}</div>
-            </div>
-        )
-    }
-}
-
-export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Element[] => {
+export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Element => {
     const elements = []
 
     const currentItem = signatureHelp.signatures[signatureHelp.activeSignature]
@@ -62,21 +57,27 @@ export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Ele
 
     elements.push(<Text key={remainingSignatureString} text={remainingSignatureString} />)
 
-    const titleContents = [
-        <Title padding="0.5rem" key={"signatureHelp.title"}>
-            {elements}
-        </Title>,
-    ]
-
     const selectedIndex = Math.min(currentItem.parameters.length, signatureHelp.activeParameter)
     const selectedArgument = currentItem.parameters[selectedIndex]
-    if (selectedArgument && selectedArgument.documentation) {
-        titleContents.push(<QuickInfoDocumentation text={selectedArgument.documentation} />)
-    }
 
-    return titleContents
+    return (
+        <React.Fragment>
+            <Title padding="0.5rem" key={"signatureHelp.title"}>
+                {elements}
+            </Title>
+            {!!(selectedArgument && selectedArgument.documentation) && (
+                <QuickInfoDocumentation text={selectedArgument.documentation} />
+            )}
+        </React.Fragment>
+    )
 }
 
-export const render = (signatureHelp: types.SignatureHelp) => {
-    return <SignatureHelpView {...signatureHelp} />
-}
+export const SignatureHelpView = (props: types.SignatureHelp) => (
+    <QuickInfoWrapper>
+        <QuickInfoElement>{getElementsFromType(props)}</QuickInfoElement>
+    </QuickInfoWrapper>
+)
+
+export const render = (signatureHelp: types.SignatureHelp) => (
+    <SignatureHelpView {...signatureHelp} />
+)

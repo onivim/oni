@@ -13,9 +13,8 @@ import "rxjs/add/operator/debounceTime"
 import { Subject } from "rxjs/Subject"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
-
-import * as Log from "./../../Log"
 
 import { IConfigurationProvider } from "./Configuration"
 import { IConfigurationValues } from "./IConfigurationValues"

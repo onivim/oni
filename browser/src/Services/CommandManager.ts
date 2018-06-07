@@ -7,8 +7,8 @@
 import * as values from "lodash/values"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 
-import * as Log from "./../Log"
 import { INeovimInstance } from "./../neovim"
 import { ITask, ITaskProvider } from "./Tasks"
 

@@ -4,7 +4,7 @@
  * Responsible for synchronizing user's `plugin` configuration settings.
  */
 
-import * as Log from "./../Log"
+import * as Log from "oni-core-logging"
 
 import { Configuration } from "./../Services/Configuration"
 import { PluginManager } from "./PluginManager"

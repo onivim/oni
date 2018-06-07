@@ -7,6 +7,7 @@
 import { remote } from "electron"
 
 import * as OniApi from "oni-api"
+import * as Log from "oni-core-logging"
 
 import * as App from "./../App"
 import * as Utility from "./../Utility"
@@ -14,8 +15,6 @@ import * as Utility from "./../Utility"
 import { getUserConfigFilePath } from "./Configuration"
 import { editorManager } from "./EditorManager"
 import { inputManager } from "./InputManager"
-
-import * as Log from "./../Log"
 
 import { IKey, parseKeysFromVimString } from "./../Input/KeyParser"
 

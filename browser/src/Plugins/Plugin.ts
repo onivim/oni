@@ -1,7 +1,7 @@
 import * as fs from "fs"
 import * as path from "path"
 
-import * as Log from "./../Log"
+import * as Log from "oni-core-logging"
 
 import * as Capabilities from "./Api/Capabilities"
 import { Oni } from "./Api/Oni"
