@@ -1,8 +1,8 @@
 import { EventCallback, IDisposable, IEvent } from "oni-types"
 
 import * as dompurify from "dompurify"
-import * as marked from "marked"
 import * as hljs from "highlight.js"
+import * as marked from "marked"
 import * as Oni from "oni-api"
 import * as React from "react"
 
@@ -145,14 +145,19 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
         markdownLines.push(generateAnchor(originalLinesCount - 1))
 
         marked.setOptions({
-            highlight: function(code, lang) {
-                if (typeof lang === "undefined") {
+            highlight(code, lang) {
+                const languageNotDefinedOrInvalid =
+                    typeof lang === "undefined" || hljs.getLanguage(lang) === "undefined"
+
+                if (languageNotDefinedOrInvalid) {
                     return hljs.highlightAuto(code).value
-                } else if (lang === "nohighlight") {
-                    return code
-                } else {
-                    return hljs.highlight(lang, code).value
                 }
+
+                if (lang === "nohighlight") {
+                    return code
+                }
+
+                return hljs.highlight(lang, code).value
             },
         })
 
