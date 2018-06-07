@@ -438,3 +438,84 @@ export const Targetlkey = (): JSX.Element => {
         />
     )
 }
+
+export const fKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="f"
+            description={
+                <span>
+                    <Bold>count + f + char</Bold>: Moves [count] occurences of [char] to the right.
+                </span>
+            }
+        />
+    )
+}
+
+export const FKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="F"
+            description={
+                <span>
+                    <Bold>count + F + char</Bold>: Moves [count] occurences of [char] to the left.
+                </span>
+            }
+        />
+    )
+}
+
+export const tKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="t"
+            description={
+                <span>
+                    <Bold>count + t + char</Bold>: Moves to before [count] occurences of [char] to
+                    the right.
+                </span>
+            }
+        />
+    )
+}
+
+export const TKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="T"
+            description={
+                <span>
+                    <Bold>count + T + char</Bold>: Moves to after [count] occurences of [char] to
+                    the left.
+                </span>
+            }
+        />
+    )
+}
+
+export const RepeatKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter=";"
+            description={
+                <span>
+                    <Bold>count + ';'</Bold>: Repeats last f, t, F, or T [count] times.
+                </span>
+            }
+        />
+    )
+}
+
+export const RepeatOppositeKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter=","
+            description={
+                <span>
+                    <Bold>count + ,</Bold>: Repeats last f, t, F, or T in opposite direction [count]
+                    times.
+                </span>
+            }
+        />
+    )
+}
