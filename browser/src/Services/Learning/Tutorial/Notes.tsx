@@ -445,7 +445,7 @@ export const fKey = (): JSX.Element => {
             keyCharacter="f"
             description={
                 <span>
-                    <Bold>count + f + char</Bold>: Moves [count] occurences of [char] to the right.
+                    <Bold>+ char</Bold>: Moves cursor to next occurence of [char].
                 </span>
             }
         />
@@ -458,7 +458,7 @@ export const FKey = (): JSX.Element => {
             keyCharacter="F"
             description={
                 <span>
-                    <Bold>count + F + char</Bold>: Moves [count] occurences of [char] to the left.
+                    <Bold>+ char</Bold>: Moves cursor to previous occurence of [char].
                 </span>
             }
         />
@@ -471,8 +471,7 @@ export const tKey = (): JSX.Element => {
             keyCharacter="t"
             description={
                 <span>
-                    <Bold>count + t + char</Bold>: Moves to before [count] occurences of [char] to
-                    the right.
+                    <Bold>+ char</Bold>: Moves cursor to before the next occurence of [char].
                 </span>
             }
         />
@@ -485,8 +484,7 @@ export const TKey = (): JSX.Element => {
             keyCharacter="T"
             description={
                 <span>
-                    <Bold>count + T + char</Bold>: Moves to after [count] occurences of [char] to
-                    the left.
+                    <Bold>+ char</Bold>: Moves cursor to after the previous occurence of [char].
                 </span>
             }
         />
@@ -497,11 +495,7 @@ export const RepeatKey = (): JSX.Element => {
     return (
         <KeyWithDescription
             keyCharacter=";"
-            description={
-                <span>
-                    <Bold>count + ';'</Bold>: Repeats last f, t, F, or T [count] times.
-                </span>
-            }
+            description={<span>Repeats last f, t, F, or T.</span>}
         />
     )
 }
@@ -510,12 +504,7 @@ export const RepeatOppositeKey = (): JSX.Element => {
     return (
         <KeyWithDescription
             keyCharacter=","
-            description={
-                <span>
-                    <Bold>count + ,</Bold>: Repeats last f, t, F, or T in opposite direction [count]
-                    times.
-                </span>
-            }
+            description={<span>Repeats last f, t, F, or T in the opposite direction.</span>}
         />
     )
 }
