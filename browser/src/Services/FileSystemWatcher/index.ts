@@ -2,7 +2,7 @@ import * as chokidar from "chokidar"
 import { Stats } from "fs"
 import { Event, IEvent } from "oni-types"
 
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
 
 export type Targets = string | string[]
 

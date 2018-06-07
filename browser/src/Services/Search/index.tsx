@@ -8,14 +8,13 @@ import * as React from "react"
 
 import { Subject } from "rxjs/Subject"
 
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
 
 import { CommandManager } from "./../CommandManager"
 import { EditorManager } from "./../EditorManager"
 import { SidebarManager } from "./../Sidebar"
 import { Workspace } from "./../Workspace"
-
-import * as Log from "./../../Log"
 
 export * from "./SearchProvider"
 

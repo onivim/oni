@@ -12,6 +12,7 @@
 
 import * as React from "react"
 
+import * as Log from "oni-core-logging"
 import { Event } from "oni-types"
 
 import { KeyboardInputView } from "./../../Input/KeyboardInput"
@@ -20,8 +21,6 @@ import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 import styled from "./../../UI/components/common"
 
 import { CallbackCommand, commandManager } from "./../../Services/CommandManager"
-
-import * as Log from "./../../Log"
 
 export interface IVimNavigatorProps {
     // activateOnMount: boolean

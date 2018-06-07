@@ -12,7 +12,7 @@ import * as path from "path"
 
 import * as Oni from "oni-api"
 
-import * as Log from "./../Log"
+import * as Log from "oni-core-logging"
 
 import { configuration } from "./Configuration"
 import { getInstance as getNotificationsInstance } from "./Notifications"

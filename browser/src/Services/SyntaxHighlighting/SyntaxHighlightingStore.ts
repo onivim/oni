@@ -8,7 +8,8 @@ import { Store } from "redux"
 import * as types from "vscode-languageserver-types"
 import { StackElement } from "vscode-textmate"
 
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
+
 import * as PeriodicJobs from "./../../PeriodicJobs"
 import { createStore } from "./../../Redux"
 import { configuration } from "./../Configuration"
