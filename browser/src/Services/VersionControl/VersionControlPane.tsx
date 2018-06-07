@@ -1,9 +1,9 @@
 import * as capitalize from "lodash/capitalize"
+import * as Log from "oni-core-logging"
 import * as React from "react"
 import { Provider } from "react-redux"
 
 import { store, SupportedProviders, VersionControlProvider, VersionControlView } from "./"
-import * as Log from "./../../Log"
 import { IWorkspace } from "./../Workspace"
 
 export default class VersionControlPane {
