@@ -130,7 +130,9 @@ export class NodeView extends React.PureComponent<INodeViewProps> {
     public componentDidUpdate(prevProps: INodeViewProps) {
         if (
             prevProps.isCreating !== this.props.isCreating ||
-            prevProps.isRenaming !== this.props.isRenaming
+            prevProps.isRenaming !== this.props.isRenaming ||
+            prevProps.yanked.includes(prevProps.node.id) !==
+                this.props.yanked.includes(this.props.node.id)
         ) {
             this.props.measure()
         }
