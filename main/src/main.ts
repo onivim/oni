@@ -217,9 +217,9 @@ export function createWindow(
     currentWindow.loadURL(`file://${indexPath}`)
 
     // Open the DevTools.
-    // if (process.env.NODE_ENV === "development" || commandLineArguments.indexOf("--debug") >= 0) {
-    currentWindow.webContents.openDevTools()
-    // }
+    if (process.env.NODE_ENV === "development" || commandLineArguments.indexOf("--debug") >= 0) {
+        currentWindow.webContents.openDevTools()
+    }
 
     currentWindow.on("move", () => {
         storeWindowState(currentWindow)
