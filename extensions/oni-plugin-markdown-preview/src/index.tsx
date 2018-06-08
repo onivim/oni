@@ -145,6 +145,7 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
         markdownLines.push(generateAnchor(originalLinesCount - 1))
 
         marked.setOptions({
+            baseUrl: this.props.oni.workspace.activeWorkspace,
             highlight(code, lang) {
                 const languageExists = hljs.getLanguage(lang)
                 const languageNotDefinedOrInvalid =
