@@ -438,3 +438,73 @@ export const Targetlkey = (): JSX.Element => {
         />
     )
 }
+
+export const fKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="f"
+            description={
+                <span>
+                    <Bold>+ char</Bold>: Moves cursor to next occurence of [char].
+                </span>
+            }
+        />
+    )
+}
+
+export const FKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="F"
+            description={
+                <span>
+                    <Bold>+ char</Bold>: Moves cursor to previous occurence of [char].
+                </span>
+            }
+        />
+    )
+}
+
+export const tKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="t"
+            description={
+                <span>
+                    <Bold>+ char</Bold>: Moves cursor to before the next occurence of [char].
+                </span>
+            }
+        />
+    )
+}
+
+export const TKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="T"
+            description={
+                <span>
+                    <Bold>+ char</Bold>: Moves cursor to after the previous occurence of [char].
+                </span>
+            }
+        />
+    )
+}
+
+export const RepeatKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter=";"
+            description={<span>Repeats last f, t, F, or T.</span>}
+        />
+    )
+}
+
+export const RepeatOppositeKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter=","
+            description={<span>Repeats last f, t, F, or T in the opposite direction.</span>}
+        />
+    )
+}
