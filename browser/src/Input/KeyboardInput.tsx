@@ -185,7 +185,7 @@ export class KeyboardInputView extends React.PureComponent<
             return
         }
 
-        const isMetaCommand = key.length > 1
+        const isMetaCommand = key.length > 1 && key !== "<lt>"
 
         // We'll let the `input` handler take care of it,
         // unless it is a keystroke containing meta characters
@@ -242,7 +242,7 @@ export class KeyboardInputView extends React.PureComponent<
         const valueLength = this._keyboardElement.value.length
 
         if (!this.state.isComposing && valueLength > 0) {
-            this._commit(this._keyboardElement.value)
+            this._commit(this._keyboardElement.value.replace("<", "<lt>"))
         }
     }
 
