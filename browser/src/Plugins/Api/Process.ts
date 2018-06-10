@@ -29,18 +29,9 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
             } catch {
                 this._env = process.env
             }
-            this._fixPath()
         }
 
         return this._env
-    }
-
-    private _fixPath() {
-        // Set the PATH to a derived path on MacOS as this is not set correctly in electron
-        // the idea is based on https://github.com/sindresorhus/fix-path
-        if (Platform.isMac() && this._env.PATH) {
-            process.env.PATH = this._env.PATH
-        }
     }
 }
 
