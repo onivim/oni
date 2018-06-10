@@ -13,6 +13,7 @@ import * as Oni from "oni-api"
 import { IState } from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 import { Arrow, ArrowDirection } from "./Arrow"
+import styled, { pixel, withProps } from "./common"
 
 export enum OpenDirection {
     Up = 1,
@@ -40,29 +41,75 @@ export interface ICursorPositionerViewProps extends ICursorPositionerProps {
     backgroundColor: string
 }
 
+interface ContainerProps {
+    adjustedY: number
+    containerWidth: number
+    isMeasured: boolean
+}
+
+interface ArrowContainerProps {
+    x: number
+    fontPixelWidth: number
+    hideArrow: boolean
+    shouldOpenDownwards: boolean
+}
+
+interface ChildProps {
+    adjustedX: number
+    isFullWidth: boolean
+    shouldOpenDownwards: boolean
+}
+
+type VisibilityProperty = "hidden" | "visible"
+
+const PositionerContainer = withProps<ContainerProps>(styled.div).attrs({
+    style: ({ adjustedY, containerWidth, isMeasured }: ContainerProps) => ({
+        top: pixel(adjustedY),
+        width: pixel(containerWidth),
+        // Wait until we've measured the bounds to show..
+        visibility: (isMeasured ? "visible" : "hidden") as VisibilityProperty,
+    }),
+})`
+    position: absolute;
+    left: 0px;
+    max-width: 45vw;
+`
+
+const openFromBottomStyle = { bottom: "0px" }
+const openFromTopStyle = { top: "0px" }
+
+const PositionerChild = withProps<ChildProps>(styled.div).attrs({
+    style: (props: ChildProps) => ({
+        ...(props.shouldOpenDownwards ? openFromTopStyle : openFromBottomStyle),
+        left: props.isFullWidth ? "8px" : pixel(Math.abs(props.adjustedX)),
+        right: props.isFullWidth ? "8px" : null,
+    }),
+})`
+    position: absolute;
+    width: fit-content;
+`
+
+const ArrowContainer = withProps<ArrowContainerProps>(styled.div).attrs({
+    style: (props: ArrowContainerProps) => ({
+        ...(props.shouldOpenDownwards ? openFromBottomStyle : openFromTopStyle),
+        left: pixel(props.x + props.fontPixelWidth / 2),
+        visibility: (props.hideArrow ? "hidden" : "visible") as VisibilityProperty,
+    }),
+})`
+        position: absolute;
+        width: fit-content;
+`
+
 export interface ICursorPositionerViewState {
     isMeasured: boolean
-
     isFullWidth: boolean
     shouldOpenDownward: boolean
     adjustedX: number
+    adjustedY: number
     lastMeasuredX: number
     lastMeasuredY: number
     lastMeasuredHeight: number
     lastMeasuredWidth: number
-}
-
-const InitialState = {
-    isMeasured: false,
-
-    isFullWidth: false,
-    shouldOpenDownward: false,
-    adjustedX: 0,
-
-    lastMeasuredX: -1,
-    lastMeasuredY: -1,
-    lastMeasuredHeight: 0,
-    lastMeasuredWidth: 0,
 }
 
 /**
@@ -72,15 +119,20 @@ export class CursorPositionerView extends React.PureComponent<
     ICursorPositionerViewProps,
     ICursorPositionerViewState
 > {
+    public state = {
+        isMeasured: false,
+        isFullWidth: false,
+        shouldOpenDownward: false,
+        adjustedX: 0,
+        adjustedY: 0,
+        lastMeasuredX: -1,
+        lastMeasuredY: -1,
+        lastMeasuredHeight: 0,
+        lastMeasuredWidth: 0,
+    }
+
     private _element: HTMLElement
     private _resizeObserver: any
-    private _timeout: any
-
-    constructor(props: ICursorPositionerViewProps) {
-        super(props)
-
-        this.state = InitialState
-    }
 
     public componentDidMount(): void {
         if (this._element) {
@@ -101,14 +153,7 @@ export class CursorPositionerView extends React.PureComponent<
                     return
                 }
 
-                if (this._timeout) {
-                    window.clearTimeout(this._timeout)
-                }
-
-                this._timeout = window.setTimeout(() => {
-                    this._measureElement(this._element)
-                    this._timeout = null
-                }, 80)
+                this._measureElement(this._element)
             })
 
             this._resizeObserver.observe(this._element)
@@ -123,64 +168,37 @@ export class CursorPositionerView extends React.PureComponent<
     }
 
     public render(): JSX.Element {
-        const adjustedX = this.state.adjustedX
         const adjustedY = this.state.shouldOpenDownward
             ? this.props.y + this.props.lineHeight * 2.5
             : this.props.y
 
-        const containerStyle: React.CSSProperties = {
-            position: "absolute",
-            top: adjustedY.toString() + "px",
-            left: "0px",
-            width: this.props.containerWidth.toString() + "px",
-            maxWidth: "45vw",
-            visibility: this.state.isMeasured ? "visible" : "hidden", // Wait until we've measured the bounds to show..
-        }
-
-        const openFromBottomStyle: React.CSSProperties = {
-            position: "absolute",
-            bottom: "0px",
-            width: "fit-content",
-        }
-
-        const openFromTopStyle: React.CSSProperties = {
-            position: "absolute",
-            top: "0px",
-            width: "fit-content",
-        }
-
-        const childStyle = this.state.shouldOpenDownward ? openFromTopStyle : openFromBottomStyle
-        const arrowStyle = this.state.shouldOpenDownward ? openFromBottomStyle : openFromTopStyle
-
-        const arrowStyleWithAdjustments: React.CSSProperties = {
-            ...arrowStyle,
-            left: (this.props.x + this.props.fontPixelWidth / 2).toString() + "px",
-            visibility: this.props.hideArrow ? "hidden" : "visible",
-        }
-
-        const childStyleWithAdjustments: React.CSSProperties = this.state.isMeasured
-            ? {
-                  ...childStyle,
-                  left: this.state.isFullWidth ? "8px" : Math.abs(adjustedX).toString() + "px",
-                  right: this.state.isFullWidth ? "8px" : null,
-              }
-            : childStyle
+        const arrowDirection = this.state.shouldOpenDownward
+            ? ArrowDirection.Up
+            : ArrowDirection.Down
 
         return (
-            <div style={containerStyle} key={this.props.key}>
-                <div style={childStyleWithAdjustments}>
+            <PositionerContainer
+                isMeasured={this.state.isMeasured}
+                containerWidth={this.props.containerWidth}
+                adjustedY={adjustedY}
+                key={this.props.key}
+            >
+                <PositionerChild
+                    isFullWidth={this.state.isFullWidth}
+                    adjustedX={this.state.adjustedX}
+                    shouldOpenDownwards={this.state.shouldOpenDownward}
+                >
                     <div ref={elem => (this._element = elem)}>{this.props.children}</div>
-                </div>
-                <div style={arrowStyleWithAdjustments}>
-                    <Arrow
-                        direction={
-                            this.state.shouldOpenDownward ? ArrowDirection.Up : ArrowDirection.Down
-                        }
-                        size={10}
-                        color={this.props.beakColor}
-                    />
-                </div>
-            </div>
+                </PositionerChild>
+                <ArrowContainer
+                    x={this.props.x}
+                    hideArrow={this.props.hideArrow}
+                    fontPixelWidth={this.props.fontPixelWidth}
+                    shouldOpenDownwards={this.state.shouldOpenDownward}
+                >
+                    <Arrow size={10} color={this.props.beakColor} direction={arrowDirection} />
+                </ArrowContainer>
+            </PositionerContainer>
         )
     }
 
@@ -200,13 +218,13 @@ export class CursorPositionerView extends React.PureComponent<
             const margin = this.props.lineHeight * 2
             const canOpenUpward = this.props.y - rect.height > margin
             const bottomScreenPadding = 50
-            const canOpenDownard =
+            const canOpenDownwards =
                 this.props.y + rect.height + this.props.lineHeight * 3 <
                 this.props.containerHeight - margin - bottomScreenPadding
 
             const shouldOpenDownward =
                 (this.props.openDirection !== OpenDirection.Down && !canOpenUpward) ||
-                (this.props.openDirection === OpenDirection.Down && canOpenDownard)
+                (this.props.openDirection === OpenDirection.Down && canOpenDownwards)
 
             const rightBounds = this.props.x + rect.width
 

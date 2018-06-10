@@ -121,13 +121,19 @@ export class SidebarManager {
 
     public setActiveEntry(id: string): void {
         if (id) {
+            const oldId = this._store.getState().activeEntryId
+
             this._store.dispatch({
                 type: "SET_ACTIVE_ID",
                 activeEntryId: id,
             })
 
-            if (!this._contentSplit.isVisible) {
+            if (oldId !== id) {
                 this._contentSplit.show()
+            } else if (!this._contentSplit.isVisible) {
+                this._contentSplit.show()
+            } else if (this._contentSplit.isVisible) {
+                this._contentSplit.hide()
             }
         }
     }

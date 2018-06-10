@@ -5,9 +5,8 @@
  */
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { IDisposable } from "oni-types"
-
-import * as Log from "./../../Log"
 
 import "rxjs/add/operator/auditTime"
 import { Subject } from "rxjs/Subject"

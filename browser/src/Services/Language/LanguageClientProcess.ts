@@ -14,9 +14,8 @@ import * as path from "path"
 import { ChildProcess } from "child_process"
 import * as rpc from "vscode-jsonrpc"
 
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
-
-import * as Log from "./../../Log"
 
 import { normalizePath } from "./../../Utility"
 

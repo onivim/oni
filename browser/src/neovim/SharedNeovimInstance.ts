@@ -8,6 +8,7 @@
  * - Enabling Neovim keybindings in text input elements
  */
 
+import * as Log from "oni-core-logging"
 import { Event, IDisposable, IEvent } from "oni-types"
 
 import { CommandContext } from "./CommandContext"
@@ -21,7 +22,6 @@ import { Configuration } from "./../Services/Configuration"
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
 import * as App from "./../App"
-import * as Log from "./../Log"
 
 export interface IBinding {
     input(key: string): Promise<void>

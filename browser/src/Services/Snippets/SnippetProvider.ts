@@ -8,12 +8,12 @@ import * as fs from "fs"
 import * as os from "os"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
 
 import { Configuration } from "./../Configuration"
 
-import * as Log from "./../../Log"
 import * as Utility from "./../../Utility"
 
 export class CompositeSnippetProvider implements Oni.Snippets.SnippetProvider {

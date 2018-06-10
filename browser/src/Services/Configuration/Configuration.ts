@@ -4,9 +4,9 @@
 
 import { merge } from "lodash"
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IDisposable, IEvent } from "oni-types"
 import { applyDefaultKeyBindings } from "./../../Input/KeyBindings"
-import * as Log from "./../../Log"
 import * as Performance from "./../../Performance"
 import { diff } from "./../../Utility"
 

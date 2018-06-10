@@ -1,7 +1,7 @@
 import { unescape } from "lodash"
 import * as marked from "marked"
 
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
 import { IGrammarPerLine, IGrammarToken } from "./../../Services/SyntaxHighlighting/TokenGenerator"
 
 import * as DOMPurify from "dompurify"

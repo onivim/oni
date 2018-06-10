@@ -1,8 +1,8 @@
 import { IGrammar, Registry } from "vscode-textmate"
 
-import { configuration } from "./../Configuration"
+import * as Log from "oni-core-logging"
 
-import * as Log from "./../../Log"
+import { configuration } from "./../Configuration"
 
 export interface IGrammarLoader {
     getGrammarForLanguage(language: string, extension: string): Promise<IGrammar>
