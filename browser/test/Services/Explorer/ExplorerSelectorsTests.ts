@@ -88,4 +88,41 @@ describe("ExplorerSelectors", () => {
             assert.deepEqual(result, expectedResult)
         })
     })
+
+    describe("mapStateToNodeList", () => {
+        it("expands the root container", () => {
+            const state: ExplorerState.IExplorerState = {
+                ...ExplorerState.DefaultExplorerState,
+                rootFolder: {
+                    type: "folder",
+                    fullPath: "rootPath",
+                },
+                expandedFolders: {
+                    rootPath: [],
+                },
+            }
+
+            const result = ExplorerSelectors.mapStateToNodeList(state)
+
+            const container = result[0] as ExplorerSelectors.IContainerNode
+            assert.strictEqual(container.type, "container")
+            assert.strictEqual(container.expanded, true)
+        })
+
+        it("collapses the root container", () => {
+            const state: ExplorerState.IExplorerState = {
+                ...ExplorerState.DefaultExplorerState,
+                rootFolder: {
+                    type: "folder",
+                    fullPath: "rootPath",
+                },
+                expandedFolders: {},
+            }
+            const result = ExplorerSelectors.mapStateToNodeList(state)
+
+            const container = result[0] as ExplorerSelectors.IContainerNode
+            assert.strictEqual(container.type, "container")
+            assert.strictEqual(container.expanded, false)
+        })
+    })
 })

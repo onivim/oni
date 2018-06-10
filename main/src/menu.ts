@@ -67,6 +67,7 @@ export const buildMenu = (mainWindow, loadInit) => {
         submenu: [
             {
                 label: "Edit Oni config",
+                accelerator: "CmdOrCtrl+,",
                 click(item, focusedWindow) {
                     executeOniCommand(focusedWindow, "oni.config.openConfigJs")
                 },
@@ -77,6 +78,7 @@ export const buildMenu = (mainWindow, loadInit) => {
     if (loadInit) {
         preferences.submenu.push({
             label: "Edit Neovim config",
+            accelerator: null,
             click(item, focusedWindow) {
                 executeOniCommand(focusedWindow, "oni.config.openInitVim")
             },

@@ -4,6 +4,8 @@
  * Handles enhanced syntax highlighting
  */
 
+import * as Log from "oni-core-logging"
+
 import { TokenColor, TokenColors } from "./../TokenColors"
 
 import { NeovimEditor } from "./../../Editor/NeovimEditor"
@@ -16,8 +18,6 @@ import {
 } from "./SyntaxHighlightingStore"
 
 import * as Selectors from "./SyntaxHighlightSelectors"
-
-import * as Log from "./../../Log"
 
 // SyntaxHighlightReconciler
 //

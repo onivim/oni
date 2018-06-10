@@ -1,7 +1,7 @@
 import * as ChildProcess from "child_process"
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 
-import * as Log from "./../../Log"
 import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
 
