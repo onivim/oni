@@ -18,7 +18,7 @@ import { IDisposable, IEvent } from "oni-types"
 
 import * as types from "vscode-languageserver-types"
 
-import * as Log from "./Log"
+import * as Log from "oni-core-logging"
 
 export class Disposable implements IDisposable {
     private _disposables: IDisposable[] = []
