@@ -62,8 +62,8 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-r>", "browser.reload")
     } else {
         input.bind("<a-f4>", "oni.quit")
-        input.bind("<c-s-_>", "sidebar.decreaseWidth")
-        input.bind("<c-s-+>", "sidebar.increaseWidth")
+        input.bind("<s-c-_>", "sidebar.decreaseWidth")
+        input.bind("<s-c-+>", "sidebar.increaseWidth")
         input.bind("<c-p>", "quickOpen.show", () => isNormalMode() && !isMenuOpen())
         input.bind("<s-c-p>", "commands.show", isNormalMode)
         input.bind("<a-enter>", "language.codeAction.expand")
