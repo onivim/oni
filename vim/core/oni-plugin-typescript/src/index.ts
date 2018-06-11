@@ -115,81 +115,84 @@ export const activate = (oni: Oni.Plugin.Api) => {
         oni.language.registerLanguageClient("typescript", _lightweightLanguageClient)
     }
 
-    const connection = new LanguageConnection(_lightweightLanguageClient)
+    if (!existingTsLSP) {
+        console.log("Should not be rendering!!!!!")
+        const connection = new LanguageConnection(_lightweightLanguageClient)
 
-    // Subscribe to textDocument/didOpen initially, to kick off
-    // initialization of the language server
+        // Subscribe to textDocument/didOpen initially, to kick off
+        // initialization of the language server
 
-    const protocolOpenFile = (message: string, payload: any) => {
-        const textDocument: any = payload.textDocument
-        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
+        const protocolOpenFile = (message: string, payload: any) => {
+            const textDocument: any = payload.textDocument
+            const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
 
-        getHost().openFile(filePath, textDocument.text)
-    }
-    connection.subscribeToNotification("textDocument/didOpen", protocolOpenFile)
+            getHost().openFile(filePath, textDocument.text)
+        }
+        // connection.subscribeToNotification("textDocument/didOpen", protocolOpenFile)
 
-    const isSingleLineChange = (range: types.Range): boolean => {
-        if (range.start.line === range.end.line) {
-            return true
+        const isSingleLineChange = (range: types.Range): boolean => {
+            if (range.start.line === range.end.line) {
+                return true
+            }
+
+            if (
+                range.start.character === 0 &&
+                range.end.character === 0 &&
+                range.start.line + 1 === range.end.line
+            ) {
+                return true
+            }
+
+            return false
         }
 
-        if (
-            range.start.character === 0 &&
-            range.end.character === 0 &&
-            range.start.line + 1 === range.end.line
-        ) {
-            return true
+        const removeNewLines = (str: string) => {
+            return str.replace(/(\r\n|\n|\r)/gm, "")
         }
 
-        return false
-    }
+        const protocolChangeFile = (host: TypeScriptServerHost) => async (
+            message: string,
+            payload: any,
+        ) => {
+            const textDocument: types.TextDocumentIdentifier = payload.textDocument
+            const contentChanges: types.TextDocumentContentChangeEvent[] = payload.contentChanges
 
-    const removeNewLines = (str: string) => {
-        return str.replace(/(\r\n|\n|\r)/gm, "")
-    }
+            if (!contentChanges || !contentChanges.length) {
+                return
+            }
 
-    const protocolChangeFile = (host: TypeScriptServerHost) => async (
-        message: string,
-        payload: any,
-    ) => {
-        const textDocument: types.TextDocumentIdentifier = payload.textDocument
-        const contentChanges: types.TextDocumentContentChangeEvent[] = payload.contentChanges
+            if (contentChanges.length > 1) {
+                oni.log.warn("Only handling first content change")
+            }
 
-        if (!contentChanges || !contentChanges.length) {
-            return
+            const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
+
+            const change = contentChanges[0]
+            if (!change.range) {
+                host.updateFile(filePath, change.text)
+            } else if (isSingleLineChange(change.range) && change.text) {
+                host.changeLineInFile(
+                    filePath,
+                    change.range.start.line + 1,
+                    removeNewLines(change.text),
+                )
+            } else {
+                oni.log.warn("Unhandled change request!")
+            }
+
+            const saveFile = oni.configuration.getValue<string>("debug.typescript.saveFile")
+            if (saveFile) {
+                host.saveTo(filePath, saveFile)
+            }
+
+            // Update errors for modified file
+            host.getErrors(filePath)
         }
 
-        if (contentChanges.length > 1) {
-            oni.log.warn("Only handling first content change")
+        const onSaved = (host: TypeScriptServerHost) => (protocolName: string, payload: any) => {
+            const textDocument = payload.textDocument
+            const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
+            host.getErrorsAcrossProject(filePath)
         }
-
-        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-
-        const change = contentChanges[0]
-        if (!change.range) {
-            host.updateFile(filePath, change.text)
-        } else if (isSingleLineChange(change.range) && change.text) {
-            host.changeLineInFile(
-                filePath,
-                change.range.start.line + 1,
-                removeNewLines(change.text),
-            )
-        } else {
-            oni.log.warn("Unhandled change request!")
-        }
-
-        const saveFile = oni.configuration.getValue<string>("debug.typescript.saveFile")
-        if (saveFile) {
-            host.saveTo(filePath, saveFile)
-        }
-
-        // Update errors for modified file
-        host.getErrors(filePath)
-    }
-
-    const onSaved = (host: TypeScriptServerHost) => (protocolName: string, payload: any) => {
-        const textDocument = payload.textDocument
-        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-        host.getErrorsAcrossProject(filePath)
     }
 }
