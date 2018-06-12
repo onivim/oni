@@ -50,15 +50,11 @@ export class AddressBarView extends React.PureComponent<
     IAddressBarViewProps,
     IAddressBarViewState
 > {
-    constructor(props: IAddressBarViewProps) {
-        super(props)
-
-        this.state = {
-            isActive: false,
-        }
+    public state = {
+        isActive: false,
     }
 
-    public render(): JSX.Element {
+    public render() {
         const contents = this.state.isActive ? this._renderTextInput() : this._renderAddressSpan()
 
         return <AddressBarWrapper>{contents}</AddressBarWrapper>
@@ -69,9 +65,7 @@ export class AddressBarView extends React.PureComponent<
             <EditableAddressBarWrapper>
                 <TextInputView
                     defaultValue={this.props.url}
-                    onComplete={evt => {
-                        this._onComplete(evt)
-                    }}
+                    onComplete={evt => this._onComplete(evt)}
                     onCancel={() => this._onCancel()}
                 />
             </EditableAddressBarWrapper>

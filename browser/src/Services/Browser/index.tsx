@@ -29,6 +29,7 @@ export class BrowserLayer implements Oni.BufferLayer {
     private _scrollDownEvent = new Event<void>()
     private _scrollRightEvent = new Event<void>()
     private _scrollLeftEvent = new Event<void>()
+    private _inputInProgress = false
 
     constructor(private _url: string, private _configuration: Configuration) {}
 
@@ -36,9 +37,18 @@ export class BrowserLayer implements Oni.BufferLayer {
         return "oni.browser"
     }
 
+    public get inputInProgress(): boolean {
+        return this._inputInProgress
+    }
+
+    public setInputStatus = (inputting: boolean) => {
+        this._inputInProgress = inputting
+    }
+
     public render(): JSX.Element {
         return (
             <BrowserView
+                setInputStatus={this.setInputStatus}
                 configuration={this._configuration}
                 initialUrl={this._url}
                 goBack={this._goBackEvent}
@@ -164,7 +174,7 @@ export const activate = (
         const activeBuffer = editorManager.activeEditor.activeBuffer
 
         const browserLayer = activeLayers[activeBuffer.id]
-        if (browserLayer) {
+        if (browserLayer && !browserLayer.inputInProgress) {
             callback(browserLayer)
         }
     }

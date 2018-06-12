@@ -60,6 +60,7 @@ export interface IBrowserViewProps {
     initialUrl: string
 
     configuration: Configuration
+    setInputStatus: (inputting: boolean) => void
 
     debug: IEvent<void>
     goBack: IEvent<void>
@@ -157,7 +158,19 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
             scrollLeft,
             scrollRight,
         ])
+
         this._initializeElement(this._elem)
+    }
+
+    public toggleInputStatus = () => {
+        this._webviewElement.executeJavaScript(
+            `window.document.activeElement.tagName`,
+            true,
+            (element: string) => {
+                const isInputting = element.toLowerCase() === "input"
+                this.props.setInputStatus(isInputting)
+            },
+        )
     }
 
     public _triggerSneak(id: string): void {
@@ -306,6 +319,8 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
             elem.appendChild(webviewElement)
             this._webviewElement = webviewElement
             this._navigate(this.props.initialUrl)
+
+            this._webviewElement.addEventListener("keydown", this.toggleInputStatus)
 
             this._webviewElement.addEventListener("dom-ready", () => {
                 this._webviewElement.setZoomFactor(this._getZoomFactor())
