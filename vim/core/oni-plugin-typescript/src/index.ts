@@ -63,32 +63,32 @@ export const activate = (oni: Oni.Plugin.Api) => {
 
             const language = Utility.getLanguageFromFileName(fileName)
 
-            connection.notify("textDocument/publishDiagnostics", language, {
-                uri: oni.language.wrapPathInFileUri(fileName),
-                diagnostics: errors,
-            })
+            // connection.notify("textDocument/publishDiagnostics", language, {
+            //     uri: oni.language.wrapPathInFileUri(fileName),
+            //     diagnostics: errors,
+            // })
         })
 
-        connection.subscribeToRequest("completionItem/resolve", getCompletionDetails(host))
-
-        connection.subscribeToNotification("textDocument/didChange", protocolChangeFile(host))
-        connection.subscribeToNotification("textDocument/didSave", onSaved(host))
-
-        connection.subscribeToRequest("textDocument/completion", getCompletions(oni, host))
-        connection.subscribeToRequest("textDocument/codeAction", getCodeActions(oni, host))
-        connection.subscribeToRequest("textDocument/definition", getDefinition(oni, host))
-        connection.subscribeToRequest("textDocument/hover", getQuickInfo(oni, host))
-        connection.subscribeToRequest("textDocument/rangeFormatting", formatRange(oni, host))
-        connection.subscribeToRequest("textDocument/references", findAllReferences(oni, host))
-        connection.subscribeToRequest("textDocument/rename", doRename(oni, host))
-        connection.subscribeToRequest("textDocument/signatureHelp", getSignatureHelp(oni, host))
-        connection.subscribeToRequest("textDocument/documentSymbol", getDocumentSymbols(oni, host))
-
-        connection.subscribeToRequest(
-            "workspace/executeCommand",
-            executeCommand(connection, oni, host),
-        )
-        connection.subscribeToRequest("workspace/symbol", getWorkspaceSymbols(oni, host))
+        // connection.subscribeToRequest("completionItem/resolve", getCompletionDetails(host))
+        //
+        // connection.subscribeToNotification("textDocument/didChange", protocolChangeFile(host))
+        // connection.subscribeToNotification("textDocument/didSave", onSaved(host))
+        //
+        // connection.subscribeToRequest("textDocument/completion", getCompletions(oni, host))
+        // connection.subscribeToRequest("textDocument/codeAction", getCodeActions(oni, host))
+        // connection.subscribeToRequest("textDocument/definition", getDefinition(oni, host))
+        // connection.subscribeToRequest("textDocument/hover", getQuickInfo(oni, host))
+        // connection.subscribeToRequest("textDocument/rangeFormatting", formatRange(oni, host))
+        // connection.subscribeToRequest("textDocument/references", findAllReferences(oni, host))
+        // connection.subscribeToRequest("textDocument/rename", doRename(oni, host))
+        // connection.subscribeToRequest("textDocument/signatureHelp", getSignatureHelp(oni, host))
+        // connection.subscribeToRequest("textDocument/documentSymbol", getDocumentSymbols(oni, host))
+        //
+        // connection.subscribeToRequest(
+        //     "workspace/executeCommand",
+        //     executeCommand(connection, oni, host),
+        // )
+        // connection.subscribeToRequest("workspace/symbol", getWorkspaceSymbols(oni, host))
     }
 
     const getHost = () => {
@@ -116,7 +116,6 @@ export const activate = (oni: Oni.Plugin.Api) => {
     }
 
     if (!existingTsLSP) {
-        console.log("Should not be rendering!!!!!")
         const connection = new LanguageConnection(_lightweightLanguageClient)
 
         // Subscribe to textDocument/didOpen initially, to kick off
