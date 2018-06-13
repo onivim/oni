@@ -54,7 +54,7 @@ export class AddressBarView extends React.PureComponent<
         isActive: false,
     }
 
-    public render() {
+    public render(): JSX.Element {
         const contents = this.state.isActive ? this._renderTextInput() : this._renderAddressSpan()
 
         return <AddressBarWrapper>{contents}</AddressBarWrapper>

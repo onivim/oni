@@ -10,6 +10,9 @@ import * as React from "react"
 import * as Oni from "oni-api"
 import { Event } from "oni-types"
 
+import { BrowserStore, createStore } from "./BrowserStore"
+import { BrowserView } from "./BrowserView"
+
 import { CommandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
@@ -17,8 +20,6 @@ import {
     AchievementsManager,
     getInstance as getAchievementsInstance,
 } from "./../Learning/Achievements"
-
-import { BrowserView } from "./BrowserView"
 
 export class BrowserLayer implements Oni.BufferLayer {
     private _debugEvent = new Event<void>()
@@ -29,20 +30,23 @@ export class BrowserLayer implements Oni.BufferLayer {
     private _scrollDownEvent = new Event<void>()
     private _scrollRightEvent = new Event<void>()
     private _scrollLeftEvent = new Event<void>()
-    private _inputInProgress = false
+    private _store: BrowserStore
 
-    constructor(private _url: string, private _configuration: Configuration) {}
+    constructor(private _url: string, private _configuration: Configuration) {
+        this._store = createStore()
+    }
 
     public get id(): string {
         return "oni.browser"
     }
 
     public get inputInProgress(): boolean {
-        return this._inputInProgress
+        const state = this._store.getState()
+        return state.inputInProgress
     }
 
     public setInputStatus = (inputting: boolean) => {
-        this._inputInProgress = inputting
+        this._store.dispatch({ type: "INPUT_IN_PROGRESS", payload: inputting })
     }
 
     public render(): JSX.Element {
