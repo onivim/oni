@@ -6,8 +6,6 @@ import { styled, withProps } from "./../components/common"
 export interface ITextInputViewProps {
     onCancel?: () => void
     onComplete?: (result: string) => void
-    onFocus?: (evt?: any) => void
-    onBlur?: (evt?: any) => void
     onChange?: (evt: React.ChangeEvent<HTMLInputElement>) => void
     styles?: any
 
@@ -41,19 +39,6 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         }
     }
 
-    public handleFocus = (evt: React.FocusEvent<HTMLInputElement>) => {
-        if (this.props.onFocus) {
-            this.props.onFocus()
-        }
-        evt.currentTarget.select()
-    }
-
-    public handleBlur = (evt: any) => {
-        if (this.props.onBlur) {
-            this.props.onBlur()
-        }
-    }
-
     public render(): JSX.Element {
         const inputStyle: React.CSSProperties = {
             outline: "none",
@@ -72,7 +57,9 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
                     placeholder={defaultValue}
                     onKeyDown={this._onKeyDown}
                     onChange={this._onChange}
-                    onFocus={this.handleFocus}
+                    onFocus={(evt: React.FocusEvent<HTMLInputElement>) =>
+                        evt.currentTarget.select()
+                    }
                     innerRef={(elem: HTMLInputElement) => (this._element = elem)}
                 />
             </div>
