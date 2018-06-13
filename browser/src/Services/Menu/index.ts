@@ -1,6 +1,6 @@
 export * from "./Menu"
 export * from "./MenuComponent"
-export * from "./MenuFilter"
+export * from "./Filter"
 
 import { Configuration } from "./../Configuration"
 import { OverlayManager } from "./../Overlay"

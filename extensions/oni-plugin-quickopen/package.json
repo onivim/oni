@@ -1,0 +1,22 @@
+{
+    "name": "oni-plugin-quickopen",
+    "version": "0.0.1",
+    "main": "lib/index.js",
+    "engines": {
+        "oni": "^0.0.1"
+    },
+    "scripts": {
+        "build": "rimraf lib && tsc",
+        "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
+    },
+    "oni": {
+    },
+    "dependencies": {
+        "oni-types": "^0.0.4",
+        "oni-api": "^0.0.9"
+    },
+    "devDependencies": {
+        "typescript": "2.5.3",
+        "rimraf": "2.6.2"
+    }
+}

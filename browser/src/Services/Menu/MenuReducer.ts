@@ -4,8 +4,8 @@
  * Implements state-change logic for the menu
  */
 
+import { filter } from "./Filter/FuseFilter"
 import * as Actions from "./MenuActions"
-import * as MenuFilter from "./MenuFilter"
 import * as State from "./MenuState"
 
 export function createReducer<T, FilteredT extends T>() {
@@ -50,7 +50,7 @@ export function createReducer<T, FilteredT extends T>() {
                 const filterFunc =
                     a.payload.options && a.payload.options.filterFunction
                         ? a.payload.options.filterFunction
-                        : MenuFilter.fuseFilter
+                        : filter
                 const filteredOptions3 = filterFunc(options3, filterText)
                 return {
                     ...a.payload.options,

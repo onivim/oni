@@ -21,5 +21,5 @@ export const getArguments = (excludePaths: string[]) => {
         return prev.concat(["-g", "!" + cur])
     }, [])
 
-    return ["--files", "--hidden", "--case-sensitive"].concat(ignoreArguments)
+    return ["--vimgrep", "--hidden"].concat(ignoreArguments)
 }
