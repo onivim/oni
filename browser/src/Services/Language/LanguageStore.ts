@@ -5,6 +5,7 @@
  * hover & definition
  */
 
+import * as Log from "oni-core-logging"
 import "rxjs/add/observable/of"
 import { Observable } from "rxjs/Observable"
 
@@ -293,10 +294,13 @@ export const queryDefinitionEpic = (
         .switchMap(() => {
             const state = store.getState()
 
-            const { filePath, language } = state.activeBuffer
-            const { line, column } = state.cursor
-
             return Observable.defer(async () => {
+                const { filePath, language } = state.activeBuffer
+                const { line, column } = state.cursor
+
+                // FIXME: Added for debugging
+                Log.info(`Definition requested at line: ${line}`)
+                Log.info(`Definition requested at column: ${column}`)
                 const result = await definitionRequestor.getDefinition(
                     language,
                     filePath,
