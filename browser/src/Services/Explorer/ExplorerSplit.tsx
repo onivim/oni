@@ -113,7 +113,9 @@ export class ExplorerSplit {
     }
 
     private _inputInProgress = () => {
-        const { register: { rename, create } } = this._store.getState()
+        const {
+            register: { rename, create },
+        } = this._store.getState()
         return rename.active || create.active
     }
 
@@ -240,18 +242,16 @@ export class ExplorerSplit {
                 // Should be being called with an ID not an active editor
                 windowManager.focusSplit("oni.window.0")
                 return
+            case "container":
             case "folder":
-                const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(
-                    state,
-                    selectedItem.folderPath,
-                )
+                const directoryPath =
+                    selectedItem.type === "container" ? selectedItem.name : selectedItem.folderPath
+                const isDirectoryExpanded = ExplorerSelectors.isPathExpanded(state, directoryPath)
                 this._store.dispatch({
                     type: isDirectoryExpanded ? "COLLAPSE_DIRECTORY" : "EXPAND_DIRECTORY",
-                    directoryPath: selectedItem.folderPath,
+                    directoryPath,
                 })
                 return
-            default:
-                alert("Not implemented yet.") // tslint:disable-line
         }
     }
 
@@ -338,7 +338,9 @@ export class ExplorerSplit {
     }
 
     private _onUndoItem(): void {
-        const { register: { undo } } = this._store.getState()
+        const {
+            register: { undo },
+        } = this._store.getState()
         if (undo.length) {
             this._store.dispatch({ type: "UNDO" })
         }
@@ -350,7 +352,9 @@ export class ExplorerSplit {
             return
         }
 
-        const { register: { yank } } = this._store.getState()
+        const {
+            register: { yank },
+        } = this._store.getState()
         const inYankRegister = yank.some(({ id }) => id === selectedItem.id)
 
         if (!inYankRegister) {
@@ -366,7 +370,9 @@ export class ExplorerSplit {
             return
         }
 
-        const { register: { yank } } = this._store.getState()
+        const {
+            register: { yank },
+        } = this._store.getState()
 
         if (yank.length && pasteTarget) {
             const sources = yank.map(
