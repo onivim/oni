@@ -29,6 +29,21 @@ export interface ISearchQuery {
     cancel(): void
 }
 
+/* tslint:disable:no-empty */
+export class NullSearchQuery implements ISearchQuery {
+    public onSearchStarted: IEvent<void>
+    public onSearchCompleted: IEvent<ISearchResult>
+
+    public start(): void {
+        return undefined
+    }
+
+    public cancel(): void {
+        return undefined
+    }
+}
+/* tslint:enable:no-empty */
+
 export interface ISearchOptions {
     searchQuery: string
     fileFilter: string

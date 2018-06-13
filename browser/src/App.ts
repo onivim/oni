@@ -88,6 +88,7 @@ export const start = async (args: string[]): Promise<void> => {
     const snippetPromise = import("./Services/Snippets")
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
     const quickOpenPromise = import("./Services/QuickOpen")
+    const quickFindPromise = import("./Services/QuickFind")
     const taksPromise = import("./Services/Tasks")
     const terminalPromise = import("./Services/Terminal")
     const workspacePromise = import("./Services/Workspace")
@@ -212,6 +213,9 @@ export const start = async (args: string[]): Promise<void> => {
 
     const QuickOpen = await quickOpenPromise
     QuickOpen.activate(commandManager, menuManager, editorManager, workspace)
+
+    const QuickFind = await quickFindPromise
+    QuickFind.activate(commandManager, menuManager, editorManager, workspace)
 
     const Notifications = await notificationsPromise
     Notifications.activate(configuration, overlayManager)
