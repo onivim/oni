@@ -127,13 +127,20 @@ export class NodeView extends React.PureComponent<INodeViewProps> {
         return !(drag.node.name === drop.node.name)
     }
 
+    public calculateIfShouldMeasure(prevProps: INodeViewProps) {
+        // if the node is selected and its `isCreating` or `isRenaming`
+        // or it changes it's yank state then it should recalculate
+        return (
+            this.props.isSelected &&
+            (prevProps.isCreating !== this.props.isCreating ||
+                prevProps.isRenaming !== this.props.isRenaming ||
+                prevProps.yanked.includes(prevProps.node.id) !==
+                    this.props.yanked.includes(this.props.node.id))
+        )
+    }
+
     public componentDidUpdate(prevProps: INodeViewProps) {
-        if (
-            prevProps.isCreating !== this.props.isCreating ||
-            prevProps.isRenaming !== this.props.isRenaming ||
-            prevProps.yanked.includes(prevProps.node.id) !==
-                this.props.yanked.includes(this.props.node.id)
-        ) {
+        if (this.calculateIfShouldMeasure(prevProps)) {
             this.props.measure()
         }
     }
