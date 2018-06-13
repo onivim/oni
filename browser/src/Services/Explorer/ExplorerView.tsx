@@ -338,12 +338,18 @@ const cache = new CellMeasurerCache({
 })
 
 export class ExplorerView extends React.PureComponent<IExplorerViewProps> {
+    private _list: React.RefObject<List> = React.createRef()
     public openWorkspaceFolder = () => {
         commandManager.executeCommand("workspace.openFolder")
     }
 
     public getSelectedNode = (selectedId: string) => {
         return this.props.nodes.findIndex(n => selectedId === n.id)
+    }
+
+    public resize = (index: number) => () => {
+        cache.clear(index, 0)
+        this._list.current.recomputeRowHeights(index)
     }
 
     public render(): JSX.Element {
@@ -376,6 +382,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps> {
                                     {measurements => (
                                         <List
                                             {...measurements}
+                                            ref={this._list}
                                             overscanRowCount={3}
                                             scrollToAlignment="end"
                                             rowHeight={cache.rowHeight}
@@ -392,17 +399,15 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps> {
                                                         rowIndex={index}
                                                         parent={parent}
                                                     >
-                                                        {({ measure }) => (
-                                                            <div style={style}>
-                                                                <SneakableNode
-                                                                    {...this.props}
-                                                                    node={node}
-                                                                    key={node.id}
-                                                                    selectedId={selectedId}
-                                                                    measure={measure}
-                                                                />
-                                                            </div>
-                                                        )}
+                                                        <div style={style}>
+                                                            <SneakableNode
+                                                                node={node}
+                                                                key={node.id}
+                                                                {...this.props}
+                                                                selectedId={selectedId}
+                                                                measure={this.resize(index)}
+                                                            />
+                                                        </div>
                                                     </CellMeasurer>
                                                 )
                                             }}
