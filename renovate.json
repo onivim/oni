@@ -1,4 +1,7 @@
 {
+  "enabledManagers": ["yarn"],
+  "prConcurrentLimit": 1,
+  "prCreation": "status-success",
   "extends": [
     "config:base"
   ]
