@@ -508,3 +508,21 @@ export const RepeatOppositeKey = (): JSX.Element => {
         />
     )
 }
+
+export const innerTextObjectKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="i"
+            description={<span>Select a Text Object with delimiter characters</span>}
+        />
+    )
+}
+
+export const aTextObjectKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="a"
+            description={<span>Select a Text Object and its delimiter characters</span>}
+        />
+    )
+}
