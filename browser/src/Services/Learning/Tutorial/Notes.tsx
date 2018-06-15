@@ -513,7 +513,7 @@ export const innerTextObjectKey = (): JSX.Element => {
     return (
         <KeyWithDescription
             keyCharacter="i"
-            description={<span>Select a Text Object with delimiter characters</span>}
+            description={<span>Select a Text Object within delimiter characters</span>}
         />
     )
 }
