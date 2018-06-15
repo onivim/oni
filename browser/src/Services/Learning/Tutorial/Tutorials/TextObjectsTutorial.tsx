@@ -36,12 +36,14 @@ const stage3line5a = "   "
 const stage3line6 = "</html>"
 
 const stage4line1 = "There are many other Text Objects we can manipulate"
-const stage4line2 = "[ there ] ( are ) { many } < text > objects to try"
-const stage4line2a = "[] ( are ) { many } < text > objects to try"
-const stage4line2b = "[] () { many } < text > objects to try"
-const stage4line2c = "[] () {} < text > objects to try"
-const stage4line2d = "[] () {} <> objects to try"
-const stage4line2e = "[] () {} <>  to try"
+const stage4line2 = "[ there ] ( are ) { many } < text > objects ' to ' \" try \""
+const stage4line2a = "[] ( are ) { many } < text > objects ' to ' \" try \""
+const stage4line2b = "[] () { many } < text > objects ' to ' \" try \""
+const stage4line2c = "[] () {} < text > objects ' to ' \" try \""
+const stage4line2d = "[] () {} <> objects ' to ' \" try \""
+const stage4line2e = "[] () {} <>  ' to ' \" try \""
+const stage4line2f = "[] () {} <>  '' \" try \""
+const stage4line2g = "[] () {} <>  '' \"\""
 
 export class TextObjectsTutorial implements ITutorial {
     private _stages: ITutorialStage[]
@@ -188,6 +190,16 @@ export class TextObjectsTutorial implements ITutorial {
                 "Try 'diw'",
                 new Stages.DeleteCharactersStage(null, 1, 12, "objects"),
                 new Stages.WaitForStateStage(null, [stage4line1, stage4line2e]),
+            ),
+            Stages.combine(
+                "Try di'",
+                new Stages.DeleteCharactersStage(null, 1, 14, " to "),
+                new Stages.WaitForStateStage(null, [stage4line1, stage4line2f]),
+            ),
+            Stages.combine(
+                'Try di"',
+                new Stages.DeleteCharactersStage(null, 1, 17, " try "),
+                new Stages.WaitForStateStage(null, [stage4line1, stage4line2g]),
             ),
         ]
     }
