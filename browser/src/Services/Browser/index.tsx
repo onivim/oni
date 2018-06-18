@@ -4,7 +4,7 @@
  * Entry point for browser integration plugin
  */
 
-import { shell } from "electron"
+import { shell, WebviewTag } from "electron"
 import * as React from "react"
 
 import * as Oni from "oni-api"
@@ -22,7 +22,6 @@ import {
 } from "./../Learning/Achievements"
 
 import { BrowserView } from "./BrowserView"
-import { WebviewTag } from "electron"
 
 export class BrowserLayer implements Oni.BufferLayer {
     private _debugEvent = new Event<void>()
