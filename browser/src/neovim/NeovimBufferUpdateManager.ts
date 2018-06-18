@@ -19,124 +19,62 @@ export interface INeovimBufferUpdate {
     contentChanges: types.TextDocumentContentChangeEvent[]
 }
 
+export type NeovimBufferLineEvent = [number, number, number, number, string[], boolean]
+
 export class NeovimBufferUpdateManager {
     private _onBufferUpdateEvent = new Event<INeovimBufferUpdate>()
-    private _lastEventContext: EventContext
-    private _lastMode: string
+    // private _lastEventContext: EventContext
+    // private _lastMode: string
 
-    private _isRequestInProgress: boolean = false
-    private _queuedRequest: EventContext
+    // private _isRequestInProgress: boolean = false
+    // private _queuedRequest: EventContext
+
+    private _trackedBuffers: Set<number> = new Set<number>()
 
     public get onBufferUpdate(): IEvent<INeovimBufferUpdate> {
         return this._onBufferUpdateEvent
     }
 
-    constructor(private _configuration: Configuration, private _neovimInstance: NeovimInstance) {}
-
-    public async notifyFullBufferUpdate(eventContext: EventContext): Promise<void> {
-        if (!this._shouldSubscribeToUpdates(eventContext)) {
-            return
-        }
-
-        this._doFullUpdate(eventContext)
+    constructor(private _configuration: Configuration, private _neovimInstance: NeovimInstance) {
+        this._neovimInstance.autoCommands.onBufEnter.subscribe(async buf => {
+            if (!this._trackedBuffers.has(buf.current.bufferNumber)) {
+                if (this._shouldSubscribeToUpdates(buf.current)) {
+                    this._trackedBuffers.add(buf.current.bufferNumber)
+                    await this._neovimInstance.request("nvim_buf_attach", [
+                        buf.current.bufferNumber,
+                        true,
+                        {},
+                    ])
+                }
+            }
+        })
     }
 
-    public async notifyModeChanged(newMode: string): Promise<void> {
-        const shouldUpdate = newMode === "insert" && this._lastMode !== "insert"
-        this._lastMode = newMode
-
-        if (!shouldUpdate) {
-            return
-        }
+    public async handleUpdateEvent(lineEvent: NeovimBufferLineEvent): Promise<void> {
+        const [bufferId, , firstLine, lastLine, linedata] = lineEvent
 
         const eventContext = await this._neovimInstance.getContext()
 
-        if (!this._shouldSubscribeToUpdates(eventContext)) {
-            return
+        if (eventContext.bufferNumber !== bufferId) {
+            console.warn("Buffer ids don't match for update event")
         }
-
-        this._doFullUpdate(eventContext)
-    }
-
-    public notifyIncrementalBufferUpdate(
-        eventContext: EventContext,
-        lineNumber: number,
-        lineContents: string,
-    ): void {
-        if (!this._shouldSubscribeToUpdates(eventContext)) {
-            return
-        }
-
-        const shouldDoFullUpdate = this._shouldDoFullUpdate(eventContext, this._lastEventContext)
-
-        if (shouldDoFullUpdate) {
-            this._doFullUpdate(eventContext)
-            return
-        }
-
-        const changedLine = lineContents
 
         const update: INeovimBufferUpdate = {
             eventContext,
             contentChanges: [
                 {
-                    range: types.Range.create(lineNumber - 1, 0, lineNumber, 0),
-                    text: changedLine + os.EOL,
+                    range: types.Range.create(
+                        firstLine,
+                        0,
+                        lastLine === -1 ? linedata.length : lastLine,
+                        0,
+                    ),
+                    text: linedata.join(os.EOL) + os.EOL,
                 },
             ],
         }
 
         this._onBufferUpdateEvent.dispatch(update)
-    }
-
-    private async _doFullUpdate(eventContext: EventContext): Promise<void> {
-        if (this._isRequestInProgress) {
-            this._queuedRequest = eventContext
-            return
-        }
-
-        this._isRequestInProgress = true
-        const bufferLines = await this._neovimInstance.request<string[]>("nvim_buf_get_lines", [
-            eventContext.bufferNumber,
-            0,
-            eventContext.bufferTotalLines,
-            false,
-        ])
-        this._isRequestInProgress = false
-
-        const update: INeovimBufferUpdate = {
-            eventContext,
-            contentChanges: [{ text: bufferLines.join(os.EOL) }],
-        }
-
-        this._lastEventContext = eventContext
-        this._onBufferUpdateEvent.dispatch(update)
-
-        // Is there a queued request?
-        if (this._queuedRequest) {
-            const req = this._queuedRequest
-            this._queuedRequest = null
-            this._doFullUpdate(req)
-        }
-    }
-
-    private _shouldDoFullUpdate(
-        currentContext: EventContext,
-        previousContext: EventContext,
-    ): boolean {
-        if (!previousContext) {
-            return true
-        }
-
-        if (currentContext.bufferFullPath !== previousContext.bufferFullPath) {
-            return true
-        }
-
-        if (currentContext.bufferTotalLines !== previousContext.bufferTotalLines) {
-            return true
-        }
-
-        return false
     }
 
     private _shouldSubscribeToUpdates(context: EventContext): boolean {

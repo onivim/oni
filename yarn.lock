@@ -7341,9 +7341,9 @@ oni-core-logging@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/oni-core-logging/-/oni-core-logging-1.0.0.tgz#7ad6c0ad8b06c23255202f97e229c2b0947dcf0b"
 
-oni-neovim-binaries@0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/oni-neovim-binaries/-/oni-neovim-binaries-0.1.1.tgz#7aed74c14bca2581e1447c557541192dd5e89cdd"
+oni-neovim-binaries@0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/oni-neovim-binaries/-/oni-neovim-binaries-0.1.2.tgz#fccfab6aa71922437119a8de149582648f4e521d"
 
 oni-release-downloader@^0.0.10:
   version "0.0.10"
