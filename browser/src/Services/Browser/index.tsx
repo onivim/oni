@@ -10,7 +10,7 @@ import * as React from "react"
 import * as Oni from "oni-api"
 import { Event } from "oni-types"
 
-import { IBuffer } from "./../Editor/BufferManager"
+import { IBuffer } from "./../../Editor/BufferManager"
 
 import { CommandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
