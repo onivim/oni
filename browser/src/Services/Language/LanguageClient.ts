@@ -1,8 +1,7 @@
 import * as rpc from "vscode-jsonrpc"
 
+import * as Log from "oni-core-logging"
 import { Event } from "oni-types"
-
-import * as Log from "./../../Log"
 
 import { ILanguageClientProcess } from "./LanguageClientProcess"
 import { PromiseQueue } from "./PromiseQueue"

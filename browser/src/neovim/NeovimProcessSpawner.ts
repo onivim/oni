@@ -2,12 +2,12 @@ import { ChildProcess } from "child_process"
 import * as net from "net"
 import * as path from "path"
 
+import * as Log from "oni-core-logging"
+
 import * as Platform from "./../Platform"
 import Process from "./../Plugins/Api/Process"
 
 import { Session } from "./Session"
-
-import * as Log from "./../Log"
 
 // Most of the paths coming in the packaged binary reference the `app.asar`,
 // but the binaries (Neovim) as well as the .vim files are unpacked,
@@ -93,7 +93,9 @@ export const startNeovim = async (
 
     let nvimProcessPath = Platform.isWindows()
         ? nvimWindowsProcessPath
-        : Platform.isMac() ? nvimMacProcessPath : nvimLinuxPath
+        : Platform.isMac()
+            ? nvimMacProcessPath
+            : nvimLinuxPath
 
     nvimProcessPath = remapPathToUnpackedAsar(nvimProcessPath)
 

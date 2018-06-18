@@ -10,6 +10,7 @@ import { ChangeOperatorTutorial } from "./ChangeOperatorTutorial"
 import { CopyPasteTutorial } from "./CopyPasteTutorial"
 import { DeleteCharacterTutorial } from "./DeleteCharacterTutorial"
 import { DeleteOperatorTutorial } from "./DeleteOperatorTutorial"
+import { InlineFindingTutorial } from "./InlineFindingTutorial"
 import { InsertAndUndoTutorial } from "./InsertAndUndoTutorial"
 import { SearchInBufferTutorial } from "./SearchInBufferTutorial"
 import { SwitchModeTutorial } from "./SwitchModeTutorial"
@@ -35,4 +36,5 @@ export const AllTutorials: ITutorial[] = [
     new ChangeOperatorTutorial(),
     new VisualModeTutorial(),
     new TargetsVimPluginTutorial(),
+    new InlineFindingTutorial(),
 ]

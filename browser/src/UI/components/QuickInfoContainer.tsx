@@ -6,6 +6,7 @@ import TokenThemeProvider from "./../../Services/SyntaxHighlighting/TokenThemePr
 
 interface IQuickInfoProps {
     titleAndContents: ITitleAndContents
+    isVisible: boolean
 }
 
 interface ITitleAndContents {
@@ -19,7 +20,7 @@ interface ITitleAndContents {
 
 class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
     public render() {
-        const { titleAndContents } = this.props
+        const { titleAndContents, isVisible } = this.props
         const hasTitle = !!(titleAndContents && titleAndContents.title.__html)
         const hasDocs =
             hasTitle &&
@@ -30,23 +31,25 @@ class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
             )
 
         return (
-            <TokenThemeProvider
-                render={({ theme, styles }) => (
-                    <QuickInfoContainer hasDocs={hasDocs}>
-                        <QuickInfoTitle
-                            padding={hasDocs ? "0.5rem" : null}
-                            html={titleAndContents.title}
-                            tokenStyles={styles}
-                        />
-                        {titleAndContents.description && (
-                            <QuickInfoDocumentation
-                                html={titleAndContents.description}
+            isVisible && (
+                <TokenThemeProvider
+                    render={({ theme, styles }) => (
+                        <QuickInfoContainer hasDocs={hasDocs}>
+                            <QuickInfoTitle
+                                padding={hasDocs ? "0.5rem" : null}
+                                html={titleAndContents.title}
                                 tokenStyles={styles}
                             />
-                        )}
-                    </QuickInfoContainer>
-                )}
-            />
+                            {titleAndContents.description && (
+                                <QuickInfoDocumentation
+                                    html={titleAndContents.description}
+                                    tokenStyles={styles}
+                                />
+                            )}
+                        </QuickInfoContainer>
+                    )}
+                />
+            )
         )
     }
 }

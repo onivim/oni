@@ -5,10 +5,9 @@
  */
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 
 import * as types from "vscode-languageserver-types"
-
-import * as Log from "./../../Log"
 
 import { CompletionsRequestContext, ICompletionsRequestor } from "./../Completion"
 import { SnippetManager } from "./SnippetManager"
