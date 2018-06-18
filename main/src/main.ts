@@ -183,7 +183,14 @@ export function createWindow(
     })
 
     if (process.platform === "darwin") {
-        systemPreferences.setUserDefault("ApplePressAndHoldEnabled", "boolean", "true")
+        const pressAndHold: boolean = systemPreferences.getUserDefault(
+            "ApplePressAndHoldEnabled",
+            "boolean",
+        )
+
+        if (!pressAndHold) {
+            systemPreferences.setUserDefault("ApplePressAndHoldEnabled", "boolean", "true")
+        }
     }
 
     if (windowState.isMaximized) {
