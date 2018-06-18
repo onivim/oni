@@ -35,6 +35,7 @@ export class BrowserLayer implements Oni.BufferLayer {
     private _scrollLeftEvent = new Event<void>()
 
     private _webview: WebviewTag | null = null
+    private _activeTagName: string | null = null
 
     constructor(private _url: string, private _configuration: Configuration) {}
 
@@ -47,7 +48,7 @@ export class BrowserLayer implements Oni.BufferLayer {
     }
 
     public get activeTagName(): string {
-        return null
+        return this._activeTagName
     }
 
     public render(): JSX.Element {
@@ -64,6 +65,7 @@ export class BrowserLayer implements Oni.BufferLayer {
                 scrollLeft={this._scrollLeftEvent}
                 scrollRight={this._scrollRightEvent}
                 webviewRef={webview => (this._webview = webview)}
+                onFocusTag={newTag => (this._activeTagName = newTag)}
             />
         )
     }
@@ -205,6 +207,10 @@ export const activate = (
         return true
     }
 
+    const isInputTag = (tagName: string): boolean => {
+        return tagName === "INPUT" || tagName === "TEXTAREA"
+    }
+
     const isBrowserScrollCommandEnabled = (): boolean => {
         if (!isBrowserCommandEnabled()) {
             return false
@@ -214,7 +220,7 @@ export const activate = (
 
         // Finally, if the webview _is_ focused, but something has focus, we'll
         // skip our bindings and defer to the browser
-        if (layer.activeTagName !== null) {
+        if (isInputTag(layer.activeTagName)) {
             return false
         }
 

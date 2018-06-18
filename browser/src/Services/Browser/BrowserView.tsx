@@ -71,6 +71,7 @@ export interface IBrowserViewProps {
     scrollRight: IEvent<void>
 
     webviewRef?: (webviewTag: WebviewTag) => void
+    onFocusTag?: (tagName: string | null) => void
 }
 
 export interface IBrowserViewState {
@@ -325,6 +326,20 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
 
             this._webviewElement.addEventListener("blur", () => {
                 focusManager.popFocus(this._webviewElement)
+            })
+
+            this._webviewElement.addEventListener("ipc-message", event => {
+                switch (event.channel) {
+                    case "focusin":
+                        if (this.props.onFocusTag) {
+                            this.props.onFocusTag(event.args[0])
+                        }
+                        return
+                    case "focusout":
+                        if (this.props.onFocusTag) {
+                            this.props.onFocusTag(null)
+                        }
+                }
             })
 
             if (this.props.webviewRef) {
