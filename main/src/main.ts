@@ -1,7 +1,7 @@
 import * as minimist from "minimist"
 import * as path from "path"
 
-import { app, BrowserWindow, ipcMain, Menu } from "electron"
+import { app, BrowserWindow, ipcMain, Menu, systemPreferences } from "electron"
 
 import * as PersistentSettings from "electron-settings"
 
@@ -181,6 +181,10 @@ export function createWindow(
         height: windowState.bounds.height,
         width: windowState.bounds.width,
     })
+
+    if (process.platform === "darwin") {
+        systemPreferences.setUserDefault("ApplePressAndHoldEnabled", "boolean", "true")
+    }
 
     if (windowState.isMaximized) {
         currentWindow.maximize()
