@@ -69,6 +69,8 @@ export interface IBrowserViewProps {
     scrollDown: IEvent<void>
     scrollLeft: IEvent<void>
     scrollRight: IEvent<void>
+
+    webviewRef?: (webviewTag: WebviewTag) => void
 }
 
 export interface IBrowserViewState {
@@ -324,6 +326,10 @@ export class BrowserView extends React.PureComponent<IBrowserViewProps, IBrowser
             this._webviewElement.addEventListener("blur", () => {
                 focusManager.popFocus(this._webviewElement)
             })
+
+            if (this.props.webviewRef) {
+                this.props.webviewRef(this._webviewElement)
+            }
         }
     }
 }
