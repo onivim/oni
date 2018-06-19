@@ -16,7 +16,9 @@ const activate = Oni => {
         const buffers = Oni.editors.activeEditor.getBuffers()
         const active = Oni.editors.activeEditor.activeBuffer.filePath
 
-        const bufferMenuItems = buffers.map(b => ({
+        const validBuffers = buffers.filter(b => !!b.filepath)
+
+        const bufferMenuItems = validBuffers.map(b => ({
             label: `${active === b.filePath ? b.id + " %" : b.id}`,
             detail: truncateFilePath(b.filePath),
             icon: Oni.ui.getIconClassForFile(b.filePath),

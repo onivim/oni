@@ -107,7 +107,9 @@ export class NeovimWindowManager extends Utility.Disposable {
                 return Observable.defer(() => this._remeasure(evt))
             })
             .subscribe((tabState: NeovimTabPageState) => {
-                this._onWindowStateChangedEvent.dispatch(tabState)
+                if (tabState) {
+                    this._onWindowStateChangedEvent.dispatch(tabState)
+                }
             })
     }
 
