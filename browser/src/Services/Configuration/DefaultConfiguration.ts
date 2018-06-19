@@ -59,6 +59,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "experimental.markdownPreview.enabled": false,
     "experimental.markdownPreview.autoScroll": true,
+    "experimental.markdownPreview.syntaxTheme": "atom-one-dark",
 
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows

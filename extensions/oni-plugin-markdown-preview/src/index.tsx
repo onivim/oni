@@ -85,6 +85,9 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
 
     private generateContainerStyle(): string {
         const colors = this.state.colors
+        const syntaxHighlightTheme = this.props.oni.configuration.getValue(
+            "experimental.markdownPreview.syntaxTheme",
+        )
 
         const codeBlockStyle = `
             background: ${colors.codeBackground};
@@ -96,7 +99,7 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
         `
 
         return `
-            <link rel="stylesheet" href="node_modules/highlight.js/styles/atom-one-dark.css">
+            <link rel="stylesheet" href="node_modules/highlight.js/styles/${syntaxHighlightTheme}.css">
 
             <style>
             .oniPluginMarkdownPreviewContainerStyle {
