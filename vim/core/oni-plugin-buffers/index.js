@@ -16,7 +16,7 @@ const activate = Oni => {
         const buffers = Oni.editors.activeEditor.getBuffers()
         const active = Oni.editors.activeEditor.activeBuffer.filePath
 
-        const validBuffers = buffers.filter(b => !!b.filepath)
+        const validBuffers = buffers.filter(b => !b.filepath)
 
         const bufferMenuItems = validBuffers.map(b => ({
             label: `${active === b.filePath ? b.id + " %" : b.id}`,
