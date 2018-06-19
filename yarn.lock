@@ -138,9 +138,9 @@
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@types/lolex/-/lolex-2.1.0.tgz#7a53611a6c970574173a7d92ce9a0da000652725"
 
-"@types/marked@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@types/marked/-/marked-0.3.0.tgz#583c223dd33385a1dda01aaf77b0cd0411c4b524"
+"@types/marked@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@types/marked/-/marked-0.4.0.tgz#057a6165703e7419217f8ffc6887747f980b6315"
 
 "@types/minimatch@*":
   version "3.0.3"
