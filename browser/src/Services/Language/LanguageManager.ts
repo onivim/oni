@@ -11,9 +11,8 @@ import * as os from "os"
 import * as path from "path"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IDisposable } from "oni-types"
-
-import * as Log from "./../../Log"
 
 import { ILanguageClient } from "./LanguageClient"
 import * as LanguageClientTypes from "./LanguageClientTypes"

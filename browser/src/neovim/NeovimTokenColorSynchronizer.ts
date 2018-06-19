@@ -6,11 +6,12 @@
  */
 
 import * as Color from "color"
+
+import * as Log from "oni-core-logging"
+
 import { TokenColor } from "./../Services/TokenColors"
 
 import { NeovimInstance } from "./NeovimInstance"
-
-import * as Log from "./../Log"
 
 const getGuiStringFromTokenColor = (color: TokenColor): string => {
     if (color.settings.bold && color.settings.italic) {

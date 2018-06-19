@@ -18,6 +18,7 @@ import { Store } from "redux"
 import * as detectIndent from "detect-indent"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 
 import {
     BufferEventContext,
@@ -38,7 +39,6 @@ import * as Actions from "./NeovimEditor/NeovimEditorActions"
 import * as State from "./NeovimEditor/NeovimEditorStore"
 
 import * as Constants from "./../Constants"
-import * as Log from "./../Log"
 import { TokenColor } from "./../Services/TokenColors"
 
 import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
@@ -214,7 +214,6 @@ export class Buffer implements IBuffer {
             ["nvim_command", ["setlocal noswapfile"]],
             ["nvim_command", ["setlocal nobuflisted"]],
             ["nvim_command", ["setlocal nomodifiable"]],
-            ["nvim_command", ["windo set scrollbind!"]],
         ]
 
         const [result, error] = await this._neovimInstance.request<any[] | NvimError>(

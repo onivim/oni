@@ -5,11 +5,13 @@
  */
 
 import * as fs from "fs"
+
+import * as Log from "oni-core-logging"
+
 import { IIconThemeContribution } from "./../../Plugins/Api/Capabilities"
 
 import { IIconTheme } from "./Icons"
 
-import * as Log from "./../../Log"
 import { PluginManager } from "./../../Plugins/PluginManager"
 
 export interface IIconThemeLoadResult {

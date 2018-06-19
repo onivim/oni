@@ -2,7 +2,7 @@
  * index.ts
  */
 
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
 
 import { OverlayManager } from "./../Overlay"
 

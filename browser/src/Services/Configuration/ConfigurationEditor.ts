@@ -9,7 +9,7 @@ import * as path from "path"
 
 import * as mkdirp from "mkdirp"
 
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
 
 import { EditorManager } from "./../EditorManager"
 

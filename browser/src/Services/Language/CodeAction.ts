@@ -6,6 +6,7 @@
 // import * as os from "os"
 import * as types from "vscode-languageserver-types"
 
+import * as Log from "oni-core-logging"
 // import { configuration } from "./../Configuration"
 
 // import * as UI from "./../../UI"
@@ -13,7 +14,6 @@ import * as types from "vscode-languageserver-types"
 // import { contextMenuManager } from "./../ContextMenu"
 import * as LanguageManager from "./LanguageManager"
 
-import * as Log from "./../../Log"
 import { editorManager } from "./../EditorManager"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"

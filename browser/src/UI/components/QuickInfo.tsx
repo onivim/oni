@@ -3,6 +3,16 @@ import * as os from "os"
 import * as React from "react"
 import styled, { boxShadowInset, css, fontSizeSmall, withProps } from "./common"
 
+export const QuickInfoWrapper = styled.div`
+    user-select: none;
+    cursor: default;
+`
+
+export const QuickInfoElement = styled.div`
+    text-overflow: ellipsis;
+    overflow: hidden;
+`
+
 const codeBlockStyle = css`
     color: ${p => p.theme.foreground};
     padding: 0.4em 0.4em 0.4em 0.4em;
