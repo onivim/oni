@@ -100,3 +100,59 @@ describe("File System tests", async () => {
         }
     })
 })
+
+describe("readdir", () => {
+    it("should not error if directory contains a broken symlink", async () => {
+        const goodDir = path.join("fake_dir", "good_dir")
+        const goodFile = path.join("fake_dir", "good_file")
+        const badFile = path.join("fake_dir", "bad_file")
+
+        const fileSystem = new FileSystem({
+            readdir(dirPath: string, callback: (err?: Error, result?: string[]) => void) {
+                assert.strictEqual(dirPath, "fake_dir")
+                callback(null, ["good_dir", "good_file", "bad_file"])
+            },
+            stat(targetPath: string, callback: (err?: Error, result?: any) => void) {
+                switch (targetPath) {
+                    case goodDir:
+                        return callback(null, {
+                            isDirectory() {
+                                return true
+                            },
+                        })
+                    case goodFile:
+                        return callback(null, {
+                            isDirectory() {
+                                return false
+                            },
+                        })
+                    default:
+                        // On Linux at least, an fs.stat call to a missing file and a broken symlink both result in this error:
+                        return callback(
+                            new Error(`ENOENT: no such file or directory, stat ${targetPath}`),
+                        )
+                }
+            },
+            exists(targetPath: string, callback: any) {
+                assert.fail("Should not be used")
+            },
+        } as any)
+
+        const expected = [
+            {
+                type: "folder",
+                fullPath: goodDir,
+            },
+            {
+                type: "file",
+                fullPath: goodFile,
+            },
+            {
+                type: "file",
+                fullPath: badFile,
+            },
+        ]
+        const result = await fileSystem.readdir("fake_dir")
+        assert.deepEqual(result, expected)
+    })
+})

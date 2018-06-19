@@ -60,8 +60,11 @@ export class FileSystem implements IFileSystem {
 
         const filesAndFolders = files.map(async f => {
             const fullPath = path.join(directoryPath, f)
-            const stat = await this._fs.stat(fullPath)
-            if (stat.isDirectory()) {
+            const isDirectory = await this._fs
+                .stat(fullPath)
+                .then(stat => stat.isDirectory())
+                .catch(() => false)
+            if (isDirectory) {
                 return {
                     type: "folder",
                     fullPath,
