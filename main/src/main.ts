@@ -182,7 +182,7 @@ export function createWindow(
         width: windowState.bounds.width,
     })
 
-    if (process.platform === "darwin") {
+    if (process.platform.includes("darwin")) {
         const pressAndHold: boolean = systemPreferences.getUserDefault(
             "ApplePressAndHoldEnabled",
             "boolean",
