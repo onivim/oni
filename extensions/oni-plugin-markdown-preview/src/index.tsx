@@ -46,6 +46,7 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
             codeForeground: this.props.oni.colors.getColor("foreground"),
             codeBorder: this.props.oni.colors.getColor("toolTip.border"),
         }
+
         this.state = { source: "", colors }
     }
 
