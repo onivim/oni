@@ -152,10 +152,25 @@ export const start = async (args: string[]): Promise<void> => {
     const pluginManager = PluginManager.getInstance()
 
     const developmentPlugin = parsedArgs["plugin-develop"]
+    let developmentPluginError: { title: string; errorText: string }
 
-    if (developmentPlugin) {
+    if (typeof developmentPlugin === "string") {
         Log.info("Registering development plugin: " + developmentPlugin)
-        pluginManager.addDevelopmentPlugin(developmentPlugin)
+        if (fs.existsSync(developmentPlugin)) {
+            pluginManager.addDevelopmentPlugin(developmentPlugin)
+        } else {
+            developmentPluginError = {
+                title: "Error parsing arguments",
+                errorText: "Could not find plugin: " + developmentPlugin,
+            }
+            Log.warn(developmentPluginError.errorText)
+        }
+    } else if (typeof developmentPlugin === "boolean") {
+        developmentPluginError = {
+            title: "Error parsing arguments",
+            errorText: "--plugin-develop must be followed by a plugin path",
+        }
+        Log.warn(developmentPluginError.errorText)
     }
 
     Performance.startMeasure("Oni.Start.Plugins.Discover")
@@ -215,6 +230,17 @@ export const start = async (args: string[]): Promise<void> => {
 
     const Notifications = await notificationsPromise
     Notifications.activate(configuration, overlayManager)
+
+    if (typeof developmentPluginError !== "undefined") {
+        const notifications = Notifications.getInstance()
+        const notification = notifications.createItem()
+        notification.setContents(developmentPluginError.title, developmentPluginError.errorText)
+        notification.setLevel("error")
+        notification.onClick.subscribe(() =>
+            commandManager.executeCommand("oni.config.openConfigJs"),
+        )
+        notification.show()
+    }
 
     configuration.onConfigurationError.subscribe(err => {
         const notifications = Notifications.getInstance()

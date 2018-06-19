@@ -5,8 +5,20 @@
  * https://electronjs.org/docs/api/webview-tag#preload
  */
 
+declare var require: any
 ;(() => {
     const __oni_win: any = window
+
+    const { ipcRenderer } = require("electron")
+
+    window.document.addEventListener("focusin", evt => {
+        const target = evt.target as HTMLElement
+        ipcRenderer.sendToHost("focusin", target ? target.tagName : null)
+    })
+
+    window.document.addEventListener("focusout", evt => {
+        ipcRenderer.sendToHost("focusout")
+    })
 
     interface Rectangle {
         x: number

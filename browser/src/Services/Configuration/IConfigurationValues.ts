@@ -49,6 +49,10 @@ export interface IConfigurationValues {
     // Whether or not the learning pane is available
     "experimental.particles.enabled": boolean
 
+    // Whether the markdown preview pane should be shown
+    "experimental.markdownPreview.enabled": boolean
+    "experimental.markdownPreview.autoScroll": boolean
+
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
