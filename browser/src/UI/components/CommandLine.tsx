@@ -9,7 +9,7 @@ import { boxShadow } from "./common"
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
 const CommandLineBox = styled<{ visible: boolean }, "div">("div")`
-    ${p => !p.visible && `display: none`};
+    ${p => !p.visible && `visibility: hidden`};
     position: relative;
     margin-top: 16px;
     padding: 8px;
@@ -111,16 +111,26 @@ export class CommandLine extends React.PureComponent<ICommandLineRendererProps, 
         }
     }
 
+    public getCommandLineSections() {
+        const { content, position } = this.props
+        if (content) {
+            const segments = content.split("")
+            const beginning = segments.slice(0, position)
+            const end = segments.slice(position)
+            return { beginning, end }
+        }
+        return null
+    }
+
     public render(): null | JSX.Element {
-        const { visible, content, position, firstchar } = this.props
+        const { visible, firstchar } = this.props
         const { focused } = this.state
+
         if (!focused && visible && this._inputElement) {
             this._inputElement.focus()
         }
 
-        const segments = content.split("")
-        const beginning = segments.slice(0, position)
-        const end = segments.slice(position)
+        const segments = this.getCommandLineSections()
 
         return (
             <CommandLineBox visible={visible} className="command-line">
@@ -130,9 +140,9 @@ export class CommandLine extends React.PureComponent<ICommandLineRendererProps, 
                 >
                     {this.renderIconOrChar(firstchar)}
                     {this.props.prompt}
-                    {beginning}
+                    {segments && segments.beginning}
                     <Cursor />
-                    {end}
+                    {segments && segments.end}
                 </CommandLineOutput>
             </CommandLineBox>
         )

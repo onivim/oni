@@ -5,7 +5,13 @@ import styled from "styled-components"
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 import { withProps } from "./common"
 
-const MenuContainer = withProps<{ loaded: boolean }>(styled.div)`
+interface IMenuProps {
+    loaded: boolean
+    visible: boolean
+}
+
+const MenuContainer = withProps<IMenuProps>(styled.div)`
+    ${p => !p.visible && `visibility: hidden`};
     position: absolute;
     box-sizing: border-box;
     display: flex;
@@ -29,11 +35,11 @@ class ExternalMenus extends React.Component<Props> {
     public render() {
         const { wildmenu, commandLine } = this.props
         const visible = commandLine.visible || wildmenu.visible
-        return visible ? (
-            <MenuContainer loaded={commandLine.visible && wildmenu.visible}>
+        return (
+            <MenuContainer visible={visible} loaded={commandLine.visible && wildmenu.visible}>
                 {this.props.children}
             </MenuContainer>
-        ) : null
+        )
     }
 }
 
