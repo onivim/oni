@@ -134,11 +134,11 @@ export class FileConfigurationProvider implements IConfigurationProvider {
 
                 const sandbox = {
                     console,
-                    __filename: __filename,
-                    __dirname: __dirname,
+                    __filename,
+                    __dirname,
                     module: {} as any,
                     require: (str: string) => {
-                        const val = window["require"](str)
+                        const val = window.require(str)
                         return val
                     },
                     exports: {},
