@@ -137,7 +137,11 @@ export class WindowManager {
         return this._store
     }
 
-    public get activeSplit(): IAugmentedSplitInfo {
+    get activeSplitHandle(): WindowSplitHandle {
+        return new WindowSplitHandle(this._store, this, this.activeSplit.id)
+    }
+
+    private get activeSplit(): IAugmentedSplitInfo {
         const focusedSplit = this._store.getState().focusedSplitId
 
         if (!focusedSplit) {
