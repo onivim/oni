@@ -8,7 +8,8 @@ import { boxShadow } from "./common"
 
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
 
-const CommandLineBox = styled.div`
+const CommandLineBox = styled<{ visible: boolean }, "div">("div")`
+    ${p => !p.visible && `display: none`};
     position: relative;
     margin-top: 16px;
     padding: 8px;
@@ -59,7 +60,6 @@ export interface ICommandLineRendererProps {
 
 interface State {
     focused: boolean
-    waiting: boolean
 }
 
 export const CommandLineIcon = (props: { iconName: string; arrow?: boolean }) => (
@@ -77,17 +77,9 @@ export const CommandLineIcon = (props: { iconName: string; arrow?: boolean }) =>
 export class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> {
     public state = {
         focused: false,
-        waiting: true,
     }
 
-    private timer: any
     private _inputElement: HTMLInputElement
-
-    public componentDidMount() {
-        this.timer = setTimeout(() => {
-            this.setState({ waiting: false })
-        }, 80)
-    }
 
     public componentWillReceiveProps(nextProps: ICommandLineRendererProps) {
         if (!this.state.focused && nextProps.visible) {
@@ -119,13 +111,9 @@ export class CommandLine extends React.PureComponent<ICommandLineRendererProps, 
         }
     }
 
-    public componentWillUnmount() {
-        clearTimeout(this.timer)
-    }
-
     public render(): null | JSX.Element {
         const { visible, content, position, firstchar } = this.props
-        const { focused, waiting } = this.state
+        const { focused } = this.state
         if (!focused && visible && this._inputElement) {
             this._inputElement.focus()
         }
@@ -135,21 +123,18 @@ export class CommandLine extends React.PureComponent<ICommandLineRendererProps, 
         const end = segments.slice(position)
 
         return (
-            !waiting &&
-            visible && (
-                <CommandLineBox className="command-line">
-                    <CommandLineOutput
-                        innerRef={e => (this._inputElement = e)}
-                        className="command-line-output"
-                    >
-                        {this.renderIconOrChar(firstchar)}
-                        {this.props.prompt}
-                        {beginning}
-                        <Cursor />
-                        {end}
-                    </CommandLineOutput>
-                </CommandLineBox>
-            )
+            <CommandLineBox visible={visible} className="command-line">
+                <CommandLineOutput
+                    innerRef={e => (this._inputElement = e)}
+                    className="command-line-output"
+                >
+                    {this.renderIconOrChar(firstchar)}
+                    {this.props.prompt}
+                    {beginning}
+                    <Cursor />
+                    {end}
+                </CommandLineOutput>
+            </CommandLineBox>
         )
     }
 }
