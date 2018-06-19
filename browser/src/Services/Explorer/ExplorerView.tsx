@@ -135,8 +135,9 @@ export class NodeView extends React.PureComponent<INodeViewProps> {
         const recentlyYanked =
             prevProps.yanked.includes(this.props.node.id) !==
             this.props.yanked.includes(this.props.node.id)
+        const isOrWasSelected = this.props.isSelected || prevProps.isSelected
 
-        return this.props.isSelected && (recentlyCreated || recentlyRenamed || recentlyYanked)
+        return isOrWasSelected && (recentlyCreated || recentlyRenamed || recentlyYanked)
     }
 
     public componentDidUpdate(prevProps: INodeViewProps) {
