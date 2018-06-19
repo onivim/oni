@@ -4,15 +4,18 @@
  * Entry point for browser integration plugin
  */
 
-import { ipcRenderer, shell } from "electron"
+import { ipcRenderer, shell, WebviewTag } from "electron"
 import * as React from "react"
 
 import * as Oni from "oni-api"
 import { Event } from "oni-types"
 
+import { IBuffer } from "./../../Editor/BufferManager"
+
 import { CommandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
+import { focusManager } from "./../FocusManager"
 import {
     AchievementsManager,
     getInstance as getAchievementsInstance,
@@ -30,10 +33,21 @@ export class BrowserLayer implements Oni.BufferLayer {
     private _scrollRightEvent = new Event<void>()
     private _scrollLeftEvent = new Event<void>()
 
+    private _webview: WebviewTag | null = null
+    private _activeTagName: string | null = null
+
     constructor(private _url: string, private _configuration: Configuration) {}
 
     public get id(): string {
         return "oni.browser"
+    }
+
+    public get webviewElement(): HTMLElement {
+        return this._webview
+    }
+
+    public get activeTagName(): string {
+        return this._activeTagName
     }
 
     public render(): JSX.Element {
@@ -49,6 +63,8 @@ export class BrowserLayer implements Oni.BufferLayer {
                 scrollUp={this._scrollUpEvent}
                 scrollLeft={this._scrollLeftEvent}
                 scrollRight={this._scrollRightEvent}
+                webviewRef={webview => (this._webview = webview)}
+                onFocusTag={newTag => (this._activeTagName = newTag)}
             />
         )
     }
@@ -92,8 +108,6 @@ export const activate = (
 ) => {
     let count = 0
 
-    const activeLayers: { [bufferId: string]: BrowserLayer } = {}
-
     const browserEnabledSetting = configuration.registerSetting("browser.enabled", {
         requiresReload: false,
         description:
@@ -128,7 +142,6 @@ export const activate = (
 
             const layer = new BrowserLayer(url, configuration)
             buffer.addLayer(layer)
-            activeLayers[buffer.id] = layer
 
             const achievements = getAchievementsInstance()
             achievements.notifyGoal("oni.goal.openBrowser")
@@ -160,18 +173,58 @@ export const activate = (
         detail: null,
     })
 
+    const getLayerForBuffer = (buffer: Oni.Buffer): BrowserLayer => {
+        return (buffer as IBuffer).getLayerById<BrowserLayer>("oni.browser")
+    }
+
     const executeCommandForLayer = (callback: (browserLayer: BrowserLayer) => void) => () => {
         const activeBuffer = editorManager.activeEditor.activeBuffer
 
-        const browserLayer = activeLayers[activeBuffer.id]
+        const browserLayer = getLayerForBuffer(activeBuffer)
         if (browserLayer) {
             callback(browserLayer)
         }
     }
 
-    const isBrowserLayerActive = () =>
-        !!activeLayers[editorManager.activeEditor.activeBuffer.id] &&
-        browserEnabledSetting.getValue()
+    const isBrowserCommandEnabled = (): boolean => {
+        if (!browserEnabledSetting.getValue()) {
+            return false
+        }
+
+        const layer = getLayerForBuffer(editorManager.activeEditor.activeBuffer)
+        if (!layer) {
+            return false
+        }
+
+        // If the layer is open, but not focused, we shouldn't execute commands.
+        // This could happen if there is a pop-up menu, or if we're working with some
+        // non-webview UI in the browser (like the address bar)
+        if (layer.webviewElement !== focusManager.focusedElement) {
+            return false
+        }
+
+        return true
+    }
+
+    const isInputTag = (tagName: string): boolean => {
+        return tagName === "INPUT" || tagName === "TEXTAREA"
+    }
+
+    const isBrowserScrollCommandEnabled = (): boolean => {
+        if (!isBrowserCommandEnabled()) {
+            return false
+        }
+
+        const layer = getLayerForBuffer(editorManager.activeEditor.activeBuffer)
+
+        // Finally, if the webview _is_ focused, but something has focus, we'll
+        // skip our bindings and defer to the browser
+        if (isInputTag(layer.activeTagName)) {
+            return false
+        }
+
+        return true
+    }
 
     // Per-layer commands
     commandManager.registerCommand({
@@ -179,7 +232,7 @@ export const activate = (
         execute: executeCommandForLayer(browser => browser.openDebugger()),
         name: "Browser: Open DevTools",
         detail: "Open the devtools pane for the current browser window.",
-        enabled: isBrowserLayerActive,
+        enabled: isBrowserCommandEnabled,
     })
 
     commandManager.registerCommand({
@@ -187,7 +240,7 @@ export const activate = (
         execute: executeCommandForLayer(browser => browser.goBack()),
         name: "Browser: Go back",
         detail: "",
-        enabled: isBrowserLayerActive,
+        enabled: isBrowserCommandEnabled,
     })
 
     commandManager.registerCommand({
@@ -195,7 +248,7 @@ export const activate = (
         execute: executeCommandForLayer(browser => browser.goForward()),
         name: "Browser: Go forward",
         detail: "",
-        enabled: isBrowserLayerActive,
+        enabled: isBrowserCommandEnabled,
     })
 
     commandManager.registerCommand({
@@ -203,7 +256,7 @@ export const activate = (
         execute: executeCommandForLayer(browser => browser.reload()),
         name: "Browser: Reload",
         detail: "",
-        enabled: isBrowserLayerActive,
+        enabled: isBrowserCommandEnabled,
     })
 
     commandManager.registerCommand({
@@ -211,7 +264,7 @@ export const activate = (
         execute: executeCommandForLayer(browser => browser.scrollDown()),
         name: "Browser: Scroll Down",
         detail: "",
-        enabled: isBrowserLayerActive,
+        enabled: isBrowserScrollCommandEnabled,
     })
 
     commandManager.registerCommand({
@@ -219,7 +272,7 @@ export const activate = (
         execute: executeCommandForLayer(browser => browser.scrollUp()),
         name: "Browser: Scroll Up",
         detail: "",
-        enabled: isBrowserLayerActive,
+        enabled: isBrowserScrollCommandEnabled,
     })
 
     commandManager.registerCommand({
@@ -227,7 +280,7 @@ export const activate = (
         execute: executeCommandForLayer(browser => browser.scrollLeft()),
         name: "Browser: Scroll Left",
         detail: "",
-        enabled: isBrowserLayerActive,
+        enabled: isBrowserScrollCommandEnabled,
     })
 
     commandManager.registerCommand({
@@ -235,7 +288,7 @@ export const activate = (
         execute: executeCommandForLayer(browser => browser.scrollRight()),
         name: "Browser: Scroll Right",
         detail: "",
-        enabled: isBrowserLayerActive,
+        enabled: isBrowserScrollCommandEnabled,
     })
 
     ipcRenderer.on("open-oni-browser", (event: string, args: string) => {
