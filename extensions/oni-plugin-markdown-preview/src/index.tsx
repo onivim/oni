@@ -96,6 +96,8 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
         `
 
         return `
+            <link rel="stylesheet" href="node_modules/highlight.js/styles/atom-one-dark.css">
+
             <style>
             .oniPluginMarkdownPreviewContainerStyle {
                 padding: 1em 1em 1em 1em;
