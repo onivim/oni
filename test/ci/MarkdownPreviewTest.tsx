@@ -5,10 +5,10 @@
 import { Assertor } from "./Assert"
 import {
     awaitEditorMode,
+    getElementByClassName,
     getTemporaryFilePath,
     insertText,
     navigateToFile,
-    getElementByClassName,
 } from "./Common"
 
 import * as Oni from "oni-api"
