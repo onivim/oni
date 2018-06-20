@@ -43,8 +43,14 @@ import { TokenColor } from "./../Services/TokenColors"
 
 import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 
+/**
+ * Candidate API methods
+ */
 export interface IBuffer extends Oni.Buffer {
     setLanguage(lang: string): Promise<void>
+
+    getLayerById<T>(id: string): T
+
     getCursorPosition(): Promise<types.Position>
     handleInput(key: string): boolean
     detectIndentation(): Promise<BufferIndentationInfo>
@@ -143,10 +149,12 @@ export class Buffer implements IBuffer {
         this._actions.addBufferLayer(parseInt(this._id, 10), layer)
     }
 
-    public getLayerById<T>(id: string): T {
-        return (this._store
-            .getState()
-            .layers[parseInt(this._id, 10)].find(layer => layer.id === id) as any) as T
+    public getLayerById<T>(id: string): T | null {
+        return (
+            ((this._store
+                .getState()
+                .layers[parseInt(this._id, 10)].find(layer => layer.id === id) as any) as T) || null
+        )
     }
 
     public removeLayer(layer: IBufferLayer): void {
