@@ -154,7 +154,8 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
             highlight(code, lang) {
                 const languageExists = hljs.getLanguage(lang)
                 const languageNotDefinedOrInvalid =
-                    typeof lang === "undefined" || typeof languageExists === "undefined"
+                    typeof lang === "undefined" ||
+                    (typeof languageExists === "undefined" && lang !== "nohighlight")
 
                 if (languageNotDefinedOrInvalid) {
                     return hljs.highlightAuto(code).value
