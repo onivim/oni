@@ -29,22 +29,11 @@ export interface IKeyDisplayerViewProps {
     groupedKeys: IKeyPressInfo[][]
 }
 
-const getStringForKey = (key: string) => {
-    if (key === "<space>") {
-        return " "
-    }
-
-    return key
-}
-
 export class KeyDisplayerView extends React.PureComponent<IKeyDisplayerViewProps, {}> {
     public render(): JSX.Element {
         const keyElements = this.props.groupedKeys.map((k, idx) => (
             <KeyWrapper style={{ bottom: KeyHeight + (KeyHeight + Margin) * idx + "px" }}>
-                {k.reduce<string>(
-                    (prev: string, cur: IKeyPressInfo) => prev + getStringForKey(cur.key),
-                    "",
-                )}
+                {k.map(keyPress => keyPress.key).join("")}
             </KeyWrapper>
         ))
 

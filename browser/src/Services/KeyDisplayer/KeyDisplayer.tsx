@@ -53,7 +53,7 @@ export class KeyDisplayer {
 
                 this._store.dispatch({
                     type: "ADD_KEY",
-                    key: resolution,
+                    key: this._inputManager.getChordParts(resolution).join("+"),
                     timeInMilliseconds: new Date().getTime(),
                 })
 
