@@ -244,6 +244,11 @@ export function createWindow(
         Log.info("...closed event completed")
     })
 
+    currentWindow.webContents.on("will-navigate", (event, url) => {
+        event.preventDefault()
+        currentWindow.webContents.send("open-oni-browser", url)
+    })
+
     windows.push(currentWindow)
 
     return currentWindow

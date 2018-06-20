@@ -22,18 +22,18 @@ describe("WindowManagerTests", () => {
         const handle1 = windowManager.createSplit("horizontal", split1)
         const handle2 = windowManager.createSplit("vertical", split2, split1)
 
-        assert.strictEqual(windowManager.activeSplit.id, handle2.id)
+        assert.strictEqual(windowManager.activeSplitHandle.id, handle2.id)
 
         handle2.close()
 
-        assert.strictEqual(windowManager.activeSplit.id, handle1.id)
+        assert.strictEqual(windowManager.activeSplitHandle.id, handle1.id)
 
         const handle3 = windowManager.createSplit("horizontal", split3, split1)
-        assert.strictEqual(windowManager.activeSplit.id, handle3.id)
+        assert.strictEqual(windowManager.activeSplitHandle.id, handle3.id)
 
         handle3.close()
 
-        assert.strictEqual(windowManager.activeSplit.id, handle1.id)
+        assert.strictEqual(windowManager.activeSplitHandle.id, handle1.id)
     })
 
     it("can get split after a split is closed", async () => {
