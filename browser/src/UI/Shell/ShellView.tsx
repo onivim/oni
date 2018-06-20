@@ -30,13 +30,30 @@ interface IShellViewComponentProps {
 
 const titleBarVisible = Platform.isMac()
 
-export class ShellView extends React.PureComponent<IShellViewComponentProps, {}> {
+interface IShellViewState {
+    /**
+     * Tracks if composition is occurring (ie, an IME is active)
+     */
+    isComposing: boolean
+}
+
+export class ShellView extends React.PureComponent<IShellViewComponentProps, IShellViewState> {
+    constructor(props: IShellViewComponentProps) {
+        super(props)
+
+        this.state = {
+            isComposing: false,
+        }
+    }
+
     public render() {
         return (
             <ThemeProvider theme={this.props.theme}>
                 <div
                     className="stack disable-mouse"
                     onKeyDownCapture={evt => this._onRootKeyDown(evt)}
+                    onCompositionEndCapture={evt => this._onCompositionEnd(evt)}
+                    onCompositionStartCapture={evt => this._onCompositionStart(evt)}
                 >
                     <div className="stack">
                         <Background />
@@ -67,11 +84,23 @@ export class ShellView extends React.PureComponent<IShellViewComponentProps, {}>
 
     private _onRootKeyDown(evt: React.KeyboardEvent<HTMLElement>): void {
         const vimKey = inputManager.resolvers.resolveKeyEvent(evt.nativeEvent)
-        if (inputManager.handleKey(vimKey)) {
+        if (!this.state.isComposing && inputManager.handleKey(vimKey)) {
             evt.stopPropagation()
             evt.preventDefault()
         } else {
             focusManager.enforceFocus()
         }
+    }
+
+    private _onCompositionStart(evt: React.CompositionEvent<HTMLElement>) {
+        this.setState({
+            isComposing: true,
+        })
+    }
+
+    private _onCompositionEnd(evt: React.CompositionEvent<HTMLElement>) {
+        this.setState({
+            isComposing: false,
+        })
     }
 }
