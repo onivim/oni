@@ -14,6 +14,7 @@ interface IProps {
     top: number
     line: string
     indentBy?: number
+    color?: string
 }
 
 interface IndentLinesProps {
@@ -34,9 +35,8 @@ const IndentLine = withProps<IProps>(styled.span).attrs({
         top: pixel(top),
     }),
 })`
-    border-left: 1px solid white;
+    border-left: 1px solid ${p => p.color || "rgba(100, 100, 100, 0.4)"};
     position: absolute;
-    opacity: 0.6;
 `
 
 interface IndentLayerArgs {
@@ -97,27 +97,30 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
      * @returns {JSX.Element[]} An array of react elements
      */
     private _renderIndentLines = (bufferLayerContext: Oni.BufferLayerRenderContext) => {
-        const { visibleLines, fontPixelHeight, fontPixelWidth, topBufferLine } = bufferLayerContext
+        const { visibleLines, fontPixelHeight, fontPixelWidth } = bufferLayerContext
         const allIndentations = visibleLines.reduce((acc, line, idx) => {
             const indentation = detectIndent(line)
-            const { pixelY: top } = bufferLayerContext.screenToPixel({
-                screenX: 0,
+            const startPosition = bufferLayerContext.bufferToScreen(
+                types.Position.create(bufferLayerContext.topBufferLine, indentation.amount),
+            )
+
+            if (!startPosition) {
+                return acc
+            }
+
+            const { pixelX: left, pixelY: top } = bufferLayerContext.screenToPixel({
+                screenX: startPosition.screenX,
                 screenY: idx,
             })
+
             const previous = acc[idx - 1]
+
             if (!line && previous) {
                 const replacement = { ...previous, top }
                 acc.push(replacement)
                 return acc
             }
-            const startPosition = bufferLayerContext.bufferToScreen(
-                // the first argument here should be the top line in the buffer
-                types.Position.create(topBufferLine, indentation.amount),
-            )
-            if (!startPosition) {
-                return acc
-            }
-            const { pixelX: left /*, pixelY */ } = bufferLayerContext.screenToPixel(startPosition)
+
             acc.push({
                 top,
                 left,
