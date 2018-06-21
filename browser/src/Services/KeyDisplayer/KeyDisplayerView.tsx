@@ -33,7 +33,7 @@ export class KeyDisplayerView extends React.PureComponent<IKeyDisplayerViewProps
     public render(): JSX.Element {
         const keyElements = this.props.groupedKeys.map((k, idx) => (
             <KeyWrapper style={{ bottom: KeyHeight + (KeyHeight + Margin) * idx + "px" }}>
-                {k.map(keyPress => keyPress.key).join("")}
+                {k.map(keyPress => keyPress.key).join(" ")}
             </KeyWrapper>
         ))
 

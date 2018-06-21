@@ -40,7 +40,7 @@ export class KeyBindingInfo extends React.PureComponent<IKeyBindingInfoProps, {}
                 {parseChordParts(boundKeys[0])
                     .reduce((acc, chordKey) => acc.concat(chordKey, "+"), [])
                     .slice(0, -1)
-                    .map(chordPart => <KeyWrapper>{chordPart}</KeyWrapper>)}
+                    .map((chordPart, index) => <KeyWrapper key={index}>{chordPart}</KeyWrapper>)}
             </span>
         )
     }
