@@ -14,11 +14,13 @@ export const activate = (configuration: Configuration, workspace: Workspace) => 
     // See #1562 for more information.
     _sidebarManager = new SidebarManager(windowManager, configuration)
 
-    if (!configuration.getValue("sidebar.enabled")) {
+    const sideBarEnabled = configuration.getValue("sidebar.enabled")
+
+    if (!sideBarEnabled) {
         _sidebarManager.hide()
     }
 
-    if (!configuration.getValue("sidebar.default.open")) {
+    if (sideBarEnabled && !configuration.getValue("sidebar.default.open")) {
         _sidebarManager.toggleSidebarVisibility()
     }
 

@@ -163,7 +163,6 @@ export class SidebarManager {
                 this._contentSplit.focus()
             } else {
                 if (this._contentSplit.isVisible) {
-                    this._contentSplit.swapToPreviousSplit()
                     this._contentSplit.hide()
                 } else {
                     // In some cases you can have an ACTIVE entry that is hidden
