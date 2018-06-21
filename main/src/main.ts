@@ -130,6 +130,10 @@ if (!isDevelopment && !isDebug && !isAutomation) {
         if (!isAutomation) {
             await addDevExtensions()
         }
+
+        if (process.platform.includes("darwin")) {
+            ;(systemPreferences as any).setUserDefault("ApplePressAndHoldEnabled", "boolean", false)
+        }
         loadFileFromArguments(process.platform, argsToUse, process.env.ONI_CWD || process.cwd())
     })
 }
@@ -181,17 +185,6 @@ export function createWindow(
         height: windowState.bounds.height,
         width: windowState.bounds.width,
     })
-
-    if (process.platform.includes("darwin")) {
-        const pressAndHold: boolean = systemPreferences.getUserDefault(
-            "ApplePressAndHoldEnabled",
-            "boolean",
-        )
-
-        if (!pressAndHold) {
-            systemPreferences.setUserDefault("ApplePressAndHoldEnabled", "boolean", "true")
-        }
-    }
 
     if (windowState.isMaximized) {
         currentWindow.maximize()
