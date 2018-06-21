@@ -34,7 +34,7 @@ describe("KeyParser", () => {
 
     describe("parseChordParts", () => {
         it("parses modifier keys", () => {
-            const tests: [string, string[]][] = [
+            const tests: Array<[string, string[]]> = [
                 ["a", ["a"]],
                 ["<c-a>", ["control", "a"]],
                 ["<m-a>", ["meta", "a"]],
