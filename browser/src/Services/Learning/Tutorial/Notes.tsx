@@ -116,6 +116,12 @@ export const UKey = (): JSX.Element => {
     return <KeyWithDescription keyCharacter="u" description={<span>Undo a single change</span>} />
 }
 
+export const RedoKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription keyCharacter="Ctrl-r" description={<span>Redo a single undo</span>} />
+    )
+}
+
 export const GGKey = (): JSX.Element => {
     return (
         <KeyWithDescription
@@ -233,7 +239,7 @@ export const DeleteOperatorKey = (): JSX.Element => {
             keyCharacter="d"
             description={
                 <span>
-                    <Bold>+ motion</Bold>: Deletes text specified by a `motion`. Examples:
+                    <Bold>+ motion</Bold>: Deletes text specified by a `motion`
                 </span>
             }
         />
@@ -278,7 +284,7 @@ export const ChangeOperatorKey = (): JSX.Element => {
             keyCharacter="c"
             description={
                 <span>
-                    <Bold>+ motion</Bold>: Change text specified by a `motion`. Examples:
+                    <Bold>+ motion</Bold>: Change text specified by a `motion`
                 </span>
             }
         />
