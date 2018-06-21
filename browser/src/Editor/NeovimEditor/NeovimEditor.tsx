@@ -92,6 +92,7 @@ import CommandLine from "./../../UI/components/CommandLine"
 import ExternalMenus from "./../../UI/components/ExternalMenus"
 import WildMenu from "./../../UI/components/WildMenu"
 
+import IndentGuideBufferLayer from "./IndentGuideBufferLayer"
 import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
 import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
@@ -1173,6 +1174,11 @@ export class NeovimEditor extends Editor implements IEditor {
         const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
 
         this._actions.bufferEnter(buffers)
+        const shiftWidth = await this._neovimInstance.request<number>("nvim_get_option", [
+            "shiftwidth",
+        ])
+        const indentGuides = new IndentGuideBufferLayer({ shiftWidth, buffer: buf })
+        buf.addLayer(indentGuides)
     }
 
     private _escapeSpaces(str: string): string {
