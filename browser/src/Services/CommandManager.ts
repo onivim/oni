@@ -7,8 +7,8 @@
 import * as values from "lodash/values"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 
-import * as Log from "./../Log"
 import { INeovimInstance } from "./../neovim"
 import { ITask, ITaskProvider } from "./Tasks"
 
@@ -52,6 +52,10 @@ export class CommandManager implements ITaskProvider {
         }
 
         this._commandDictionary[command.command] = command
+    }
+
+    public hasCommand(commandName: string): boolean {
+        return !!this._commandDictionary[commandName]
     }
 
     public unregisterCommand(commandName: string): void {

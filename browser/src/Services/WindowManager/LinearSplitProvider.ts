@@ -8,16 +8,27 @@
 import {
     Direction,
     IAugmentedSplitInfo,
+    ISplitInfo,
     IWindowSplitProvider,
     SingleSplitProvider,
     SplitDirection,
-    SplitOrLeaf,
 } from "./index"
 
-export class LinearSplitProvider implements IWindowSplitProvider {
-    private _splitProviders: IWindowSplitProvider[] = []
+export const getInverseDirection = (splitDirection: SplitDirection): SplitDirection => {
+    switch (splitDirection) {
+        case "horizontal":
+            return "vertical"
+        case "vertical":
+        default:
+            return "horizontal"
+    }
+}
 
-    constructor(private _direction: SplitDirection) {}
+export class LinearSplitProvider implements IWindowSplitProvider {
+    constructor(
+        private _direction: SplitDirection,
+        private _splitProviders: IWindowSplitProvider[] = [],
+    ) {}
 
     public contains(split: IAugmentedSplitInfo): boolean {
         return this._getProviderForSplit(split) != null
@@ -46,9 +57,17 @@ export class LinearSplitProvider implements IWindowSplitProvider {
         direction: SplitDirection,
         referenceSplit?: IAugmentedSplitInfo,
     ): boolean {
+        // If there are no children, we can just match direction
+        if (this._splitProviders.length === 0) {
+            this._direction = getInverseDirection(direction)
+            this._splitProviders.push(new SingleSplitProvider(split))
+            return true
+        }
+
         // If there is no reference split, we can just tack this split on
         if (!referenceSplit) {
             this._splitProviders.push(new SingleSplitProvider(split))
+            return true
         }
 
         const containingSplit = this._getProviderForSplit(referenceSplit)
@@ -57,7 +76,7 @@ export class LinearSplitProvider implements IWindowSplitProvider {
             return false
         }
 
-        const result = containingSplit.split(split, direction)
+        const result = containingSplit.split(split, direction, referenceSplit)
 
         // Containing split handled it, so we're good
         if (result) {
@@ -67,11 +86,25 @@ export class LinearSplitProvider implements IWindowSplitProvider {
         // If the split requested is oriented differently,
         // create a new provider to handle that
         if (direction !== this._direction) {
-            // TODO
-        } else {
-            // Otherwise, we can - let's wrap up the split in a provider
             const singleSplitProvider = new SingleSplitProvider(split)
             this._splitProviders.push(singleSplitProvider)
+        } else {
+            // Otherwise, we can - let's wrap up the split in a provider
+
+            const previousIndex = this._splitProviders.indexOf(containingSplit)
+            const elementsBefore = this._splitProviders.slice(0, previousIndex)
+            const elementsAfter = this._splitProviders.slice(
+                previousIndex + 1,
+                this._splitProviders.length,
+            )
+
+            const children = [containingSplit, new SingleSplitProvider(split)]
+            const childSplitProvider = new LinearSplitProvider(
+                getInverseDirection(this._direction),
+                children,
+            )
+
+            this._splitProviders = [...elementsBefore, childSplitProvider, ...elementsAfter]
         }
 
         return true
@@ -126,11 +159,15 @@ export class LinearSplitProvider implements IWindowSplitProvider {
         return this._splitProviders[newIndex].move(null, direction)
     }
 
-    public getState(): SplitOrLeaf<IAugmentedSplitInfo> {
+    public getState(): ISplitInfo<IAugmentedSplitInfo> {
+        if (this._splitProviders.length === 0) {
+            return null
+        }
+
         return {
             type: "Split",
             direction: this._direction,
-            splits: this._splitProviders.map(sp => sp.getState()),
+            splits: this._splitProviders.map(sp => sp.getState()).filter(s => s !== null),
         }
     }
 

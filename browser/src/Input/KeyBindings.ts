@@ -9,6 +9,13 @@ import * as Oni from "oni-api"
 import * as Platform from "./../Platform"
 import { Configuration } from "./../Services/Configuration"
 
+interface ISidebar {
+    sidebar: {
+        activeEntryId: string
+        isFocused: boolean
+    }
+}
+
 export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configuration): void => {
     const { editors, input, menu } = oni
 
@@ -20,12 +27,19 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     const isInsertOrCommandMode = () =>
         editors.activeEditor.mode === "insert" || editors.activeEditor.mode === "cmdline_normal"
 
+    const oniWithSidebar = oni as Oni.Plugin.Api & ISidebar
+    const isExplorerActive = () =>
+        oniWithSidebar.sidebar.activeEntryId === "oni.sidebar.explorer" &&
+        oniWithSidebar.sidebar.isFocused &&
+        !isInsertOrCommandMode() &&
+        !isMenuOpen()
+
     const isMenuOpen = () => menu.isMenuOpen()
 
     if (Platform.isMac()) {
         input.bind("<m-q>", "oni.quit")
-        input.bind("<m-p>", "quickOpen.show")
-        input.bind("<m-s-p>", "commands.show")
+        input.bind("<m-p>", "quickOpen.show", () => isNormalMode() && !isMenuOpen())
+        input.bind("<m-s-p>", "commands.show", isNormalMode)
         input.bind("<m-enter>", "language.codeAction.expand")
         input.bind("<m-t>", "language.symbols.workspace", () => !menu.isMenuOpen())
         input.bind("<s-m-t>", "language.symbols.document")
@@ -33,6 +47,9 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-h>", "oni.editor.hide")
         input.bind("<c-tab>", "buffer.toggle")
         input.bind("<m-s-f>", "search.searchAllFiles")
+        input.bind("<m-s-_>", "sidebar.decreaseWidth")
+        input.bind("<m-s-+>", "sidebar.increaseWidth")
+        input.bind("<m-,>", "oni.config.openConfigJs")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
@@ -45,6 +62,8 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-r>", "browser.reload")
     } else {
         input.bind("<a-f4>", "oni.quit")
+        input.bind("<s-c-_>", "sidebar.decreaseWidth")
+        input.bind("<s-c-+>", "sidebar.increaseWidth")
         input.bind("<c-p>", "quickOpen.show", () => isNormalMode() && !isMenuOpen())
         input.bind("<s-c-p>", "commands.show", isNormalMode)
         input.bind("<a-enter>", "language.codeAction.expand")
@@ -53,6 +72,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<c-tab>", "buffer.toggle")
         input.bind("<s-c-f>", "search.searchAllFiles")
         input.bind("<s-c-e>", "explorer.toggle")
+        input.bind("<c-,>", "oni.config.openConfigJs")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<c-c>", "editor.clipboard.yank", isVisualMode)
@@ -85,12 +105,18 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     // QuickOpen
     input.bind("<C-/>", "quickOpen.showBufferLines", isNormalMode)
-    input.bind(["<c-enter", "<C-v>"], "quickOpen.openFileVertical")
-    input.bind(["<s-enter", "<C-s>"], "quickOpen.openFileHorizontal")
+    input.bind(["<C-v>"], "quickOpen.openFileVertical")
+    input.bind(["<C-s>"], "quickOpen.openFileHorizontal")
     input.bind("<C-t>", "quickOpen.openFileNewTab")
+    input.bind(["<C-enter>"], "quickOpen.openFileAlternative")
+
+    // Snippets
+    input.bind("<tab>", "snippet.nextPlaceholder")
+    input.bind("<s-tab>", "snippet.previousPlaceholder")
+    input.bind("<esc>", "snippet.cancel")
 
     // Completion
-    input.bind(["<enter>", "<tab>"], "contextMenu.select")
+    input.bind(["<enter>"], "contextMenu.select")
     input.bind(["<down>", "<C-n>"], "contextMenu.next")
     input.bind(["<up>", "<C-p>"], "contextMenu.previous")
     input.bind(
@@ -106,11 +132,30 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("<enter>", "menu.select")
     input.bind(["<enter>", "<space>"], "select")
 
-    input.bind("<delete>", "explorer.delete")
-
     // TODO: Scope 's' to just the local window
     input.bind("<c-g>", "sneak.show", () => isNormalMode() && !menu.isMenuOpen())
     input.bind(["<esc>", "<c-c>"], "sneak.hide")
 
     input.bind("<s-c-b>", "sidebar.toggle", isNormalMode)
+
+    // Explorer
+    input.bind("d", "explorer.delete.persist", isExplorerActive)
+    input.bind("<c-delete>", "explorer.delete.persist", isExplorerActive)
+    input.bind("<c-s-d>", "explorer.delete", isExplorerActive)
+    input.bind("<delete>", "explorer.delete", isExplorerActive)
+    input.bind("y", "explorer.yank", isExplorerActive)
+    input.bind("p", "explorer.paste", isExplorerActive)
+    input.bind("u", "explorer.undo", isExplorerActive)
+    input.bind("h", "explorer.collapse.directory", isExplorerActive)
+    input.bind("l", "explorer.expand.directory", isExplorerActive)
+    input.bind("r", "explorer.rename", isExplorerActive)
+    input.bind("<c-e>", "explorer.create.file", isExplorerActive)
+    input.bind("<c-f>", "explorer.create.folder", isExplorerActive)
+    input.bind("<c-r>", "explorer.refresh", isExplorerActive)
+
+    // Browser
+    input.bind("k", "browser.scrollUp")
+    input.bind("j", "browser.scrollDown")
+    input.bind("h", "browser.scrollLeft")
+    input.bind("l", "browser.scrollRight")
 }

@@ -13,13 +13,14 @@ import "rxjs/add/operator/distinctUntilChanged"
 import * as isEqual from "lodash/isEqual"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
+
 import * as types from "vscode-languageserver-types"
 
 import { EventContext } from "./EventContext"
 import { NeovimInstance } from "./index"
 
-import * as Log from "./../Log"
 import * as Utility from "./../Utility"
 
 export interface NeovimTabPageState {
@@ -39,6 +40,8 @@ export interface NeovimActiveWindowState {
     topBufferLine: number
     bottomBufferLine: number
 
+    visibleLines: string[]
+
     bufferToScreen: Oni.Coordinates.BufferToScreen
     dimensions: Oni.Shapes.Rectangle
 }
@@ -48,7 +51,7 @@ export interface NeovimInactiveWindowState {
     dimensions: Oni.Shapes.Rectangle
 }
 
-export class NeovimWindowManager {
+export class NeovimWindowManager extends Utility.Disposable {
     private _scrollObservable: Subject<EventContext>
 
     private _onWindowStateChangedEvent = new Event<NeovimTabPageState>()
@@ -58,17 +61,31 @@ export class NeovimWindowManager {
     }
 
     constructor(private _neovimInstance: NeovimInstance) {
+        super()
+
         this._scrollObservable = new Subject<EventContext>()
 
         const updateScroll = (evt: EventContext) => this._scrollObservable.next(evt)
         // First element of the BufEnter event is the current buffer
-        this._neovimInstance.autoCommands.onBufEnter.subscribe(bufs => updateScroll(bufs.current))
-        this._neovimInstance.autoCommands.onBufWinEnter.subscribe(updateScroll)
-        this._neovimInstance.onBufferUpdate.subscribe(buf => updateScroll(buf.eventContext))
-        this._neovimInstance.autoCommands.onWinEnter.subscribe(updateScroll)
-        this._neovimInstance.autoCommands.onCursorMoved.subscribe(updateScroll)
-        this._neovimInstance.autoCommands.onVimResized.subscribe(updateScroll)
-        this._neovimInstance.onScroll.subscribe(updateScroll)
+        this.trackDisposable(
+            this._neovimInstance.autoCommands.onBufEnter.subscribe(bufs =>
+                updateScroll(bufs.current),
+            ),
+        )
+        this.trackDisposable(
+            this._neovimInstance.autoCommands.onBufWinEnter.subscribe(bufs =>
+                updateScroll(bufs.current),
+            ),
+        )
+        this.trackDisposable(
+            this._neovimInstance.onBufferUpdate.subscribe(buf => updateScroll(buf.eventContext)),
+        )
+        this.trackDisposable(this._neovimInstance.autoCommands.onWinEnter.subscribe(updateScroll))
+        this.trackDisposable(
+            this._neovimInstance.autoCommands.onCursorMoved.subscribe(updateScroll),
+        )
+        this.trackDisposable(this._neovimInstance.autoCommands.onVimResized.subscribe(updateScroll))
+        this.trackDisposable(this._neovimInstance.onScroll.subscribe(updateScroll))
 
         const shouldMeasure$: Observable<void> = this._scrollObservable
             .auditTime(25)
@@ -90,16 +107,17 @@ export class NeovimWindowManager {
                 return Observable.defer(() => this._remeasure(evt))
             })
             .subscribe((tabState: NeovimTabPageState) => {
-                this._onWindowStateChangedEvent.dispatch(tabState)
-                this._neovimInstance.dispatchScrollEvent()
+                if (tabState) {
+                    this._onWindowStateChangedEvent.dispatch(tabState)
+                }
             })
     }
 
-    public dispose(): void {
-        // TODO: Implement 'unsubscribe' logic here
-    }
-
     public async remeasure(): Promise<void> {
+        if (this.isDisposed) {
+            return
+        }
+
         const newContext = await this._neovimInstance.getContext()
         this._scrollObservable.next(newContext)
     }
@@ -111,6 +129,10 @@ export class NeovimWindowManager {
         ])
 
         const activeWindow = await this._remeasureActiveWindow(context.windowNumber, context)
+
+        if (!activeWindow) {
+            return null
+        }
 
         const inactiveWindowIds = allWindows.filter(w => w.id !== context.windowNumber)
 
@@ -155,6 +177,10 @@ export class NeovimWindowManager {
         ]
 
         const response = await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
+
+        if (!response) {
+            return null
+        }
 
         const values = response[0]
 
@@ -213,6 +239,7 @@ export class NeovimWindowManager {
                 bottomBufferLine: context.windowBottomLine - 1,
                 topBufferLine: context.windowTopLine,
                 dimensions,
+                visibleLines: lines || [],
                 bufferToScreen: getBufferToScreenFromRanges(offset, expandedWidthRanges),
             }
 

@@ -6,11 +6,12 @@
  */
 
 import * as Color from "color"
+
+import * as Log from "oni-core-logging"
+
 import { TokenColor } from "./../Services/TokenColors"
 
 import { NeovimInstance } from "./NeovimInstance"
-
-import * as Log from "./../Log"
 
 const getGuiStringFromTokenColor = (color: TokenColor): string => {
     if (color.settings.bold && color.settings.italic) {
@@ -85,7 +86,9 @@ export class NeovimTokenColorSynchronizer {
     }
 
     private _getOrCreateHighlightGroup(tokenColor: TokenColor): string {
-        const existingGroup = this._tokenScopeSelectorToHighlightName[tokenColor.scope]
+        const existingGroup = this._tokenScopeSelectorToHighlightName[
+            this._getKeyFromTokenColor(tokenColor)
+        ]
         if (existingGroup) {
             return existingGroup
         } else {
@@ -95,8 +98,16 @@ export class NeovimTokenColorSynchronizer {
                 "[NeovimTokenColorSynchronizer::_getOrCreateHighlightGroup] Creating new highlight group - " +
                     newHighlightGroupName,
             )
-            this._tokenScopeSelectorToHighlightName[tokenColor.scope] = newHighlightGroupName
+            this._tokenScopeSelectorToHighlightName[
+                this._getKeyFromTokenColor(tokenColor)
+            ] = newHighlightGroupName
             return newHighlightGroupName
         }
+    }
+
+    private _getKeyFromTokenColor(tokenColor: TokenColor): string {
+        return `${tokenColor.scope}_${tokenColor.settings.backgroundColor}_${
+            tokenColor.settings.foregroundColor
+        }_${tokenColor.settings.bold}_${tokenColor.settings.italic}`
     }
 }

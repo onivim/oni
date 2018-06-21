@@ -4,6 +4,7 @@ import * as path from "path"
 import * as Oni from "oni-api"
 
 import { Configuration, getUserConfigFolderPath } from "./../Services/Configuration"
+import { IContributions } from "./Api/Capabilities"
 
 import { AnonymousPlugin } from "./AnonymousPlugin"
 import { Plugin } from "./Plugin"
@@ -12,17 +13,32 @@ const corePluginsRoot = path.join(__dirname, "vim", "core")
 const defaultPluginsRoot = path.join(__dirname, "vim", "default")
 const extensionsRoot = path.join(__dirname, "extensions")
 
-export class PluginManager {
+import { flatMap } from "./../Utility"
+
+import { IPluginInstaller, YarnPluginInstaller } from "./PluginInstaller"
+
+export class PluginManager implements Oni.IPluginManager {
     private _rootPluginPaths: string[] = []
     private _plugins: Plugin[] = []
     private _anonymousPlugin: AnonymousPlugin
     private _pluginsActivated: boolean = false
+    private _installer: IPluginInstaller = new YarnPluginInstaller()
+
+    private _developmentPluginsPath: string[] = []
 
     public get plugins(): Plugin[] {
         return this._plugins
     }
 
+    public get installer(): IPluginInstaller {
+        return this._installer
+    }
+
     constructor(private _config: Configuration) {}
+
+    public addDevelopmentPlugin(pluginPath: string): void {
+        this._developmentPluginsPath.push(pluginPath)
+    }
 
     public discoverPlugins(): void {
         const corePluginRootPaths: string[] = [corePluginsRoot, extensionsRoot]
@@ -45,12 +61,16 @@ export class PluginManager {
             this._createPlugin(p, "user"),
         )
 
+        const developmentPlugins = this._developmentPluginsPath.map(dev =>
+            this._createPlugin(dev, "development"),
+        )
+
         this._rootPluginPaths = [
             ...corePluginRootPaths,
             ...defaultPluginRootPaths,
             ...userPluginsRootPath,
         ]
-        this._plugins = [...corePlugins, ...defaultPlugins, ...userPlugins]
+        this._plugins = [...corePlugins, ...defaultPlugins, ...userPlugins, ...developmentPlugins]
 
         this._anonymousPlugin = new AnonymousPlugin()
     }
@@ -66,7 +86,10 @@ export class PluginManager {
     }
 
     public getAllRuntimePaths(): string[] {
-        const pluginPaths = this._getAllPluginPaths(this._rootPluginPaths)
+        const pluginPaths = [
+            ...this._getAllPluginPaths(this._rootPluginPaths),
+            ...this._developmentPluginsPath,
+        ]
 
         return pluginPaths.concat(this._rootPluginPaths)
     }
@@ -82,6 +105,15 @@ export class PluginManager {
             }
         }
         return null
+    }
+
+    public getAllContributionsOfType<T>(selector: (capabilities: IContributions) => T[]): T[] {
+        const filteredPlugins = this.plugins.filter(p => p.metadata && p.metadata.contributes)
+        const capabilities = flatMap(
+            filteredPlugins,
+            p => selector(p.metadata.contributes) || ([] as T[]),
+        )
+        return capabilities
     }
 
     private _createPlugin(pluginRootDirectory: string, source: string): Plugin {

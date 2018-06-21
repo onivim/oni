@@ -14,9 +14,8 @@ import * as path from "path"
 import { ChildProcess } from "child_process"
 import * as rpc from "vscode-jsonrpc"
 
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
-
-import * as Log from "./../../Log"
 
 import { normalizePath } from "./../../Utility"
 
@@ -24,7 +23,7 @@ import { LanguageClientLogger } from "./../../Plugins/Api/LanguageClient/Languag
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import * as Process from "./../../Plugins/Api/Process"
+import Process from "./../../Plugins/Api/Process"
 
 import { IServerCapabilities } from "./ServerCapabilities"
 
@@ -182,7 +181,7 @@ export class LanguageClientProcess {
                     completion: {
                         dynamicRegistration: false,
                         completionItem: {
-                            snippetSupport: false,
+                            snippetSupport: true,
                             commitCharactersSupport: true,
                             documentationFormat: SupportedMarkup,
                         },

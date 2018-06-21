@@ -115,8 +115,8 @@ export class NeovimMarks {
         this._isWatching = true
         this._neovimInstance.callFunction("OniListenForMarks", [])
 
-        this._neovimInstance.onOniCommand.subscribe(val => {
-            if (val === "_internal.notifyMarksChanged") {
+        this._neovimInstance.onOniCommand.subscribe(context => {
+            if (context.command === "_internal.notifyMarksChanged") {
                 this._updateMarks()
             }
         })

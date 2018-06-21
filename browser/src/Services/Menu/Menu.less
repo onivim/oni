@@ -61,22 +61,15 @@
             .label {
                 margin: 4px;
                 padding-right: 8px;
-
-                .highlight {
-                    font-weight: bold;
-                    text-decoration: underline;
-                }
             }
 
             .detail {
                 font-size: @font-size-small;
                 color: @text-color-detail;
                 flex: 1 1 auto;
-
-                .highlight {
-                    font-weight: bold;
-                    text-decoration: underline;
-                }
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-right: 8px;
             }
         }
     }

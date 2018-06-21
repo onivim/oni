@@ -13,6 +13,7 @@ import * as Oni from "oni-api"
 
 import { IMenus } from "./../Menu/MenuState"
 
+import { styled } from "../../UI/components/common"
 import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
 import { HighlightText } from "./../../UI/components/HighlightText"
 import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
@@ -117,7 +118,7 @@ export class ContextMenuItem extends React.PureComponent<IContextMenuItemProps, 
                     <Arrow direction={ArrowDirection.Right} size={5} color={arrowColor} />
                     <HighlightText
                         className="label"
-                        highlightClassName="highlight"
+                        highlightComponent={Highlight}
                         highlightText={this.props.base}
                         text={this.props.label}
                     />
@@ -127,6 +128,10 @@ export class ContextMenuItem extends React.PureComponent<IContextMenuItemProps, 
         )
     }
 }
+
+const Highlight = styled.span`
+    text-decoration: underline;
+`
 
 export interface IContextMenuDocumentationProps {
     documentation: string

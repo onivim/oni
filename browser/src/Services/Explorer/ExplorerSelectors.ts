@@ -10,29 +10,41 @@ import * as flatten from "lodash/flatten"
 
 import { ExpandedFolders, FolderOrFile, IExplorerState } from "./ExplorerStore"
 
-export type ExplorerNode =
-    | {
-          id: string
-          type: "container"
-          expanded: boolean
-          name: string
-      }
-    | {
-          id: string
-          type: "folder"
-          folderPath: string
-          expanded: boolean
-          name: string
-          indentationLevel: number
-      }
-    | {
-          id: string
-          type: "file"
-          filePath: string
-          modified: boolean
-          name: string
-          indentationLevel: number
-      }
+export interface IContainerNode {
+    id: string
+    type: "container"
+    expanded: boolean
+    name: string
+}
+
+export interface IFolderNode {
+    id: string
+    type: "folder"
+    folderPath: string
+    expanded: boolean
+    name: string
+    indentationLevel: number
+}
+
+export interface IFileNode {
+    id: string
+    type: "file"
+    filePath: string
+    modified: boolean
+    name: string
+    indentationLevel: number
+}
+
+export const EmptyNode: ExplorerNode = {
+    type: null,
+    id: null,
+    modified: null,
+    filePath: null,
+    name: null,
+    indentationLevel: null,
+}
+
+export type ExplorerNode = IContainerNode | IFolderNode | IFileNode
 
 export const isPathExpanded = (state: IExplorerState, pathToCheck: string): boolean => {
     return !!state.expandedFolders[pathToCheck]
@@ -68,7 +80,7 @@ export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
     ret.push({
         id: "explorer",
         type: "container",
-        expanded: true,
+        expanded: !!state.expandedFolders[state.rootFolder.fullPath],
         name: state.rootFolder.fullPath,
     })
 

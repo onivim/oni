@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "jsx": "react",
+        "lib": ["dom", "es2017", "ES2015"],
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noEmitOnError": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "skipLibCheck": true,
+        "strictNullChecks": false,
+        "suppressImplicitAnyIndexErrors": true,
+        "target": "es2015",
+        "sourceMap": true,
+        "types": ["jest", "electron", "react", "webgl2"]
+    },
+    "include": [
+        "**/*.tsx",
+        "**/*.ts",
+        "../@types/**/*.d.ts",
+        "../browser/**/*.ts",
+        "../browser/**/*.tsx"
+    ],
+    "exclude": ["node_modules"]
+}

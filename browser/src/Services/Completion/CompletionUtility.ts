@@ -7,11 +7,14 @@
 import * as Oni from "oni-api"
 import * as types from "vscode-languageserver-types"
 
+import { SnippetManager } from "./../Snippets"
+
 export const commitCompletion = async (
     buffer: Oni.Buffer,
     line: number,
     base: number,
-    completion: string,
+    completion: types.CompletionItem,
+    snippetManager?: SnippetManager,
 ) => {
     const currentLines = await buffer.getLines(line, line + 1)
 
@@ -23,10 +26,20 @@ export const commitCompletion = async (
 
     const originalLine = currentLines[0]
 
-    const newLine = replacePrefixWithCompletion(originalLine, base, column, completion)
+    const isSnippet =
+        completion.insertTextFormat === types.InsertTextFormat.Snippet && snippetManager
+
+    // If it's a snippet, we don't insert any text - we'll let the insert manager handle that.
+    const textToReplace = isSnippet ? "" : getInsertText(completion)
+
+    const newLine = replacePrefixWithCompletion(originalLine, base, column, textToReplace)
     await buffer.setLines(line, line + 1, [newLine])
     const cursorOffset = newLine.length - originalLine.length
     await buffer.setCursorPosition(line, column + cursorOffset)
+
+    if (isSnippet) {
+        await snippetManager.insertSnippet(completion.insertText)
+    }
 }
 
 export function getCompletionStart(

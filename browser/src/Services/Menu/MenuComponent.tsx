@@ -1,12 +1,12 @@
 import * as React from "react"
+import * as ReactDOM from "react-dom"
 import { connect, Provider } from "react-redux"
-
-import styled from "styled-components"
 
 import { AutoSizer, List } from "react-virtualized"
 
 import * as Oni from "oni-api"
 
+import { styled } from "../../UI/components/common"
 import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
 // import { Visible } from "./../../UI/components/Visible"
 import { Icon, IconSize } from "./../../UI/Icon"
@@ -27,6 +27,7 @@ export interface IMenuProps {
     filterText: string
     onChangeFilterText: (text: string) => void
     onSelect: (selectedIndex?: number) => void
+    onHide: () => void
     items: IMenuOptionWithHighlights[]
     isLoading: boolean
 
@@ -46,6 +47,7 @@ const MenuStyleWrapper = styled.div`
 
 export class MenuView extends React.PureComponent<IMenuProps, {}> {
     private _inputElement: HTMLInputElement = null
+    private _popupBody: Element = null
 
     public componentWillUpdate(newProps: Readonly<IMenuProps>): void {
         if (newProps.visible !== this.props.visible && !newProps.visible && this._inputElement) {
@@ -79,8 +81,13 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
             Math.min(this.props.items.length, this.props.maxItemsToShow) * this.props.rowHeight
 
         return (
-            <div className="menu-background enable-mouse">
-                <MenuStyleWrapper className="menu">
+            <div className="menu-background enable-mouse" onClick={this.handleHide}>
+                <MenuStyleWrapper
+                    className="menu"
+                    innerRef={elem => {
+                        this._popupBody = elem
+                    }}
+                >
                     <TextInputView onChange={evt => this._onChange(evt)} />
                     <div className="items">
                         <div>
@@ -115,6 +122,16 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
     private _onChange(evt: React.FormEvent<HTMLInputElement>) {
         const target: any = evt.target
         this.props.onChangeFilterText(target.value)
+    }
+
+    /**
+     * Hide the popup if a click event was registered outside of it
+     */
+    private handleHide = (event: any) => {
+        const node = ReactDOM.findDOMNode(this._popupBody)
+        if (!node.contains(event.target as Node)) {
+            this.props.onHide()
+        }
     }
 }
 
@@ -151,14 +168,9 @@ const mapStateToProps = (
     }
 }
 
-const mapDispatchToProps = (dispatch: any): any => {
-    const dispatchFilterText = (text: string) => {
-        dispatch(ActionCreators.filterMenu(text))
-    }
-
-    return {
-        onChangeFilterText: dispatchFilterText,
-    }
+const mapDispatchToProps = {
+    onChangeFilterText: ActionCreators.filterMenu,
+    onHide: ActionCreators.hidePopupMenu,
 }
 
 export const ConnectedMenu: any = connect(mapStateToProps, mapDispatchToProps)(MenuView)
@@ -243,16 +255,26 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
                     className="label"
                     text={this.props.label}
                     highlightIndices={this.props.labelHighlights}
-                    highlightClassName={"highlight"}
+                    highlightComponent={LabelHighlight}
                 />
                 <HighlightTextByIndex
                     className="detail"
                     text={this.props.detail}
                     highlightIndices={this.props.detailHighlights}
-                    highlightClassName={"highlight"}
+                    highlightComponent={DetailHighlight}
                 />
                 {this.props.additionalComponent}
             </MenuItemWrapper>
         )
     }
 }
+
+const LabelHighlight = styled.span`
+    font-weight: bold;
+    color: ${props => props.theme["highlight.mode.normal.background"]};
+`
+
+const DetailHighlight = styled.span`
+    font-weight: bold;
+    color: #757575;
+`

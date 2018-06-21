@@ -5,9 +5,16 @@
  */
 
 import { Reducer, Store } from "redux"
+import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
+import { Observable } from "rxjs"
 import { createStore as createReduxStore } from "./../../Redux"
 
-export type NotificationLevel = "info" | "warn" | "error"
+export type NotificationLevel = "info" | "warn" | "error" | "success"
+
+export interface INotificationButton {
+    title: string
+    callback: (args?: any) => void
+}
 
 export interface IdToNotification {
     [key: string]: INotification
@@ -26,24 +33,30 @@ export interface INotification {
     level: NotificationLevel
     title: string
     detail: string
+    expirationTime: number
+    buttons?: INotificationButton[]
     onClick: () => void
     onClose: () => void
 }
 
-export type NotificationAction =
-    | {
-          type: "SHOW_NOTIFICATION"
-          id: string
-          level: NotificationLevel
-          title: string
-          detail: string
-          onClick: () => void
-          onClose: () => void
-      }
-    | {
-          type: "HIDE_NOTIFICATION"
-          id: string
-      }
+interface IShowNotification {
+    type: "SHOW_NOTIFICATION"
+    id: string
+    level: NotificationLevel
+    buttons: INotificationButton[]
+    title: string
+    detail: string
+    expirationTime: number
+    onClick: () => void
+    onClose: () => void
+}
+
+interface IHideNotification {
+    type: "HIDE_NOTIFICATION"
+    id: string
+}
+
+export type NotificationAction = IShowNotification | IHideNotification
 
 export const notificationsReducer: Reducer<IdToNotification> = (
     state: IdToNotification = {},
@@ -58,8 +71,10 @@ export const notificationsReducer: Reducer<IdToNotification> = (
                     level: action.level,
                     title: action.title,
                     detail: action.detail,
+                    buttons: action.buttons,
                     onClick: action.onClick,
                     onClose: action.onClose,
+                    expirationTime: action.expirationTime,
                 },
             }
         case "HIDE_NOTIFICATION":
@@ -72,6 +87,20 @@ export const notificationsReducer: Reducer<IdToNotification> = (
     }
 }
 
+const hideNotificationAfterExpirationEpic: Epic<NotificationAction, INotificationsState> = (
+    action$,
+    store,
+) => {
+    return action$
+        .ofType("SHOW_NOTIFICATION")
+        .filter((action: IShowNotification) => !!action.expirationTime)
+        .mergeMap(({ expirationTime, id }: IShowNotification) => {
+            return Observable.timer(expirationTime).mapTo({
+                type: "HIDE_NOTIFICATION",
+                id,
+            } as IHideNotification)
+        })
+}
 export const stateReducer: Reducer<INotificationsState> = (
     state: INotificationsState = DefaultNotificationState,
     action: NotificationAction,
@@ -82,5 +111,7 @@ export const stateReducer: Reducer<INotificationsState> = (
 }
 
 export const createStore = (): Store<INotificationsState> => {
-    return createReduxStore("Notifications", stateReducer, DefaultNotificationState)
+    return createReduxStore("Notifications", stateReducer, DefaultNotificationState, [
+        createEpicMiddleware(combineEpics(hideNotificationAfterExpirationEpic)),
+    ])
 }

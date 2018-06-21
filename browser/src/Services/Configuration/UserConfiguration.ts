@@ -6,12 +6,18 @@
 
 import * as path from "path"
 
+import * as Log from "oni-core-logging"
+
 import * as Platform from "./../../Platform"
 
 export const getUserConfigFilePath = (): string => {
     const configFileFromEnv = process.env["ONI_CONFIG_FILE"] as string // tslint:disable-line
 
     if (configFileFromEnv) {
+        Log.info(
+            "getUserConfigFilePath - path overridden by environment variable:  " +
+                configFileFromEnv,
+        )
         return configFileFromEnv
     }
 
@@ -19,7 +25,16 @@ export const getUserConfigFilePath = (): string => {
 }
 
 export const getUserConfigFolderPath = (): string => {
+    const configFileFromEnv = process.env["ONI_CONFIG_FILE"] as string // tslint:disable-line
+    Log.info("$env:ONI_CONFIG_FILE: " + configFileFromEnv)
+
+    if (configFileFromEnv) {
+        const configDir = path.dirname(configFileFromEnv)
+        Log.info("getUserConfigFolderPath - path overridden by environment variable:  " + configDir)
+        return configDir
+    }
+
     return Platform.isWindows()
         ? path.join(Platform.getUserHome(), "oni")
-        : path.join(Platform.getUserHome(), ".oni")
+        : path.join(Platform.getUserHome(), ".config/oni") // XDG-compliant
 }

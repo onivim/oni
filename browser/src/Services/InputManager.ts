@@ -19,6 +19,9 @@ export interface KeyBindingMap {
     [key: string]: KeyBinding[]
 }
 
+const MAX_DELAY_BETWEEN_KEY_CHORD = 250 /* milliseconds */
+const MAX_CHORD_SIZE = 4
+
 import { KeyboardResolver } from "./../Input/Keyboard/KeyboardResolver"
 
 import {
@@ -27,9 +30,40 @@ import {
     remapResolver,
 } from "./../Input/Keyboard/Resolvers"
 
-export class InputManager implements Oni.InputManager {
+export interface KeyPressInfo {
+    keyChord: string
+    time: number
+}
+
+// Helper method to filter a set of key presses such that they are only the potential chords
+export const getRecentKeyPresses = (
+    keys: KeyPressInfo[],
+    maxTimeBetweenKeyPresses: number,
+): KeyPressInfo[] => {
+    const chords = keys.reduce(
+        (prev, curr) => {
+            if (prev.length === 0) {
+                return [curr]
+            }
+
+            const lastItem = prev[prev.length - 1]
+
+            if (curr.time - lastItem.time > maxTimeBetweenKeyPresses) {
+                return [curr]
+            } else {
+                return [...prev, curr]
+            }
+        },
+        [] as KeyPressInfo[],
+    )
+
+    return chords.slice(0, MAX_CHORD_SIZE)
+}
+
+export class InputManager implements Oni.Input.InputManager {
     private _boundKeys: KeyBindingMap = {}
     private _resolver: KeyboardResolver
+    private _keys: KeyPressInfo[] = []
 
     constructor() {
         this._resolver = new KeyboardResolver()
@@ -69,7 +103,7 @@ export class InputManager implements Oni.InputManager {
 
     public unbind(keyChord: string | string[]) {
         if (Array.isArray(keyChord)) {
-            keyChord.forEach(key => this.unbind(keyChord))
+            keyChord.forEach(key => this.unbind(key))
             return
         }
 
@@ -118,7 +152,36 @@ export class InputManager implements Oni.InputManager {
     // Triggers an action handler if there is a bound-key that passes the filter.
     // Returns true if the key was handled and should not continue bubbling,
     // false otherwise.
-    public handleKey(keyChord: string): boolean {
+    public handleKey(keyChord: string, time: number = new Date().getTime()): boolean {
+        if (keyChord === null) {
+            return false
+        }
+
+        const newKey: KeyPressInfo = {
+            keyChord,
+            time,
+        }
+
+        this._keys.push(newKey)
+        const potentialKeys = getRecentKeyPresses(this._keys, MAX_DELAY_BETWEEN_KEY_CHORD)
+        this._keys = [...potentialKeys]
+
+        // We'll try the longest key chord to the shortest
+        while (potentialKeys.length > 0) {
+            const fullChord = potentialKeys.map(k => k.keyChord).join("")
+
+            if (this._handleKeyCore(fullChord)) {
+                this._keys = []
+                return true
+            }
+
+            potentialKeys.shift()
+        }
+
+        return false
+    }
+
+    private _handleKeyCore(keyChord: string): boolean {
         if (!this._boundKeys[keyChord]) {
             return false
         }

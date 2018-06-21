@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<QuickInfo /> renders a shallow instance of the component 1`] = `""`;

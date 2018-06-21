@@ -7,9 +7,9 @@
 import * as fs from "fs"
 import * as path from "path"
 
-import * as Capabilities from "./Api/Capabilities"
+import * as Log from "oni-core-logging"
 
-import * as Log from "./../Log"
+import * as Capabilities from "./Api/Capabilities"
 
 const remapToAbsolutePaths = (
     packageRoot: string,
@@ -33,10 +33,20 @@ const remapToAbsolutePaths = (
         }
     }
 
+    const remapSnippetPath = (
+        snippet: Capabilities.ISnippetContribution,
+    ): Capabilities.ISnippetContribution => {
+        return {
+            ...snippet,
+            path: path.join(packageRoot, snippet.path),
+        }
+    }
+
     return {
         ...contributes,
         themes: contributes.themes.map(t => remapThemePath(t)),
         iconThemes: contributes.iconThemes.map(it => remapIconPath(it)),
+        snippets: contributes.snippets.map(s => remapSnippetPath(s)),
     }
 }
 

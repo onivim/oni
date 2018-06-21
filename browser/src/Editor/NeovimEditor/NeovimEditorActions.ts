@@ -51,6 +51,14 @@ export interface IAddBufferLayerAction {
     }
 }
 
+export interface IRemoveBufferLayerAction {
+    type: "REMOVE_BUFFER_LAYER"
+    payload: {
+        bufferId: number
+        layer: IBufferLayer
+    }
+}
+
 export interface ISetViewportAction {
     type: "SET_VIEWPORT"
     payload: {
@@ -134,6 +142,7 @@ export interface ISetFont {
     payload: {
         fontFamily: string
         fontSize: string
+        fontWeight: string
     }
 }
 
@@ -217,9 +226,11 @@ export interface ISetWindowState {
 
         bufferToScreen: Oni.Coordinates.BufferToScreen
         screenToPixel: Oni.Coordinates.ScreenToPixel
+        bufferToPixel: Oni.Coordinates.BufferToPixel
 
         topBufferLine: number
         bottomBufferLine: number
+        visibleLines: string[]
     }
 }
 
@@ -281,6 +292,7 @@ export type Action<K extends keyof IConfigurationValues> = SimpleAction | Action
 
 export type SimpleAction =
     | IAddBufferLayerAction
+    | IRemoveBufferLayerAction
     | IBufferEnterAction
     | IBufferSaveAction
     | IBufferUpdateAction
@@ -423,9 +435,20 @@ const formatBuffers = (buffer: InactiveBufferContext & EventContext) => {
 
 export const addBufferLayer = (
     bufferId: number,
-    layer: Oni.EditorLayer,
+    layer: Oni.BufferLayer,
 ): IAddBufferLayerAction => ({
     type: "ADD_BUFFER_LAYER",
+    payload: {
+        bufferId,
+        layer,
+    },
+})
+
+export const removeBufferLayer = (
+    bufferId: number,
+    layer: Oni.BufferLayer,
+): IRemoveBufferLayerAction => ({
+    type: "REMOVE_BUFFER_LAYER",
     payload: {
         bufferId,
         layer,
@@ -471,11 +494,12 @@ export const setImeActive = (imeActive: boolean) => ({
     },
 })
 
-export const setFont = (fontFamily: string, fontSize: string) => ({
+export const setFont = (fontFamily: string, fontSize: string, fontWeight: string) => ({
     type: "SET_FONT",
     payload: {
         fontFamily,
         fontSize,
+        fontWeight,
     },
 })
 
@@ -506,13 +530,37 @@ export const setWindowState = (
     topBufferLine: number,
     dimensions: Oni.Shapes.Rectangle,
     bufferToScreen: Oni.Coordinates.BufferToScreen,
+    visibleLines: string[],
 ) => (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { fontPixelWidth, fontPixelHeight } = getState()
 
-    const screenToPixel = (screenSpace: Oni.Coordinates.ScreenSpacePoint) => ({
-        pixelX: screenSpace.screenX * fontPixelWidth,
-        pixelY: screenSpace.screenY * fontPixelHeight,
-    })
+    const screenToPixel = (screenSpace: Oni.Coordinates.ScreenSpacePoint) => {
+        if (
+            !screenSpace ||
+            typeof screenSpace.screenX !== "number" ||
+            typeof screenSpace.screenY !== "number"
+        ) {
+            return {
+                pixelX: NaN,
+                pixelY: NaN,
+            }
+        }
+
+        return {
+            pixelX: screenSpace.screenX * fontPixelWidth,
+            pixelY: screenSpace.screenY * fontPixelHeight,
+        }
+    }
+
+    const bufferToPixel = (position: types.Position): Oni.Coordinates.PixelSpacePoint => {
+        const screenPosition = bufferToScreen(position)
+
+        if (!screenPosition) {
+            return null
+        }
+
+        return screenToPixel(screenPosition)
+    }
 
     dispatch({
         type: "SET_WINDOW_STATE",
@@ -525,8 +573,10 @@ export const setWindowState = (
             line,
             bufferToScreen,
             screenToPixel,
+            bufferToPixel,
             bottomBufferLine,
             topBufferLine,
+            visibleLines,
         },
     })
 }

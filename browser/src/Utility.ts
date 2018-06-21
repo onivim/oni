@@ -15,7 +15,39 @@ import * as reduce from "lodash/reduce"
 import { Observable } from "rxjs/Observable"
 import { Subject } from "rxjs/Subject"
 
+import * as JSON5 from "json5"
+import { IDisposable, IEvent } from "oni-types"
+
 import * as types from "vscode-languageserver-types"
+
+export class Disposable implements IDisposable {
+    private _disposables: IDisposable[] = []
+    private _isDisposed: boolean = false
+
+    public get isDisposed(): boolean {
+        return this._isDisposed
+    }
+
+    public dispose(): void {
+        if (!this.isDisposed) {
+            this._isDisposed = true
+            this._disposables.forEach(disposable => disposable.dispose())
+            this._disposables = null
+        }
+    }
+
+    protected trackDisposable(disposable: IDisposable) {
+        this._disposables.push(disposable)
+    }
+}
+
+export const asObservable = <T>(event: IEvent<T>): Observable<T> => {
+    const subject = new Subject<T>()
+
+    event.subscribe((val: T) => subject.next(val))
+
+    return subject
+}
 
 /**
  * Use a `node` require instead of a `webpack` require
@@ -42,6 +74,9 @@ export const replaceAll = (str: string, wordsToReplace: { [key: string]: string 
 
     return str.replace(re, matched => wordsToReplace[matched.toLowerCase()])
 }
+
+export const flatMap = <T, U>(xs: T[], f: (item: T) => U[]): U[] =>
+    xs.reduce((x: U[], y: T) => [...x, ...f(y)], [])
 
 export const diff = (newObject: any, oldObject: any) => {
     // Return changed properties between newObject and oldObject
@@ -120,6 +155,11 @@ export const getRootProjectFileFunc = (patternsToMatch: string[]) => {
     return getRootProjectFile
 }
 
+export const requestIdleCallback = (fn: () => void): number => {
+    // tslint:disable-next-line
+    return window["requestIdleCallback"](fn)
+}
+
 export const isInRange = (line: number, column: number, range: types.Range): boolean => {
     return (
         line >= range.start.line &&
@@ -155,6 +195,10 @@ export const createCompletablePromise = <T>(): ICompletablePromise<T> => {
         resolve,
         reject,
     }
+}
+
+export const normalizeNewLines = (str: string): string => {
+    return str.split("\r\n").join("\n")
 }
 
 /**
@@ -209,4 +253,8 @@ export function ignoreWhilePendingPromise<T, U>(
     )
 
     return ret
+}
+
+export const parseJson5 = <T>(text: string): T => {
+    return JSON5.parse(text) as T
 }

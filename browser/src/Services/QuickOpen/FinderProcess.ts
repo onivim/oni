@@ -8,7 +8,8 @@ import { ChildProcess, spawn } from "child_process"
 
 import { Event, IEvent } from "oni-types"
 
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
+import { getInstance } from "./../Workspace"
 
 export class FinderProcess {
     private _process: ChildProcess
@@ -18,6 +19,7 @@ export class FinderProcess {
     private _onData = new Event<string[]>()
     private _onError = new Event<string>()
     private _onComplete = new Event<void>()
+    private _workspace = getInstance()
 
     public get onData(): IEvent<string[]> {
         return this._onData
@@ -41,24 +43,22 @@ export class FinderProcess {
             )
         }
 
-        this._process = spawn(this._command, [], { shell: true })
+        this._process = spawn(this._command, [], {
+            shell: true,
+            cwd: this._workspace.activeWorkspace,
+        })
         this._process.stdout.on("data", data => {
-            if (!data) {
+            const { didExtract, remnant, splitData } = extractSplitData(
+                data,
+                this._splitCharacter,
+                this._lastData,
+            )
+
+            if (!didExtract) {
                 return
             }
 
-            const dataString = data.toString()
-            const isCleanEnd = dataString.endsWith(this._splitCharacter)
-            const splitData = dataString.split(this._splitCharacter)
-
-            if (this._lastData && splitData.length > 0) {
-                splitData[0] = this._lastData + splitData[0]
-                this._lastData = ""
-            }
-
-            if (!isCleanEnd) {
-                this._lastData = splitData.pop()
-            }
+            this._lastData = remnant
 
             this._onData.dispatch(splitData)
         })
@@ -75,4 +75,33 @@ export class FinderProcess {
     public stop(): void {
         this._process.kill()
     }
+}
+
+export const extractSplitData = (
+    data: string | Buffer,
+    splitCharacter: string,
+    lastRemnant: string,
+) => {
+    if (!data) {
+        return {
+            didExtract: false,
+            remnant: "",
+            splitData: [],
+        }
+    }
+
+    const dataString = lastRemnant + data.toString()
+    const isCleanEnd = dataString.endsWith(splitCharacter)
+    const splitData = dataString.split(splitCharacter)
+
+    let remnant = ""
+
+    if (!isCleanEnd) {
+        remnant = splitData.pop()
+    } else {
+        // split leaves behind an empty string in the array if the string to split ends with the delimiter
+        splitData.splice(-1, 1)
+    }
+
+    return { didExtract: true, remnant, splitData }
 }

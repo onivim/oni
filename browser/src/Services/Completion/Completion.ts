@@ -8,6 +8,8 @@ import { Store, Unsubscribe } from "redux"
 import * as types from "vscode-languageserver-types"
 
 import { LanguageManager } from "./../Language"
+import { SnippetManager } from "./../Snippets"
+import { ISyntaxHighlighter } from "./../SyntaxHighlighting"
 
 import { getFilteredCompletions } from "./CompletionSelectors"
 import { ICompletionsRequestor } from "./CompletionsRequestor"
@@ -17,30 +19,10 @@ import { ICompletionState } from "./CompletionState"
 import { createStore } from "./CompletionStore"
 
 import { Configuration } from "./../Configuration"
-import * as CompletionUtility from "./CompletionUtility"
 
 export interface ICompletionShowEventArgs {
     filteredCompletions: types.CompletionItem[]
     base: string
-}
-
-export class TestRequestor implements ICompletionsRequestor {
-    public async getCompletions(
-        language: string,
-        filePath: string,
-        line: number,
-        column: number,
-    ): Promise<types.CompletionItem[]> {
-        return [types.CompletionItem.create("test1"), types.CompletionItem.create("test2")]
-    }
-
-    public async getCompletionDetails(
-        language: string,
-        filePath: string,
-        completionItem: types.CompletionItem,
-    ): Promise<types.CompletionItem> {
-        return completionItem
-    }
 }
 
 export class Completion implements IDisposable {
@@ -67,6 +49,8 @@ export class Completion implements IDisposable {
         private _configuration: Configuration,
         private _completionsRequestor: ICompletionsRequestor,
         private _languageManager: LanguageManager,
+        private _snippetManager: SnippetManager,
+        private _syntaxHighlighter: ISyntaxHighlighter,
     ) {
         this._completionsRequestor = this._completionsRequestor
         this._store = createStore(
@@ -74,6 +58,8 @@ export class Completion implements IDisposable {
             this._languageManager,
             this._configuration,
             this._completionsRequestor,
+            this._snippetManager,
+            this._syntaxHighlighter,
         )
 
         const sub1 = this._editor.onBufferEnter.subscribe((buf: Oni.Buffer) => {
@@ -90,7 +76,7 @@ export class Completion implements IDisposable {
             this._onModeChanged(newMode)
         })
 
-        const sub4 = (this._editor as any).onCursorMoved.subscribe((cursor: Oni.Cursor) => {
+        const sub4 = this._editor.onCursorMoved.subscribe((cursor: Oni.Cursor) => {
             this._onCursorMoved(cursor)
         })
 
@@ -113,7 +99,7 @@ export class Completion implements IDisposable {
             type: "COMMIT_COMPLETION",
             meetLine: state.meetInfo.meetLine,
             meetPosition: state.meetInfo.meetPosition,
-            completionText: CompletionUtility.getInsertText(completionItem),
+            completion: completionItem,
         })
     }
 
@@ -151,6 +137,7 @@ export class Completion implements IDisposable {
             type: "BUFFER_ENTER",
             language: buffer.language,
             filePath: buffer.filePath,
+            bufferId: buffer.id,
         })
     }
 

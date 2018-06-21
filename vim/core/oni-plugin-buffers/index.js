@@ -1,6 +1,8 @@
 // @ts-check
 const path = require("path")
 
+const OniApi = require("oni-api")
+
 const activate = Oni => {
     const menu = Oni.menu.create()
 
@@ -14,7 +16,9 @@ const activate = Oni => {
         const buffers = Oni.editors.activeEditor.getBuffers()
         const active = Oni.editors.activeEditor.activeBuffer.filePath
 
-        const bufferMenuItems = buffers.map(b => ({
+        const validBuffers = buffers.filter(b => !b.filepath)
+
+        const bufferMenuItems = validBuffers.map(b => ({
             label: `${active === b.filePath ? b.id + " %" : b.id}`,
             detail: truncateFilePath(b.filePath),
             icon: Oni.ui.getIconClassForFile(b.filePath),
@@ -44,11 +48,12 @@ const activate = Oni => {
     }
 
     const openBuffer = (menu, orientation) => {
+        orientation = orientation || OniApi.FileOpenMode.Edit
         if (menu.selectedItem && menu.isOpen()) {
             const buffers = Oni.editors.activeEditor.getBuffers()
             try {
                 const { filePath = "" } = menu.selectedItem.metadata
-                Oni.editors.activeEditor.openFile(filePath, orientation)
+                Oni.editors.activeEditor.openFile(filePath, { openMode: orientation })
             } catch (e) {
                 console.warn("[Oni Buffer Plugin Error]: ", e)
             } finally {
@@ -67,19 +72,19 @@ const activate = Oni => {
     Oni.commands.registerCommand({
         command: "buffer.split",
         name: "Split Selected Buffer",
-        execute: () => menu.isOpen() && openBuffer(menu, "horizontal"),
+        execute: () => menu.isOpen() && openBuffer(menu, OniApi.FileOpenMode.HorizontalSplit),
     })
 
     Oni.commands.registerCommand({
         command: "buffer.vsplit",
         name: "Vertical Split Selected Buffer",
-        execute: () => menu.isOpen() && openBuffer(menu, "vertical"),
+        execute: () => menu.isOpen() && openBuffer(menu, OniApi.FileOpenMode.VerticalSplit),
     })
 
     Oni.commands.registerCommand({
         command: "buffer.tabedit",
         name: "Open Selected Buffer in a Tab",
-        execute: () => menu.isOpen() && openBuffer(menu, "tab"),
+        execute: () => menu.isOpen() && openBuffer(menu, OniApi.FileOpenMode.NewTab),
     })
 
     Oni.commands.registerCommand({
@@ -98,7 +103,7 @@ const activate = Oni => {
 
     menu.onItemSelected.subscribe(menuItem => {
         if (menuItem && menuItem.detail) {
-            openBuffer(menu, "edit")
+            openBuffer(menu, { openMode: OniApi.FileOpenMode.Edit })
         }
     })
 

@@ -19,24 +19,21 @@ import { Observable } from "rxjs/Observable"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
 
-import * as Log from "./../../Log"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 import { convertTextDocumentEditsToFileMap } from "./../Language/Edits"
 
-import * as WorkspaceCommands from "./WorkspaceCommands"
 import { WorkspaceConfiguration } from "./WorkspaceConfiguration"
 
 const fsStat = promisify(stat)
 
 // Candidate interface to promote to Oni API
-export interface IWorkspace extends Oni.Workspace {
-    activeWorkspace: string
-
+export interface IWorkspace extends Oni.Workspace.Api {
     applyEdits(edits: types.WorkspaceEdit): Promise<void>
 }
 
@@ -133,11 +130,16 @@ export class Workspace implements IWorkspace {
 
     public navigateToProjectRoot = async (bufferPath: string) => {
         const projectMarkers = this._configuration.getValue("workspace.autoDetectRootFiles")
-        const cwd = path.dirname(bufferPath)
+
+        // If the supplied path is a folder, we should use that instead of
+        // moving up a folder again.
+        // Helps when calling Oni from the CLI with "oni ."
+        const cwd = (await this.pathIsDir(bufferPath)) ? bufferPath : path.dirname(bufferPath)
+
         const filePath = await findup(projectMarkers, { cwd })
         if (filePath) {
-            const dir = path.dirname(filePath)
-            this.changeDirectory(dir)
+            const projectRoot = path.dirname(filePath)
+            return projectRoot !== this._activeWorkspace ? this.changeDirectory(projectRoot) : null
         }
     }
 
@@ -181,12 +183,16 @@ export class Workspace implements IWorkspace {
 let _workspace: Workspace = null
 let _workspaceConfiguration: WorkspaceConfiguration = null
 
-export const activate = (configuration: Configuration, editorManager: EditorManager): void => {
+export const activate = (
+    configuration: Configuration,
+    editorManager: EditorManager,
+    workspaceToLoad?: string,
+): void => {
     _workspace = new Workspace(editorManager, configuration)
 
     _workspaceConfiguration = new WorkspaceConfiguration(configuration, _workspace)
 
-    const defaultWorkspace = configuration.getValue("workspace.defaultWorkspace")
+    const defaultWorkspace = workspaceToLoad || configuration.getValue("workspace.defaultWorkspace")
 
     if (defaultWorkspace) {
         _workspace.changeDirectory(defaultWorkspace)
@@ -195,8 +201,6 @@ export const activate = (configuration: Configuration, editorManager: EditorMana
     _workspace.onDirectoryChanged.subscribe(newDirectory => {
         configuration.setValues({ "workspace.defaultWorkspace": newDirectory }, true)
     })
-
-    WorkspaceCommands.activateCommands(configuration, editorManager, _workspace)
 }
 
 export const getInstance = (): Workspace => {

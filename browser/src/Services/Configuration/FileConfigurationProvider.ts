@@ -9,12 +9,12 @@ import * as isError from "lodash/isError"
 import * as mkdirp from "mkdirp"
 import * as path from "path"
 
+import "rxjs/add/operator/debounceTime"
 import { Subject } from "rxjs/Subject"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
-
-import * as Log from "./../../Log"
 
 import { IConfigurationProvider } from "./Configuration"
 import { IConfigurationValues } from "./IConfigurationValues"
@@ -121,11 +121,20 @@ export class FileConfigurationProvider implements IConfigurationProvider {
     private _getLatestConfig(): void {
         this._lastError = null
 
-        let userRuntimeConfig: IConfigurationValues | null = null
+        let userRuntimeConfig: Partial<IConfigurationValues> | null = null
         let error: Error | null = null
         if (fs.existsSync(this._configurationFilePath)) {
             try {
-                userRuntimeConfig = global["require"](this._configurationFilePath) // tslint:disable-line no-string-literal
+                const configurationContent = fs.readFileSync(this._configurationFilePath, "utf-8")
+
+                // Wrap as commonjs module and execute it to use current file path, and so resolve module relativly to current process
+                const module = { exports: {} }
+                Function("require", "exports", "module", configurationContent)(
+                    (global as any).require,
+                    module.exports,
+                    module,
+                )
+                userRuntimeConfig = promoteConfigurationToRootLevel(module.exports)
             } catch (e) {
                 e.message =
                     "[Config Error] Failed to parse " +
@@ -160,4 +169,18 @@ export class FileConfigurationProvider implements IConfigurationProvider {
             }
         }
     }
+}
+
+export const promoteConfigurationToRootLevel = (
+    config: Partial<IConfigurationValues>,
+): Partial<IConfigurationValues> => {
+    if (config.configuration) {
+        const configurationValues = config.configuration
+        let mergedConfig = { ...config }
+        delete mergedConfig.configuration
+        mergedConfig = { ...mergedConfig, ...configurationValues }
+        return mergedConfig
+    }
+
+    return config
 }

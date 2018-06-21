@@ -4,6 +4,8 @@
  * Handles enhanced syntax highlighting
  */
 
+import * as Log from "oni-core-logging"
+
 import { TokenColor, TokenColors } from "./../TokenColors"
 
 import { NeovimEditor } from "./../../Editor/NeovimEditor"
@@ -16,8 +18,6 @@ import {
 } from "./SyntaxHighlightingStore"
 
 import * as Selectors from "./SyntaxHighlightSelectors"
-
-import * as Log from "./../../Log"
 
 // SyntaxHighlightReconciler
 //
@@ -53,7 +53,7 @@ export class SyntaxHighlightReconciler {
                     return false
                 }
 
-                const latestLine = currentHighlightState.lines[line]
+                const latestLine = Selectors.getLineFromBuffer(currentHighlightState, lineNumber)
 
                 // If dirty (haven't processed tokens yet) - skip
                 if (latestLine.dirty) {
@@ -61,11 +61,12 @@ export class SyntaxHighlightReconciler {
                 }
 
                 // Or lines that haven't been updated
-                return this._previousState[line] !== currentHighlightState.lines[line]
+                return this._previousState[line] !== latestLine
             })
 
             const tokens = filteredLines.map(li => {
-                const line = currentHighlightState.lines[li]
+                const lineNumber = parseInt(li, 10)
+                const line = Selectors.getLineFromBuffer(currentHighlightState, lineNumber)
 
                 const highlights = this._mapTokensToHighlights(line.tokens)
                 return {
@@ -75,7 +76,11 @@ export class SyntaxHighlightReconciler {
             })
 
             filteredLines.forEach(li => {
-                this._previousState[li] = currentHighlightState.lines[li]
+                const lineNumber = parseInt(li, 10)
+                this._previousState[li] = Selectors.getLineFromBuffer(
+                    currentHighlightState,
+                    lineNumber,
+                )
             })
 
             if (tokens.length > 0) {

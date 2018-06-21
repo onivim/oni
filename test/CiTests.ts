@@ -17,33 +17,59 @@ const CiTests = [
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
+
+    "Browser.LocationTest",
+
+    "Configuration.JavaScriptEditorTest",
+    "Configuration.TypeScriptEditor.NewConfigurationTest",
+    "Configuration.TypeScriptEditor.CompletionTest",
+
+    "TabBarSneakTest",
+    "initVimPromptNotificationTest",
+    "Editor.BuffersCursorTest",
     "Editor.ExternalCommandLineTest",
     "Editor.BufferModifiedState",
+    "Editor.OpenFile.PathWithSpacesTest",
+    "Editor.ScrollEventTest",
     "Editor.TabModifiedState",
-    "LargeFileTest",
+    "Editor.CloseTabWithTabModesTabsTest",
     "MarkdownPreviewTest",
+    "PrettierPluginTest",
     "PaintPerformanceTest",
     "QuickOpenTest",
     "StatusBar-Mode",
     "Neovim.InvalidInitVimHandlingTest",
+    "Neovim.CallOniCommands",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
+
+    "Snippets.BasicInsertTest",
+
     "WindowManager.ErrorBoundary",
     "Workspace.ConfigurationTest",
     // Regression Tests
     "Regression.1251.NoAdditionalProcessesOnStartup",
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
+    "Regression.1799.MacroApplicationTest",
+    "Regression.2047.VerifyCanvasIsIntegerSize",
+
+    "TextmateHighlighting.DebugScopesTest",
     "TextmateHighlighting.ScopesOnEnterTest",
+    "TextmateHighlighting.TokenColorOverrideTest",
+
+    "Theming.LightAndDarkColorsTest",
+
+    // This test occasionally hangs and breaks tests after - trying to move it later...
+    "LargeFileTest",
 ]
 
 const WindowsOnlyTests = [
-    // For some reason, the `beginFrameSubscription` call doesn't seem to work on OSX,
-    // so we can't properly validate that case on that platform...
-    "PaintPerformanceTest",
+    // TODO: Stabilize this test on OSX / Linux, too!
+    "Regression.1819.AutoReadCheckTimeTest",
 ]
 
-const OSXOnlyTests = ["OSX.WindowTitleTest"]
+const OSXOnlyTests = ["AutoCompletionTest-Reason", "OSX.WindowTitleTest"]
 
 // tslint:disable:no-console
 
@@ -64,10 +90,12 @@ const FGYELLOW = "\x1b[33m"
 describe("ci tests", function() {
     const tests = Platform.isWindows()
         ? [...CiTests, ...WindowsOnlyTests]
-        : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
+        : Platform.isMac()
+            ? [...CiTests, ...OSXOnlyTests]
+            : CiTests
 
     const testFailures: IFailedTest[] = []
-    CiTests.forEach(test => {
+    tests.forEach(test => {
         runInProcTest(path.join(__dirname, "ci"), test, 5000, testFailures)
     })
 

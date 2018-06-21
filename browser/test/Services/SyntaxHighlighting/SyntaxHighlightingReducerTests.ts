@@ -14,6 +14,7 @@ describe("SyntaxHighlightingReducer", () => {
                     language: "any",
                     bufferId: "1",
                     lines: ["line1", "line2"],
+                    version: 1,
                 }
 
                 const newState = SyntaxHighlighting.linesReducer(originalState, updateBufferAction)
@@ -33,19 +34,21 @@ describe("SyntaxHighlightingReducer", () => {
                 })
             })
 
-            it("only sets changed lines to dirty", () => {
+            it("sets lines with a different buffer version to dirty", () => {
                 const originalState: SyntaxHighlighting.SyntaxHighlightLines = {
                     "0": {
                         ruleStack: null,
                         tokens: [],
                         line: "line1",
                         dirty: false,
+                        version: 1,
                     },
                     "1": {
                         ruleStack: null,
                         tokens: [],
                         line: "line2",
                         dirty: false,
+                        version: 0,
                     },
                 }
 
@@ -55,6 +58,7 @@ describe("SyntaxHighlightingReducer", () => {
                     language: "any",
                     bufferId: "1",
                     lines: ["line1", "line2_update"],
+                    version: 1,
                 }
 
                 const newState = SyntaxHighlighting.linesReducer(originalState, updateBufferAction)
@@ -64,6 +68,7 @@ describe("SyntaxHighlightingReducer", () => {
                     tokens: [],
                     line: "line1",
                     dirty: false,
+                    version: 1,
                 })
 
                 assert.deepEqual(newState["1"], {
@@ -71,6 +76,7 @@ describe("SyntaxHighlightingReducer", () => {
                     tokens: [],
                     line: "line2_update",
                     dirty: true,
+                    version: 0,
                 })
             })
         })

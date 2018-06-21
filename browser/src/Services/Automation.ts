@@ -7,16 +7,16 @@
 import { remote } from "electron"
 
 import * as OniApi from "oni-api"
+import * as Log from "oni-core-logging"
 
+import * as App from "./../App"
 import * as Utility from "./../Utility"
 
-import { getInstance as getSharedNeovimInstance } from "./../neovim/SharedNeovimInstance"
 import { getUserConfigFilePath } from "./Configuration"
 import { editorManager } from "./EditorManager"
 import { inputManager } from "./InputManager"
 
-import * as Log from "./../Log"
-import * as Shell from "./../UI/Shell"
+import { IKey, parseKeysFromVimString } from "./../Input/KeyParser"
 
 export interface ITestResult {
     passed: boolean
@@ -34,6 +34,50 @@ export class Automation implements OniApi.Automation.Api {
             const anyEditor: any = editorManager.activeEditor as any
             anyEditor.input(keys)
         }
+    }
+
+    public sendKeysV2(keys: string): void {
+        const parsedKeys = parseKeysFromVimString(keys)
+
+        const contents = remote.getCurrentWebContents()
+
+        const convertCharacter = (key: string) => {
+            switch (key.toLowerCase()) {
+                case "lt":
+                    return "<"
+                case "cr":
+                    return "enter"
+                default:
+                    return key
+            }
+        }
+
+        const convertModifiers = (key: IKey): string[] => {
+            const ret: string[] = []
+
+            if (key.control) {
+                ret.push("control")
+            }
+            if (key.alt) {
+                ret.push("alt")
+            }
+            if (key.meta) {
+                ret.push("meta")
+            }
+            if (key.shift) {
+                ret.push("shift")
+            }
+
+            return ret
+        }
+
+        parsedKeys.chord.forEach(key => {
+            const character = convertCharacter(key.character)
+            const modifiers = convertModifiers(key)
+            contents.sendInputEvent({ keyCode: character, modifiers, type: "keyDown" } as any)
+            contents.sendInputEvent({ keyCode: character, modifiers, type: "char" } as any)
+            contents.sendInputEvent({ keyCode: character, type: "keyUp" } as any)
+        })
     }
 
     public async sleep(time: number = 1000): Promise<void> {
@@ -67,34 +111,9 @@ export class Automation implements OniApi.Automation.Api {
     }
 
     public async waitForEditors(): Promise<void> {
-        // Add explicit wait for Neovim to be initialized
-        // The CI machines can often be slow, so we need a longer timout for it
-        // TODO: Replace with a more explicit condition, once our startup
-        // path is well-defined (#89, #355, #372)
-
-        // Add explicit wait for Neovim to be initialized
-        // The CI machines can often be slow, so we need a longer timout for it
-        // TODO: Replace with a more explicit condition, once our startup
-        // path is well-defined (#89, #355, #372)
         Log.info("[AUTOMATION] Waiting for startup...")
-        await this.waitFor(() => (Shell.store.getState() as any).isLoaded, 30000)
+        await App.waitForStart()
         Log.info("[AUTOMATION] Startup complete!")
-
-        Log.info("[AUTOMATION] Waiting for neovim to attach to editor...")
-        await this.waitFor(
-            () =>
-                editorManager.activeEditor.neovim &&
-                (editorManager.activeEditor as any).neovim.isInitialized,
-            30000,
-        )
-        Log.info("[AUTOMATION] Neovim initialized!")
-
-        Log.info("[AUTOMATION] Waiting for shared neovim instance...")
-        await this.waitFor(
-            () => getSharedNeovimInstance() && getSharedNeovimInstance().isInitialized,
-            30000,
-        )
-        Log.info("[AUTOMATION] Shared neovim instance initialized!")
     }
 
     public async runTest(testPath: string): Promise<void> {
@@ -114,9 +133,10 @@ export class Automation implements OniApi.Automation.Api {
 
             await testCase.test(oni)
             Log.info("[AUTOMATION] Completed test: " + testPath)
-            this._reportResult(true)
+
+            await this._reportResult(true)
         } catch (ex) {
-            this._reportResult(false, ex)
+            await this._reportResult(false, ex)
         } finally {
             this._reportWindowSize()
         }
@@ -149,16 +169,40 @@ export class Automation implements OniApi.Automation.Api {
         return container
     }
 
-    private _reportResult(passed: boolean, exception?: any): void {
+    private async _reportResult(passed: boolean, exception?: any): Promise<void> {
+        Log.info("[AUTOMATION] Quitting...")
+        // Close all Neovim instances, but don't close the browser window... let Spectron
+        // take care of that.
+
+        // TODO: Bring this back once the 'quit' logic is more stable!
+        // editorManager.setCloseWhenNoEditors(false)
+        // try {
+        //     await App.quit()
+        // } catch (ex) {
+        //     Log.error(ex)
+        // }
+        // Log.info("[AUTOMATION] Quit successfully")
+
         const resultElement = this._createElement(
             "automated-test-result",
             this._getOrCreateTestContainer("automated-test-container"),
         )
 
-        resultElement.textContent = JSON.stringify({
-            passed,
-            exception: exception || null,
-        })
+        if (exception && exception.code && exception.code === "ERR_ASSERTION") {
+            resultElement.textContent = JSON.stringify({
+                passed,
+                exception,
+                expected: exception.expected,
+                actual: exception.actual,
+                message: exception.message,
+                operator: exception.operator,
+            })
+        } else {
+            resultElement.textContent = JSON.stringify({
+                passed,
+                exception: exception || null,
+            })
+        }
     }
 
     private _createElement(className: string, parentElement: HTMLElement): HTMLDivElement {

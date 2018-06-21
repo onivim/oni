@@ -6,6 +6,7 @@ export const TwoX = "fa-2x"
 export const ThreeX = "fa-3x"
 export const FourX = "fa-4x"
 export const FiveX = "fa-5x"
+export const NineX = "fa-9x"
 
 export enum IconSize {
     Default = 0,
@@ -14,20 +15,24 @@ export enum IconSize {
     ThreeX,
     FourX,
     FiveX,
+    NineX,
 }
 
 export interface IconProps {
     name: string
     size?: IconSize
     className?: string
+    style?: React.CSSProperties
 }
+const EmptyStyle: React.CSSProperties = {}
 
 export class Icon extends React.PureComponent<IconProps, {}> {
     public render(): JSX.Element {
+        const style = this.props.style || EmptyStyle
         const className =
             "fa fa-" + this.props.name + " " + this._getClassForIconSize(this.props.size as any) // FIXME: undefined
         const additionalClass = this.props.className || ""
-        return <i className={className + additionalClass} aria-hidden="true" />
+        return <i className={className + additionalClass} style={style} aria-hidden="true" />
     }
 
     private _getClassForIconSize(size: IconSize): string {
@@ -44,6 +49,8 @@ export class Icon extends React.PureComponent<IconProps, {}> {
                 return FourX
             case IconSize.FiveX:
                 return FiveX
+            case IconSize.NineX:
+                return NineX
             default:
                 return Default
         }

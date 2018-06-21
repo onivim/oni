@@ -8,8 +8,10 @@
  * - Enabling Neovim keybindings in text input elements
  */
 
+import * as Log from "oni-core-logging"
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { CommandContext } from "./CommandContext"
 import { NeovimInstance } from "./NeovimInstance"
 import { INeovimStartOptions } from "./NeovimProcessSpawner"
 
@@ -19,7 +21,7 @@ import { Configuration } from "./../Services/Configuration"
 
 import { PromiseQueue } from "./../Services/Language/PromiseQueue"
 
-import * as Log from "./../Log"
+import * as App from "./../App"
 
 export interface IBinding {
     input(key: string): Promise<void>
@@ -136,6 +138,7 @@ export class MenuBinding extends Binding implements IMenuBinding {
 
 class SharedNeovimInstance implements SharedNeovimInstance {
     private _neovimInstance: NeovimInstance
+    private _activeBinding: IBinding
 
     public get isInitialized(): boolean {
         return this._neovimInstance.isInitialized
@@ -144,13 +147,22 @@ class SharedNeovimInstance implements SharedNeovimInstance {
     constructor(private _configuration: Configuration, private _pluginManager: PluginManager) {
         this._neovimInstance = new NeovimInstance(5, 5, this._configuration)
 
-        this._neovimInstance.onOniCommand.subscribe((command: string) => {
-            commandManager.executeCommand(command)
+        this._neovimInstance.onOniCommand.subscribe((context: CommandContext) => {
+            const commandToExecute = context.command
+            const commandArgs = context.args
+
+            commandManager.executeCommand(commandToExecute, commandArgs)
+        })
+
+        App.registerQuitHook(async () => {
+            return this.quit()
         })
     }
 
     public bindToMenu(): IMenuBinding {
-        return new MenuBinding(this._neovimInstance)
+        const menuBinding = new MenuBinding(this._neovimInstance)
+        this._activeBinding = menuBinding
+        return menuBinding
     }
 
     public async start(): Promise<void> {
@@ -163,6 +175,15 @@ class SharedNeovimInstance implements SharedNeovimInstance {
         Log.info("[SharedNeovimInstance::start] Starting...")
         await this._neovimInstance.start(startOptions)
         Log.info("[SharedNeovimInstance::start] Started successfully!")
+    }
+
+    public async quit(): Promise<void> {
+        if (this._activeBinding) {
+            this._activeBinding.release()
+            this._activeBinding = null
+        }
+
+        return this._neovimInstance.quit()
     }
 }
 

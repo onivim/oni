@@ -77,6 +77,7 @@ export function reducer<K extends keyof IConfigurationValues>(
                 ...s,
                 fontFamily: a.payload.fontFamily,
                 fontSize: a.payload.fontSize,
+                fontWeight: a.payload.fontWeight,
             }
         case "SET_MODE":
             return { ...s, ...{ mode: a.payload.mode } }
@@ -166,12 +167,25 @@ export function reducer<K extends keyof IConfigurationValues>(
 
 export const layersReducer = (s: State.Layers, a: Actions.SimpleAction) => {
     switch (a.type) {
-        case "ADD_BUFFER_LAYER":
+        case "ADD_BUFFER_LAYER": {
             const currentLayers = s[a.payload.bufferId] || []
+
+            if (currentLayers.find(layer => layer.id === a.payload.layer.id)) {
+                return s
+            }
+
             return {
                 ...s,
                 [a.payload.bufferId]: [...currentLayers, a.payload.layer],
             }
+        }
+        case "REMOVE_BUFFER_LAYER": {
+            const currentLayers = s[a.payload.bufferId] || []
+            return {
+                ...s,
+                [a.payload.bufferId]: currentLayers.filter(l => l !== a.payload.layer),
+            }
+        }
         default:
             return s
     }
@@ -400,10 +414,12 @@ export const windowStateReducer = (
                         line: a.payload.line,
                         bufferToScreen: a.payload.bufferToScreen,
                         screenToPixel: a.payload.screenToPixel,
+                        bufferToPixel: a.payload.bufferToPixel,
                         dimensions: a.payload.dimensions,
 
                         topBufferLine: a.payload.topBufferLine,
                         bottomBufferLine: a.payload.bottomBufferLine,
+                        visibleLines: a.payload.visibleLines,
                     },
                 },
             }

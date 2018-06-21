@@ -4,100 +4,73 @@
  * Entry point for browser integration plugin
  */
 
-import { shell } from "electron"
+import { ipcRenderer, shell, WebviewTag } from "electron"
 import * as React from "react"
-import styled from "styled-components"
 
 import * as Oni from "oni-api"
-import { Event, IDisposable, IEvent } from "oni-types"
+import { Event } from "oni-types"
+
+import { IBuffer } from "./../../Editor/BufferManager"
 
 import { CommandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
+import { focusManager } from "./../FocusManager"
+import {
+    AchievementsManager,
+    getInstance as getAchievementsInstance,
+} from "./../Learning/Achievements"
 
-import { Icon, IconSize } from "./../../UI/Icon"
+import { BrowserView } from "./BrowserView"
 
-const Column = styled.div`
-    pointer-events: auto;
-
-    display: flex;
-    flex-direction: column;
-
-    width: 100%;
-    height: 100%;
-`
-
-const BrowserControlsWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    flex: 0 0 auto;
-    user-select: none;
-
-    height: 3em;
-    width: 100%;
-    background-color: ${props => props.theme["editor.background"]};
-    color: ${props => props.theme["editor.foreground"]};
-`
-
-const BrowserViewWrapper = styled.div`
-    flex: 1 1 auto;
-
-    width: 100%;
-    height: 100%;
-    position: relative;
-
-    webview {
-        height: 100%;
-        width: 100%;
-    }
-`
-
-const BrowserButton = styled.div`
-    width: 2.5em;
-    height: 2.5em;
-    flex: 0 0 auto;
-    opacity: 0.9;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    &:hover {
-        opacity: 1;
-        box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
-    }
-`
-
-const AddressBar = styled.div`
-    width: 100%;
-    flex: 1 1 auto;
-
-    height: 2.5em;
-    line-height: 2.5em;
-
-    text-align: left;
-`
-
-export class BrowserLayer implements Oni.EditorLayer {
+export class BrowserLayer implements Oni.BufferLayer {
+    private _debugEvent = new Event<void>()
     private _goBackEvent = new Event<void>()
     private _goForwardEvent = new Event<void>()
     private _reloadEvent = new Event<void>()
+    private _scrollUpEvent = new Event<void>()
+    private _scrollDownEvent = new Event<void>()
+    private _scrollRightEvent = new Event<void>()
+    private _scrollLeftEvent = new Event<void>()
 
-    constructor(private _url: string) {}
+    private _webview: WebviewTag | null = null
+    private _activeTagName: string | null = null
+
+    constructor(private _url: string, private _configuration: Configuration) {}
 
     public get id(): string {
         return "oni.browser"
     }
 
+    public get webviewElement(): HTMLElement {
+        return this._webview
+    }
+
+    public get activeTagName(): string {
+        return this._activeTagName
+    }
+
     public render(): JSX.Element {
         return (
             <BrowserView
-                url={this._url}
+                configuration={this._configuration}
+                initialUrl={this._url}
                 goBack={this._goBackEvent}
                 goForward={this._goForwardEvent}
                 reload={this._reloadEvent}
+                debug={this._debugEvent}
+                scrollDown={this._scrollDownEvent}
+                scrollUp={this._scrollUpEvent}
+                scrollLeft={this._scrollLeftEvent}
+                scrollRight={this._scrollRightEvent}
+                webviewRef={webview => (this._webview = webview)}
+                onFocusTag={newTag => (this._activeTagName = newTag)}
             />
         )
+    }
+
+    public openDebugger(): void {
+        this._debugEvent.dispatch()
     }
 
     public goBack(): void {
@@ -111,99 +84,23 @@ export class BrowserLayer implements Oni.EditorLayer {
     public reload(): void {
         this._reloadEvent.dispatch()
     }
-}
 
-export interface IBrowserViewProps {
-    url: string
-
-    goBack: IEvent<void>
-    goForward: IEvent<void>
-    reload: IEvent<void>
-}
-
-export class BrowserView extends React.PureComponent<IBrowserViewProps, {}> {
-    private _webviewElement: any
-    private _disposables: IDisposable[] = []
-
-    public componentDidMount(): void {
-        const d1 = this.props.goBack.subscribe(() => this._goBack())
-        const d2 = this.props.goForward.subscribe(() => this._goForward())
-        const d3 = this.props.reload.subscribe(() => this._reload())
-
-        this._disposables = this._disposables.concat([d1, d2, d3])
+    public scrollUp(): void {
+        this._scrollUpEvent.dispatch()
     }
 
-    public componentWillUnmount(): void {
-        this._webviewElement = null
-        this._disposables.forEach(d => d.dispose())
-        this._disposables = []
+    public scrollDown(): void {
+        this._scrollDownEvent.dispatch()
     }
 
-    public render(): JSX.Element {
-        return (
-            <Column key={"test2"}>
-                <BrowserControlsWrapper>
-                    <BrowserButton onClick={() => this._goBack()}>
-                        <Icon name="chevron-left" size={IconSize.Large} />
-                    </BrowserButton>
-                    <BrowserButton onClick={() => this._goForward()}>
-                        <Icon name="chevron-right" size={IconSize.Large} />
-                    </BrowserButton>
-                    <BrowserButton onClick={() => this._reload()}>
-                        <Icon name="undo" size={IconSize.Large} />
-                    </BrowserButton>
-                    <AddressBar>
-                        <span>{this.props.url}</span>
-                    </AddressBar>
-                    <BrowserButton>
-                        <Icon name="bug" size={IconSize.Large} />
-                    </BrowserButton>
-                </BrowserControlsWrapper>
-                <BrowserViewWrapper>
-                    <div
-                        ref={elem => this._initializeElement(elem)}
-                        style={{
-                            position: "absolute",
-                            top: "0px",
-                            left: "0px",
-                            right: "0px",
-                            bottom: "0px",
-                        }}
-                        key={"test"}
-                    />
-                </BrowserViewWrapper>
-            </Column>
-        )
+    public scrollLeft(): void {
+        this._scrollLeftEvent.dispatch()
     }
 
-    private _goBack(): void {
-        if (this._webviewElement) {
-            this._webviewElement.goBack()
-        }
-    }
-
-    private _goForward(): void {
-        if (this._webviewElement) {
-            this._webviewElement.goForward()
-        }
-    }
-
-    private _reload(): void {
-        if (this._webviewElement) {
-            this._webviewElement.reload()
-        }
-    }
-
-    private _initializeElement(elem: HTMLElement) {
-        if (elem && !this._webviewElement) {
-            const webviewElement = document.createElement("webview")
-            elem.appendChild(webviewElement)
-            this._webviewElement = webviewElement
-            this._webviewElement.src = this.props.url
-        }
+    public scrollRight(): void {
+        this._scrollRightEvent.dispatch()
     }
 }
-
 export const activate = (
     commandManager: CommandManager,
     configuration: Configuration,
@@ -211,22 +108,63 @@ export const activate = (
 ) => {
     let count = 0
 
-    const activeLayers: { [bufferId: string]: BrowserLayer } = {}
+    const browserEnabledSetting = configuration.registerSetting("browser.enabled", {
+        requiresReload: false,
+        description:
+            "`browser.enabled` controls whether the embedded browser functionality is enabled",
+        defaultValue: true,
+    })
 
-    const openUrl = async (url: string) => {
-        if (configuration.getValue("experimental.browser.enabled")) {
+    configuration.registerSetting("browser.zoomFactor", {
+        description: `This sets the "zoomFactor" for nested browser windows.
+        A value of "1" means "100%" zoom, a value of 0.5 means
+        "50%" zoom, and a value of "2" means "200%" zoom.`,
+        requiresReload: false,
+        defaultValue: 1,
+    })
+
+    const defaultUrlSetting = configuration.registerSetting("browser.defaultUrl", {
+        description:
+            "`browser.defaultUrl` sets the default url when opening a browser window, and no url was specified.",
+        requiresReload: false,
+        defaultValue: "https://github.com/onivim/oni",
+    })
+
+    const openUrl = async (url: string, openMode: Oni.FileOpenMode = Oni.FileOpenMode.NewTab) => {
+        if (browserEnabledSetting.getValue()) {
+            url = url || defaultUrlSetting.getValue()
+
             count++
-            const buffer: Oni.Buffer = await (editorManager.activeEditor as any).newFile(
+            const buffer: Oni.Buffer = await editorManager.activeEditor.openFile(
                 "Browser" + count.toString(),
+                { openMode },
             )
 
-            const layer = new BrowserLayer(url)
+            const layer = new BrowserLayer(url, configuration)
             buffer.addLayer(layer)
-            activeLayers[buffer.id] = layer
+
+            const achievements = getAchievementsInstance()
+            achievements.notifyGoal("oni.goal.openBrowser")
         } else {
             shell.openExternal(url)
         }
     }
+
+    commandManager.registerCommand({
+        command: "browser.openUrl.verticalSplit",
+        name: "Browser: Open in Vertical Split",
+        detail: "Open a browser window",
+        execute: (url?: string) => openUrl(url, Oni.FileOpenMode.VerticalSplit),
+        enabled: () => browserEnabledSetting.getValue(),
+    })
+
+    commandManager.registerCommand({
+        command: "browser.openUrl.horizontalSplit",
+        name: "Browser: Open in Horizontal Split",
+        detail: "Open a browser window",
+        execute: (url?: string) => openUrl(url, Oni.FileOpenMode.HorizontalSplit),
+        enabled: () => browserEnabledSetting.getValue(),
+    })
 
     commandManager.registerCommand({
         command: "browser.openUrl",
@@ -235,26 +173,74 @@ export const activate = (
         detail: null,
     })
 
+    const getLayerForBuffer = (buffer: Oni.Buffer): BrowserLayer => {
+        return (buffer as IBuffer).getLayerById<BrowserLayer>("oni.browser")
+    }
+
     const executeCommandForLayer = (callback: (browserLayer: BrowserLayer) => void) => () => {
         const activeBuffer = editorManager.activeEditor.activeBuffer
 
-        const browserLayer = activeLayers[activeBuffer.id]
+        const browserLayer = getLayerForBuffer(activeBuffer)
         if (browserLayer) {
             callback(browserLayer)
         }
     }
 
-    const isBrowserLayerActive = () =>
-        !!activeLayers[editorManager.activeEditor.activeBuffer.id] &&
-        !!configuration.getValue("experimental.browser.enabled")
+    const isBrowserCommandEnabled = (): boolean => {
+        if (!browserEnabledSetting.getValue()) {
+            return false
+        }
+
+        const layer = getLayerForBuffer(editorManager.activeEditor.activeBuffer)
+        if (!layer) {
+            return false
+        }
+
+        // If the layer is open, but not focused, we shouldn't execute commands.
+        // This could happen if there is a pop-up menu, or if we're working with some
+        // non-webview UI in the browser (like the address bar)
+        if (layer.webviewElement !== focusManager.focusedElement) {
+            return false
+        }
+
+        return true
+    }
+
+    const isInputTag = (tagName: string): boolean => {
+        return tagName === "INPUT" || tagName === "TEXTAREA"
+    }
+
+    const isBrowserScrollCommandEnabled = (): boolean => {
+        if (!isBrowserCommandEnabled()) {
+            return false
+        }
+
+        const layer = getLayerForBuffer(editorManager.activeEditor.activeBuffer)
+
+        // Finally, if the webview _is_ focused, but something has focus, we'll
+        // skip our bindings and defer to the browser
+        if (isInputTag(layer.activeTagName)) {
+            return false
+        }
+
+        return true
+    }
 
     // Per-layer commands
+    commandManager.registerCommand({
+        command: "browser.debug",
+        execute: executeCommandForLayer(browser => browser.openDebugger()),
+        name: "Browser: Open DevTools",
+        detail: "Open the devtools pane for the current browser window.",
+        enabled: isBrowserCommandEnabled,
+    })
+
     commandManager.registerCommand({
         command: "browser.goBack",
         execute: executeCommandForLayer(browser => browser.goBack()),
         name: "Browser: Go back",
         detail: "",
-        enabled: isBrowserLayerActive,
+        enabled: isBrowserCommandEnabled,
     })
 
     commandManager.registerCommand({
@@ -262,7 +248,7 @@ export const activate = (
         execute: executeCommandForLayer(browser => browser.goForward()),
         name: "Browser: Go forward",
         detail: "",
-        enabled: isBrowserLayerActive,
+        enabled: isBrowserCommandEnabled,
     })
 
     commandManager.registerCommand({
@@ -270,6 +256,71 @@ export const activate = (
         execute: executeCommandForLayer(browser => browser.reload()),
         name: "Browser: Reload",
         detail: "",
-        enabled: isBrowserLayerActive,
+        enabled: isBrowserCommandEnabled,
+    })
+
+    commandManager.registerCommand({
+        command: "browser.scrollDown",
+        execute: executeCommandForLayer(browser => browser.scrollDown()),
+        name: "Browser: Scroll Down",
+        detail: "",
+        enabled: isBrowserScrollCommandEnabled,
+    })
+
+    commandManager.registerCommand({
+        command: "browser.scrollUp",
+        execute: executeCommandForLayer(browser => browser.scrollUp()),
+        name: "Browser: Scroll Up",
+        detail: "",
+        enabled: isBrowserScrollCommandEnabled,
+    })
+
+    commandManager.registerCommand({
+        command: "browser.scrollLeft",
+        execute: executeCommandForLayer(browser => browser.scrollLeft()),
+        name: "Browser: Scroll Left",
+        detail: "",
+        enabled: isBrowserScrollCommandEnabled,
+    })
+
+    commandManager.registerCommand({
+        command: "browser.scrollRight",
+        execute: executeCommandForLayer(browser => browser.scrollRight()),
+        name: "Browser: Scroll Right",
+        detail: "",
+        enabled: isBrowserScrollCommandEnabled,
+    })
+
+    ipcRenderer.on("open-oni-browser", (event: string, args: string) => {
+        openUrl(args)
+    })
+}
+
+export const registerAchievements = (achievements: AchievementsManager) => {
+    achievements.registerAchievement({
+        uniqueId: "oni.achievement.openBrowser",
+        name: "Browserception",
+        description: "Open a browser window inside Oni",
+        goals: [
+            {
+                name: null,
+                goalId: "oni.goal.openBrowser",
+                count: 1,
+            },
+        ],
+    })
+
+    achievements.registerAchievement({
+        uniqueId: "oni.achievement.sneakIntoBrowser",
+        name: "Incognito",
+        dependsOnId: "oni.achievement.openBrowser",
+        description: "Use 'sneak' to interact with UI in the browser.",
+        goals: [
+            {
+                name: null,
+                goalId: "oni.goal.sneakIntoBrowser",
+                count: 1,
+            },
+        ],
     })
 }

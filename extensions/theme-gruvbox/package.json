@@ -1,0 +1,25 @@
+{
+  "name": "onivim-theme-gruvbox",
+  "version": "0.0.1",
+  "description": "Gruvbox theme, ported to Oni",
+  "engines": {
+    "oni": "0.3.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "name": "gruvbox_dark",
+        "path": "colors/gruvbox_dark.json"
+      },
+      {
+        "name": "gruvbox_light",
+        "path": "colors/gruvbox_light.json"
+      }
+    ]
+  },
+  "author": "Parker Ault",
+  "license": "MIT"
+}

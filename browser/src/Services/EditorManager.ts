@@ -11,18 +11,25 @@
 import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 
-import * as Log from "./../Log"
+import { remote } from "electron"
 
 export class EditorManager implements Oni.EditorManager {
+    private _allEditors: Oni.Editor[] = []
     private _activeEditor: Oni.Editor = null
-    private _allEditors: AllEditors = new AllEditors()
+    private _anyEditorProxy: AnyEditorProxy = new AnyEditorProxy()
     private _onActiveEditorChanged: Event<Oni.Editor> = new Event<Oni.Editor>()
+
+    private _closeWhenNoEditors: boolean = true
+
+    public get allEditors(): Oni.Editor[] {
+        return this._allEditors
+    }
 
     /**
      * API Methods
      */
-    public get allEditors(): Oni.Editor {
-        return this._allEditors
+    public get anyEditor(): Oni.Editor {
+        return this._anyEditorProxy
     }
 
     public get activeEditor(): Oni.Editor {
@@ -33,16 +40,46 @@ export class EditorManager implements Oni.EditorManager {
         return this._onActiveEditorChanged
     }
 
+    public openFile(
+        filePath: string,
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
+        return this._activeEditor.openFile(filePath, openOptions)
+    }
+
+    public setCloseWhenNoEditors(closeWhenNoEditors: boolean) {
+        this._closeWhenNoEditors = closeWhenNoEditors
+    }
+
+    public registerEditor(editor: Oni.Editor) {
+        if (this._allEditors.indexOf(editor) === -1) {
+            this._allEditors.push(editor)
+        }
+    }
+
+    public unregisterEditor(editor: Oni.Editor): void {
+        this._allEditors = this._allEditors.filter(ed => ed !== editor)
+
+        if (this._activeEditor === editor) {
+            this.setActiveEditor(null)
+        }
+
+        if (this._allEditors.length === 0 && this._closeWhenNoEditors) {
+            // Quit?
+            remote.getCurrentWindow().close()
+        }
+    }
+
     /**
      * Internal Methods
      */
     public setActiveEditor(editor: Oni.Editor) {
         this._activeEditor = editor
 
-        const oldEditor = this._allEditors.getUnderlyingEditor()
+        const oldEditor = this._anyEditorProxy.getUnderlyingEditor()
         if (editor !== oldEditor) {
             this._onActiveEditorChanged.dispatch(editor)
-            this._allEditors.setActiveEditor(editor)
+            this._anyEditorProxy.setActiveEditor(editor)
         }
     }
 }
@@ -54,7 +91,7 @@ export class EditorManager implements Oni.EditorManager {
  * This enables consumers to use `Oni.editor.allEditors.onModeChanged((newMode) => { ... }),
  * for convenience, as it handles manages tracking subscriptions as the active editor changes.
  */
-class AllEditors implements Oni.Editor {
+class AnyEditorProxy implements Oni.Editor {
     private _activeEditor: Oni.Editor
     private _subscriptions: IDisposable[] = []
 
@@ -64,6 +101,7 @@ class AllEditors implements Oni.Editor {
     private _onBufferChanged = new Event<Oni.EditorBufferChangedEventArgs>()
     private _onBufferSaved = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferScrolled = new Event<Oni.EditorBufferScrolledEventArgs>()
+    private _onCursorMoved = new Event<Oni.Cursor>()
 
     /**
      * API Methods
@@ -93,16 +131,6 @@ class AllEditors implements Oni.Editor {
         return this._activeEditor.neovim
     }
 
-    public async openFile(file: string, method = "edit"): Promise<Oni.Buffer> {
-        await this._activeEditor.openFile(file, method)
-        return this._activeEditor.activeBuffer
-    }
-
-    public openFiles(files: string[]): Promise<Oni.Buffer[]> {
-        Log.warn("Not implemented")
-        return Promise.resolve([])
-    }
-
     public get onModeChanged(): IEvent<Oni.Vim.Mode> {
         return this._onModeChanged
     }
@@ -127,8 +155,30 @@ class AllEditors implements Oni.Editor {
         return this._onBufferScrolled
     }
 
+    public get onCursorMoved(): IEvent<Oni.Cursor> {
+        return this._onCursorMoved
+    }
+
     public dispose(): void {
         // tslint:disable-line
+    }
+
+    public async blockInput(
+        inputFunction: (input: Oni.InputCallbackFunction) => Promise<void>,
+    ): Promise<void> {
+        return this._activeEditor.blockInput(inputFunction)
+    }
+
+    public async openFile(filePath: string, openOptions: Oni.FileOpenOptions): Promise<Oni.Buffer> {
+        return this._activeEditor.openFile(filePath, openOptions)
+    }
+
+    public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {
+        return this._activeEditor.getBuffers()
+    }
+
+    public setTextOptions(options: Oni.EditorTextOptions): Promise<void> {
+        return this._activeEditor.setTextOptions(options)
     }
 
     /**
@@ -137,26 +187,22 @@ class AllEditors implements Oni.Editor {
 
     public setActiveEditor(newEditor: Oni.Editor) {
         this._activeEditor = newEditor
+
         this._subscriptions.forEach(d => d.dispose())
-        this._subscriptions = []
-        this._subscriptions.push(
+
+        if (!newEditor) {
+            return
+        }
+
+        this._subscriptions = [
             newEditor.onModeChanged.subscribe(val => this._onModeChanged.dispatch(val)),
-        )
-        this._subscriptions.push(
             newEditor.onBufferEnter.subscribe(val => this._onBufferEnter.dispatch(val)),
-        )
-        this._subscriptions.push(
             newEditor.onBufferLeave.subscribe(val => this._onBufferLeave.dispatch(val)),
-        )
-        this._subscriptions.push(
             newEditor.onBufferChanged.subscribe(val => this._onBufferChanged.dispatch(val)),
-        )
-        this._subscriptions.push(
             newEditor.onBufferSaved.subscribe(val => this._onBufferSaved.dispatch(val)),
-        )
-        this._subscriptions.push(
             newEditor.onBufferScrolled.subscribe(val => this._onBufferScrolled.dispatch(val)),
-        )
+            newEditor.onCursorMoved.subscribe(val => this._onCursorMoved.dispatch(val)),
+        ]
     }
 
     public getUnderlyingEditor(): Oni.Editor {

@@ -9,10 +9,11 @@ const activate = oni => {
     //
     // Add input bindings here:
     //
+    oni.input.bind("<f11>", "oni.debug.openDevTools")
     oni.input.bind("<c-enter>", () => console.log("Control+Enter was pressed"))
 
     //
-    // Or remove the default bindings here by uncommenting the below line:
+    // Or remove the default bindings:
     //
     // oni.input.unbind("<c-p>")
 }
@@ -32,7 +33,7 @@ module.exports = {
     //"oni.bookmarks": ["~/Documents"],
     //"oni.loadInitVim": false,
     //"editor.fontSize": "14px",
-    //"editor.fontFamily": "Monaco"
+    //"editor.fontFamily": "Monaco",
 
     // UI customizations
     "ui.animations.enabled": true,

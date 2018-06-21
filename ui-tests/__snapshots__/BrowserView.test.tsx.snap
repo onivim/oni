@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<BrowserView /> Tests Should match the recent snapshot - unless an intentional change has occurred  1`] = `
+<styled.div
+  key="test2"
+>
+  <styled.div>
+    <Component
+      icon="chevron-left"
+      onClick={[Function]}
+    />
+    <Component
+      icon="chevron-right"
+      onClick={[Function]}
+    />
+    <Component
+      icon="undo"
+      onClick={[Function]}
+    />
+    <AddressBarView
+      onAddressChanged={[Function]}
+      url="test.com"
+    />
+    <Component
+      icon="bug"
+      onClick={[Function]}
+    />
+  </styled.div>
+  <styled.div>
+    <div
+      key="test"
+      style={
+        Object {
+          "bottom": "0px",
+          "left": "0px",
+          "position": "absolute",
+          "right": "0px",
+          "top": "0px",
+        }
+      }
+    />
+  </styled.div>
+</styled.div>
+`;
