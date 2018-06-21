@@ -34,7 +34,7 @@ export class VerticalMovementTutorial implements ITutorial {
             id: "oni.tutorials.vertical_movement",
             name: "File Motion: gg, G",
             description:
-                "When working with large files, it's very helpful to able to quickly move to the top or bottom of the file, as well as to a particular line number. `gg`, `G`, and `<n>G` can help us here!",
+                "When working with large files, it's very helpful to be able to quickly move to the top or bottom of the file, as well as to a particular line number. `gg`, `G`, and `<n>G` can help us here!",
             level: 150,
         }
     }
