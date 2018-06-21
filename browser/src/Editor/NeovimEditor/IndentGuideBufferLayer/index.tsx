@@ -12,8 +12,6 @@ interface IProps {
     height: number
     left: number
     top: number
-    line: string
-    indentBy?: number
     color?: string
 }
 
@@ -46,7 +44,6 @@ interface IndentLayerArgs {
 
 class IndentGuideBufferLayer implements Oni.BufferLayer {
     public render = memoize((bufferLayerContext: Oni.BufferLayerRenderContext) => {
-        // console.log("bufferLayerContext: ", JSON.stringify(bufferLayerContext, null, 2))
         return (
             this._isValidBuffer() && (
                 <Container id={this.id}>{this._renderIndentLines(bufferLayerContext)}</Container>
@@ -72,21 +69,18 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         return isValid
     }
 
-    private _getIndentLines = (previousLines: IndentLinesProps[]) => {
-        const indentGuidesForLine = previousLines.map((line, idx) => {
-            const indentation = line.characterWidth * this._shiftWidth
-            return Array.from({ length: line.indentBy }).map((_, i) => (
+    private _getIndentLines = (previousLines: IndentLinesProps[]) =>
+        previousLines.map(({ height, characterWidth, indentBy, left, top }, idx) => {
+            const indentation = characterWidth * this._shiftWidth
+            return Array.from({ length: indentBy }).map((_, i) => (
                 <IndentLine
-                    top={line.top}
-                    line={line.line}
-                    height={line.height}
+                    top={top}
+                    height={height}
                     key={`${indentation}-${idx}-${i}`}
-                    left={line.left - i * indentation - line.characterWidth}
+                    left={left - i * indentation - characterWidth}
                 />
             ))
         })
-        return indentGuidesForLine
-    }
 
     /**
      * Calculates the position of each indent guide element using shiftwidth
