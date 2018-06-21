@@ -1,8 +1,9 @@
 import * as React from "react"
-import * as memoize from "lodash/memoize"
-import * as path from "path"
+
 import * as detectIndent from "detect-indent"
+import * as memoize from "lodash/memoize"
 import * as Oni from "oni-api"
+import * as path from "path"
 import * as types from "vscode-languageserver-types"
 
 import styled, { pixel, withProps } from "./../../../UI/components/common"
@@ -38,6 +39,11 @@ const IndentLine = withProps<IProps>(styled.span).attrs({
     opacity: 0.6;
 `
 
+interface IndentLayerArgs {
+    shiftWidth: number
+    buffer: Oni.Buffer
+}
+
 class IndentGuideBufferLayer implements Oni.BufferLayer {
     public render = memoize((bufferLayerContext: Oni.BufferLayerRenderContext) => {
         // console.log("bufferLayerContext: ", JSON.stringify(bufferLayerContext, null, 2))
@@ -51,7 +57,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
     private _shiftWidth: number
     private _buffer: Oni.Buffer
 
-    constructor({ shiftWidth, buffer }: { shiftWidth: number; buffer: Oni.Buffer }) {
+    constructor({ shiftWidth, buffer }: IndentLayerArgs) {
         this._shiftWidth = shiftWidth
         this._buffer = buffer
     }
@@ -66,7 +72,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         return isValid
     }
 
-    private _indentLines = (previousLines: IndentLinesProps[]) => {
+    private _getIndentLines = (previousLines: IndentLinesProps[]) => {
         const indentGuidesForLine = previousLines.map((line, idx) => {
             const indentation = line.characterWidth * this._shiftWidth
             return Array.from({ length: line.indentBy }).map((_, i) => (
@@ -91,8 +97,8 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
      * @returns {JSX.Element[]} An array of react elements
      */
     private _renderIndentLines = (bufferLayerContext: Oni.BufferLayerRenderContext) => {
-        const { visibleLines: lines, fontPixelHeight, fontPixelWidth } = bufferLayerContext
-        const allIndentations = lines.reduce((acc, line, idx) => {
+        const { visibleLines, fontPixelHeight, fontPixelWidth, topBufferLine } = bufferLayerContext
+        const allIndentations = visibleLines.reduce((acc, line, idx) => {
             const indentation = detectIndent(line)
             const { pixelY: top } = bufferLayerContext.screenToPixel({
                 screenX: 0,
@@ -105,7 +111,8 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 return acc
             }
             const startPosition = bufferLayerContext.bufferToScreen(
-                types.Position.create(idx, indentation.amount),
+                // the first argument here should be the top line in the buffer
+                types.Position.create(topBufferLine, indentation.amount),
             )
             if (!startPosition) {
                 return acc
@@ -121,7 +128,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
             })
             return acc
         }, [])
-        return this._indentLines(allIndentations)
+        return this._getIndentLines(allIndentations)
     }
 }
 
