@@ -10,6 +10,8 @@ let _sidebarManager: SidebarManager = null
 export * from "./SidebarStore"
 
 export const activate = (configuration: Configuration, workspace: Workspace) => {
+    // Always create the sidebar to prevent issues. If its disabled, just hide it.
+    // See #1562 for more information.
     _sidebarManager = new SidebarManager(windowManager, configuration)
 
     if (!configuration.getValue("sidebar.enabled")) {

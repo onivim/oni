@@ -37,7 +37,7 @@ export const activate = (
 
     commandManager.registerCommand({
         command: "explorer.toggle",
-        name: "Explorer: Toggle Visiblity",
+        name: "Explorer: Toggle Visibility",
         detail: "Toggles the explorer in the sidebar",
         execute: toggleExplorer,
         enabled: () => !!workspace.activeWorkspace,
