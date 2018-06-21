@@ -9,6 +9,7 @@ import styled from "styled-components"
 import * as React from "react"
 
 import { inputManager } from "./../../Services/InputManager"
+import { parseChordParts } from "./../../Input/KeyParser"
 
 export interface IKeyBindingInfoProps {
     command: string
@@ -36,8 +37,7 @@ export class KeyBindingInfo extends React.PureComponent<IKeyBindingInfoProps, {}
         // 3. Create KeyWrappers for each segment
         return (
             <span>
-                {inputManager
-                    .getChordParts(boundKeys[0])
+                {parseChordParts(boundKeys[0])
                     .reduce((acc, chordKey) => acc.concat(chordKey, "+"), [])
                     .slice(0, -1)
                     .map(chordPart => <KeyWrapper>{chordPart}</KeyWrapper>)}

@@ -14,6 +14,7 @@ import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 import { InputManager } from "./../InputManager"
 import { Overlay, OverlayManager } from "./../Overlay"
+import { parseChordParts } from "./../../Input/KeyParser"
 
 import { createStore, KeyDisplayerState } from "./KeyDisplayerStore"
 import { KeyDisplayerContainer } from "./KeyDisplayerView"
@@ -53,7 +54,7 @@ export class KeyDisplayer {
 
                 this._store.dispatch({
                     type: "ADD_KEY",
-                    key: this._inputManager.getChordParts(resolution).join("+"),
+                    key: parseChordParts(resolution).join("+"),
                     timeInMilliseconds: new Date().getTime(),
                 })
 

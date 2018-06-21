@@ -84,3 +84,35 @@ export const parseKey = (key: string): IKey => {
         meta: hasMeta,
     }
 }
+
+export const parseChordParts = (keys: string): string[] => {
+    const parsedKeys = parseKeysFromVimString(keys)
+
+    if (!parsedKeys || !parsedKeys.chord || parsedKeys.chord.length === 0) {
+        return null
+    }
+
+    const firstChord = parsedKeys.chord[0]
+
+    const chordParts: string[] = []
+
+    if (firstChord.meta) {
+        chordParts.push("meta")
+    }
+
+    if (firstChord.control) {
+        chordParts.push("control")
+    }
+
+    if (firstChord.alt) {
+        chordParts.push("alt")
+    }
+
+    if (firstChord.shift) {
+        chordParts.push("shift")
+    }
+
+    chordParts.push(firstChord.character)
+
+    return chordParts
+}
