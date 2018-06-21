@@ -8,8 +8,8 @@ import styled from "styled-components"
 
 import * as React from "react"
 
-import { inputManager } from "./../../Services/InputManager"
 import { parseChordParts } from "./../../Input/KeyParser"
+import { inputManager } from "./../../Services/InputManager"
 
 export interface IKeyBindingInfoProps {
     command: string

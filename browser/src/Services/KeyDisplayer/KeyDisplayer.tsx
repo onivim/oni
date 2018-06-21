@@ -10,11 +10,11 @@ import { Store } from "redux"
 
 import { IDisposable } from "oni-types"
 
+import { parseChordParts } from "./../../Input/KeyParser"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 import { InputManager } from "./../InputManager"
 import { Overlay, OverlayManager } from "./../Overlay"
-import { parseChordParts } from "./../../Input/KeyParser"
 
 import { createStore, KeyDisplayerState } from "./KeyDisplayerStore"
 import { KeyDisplayerContainer } from "./KeyDisplayerView"
