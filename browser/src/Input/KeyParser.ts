@@ -85,6 +85,8 @@ export const parseKey = (key: string): IKey => {
     }
 }
 
+// Parse a chord string (e.g. <c-s-p>) into textual descriptions of the relevant keys
+// <c-s-p> -> ["control", "shift", "p"]
 export const parseChordParts = (keys: string): string[] => {
     const parsedKeys = parseKeysFromVimString(keys)
 
