@@ -6,7 +6,8 @@
 
 import * as types from "vscode-languageserver-types"
 
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
+
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import { LanguageManager } from "./LanguageManager"

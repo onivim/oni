@@ -4,9 +4,9 @@ import * as path from "path"
 
 import * as mkdirp from "mkdirp"
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IDisposable, IEvent } from "oni-types"
 
-import * as Log from "./../Log"
 import * as Performance from "./../Performance"
 import { CommandContext } from "./CommandContext"
 import { EventContext } from "./EventContext"
@@ -182,7 +182,7 @@ export interface INeovimInstance {
     // - Refactor remaining events into strongly typed events, as part of the interface
     on(event: string, handler: NeovimEventHandler): void
 
-    setFont(fontFamily: string, fontSize: string, linePadding: number): void
+    setFont(fontFamily: string, fontSize: string, fontWeight: string, linePadding: number): void
 
     getBufferIds(): Promise<number[]>
 
@@ -209,6 +209,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     private _fontFamily: string
     private _fontSize: string
+    private _fontWeight: string
     private _fontWidthInPixels: number
     private _fontHeightInPixels: number
 
@@ -369,6 +370,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._configuration = configuration
         this._fontFamily = this._configuration.getValue("editor.fontFamily")
         this._fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
+        this._fontWeight = this._configuration.getValue("editor.fontWeight")
 
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
@@ -384,7 +386,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             this._bufferUpdateManager.notifyModeChanged(newMode)
         })
 
-        this._disposables = [s1]
+        const dispatchScroll = () => this._dispatchScrollEvent()
+
+        const s2 = this._autoCommands.onCursorMoved.subscribe(dispatchScroll)
+        const s3 = this._autoCommands.onCursorMovedI.subscribe(dispatchScroll)
+
+        this._disposables = [s1, s2, s3]
     }
 
     public dispose(): void {
@@ -513,13 +520,20 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return ret
     }
 
-    public setFont(fontFamily: string, fontSize: string, linePadding: number): void {
+    public setFont(
+        fontFamily: string,
+        fontSize: string,
+        fontWeight: string,
+        linePadding: number,
+    ): void {
         this._fontFamily = fontFamily
         this._fontSize = fontSize
+        this._fontWeight = fontWeight
 
         const { width, height, isBoldAvailable, isItalicAvailable } = measureFont(
             this._fontFamily,
             this._fontSize,
+            this._fontWeight,
         )
 
         this._fontWidthInPixels = width
@@ -530,6 +544,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             Actions.setFont({
                 fontFamily,
                 fontSize,
+                fontWeight,
                 fontWidthInPixels: width,
                 fontHeightInPixels: height + linePadding,
                 linePaddingInPixels: linePadding,
@@ -656,22 +671,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         return versionInfo[1].version as any
     }
 
-    public dispatchScrollEvent(): void {
-        if (this._pendingScrollTimeout || this._isDisposed) {
-            return
-        }
-
-        this._pendingScrollTimeout = window.setTimeout(async () => {
-            if (this._isDisposed) {
-                return
-            }
-
-            const evt = await this.getContext()
-            this._onScroll.dispatch(evt)
-            this._pendingScrollTimeout = null
-        })
-    }
-
     public async quit(): Promise<void> {
         // This command won't resolve the promise (since it's quitting),
         // so we're not awaiting..
@@ -699,6 +698,22 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         } else {
             Log.info("[NeovimInstance::_checkAndFixIfBlocked] Not blocking mode.")
         }
+    }
+
+    private _dispatchScrollEvent(): void {
+        if (this._pendingScrollTimeout || this._isDisposed) {
+            return
+        }
+
+        this._pendingScrollTimeout = window.setTimeout(async () => {
+            if (this._isDisposed) {
+                return
+            }
+
+            const evt = await this.getContext()
+            this._onScroll.dispatch(evt)
+            this._pendingScrollTimeout = null
+        })
     }
 
     private _resizeInternal(rows: number, columns: number): void {
@@ -760,6 +775,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     break
                 case "scroll":
                     this.emit("action", Actions.scroll(a[0][0]))
+                    this._dispatchScrollEvent()
                     break
                 case "highlight_set":
                     const highlightInfo = a[a.length - 1][0]

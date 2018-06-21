@@ -22,6 +22,12 @@
         "sourceMap": true,
         "types": ["jest", "electron", "react", "webgl2"]
     },
-    "include": ["**/*.tsx", "**/*.ts", "../browser/**/*.ts", "../browser/**/*.tsx"],
+    "include": [
+        "**/*.tsx",
+        "**/*.ts",
+        "../@types/**/*.d.ts",
+        "../browser/**/*.ts",
+        "../browser/**/*.tsx"
+    ],
     "exclude": ["node_modules"]
 }

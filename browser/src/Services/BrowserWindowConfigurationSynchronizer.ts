@@ -45,9 +45,13 @@ export const activate = (configuration: Configuration, colors: Colors) => {
             document.body.style["-webkit-font-smoothing"] = fontSmoothing
         }
 
-        const hideMenu: boolean = configuration.getValue("oni.hideMenu")
-        browserWindow.setAutoHideMenuBar(hideMenu)
-        browserWindow.setMenuBarVisibility(!hideMenu)
+        const hideMenu: boolean | "hidden" = configuration.getValue("oni.hideMenu")
+        if (hideMenu === "hidden") {
+            browserWindow.setMenu(null)
+        } else {
+            browserWindow.setAutoHideMenuBar(hideMenu)
+            browserWindow.setMenuBarVisibility(!hideMenu)
+        }
 
         const loadInit: boolean = configuration.getValue("oni.loadInitVim")
         if (loadInit !== loadInitVim) {

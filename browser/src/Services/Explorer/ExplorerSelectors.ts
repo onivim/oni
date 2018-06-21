@@ -80,7 +80,7 @@ export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
     ret.push({
         id: "explorer",
         type: "container",
-        expanded: true,
+        expanded: !!state.expandedFolders[state.rootFolder.fullPath],
         name: state.rootFolder.fullPath,
     })
 

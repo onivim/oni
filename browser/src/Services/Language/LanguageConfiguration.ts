@@ -4,7 +4,7 @@
  * Helper for registering language client information from config
  */
 
-import * as Log from "./../../Log"
+import * as Log from "oni-core-logging"
 
 import { LanguageClient } from "./LanguageClient"
 import {

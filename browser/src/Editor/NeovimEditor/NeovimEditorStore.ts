@@ -58,6 +58,7 @@ export interface IState {
     fontPixelHeight: number
     fontFamily: string
     fontSize: string
+    fontWeight: string
     hasFocus: boolean
     mode: string
     definition: null | IDefinition
@@ -159,10 +160,13 @@ export interface IWindow {
 
     bufferToScreen: Oni.Coordinates.BufferToScreen
     screenToPixel: Oni.Coordinates.ScreenToPixel
+    bufferToPixel: Oni.Coordinates.BufferToPixel
 
     dimensions: Oni.Shapes.Rectangle
     topBufferLine: number
     bottomBufferLine: number
+
+    visibleLines: string[]
 }
 
 export function readConf<K extends keyof IConfigurationValues>(
@@ -186,6 +190,7 @@ export const createDefaultState = (): IState => ({
     fontPixelHeight: 10,
     fontFamily: "",
     fontSize: "",
+    fontWeight: "",
     hasFocus: false,
     imeActive: false,
     mode: "normal",

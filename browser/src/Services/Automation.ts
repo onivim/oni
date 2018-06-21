@@ -7,6 +7,7 @@
 import { remote } from "electron"
 
 import * as OniApi from "oni-api"
+import * as Log from "oni-core-logging"
 
 import * as App from "./../App"
 import * as Utility from "./../Utility"
@@ -14,8 +15,6 @@ import * as Utility from "./../Utility"
 import { getUserConfigFilePath } from "./Configuration"
 import { editorManager } from "./EditorManager"
 import { inputManager } from "./InputManager"
-
-import * as Log from "./../Log"
 
 import { IKey, parseKeysFromVimString } from "./../Input/KeyParser"
 
@@ -189,10 +188,21 @@ export class Automation implements OniApi.Automation.Api {
             this._getOrCreateTestContainer("automated-test-container"),
         )
 
-        resultElement.textContent = JSON.stringify({
-            passed,
-            exception: exception || null,
-        })
+        if (exception && exception.code && exception.code === "ERR_ASSERTION") {
+            resultElement.textContent = JSON.stringify({
+                passed,
+                exception,
+                expected: exception.expected,
+                actual: exception.actual,
+                message: exception.message,
+                operator: exception.operator,
+            })
+        } else {
+            resultElement.textContent = JSON.stringify({
+                passed,
+                exception: exception || null,
+            })
+        }
     }
 
     private _createElement(className: string, parentElement: HTMLElement): HTMLDivElement {

@@ -47,6 +47,9 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-h>", "oni.editor.hide")
         input.bind("<c-tab>", "buffer.toggle")
         input.bind("<m-s-f>", "search.searchAllFiles")
+        input.bind("<m-s-_>", "sidebar.decreaseWidth")
+        input.bind("<m-s-+>", "sidebar.increaseWidth")
+        input.bind("<m-,>", "oni.config.openConfigJs")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
@@ -59,6 +62,8 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-r>", "browser.reload")
     } else {
         input.bind("<a-f4>", "oni.quit")
+        input.bind("<s-c-_>", "sidebar.decreaseWidth")
+        input.bind("<s-c-+>", "sidebar.increaseWidth")
         input.bind("<c-p>", "quickOpen.show", () => isNormalMode() && !isMenuOpen())
         input.bind("<s-c-p>", "commands.show", isNormalMode)
         input.bind("<a-enter>", "language.codeAction.expand")
@@ -66,6 +71,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<s-c-t>", "language.symbols.document")
         input.bind("<c-tab>", "buffer.toggle")
         input.bind("<s-c-f>", "search.searchAllFiles")
+        input.bind("<c-,>", "oni.config.openConfigJs")
 
         if (config.getValue("editor.clipboard.enabled")) {
             input.bind("<c-c>", "editor.clipboard.yank", isVisualMode)
@@ -101,7 +107,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind(["<C-v>"], "quickOpen.openFileVertical")
     input.bind(["<C-s>"], "quickOpen.openFileHorizontal")
     input.bind("<C-t>", "quickOpen.openFileNewTab")
-    input.bind(["<C-enter>"], "quickOpen.openFileExistingTab")
+    input.bind(["<C-enter>"], "quickOpen.openFileAlternative")
 
     // Snippets
     input.bind("<tab>", "snippet.nextPlaceholder")
@@ -134,7 +140,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     // Explorer
     input.bind("d", "explorer.delete.persist", isExplorerActive)
     input.bind("<c-delete>", "explorer.delete.persist", isExplorerActive)
-    input.bind("<c-d>", "explorer.delete", isExplorerActive)
+    input.bind("<c-s-d>", "explorer.delete", isExplorerActive)
     input.bind("<delete>", "explorer.delete", isExplorerActive)
     input.bind("y", "explorer.yank", isExplorerActive)
     input.bind("p", "explorer.paste", isExplorerActive)

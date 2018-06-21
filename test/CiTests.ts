@@ -18,15 +18,19 @@ const CiTests = [
     "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
 
+    "Browser.LocationTest",
+
     "Configuration.JavaScriptEditorTest",
     "Configuration.TypeScriptEditor.NewConfigurationTest",
     "Configuration.TypeScriptEditor.CompletionTest",
 
+    "TabBarSneakTest",
     "initVimPromptNotificationTest",
     "Editor.BuffersCursorTest",
     "Editor.ExternalCommandLineTest",
     "Editor.BufferModifiedState",
     "Editor.OpenFile.PathWithSpacesTest",
+    "Editor.ScrollEventTest",
     "Editor.TabModifiedState",
     "Editor.CloseTabWithTabModesTabsTest",
     "MarkdownPreviewTest",
@@ -48,6 +52,7 @@ const CiTests = [
     "Regression.1296.SettingColorsTest",
     "Regression.1295.UnfocusedWindowTest",
     "Regression.1799.MacroApplicationTest",
+    "Regression.2047.VerifyCanvasIsIntegerSize",
 
     "TextmateHighlighting.DebugScopesTest",
     "TextmateHighlighting.ScopesOnEnterTest",
@@ -85,7 +90,9 @@ const FGYELLOW = "\x1b[33m"
 describe("ci tests", function() {
     const tests = Platform.isWindows()
         ? [...CiTests, ...WindowsOnlyTests]
-        : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
+        : Platform.isMac()
+            ? [...CiTests, ...OSXOnlyTests]
+            : CiTests
 
     const testFailures: IFailedTest[] = []
     tests.forEach(test => {

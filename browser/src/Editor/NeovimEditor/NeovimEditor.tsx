@@ -4,6 +4,7 @@
  * IEditor implementation for Neovim
  */
 
+import * as os from "os"
 import * as React from "react"
 
 import "rxjs/add/observable/defer"
@@ -20,9 +21,8 @@ import { bindActionCreators, Store } from "redux"
 import { clipboard, ipcRenderer } from "electron"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
-
-import * as Log from "./../../Log"
 
 import { addDefaultUnitIfNeeded } from "./../../Font"
 import {
@@ -75,7 +75,7 @@ import NeovimSurface from "./NeovimSurface"
 
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 
-import { normalizePath, sleep } from "./../../Utility"
+import { asObservable, normalizePath, sleep } from "./../../Utility"
 
 import * as VimConfigurationSynchronizer from "./../../Services/VimConfigurationSynchronizer"
 
@@ -206,12 +206,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._bufferManager = new BufferManager(this._neovimInstance, this._actions, this._store)
         this._screen = new NeovimScreen()
 
-        this._hoverRenderer = new HoverRenderer(
-            this._colors,
-            this,
-            this._configuration,
-            this._toolTipsProvider,
-        )
+        this._hoverRenderer = new HoverRenderer(this, this._configuration, this._toolTipsProvider)
 
         this._definition = new Definition(this, this._store)
         this._symbols = new Symbols(
@@ -307,16 +302,6 @@ export class NeovimEditor extends Editor implements IEditor {
         )
 
         // Services
-        this._commands = new NeovimEditorCommands(
-            commandManager,
-            this._contextMenuManager,
-            this._definition,
-            this._languageIntegration,
-            this._neovimInstance,
-            this._rename,
-            this._symbols,
-        )
-
         const onColorsChanged = () => {
             const updatedColors: any = this._colors.getColors()
             this._actions.setColors(updatedColors)
@@ -388,6 +373,9 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this.trackDisposable(
             this._windowManager.onWindowStateChanged.subscribe(tabPageState => {
+                if (!tabPageState) {
+                    return
+                }
                 const filteredTabState = tabPageState.inactiveWindows.filter(w => !!w)
                 const inactiveIds = filteredTabState.map(w => w.windowNumber)
 
@@ -408,6 +396,7 @@ export class NeovimEditor extends Editor implements IEditor {
                         activeWindow.topBufferLine,
                         activeWindow.dimensions,
                         activeWindow.bufferToScreen,
+                        activeWindow.visibleLines,
                     )
                 }
 
@@ -429,7 +418,9 @@ export class NeovimEditor extends Editor implements IEditor {
                     const isAllowed = isYankAndAllowed || isDeleteAndAllowed
 
                     if (isAllowed) {
-                        clipboard.writeText(yankInfo.regcontents.join(require("os").EOL))
+                        const content = yankInfo.regcontents.join(os.EOL)
+                        const postfix = yankInfo.regtype === "V" ? os.EOL : ""
+                        clipboard.writeText(content + postfix)
                     }
                 }
             }),
@@ -584,25 +575,25 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         // TODO: Does any disposal need to happen for the observables?
-        this._cursorMoved$ = this._neovimInstance.autoCommands.onCursorMoved
-            .asObservable()
-            .map((evt): Oni.Cursor => ({
+        this._cursorMoved$ = asObservable(this._neovimInstance.autoCommands.onCursorMoved).map(
+            (evt): Oni.Cursor => ({
                 line: evt.line - 1,
                 column: evt.column - 1,
-            }))
+            }),
+        )
 
-        this._cursorMovedI$ = this._neovimInstance.autoCommands.onCursorMovedI
-            .asObservable()
-            .map((evt): Oni.Cursor => ({
+        this._cursorMovedI$ = asObservable(this._neovimInstance.autoCommands.onCursorMovedI).map(
+            (evt): Oni.Cursor => ({
                 line: evt.line - 1,
                 column: evt.column - 1,
-            }))
+            }),
+        )
 
         Observable.merge(this._cursorMoved$, this._cursorMovedI$).subscribe(cursorMoved => {
             this.notifyCursorMoved(cursorMoved)
         })
 
-        this._modeChanged$ = this._neovimInstance.onModeChanged.asObservable()
+        this._modeChanged$ = asObservable(this._neovimInstance.onModeChanged)
 
         this.trackDisposable(
             this._neovimInstance.onModeChanged.subscribe(newMode => this._onModeChanged(newMode)),
@@ -723,6 +714,16 @@ export class NeovimEditor extends Editor implements IEditor {
             }),
         )
 
+        this._commands = new NeovimEditorCommands(
+            commandManager,
+            this._contextMenuManager,
+            this._definition,
+            this._languageIntegration,
+            this._neovimInstance,
+            this._rename,
+            this._symbols,
+        )
+
         this._render()
 
         this._onConfigChanged(this._configuration.getValues())
@@ -740,26 +741,6 @@ export class NeovimEditor extends Editor implements IEditor {
         ipcRenderer.on("open-file", (_evt: any, path: string) => {
             this._neovimInstance.command(`:e! ${path}`)
         })
-
-        // TODO: Factor this out to a react component
-        // enable opening a file via drag-drop
-        document.body.ondragover = ev => {
-            ev.preventDefault()
-            ev.stopPropagation()
-        }
-
-        document.body.ondrop = ev => {
-            ev.preventDefault()
-            // TODO: the following line currently breaks explorer drag and drop functionality
-            ev.stopPropagation()
-
-            const { files } = ev.dataTransfer
-
-            if (files.length) {
-                const normalisedPaths = Array.from(files).map(f => normalizePath(f.path))
-                this.openFiles(normalisedPaths, { openMode: Oni.FileOpenMode.Edit })
-            }
-        }
     }
 
     public async blockInput(
@@ -885,6 +866,19 @@ export class NeovimEditor extends Editor implements IEditor {
         await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
     }
 
+    public async setTextOptions(textOptions: Oni.EditorTextOptions): Promise<void> {
+        const { insertSpacesForTab, tabSize } = textOptions
+        if (insertSpacesForTab) {
+            await this._neovimInstance.command("set expandtab")
+        } else {
+            await this._neovimInstance.command("set noexpandtab")
+        }
+
+        await this._neovimInstance.command(
+            `set tabstop=${tabSize} shiftwidth=${tabSize} softtabstop=${tabSize}`,
+        )
+    }
+
     public async openFile(
         file: string,
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
@@ -910,10 +904,10 @@ export class NeovimEditor extends Editor implements IEditor {
         return this.activeBuffer
     }
 
-    public async openFiles(
+    public openFiles = async (
         files: string[],
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
-    ): Promise<Oni.Buffer> {
+    ): Promise<Oni.Buffer> => {
         if (!files) {
             return this.activeBuffer
         }
@@ -944,6 +938,13 @@ export class NeovimEditor extends Editor implements IEditor {
 
     public executeCommand(command: string): void {
         commandManager.executeCommand(command, null)
+    }
+
+    public _onFilesDropped = async (files: FileList) => {
+        if (files.length) {
+            const normalisedPaths = Array.from(files).map(f => normalizePath(f.path))
+            await this.openFiles(normalisedPaths, { openMode: Oni.FileOpenMode.Edit })
+        }
     }
 
     public async init(
@@ -1060,6 +1061,7 @@ export class NeovimEditor extends Editor implements IEditor {
         return (
             <Provider store={this._store}>
                 <NeovimSurface
+                    onFileDrop={this._onFilesDropped}
                     autoFocus={this._autoFocus}
                     renderer={this._renderer}
                     typingPrediction={this._typingPredictionManager}
@@ -1216,10 +1218,11 @@ export class NeovimEditor extends Editor implements IEditor {
     private _onConfigChanged(newValues: Partial<IConfigurationValues>): void {
         const fontFamily = this._configuration.getValue("editor.fontFamily")
         const fontSize = addDefaultUnitIfNeeded(this._configuration.getValue("editor.fontSize"))
+        const fontWeight = this._configuration.getValue("editor.fontWeight")
         const linePadding = this._configuration.getValue("editor.linePadding")
 
-        this._actions.setFont(fontFamily, fontSize)
-        this._neovimInstance.setFont(fontFamily, fontSize, linePadding)
+        this._actions.setFont(fontFamily, fontSize, fontWeight)
+        this._neovimInstance.setFont(fontFamily, fontSize, fontWeight, linePadding)
 
         Object.keys(newValues).forEach(key => {
             const value = newValues[key]

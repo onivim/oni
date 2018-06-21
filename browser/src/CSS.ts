@@ -13,6 +13,5 @@ export const activate = () => {
     require("./Services/Menu/Menu.less")
 
     require("./UI/components/InstallHelp.less")
-    require("./UI/components/QuickInfo.less")
     require("./UI/components/Tabs.less")
 }

@@ -32,9 +32,9 @@ const constructClassName = (token: string) => (theme: INewTheme) => {
     const tokenStyle = cssToken(theme, token)
     const cssClass = `
         .${tokenAsClass} {
-            color: ${tokenStyle("foregroundColor")};
-            ${tokenStyle("bold") && notPunctuation && "font-weight: bold"};
-            ${tokenStyle("italic") && "font-style: italic"};
+            color: ${tokenStyle("foregroundColor") || ""};
+            ${tokenStyle("bold") && notPunctuation ? "font-weight: bold" : ""};
+            ${tokenStyle("italic") ? "font-style: italic" : ""};
         }
     `
     return cssClass

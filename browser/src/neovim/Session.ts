@@ -2,7 +2,7 @@ import * as msgpackLite from "msgpack-lite"
 
 import { EventEmitter } from "events"
 
-import * as Log from "./../Log"
+import * as Log from "oni-core-logging"
 
 import { configuration } from "./../Services/Configuration"
 

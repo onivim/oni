@@ -13,13 +13,14 @@ import "rxjs/add/operator/distinctUntilChanged"
 import * as isEqual from "lodash/isEqual"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
+
 import * as types from "vscode-languageserver-types"
 
 import { EventContext } from "./EventContext"
 import { NeovimInstance } from "./index"
 
-import * as Log from "./../Log"
 import * as Utility from "./../Utility"
 
 export interface NeovimTabPageState {
@@ -38,6 +39,8 @@ export interface NeovimActiveWindowState {
 
     topBufferLine: number
     bottomBufferLine: number
+
+    visibleLines: string[]
 
     bufferToScreen: Oni.Coordinates.BufferToScreen
     dimensions: Oni.Shapes.Rectangle
@@ -104,8 +107,9 @@ export class NeovimWindowManager extends Utility.Disposable {
                 return Observable.defer(() => this._remeasure(evt))
             })
             .subscribe((tabState: NeovimTabPageState) => {
-                this._onWindowStateChangedEvent.dispatch(tabState)
-                this._neovimInstance.dispatchScrollEvent()
+                if (tabState) {
+                    this._onWindowStateChangedEvent.dispatch(tabState)
+                }
             })
     }
 
@@ -235,6 +239,7 @@ export class NeovimWindowManager extends Utility.Disposable {
                 bottomBufferLine: context.windowBottomLine - 1,
                 topBufferLine: context.windowTopLine,
                 dimensions,
+                visibleLines: lines || [],
                 bufferToScreen: getBufferToScreenFromRanges(offset, expandedWidthRanges),
             }
 

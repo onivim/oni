@@ -1,5 +1,5 @@
 /**
- * MoveAndInsertTutorial.tsx
+ * InsertAndUndoTutorial.tsx
  *
  * Tutorial that brings together moving and inserting
  */
@@ -10,10 +10,10 @@ import { ITutorial, ITutorialMetadata, ITutorialStage } from "./../ITutorial"
 import * as Notes from "./../Notes"
 import * as Stages from "./../Stages"
 
-const TutorialLine1Original = "There is text msng this ."
+const TutorialLine1Original = "There is text msing this ."
 const TutorialLine1Correct = "There is some text missing from this line."
 
-export class MoveAndInsertTutorial implements ITutorial {
+export class InsertAndUndoTutorial implements ITutorial {
     private _stages: ITutorialStage[]
 
     constructor() {
@@ -22,16 +22,16 @@ export class MoveAndInsertTutorial implements ITutorial {
             new Stages.MoveToGoalStage("Move to the letter 't'", 0, 9),
             new Stages.WaitForModeStage("Press 'i' to enter insert mode", "insert"),
             new Stages.CorrectLineStage(
-                "Add the missing word 'some'",
+                "Add the missing word 'some '",
                 0,
                 TutorialLine1Correct,
                 "green",
-                "There is some",
+                "There is some ",
             ),
             new Stages.WaitForModeStage("Press '<esc>' to exit insert mode", "normal"),
             new Stages.MoveToGoalStage("Move to the letter 's'", 0, 20),
             new Stages.CorrectLineStage(
-                "Correct the word: `msng` should be `missing`",
+                "Correct the word: `msing` should be `missing`",
                 0,
                 TutorialLine1Correct,
                 "green",
@@ -42,7 +42,7 @@ export class MoveAndInsertTutorial implements ITutorial {
                 0,
                 TutorialLine1Correct,
                 "green",
-                "There is some text missing from",
+                "There is some text missing from ",
             ),
             new Stages.CorrectLineStage(
                 "Add the missing word 'line'",
@@ -51,16 +51,29 @@ export class MoveAndInsertTutorial implements ITutorial {
                 "green",
                 "There is some text missing from this line.",
             ),
+            new Stages.WaitForModeStage("Press '<esc>' to exit insert mode", "normal"),
+            new Stages.WaitForStateStage("Press 'u' to undo the last change", [
+                "There is some text missing from this .",
+                TutorialLine1Correct,
+            ]),
+            new Stages.WaitForStateStage("Press 'u' to undo another change", [
+                "There is some text missing this .",
+                TutorialLine1Correct,
+            ]),
+            new Stages.WaitForStateStage("Press 'u' to undo yet another change", [
+                "There is some text msing this .",
+                TutorialLine1Correct,
+            ]),
         ]
     }
 
     public get metadata(): ITutorialMetadata {
         return {
-            id: "oni.tutorial.move_and_insert",
-            name: "Moving and Inserting",
+            id: "oni.tutorial.insert_and_undo",
+            name: "Insert and Undo",
             description:
-                "It's important to be able to switch between normal and insert mode, in order to edit text! Let's put together the cursor motion and insert mode from the previous tutorials.",
-            level: 130,
+                "It's important to be able to switch between normal and insert mode, in order to edit text! Let's put together the cursor motion and insert mode from the previous tutorials.  If you make any mistakes, you can undo inserted text with 'u'.",
+            level: 170,
         }
     }
 
@@ -69,6 +82,6 @@ export class MoveAndInsertTutorial implements ITutorial {
     }
 
     public get notes(): JSX.Element[] {
-        return [<Notes.HJKLKeys />, <Notes.IKey />, <Notes.EscKey />]
+        return [<Notes.HJKLKeys />, <Notes.IKey />, <Notes.EscKey />, <Notes.UKey />]
     }
 }

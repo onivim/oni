@@ -9,6 +9,12 @@ branches:
     - master
     - /^release.*/
 
+# Skip CI build if the changes match these rules exactly.
+# Ie, if the BACKERS.md file is changed, we don't need to build.
+skip_commits:
+  files:
+    - '**/*.md'
+
 cache:
     - .oni_build_cache -> package.json 
 

@@ -18,6 +18,7 @@ import { Store } from "redux"
 import * as detectIndent from "detect-indent"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 
 import {
     BufferEventContext,
@@ -38,13 +39,18 @@ import * as Actions from "./NeovimEditor/NeovimEditorActions"
 import * as State from "./NeovimEditor/NeovimEditorStore"
 
 import * as Constants from "./../Constants"
-import * as Log from "./../Log"
 import { TokenColor } from "./../Services/TokenColors"
 
 import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 
+/**
+ * Candidate API methods
+ */
 export interface IBuffer extends Oni.Buffer {
     setLanguage(lang: string): Promise<void>
+
+    getLayerById<T>(id: string): T
+
     getCursorPosition(): Promise<types.Position>
     handleInput(key: string): boolean
     detectIndentation(): Promise<BufferIndentationInfo>
@@ -143,10 +149,12 @@ export class Buffer implements IBuffer {
         this._actions.addBufferLayer(parseInt(this._id, 10), layer)
     }
 
-    public getLayerById<T>(id: string): T {
-        return (this._store
-            .getState()
-            .layers[parseInt(this._id, 10)].find(layer => layer.id === id) as any) as T
+    public getLayerById<T>(id: string): T | null {
+        return (
+            ((this._store
+                .getState()
+                .layers[parseInt(this._id, 10)].find(layer => layer.id === id) as any) as T) || null
+        )
     }
 
     public removeLayer(layer: IBufferLayer): void {
@@ -214,7 +222,6 @@ export class Buffer implements IBuffer {
             ["nvim_command", ["setlocal noswapfile"]],
             ["nvim_command", ["setlocal nobuflisted"]],
             ["nvim_command", ["setlocal nomodifiable"]],
-            ["nvim_command", ["windo set scrollbind!"]],
         ]
 
         const [result, error] = await this._neovimInstance.request<any[] | NvimError>(

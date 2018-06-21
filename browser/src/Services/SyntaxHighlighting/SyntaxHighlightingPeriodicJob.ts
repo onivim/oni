@@ -7,15 +7,14 @@
 import { Store } from "redux"
 
 import * as types from "vscode-languageserver-types"
-
 import { IGrammar } from "vscode-textmate"
+
+import * as Log from "oni-core-logging"
 
 import * as SyntaxHighlighting from "./SyntaxHighlightingStore"
 import * as Selectors from "./SyntaxHighlightSelectors"
 
 import { IPeriodicJob } from "./../../PeriodicJobs"
-
-import * as Log from "./../../Log"
 
 export const SYNTAX_JOB_BUDGET = 10 // Budget in milliseconds - time to allow the job to run for
 

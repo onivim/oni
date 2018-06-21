@@ -31,4 +31,26 @@ describe("KeyParser", () => {
             ])
         })
     })
+
+    describe("parseChordParts", () => {
+        it("parses modifier keys", () => {
+            const tests: Array<[string, string[]]> = [
+                ["a", ["a"]],
+                ["<c-a>", ["control", "a"]],
+                ["<m-a>", ["meta", "a"]],
+                ["<a-a>", ["alt", "a"]],
+                ["<s-a>", ["shift", "a"]],
+                ["<m-c-a-s-a>", ["meta", "control", "alt", "shift", "a"]],
+            ]
+
+            tests.forEach(test => {
+                assert.deepEqual(KeyParser.parseChordParts(test[0]), test[1])
+            })
+        })
+
+        it("ignores keys beyond the first chord", () => {
+            const result = KeyParser.parseChordParts("<c-a>b")
+            assert.deepEqual(result, ["control", "a"])
+        })
+    })
 })

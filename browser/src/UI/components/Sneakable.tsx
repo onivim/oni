@@ -14,6 +14,7 @@ import { /* SneakProvider, Sneak,*/ getInstance as getSneak } from "./../../Serv
 import { EmptyArray } from "./../../Utility"
 
 export interface ISneakableProps {
+    tag?: string
     callback?: (evt?: any) => void
 }
 
@@ -39,6 +40,7 @@ export class Sneakable extends React.PureComponent<ISneakableProps, {}> {
                             rect.width,
                             rect.height,
                         ),
+                        tag: this.props.tag || null,
                     },
                 ]
             } else {

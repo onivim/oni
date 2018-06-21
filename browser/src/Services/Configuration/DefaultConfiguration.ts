@@ -6,6 +6,8 @@
 
 import * as os from "os"
 
+import * as Oni from "oni-api"
+
 import * as path from "path"
 
 import * as Platform from "./../../Platform"
@@ -55,6 +57,9 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
 
+    "experimental.markdownPreview.enabled": false,
+    "experimental.markdownPreview.autoScroll": true,
+
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
@@ -102,12 +107,15 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.fontLigatures": true,
     "editor.fontSize": "12px",
+    "editor.fontWeight": "normal",
     "editor.fontFamily": "",
 
     "editor.linePadding": 2,
 
     "editor.quickOpen.execCommand": null,
     "editor.quickOpen.filterStrategy": "vscode",
+    "editor.quickOpen.defaultOpenMode": Oni.FileOpenMode.Edit,
+    "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode.ExistingTab,
 
     "editor.split.mode": "native",
 
@@ -372,7 +380,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "sidebar.enabled": true,
     "sidebar.default.open": true,
-    "sidebar.width": "50px",
+    "sidebar.width": "15em",
 
     "sidebar.marks.enabled": false,
     "sidebar.plugins.enabled": false,
@@ -454,7 +462,9 @@ const LinuxConfigOverrides: Partial<IConfigurationValues> = {
 
 const PlatformConfigOverride = Platform.isWindows()
     ? WindowsConfigOverrides
-    : Platform.isLinux() ? LinuxConfigOverrides : MacConfigOverrides
+    : Platform.isLinux()
+        ? LinuxConfigOverrides
+        : MacConfigOverrides
 
 export const DefaultConfiguration = {
     ...BaseConfiguration,

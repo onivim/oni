@@ -37,8 +37,11 @@ export class AchievementNotificationRenderer {
 
 const AchievementsWrapper = styled.div`
     & .achievements {
-        width: 100%;
-        height: 100%;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
 
         display: flex;
         flex-direction: column;

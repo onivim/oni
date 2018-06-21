@@ -12,12 +12,12 @@ import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { IEvent } from "oni-types"
 
 // import { remote } from "electron"
 
 import * as App from "./../../App"
-import * as Log from "./../../Log"
 import * as Utility from "./../../Utility"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
@@ -244,6 +244,10 @@ export class OniEditor extends Utility.Disposable implements IEditor {
 
     public async setSelection(range: types.Range): Promise<void> {
         return this._neovimEditor.setSelection(range)
+    }
+
+    public async setTextOptions(textOptions: Oni.EditorTextOptions): Promise<void> {
+        return this._neovimEditor.setTextOptions(textOptions)
     }
 
     public async blockInput(

@@ -12,6 +12,7 @@ import { Subject } from "rxjs/Subject"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 
 import { Store, Unsubscribe } from "redux"
 
@@ -30,7 +31,6 @@ import { ISyntaxHighlighter } from "./ISyntaxHighlighter"
 import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
 import { getLineFromBuffer } from "./SyntaxHighlightSelectors"
 
-import * as Log from "./../../Log"
 import * as Utility from "./../../Utility"
 
 export class SyntaxHighlighter implements ISyntaxHighlighter {
