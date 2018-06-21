@@ -151,6 +151,7 @@ export class Oni {
                 if (!didStop) {
                     log("- Attemping to force close processes:")
                     await ensureProcessNotRunning("nvim")
+                    await ensureProcessNotRunning("oni")
                     log("- Force close complete")
                 }
 
