@@ -1180,13 +1180,23 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private async _enableIndentLines(buffer: Oni.Buffer) {
         if (this._configuration.getValue("experimental.indentLines.enabled")) {
-            const shiftWidth = await this._neovimInstance.request<number>("nvim_get_option", [
-                "shiftwidth",
-            ])
+            const atomicCalls = [
+                ["nvim_get_option", ["shiftwidth"]],
+                ["nvim_get_option", ["tabstop"]],
+                ["nvim_get_option", ["commentstring"]],
+            ]
+            const [[shiftWidth, tabStop, commentString]] = await this._neovimInstance.request<
+                Array<[number, number, string]>
+            >("nvim_call_atomic", [atomicCalls])
+            const userSpacing = shiftWidth || tabStop
+
+            const [startComment, endComment] = commentString.split("%s")
+
             this._indentGuides = new IndentGuideBufferLayer({
                 buffer,
-                shiftWidth,
+                userSpacing,
                 configuration: this._configuration,
+                comments: { start: startComment, end: endComment },
             })
             buffer.addLayer(this._indentGuides)
         }

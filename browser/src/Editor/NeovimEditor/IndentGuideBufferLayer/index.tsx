@@ -37,10 +37,16 @@ const IndentLine = withProps<IProps>(styled.span).attrs({
     position: absolute;
 `
 
+interface IComments {
+    start: string
+    end: string | void
+}
+
 interface IndentLayerArgs {
-    shiftWidth: number
+    userSpacing: number
     buffer: Oni.Buffer
     configuration: Oni.Configuration
+    comments: IComments
 }
 
 class IndentGuideBufferLayer implements Oni.BufferLayer {
@@ -52,14 +58,28 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         )
     })
 
-    private _shiftWidth: number
+    private _isComment = memoize((line: string) => {
+        const trimmedLine = line.trim()
+        const startChars = this._comments.start.split("")
+        let hasEndComment = false
+
+        if (this._comments.end) {
+            const endChars = this._comments.end.split("")
+            hasEndComment = endChars.some(char => trimmedLine.startsWith(char))
+        }
+        return startChars.some(char => trimmedLine.startsWith(char)) || hasEndComment
+    })
+
+    private _userSpacing: number
     private _buffer: Oni.Buffer
     private _configuration: Oni.Configuration
+    private _comments: IComments
 
-    constructor({ shiftWidth, buffer, configuration }: IndentLayerArgs) {
-        this._shiftWidth = shiftWidth
+    constructor({ userSpacing, buffer, configuration, comments }: IndentLayerArgs) {
+        this._userSpacing = userSpacing
         this._buffer = buffer
         this._configuration = configuration
+        this._comments = comments
     }
     get id() {
         return "indent-guides"
@@ -76,7 +96,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
 
     private _getIndentLines = (levelsOfIndentation: IndentLinesProps[], color?: string) => {
         return levelsOfIndentation.map(({ height, characterWidth, indentBy, left, top }, idx) => {
-            const indentation = characterWidth * this._shiftWidth
+            const indentation = characterWidth * this._userSpacing
             return Array.from({ length: indentBy }).map((_, i) => (
                 <IndentLine
                     top={top}
@@ -90,8 +110,8 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
     }
 
     /**
-     * Calculates the position of each indent guide element using shiftwidth
-     *
+     * Calculates the position of each indent guide element using shiftwidth or tabstop if no
+     * shift width available
      * @name _renderIndentLines
      * @function
      * @param {Oni.BufferLayerRenderContext} bufferLayerContext The buffer layer context
@@ -117,7 +137,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
 
             const previous = acc[idx - 1]
 
-            if (!line && previous) {
+            if ((!line && previous) || this._isComment(line)) {
                 const replacement = { ...previous, top }
                 acc.push(replacement)
                 return acc
@@ -128,7 +148,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 left,
                 line,
                 height: Math.ceil(fontPixelHeight),
-                indentBy: indentation.amount / this._shiftWidth,
+                indentBy: indentation.amount / this._userSpacing,
                 characterWidth: fontPixelWidth,
             })
             return acc
