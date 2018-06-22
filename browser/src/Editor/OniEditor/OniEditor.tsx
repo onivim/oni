@@ -51,9 +51,9 @@ import { NeovimEditor } from "./../NeovimEditor"
 
 import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 
+import { IBuffer } from "../BufferManager"
 import { ImageBufferLayer } from "./ImageBufferLayer"
 import IndentLineBufferLayer from "./IndentGuideBufferLayer"
-import { IBuffer } from "../BufferManager"
 
 // Helper method to wrap a react component into a layer
 const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.BufferLayer => {
