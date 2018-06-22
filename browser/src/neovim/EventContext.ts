@@ -30,7 +30,7 @@ export interface EventContext {
     windowHeight: number
     tabstop: number
     shiftwidth: number
-    commentstring: string
+    comments: string
 }
 
 export interface InactiveBufferContext {

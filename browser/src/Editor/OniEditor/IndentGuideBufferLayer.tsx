@@ -3,7 +3,6 @@ import * as React from "react"
 import * as detectIndent from "detect-indent"
 import * as memoize from "lodash/memoize"
 import * as Oni from "oni-api"
-import * as types from "vscode-languageserver-types"
 
 import { IBuffer } from "../BufferManager"
 import styled, { pixel, withProps } from "./../../UI/components/common"
@@ -37,11 +36,6 @@ const IndentLine = withProps<IProps>(styled.span).attrs({
     position: absolute;
 `
 
-interface IComments {
-    start: string
-    end: string | void
-}
-
 interface IndentLayerArgs {
     buffer: IBuffer
     configuration: Oni.Configuration
@@ -54,18 +48,11 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
 
     private _isComment = memoize((line: string) => {
         const trimmedLine = line.trim()
-        const startChars = this._comments.start.split("")
-        let hasEndComment = false
-
-        if (this._comments.end) {
-            const endChars = this._comments.end.split("")
-            hasEndComment = endChars.some(char => trimmedLine.startsWith(char))
-        }
-        return startChars.some(char => trimmedLine.startsWith(char)) || hasEndComment
+        return this._comments.some(comment => trimmedLine.startsWith(comment))
     })
 
     private _buffer: IBuffer
-    private _comments: IComments
+    private _comments: string[]
     private _userSpacing: number
     private _configuration: Oni.Configuration
 
@@ -112,9 +99,15 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         const { visibleLines, fontPixelHeight, fontPixelWidth } = bufferLayerContext
         const allIndentations = visibleLines.reduce((acc, line, idx) => {
             const indentation = detectIndent(line)
-            const startPosition = bufferLayerContext.bufferToScreen(
-                types.Position.create(bufferLayerContext.topBufferLine, indentation.amount),
-            )
+
+            // TODO: the below could be altered to report if a line is wrapping
+            // However need to figure out the offset
+            // const isWrapping = line.length > dimensions.width - (numberWidth + otherOffset)
+
+            const startPosition = bufferLayerContext.bufferToScreen({
+                line: bufferLayerContext.topBufferLine,
+                character: indentation.amount,
+            })
 
             if (!startPosition) {
                 return acc

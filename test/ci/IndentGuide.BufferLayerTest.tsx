@@ -10,28 +10,34 @@ import * as Oni from "oni-api"
 
 import { createNewFile } from "./Common"
 
-const getLayerElements = () => {
-    return document.querySelectorAll("[data-test='indent-line']")
-}
+const testStr = `
+    function doThing() {
+        thingOne();
+        thingTwo();
+    }
+
+    const X = a + b
+    const Y = c - d
+`
+
+const getIndentLines = () => document.querySelectorAll("[data-id='indent-line']")
 
 export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitForEditors()
 
-    await createNewFile(
-        "js",
-        oni,
-        "function indentTest(){\n  console.log('test')\n  const a = 5\n}",
-    )
+    await createNewFile("js", oni, testStr)
 
-    // Wait for layer to appear
-    await oni.automation.waitFor(() => getLayerElements().length === 1, 5000)
+    const elements = getIndentLines()
 
-    const element = getLayerElements()[0]
+    const element = elements[0]
+
     assert.ok(element, "Validate an indent line is present in the layer")
 
-    // Validate elements
-    // assert.strictEqual(getActiveLayerElements().length, 1)
-    // assert.strictEqual(getInactiveLayerElements().length, 0)
+    // Render the same test string in an incompatible buffer and plugin should not render
+    await createNewFile("md", oni, testStr)
+    const markdownIndents = getIndentLines()
+
+    assert.ok(markdownIndents.length === 0, "No indents are rendered in an incompatible file")
 }
 
 export const settings = {
@@ -39,6 +45,19 @@ export const settings = {
         "oni.useDefaultConfig": true,
         "oni.loadInitVim": false,
         "experimental.indentLines.enabled": true,
+        "experimental.indentLines.filetypes": [
+            ".tsx",
+            ".ts",
+            ".jsx",
+            ".js",
+            ".go",
+            ".re",
+            ".py",
+            ".c",
+            ".cc",
+            ".lua",
+            ".java",
+        ],
         "_internal.hasCheckedInitVim": true,
     },
 }

@@ -49,7 +49,7 @@ import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 export interface IBuffer extends Oni.Buffer {
     tabstop: number
     shiftwidth: number
-    comment: IComment
+    comment: string[]
 
     setLanguage(lang: string): Promise<void>
     getLayerById<T>(id: string): T
@@ -58,11 +58,6 @@ export interface IBuffer extends Oni.Buffer {
     handleInput(key: string): boolean
     detectIndentation(): Promise<BufferIndentationInfo>
     setScratchBuffer(): Promise<void>
-}
-
-interface IComment {
-    start: string
-    end: string | void
 }
 
 type NvimError = [1, string]
@@ -110,7 +105,7 @@ export class Buffer implements IBuffer {
     private _lineCount: number
     private _tabstop: number
     private _shiftwidth: number
-    private _comment: IComment
+    private _comment: string[]
 
     private _bufferHighlightId: BufferHighlightId = null
 
@@ -124,7 +119,7 @@ export class Buffer implements IBuffer {
         return this._tabstop
     }
 
-    public get comment(): IComment {
+    public get comment(): string[] {
         return this._comment
     }
 
@@ -461,15 +456,30 @@ export class Buffer implements IBuffer {
         this._cursorOffset = evt.byte
         this._tabstop = evt.tabstop
         this._shiftwidth = evt.shiftwidth
-
-        if (evt.commentstring) {
-            const [start, end] = evt.commentstring.trim().split("%s")
-            this._comment = { start, end }
-        }
+        this._comment = this._formatCommentOption(evt.comments)
 
         this._cursor = {
             line: evt.line - 1,
             column: evt.column - 1,
+        }
+    }
+
+    private _formatCommentOption(comments: string) {
+        if (!comments) {
+            return null
+        }
+        try {
+            const matchAfterColon = /:(.*)/
+            const commentsArray = comments.split(",")
+            const commentFormats = commentsArray.map(comment => {
+                const [, capturedValue] = comment.match(matchAfterColon)
+                return capturedValue
+            })
+
+            return commentFormats
+        } catch (e) {
+            Log.warn(`Error formatting neovim comment options due to ${e.message}`)
+            return null
         }
     }
 }

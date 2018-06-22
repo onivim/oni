@@ -174,7 +174,7 @@ let context.hidden = &hidden
 let context.listed = &buflisted
 let context.tabstop = &tabstop
 let context.shiftwidth = shiftwidth()
-let context.commentstring = &commentstring
+let context.comments = &comments
 
 if exists("b:last_change_tick")
     let context.version = b:last_change_tick
