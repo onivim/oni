@@ -142,6 +142,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _commands: NeovimEditorCommands
     private _externalMenuOverlay: Overlay
     private _bufferLayerManager: BufferLayerManager
+    private _indentGuides: IndentGuideBufferLayer
 
     private _onNeovimQuit: Event<void> = new Event<void>()
 
@@ -1174,11 +1175,21 @@ export class NeovimEditor extends Editor implements IEditor {
         const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
 
         this._actions.bufferEnter(buffers)
-        const shiftWidth = await this._neovimInstance.request<number>("nvim_get_option", [
-            "shiftwidth",
-        ])
-        const indentGuides = new IndentGuideBufferLayer({ shiftWidth, buffer: buf })
-        buf.addLayer(indentGuides)
+        await this._enableIndentLines(buf)
+    }
+
+    private async _enableIndentLines(buffer: Oni.Buffer) {
+        if (this._configuration.getValue("experimental.indentLines.enabled")) {
+            const shiftWidth = await this._neovimInstance.request<number>("nvim_get_option", [
+                "shiftwidth",
+            ])
+            this._indentGuides = new IndentGuideBufferLayer({
+                buffer,
+                shiftWidth,
+                configuration: this._configuration,
+            })
+            buffer.addLayer(this._indentGuides)
+        }
     }
 
     private _escapeSpaces(str: string): string {

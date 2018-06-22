@@ -40,6 +40,7 @@ const IndentLine = withProps<IProps>(styled.span).attrs({
 interface IndentLayerArgs {
     shiftWidth: number
     buffer: Oni.Buffer
+    configuration: Oni.Configuration
 }
 
 class IndentGuideBufferLayer implements Oni.BufferLayer {
@@ -53,10 +54,12 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
 
     private _shiftWidth: number
     private _buffer: Oni.Buffer
+    private _configuration: Oni.Configuration
 
-    constructor({ shiftWidth, buffer }: IndentLayerArgs) {
+    constructor({ shiftWidth, buffer, configuration }: IndentLayerArgs) {
         this._shiftWidth = shiftWidth
         this._buffer = buffer
+        this._configuration = configuration
     }
     get id() {
         return "indent-guides"
@@ -64,13 +67,15 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
 
     private _isValidBuffer() {
         const ext = path.extname(this._buffer.filePath)
-        const validFiletypes = [".tsx", ".ts", ".jsx", ".js"]
+        const validFiletypes = this._configuration.getValue<string[]>(
+            "experimental.indentLines.filetypes",
+        )
         const isValid = validFiletypes.includes(ext)
         return isValid
     }
 
-    private _getIndentLines = (previousLines: IndentLinesProps[]) =>
-        previousLines.map(({ height, characterWidth, indentBy, left, top }, idx) => {
+    private _getIndentLines = (levelsOfIndentation: IndentLinesProps[], color?: string) => {
+        return levelsOfIndentation.map(({ height, characterWidth, indentBy, left, top }, idx) => {
             const indentation = characterWidth * this._shiftWidth
             return Array.from({ length: indentBy }).map((_, i) => (
                 <IndentLine
@@ -78,9 +83,11 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                     height={height}
                     key={`${indentation}-${idx}-${i}`}
                     left={left - i * indentation - characterWidth}
+                    color={color}
                 />
             ))
         })
+    }
 
     /**
      * Calculates the position of each indent guide element using shiftwidth
@@ -91,6 +98,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
      * @returns {JSX.Element[]} An array of react elements
      */
     private _renderIndentLines = (bufferLayerContext: Oni.BufferLayerRenderContext) => {
+        const color = this._configuration.getValue<string>("experimental.indentLines.color")
         const { visibleLines, fontPixelHeight, fontPixelWidth } = bufferLayerContext
         const allIndentations = visibleLines.reduce((acc, line, idx) => {
             const indentation = detectIndent(line)
@@ -125,7 +133,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
             })
             return acc
         }, [])
-        return this._getIndentLines(allIndentations)
+        return this._getIndentLines(allIndentations, color)
     }
 }
 
