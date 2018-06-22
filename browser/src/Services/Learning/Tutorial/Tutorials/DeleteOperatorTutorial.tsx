@@ -22,7 +22,14 @@ const Line3c = "--> using the `dk` command."
 const Line2d = "--> The delete operator works with other motions, too."
 const Line3d = "--> Let's try out `dw` - delete word. Delete the duplicate words below:"
 const Line4d = "--> Help delete the duplicate duplicate words."
-const Line4dCorrect = "--> Help delete the duplicate words."
+const Line4dCorrecta = "--> Help delete the duplicate words."
+const Line4dCorrectb = "--> Help delete the words."
+
+const Line2e = "--> `d` followed by any motion will delete to that destination"
+const Line3e = "--> This can allow for more precision when there aren't simple boundaries"
+const Line4e = "--> public void somethingsomething(arg1, arg2, extra1, extra2)"
+const Line4eCorrecta = "--> public void something(arg1, arg2, extra1, extra2)"
+const Line4eCorrectb = "--> public void something(arg1, arg2)"
 
 export class DeleteOperatorTutorial implements ITutorial {
     private _stages: ITutorialStage[]
@@ -74,7 +81,31 @@ export class DeleteOperatorTutorial implements ITutorial {
             Stages.combine(
                 "Delete the duplicate word with 'dw'",
                 new Stages.DeleteCharactersStage(null, 3, 20, "duplicate"),
-                new Stages.WaitForStateStage(null, [Line1, Line2d, Line3d, Line4dCorrect]),
+                new Stages.WaitForStateStage(null, [Line1, Line2d, Line3d, Line4dCorrecta]),
+            ),
+            Stages.combine(
+                "Delete the word again with 'dw'",
+                new Stages.DeleteCharactersStage(null, 3, 20, "duplicate"),
+                new Stages.WaitForStateStage(null, [Line1, Line2d, Line3d, Line4dCorrectb]),
+            ),
+            Stages.combine(
+                null,
+                new Stages.FadeInLineStage(null, 1, Line2e),
+                new Stages.FadeInLineStage(null, 2, Line3e),
+                new Stages.FadeInLineStage(null, 3, Line4e),
+                new Stages.SetBufferStage([Line1, Line2e, Line3e, Line4e]),
+            ),
+            new Stages.MoveToGoalStage("Move to the goal marker", 3, 16),
+            Stages.combine(
+                "Use 'dts' to delete to the next 's'",
+                new Stages.DeleteCharactersStage(null, 3, 16, "something"),
+                new Stages.WaitForStateStage(null, [Line1, Line2e, Line3e, Line4eCorrecta]),
+            ),
+            new Stages.MoveToGoalStage("Move to the goal marker", 3, 36),
+            Stages.combine(
+                "Use 'dt)' to delete to the ')'",
+                new Stages.DeleteCharactersStage(null, 3, 36, ", extra1, extra2"),
+                new Stages.WaitForStateStage(null, [Line1, Line2e, Line3e, Line4eCorrectb]),
             ),
         ]
     }
