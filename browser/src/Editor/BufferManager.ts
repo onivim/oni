@@ -47,14 +47,22 @@ import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
  * Candidate API methods
  */
 export interface IBuffer extends Oni.Buffer {
-    setLanguage(lang: string): Promise<void>
+    tabstop: number
+    shiftwidth: number
+    comment: IComment
 
+    setLanguage(lang: string): Promise<void>
     getLayerById<T>(id: string): T
 
     getCursorPosition(): Promise<types.Position>
     handleInput(key: string): boolean
     detectIndentation(): Promise<BufferIndentationInfo>
     setScratchBuffer(): Promise<void>
+}
+
+interface IComment {
+    start: string
+    end: string | void
 }
 
 type NvimError = [1, string]
@@ -100,9 +108,25 @@ export class Buffer implements IBuffer {
     private _version: number
     private _modified: boolean
     private _lineCount: number
+    private _tabstop: number
+    private _shiftwidth: number
+    private _comment: IComment
+
     private _bufferHighlightId: BufferHighlightId = null
 
     private _promiseQueue = new PromiseQueue()
+
+    public get shiftwidth(): number {
+        return this._shiftwidth
+    }
+
+    public get tabstop(): number {
+        return this._tabstop
+    }
+
+    public get comment(): IComment {
+        return this._comment
+    }
 
     public get filePath(): string {
         return this._filePath
@@ -435,6 +459,13 @@ export class Buffer implements IBuffer {
         this._modified = evt.modified
         this._lineCount = evt.bufferTotalLines
         this._cursorOffset = evt.byte
+        this._tabstop = evt.tabstop
+        this._shiftwidth = evt.shiftwidth
+
+        if (evt.commentstring) {
+            const [start, end] = evt.commentstring.trim().split("%s")
+            this._comment = { start, end }
+        }
 
         this._cursor = {
             line: evt.line - 1,

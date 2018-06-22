@@ -3,10 +3,10 @@ import * as React from "react"
 import * as detectIndent from "detect-indent"
 import * as memoize from "lodash/memoize"
 import * as Oni from "oni-api"
-import * as path from "path"
 import * as types from "vscode-languageserver-types"
 
-import styled, { pixel, withProps } from "./../../../UI/components/common"
+import { IBuffer } from "../BufferManager"
+import styled, { pixel, withProps } from "./../../UI/components/common"
 
 interface IProps {
     height: number
@@ -43,19 +43,13 @@ interface IComments {
 }
 
 interface IndentLayerArgs {
-    userSpacing: number
-    buffer: Oni.Buffer
+    buffer: IBuffer
     configuration: Oni.Configuration
-    comments: IComments
 }
 
 class IndentGuideBufferLayer implements Oni.BufferLayer {
     public render = memoize((bufferLayerContext: Oni.BufferLayerRenderContext) => {
-        return (
-            this._isValidBuffer() && (
-                <Container id={this.id}>{this._renderIndentLines(bufferLayerContext)}</Container>
-            )
-        )
+        return <Container id={this.id}>{this._renderIndentLines(bufferLayerContext)}</Container>
     })
 
     private _isComment = memoize((line: string) => {
@@ -70,28 +64,23 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         return startChars.some(char => trimmedLine.startsWith(char)) || hasEndComment
     })
 
-    private _userSpacing: number
-    private _buffer: Oni.Buffer
-    private _configuration: Oni.Configuration
+    private _buffer: IBuffer
     private _comments: IComments
+    private _userSpacing: number
+    private _configuration: Oni.Configuration
 
-    constructor({ userSpacing, buffer, configuration, comments }: IndentLayerArgs) {
-        this._userSpacing = userSpacing
+    constructor({ buffer, configuration }: IndentLayerArgs) {
         this._buffer = buffer
         this._configuration = configuration
-        this._comments = comments
+        this._comments = this._buffer.comment
+        this._userSpacing = this._buffer.shiftwidth || this._buffer.tabstop
     }
     get id() {
         return "indent-guides"
     }
 
-    private _isValidBuffer() {
-        const ext = path.extname(this._buffer.filePath)
-        const validFiletypes = this._configuration.getValue<string[]>(
-            "experimental.indentLines.filetypes",
-        )
-        const isValid = validFiletypes.includes(ext)
-        return isValid
+    get friendlyName() {
+        return "Indent Guides Lines"
     }
 
     private _getIndentLines = (levelsOfIndentation: IndentLinesProps[], color?: string) => {

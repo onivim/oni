@@ -52,6 +52,8 @@ import { NeovimEditor } from "./../NeovimEditor"
 import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 
 import { ImageBufferLayer } from "./ImageBufferLayer"
+import IndentLineBufferLayer from "./IndentGuideBufferLayer"
+import { IBuffer } from "../BufferManager"
 
 // Helper method to wrap a react component into a layer
 const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.BufferLayer => {
@@ -170,11 +172,23 @@ export class OniEditor extends Utility.Disposable implements IEditor {
             wrapReactComponentWithLayer("oni.layer.errors", <ErrorsContainer />),
         )
 
-        const extensions = this._configuration.getValue("editor.imageLayerExtensions")
+        const imageExtensions = this._configuration.getValue("editor.imageLayerExtensions")
+        const indentExtensions = this._configuration.getValue("experimental.indentLines.filetypes")
         this._neovimEditor.bufferLayers.addBufferLayer(
-            buf => extensions.includes(path.extname(buf.filePath)),
+            buf => imageExtensions.includes(path.extname(buf.filePath)),
             buf => new ImageBufferLayer(buf),
         )
+
+        if (this._configuration.getValue("experimental.indentLines.enabled")) {
+            this._neovimEditor.bufferLayers.addBufferLayer(
+                buf => indentExtensions.includes(path.extname(buf.filePath)),
+                buffer =>
+                    new IndentLineBufferLayer({
+                        buffer: buffer as IBuffer,
+                        configuration: this._configuration,
+                    }),
+            )
+        }
     }
 
     public dispose(): void {

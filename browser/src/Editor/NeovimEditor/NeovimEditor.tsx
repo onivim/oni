@@ -92,7 +92,6 @@ import CommandLine from "./../../UI/components/CommandLine"
 import ExternalMenus from "./../../UI/components/ExternalMenus"
 import WildMenu from "./../../UI/components/WildMenu"
 
-import IndentGuideBufferLayer from "./IndentGuideBufferLayer"
 import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
 import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
@@ -142,7 +141,6 @@ export class NeovimEditor extends Editor implements IEditor {
     private _commands: NeovimEditorCommands
     private _externalMenuOverlay: Overlay
     private _bufferLayerManager: BufferLayerManager
-    private _indentGuides: IndentGuideBufferLayer
 
     private _onNeovimQuit: Event<void> = new Event<void>()
 
@@ -1175,31 +1173,6 @@ export class NeovimEditor extends Editor implements IEditor {
         const buffers = [evt.current, ...existingBuffersWithoutCurrent].filter(b => !!b)
 
         this._actions.bufferEnter(buffers)
-        await this._enableIndentLines(buf)
-    }
-
-    private async _enableIndentLines(buffer: Oni.Buffer) {
-        if (this._configuration.getValue("experimental.indentLines.enabled")) {
-            const atomicCalls = [
-                ["nvim_get_option", ["shiftwidth"]],
-                ["nvim_get_option", ["tabstop"]],
-                ["nvim_get_option", ["commentstring"]],
-            ]
-            const [[shiftWidth, tabStop, commentString]] = await this._neovimInstance.request<
-                Array<[number, number, string]>
-            >("nvim_call_atomic", [atomicCalls])
-            const userSpacing = shiftWidth || tabStop
-
-            const [startComment, endComment] = commentString.split("%s")
-
-            this._indentGuides = new IndentGuideBufferLayer({
-                buffer,
-                userSpacing,
-                configuration: this._configuration,
-                comments: { start: startComment, end: endComment },
-            })
-            buffer.addLayer(this._indentGuides)
-        }
     }
 
     private _escapeSpaces(str: string): string {

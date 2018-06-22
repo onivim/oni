@@ -172,6 +172,9 @@ let context.filetype = eval("&filetype")
 let context.modified = &modified
 let context.hidden = &hidden
 let context.listed = &buflisted
+let context.tabstop = &tabstop
+let context.shiftwidth = shiftwidth()
+let context.commentstring = &commentstring
 
 if exists("b:last_change_tick")
     let context.version = b:last_change_tick
