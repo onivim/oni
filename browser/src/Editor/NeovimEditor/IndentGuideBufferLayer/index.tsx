@@ -104,6 +104,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                     key={`${indentation}-${idx}-${i}`}
                     left={left - i * indentation - characterWidth}
                     color={color}
+                    data-id="indent-line"
                 />
             ))
         })
