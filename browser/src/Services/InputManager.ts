@@ -8,8 +8,6 @@ export type ActionOrCommand = string | ActionFunction
 
 export type FilterFunction = () => boolean
 
-import { IKeyChord, parseKeysFromVimString } from "./../Input/KeyParser"
-
 export interface KeyBinding {
     action: ActionOrCommand
     filter?: FilterFunction
@@ -139,10 +137,6 @@ export class InputManager implements Oni.Input.InputManager {
             },
             [] as string[],
         )
-    }
-
-    public parseKeys(keys: string): IKeyChord {
-        return parseKeysFromVimString(keys)
     }
 
     /**

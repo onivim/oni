@@ -25,6 +25,7 @@ const Line7 = "The '?' key will let you search backwards instead!"
 const Line8 = "'?' searches backward, the 'n' and 'N' keys operate backward as well!"
 const Line9 = "'N' will move you to the next instance going down"
 const Line10 = "'n' will move you to the next instance going up"
+const Line11 = "It may take you some practice to use reverse search"
 
 export class SearchInBufferTutorial implements ITutorial {
     private _stages: ITutorialStage[]
@@ -55,20 +56,33 @@ export class SearchInBufferTutorial implements ITutorial {
             new Stages.MoveToGoalStage("Use 'N' to go to the previous instance of 'move'", 2, 21),
             new Stages.MoveToGoalStage("Use 'N' to go to the previous instance of 'move'", 1, 28),
             // Backward search
-            new Stages.SetBufferStage([Line7]),
-            new Stages.SetCursorPositionStage(0, 48),
-            new Stages.MoveToGoalStage("Use '?' to search backwards for the word 'you'", 0, 21),
-            new Stages.SetBufferStage([Line7, Line8, Line9]),
+            new Stages.SetBufferStage([Line7, Line8, Line9, Line10, Line11]),
+            new Stages.SetCursorPositionStage(4, 33),
+            new Stages.MoveToGoalStage("Use '?' to search backwards for the word 'you'", 4, 12),
+            new Stages.MoveToGoalStage(
+                "Use 'n' to go to the next (backwards) instance of 'you'",
+                3,
+                14,
+            ),
+            new Stages.MoveToGoalStage(
+                "Use 'n' to go to the next (backwards) instance of 'you'",
+                2,
+                14,
+            ),
+            new Stages.MoveToGoalStage(
+                "Use 'n' to go to the next (backwards) instance of 'you'",
+                0,
+                21,
+            ),
             new Stages.MoveToGoalStage(
                 "Use 'N' to go to the previous (backwards) instance of 'you'",
                 2,
                 14,
             ),
-            new Stages.SetBufferStage([Line7, Line8, Line9, Line10]),
             new Stages.MoveToGoalStage(
-                "Use 'n' to go to the next (backwards) instance of 'move'",
-                0,
-                21,
+                "Use 'N' to go to the previous (backwards) instance of 'you'",
+                3,
+                14,
             ),
         ]
     }
@@ -76,7 +90,7 @@ export class SearchInBufferTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
             id: "oni.tutorials.find_across_buffer",
-            name: "Motion: /, ?, n, N",
+            name: "Search Motion: /, ?, n, N",
             description:
                 "To navigate a buffer efficiently, Oni lets you search for strings with `/` and `?`. `n` and `N` let you navigate quickly between the matches!",
             level: 160,
