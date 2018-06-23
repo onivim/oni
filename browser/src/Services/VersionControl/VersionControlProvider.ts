@@ -31,12 +31,12 @@ export default interface VersionControlProvider {
     deactivate(): void
     activate(): void
     canHandleWorkspace(dir?: string): Promise<boolean>
-    getStatus(projectRoot?: string): Promise<StatusResult | void>
+    getStatus(): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
-    getDiff(projectRoot?: string): Promise<DiffResult | void>
-    getBranch(path?: string): Promise<string | void>
-    getLocalBranches(path?: string): Promise<BranchSummary | void>
-    changeBranch(branch: string, currentDir: string): Promise<void>
+    getDiff(): Promise<DiffResult | void>
+    getBranch(): Promise<string | void>
+    getLocalBranches(): Promise<BranchSummary | void>
+    changeBranch(branch: string): Promise<void>
     stageFile(file: string, projectRoot?: string): Promise<void>
     fetchBranchFromRemote(args: {
         branch: string
