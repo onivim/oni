@@ -1,8 +1,8 @@
 import * as React from "react"
 
 import * as detectIndent from "detect-indent"
-import * as memoize from "lodash/memoize"
 import * as last from "lodash/last"
+import * as memoize from "lodash/memoize"
 import * as Oni from "oni-api"
 
 import { IBuffer } from "../BufferManager"
@@ -87,7 +87,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         })
     }
 
-    private _getLinesNotWrapping(context: Oni.BufferLayerRenderContext) {
+    private _getWrappedLines(context: Oni.BufferLayerRenderContext) {
         const lines: number[] = []
         for (
             let topLine = context.topBufferLine, expectedLine = 1;
@@ -118,11 +118,11 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
      * @returns {JSX.Element[]} An array of react elements
      */
     private _renderIndentLines = (bufferLayerContext: Oni.BufferLayerRenderContext) => {
-        const screenLines = this._getLinesNotWrapping(bufferLayerContext)
+        const wrappedScreenLines = this._getWrappedLines(bufferLayerContext)
         const color = this._configuration.getValue<string>("experimental.indentLines.color")
         const { visibleLines, fontPixelHeight, fontPixelWidth, topBufferLine } = bufferLayerContext
 
-        const allIndentations = visibleLines.reduce((acc, line, idx) => {
+        const allIndentations = visibleLines.reduce((acc, line, currenLineNumber) => {
             const indentation = detectIndent(line)
             const previous = last(acc)
 
@@ -136,7 +136,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 character: indentation.amount,
             })
 
-            const skipLine = screenLines.find(l => l === idx + 1)
+            const skipLine = wrappedScreenLines.find(l => l === currenLineNumber + 1)
 
             // Check if a line has content but is not indented if so do not
             // create indentation metadata for it
@@ -148,7 +148,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
 
             const { pixelX: left, pixelY: top } = bufferLayerContext.screenToPixel({
                 screenX: startPosition.screenX,
-                screenY: idx,
+                screenY: currenLineNumber,
             })
 
             if ((!line && previous) || this._isComment(line)) {
