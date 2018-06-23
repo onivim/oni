@@ -234,7 +234,6 @@ export const start = async (args: string[]): Promise<void> => {
     const notifications = Notifications.getInstance()
 
     if (typeof developmentPluginError !== "undefined") {
-        const notifications = Notifications.getInstance()
         const notification = notifications.createItem()
         notification.setContents(developmentPluginError.title, developmentPluginError.errorText)
         notification.setLevel("error")
