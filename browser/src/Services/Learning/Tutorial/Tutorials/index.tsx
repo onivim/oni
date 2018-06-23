@@ -15,6 +15,7 @@ import { InsertAndUndoTutorial } from "./InsertAndUndoTutorial"
 import { SearchInBufferTutorial } from "./SearchInBufferTutorial"
 import { SwitchModeTutorial } from "./SwitchModeTutorial"
 import { TargetsVimPluginTutorial } from "./TargetsVimPluginTutorial"
+import { TextObjectsTutorial } from "./TextObjectsTutorial"
 import { VerticalMovementTutorial } from "./VerticalMovementTutorial"
 import { VisualModeTutorial } from "./VisualModeTutorial"
 import { WordMotionTutorial } from "./WordMotionTutorial"
@@ -37,4 +38,5 @@ export const AllTutorials: ITutorial[] = [
     new VisualModeTutorial(),
     new TargetsVimPluginTutorial(),
     new InlineFindingTutorial(),
+    new TextObjectsTutorial(),
 ]

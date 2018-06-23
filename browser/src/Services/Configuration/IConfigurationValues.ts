@@ -98,7 +98,8 @@ export interface IConfigurationValues {
 
     // If true, hide Menu bar by default
     // (can still be activated by pressing 'Alt')
-    "oni.hideMenu": boolean
+    // If hidden, menu bar is hidden entirely.
+    "oni.hideMenu": boolean | "hidden"
 
     // glob pattern of files to exclude from fuzzy finder (Ctrl-P)
     "oni.exclude": string[]
