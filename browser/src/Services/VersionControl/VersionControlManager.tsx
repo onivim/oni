@@ -1,5 +1,6 @@
 import * as capitalize from "lodash/capitalize"
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { IDisposable } from "oni-types"
 import * as React from "react"
 
@@ -163,19 +164,19 @@ export class VersionControlManager {
         this._vcsStatusItem = this._statusBar.createItem(1, vcsId)
 
         try {
-            const branch =
-                branchName || (await this._vcsProvider.getBranch(this._workspace.activeWorkspace))
+            const branch = await this._vcsProvider.getBranch(this._workspace.activeWorkspace)
 
             const diff = await this._vcsProvider.getDiff(this._workspace.activeWorkspace)
 
             if (!branch) {
-                throw new Error("The branch name could not be found")
+                Log.warn("The branch name could not be found")
             }
             this._vcsStatusItem.setContents(<Branch branch={branch} diff={diff} />)
             this._vcsStatusItem.show()
         } catch (e) {
+            const name = this._vcsProvider ? capitalize(this._vcsProvider.name) : "VCS"
             this.sendNotification({
-                title: `${capitalize(this._vcsProvider.name)} Plugin Error:`,
+                title: `${name} Plugin Error:`,
                 detail: `Oni ${this._vcs} plugin encountered an error:  ${e.message}`,
                 level: "warn",
             })

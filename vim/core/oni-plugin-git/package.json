@@ -15,11 +15,11 @@
         ]
     },
     "dependencies": {
-        "oni-api": "^0.0.42",
+        "oni-api": "^0.0.46",
         "oni-types": "^0.0.8",
-        "simple-git": "^1.92.0"
+        "simple-git": "^1.96.0"
     },
     "devDependencies": {
-        "typescript": "^2.8.3"
+        "typescript": "^2.9.2"
     }
 }

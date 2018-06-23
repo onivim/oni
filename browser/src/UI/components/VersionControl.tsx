@@ -52,28 +52,29 @@ const ChangeSpan = styled.span`
 `
 
 interface BranchProps {
-    branch: string
+    branch: string | void
     children?: React.ReactNode
     diff: Diff | void
 }
 
-export const Branch = ({ diff, branch, children }: BranchProps) => (
-    <BranchContainer>
-        <BranchText>
-            <Icon name="code-fork" />
-            <BranchNameContainer>
-                {`${branch} `}
-                {diff && (
-                    <DeletionsAndInsertions
-                        deletions={diff.deletions}
-                        insertions={diff.insertions}
-                    />
-                )}
-                {children}
-            </BranchNameContainer>
-        </BranchText>
-    </BranchContainer>
-)
+export const Branch = ({ diff, branch, children }: BranchProps) =>
+    branch && (
+        <BranchContainer>
+            <BranchText>
+                <Icon name="code-fork" />
+                <BranchNameContainer>
+                    {`${branch} `}
+                    {diff && (
+                        <DeletionsAndInsertions
+                            deletions={diff.deletions}
+                            insertions={diff.insertions}
+                        />
+                    )}
+                    {children}
+                </BranchNameContainer>
+            </BranchText>
+        </BranchContainer>
+    )
 
 const getClassNameForType = (type: ChangeTypes) => {
     switch (type) {
