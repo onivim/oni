@@ -332,7 +332,9 @@ const mapStateToProps = (
     containerProps: IExplorerViewContainerProps,
 ): IExplorerViewProps => {
     const yanked = state.register.yank.map(node => node.id)
-    const { register: { updated, rename } } = state
+    const {
+        register: { updated, rename },
+    } = state
     return {
         ...containerProps,
         isActive: state.hasFocus,

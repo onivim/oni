@@ -47,6 +47,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-h>", "oni.editor.hide")
         input.bind("<c-tab>", "buffer.toggle")
         input.bind("<m-s-f>", "search.searchAllFiles")
+        input.bind("<m-s-e>", "explorer.toggle")
         input.bind("<m-s-_>", "sidebar.decreaseWidth")
         input.bind("<m-s-+>", "sidebar.increaseWidth")
         input.bind("<m-,>", "oni.config.openConfigJs")
@@ -71,6 +72,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<s-c-t>", "language.symbols.document")
         input.bind("<c-tab>", "buffer.toggle")
         input.bind("<s-c-f>", "search.searchAllFiles")
+        input.bind("<s-c-e>", "explorer.toggle")
         input.bind("<c-,>", "oni.config.openConfigJs")
 
         if (config.getValue("editor.clipboard.enabled")) {
