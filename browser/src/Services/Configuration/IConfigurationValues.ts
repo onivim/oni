@@ -49,6 +49,10 @@ export interface IConfigurationValues {
     // Whether or not the learning pane is available
     "experimental.particles.enabled": boolean
 
+    // Whether the markdown preview pane should be shown
+    "experimental.markdownPreview.enabled": boolean
+    "experimental.markdownPreview.autoScroll": boolean
+
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
     "experimental.neovim.transport": string
@@ -89,7 +93,8 @@ export interface IConfigurationValues {
 
     // If true, hide Menu bar by default
     // (can still be activated by pressing 'Alt')
-    "oni.hideMenu": boolean
+    // If hidden, menu bar is hidden entirely.
+    "oni.hideMenu": boolean | "hidden"
 
     // glob pattern of files to exclude from fuzzy finder (Ctrl-P)
     "oni.exclude": string[]

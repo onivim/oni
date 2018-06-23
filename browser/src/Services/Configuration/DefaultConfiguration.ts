@@ -57,6 +57,9 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
 
+    "experimental.markdownPreview.enabled": false,
+    "experimental.markdownPreview.autoScroll": true,
+
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",

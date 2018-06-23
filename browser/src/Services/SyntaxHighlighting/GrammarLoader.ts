@@ -38,7 +38,7 @@ export class GrammarLoader implements IGrammarLoader {
             return null
         }
 
-        if (this._grammarCache[language]) {
+        if (language in this._grammarCache) {
             return this._grammarCache[language]
         }
 
