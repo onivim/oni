@@ -43,11 +43,11 @@ export interface VersionControlProvider {
 
     name: string
     canHandleWorkspace(dir?: string): Promise<boolean>
-    getStatus(projectRoot?: string): Promise<StatusResult | void>
+    getStatus(): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
-    getBranch(path?: string): Promise<string | void>
-    getLocalBranches(path?: string): Promise<GitP.BranchSummary | void>
-    stageFile(file: string, projectRoot?: string): Promise<void>
+    getBranch(): Promise<string | void>
+    getLocalBranches(): Promise<GitP.BranchSummary | void>
+    stageFile(file: string): Promise<void>
     fetchBranchFromRemote(args: {
         branch: string
         origin?: string
@@ -63,10 +63,15 @@ export class GitVersionControlProvider implements VersionControlProvider {
     private _onPluginActivated = new Event<void>()
     private _onPluginDeactivated = new Event<void>()
     private _isActivated = false
+    private _git: GitP.SimpleGit
     private _log: (...args: any[]) => void
 
-    constructor(private _oni: Oni.Plugin.Api, private _git = GitP) {
-        this._log = this._oni.log.warn || console.warn
+    constructor(private _oni: Oni.Plugin.Api) {
+        this._log = this._oni.log.warn
+        this._git = GitP(this._oni.workspace.activeWorkspace)
+        this._oni.workspace.onDirectoryChanged.subscribe(workspace => {
+            this._git = GitP(workspace)
+        })
     }
 
     get onBranchChanged(): IEvent<VCSBranchChangedEvent> {
@@ -103,11 +108,9 @@ export class GitVersionControlProvider implements VersionControlProvider {
         this._onPluginDeactivated.dispatch()
     }
 
-    public async canHandleWorkspace(dir: string): Promise<boolean> {
+    public async canHandleWorkspace(dir?: string): Promise<boolean> {
         try {
-            const isRepo = await this._git(dir)
-                .silent()
-                .checkIsRepo()
+            const isRepo = await this._git.silent().checkIsRepo()
             return isRepo
         } catch (e) {
             this._log(
@@ -121,17 +124,17 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
     public async getRoot(): Promise<string | void> {
         try {
-            return this._git().revparse(["--show-toplevel"])
+            return this._git.revparse(["--show-toplevel"])
         } catch (e) {
             this._log(`Git provider unable to find vcs root due to ${e.message}`)
         }
     }
 
-    public getStatus = async (currentDir: string): Promise<StatusResult | void> => {
+    public getStatus = async (): Promise<StatusResult | void> => {
         try {
-            const isRepo = await this._git(currentDir).checkIsRepo()
+            const isRepo = await this._git.checkIsRepo()
             if (isRepo) {
-                const status = await this._git(currentDir).status()
+                const status = await this._git.status()
                 const { modified, staged } = this._getModifiedAndStaged(status.files)
                 return {
                     staged,
@@ -151,11 +154,11 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public getDiff = async (currentDir: string): Promise<GitP.DiffResult | void> => {
+    public getDiff = async (): Promise<GitP.DiffResult | void> => {
         try {
-            const isRepo = await this._git(currentDir).checkIsRepo()
+            const isRepo = await this._git.checkIsRepo()
             if (isRepo) {
-                this._git(currentDir).diffSummary()
+                this._git.diffSummary()
             }
         } catch (e) {
             const error = `Git provider unable to get current status because of: ${e.message}`
@@ -166,7 +169,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
     public stageFile = async (file: string, dir?: string): Promise<void> => {
         try {
-            await this._git(dir).add(file)
+            await this._git.add(file)
             this._onStagedFilesChanged.dispatch(file)
             this._onFileStatusChanged.dispatch({ path: file, status: "staged" })
         } catch (e) {
@@ -186,7 +189,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
         currentDir: string
     }) => {
         try {
-            const fetched = await this._git(currentDir).fetch(remote, branch)
+            const fetched = await this._git.fetch(remote, branch)
             return fetched
         } catch (e) {
             const error = `Git provider unable to fetch branch because of: ${e.message}`
@@ -195,9 +198,9 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public getLocalBranches = async (currentDir?: string): Promise<GitP.BranchSummary | void> => {
+    public getLocalBranches = async (): Promise<GitP.BranchSummary | void> => {
         try {
-            const summary = await this._git(currentDir).branchLocal()
+            const summary = await this._git.branchLocal()
             return summary
         } catch (e) {
             const error = `Git provider unable to get local branches because of: ${e.message}`
@@ -206,10 +209,10 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public getBranch = async (currentDir?: string): Promise<string | void> => {
+    public getBranch = async (): Promise<string | void> => {
         try {
-            const { current } = await this._git(currentDir).status()
-            return current
+            const status = await this._git.status()
+            return status.current
         } catch (e) {
             const error = `Git Provider was unable to get current status because of: ${e.message}`
             this._log(error)
@@ -217,9 +220,9 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public async changeBranch(targetBranch: string, currentDir: string): Promise<void> {
+    public async changeBranch(targetBranch: string): Promise<void> {
         try {
-            await this._git(currentDir).checkout(targetBranch)
+            await this._git.checkout(targetBranch)
             this._onBranchChange.dispatch(targetBranch)
         } catch (e) {
             const error = `Git Provider was unable change branch because of: ${e.message}`

@@ -36,7 +36,7 @@ export class VersionControlManager {
     public async registerProvider(provider: VersionControlProvider): Promise<void> {
         if (provider) {
             this._providers.set(provider.name, provider)
-            if (await provider.canHandleWorkspace(this._workspace.activeWorkspace)) {
+            if (await provider.canHandleWorkspace()) {
                 this._activateVCSProvider(provider)
             }
 
@@ -164,7 +164,7 @@ export class VersionControlManager {
         this._vcsStatusItem = this._statusBar.createItem(1, vcsId)
 
         try {
-            const branch = await this._vcsProvider.getBranch(this._workspace.activeWorkspace)
+            const branch = await this._vcsProvider.getBranch()
 
             const diff = await this._vcsProvider.getDiff(this._workspace.activeWorkspace)
 
@@ -174,10 +174,10 @@ export class VersionControlManager {
             this._vcsStatusItem.setContents(<Branch branch={branch} diff={diff} />)
             this._vcsStatusItem.show()
         } catch (e) {
-            const name = this._vcsProvider ? capitalize(this._vcsProvider.name) : "VCS"
+            const name = this._vcsProvider ? capitalize(this._vcs) : "VCS"
             this.sendNotification({
                 title: `${name} Plugin Error:`,
-                detail: `Oni ${this._vcs} plugin encountered an error:  ${e.message}`,
+                detail: `Oni ${name} plugin encountered an error:  ${e.message}`,
                 level: "warn",
             })
             return this._vcsStatusItem.hide()
@@ -216,8 +216,9 @@ export class VersionControlManager {
                         this._workspace.activeWorkspace,
                     )
                 } catch (e) {
+                    const name = this._vcsProvider ? capitalize(this._vcs) : "VCS"
                     this.sendNotification({
-                        title: `${capitalize(this._vcsProvider.name)} Plugin Error:`,
+                        title: `${capitalize(name)} Plugin Error:`,
                         detail: e.message,
                         level: "warn",
                     })
@@ -234,8 +235,9 @@ export class VersionControlManager {
                     branch: this._menuInstance.selectedItem.label,
                 })
             } catch (e) {
+                const name = this._vcsProvider ? capitalize(this._vcs) : "VCS"
                 this.sendNotification({
-                    title: `${capitalize(this._vcsProvider.name)} Plugin Error:`,
+                    title: `${capitalize(name)} Plugin Error:`,
                     detail: e.message,
                     level: "warn",
                 })
