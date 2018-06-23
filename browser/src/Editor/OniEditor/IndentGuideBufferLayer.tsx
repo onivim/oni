@@ -2,6 +2,7 @@ import * as React from "react"
 
 import * as detectIndent from "detect-indent"
 import * as memoize from "lodash/memoize"
+import * as last from "lodash/last"
 import * as Oni from "oni-api"
 
 import { IBuffer } from "../BufferManager"
@@ -86,6 +87,28 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         })
     }
 
+    private _getLinesNotWrapping(context: Oni.BufferLayerRenderContext) {
+        const lines: number[] = []
+        for (
+            let topLine = context.topBufferLine, expectedLine = 1;
+            topLine < context.bottomBufferLine;
+            topLine++
+        ) {
+            const bufferInfo = context.bufferToScreen({ line: topLine, character: 0 })
+            if (bufferInfo && bufferInfo.screenY) {
+                const { screenY: screenLine } = bufferInfo
+                if (expectedLine !== screenLine) {
+                    expectedLine = screenLine + 1
+                    lines.push(screenLine)
+                } else {
+                    expectedLine += 1
+                }
+            }
+        }
+        // console.log("lines: ", lines)
+        return lines
+    }
+
     /**
      * Calculates the position of each indent guide element using shiftwidth or tabstop if no
      * shift width available
@@ -95,21 +118,31 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
      * @returns {JSX.Element[]} An array of react elements
      */
     private _renderIndentLines = (bufferLayerContext: Oni.BufferLayerRenderContext) => {
+        const screenLines = this._getLinesNotWrapping(bufferLayerContext)
         const color = this._configuration.getValue<string>("experimental.indentLines.color")
-        const { visibleLines, fontPixelHeight, fontPixelWidth } = bufferLayerContext
+        const { visibleLines, fontPixelHeight, fontPixelWidth, topBufferLine } = bufferLayerContext
+
         const allIndentations = visibleLines.reduce((acc, line, idx) => {
             const indentation = detectIndent(line)
+            const previous = last(acc)
 
             // TODO: the below could be altered to report if a line is wrapping
             // However need to figure out the offset
             // const isWrapping = line.length > dimensions.width - (numberWidth + otherOffset)
 
+            // start position helps determine the initial indent offset
             const startPosition = bufferLayerContext.bufferToScreen({
-                line: bufferLayerContext.topBufferLine,
+                line: topBufferLine,
                 character: indentation.amount,
             })
 
-            if (!startPosition) {
+            const skipLine = screenLines.find(l => l === idx + 1)
+
+            // Check if a line has content but is not indented if so do not
+            // create indentation metadata for it
+            const emptyUnindentedLine = !indentation.amount && line && !previous
+
+            if (!startPosition || emptyUnindentedLine || skipLine) {
                 return acc
             }
 
@@ -117,8 +150,6 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 screenX: startPosition.screenX,
                 screenY: idx,
             })
-
-            const previous = acc[idx - 1]
 
             if ((!line && previous) || this._isComment(line)) {
                 const replacement = { ...previous, top }
