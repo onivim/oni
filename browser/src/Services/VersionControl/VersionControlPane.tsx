@@ -50,8 +50,7 @@ export default class VersionControlPane {
     }
 
     public getStatus = async () => {
-        const { activeWorkspace } = this._workspace
-        const status = await this._vcsProvider.getStatus(activeWorkspace)
+        const status = await this._vcsProvider.getStatus()
         if (status) {
             this._store.dispatch({ type: "STATUS", payload: { status } })
         }

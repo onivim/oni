@@ -166,7 +166,7 @@ export class VersionControlManager {
         try {
             const branch = await this._vcsProvider.getBranch()
 
-            const diff = await this._vcsProvider.getDiff(this._workspace.activeWorkspace)
+            const diff = await this._vcsProvider.getDiff()
 
             if (!branch) {
                 Log.warn("The branch name could not be found")
@@ -189,8 +189,8 @@ export class VersionControlManager {
             return
         }
         const [currentBranch, branches] = await Promise.all([
-            this._vcsProvider.getBranch(this._workspace.activeWorkspace),
-            this._vcsProvider.getLocalBranches(this._workspace.activeWorkspace),
+            this._vcsProvider.getBranch(),
+            this._vcsProvider.getLocalBranches(),
         ])
 
         this._menuInstance = this._menu.create()
@@ -211,10 +211,7 @@ export class VersionControlManager {
         this._menuInstance.onItemSelected.subscribe(async menuItem => {
             if (menuItem && menuItem.label) {
                 try {
-                    await this._vcsProvider.changeBranch(
-                        menuItem.label,
-                        this._workspace.activeWorkspace,
-                    )
+                    await this._vcsProvider.changeBranch(menuItem.label)
                 } catch (e) {
                     const name = this._vcsProvider ? capitalize(this._vcs) : "VCS"
                     this.sendNotification({
