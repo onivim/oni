@@ -296,7 +296,7 @@ export class QuickOpen {
                     : (getFileIcon(file) as any)
 
             return {
-                icon: icon,
+                icon,
                 label: file,
                 detail: folder,
                 pinned,
