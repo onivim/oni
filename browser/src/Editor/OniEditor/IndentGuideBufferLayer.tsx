@@ -167,8 +167,10 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                     screenY: currenLineNumber,
                 })
 
+                const adjustedTop = top + acc.wrappedHeightAdjustment
+
                 if ((!line && previous) || this._isComment(line)) {
-                    const replacement = { ...previous, top }
+                    const replacement = { ...previous, top: adjustedTop }
                     acc.allIndentations.push(replacement)
                     return acc
                 }
@@ -176,7 +178,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 const indent = {
                     left,
                     line,
-                    top: top + acc.wrappedHeightAdjustment,
+                    top: adjustedTop,
                     height: adjustedHeight,
                     indentBy: indentation.amount / this._userSpacing,
                     characterWidth: fontPixelWidth,
