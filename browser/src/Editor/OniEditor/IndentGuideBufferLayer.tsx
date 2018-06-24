@@ -9,6 +9,12 @@ import * as Oni from "oni-api"
 import { IBuffer } from "../BufferManager"
 import styled, { pixel, withProps } from "./../../UI/components/common"
 
+interface IWrappedLine {
+    start: number
+    end: number
+    line: string
+}
+
 interface IProps {
     height: number
     left: number
@@ -93,7 +99,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         )
     }
 
-    private _getWrappedLines(context: Oni.BufferLayerRenderContext) {
+    private _getWrappedLines(context: Oni.BufferLayerRenderContext): IWrappedLine[] {
         const { lines } = context.visibleLines.reduce(
             (acc, line, index) => {
                 const currentLine = context.topBufferLine + index
@@ -128,6 +134,9 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
      * @returns {JSX.Element[]} An array of react elements
      */
     private _renderIndentLines = (bufferLayerContext: Oni.BufferLayerRenderContext) => {
+        // FIXME: Outstanding issues -
+        // 1. If the beginning of the visible lines is wrapping no lines are drawn
+        // 2. If a line wraps but the wrapped line has no content line positions are off by one
         const wrappedScreenLines = this._getWrappedLines(bufferLayerContext)
         const color = this._configuration.getValue<string>("experimental.indentLines.color")
         const { visibleLines, fontPixelHeight, fontPixelWidth, topBufferLine } = bufferLayerContext
@@ -149,11 +158,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 const levelsOfWrapping = wrappedLine ? wrappedLine.end - wrappedLine.start : 1
                 const adjustedHeight = height * levelsOfWrapping
 
-                // Check if a line has content but is not indented if so do not
-                // create indentation metadata for it
-                const emptyUnindentedLine = !indentation.amount && line && !previous
-
-                if (!startPosition || emptyUnindentedLine) {
+                if (!startPosition) {
                     return acc
                 }
 
@@ -164,9 +169,17 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
 
                 const adjustedTop = top + acc.wrappedHeightAdjustment
 
+                // Only adjust height for Subsequent lines!
+                if (wrappedLine) {
+                    acc.wrappedHeightAdjustment += adjustedHeight
+                }
+
                 if ((!line && previous) || this._isComment(line)) {
-                    const replacement = { ...previous, top: adjustedTop }
-                    acc.allIndentations.push(replacement)
+                    acc.allIndentations.push({
+                        ...previous,
+                        line,
+                        top: adjustedTop,
+                    })
                     return acc
                 }
 
@@ -180,11 +193,6 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 }
 
                 acc.allIndentations.push(indent)
-
-                // Only adjust height for Subsequent lines!
-                if (wrappedLine) {
-                    acc.wrappedHeightAdjustment += adjustedHeight
-                }
 
                 return acc
             },
