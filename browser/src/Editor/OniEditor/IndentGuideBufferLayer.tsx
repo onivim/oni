@@ -59,15 +59,16 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
     private _checkForComment = memoize((line: string) => {
         const trimmedLine = line.trim()
         const isMultiLine = Object.entries(this._comments).reduce(
-            (acc, [key, commentChar]) => {
-                const match = Array.isArray(commentChar)
-                    ? commentChar.some(char => trimmedLine.startsWith(char))
-                    : trimmedLine.startsWith(commentChar)
+            (acc, [key, comment]) => {
+                const match = Array.isArray(comment)
+                    ? comment.some(char => trimmedLine.startsWith(char))
+                    : trimmedLine.startsWith(comment)
+
                 if (match) {
                     return {
-                        isComment: true,
                         isMultiline: key !== "default",
                         position: key,
+                        isComment: true,
                     }
                 }
                 return acc
@@ -198,7 +199,8 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 }
 
                 const { isComment, position } = this._checkForComment(line)
-                const inMultiLineComment = isComment && position === "middle"
+                const inMultiLineComment =
+                    isComment && (position === "middle" || position === "end")
 
                 if ((!line && previous) || inMultiLineComment) {
                     acc.allIndentations.push({

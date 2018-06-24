@@ -477,21 +477,21 @@ export class Buffer implements IBuffer {
         }
         try {
             const commentsArray = comments.split(",")
-            const commentFormats = commentsArray.reduce(
+            const commentFormats = commentsArray.reduce<ICommentFormats>(
                 (acc, str) => {
-                    const [flag, comment] = str.split(":")
+                    const [flag, character] = str.split(":")
                     switch (true) {
                         case flag.includes("s"):
-                            acc.start = comment
+                            acc.start = character
                             return acc
                         case flag.includes("m"):
-                            acc.middle = comment
+                            acc.middle = character
                             return acc
                         case flag.includes("e"):
-                            acc.end = comment
+                            acc.end = character
                             return acc
                         default:
-                            acc.defaults.push(comment)
+                            acc.defaults.push(character)
                             return acc
                     }
                 },
@@ -502,7 +502,6 @@ export class Buffer implements IBuffer {
                     defaults: [],
                 },
             )
-            // console.log("commentFormats: ", commentFormats)
 
             return commentFormats
         } catch (e) {
