@@ -31,7 +31,7 @@ interface Props {
     wildmenu: State.IWildMenu
 }
 
-class ExternalMenus extends React.Component<Props> {
+export class ExternalMenus extends React.Component<Props> {
     public render() {
         const { wildmenu, commandLine } = this.props
         const visible = commandLine.visible || wildmenu.visible
