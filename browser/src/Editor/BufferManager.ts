@@ -49,7 +49,7 @@ import { IBufferLayer } from "./NeovimEditor/BufferLayerManager"
 export interface IBuffer extends Oni.Buffer {
     tabstop: number
     shiftwidth: number
-    comment: string[]
+    comment: ICommentFormats
 
     setLanguage(lang: string): Promise<void>
     getLayerById<T>(id: string): T
@@ -61,6 +61,13 @@ export interface IBuffer extends Oni.Buffer {
 }
 
 type NvimError = [1, string]
+
+interface ICommentFormats {
+    start: string
+    middle: string
+    end: string
+    defaults: string[]
+}
 
 const isStringArray = (value: NvimError | string[]): value is string[] => {
     if (value && Array.isArray(value)) {
@@ -105,7 +112,7 @@ export class Buffer implements IBuffer {
     private _lineCount: number
     private _tabstop: number
     private _shiftwidth: number
-    private _comment: string[]
+    private _comment: ICommentFormats
 
     private _bufferHighlightId: BufferHighlightId = null
 
@@ -119,7 +126,7 @@ export class Buffer implements IBuffer {
         return this._tabstop
     }
 
-    public get comment(): string[] {
+    public get comment(): ICommentFormats {
         return this._comment
     }
 
@@ -464,17 +471,38 @@ export class Buffer implements IBuffer {
         }
     }
 
-    public formatCommentOption(comments: string) {
+    public formatCommentOption(comments: string): ICommentFormats {
         if (!comments) {
             return null
         }
         try {
-            const matchAfterColon = /:(.*)/
             const commentsArray = comments.split(",")
-            const commentFormats = commentsArray.map(comment => {
-                const [, capturedValue] = comment.match(matchAfterColon)
-                return capturedValue
-            })
+            const commentFormats = commentsArray.reduce(
+                (acc, str) => {
+                    const [flag, comment] = str.split(":")
+                    switch (true) {
+                        case flag.includes("s"):
+                            acc.start = comment
+                            return acc
+                        case flag.includes("m"):
+                            acc.middle = comment
+                            return acc
+                        case flag.includes("e"):
+                            acc.end = comment
+                            return acc
+                        default:
+                            acc.defaults.push(comment)
+                            return acc
+                    }
+                },
+                {
+                    start: null,
+                    middle: null,
+                    end: null,
+                    defaults: [],
+                },
+            )
+            // console.log("commentFormats: ", commentFormats)
 
             return commentFormats
         } catch (e) {

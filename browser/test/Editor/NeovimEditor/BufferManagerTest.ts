@@ -48,8 +48,8 @@ describe("Buffer Manager Tests", () => {
         const buffer = manager.getBufferById("1")
         assert(buffer.tabstop === 8, "tabstop is set correctly")
         assert(buffer.shiftwidth === 2, "shiftwidth is set correctly")
-        assert(buffer.comment.includes("//"), "comments are set correctly")
-        assert(buffer.comment.includes("*/"), "comments are set correctly")
+        assert(buffer.comment.defaults.includes("//"), "comments are set correctly")
+        assert(buffer.comment.end.includes("*/"), "comments are set correctly")
     })
 
     it("Should correctly populate the buffer list", () => {
@@ -70,11 +70,11 @@ describe("Buffer Manager Tests", () => {
     it("Should correctly format a comment string (based on neovim &comment option)", () => {
         manager.updateBufferFromEvent(event)
         const buffer = manager.getBufferById("1")
-        const comment = "s1:/*,mb:*/,://,b:#,:%"
+        const comment = "s1:/*,ex:*/,://,b:#,:%"
         const formatted = buffer.formatCommentOption(comment)
-        assert(formatted.includes("/*"), "Correctly parses a comment string")
-        assert(formatted.includes("*/"), "Correctly parses a comment string")
-        assert(formatted.includes("//"), "Correctly parses a comment string")
-        assert(formatted.includes("#"), "Correctly parses a comment string")
+        assert(formatted.start.includes("/*"), "Correctly parses a comment string")
+        assert(formatted.end.includes("*/"), "Correctly parses a comment string")
+        assert(formatted.defaults.includes("//"), "Correctly parses a comment string")
+        assert(formatted.defaults.includes("#"), "Correctly parses a comment string")
     })
 })

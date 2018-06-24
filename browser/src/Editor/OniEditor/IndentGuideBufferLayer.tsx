@@ -58,11 +58,23 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
 
     private _isComment = memoize((line: string) => {
         const trimmedLine = line.trim()
-        return this._comments.some(comment => trimmedLine.startsWith(comment))
+        const isMultiLine = Object.entries(this._comments).reduce((acc, [key, commentChar]) => {
+            const match = Array.isArray(commentChar)
+                ? commentChar.some(char => trimmedLine.startsWith(char))
+                : trimmedLine.startsWith(commentChar)
+            if (match) {
+                return {
+                    isMultiline: key === "default",
+                    position: key,
+                }
+            }
+            return acc
+        }, null)
+        return isMultiLine
     })
 
     private _buffer: IBuffer
-    private _comments: string[]
+    private _comments: IBuffer["comment"]
     private _userSpacing: number
     private _configuration: Oni.Configuration
 
@@ -180,7 +192,12 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                     acc.wrappedHeightAdjustment += adjustedHeight
                 }
 
-                if ((!line && previous) || this._isComment(line)) {
+                const isComment = this._isComment(line)
+
+                if ((!line && previous) || isComment) {
+                    if (isComment) {
+                        console.log("isComment: ", isComment)
+                    }
                     acc.allIndentations.push({
                         ...previous,
                         line,
