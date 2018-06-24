@@ -56,20 +56,24 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         return <Container id={this.id}>{this._renderIndentLines(bufferLayerContext)}</Container>
     })
 
-    private _isComment = memoize((line: string) => {
+    private _checkForComment = memoize((line: string) => {
         const trimmedLine = line.trim()
-        const isMultiLine = Object.entries(this._comments).reduce((acc, [key, commentChar]) => {
-            const match = Array.isArray(commentChar)
-                ? commentChar.some(char => trimmedLine.startsWith(char))
-                : trimmedLine.startsWith(commentChar)
-            if (match) {
-                return {
-                    isMultiline: key === "default",
-                    position: key,
+        const isMultiLine = Object.entries(this._comments).reduce(
+            (acc, [key, commentChar]) => {
+                const match = Array.isArray(commentChar)
+                    ? commentChar.some(char => trimmedLine.startsWith(char))
+                    : trimmedLine.startsWith(commentChar)
+                if (match) {
+                    return {
+                        isComment: true,
+                        isMultiline: key !== "default",
+                        position: key,
+                    }
                 }
-            }
-            return acc
-        }, null)
+                return acc
+            },
+            { isComment: false, isMultiline: null, position: null },
+        )
         return isMultiLine
     })
 
@@ -192,12 +196,10 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                     acc.wrappedHeightAdjustment += adjustedHeight
                 }
 
-                const isComment = this._isComment(line)
+                const { isComment, position } = this._checkForComment(line)
+                const inMultiLineComment = isComment && position === "middle"
 
-                if ((!line && previous) || isComment) {
-                    if (isComment) {
-                        console.log("isComment: ", isComment)
-                    }
+                if ((!line && previous) || inMultiLineComment) {
                     acc.allIndentations.push({
                         ...previous,
                         line,
