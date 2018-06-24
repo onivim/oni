@@ -168,7 +168,9 @@ export function createWindow(
 
     const rootPath = path.join(__dirname, "..", "..", "..")
     const iconPath = path.join(rootPath, "images", "oni.ico")
-    const indexPath = path.join(rootPath, "index.html?react_perf")
+
+    const indexFileName = process.env.ONI_WEBPACK_LOAD ? "index.dev.html" : "index.html"
+    const indexPath = path.join(rootPath, indexFileName + "?react_perf")
     // Create the browser window.
     // TODO: Do we need to use non-ico for other platforms?
     let currentWindow = new BrowserWindow({
