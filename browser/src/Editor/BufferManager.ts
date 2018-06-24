@@ -456,7 +456,7 @@ export class Buffer implements IBuffer {
         this._cursorOffset = evt.byte
         this._tabstop = evt.tabstop
         this._shiftwidth = evt.shiftwidth
-        this._comment = this._formatCommentOption(evt.comments)
+        this._comment = this.formatCommentOption(evt.comments)
 
         this._cursor = {
             line: evt.line - 1,
@@ -464,7 +464,7 @@ export class Buffer implements IBuffer {
         }
     }
 
-    private _formatCommentOption(comments: string) {
+    public formatCommentOption(comments: string) {
         if (!comments) {
             return null
         }
