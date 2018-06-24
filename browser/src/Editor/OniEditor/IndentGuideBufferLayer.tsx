@@ -7,6 +7,7 @@ import * as memoize from "lodash/memoize"
 import * as Oni from "oni-api"
 
 import { IBuffer } from "../BufferManager"
+import { NeovimEditor } from "../NeovimEditor/NeovimEditor"
 import styled, { pixel, withProps } from "./../../UI/components/common"
 
 interface IWrappedLine {
@@ -46,6 +47,7 @@ const IndentLine = withProps<IProps>(styled.span).attrs({
 
 interface IndentLayerArgs {
     buffer: IBuffer
+    neovimEditor: NeovimEditor
     configuration: Oni.Configuration
 }
 
@@ -64,11 +66,15 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
     private _userSpacing: number
     private _configuration: Oni.Configuration
 
-    constructor({ buffer, configuration }: IndentLayerArgs) {
+    constructor({ buffer, neovimEditor, configuration }: IndentLayerArgs) {
         this._buffer = buffer
         this._configuration = configuration
         this._comments = this._buffer.comment
         this._userSpacing = this._buffer.shiftwidth || this._buffer.tabstop
+
+        neovimEditor.onBufferEnter.subscribe(buf => {
+            this._comments = (buf as IBuffer).comment
+        })
     }
     get id() {
         return "indent-guides"

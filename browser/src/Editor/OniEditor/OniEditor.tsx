@@ -186,6 +186,7 @@ export class OniEditor extends Utility.Disposable implements IEditor {
                     new IndentLineBufferLayer({
                         buffer: buffer as IBuffer,
                         configuration: this._configuration,
+                        neovimEditor: this._neovimEditor,
                     }),
             )
         }
