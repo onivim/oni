@@ -1,6 +1,7 @@
 import * as React from "react"
 
 import * as detectIndent from "detect-indent"
+import * as flatten from "lodash/flatten"
 import * as last from "lodash/last"
 import * as memoize from "lodash/memoize"
 import * as Oni from "oni-api"
@@ -13,6 +14,12 @@ interface IProps {
     left: number
     top: number
     color?: string
+}
+
+interface IWrappedLine {
+    start: number
+    end?: number
+    line: string
 }
 
 interface IndentLinesProps {
@@ -68,44 +75,52 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
     }
 
     get friendlyName() {
-        return "Indent Guides Lines"
+        return "Indent Guide Lines"
     }
 
-    private _getIndentLines = (levelsOfIndentation: IndentLinesProps[], color?: string) => {
-        return levelsOfIndentation.map(({ height, characterWidth, indentBy, left, top }, idx) => {
-            const indentation = characterWidth * this._userSpacing
-            return Array.from({ length: indentBy }).map((_, i) => (
-                <IndentLine
-                    top={top}
-                    height={height}
-                    key={`${indentation}-${idx}-${i}`}
-                    left={left - i * indentation - characterWidth}
-                    color={color}
-                    data-id="indent-line"
-                />
-            ))
-        })
+    private _getIndentLines = (guidePositions: IndentLinesProps[], color?: string) => {
+        return flatten(
+            guidePositions.map(({ line, height, characterWidth, indentBy, left, top }, lineNo) => {
+                const indentation = characterWidth * this._userSpacing
+                return Array.from({ length: indentBy }, (_, level) => {
+                    const adjustedLeft = left - level * indentation - characterWidth
+                    return (
+                        <IndentLine
+                            top={top}
+                            color={color}
+                            height={height}
+                            left={adjustedLeft}
+                            key={`${line.trim()}-${lineNo}-${indentation}-${level}`}
+                            data-id="indent-line"
+                        />
+                    )
+                })
+            }),
+        )
     }
 
     private _getWrappedLines(context: Oni.BufferLayerRenderContext) {
-        const lines: number[] = []
+        const lines: IWrappedLine[] = []
         for (
-            let topLine = context.topBufferLine, expectedLine = 1;
-            topLine < context.bottomBufferLine;
-            topLine++
+            let currentLine = context.topBufferLine, expectedLine = 1, index = 0;
+            currentLine < context.bottomBufferLine;
+            currentLine++, index++
         ) {
-            const bufferInfo = context.bufferToScreen({ line: topLine, character: 0 })
+            const bufferInfo = context.bufferToScreen({ line: currentLine, character: 0 })
             if (bufferInfo && bufferInfo.screenY) {
                 const { screenY: screenLine } = bufferInfo
                 if (expectedLine !== screenLine) {
+                    lines.push({
+                        start: expectedLine,
+                        end: screenLine,
+                        line: context.visibleLines[index],
+                    })
                     expectedLine = screenLine + 1
-                    lines.push(screenLine)
                 } else {
                     expectedLine += 1
                 }
             }
         }
-        // console.log("lines: ", lines)
         return lines
     }
 
@@ -122,51 +137,63 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         const color = this._configuration.getValue<string>("experimental.indentLines.color")
         const { visibleLines, fontPixelHeight, fontPixelWidth, topBufferLine } = bufferLayerContext
 
-        const allIndentations = visibleLines.reduce((acc, line, currenLineNumber) => {
-            const indentation = detectIndent(line)
-            const previous = last(acc)
+        const { allIndentations } = visibleLines.reduce(
+            (acc, line, currenLineNumber) => {
+                const indentation = detectIndent(line)
 
-            // TODO: the below could be altered to report if a line is wrapping
-            // However need to figure out the offset
-            // const isWrapping = line.length > dimensions.width - (numberWidth + otherOffset)
+                const previous = last(acc.allIndentations)
+                const height = Math.ceil(fontPixelHeight)
 
-            // start position helps determine the initial indent offset
-            const startPosition = bufferLayerContext.bufferToScreen({
-                line: topBufferLine,
-                character: indentation.amount,
-            })
+                // start position helps determine the initial indent offset
+                const startPosition = bufferLayerContext.bufferToScreen({
+                    line: topBufferLine,
+                    character: indentation.amount,
+                })
 
-            const skipLine = wrappedScreenLines.find(l => l === currenLineNumber + 1)
+                const wrappedLine = wrappedScreenLines.find(wrapped => wrapped.line === line)
+                const levelsOfWrapping = wrappedLine ? wrappedLine.end - wrappedLine.start : 1
+                const adjustedHeight = height * levelsOfWrapping
 
-            // Check if a line has content but is not indented if so do not
-            // create indentation metadata for it
-            const emptyUnindentedLine = !indentation.amount && line && !previous
+                // Check if a line has content but is not indented if so do not
+                // create indentation metadata for it
+                const emptyUnindentedLine = !indentation.amount && line && !previous
 
-            if (!startPosition || emptyUnindentedLine || skipLine) {
+                if (!startPosition || emptyUnindentedLine) {
+                    return acc
+                }
+
+                const { pixelX: left, pixelY: top } = bufferLayerContext.screenToPixel({
+                    screenX: startPosition.screenX,
+                    screenY: currenLineNumber,
+                })
+
+                if ((!line && previous) || this._isComment(line)) {
+                    const replacement = { ...previous, top }
+                    acc.allIndentations.push(replacement)
+                    return acc
+                }
+
+                const indent = {
+                    left,
+                    line,
+                    top: top + acc.wrappedHeightAdjustment,
+                    height: adjustedHeight,
+                    indentBy: indentation.amount / this._userSpacing,
+                    characterWidth: fontPixelWidth,
+                }
+
+                acc.allIndentations.push(indent)
+
+                // Only adjust height for Subsequent lines!
+                if (wrappedLine) {
+                    acc.wrappedHeightAdjustment += adjustedHeight
+                }
+
                 return acc
-            }
+            },
+            { allIndentations: [], wrappedHeightAdjustment: 0 },
+        )
 
-            const { pixelX: left, pixelY: top } = bufferLayerContext.screenToPixel({
-                screenX: startPosition.screenX,
-                screenY: currenLineNumber,
-            })
-
-            if ((!line && previous) || this._isComment(line)) {
-                const replacement = { ...previous, top }
-                acc.push(replacement)
-                return acc
-            }
-
-            acc.push({
-                top,
-                left,
-                line,
-                height: Math.ceil(fontPixelHeight),
-                indentBy: indentation.amount / this._userSpacing,
-                characterWidth: fontPixelWidth,
-            })
-            return acc
-        }, [])
         return this._getIndentLines(allIndentations, color)
     }
 }
