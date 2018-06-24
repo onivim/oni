@@ -16,12 +16,6 @@ interface IProps {
     color?: string
 }
 
-interface IWrappedLine {
-    start: number
-    end?: number
-    line: string
-}
-
 interface IndentLinesProps {
     top: number
     left: number
@@ -100,27 +94,28 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
     }
 
     private _getWrappedLines(context: Oni.BufferLayerRenderContext) {
-        const lines: IWrappedLine[] = []
-        for (
-            let currentLine = context.topBufferLine, expectedLine = 1, index = 0;
-            currentLine < context.bottomBufferLine;
-            currentLine++, index++
-        ) {
-            const bufferInfo = context.bufferToScreen({ line: currentLine, character: 0 })
-            if (bufferInfo && bufferInfo.screenY) {
-                const { screenY: screenLine } = bufferInfo
-                if (expectedLine !== screenLine) {
-                    lines.push({
-                        start: expectedLine,
-                        end: screenLine,
-                        line: context.visibleLines[index],
-                    })
-                    expectedLine = screenLine + 1
-                } else {
-                    expectedLine += 1
+        const { lines } = context.visibleLines.reduce(
+            (acc, line, index) => {
+                const currentLine = context.topBufferLine + index
+                const bufferInfo = context.bufferToScreen({ line: currentLine, character: 0 })
+
+                if (bufferInfo && bufferInfo.screenY) {
+                    const { screenY: screenLine } = bufferInfo
+                    if (acc.expectedLine !== screenLine) {
+                        acc.lines.push({
+                            start: acc.expectedLine,
+                            end: screenLine,
+                            line,
+                        })
+                        acc.expectedLine = screenLine + 1
+                    } else {
+                        acc.expectedLine += 1
+                    }
                 }
-            }
-        }
+                return acc
+            },
+            { lines: [], expectedLine: 1 },
+        )
         return lines
     }
 
