@@ -29,7 +29,7 @@ describe("Buffer Manager Tests", () => {
         windowHeight: 100,
         tabstop: 8,
         shiftwidth: 2,
-        comments: "test://,test:*/",
+        comments: "://,ex:*/",
     }
 
     const inactive1 = {
