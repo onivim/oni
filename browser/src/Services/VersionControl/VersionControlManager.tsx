@@ -164,9 +164,10 @@ export class VersionControlManager {
         this._vcsStatusItem = this._statusBar.createItem(1, vcsId)
 
         try {
-            const branch = await this._vcsProvider.getBranch()
-
-            const diff = await this._vcsProvider.getDiff()
+            const [branch, diff] = await Promise.all([
+                await this._vcsProvider.getBranch(),
+                await this._vcsProvider.getDiff(),
+            ])
 
             if (!branch) {
                 Log.warn("The branch name could not be found")

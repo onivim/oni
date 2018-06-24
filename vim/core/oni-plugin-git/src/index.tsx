@@ -158,7 +158,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
         try {
             const isRepo = await this._git.checkIsRepo()
             if (isRepo) {
-                this._git.diffSummary()
+                return this._git.diffSummary()
             }
         } catch (e) {
             const error = `Git provider unable to get current status because of: ${e.message}`
