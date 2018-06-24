@@ -159,6 +159,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         // FIXME: Outstanding issues -
         // 1. If the beginning of the visible lines is wrapping no lines are drawn
         // 2. If a line wraps but the wrapped line has no content line positions are off by one
+
         const wrappedScreenLines = this._getWrappedLines(bufferLayerContext)
         const color = this._configuration.getValue<string>("experimental.indentLines.color")
         const { visibleLines, fontPixelHeight, fontPixelWidth, topBufferLine } = bufferLayerContext
