@@ -43,7 +43,7 @@ export interface IVimNavigatorState {
 
 export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNavigatorState> {
     private _activeBinding: IMenuBinding = null
-    private _activateEvent = new Event<void>()
+    private _activateEvent = new Event<void>("VimNavigator::activateEvent")
 
     constructor(props: IVimNavigatorProps) {
         super(props)

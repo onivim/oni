@@ -23,12 +23,12 @@ interface IStatsChangeEvent {
 export class FileSystemWatcher {
     private _watcher: chokidar.FSWatcher
 
-    private _onAdd = new Event<IFileChangeEvent>()
-    private _onAddDir = new Event<IStatsChangeEvent>()
-    private _onDelete = new Event<IFileChangeEvent>()
-    private _onDeleteDir = new Event<IFileChangeEvent>()
-    private _onMove = new Event<IFileChangeEvent>()
-    private _onChange = new Event<IFileChangeEvent>()
+    private _onAdd = new Event<IFileChangeEvent>("FileSystemWatcher::onAdd")
+    private _onAddDir = new Event<IStatsChangeEvent>("FileSystemWatcher::onAddDir")
+    private _onDelete = new Event<IFileChangeEvent>("FileSystemWatcher::onDelete")
+    private _onDeleteDir = new Event<IFileChangeEvent>("FileSystemWatcher::onDeleteDir")
+    private _onMove = new Event<IFileChangeEvent>("FileSystemWatcher::onMove")
+    private _onChange = new Event<IFileChangeEvent>("FileSystemWatcher::onChange")
 
     constructor({ target, options }: IFSOptions) {
         this._watcher = chokidar.watch(target, options)

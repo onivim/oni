@@ -96,10 +96,14 @@ export class Configuration implements Oni.Configuration {
     private _configurationProviders: IConfigurationProvider[] = []
     private _onConfigurationChangedEvent: Event<Partial<IConfigurationValues>> = new Event<
         Partial<IConfigurationValues>
-    >()
-    private _onConfigurationErrorEvent: Event<Error> = new Event<Error>()
+    >("Configuration::onConfigurationChangedEvent")
+    private _onConfigurationErrorEvent: Event<Error> = new Event<Error>(
+        "Configuration::onConfigurationErrorEvent",
+    )
 
-    private _onConfigurationUpdatedEvent = new Event<IConfigurationUpdateEvent>()
+    private _onConfigurationUpdatedEvent = new Event<IConfigurationUpdateEvent>(
+        "Configuration::onConfigurationUpdatedEvent",
+    )
 
     private _oniApi: Oni.Plugin.Api = null
     private _config: GenericConfigurationValues = {}
@@ -158,7 +162,9 @@ export class Configuration implements Oni.Configuration {
             this.setValue(name, options.defaultValue)
         }
 
-        const newEvent = new Event<IConfigurationSettingValueChangedEvent<any>>()
+        const newEvent = new Event<IConfigurationSettingValueChangedEvent<any>>(
+            "Configuration::newEvent",
+        )
         const subs: Array<Event<IConfigurationSettingValueChangedEvent<any>>> =
             this._subscriptions[name] || []
         this._subscriptions[name] = [...subs, newEvent]

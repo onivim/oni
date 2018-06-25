@@ -30,17 +30,31 @@ export interface INeovimAutoCommands {
 export class NeovimAutoCommands {
     // Autocommand events
     private _nameToEvent: { [key: string]: Event<EventContext | BufferEventContext> }
-    private _onBufEnterEvent = new Event<BufferEventContext>()
-    private _onBufWritePostEvent = new Event<EventContext>()
-    private _onBufWipeoutEvent = new Event<BufferEventContext>()
-    private _onBufDeleteEvent = new Event<BufferEventContext>()
-    private _onBufUnloadEvent = new Event<BufferEventContext>()
-    private _onBufWinEnterEvent = new Event<BufferEventContext>()
-    private _onFileTypeChangedEvent = new Event<EventContext>()
-    private _onWinEnterEvent = new Event<EventContext>()
-    private _onCursorMovedEvent = new Event<EventContext>()
-    private _onCursorMovedIEvent = new Event<EventContext>()
-    private _onVimResizedEvent = new Event<EventContext>()
+    private _onBufEnterEvent = new Event<BufferEventContext>("NeovimAutoCommands::onBufEnterEvent")
+    private _onBufWritePostEvent = new Event<EventContext>(
+        "NeovimAutoCommands::onBufWritePostEvent",
+    )
+    private _onBufWipeoutEvent = new Event<BufferEventContext>(
+        "NeovimAutoCommands::onBufWipeoutEvent",
+    )
+    private _onBufDeleteEvent = new Event<BufferEventContext>(
+        "NeovimAutoCommands::onBufDeleteEvent",
+    )
+    private _onBufUnloadEvent = new Event<BufferEventContext>(
+        "NeovimAutoCommands::onBufUnloadEvent",
+    )
+    private _onBufWinEnterEvent = new Event<BufferEventContext>(
+        "NeovimAutoCommands::onBufWinEnterEvent",
+    )
+    private _onFileTypeChangedEvent = new Event<EventContext>(
+        "NeovimAutoCommands::onFileTypeChangedEvent",
+    )
+    private _onWinEnterEvent = new Event<EventContext>("NeovimAutoCommands::onWinEnterEvent")
+    private _onCursorMovedEvent = new Event<EventContext>("NeovimAutoCommands::onCursorMovedEvent")
+    private _onCursorMovedIEvent = new Event<EventContext>(
+        "NeovimAutoCommands::onCursorMovedIEvent",
+    )
+    private _onVimResizedEvent = new Event<EventContext>("NeovimAutoCommands::onVimResizedEvent")
 
     public get onBufEnter(): IEvent<BufferEventContext> {
         return this._onBufEnterEvent

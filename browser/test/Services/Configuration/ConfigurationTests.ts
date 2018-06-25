@@ -310,8 +310,8 @@ export class MockPersistedConfiguration implements IPersistedConfiguration {
 }
 
 export class MockConfigurationProvider implements IConfigurationProvider {
-    private _onConfigurationChangedEvent = new Event<void>()
-    private _onConfigurationErrorEvent = new Event<Error>()
+    private _onConfigurationChangedEvent = new Event<void>("ConfigurationTests::onConfigurationChangedEvent")
+    private _onConfigurationErrorEvent = new Event<Error>("ConfigurationTests::onConfigurationErrorEvent")
 
     private _values: GenericConfigurationValues = {}
     private _lastError: Error | null = null

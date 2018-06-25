@@ -27,7 +27,9 @@ import { ThemeManager } from "./Themes"
 export class TokenColors implements IDisposable {
     private _subscriptions: IDisposable[] = []
     private _tokenColors: TokenColor[] = []
-    private _onTokenColorsChangedEvent: Event<void> = new Event<void>()
+    private _onTokenColorsChangedEvent: Event<void> = new Event<void>(
+        "TokenColors::onTokenColorsChangedEvent",
+    )
 
     private _defaultTokenColors: TokenColor[] = []
 

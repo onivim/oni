@@ -223,29 +223,37 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _marks: NeovimMarks
     private _initComplete: boolean
 
-    private _onDirectoryChanged = new Event<string>()
-    private _onErrorEvent = new Event<Error | string>()
-    private _onYank = new Event<INeovimYankInfo>()
-    private _onOniCommand = new Event<CommandContext>()
-    private _onRedrawComplete = new Event<void>()
-    private _onScroll = new Event<EventContext>()
-    private _onTitleChanged = new Event<string>()
-    private _onModeChanged = new Event<Oni.Vim.Mode>()
-    private _onHidePopupMenu = new Event<void>()
-    private _onShowPopupMenu = new Event<INeovimCompletionInfo>()
-    private _onSelectPopupMenu = new Event<number>()
-    private _onLeave = new Event<void>()
-    private _onMessage = new Event<IMessageInfo>()
+    private _onDirectoryChanged = new Event<string>("NeovimInstance::onDirectoryChanged")
+    private _onErrorEvent = new Event<Error | string>("NeovimInstance::onErrorEvent")
+    private _onYank = new Event<INeovimYankInfo>("NeovimInstance::onYank")
+    private _onOniCommand = new Event<CommandContext>("NeovimInstance::onOniCommand")
+    private _onRedrawComplete = new Event<void>("NeovimInstance::onRedrawComplete")
+    private _onScroll = new Event<EventContext>("NeovimInstance::onScroll")
+    private _onTitleChanged = new Event<string>("NeovimInstance::onTitleChanged")
+    private _onModeChanged = new Event<Oni.Vim.Mode>("NeovimInstance::onModeChanged")
+    private _onHidePopupMenu = new Event<void>("NeovimInstance::onHidePopupMenu")
+    private _onShowPopupMenu = new Event<INeovimCompletionInfo>("NeovimInstance::onShowPopupMenu")
+    private _onSelectPopupMenu = new Event<number>("NeovimInstance::onSelectPopupMenu")
+    private _onLeave = new Event<void>("NeovimInstance::onLeave")
+    private _onMessage = new Event<IMessageInfo>("NeovimInstance::onMessage")
 
-    private _onColorsChanged = new Event<void>()
+    private _onColorsChanged = new Event<void>("NeovimInstance::onColorsChanged")
 
-    private _onCommandLineShowEvent = new Event<INeovimCommandLineShowEvent>()
-    private _onCommandLineHideEvent = new Event<void>()
-    private _onCommandLineSetCursorPositionEvent = new Event<INeovimCommandLineSetCursorPosition>()
-    private _onVimEvent = new Event<INeovimEvent>()
-    private _onWildMenuHideEvent = new Event<void>()
-    private _onWildMenuSelectEvent = new Event<IWildMenuSelectEvent>()
-    private _onWildMenuShowEvent = new Event<IWildMenuShowEvent>()
+    private _onCommandLineShowEvent = new Event<INeovimCommandLineShowEvent>(
+        "NeovimInstance::onCommandLineShowEvent",
+    )
+    private _onCommandLineHideEvent = new Event<void>("NeovimInstance::onCommandLineHideEvent")
+    private _onCommandLineSetCursorPositionEvent = new Event<INeovimCommandLineSetCursorPosition>(
+        "NeovimInstance::onCommandLineSetCursorPositionEvent",
+    )
+    private _onVimEvent = new Event<INeovimEvent>("NeovimInstance::onVimEvent")
+    private _onWildMenuHideEvent = new Event<void>("NeovimInstance::onWildMenuHideEvent")
+    private _onWildMenuSelectEvent = new Event<IWildMenuSelectEvent>(
+        "NeovimInstance::onWildMenuSelectEvent",
+    )
+    private _onWildMenuShowEvent = new Event<IWildMenuShowEvent>(
+        "NeovimInstance::onWildMenuShowEvent",
+    )
     private _bufferUpdateManager: NeovimBufferUpdateManager
     private _tokenColorSynchronizer: NeovimTokenColorSynchronizer
 

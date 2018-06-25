@@ -62,7 +62,9 @@ export interface InitializationOptions {
 export class LanguageClientProcess {
     private _process: ChildProcess
     private _connection: rpc.MessageConnection
-    private _onConnectionChangedEvent = new Event<rpc.MessageConnection>()
+    private _onConnectionChangedEvent = new Event<rpc.MessageConnection>(
+        "LanguageClientProcess::onConnectionChangedEvent",
+    )
 
     private _lastWorkingDirectory: string = null
     private _lastRootPath: string = null

@@ -12,8 +12,12 @@ import { Notifications } from "./Notifications"
 import * as Log from "oni-core-logging"
 
 export class UnhandledErrorMonitor {
-    private _onUnhandledErrorEvent = new Event<Error>()
-    private _onUnhandledRejectionEvent = new Event<string>()
+    private _onUnhandledErrorEvent = new Event<Error>(
+        "UnhandledErrorMonitor::onUnhandledErrorEvent",
+    )
+    private _onUnhandledRejectionEvent = new Event<string>(
+        "UnhandledErrorMonitor::onUnhandledRejectionEvent",
+    )
 
     private _queuedErrors: Error[] = []
     private _queuedRejections: string[] = []

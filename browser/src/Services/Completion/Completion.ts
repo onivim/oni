@@ -33,8 +33,10 @@ export class Completion implements IDisposable {
 
     private _onShowCompletionItemsEvent: Event<ICompletionShowEventArgs> = new Event<
         ICompletionShowEventArgs
-    >()
-    private _onHideCompletionItemsEvent: Event<void> = new Event<void>()
+    >("Completion::onShowCompletionItemsEvent")
+    private _onHideCompletionItemsEvent: Event<void> = new Event<void>(
+        "Completion::onHideCompletionItemsEvent",
+    )
 
     public get onShowCompletionItems(): IEvent<ICompletionShowEventArgs> {
         return this._onShowCompletionItemsEvent

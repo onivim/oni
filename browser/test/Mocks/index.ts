@@ -52,7 +52,7 @@ import { MockBuffer } from "./MockBuffer"
 
 export class MockConfiguration {
     private _currentConfigurationFiles: string[] = []
-    private _onConfigurationChanged = new Event<any>()
+    private _onConfigurationChanged = new Event<any>("Mocks::onConfigurationChanged")
 
     public get onConfigurationChanged(): IEvent<any> {
         return this._onConfigurationChanged
@@ -89,9 +89,9 @@ export class MockConfiguration {
 
 export class MockWorkspace implements IWorkspace {
     private _activeWorkspace: string = null
-    private _onDirectoryChangedEvent = new Event<string>()
-    private _onFocusGainedEvent = new Event<void>()
-    private _onFocusLostEvent = new Event<void>()
+    private _onDirectoryChangedEvent = new Event<string>("Mocks::onDirectoryChangedEvent")
+    private _onFocusGainedEvent = new Event<void>("Mocks::onFocusGainedEvent")
+    private _onFocusLostEvent = new Event<void>("Mocks::onFocusLostEvent")
 
     public get onDirectoryChanged(): IEvent<string> {
         return this._onDirectoryChangedEvent

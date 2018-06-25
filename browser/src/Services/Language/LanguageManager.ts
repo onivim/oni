@@ -273,7 +273,7 @@ export class LanguageManager {
         const currentSubscription = this._notificationSubscriptions[protocolMessage]
 
         if (!currentSubscription) {
-            const evt = new Event<any>()
+            const evt = new Event<any>("LanguageManager::evt")
             this._notificationSubscriptions[protocolMessage] = evt
 
             const languageClients = Object.values(this._languageServerInfo)

@@ -72,7 +72,9 @@ export interface IIconTheme {
 
 export class Icons {
     private _activeIconTheme: IIconTheme = null
-    private _onIconThemeChangedEvent: Event<void> = new Event<void>()
+    private _onIconThemeChangedEvent: Event<void> = new Event<void>(
+        "Icons::onIconThemeChangedEvent",
+    )
 
     public get activeIconTheme(): IIconTheme {
         return this._activeIconTheme

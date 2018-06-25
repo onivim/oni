@@ -303,7 +303,7 @@ export const DefaultTheme: IThemeMetadata = {
 }
 
 export class ThemeManager {
-    private _onThemeChangedEvent: Event<void> = new Event<void>()
+    private _onThemeChangedEvent: Event<void> = new Event<void>("ThemeManager::onThemeChangedEvent")
 
     private _activeTheme: IThemeMetadata = DefaultTheme
 

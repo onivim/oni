@@ -15,8 +15,12 @@ import { ContextMenu } from "./../../Services/ContextMenu"
 import * as CompletionUtility from "./../../Services/Completion/CompletionUtility"
 
 export class CompletionMenu {
-    private _onItemFocusedEvent: Event<types.CompletionItem> = new Event<types.CompletionItem>()
-    private _onItemSelectedEvent: Event<types.CompletionItem> = new Event<types.CompletionItem>()
+    private _onItemFocusedEvent: Event<types.CompletionItem> = new Event<types.CompletionItem>(
+        "CompletionMenu::onItemFocusedEvent",
+    )
+    private _onItemSelectedEvent: Event<types.CompletionItem> = new Event<types.CompletionItem>(
+        "CompletionMenu::onItemSelectedEvent",
+    )
 
     public get onItemFocused(): IEvent<types.CompletionItem> {
         return this._onItemFocusedEvent

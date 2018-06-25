@@ -79,10 +79,10 @@ export class SnippetSession {
     private _buffer: IBuffer
     private _snippet: OniSnippet
     private _position: types.Position
-    private _onCancelEvent: Event<void> = new Event<void>()
+    private _onCancelEvent: Event<void> = new Event<void>("SnippetSession::onCancelEvent")
     private _onCursorMovedEvent: Event<IMirrorCursorUpdateEvent> = new Event<
         IMirrorCursorUpdateEvent
-    >()
+    >("SnippetSession::onCursorMovedEvent")
 
     // Get state of line where we inserted
     private _prefix: string

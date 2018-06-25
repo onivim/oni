@@ -17,8 +17,8 @@ export class Notification {
     private _expirationTime: number
     private _level: NotificationLevel = "info"
 
-    private _onClickEvent = new Event<void>()
-    private _onCloseEvent = new Event<void>()
+    private _onClickEvent = new Event<void>("Notification::onClickEvent")
+    private _onCloseEvent = new Event<void>("Notification::onCloseEvent")
 
     public get onClick(): IEvent<void> {
         return this._onClickEvent

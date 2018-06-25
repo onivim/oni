@@ -96,7 +96,7 @@ export class TutorialBufferLayer implements Oni.BufferLayer {
     private _gameTracker: GameTracker = new GameTracker()
     private _onStateChangedEvent: Event<ITutorialBufferLayerState> = new Event<
         ITutorialBufferLayerState
-    >()
+    >("TutorialBufferLayer::onStateChangedEvent")
 
     public get id(): string {
         return "oni.layer.tutorial"

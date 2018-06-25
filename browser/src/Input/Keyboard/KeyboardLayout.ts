@@ -33,7 +33,7 @@ const augmentKeyMap = (keyMap: IKeyMap, language: string): IKeyMap => {
 
 export class KeyboardLayoutManager {
     private _keyMap: IKeyMap = null
-    private _onKeyMapChanged: Event<void> = new Event<void>()
+    private _onKeyMapChanged: Event<void> = new Event<void>("KeyboardLayout::onKeyMapChanged")
 
     /**
      * Event that is triggered when the keymap is changed,

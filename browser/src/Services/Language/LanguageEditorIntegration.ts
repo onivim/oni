@@ -32,11 +32,17 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
 
     private _onShowDefinition: OniTypes.Event<IDefinitionResult> = new OniTypes.Event<
         IDefinitionResult
-    >()
-    private _onHideDefinition: OniTypes.Event<void> = new OniTypes.Event<void>()
+    >("LanguageEditorIntegration::onShowDefinition")
+    private _onHideDefinition: OniTypes.Event<void> = new OniTypes.Event<void>(
+        "LanguageEditorIntegration::onHideDefinition",
+    )
 
-    private _onShowHover: OniTypes.Event<IHoverResult> = new OniTypes.Event<IHoverResult>()
-    private _onHideHover: OniTypes.Event<void> = new OniTypes.Event<void>()
+    private _onShowHover: OniTypes.Event<IHoverResult> = new OniTypes.Event<IHoverResult>(
+        "LanguageEditorIntegration::onShowHover",
+    )
+    private _onHideHover: OniTypes.Event<void> = new OniTypes.Event<void>(
+        "LanguageEditorIntegration::onHideHover",
+    )
 
     public get onShowDefinition(): OniTypes.IEvent<IDefinitionResult> {
         return this._onShowDefinition

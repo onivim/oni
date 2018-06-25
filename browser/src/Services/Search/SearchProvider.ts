@@ -91,8 +91,10 @@ export const ripGrepLineToSearchResultItem = (ripGrepResult: string): ISearchRes
 }
 
 export class RipGrepSearchQuery {
-    private _onSearchStartedEvent = new Event<void>()
-    private _onSearchCompletedEvent = new Event<ISearchResult>()
+    private _onSearchStartedEvent = new Event<void>("SearchProvider::onSearchStartedEvent")
+    private _onSearchCompletedEvent = new Event<ISearchResult>(
+        "SearchProvider::onSearchCompletedEvent",
+    )
     private _finderProcess: FinderProcess
 
     private _items: ISearchResultItem[] = []

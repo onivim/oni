@@ -20,8 +20,8 @@ import { SidebarContainerView, SidebarItemView } from "./../../UI/components/Sid
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 
 export class BookmarksPane implements SidebarPane {
-    private _onEnter = new Event<void>()
-    private _onLeave = new Event<void>()
+    private _onEnter = new Event<void>("BookmarksPane::onEnter")
+    private _onLeave = new Event<void>("BookmarksPane::onLeave")
 
     constructor(private _bookmarksProvider: IBookmarksProvider) {}
 

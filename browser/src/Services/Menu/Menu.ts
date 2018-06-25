@@ -106,10 +106,10 @@ export class MenuManager {
 }
 
 export class Menu implements Oni.Menu.MenuInstance {
-    private _onItemSelected = new Event<any>()
-    private _onSelectedItemChanged = new Event<Oni.Menu.MenuOption>()
-    private _onFilterTextChanged = new Event<string>()
-    private _onHide = new Event<void>()
+    private _onItemSelected = new Event<any>("Menu::onItemSelected")
+    private _onSelectedItemChanged = new Event<Oni.Menu.MenuOption>("Menu::onSelectedItemChanged")
+    private _onFilterTextChanged = new Event<string>("Menu::onFilterTextChanged")
+    private _onHide = new Event<void>("Menu::onHide")
     private _filterFunction = MenuFilter.fuseFilter
 
     public get onHide(): IEvent<void> {

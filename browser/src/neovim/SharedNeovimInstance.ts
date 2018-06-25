@@ -35,7 +35,7 @@ export interface IMenuBinding extends IBinding {
 }
 
 export class Binding implements IBinding {
-    private _onReleasedEvent: Event<void> = new Event<void>()
+    private _onReleasedEvent: Event<void> = new Event<void>("SharedNeovimInstance::onReleasedEvent")
     private _subscriptions: IDisposable[] = []
 
     public get onReleased(): IEvent<void> {
@@ -68,7 +68,9 @@ export class Binding implements IBinding {
 export class MenuBinding extends Binding implements IMenuBinding {
     private _currentOptions: string[] = []
     private _currentId: string = null
-    private _onCursorMovedEvent: Event<string> = new Event<string>()
+    private _onCursorMovedEvent: Event<string> = new Event<string>(
+        "SharedNeovimInstance::onCursorMovedEvent",
+    )
     private _promiseQueue = new PromiseQueue()
 
     private _isUpdating: boolean = false
