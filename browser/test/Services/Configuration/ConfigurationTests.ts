@@ -25,6 +25,7 @@ describe("Configuration", () => {
         configuration.addConfigurationProvider(configProvider)
 
         assert.strictEqual(configuration.getValue("test.config"), 2)
+        configuration.removeConfigurationProvider(configProvider)
     })
 
     it("triggers error event when provider has an error", () => {
@@ -41,6 +42,7 @@ describe("Configuration", () => {
         configProvider.simulateError(new Error("test error"))
 
         assert.strictEqual(errors.length, 1, "Validate an error was captured")
+        configuration.removeConfigurationProvider(configProvider)
     })
 
     it("triggers change event when provider has an update", () => {
@@ -62,6 +64,7 @@ describe("Configuration", () => {
             3,
             "Validate configuration was updated",
         )
+        configuration.removeConfigurationProvider(configProvider)
     })
 
     it("triggers updated event with requireReload true", () => {
@@ -310,8 +313,12 @@ export class MockPersistedConfiguration implements IPersistedConfiguration {
 }
 
 export class MockConfigurationProvider implements IConfigurationProvider {
-    private _onConfigurationChangedEvent = new Event<void>("ConfigurationTests::onConfigurationChangedEvent")
-    private _onConfigurationErrorEvent = new Event<Error>("ConfigurationTests::onConfigurationErrorEvent")
+    private _onConfigurationChangedEvent = new Event<void>(
+        "ConfigurationTests::onConfigurationChangedEvent",
+    )
+    private _onConfigurationErrorEvent = new Event<Error>(
+        "ConfigurationTests::onConfigurationErrorEvent",
+    )
 
     private _values: GenericConfigurationValues = {}
     private _lastError: Error | null = null
