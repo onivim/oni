@@ -144,23 +144,32 @@ export class DotCommandTutorial implements ITutorial {
                     stage2Line2a,
                 ]),
             ),
-            new Stages.WaitForStateStage("Hit 'dd' to delete this line", [
-                stage2Line1,
-                stage2Line2a,
-                stage2Line2a,
-                stage2Line2a,
-            ]),
-            new Stages.WaitForStateStage("Hit '.' to repeat the delete", [
-                stage2Line1,
-                stage2Line2a,
-                stage2Line2a,
-            ]),
-            new Stages.WaitForStateStage("Hit '.' to repeat the delete", [
-                stage2Line1,
-                stage2Line2a,
-            ]),
+            Stages.combine(
+                "Hit 'dd' to delete this line",
+                new Stages.DeleteCharactersStage(null, 4, 0, stage2Line2a),
+                new Stages.WaitForStateStage(null, [
+                    stage2Line1,
+                    stage2Line2a,
+                    stage2Line2a,
+                    stage2Line2a,
+                ]),
+            ),
+            Stages.combine(
+                "Hit '.' to repeat the delete",
+                new Stages.DeleteCharactersStage(null, 3, 0, stage2Line2a),
+                new Stages.WaitForStateStage(null, [stage2Line1, stage2Line2a, stage2Line2a]),
+            ),
+            Stages.combine(
+                "Hit '.' to repeat the delete",
+                new Stages.DeleteCharactersStage(null, 2, 0, stage2Line2a),
+                new Stages.WaitForStateStage(null, [stage2Line1, stage2Line2a]),
+            ),
             new Stages.MoveToGoalStage("Move to the top of the file", 0, 0),
-            new Stages.WaitForStateStage("Hit '.' to repeat the delete", [stage2Line2a]),
+            Stages.combine(
+                "Hit '.' to repeat the delete",
+                new Stages.DeleteCharactersStage(null, 0, 0, stage2Line1),
+                new Stages.WaitForStateStage(null, [stage2Line2a]),
+            ),
         ]
     }
 
