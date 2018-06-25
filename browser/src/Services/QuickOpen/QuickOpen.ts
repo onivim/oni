@@ -290,9 +290,13 @@ export class QuickOpen {
             const file = path.basename(f)
             const folder = path.dirname(f)
             const pinned = this._seenItems.indexOf(f) >= 0
+            const icon =
+                QuickOpenItem.convertIconToType(qitem.icon) !== QuickOpenType.file
+                    ? qitem.icon
+                    : (getFileIcon(file) as any)
 
             return {
-                icon: getFileIcon(file) as any,
+                icon,
                 label: file,
                 detail: folder,
                 pinned,
