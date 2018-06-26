@@ -1,5 +1,6 @@
 const path = require("path")
 const prettier = require("prettier")
+const { requireLocalPkg } = require("./requirePackage")
 
 // Helper functions
 const compose = (...fns) => argument => fns.reduceRight((arg, fn) => fn(arg), argument)
@@ -11,6 +12,11 @@ const isTrue = (...args) => args.every(a => Boolean(a))
 const eitherOr = (...args) => args.find(a => !!a)
 const flatten = multidimensional => [].concat(...multidimensional)
 
+// Prettier Module to use - local or oni-bundled
+const localPrettier = async () => await requireLocalPkg(process.cwd(), "prettier")()
+
+const PrettierModule = localPrettier || prettier
+
 const isCompatible = (allowedFiletypes, defaultFiletypes) => filePath => {
     const filetypes = isTrue(allowedFiletypes, Array.isArray(allowedFiletypes))
         ? allowedFiletypes
@@ -20,7 +26,7 @@ const isCompatible = (allowedFiletypes, defaultFiletypes) => filePath => {
 }
 
 const getSupportedLanguages = async () => {
-    const info = await prettier.getSupportInfo()
+    const info = await PrettierModule.getSupportInfo()
     return flatten(info.languages.map(lang => lang.extensions))
 }
 
@@ -48,7 +54,7 @@ const activate = async Oni => {
             throw new Error(`No buffer path passed for prettier to check for a Prettierrc`)
         }
         try {
-            return await prettier.resolveConfig(bufferPath)
+            return await PrettierModule.resolveConfig(bufferPath)
         } catch (e) {
             throw new Error(`Error parsing config file, ${e}`)
         }
@@ -95,7 +101,7 @@ const activate = async Oni => {
                 const prettierConfig = eitherOr(prettierrc, config.settings)
 
                 // Pass in the file path so prettier can infer the correct parser to use
-                const { formatted, cursorOffset } = prettier.formatWithCursor(
+                const { formatted, cursorOffset } = PrettierModule.formatWithCursor(
                     join(arrayOfLines),
                     Object.assign({ filepath: activeBuffer.filePath }, prettierConfig, {
                         cursorOffset: activeBuffer.cursorOffset,
@@ -158,7 +164,6 @@ function createPrettierComponent(Oni, onClick) {
         paddingLeft: "8px",
         paddingRight: "8px",
         color: "white",
-        backgroundColor: foreground,
     }
 
     const prettierIcon = (type = "magic") =>
