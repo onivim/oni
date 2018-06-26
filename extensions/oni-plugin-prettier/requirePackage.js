@@ -36,14 +36,13 @@ function findPkg(fspath = process.cwd(), pkgName) {
  * @param {string} pkgName package's name to require
  * @returns module
  */
-function requireLocalPkg(fspath, pkgName, fallbackModule) {
+function requireLocalPkg(fspath, pkgName) {
     const modulePath = findPkg(fspath, pkgName)
     if (modulePath) {
         try {
             return require(modulePath)
         } catch (e) {
             console.warn(`Failed to load ${pkgName} from ${modulePath}. Using bundled`)
-            return fallbackModule
         }
     }
 

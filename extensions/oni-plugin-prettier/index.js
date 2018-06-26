@@ -1,5 +1,4 @@
 const path = require("path")
-const prettier = require("prettier")
 const { requireLocalPkg } = require("./requirePackage")
 
 // Helper functions
@@ -12,9 +11,6 @@ const isTrue = (...args) => args.every(a => Boolean(a))
 const eitherOr = (...args) => args.find(a => !!a)
 const flatten = multidimensional => [].concat(...multidimensional)
 
-// Prettier Module to Use - local or oni-bundled
-let PrettierModule = requireLocalPkg(process.cwd(), "prettier", prettier)
-
 const isCompatible = (allowedFiletypes, defaultFiletypes) => filePath => {
     const filetypes = isTrue(allowedFiletypes, Array.isArray(allowedFiletypes))
         ? allowedFiletypes
@@ -23,12 +19,15 @@ const isCompatible = (allowedFiletypes, defaultFiletypes) => filePath => {
     return filetypes.includes(extension)
 }
 
-const getSupportedLanguages = async () => {
-    const info = await PrettierModule.getSupportInfo()
+const getSupportedLanguages = async prettier => {
+    const info = await prettier.getSupportInfo()
     return flatten(info.languages.map(lang => lang.extensions))
 }
 
 const activate = async Oni => {
+    // Prettier Module to Use - local or oni-bundled
+    let PrettierModule = requireLocalPkg(process.cwd(), "prettier")
+
     const config = Oni.configuration.getValue("oni.plugins.prettier")
     const prettierItem = Oni.statusBar.createItem(0, "oni.plugins.prettier")
 
@@ -38,7 +37,7 @@ const activate = async Oni => {
     })
 
     const applyPrettierWithState = applyPrettier()
-    const defaultFiletypes = await getSupportedLanguages()
+    const defaultFiletypes = await getSupportedLanguages(PrettierModule)
 
     const callback = async () => {
         const isNormalMode = Oni.editors.activeEditor.mode === "normal"
