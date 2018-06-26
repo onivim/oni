@@ -152,6 +152,7 @@ export class Oni {
                     log("- Attempting to force close processes:")
                     await ensureProcessNotRunning("nvim")
                     await ensureProcessNotRunning("oni")
+                    await ensureProcessNotRunning("chromedriver")
                     log("- Force close complete")
                 }
 
