@@ -68,9 +68,8 @@ export class GitVersionControlProvider implements VersionControlProvider {
     )
     private _isActivated = false
     private _projectRoot: string
-    private _git: (dir?: string) => GitP.SimpleGit
 
-    constructor(private _oni: Oni.Plugin.Api) {
+    constructor(private _oni: Oni.Plugin.Api, private _git = GitP) {
         this._oni.workspace.onDirectoryChanged.subscribe(workspace => {
             this._projectRoot = workspace
         })
