@@ -12,10 +12,8 @@ const isTrue = (...args) => args.every(a => Boolean(a))
 const eitherOr = (...args) => args.find(a => !!a)
 const flatten = multidimensional => [].concat(...multidimensional)
 
-// Prettier Module to use - local or oni-bundled
-const localPrettier = async () => await requireLocalPkg(process.cwd(), "prettier")()
-
-const PrettierModule = localPrettier || prettier
+// Prettier Module to Use - local or oni-bundled
+let PrettierModule = requireLocalPkg(process.cwd(), "prettier", prettier)
 
 const isCompatible = (allowedFiletypes, defaultFiletypes) => filePath => {
     const filetypes = isTrue(allowedFiletypes, Array.isArray(allowedFiletypes))
@@ -33,6 +31,11 @@ const getSupportedLanguages = async () => {
 const activate = async Oni => {
     const config = Oni.configuration.getValue("oni.plugins.prettier")
     const prettierItem = Oni.statusBar.createItem(0, "oni.plugins.prettier")
+
+    // Update Prettier Module to use when oni dir changes
+    Oni.workspace.onDirectoryChanged.subscribe(dir => {
+        PrettierModule = requireLocalPkg(dir, "prettier", prettier)
+    })
 
     const applyPrettierWithState = applyPrettier()
     const defaultFiletypes = await getSupportedLanguages()

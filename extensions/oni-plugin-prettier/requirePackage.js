@@ -1,5 +1,5 @@
-import * as path from "path"
-import * as resolve from "resolve"
+const path = require("path")
+const resolve = require("resolve")
 const readPkgUp = require("read-pkg-up")
 
 // CREDIT: Shamelessly *borrowed* from prettier-vscode
@@ -11,8 +11,8 @@ const readPkgUp = require("read-pkg-up")
  * @param {string} pkgName package's name to search for
  * @returns {string} resolved path to prettier
  */
-async function findPkg(fspath = process.cwd(), pkgName) {
-    const res = await readPkgUp({ cwd: fspath, normalize: false })
+function findPkg(fspath = process.cwd(), pkgName) {
+    const res = readPkgUp.sync({ cwd: fspath, normalize: false })
     const { root } = path.parse(fspath)
     if (
         res.pkg &&
@@ -36,17 +36,18 @@ async function findPkg(fspath = process.cwd(), pkgName) {
  * @param {string} pkgName package's name to require
  * @returns module
  */
-async function requireLocalPkg(fspath, pkgName) {
-    const modulePath = await findPkg(fspath, pkgName)
-    if (modulePath !== void 0) {
+function requireLocalPkg(fspath, pkgName, fallbackModule) {
+    const modulePath = findPkg(fspath, pkgName)
+    if (modulePath) {
         try {
             return require(modulePath)
         } catch (e) {
             console.warn(`Failed to load ${pkgName} from ${modulePath}. Using bundled`)
+            return fallbackModule
         }
     }
 
     return require(pkgName)
 }
 
-export { requireLocalPkg }
+module.exports = { requireLocalPkg }
