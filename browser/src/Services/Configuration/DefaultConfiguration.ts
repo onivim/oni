@@ -57,6 +57,21 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
 
+    "experimental.indentLines.enabled": false,
+    "experimental.indentLines.color": null,
+    "experimental.indentLines.filetypes": [
+        ".tsx",
+        ".ts",
+        ".jsx",
+        ".js",
+        ".go",
+        ".re",
+        ".py",
+        ".c",
+        ".cc",
+        ".lua",
+        ".java",
+    ],
     "experimental.markdownPreview.enabled": false,
     "experimental.markdownPreview.autoScroll": true,
 
