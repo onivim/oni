@@ -33,7 +33,7 @@ const activate = async Oni => {
 
     // Update Prettier Module to use when oni dir changes
     Oni.workspace.onDirectoryChanged.subscribe(dir => {
-        PrettierModule = requireLocalPkg(dir, "prettier", prettier)
+        PrettierModule = requireLocalPkg(dir, "prettier")
     })
 
     const applyPrettierWithState = applyPrettier()
