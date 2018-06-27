@@ -532,3 +532,12 @@ export const aTextObjectKey = (): JSX.Element => {
         />
     )
 }
+
+export const DotKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="."
+            description={<span>Repeat the last file change made</span>}
+        />
+    )
+}
