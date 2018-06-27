@@ -28,6 +28,9 @@ export interface EventContext {
     windowBottomLine: number
     windowWidth: number
     windowHeight: number
+    tabstop: number
+    shiftwidth: number
+    comments: string
 }
 
 export interface InactiveBufferContext {

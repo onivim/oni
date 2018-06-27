@@ -10,6 +10,7 @@ import { ChangeOperatorTutorial } from "./ChangeOperatorTutorial"
 import { CopyPasteTutorial } from "./CopyPasteTutorial"
 import { DeleteCharacterTutorial } from "./DeleteCharacterTutorial"
 import { DeleteOperatorTutorial } from "./DeleteOperatorTutorial"
+import { DotCommandTutorial } from "./DotCommandTutorial"
 import { InlineFindingTutorial } from "./InlineFindingTutorial"
 import { InsertAndUndoTutorial } from "./InsertAndUndoTutorial"
 import { SearchInBufferTutorial } from "./SearchInBufferTutorial"
@@ -39,4 +40,5 @@ export const AllTutorials: ITutorial[] = [
     new TargetsVimPluginTutorial(),
     new InlineFindingTutorial(),
     new TextObjectsTutorial(),
+    new DotCommandTutorial(),
 ]
