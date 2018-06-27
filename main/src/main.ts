@@ -260,8 +260,15 @@ app.on("open-file", (event, filePath) => {
     if (activeWindow()) {
         activeWindow().webContents.send("open-file", filePath)
     } else if (process.platform.includes("darwin")) {
-        const argsToUse = [...process.argv, filePath]
-        createWindow(argsToUse, process.cwd())
+        const argsToUse = [...process.argv.slice(1), filePath]
+
+        if (app.isReady()) {
+            createWindow(argsToUse, process.cwd())
+        } else {
+            app.on("ready", async () => {
+                createWindow(argsToUse, process.cwd())
+            })
+        }
     }
 })
 
