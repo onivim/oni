@@ -199,6 +199,34 @@ export const EndKey = (): JSX.Element => {
         />
     )
 }
+export const BigWordKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="W"
+            description={
+                <span>Moves the cursor to the BEGINNING of the NEXT word by WHITESPACE.</span>
+            }
+        />
+    )
+}
+export const BigBeginningKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="B"
+            description={
+                <span>Moves the cursor to the BEGINNING of the PREVIOUS word by WHITESPACE.</span>
+            }
+        />
+    )
+}
+export const BigEndKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="E"
+            description={<span>Moves the cursor to the END of the NEXT word by WHITESPACE.</span>}
+        />
+    )
+}
 export const SlashKey = (): JSX.Element => {
     return (
         <KeyWithDescription
