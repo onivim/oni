@@ -1,0 +1,41 @@
+{
+    "fileTypes": ["eex"],
+    "name": "EEx",
+    "patterns": [
+        {
+            "begin": "<%+#",
+            "captures": {
+                "0": {
+                    "name": "punctuation.definition.comment.eex"
+                }
+            },
+            "end": "%>",
+            "name": "comment.block.eex"
+        },
+        {
+            "begin": "<%+(?!>)[-=]*",
+            "captures": {
+                "0": {
+                    "name": "punctuation.section.embedded.elixir"
+                }
+            },
+            "end": "-?%>",
+            "name": "source.elixir.embedded",
+            "patterns": [
+                {
+                    "captures": {
+                        "1": {
+                            "name": "punctuation.definition.comment.elixir"
+                        }
+                    },
+                    "match": "(#).*?(?=-?%>)",
+                    "name": "comment.line.number-sign.elixir"
+                },
+                {
+                    "include": "source.elixir"
+                }
+            ]
+        }
+    ],
+    "scopeName": "text.elixir"
+}
