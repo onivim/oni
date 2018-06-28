@@ -3032,13 +3032,17 @@ deep-is@~0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
 
-deepmerge@2.0.1, deepmerge@~2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.0.1.tgz#25c1c24f110fb914f80001b925264dd77f3f4312"
+deepmerge@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.1.0.tgz#511a54fff405fc346f0240bb270a3e9533a31102"
 
 deepmerge@~1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-1.3.2.tgz#1663691629d4dbfe364fa12a2a4f0aa86aa3a050"
+
+deepmerge@~2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.0.1.tgz#25c1c24f110fb914f80001b925264dd77f3f4312"
 
 default-require-extensions@^1.0.0:
   version "1.0.0"
@@ -6450,9 +6454,9 @@ loglevelnext@^1.0.1:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/loglevelnext/-/loglevelnext-1.0.4.tgz#0d991d9998180991dac8bd81e73a596a8720a645"
 
-lokijs@1.5.2:
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/lokijs/-/lokijs-1.5.2.tgz#75d43df21232f1d5479d191a69b6ebf61754a873"
+lokijs@1.5.3:
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/lokijs/-/lokijs-1.5.3.tgz#6952722ffa3049a55a5e1c10ee4a0947a3e5e19b"
 
 lolex@1.3.2:
   version "1.3.2"
@@ -7291,21 +7295,21 @@ obuf@^1.0.0, obuf@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.1.tgz#104124b6c602c6796881a042541d36db43a5264e"
 
-ocaml-language-server@^1.0.27:
-  version "1.0.27"
-  resolved "https://registry.yarnpkg.com/ocaml-language-server/-/ocaml-language-server-1.0.27.tgz#b592579a9d2edce5e7064938f08b654ed2b64dfd"
+ocaml-language-server@^1.0.35:
+  version "1.0.35"
+  resolved "https://registry.yarnpkg.com/ocaml-language-server/-/ocaml-language-server-1.0.35.tgz#e80dab2d40a73b0eb629efc724a7b98581f801d1"
   dependencies:
     async "2.6.0"
-    deepmerge "2.0.1"
+    deepmerge "2.1.0"
     glob "7.1.2"
     lodash "4.17.5"
-    lokijs "1.5.2"
+    lokijs "1.5.3"
     pegjs "0.10.0"
-    vscode-jsonrpc "3.5.0"
-    vscode-languageclient "3.5.0"
-    vscode-languageserver "3.5.0"
-    vscode-languageserver-protocol "3.5.0"
-    vscode-uri "1.0.1"
+    vscode-jsonrpc "3.6.0"
+    vscode-languageclient "4.0.1"
+    vscode-languageserver "4.0.0"
+    vscode-languageserver-protocol "3.6.0"
+    vscode-uri "1.0.3"
 
 on-finished@~2.3.0:
   version "2.3.0"
@@ -10447,28 +10451,61 @@ vscode-jsonrpc@3.5.0, vscode-jsonrpc@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/vscode-jsonrpc/-/vscode-jsonrpc-3.5.0.tgz#87239d9e166b2d7352245b8a813597804c1d63aa"
 
-vscode-languageclient@3.5.0:
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/vscode-languageclient/-/vscode-languageclient-3.5.0.tgz#36d02cc186a8365a4467719a290fb200a9ae490a"
-  dependencies:
-    vscode-languageserver-protocol "^3.5.0"
+vscode-jsonrpc@3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/vscode-jsonrpc/-/vscode-jsonrpc-3.6.0.tgz#848d56995d5168950d84feb5d9c237ae5c6a02d4"
 
-vscode-languageserver-protocol@3.5.0, vscode-languageserver-protocol@^3.5.0:
+vscode-jsonrpc@^3.6.0, vscode-jsonrpc@^3.6.2:
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/vscode-jsonrpc/-/vscode-jsonrpc-3.6.2.tgz#3b5eef691159a15556ecc500e9a8a0dd143470c8"
+
+vscode-languageclient@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/vscode-languageclient/-/vscode-languageclient-4.0.1.tgz#70a3d98afa62b12bf932a5c987c8a73cee195017"
+  dependencies:
+    vscode-languageserver-protocol "^3.6.0"
+
+vscode-languageserver-protocol@3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/vscode-languageserver-protocol/-/vscode-languageserver-protocol-3.6.0.tgz#579642cdcccf74b0cd771c33daa3239acb40d040"
+  dependencies:
+    vscode-jsonrpc "^3.6.0"
+    vscode-languageserver-types "^3.6.0"
+
+vscode-languageserver-protocol@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/vscode-languageserver-protocol/-/vscode-languageserver-protocol-3.5.0.tgz#067c5cbe27709795398d119692c97ebba1452209"
   dependencies:
     vscode-jsonrpc "^3.5.0"
     vscode-languageserver-types "^3.5.0"
 
+vscode-languageserver-protocol@^3.6.0:
+  version "3.8.1"
+  resolved "https://registry.yarnpkg.com/vscode-languageserver-protocol/-/vscode-languageserver-protocol-3.8.1.tgz#ee3ce042f7f49f559a6a552e3f505001fa565154"
+  dependencies:
+    vscode-jsonrpc "^3.6.2"
+    vscode-languageserver-types "^3.8.1"
+
 vscode-languageserver-types@3.5.0, vscode-languageserver-types@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.5.0.tgz#e48d79962f0b8e02de955e3f524908e2b19c0374"
+
+vscode-languageserver-types@^3.6.0, vscode-languageserver-types@^3.8.1:
+  version "3.8.2"
+  resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.8.2.tgz#2550b8d852195328a735c56dbf4e72b8da31613f"
 
 vscode-languageserver@3.5.0, vscode-languageserver@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/vscode-languageserver/-/vscode-languageserver-3.5.0.tgz#d28099bc6ddda8c1dd16b707e454e1b1ddae0dba"
   dependencies:
     vscode-languageserver-protocol "^3.5.0"
+    vscode-uri "^1.0.1"
+
+vscode-languageserver@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/vscode-languageserver/-/vscode-languageserver-4.0.0.tgz#8b792f0d6d10acfe363d02371ed4ce53d08af88a"
+  dependencies:
+    vscode-languageserver-protocol "^3.6.0"
     vscode-uri "^1.0.1"
 
 vscode-nls@^2.0.1, vscode-nls@^2.0.2:
@@ -10486,7 +10523,11 @@ vscode-textmate@3.2.0:
     fast-plist "^0.1.2"
     oniguruma "^6.0.1"
 
-vscode-uri@1.0.1, vscode-uri@^1.0.1:
+vscode-uri@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/vscode-uri/-/vscode-uri-1.0.3.tgz#631bdbf716dccab0e65291a8dc25c23232085a52"
+
+vscode-uri@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/vscode-uri/-/vscode-uri-1.0.1.tgz#11a86befeac3c4aa3ec08623651a3c81a6d0bbc8"
 
