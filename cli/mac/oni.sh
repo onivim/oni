@@ -12,7 +12,7 @@ else
 fi
 
 ONI_PATH=$(dirname "$target")
-ONI_EXECUTABLE="${ONI_PATH}/../../../../oni"
+ONI_EXECUTABLE="${ONI_PATH}/../../../../MacOS/Oni"
 CLI_SCRIPT="${ONI_PATH}/../../lib/cli/src/cli.js"
 
 ELECTRON_RUN_AS_NODE=1 "${ONI_EXECUTABLE}" "$CLI_SCRIPT" "$*"
