@@ -8,8 +8,10 @@ import * as fs from "fs"
 import { ensureDirSync, mkdirp, move, pathExists, remove, writeFile } from "fs-extra"
 import * as os from "os"
 import * as path from "path"
+import * as trash from "trash"
 import { promisify } from "util"
 
+import { configuration } from "./../../Services/Configuration"
 import { FolderOrFile } from "./ExplorerStore"
 
 /**
@@ -35,18 +37,26 @@ export class FileSystem implements IFileSystem {
         exists(path: string): Promise<boolean>
     }
 
-    private _backupDirectory = path.join(os.tmpdir(), "oni_backup")
+    private _backupDirectory: string
+    private _backupStrategy: string
 
     public get backupDir(): string {
         return this._backupDirectory
     }
 
-    constructor(nfs: typeof fs) {
+    public get backupStrategy(): string {
+        return this._backupStrategy
+    }
+
+    constructor(nfs: typeof fs, private _config = configuration) {
         this._fs = {
             readdir: promisify(nfs.readdir.bind(nfs)),
             stat: promisify(nfs.stat.bind(nfs)),
             exists: promisify(nfs.exists.bind(nfs)),
         }
+
+        this._backupStrategy = this._config.getValue("explorer.backupDirectory")
+        this._backupDirectory = this._getBackupDirectory(this._backupStrategy)
 
         this.init()
     }
@@ -103,6 +113,9 @@ export class FileSystem implements IFileSystem {
      * @param {string} fileOrFolder The file or folder path
      */
     public restoreNode = async (prevPath: string): Promise<void> => {
+        if (this._backupStrategy === "trash") {
+            return
+        }
         const name = path.basename(prevPath)
         const backupPath = path.join(this._backupDirectory, name)
         await move(backupPath, prevPath)
@@ -121,10 +134,13 @@ export class FileSystem implements IFileSystem {
     public persistNode = async (fileOrFolder: string): Promise<void> => {
         const { size } = await this._fs.stat(fileOrFolder)
         const hasEnoughSpace = os.freemem() > size
-        if (hasEnoughSpace) {
+
+        if (hasEnoughSpace && this._backupStrategy !== "trash") {
             const filename = path.basename(fileOrFolder)
             const newPath = path.join(this._backupDirectory, filename)
             await move(fileOrFolder, newPath, { overwrite: true })
+        } else if (this._backupStrategy === "trash") {
+            await trash(fileOrFolder)
         }
     }
 
@@ -174,6 +190,16 @@ export class FileSystem implements IFileSystem {
     }
 
     private areDifferent = (src: string, dest: string) => src !== dest
+
+    private _getBackupDirectory = (option: string) => {
+        switch (option) {
+            case "oni_backup":
+                return path.join(os.tmpdir(), "oni_backup")
+            case "trash":
+            default:
+                return option
+        }
+    }
 }
 
 export const OniFileSystem = new FileSystem(fs)
