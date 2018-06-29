@@ -1,19 +1,9 @@
 #!/bin/bash
 
-if [ "$(uname)" == 'Darwin' ]; then
-    OS='Mac'
-else
-    # TODO: Support Linux
-    echo "Your platform ($(uname -a)) is not supported."
-    exit 1
-fi
-
-# get the path to the currently running script:
+# Get the path to the currently running script:
 self=$0
 
-OPEN_DIRECTORY="$PWD"
-
-# test if $self is a symlink
+# Test if $self is a symlink
 if [ -L "$self" ] ; then
    # readlink returns the path to the file the link points to:
    target=$(readlink "$self")
@@ -22,7 +12,8 @@ else
 fi
 
 ONI_PATH=$(dirname "$target")
+ONI_EXECUTABLE="${ONI_PATH}/../../../../oni"
+CLI_SCRIPT="${ONI_PATH}/../../lib/cli/src/cli.js"
 
-FULL_ONI_PATH="$ONI_PATH/../../MacOS/Oni"
-
-ONI_CWD="$OPEN_DIRECTORY" open --new -a "$FULL_ONI_PATH" --args $*
+ELECTRON_RUN_AS_NODE=1 "${ONI_EXECUTABLE}" "$CLI_SCRIPT" "$*"
+exit $?
