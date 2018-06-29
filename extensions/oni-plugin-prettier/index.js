@@ -147,8 +147,6 @@ const activate = async Oni => {
 function createPrettierComponent(Oni, onClick) {
     const { React } = Oni.dependencies
 
-    const background = Oni.colors.getColor("highlight.mode.normal.background")
-    const foreground = Oni.colors.getColor("highlight.mode.normal.foreground")
     const style = {
         width: "100%",
         height: "100%",
@@ -157,8 +155,8 @@ function createPrettierComponent(Oni, onClick) {
         justifyContent: "center",
         paddingLeft: "8px",
         paddingRight: "8px",
-        color: "white",
-        backgroundColor: foreground,
+        backgroundColor: "rgb(35, 35, 35)",
+        color: "rgb(200, 200, 200)",
     }
 
     const prettierIcon = (type = "magic") =>
