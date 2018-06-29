@@ -108,11 +108,13 @@ export class CommandLine extends React.PureComponent<ICommandLineRendererProps, 
                         iconName="arrow-right"
                         key={`${character}-arrow-right`}
                     />,
+                    character,
                 ]
             case "?":
                 return [
                     <CommandLineIcon iconName="search" key={`${character}-search`} />,
-                    <CommandLineIcon key={`${character}-arrow-left`} arrow iconName="arrow-left" />,
+                    <CommandLineIcon arrow iconName="arrow-left" key={`${character}-arrow-left`} />,
+                    character,
                 ]
             default:
                 return character
