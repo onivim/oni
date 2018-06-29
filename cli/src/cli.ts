@@ -12,7 +12,7 @@ export async function main(cli_arguments: string[]): Promise<any> {
         args = parseCLIProcessArgv(cli_arguments)
     } catch (err) {
         process.stdout.write(err.message)
-        return Promise.resolve(false)
+        throw err
     }
 
     if (args.help || args.version) {
@@ -22,7 +22,7 @@ export async function main(cli_arguments: string[]): Promise<any> {
         process.stdout.write("\nUsage:\n oni [FILE]\t\tEdit file\n")
         process.stdout.write("\nhttps://github.com/onivim/oni\n")
 
-        return Promise.resolve(false)
+        return Promise.resolve(true)
     }
 
     // Otherwise, was loaded normally, so launch Oni.
@@ -40,7 +40,6 @@ export async function main(cli_arguments: string[]): Promise<any> {
     }
 
     const child = await spawn(process.execPath, cli_arguments.slice(2), options)
-
     child.unref()
 
     child.on("close", code => {
@@ -74,7 +73,9 @@ function eventuallyExit(code: number): void {
 }
 
 main(process.argv)
-    .then(() => eventuallyExit(0))
+    .then(() => {
+        eventuallyExit(0)
+    })
     .then(null, err => {
         console.error(err.message || err.stack || err)
         eventuallyExit(1)
