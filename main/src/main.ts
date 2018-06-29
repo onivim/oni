@@ -265,7 +265,7 @@ app.on("open-file", (event, filePath) => {
         if (app.isReady()) {
             createWindow(argsToUse, process.cwd())
         } else {
-            app.on("ready", async () => {
+            app.on("ready", () => {
                 createWindow(argsToUse, process.cwd())
             })
         }
