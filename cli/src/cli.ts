@@ -45,7 +45,7 @@ export async function main(cli_arguments: string[]): Promise<any> {
 
     child.on("close", code => {
         if (code !== 0) {
-            return Promise.resolve(false)
+            throw Error(`Exit code was ${code}, not 0.`)
         } else {
             return Promise.resolve(true)
         }
