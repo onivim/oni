@@ -7,7 +7,7 @@ export const makeSingleInstance = (options, callbackFunction) => {
         callbackFunction({
             args,
             workingDirectory,
-        })   
+        })
     })
 
     if (isSecondInstance) {
