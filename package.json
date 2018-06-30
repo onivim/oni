@@ -15,8 +15,8 @@
     ],
     "main": "./lib/main/src/main.js",
     "bin": {
-        "oni": "./cli/oni",
-        "oni-vim": "./cli/oni"
+        "oni": "./lib/cli/src/cli.js",
+        "oni-vim": "./lib/cli/src/cli.js"
     },
     "build": {
         "asar": false,
