@@ -370,7 +370,7 @@ export class QuickOpen {
     }
 
     public async searchFileByContent() {
-        const filterName = "none"
+        const filterName = "none" // TODO: Use a filter like `regex` (needs a few adjustments)
         const searcher = new FileContentSearch(
             this._oni,
             this._oniNext, // TODO: Remove

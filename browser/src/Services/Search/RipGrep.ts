@@ -8,7 +8,7 @@ import * as path from "path"
 
 import * as Platform from "./../../Platform"
 
-export const getCommand = () => {
+export function getCommand(): string {
     const rootPath = path.join(__dirname, "node_modules", "oni-ripgrep", "bin")
     const executableName = Platform.isWindows() ? "rg.exe" : "rg"
 
@@ -16,10 +16,11 @@ export const getCommand = () => {
     return '"' + path.join(rootPath, executableName) + '"'
 }
 
-export const getArguments = (excludePaths: string[]) => {
+export function getArguments(excludePaths: string[]): string[] {
     const ignoreArguments = excludePaths.reduce((prev, cur) => {
         return prev.concat(["-g", "!" + cur])
     }, [])
 
-    return ["--vimgrep", "--hidden"].concat(ignoreArguments)
+    //TODO: Add option to enable "--hidden"
+    return ["--vimgrep"].concat(ignoreArguments)
 }

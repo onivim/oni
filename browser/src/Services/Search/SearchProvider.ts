@@ -31,11 +31,12 @@ export class Search implements SearchApi.ISearch {
     public findInFile(opts: SearchApi.Options): SearchApi.Query {
         const commandParts = [
             RipGrep.getCommand(),
+            "--ignore-case",
             ...RipGrep.getArguments(configuration.getValue("oni.exclude")),
-            "-e",
-            opts.searchQuery,
+            // "-e",
             ...(opts.fileFilter ? ["-g", opts.fileFilter] : []),
             "--",
+            opts.searchQuery,
             opts.workspace ? opts.workspace : ".",
         ]
         return new SearchQuery(commandParts.join(" "), parseRipGrepLine)
