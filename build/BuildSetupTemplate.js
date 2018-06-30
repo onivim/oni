@@ -40,7 +40,7 @@ const valuesToReplace = {
 }
 
 const addToEnv = `
-Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}\\resources\\app\\cli\\windows\\"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}'))
+Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}\\resources\\app\\cli\\windows\\"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}\\resources\\app\\cli\\windows\\'))
 
 Root: HKCU; Subkey: "SOFTWARE\\Classes\\*\\shell\\${prodName}"; ValueType: expandsz; ValueName: ""; ValueData: "Open with ${prodName}"; Tasks: addToRightClickMenu; Flags: uninsdeletekey
 Root: HKCU; Subkey: "SOFTWARE\\Classes\\*\\shell\\${prodName}"; ValueType: expandsz; ValueName: "Icon"; ValueData: "{app}\\resources\\app\\images\\oni.ico"; Tasks: addToRightClickMenu
