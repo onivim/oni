@@ -804,7 +804,7 @@
         "dist:win:x86": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch ia32 --publish never",
         "dist:win:x64": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --arch x64 --publish never",
         "pack:win": "node build/BuildSetupTemplate.js && innosetup-compiler dist/setup.iss --verbose --O=dist",
-        "test": "yarn run test:unit && yarn run test:integration",
+        "test": "yarn run test:unit && yarn run test:integration && yarn run test:setup",
         "test:setup": "yarn run build:test:integration && mocha --recursive lib_test/test/setup",
         "test:integration": "yarn run build:test:integration && mocha -t 120000 lib_test/test/CiTests.js --bail",
         "test:react": "jest --config ./jest.config.js ./ui-tests",
