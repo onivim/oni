@@ -17,7 +17,7 @@ export const isAddedToPath = () => {
             const currentLinkPath = fs.readlinkSync(getLinkPath())
 
             // Temporary guard to check if the old script has been linked to.
-            if (currentLinkPath.indexOf("cli/mac/oni.sh") === 0) {
+            if (currentLinkPath.indexOf("cli/mac/oni.sh") === -1) {
                 return false
             }
         } catch (_) {
