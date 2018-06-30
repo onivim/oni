@@ -7,7 +7,6 @@ import * as memoize from "lodash/memoize"
 import * as Oni from "oni-api"
 
 import { IBuffer } from "../BufferManager"
-import { NeovimEditor } from "../NeovimEditor/NeovimEditor"
 import styled, { pixel, withProps } from "./../../UI/components/common"
 
 interface IWrappedLine {
@@ -47,7 +46,6 @@ const IndentLine = withProps<IProps>(styled.span).attrs({
 
 interface IndentLayerArgs {
     buffer: IBuffer
-    neovimEditor: NeovimEditor
     configuration: Oni.Configuration
 }
 
@@ -56,42 +54,14 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         return <Container id={this.id}>{this._renderIndentLines(bufferLayerContext)}</Container>
     })
 
-    private _checkForComment = memoize((line: string) => {
-        const trimmedLine = line.trim()
-        const isMultiLine = Object.entries(this._comments).reduce(
-            (acc, [key, comment]) => {
-                const match = Array.isArray(comment)
-                    ? comment.some(char => trimmedLine.startsWith(char))
-                    : trimmedLine.startsWith(comment)
-
-                if (match) {
-                    return {
-                        isMultiline: key !== "default",
-                        position: key,
-                        isComment: true,
-                    }
-                }
-                return acc
-            },
-            { isComment: false, isMultiline: null, position: null },
-        )
-        return isMultiLine
-    })
-
     private _buffer: IBuffer
-    private _comments: IBuffer["comment"]
     private _userSpacing: number
     private _configuration: Oni.Configuration
 
-    constructor({ buffer, neovimEditor, configuration }: IndentLayerArgs) {
+    constructor({ buffer, configuration }: IndentLayerArgs) {
         this._buffer = buffer
         this._configuration = configuration
-        this._comments = this._buffer.comment
         this._userSpacing = this._buffer.shiftwidth || this._buffer.tabstop
-
-        neovimEditor.onBufferEnter.subscribe(buf => {
-            this._comments = (buf as IBuffer).comment
-        })
     }
     get id() {
         return "indent-guides"
@@ -148,6 +118,12 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         return lines
     }
 
+    private _regulariseIndentation(indentation: detectIndent.IndentInfo) {
+        const isOddBy = indentation.amount % this._userSpacing
+        const amountToIndent = isOddBy ? indentation.amount - isOddBy : indentation.amount
+        return amountToIndent
+    }
+
     /**
      * Calculates the position of each indent guide element using shiftwidth or tabstop if no
      * shift width available
@@ -167,7 +143,9 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
 
         const { allIndentations } = visibleLines.reduce(
             (acc, line, currenLineNumber) => {
-                const indentation = detectIndent(line)
+                const rawIndentation = detectIndent(line)
+
+                const regularisedIndent = this._regulariseIndentation(rawIndentation)
 
                 const previous = last(acc.allIndentations)
                 const height = Math.ceil(fontPixelHeight)
@@ -175,7 +153,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 // start position helps determine the initial indent offset
                 const startPosition = bufferLayerContext.bufferToScreen({
                     line: topBufferLine,
-                    character: indentation.amount,
+                    character: regularisedIndent,
                 })
 
                 const wrappedLine = wrappedScreenLines.find(wrapped => wrapped.line === line)
@@ -198,11 +176,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                     acc.wrappedHeightAdjustment += adjustedHeight
                 }
 
-                const { isComment, position } = this._checkForComment(line)
-                const inMultiLineComment =
-                    isComment && (position === "middle" || position === "end")
-
-                if ((!line && previous) || inMultiLineComment) {
+                if (!line && previous) {
                     acc.allIndentations.push({
                         ...previous,
                         line,
@@ -216,8 +190,8 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                     line,
                     top: adjustedTop,
                     height: adjustedHeight,
-                    indentBy: indentation.amount / this._userSpacing,
                     characterWidth: fontPixelWidth,
+                    indentBy: regularisedIndent / this._userSpacing,
                 }
 
                 acc.allIndentations.push(indent)
