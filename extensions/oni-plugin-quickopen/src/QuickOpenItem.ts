@@ -10,8 +10,8 @@ export enum QuickOpenType {
     bufferLine,
 }
 
-export function isType(item: Oni.Menu.MenuOption, qoType: QuickOpenType): boolean {
-    return item.metadata["qo-type"] === QuickOpenType[qoType]
+export function getTypeFromMenuItem(item: Oni.Menu.MenuOption): QuickOpenType {
+    return QuickOpenType[item.metadata["qo-type"]]
 }
 
 export type IToMenuItem = (qo: QuickOpenItem) => Oni.Menu.MenuOption
@@ -31,7 +31,7 @@ export class QuickOpenItem {
         this._detail = _detail.trim()
     }
 
-    public toMenuItem(oni: Oni.Plugin.Api, shouldBePinned: string[]): Oni.Menu.MenuOption {
+    public toMenuItem(oni: Oni.Plugin.Api, pinned: boolean): Oni.Menu.MenuOption {
         return {
             icon: this.getIcon(oni),
             label: this._label,
@@ -40,8 +40,10 @@ export class QuickOpenItem {
                 "qo-type": QuickOpenType[this._type],
                 hash: this.hash,
                 path: this._path,
+                line: this._line.toString(),
+                column: this._column.toString(),
             },
-            pinned: shouldBePinned.indexOf(this.hash) >= 0,
+            pinned,
         }
     }
 

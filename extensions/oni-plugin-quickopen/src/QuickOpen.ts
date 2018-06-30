@@ -4,7 +4,7 @@ import * as path from "path"
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
-import { QuickOpenItem, QuickOpenType, isType } from "./QuickOpenItem"
+import { getTypeFromMenuItem, QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
 
 /* !!! DELETE !!! */
 /* !!! DELETE !!! */
@@ -278,7 +278,7 @@ export class QuickOpen {
     private _menu: Oni.Menu.MenuInstance
     private _searcher: IAsyncSearch = new NullSearch()
     private _oniNext: ApiNext // TODO: Remove
-    private _seenItems: string[] = []
+    private _seenItems: Set<string> = new Set()
     private _itemsFound: QuickOpenItem[] = []
 
     constructor(private _oni: Oni.Plugin.Api) {
@@ -320,37 +320,66 @@ export class QuickOpen {
             return
         }
 
-        if (isType(selectedItem, QuickOpenType.bookmarkHelp)) {
-            this._oni.commands.executeCommand("oni.config.openConfigJs")
-        } else if (isType(selectedItem, QuickOpenType.folderHelp)) {
-            this._oni.commands.executeCommand("workspace.openFolder")
-        } else if (isType(selectedItem, QuickOpenType.bufferLine)) {
-            if (mode !== Oni.FileOpenMode.Edit) {
-                await this._oni.editors.openFile(
-                    this._oni.editors.activeEditor.activeBuffer.filePath,
-                    {
-                        openMode: mode,
-                    },
-                )
+        const { activeWorkspace } = this._oni.workspace
+        const basePath = activeWorkspace ? [activeWorkspace] : []
+        const pathArgs = basePath.concat([selectedItem.metadata["path"]])
+        const fullPath = path.join(...pathArgs).replace("~", getHome())
+
+        this._seenItems.add(selectedItem.metadata["hash"])
+
+        const qoType = getTypeFromMenuItem(selectedItem)
+        switch (qoType) {
+            case QuickOpenType.bookmarkHelp: {
+                this._oni.commands.executeCommand("oni.config.openConfigJs")
+                break
             }
-            await this._oni.editors.activeEditor.neovim.command(`${selectedItem.label}`)
-        } else {
-            this._seenItems.push(selectedItem.metadata["hash"])
 
-            const { activeWorkspace } = this._oni.workspace
-            const pathArgs = (activeWorkspace ? [activeWorkspace] : []).concat([
-                selectedItem.metadata["path"],
-            ])
-            const fullPath = path.join(...pathArgs).replace("~", getHome())
-            await this._oni.editors.openFile(fullPath, { openMode: mode })
+            case QuickOpenType.folderHelp: {
+                this._oni.commands.executeCommand("workspace.openFolder")
+                break
+            }
 
-            if (isType(selectedItem, QuickOpenType.folder)) {
+            case QuickOpenType.bufferLine: {
+                if (mode !== Oni.FileOpenMode.Edit) {
+                    const openOptions = { openMode: mode }
+                    const path = this._oni.editors.activeEditor.activeBuffer.filePath
+                    await this._oni.editors.openFile(path, openOptions)
+                }
+                await this._oni.editors.activeEditor.neovim.command(`${selectedItem.label}`)
+                break
+            }
+
+            case QuickOpenType.folder: {
                 this._oni.workspace.changeDirectory(fullPath)
-            } else if (isType(selectedItem, QuickOpenType.bookmark)) {
-                // If we are bookmark, and we open a file, the open it's dirname
-                // If we are a directory, open it.
+                break
+            }
+
+            case QuickOpenType.bookmark: {
+                // For a file, open it's dirname
+                // For a directory, open it
                 const dirPath = lstatSync(fullPath).isDirectory() ? fullPath : selectedItem.detail
                 this._oni.workspace.changeDirectory(dirPath)
+                // Fall-through
+            }
+
+            case QuickOpenType.file: {
+                const line = parseInt(selectedItem.metadata["line"], 10)
+                const column = parseInt(selectedItem.metadata["column"], 10)
+
+                const offsetedLine = line > 0 ? line - 1 : 0
+                const offsetedColumn = column > 0 ? column - 1 : 0
+
+                await this._oni.editors.openFile(fullPath, { openMode: mode })
+                await this._oni.editors.activeEditor.activeBuffer.setCursorPosition(
+                    offsetedLine,
+                    offsetedColumn,
+                )
+                break
+            }
+
+            default: {
+                this._oni.log(`Error: unhandled QO type: ${qoType} (${QuickOpenType[qoType]})`)
+                break
             }
         }
 
@@ -407,7 +436,8 @@ export class QuickOpen {
             if (result.isComplete) {
                 this._menu.setLoading(false)
             }
-            const menuItems = result.items.map(e => e.toMenuItem(this._oni, this._seenItems))
+            const pinned = (e: QuickOpenItem) => this._seenItems.has(e.hash)
+            const menuItems = result.items.map(e => e.toMenuItem(this._oni, pinned(e)))
             this._menu.setItems(menuItems)
         })
         this._menu.show()
