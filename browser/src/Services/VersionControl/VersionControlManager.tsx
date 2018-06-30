@@ -16,7 +16,7 @@ export class VersionControlManager {
     private _vcsProvider: VersionControlProvider
     private _menuInstance: Oni.Menu.MenuInstance
     private _vcsStatusItem: Oni.StatusBarItem
-    private _subscriptions: IDisposable[]
+    private _subscriptions: IDisposable[] = []
     private _providers = new Map<string, VersionControlProvider>()
 
     constructor(
@@ -31,6 +31,10 @@ export class VersionControlManager {
 
     public get providers() {
         return this._providers
+    }
+
+    public get activeProvider(): VersionControlProvider {
+        return this._vcsProvider
     }
 
     public async registerProvider(provider: VersionControlProvider): Promise<void> {
@@ -50,8 +54,10 @@ export class VersionControlManager {
     public deactivateProvider(): void {
         this._vcsProvider.deactivate()
         this._subscriptions.map(s => s.dispose())
-        this._vcsStatusItem.hide()
-        this._vcsStatusItem.dispose()
+        if (this._vcsStatusItem) {
+            this._vcsStatusItem.hide()
+            this._vcsStatusItem.dispose()
+        }
         this._vcsProvider = null
         this._vcs = null
     }
@@ -175,10 +181,10 @@ export class VersionControlManager {
             this._vcsStatusItem.setContents(<Branch branch={branch} diff={diff} />)
             this._vcsStatusItem.show()
         } catch (e) {
-            const name = this._vcsProvider ? capitalize(this._vcs) : "VCS"
+            const name = this._vcsProvider && this._vcs ? capitalize(this._vcs) : "VCS"
             this.sendNotification({
                 title: `${name} Plugin Error:`,
-                detail: `Oni ${name} plugin encountered an error:  ${e.message}`,
+                detail: `${name} plugin encountered an error ${e && e.message ? e.message : null}`,
                 level: "warn",
             })
             return this._vcsStatusItem.hide()
