@@ -21,6 +21,6 @@ export function getArguments(excludePaths: string[]): string[] {
         return prev.concat(["-g", "!" + cur])
     }, [])
 
-    //TODO: Add option to enable "--hidden"
+    // TODO: Add option to enable "--hidden"
     return ["--vimgrep"].concat(ignoreArguments)
 }
