@@ -2578,9 +2578,9 @@ combined-stream@^1.0.5, combined-stream@~1.0.5:
   dependencies:
     delayed-stream "~1.0.0"
 
-command-exists@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/command-exists/-/command-exists-1.2.2.tgz#12819c64faf95446ec0ae07fe6cafb6eb3708b22"
+command-exists@1.2.6:
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/command-exists/-/command-exists-1.2.6.tgz#577f8e5feb0cb0f159cd557a51a9be1bdd76e09e"
 
 commander@2.11.0:
   version "2.11.0"
@@ -10822,11 +10822,11 @@ typedarray@^0.0.6, typedarray@~0.0.5:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
 
-typescript-language-server@^0.1.12:
-  version "0.1.12"
-  resolved "https://registry.yarnpkg.com/typescript-language-server/-/typescript-language-server-0.1.12.tgz#74452216ebf747772a29952f7520ea33dab99a12"
+typescript-language-server@^0.1.14:
+  version "0.1.14"
+  resolved "https://registry.yarnpkg.com/typescript-language-server/-/typescript-language-server-0.1.14.tgz#5f3beae9348a66bcb943ef7dfa46e3326a62d61a"
   dependencies:
-    command-exists "^1.2.2"
+    command-exists "1.2.6"
     commander "^2.11.0"
     np "^2.20.1"
     vscode-languageserver "^3.4.3"
