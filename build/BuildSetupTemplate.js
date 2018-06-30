@@ -20,6 +20,7 @@ const packageJsonContents = fs.readFileSync(path.join(__dirname, "..", "package.
 const packageMeta = JSON.parse(packageJsonContents)
 const { version, name } = packageMeta
 const prodName = packageMeta.build.productName
+const pathVariable = "{app}\\resources\\app\\cli\\windows\\"
 
 let buildFolderPrefix = os.arch() === "x32" ? "ia32-" : ""
 
@@ -37,10 +38,11 @@ const valuesToReplace = {
     SourcePath: path.join(__dirname, "..", "dist", `win-${buildFolderPrefix}unpacked`, "*"),
     WizardImageFilePath: path.join(__dirname, "setup", "Oni_128.bmp"),
     WizardSmallImageFilePath: path.join(__dirname, "setup", "Oni_54.bmp"),
+    cliPath: pathVariable,
 }
 
 const addToEnv = `
-Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}\\resources\\app\\cli\\windows\\"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}\\resources\\app\\cli\\windows\\'))
+Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};${pathVariable}"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('${pathVariable}'))
 
 Root: HKCU; Subkey: "SOFTWARE\\Classes\\*\\shell\\${prodName}"; ValueType: expandsz; ValueName: ""; ValueData: "Open with ${prodName}"; Tasks: addToRightClickMenu; Flags: uninsdeletekey
 Root: HKCU; Subkey: "SOFTWARE\\Classes\\*\\shell\\${prodName}"; ValueType: expandsz; ValueName: "Icon"; ValueData: "{app}\\resources\\app\\images\\oni.ico"; Tasks: addToRightClickMenu
