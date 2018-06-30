@@ -149,9 +149,19 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
         markdownLines.splice(0, 0, generateAnchor(i))
         markdownLines.push(generateAnchor(originalLinesCount - 1))
 
-        marked.setOptions({
+        const markedOptions = {
             baseUrl: this.props.oni.workspace.activeWorkspace,
             highlight(code, lang) {
+                return code
+            },
+        }
+
+        const highlightsEnabled = this.props.oni.configuration.getValue(
+            "experimental.markdownPreview.syntaxHighlights",
+        )
+
+        if (highlightsEnabled) {
+            markedOptions.highlight = (code, lang) => {
                 const languageExists = hljs.getLanguage(lang)
                 const languageNotDefinedOrInvalid =
                     typeof lang === "undefined" ||
@@ -166,8 +176,10 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
                 }
 
                 return hljs.highlight(lang, code).value
-            },
-        })
+            }
+        }
+
+        marked.setOptions(markedOptions)
 
         return marked(markdownLines.join("\n"))
     }
