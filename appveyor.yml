@@ -34,7 +34,7 @@ install:
   - npm --version
   # install modules
   - yarn install
-  - npm run check-cached-binaries
+  - yarn run check-cached-binaries
 
 artifacts:
     - path: dist/*.exe
