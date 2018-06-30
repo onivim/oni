@@ -10,7 +10,7 @@ import * as path from "path"
 
 const rootPath = path.join(__dirname, "..", "..", "..")
 const packageJsonPath = path.join(rootPath, "package.json")
-const oniVersion = require(packageJsonPath).version
+const oniVersion = require(packageJsonPath).version // tslint:disable-line
 const installExecutablePath = path.join(rootPath, "dist", `Oni-${oniVersion}-win.exe`)
 
 const runInstaller = (setupExecutablePath: string, installDirectory: string) => {
@@ -39,13 +39,15 @@ const getPathRegistryKey = () => {
     return lastLine.substring(29, lastLine.length)
 }
 
+const log = msg => console.log(msg) // tslint:disable-line
+
 if (os.platform() === "win32") {
     describe("WindowsInstallerTests", () => {
         it("installs / uninstalls to a test directory", () => {
             const testDirectory = "oni-test-install-" + new Date().getTime()
             const testPath = path.join("C:", testDirectory)
 
-            console.log("Installing to: " + testPath)
+            log("Installing to: " + testPath)
             const result = runInstaller(installExecutablePath, testPath)
 
             const doesInstallFolderExist = fs.existsSync(testPath)
@@ -64,7 +66,7 @@ if (os.platform() === "win32") {
                 "Validate path was added to registry key",
             )
 
-            console.log("Running uninstaller...")
+            log("Running uninstaller...")
             const uninstallResult = runUninstaller(uninstallExecutablePath)
 
             assert.strictEqual(
