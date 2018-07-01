@@ -12,7 +12,9 @@
         ]
     },
     "dependencies": {
-        "prettier": "^1.11.1"
+        "prettier": "^1.13.6",
+        "read-pkg-up": "^4.0.0",
+        "resolve": "^1.8.1"
     },
     "devDependencies": {}
 }
