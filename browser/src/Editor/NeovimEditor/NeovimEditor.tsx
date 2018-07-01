@@ -208,7 +208,7 @@ export class NeovimEditor extends Editor implements IEditor {
         this._bufferManager = new BufferManager(this._neovimInstance, this._actions, this._store)
         this._screen = new NeovimScreen()
 
-        this._screenWithPredictions = new ScreenWithPredictions(this._screen)
+        this._screenWithPredictions = new ScreenWithPredictions(this._screen, this._configuration)
 
         this._hoverRenderer = new HoverRenderer(this, this._configuration, this._toolTipsProvider)
 

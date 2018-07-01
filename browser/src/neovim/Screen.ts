@@ -1,6 +1,8 @@
 import { Grid } from "./../Grid"
 import * as Actions from "./actions"
 
+import { Configuration } from "./../Services/Configuration"
+
 export type Mode = "insert" | "normal" | "visual" | "cmdline_normal"
 
 const wcwidth = require("wcwidth") // tslint:disable-line no-var-requires
@@ -59,7 +61,7 @@ export class ScreenWithPredictions {
     private _predictedRow: number = -1
     private _predictions: { [key: number]: ICell } = {}
 
-    constructor(private _screen: IScreen) {}
+    constructor(private _screen: IScreen, private _configuration: Configuration) {}
 
     public getCell = (x: number, y: number) => {
         if (y === this._predictedRow && this._predictions[x]) {
@@ -74,16 +76,25 @@ export class ScreenWithPredictions {
         this._predictedRow = row
         this._predictions = {}
 
+        const debugHighlightingPredictions = this._configuration.getValue(
+            "debug.showTypingPrediction",
+        )
+        const predictionBackgroundColor = debugHighlightingPredictions
+            ? "red"
+            : predictions.backgroundColor
+        const predictionForegroundColor = debugHighlightingPredictions
+            ? "white"
+            : predictions.foregroundColor
+
         for (let i = 0; i < predictions.predictedCharacters.length; i++) {
             const column =
                 predictions.predictedCursorColumn - (predictions.predictedCharacters.length - i)
+
             const cell: ICell = {
                 character: predictions.predictedCharacters[i].character,
                 characterWidth: 1,
-                backgroundColor: "red",
-                foregroundColor: "white",
-                // backgroundColor: predictions.backgroundColor,
-                // foregroundColor: predictions.foregroundColor,
+                backgroundColor: predictionBackgroundColor,
+                foregroundColor: predictionForegroundColor,
             }
 
             this._predictions[column] = cell
