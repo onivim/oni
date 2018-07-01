@@ -76,7 +76,10 @@ if (os.platform() === "win32") {
             )
 
             const pathKey2 = getPathRegistryKey()
-            assert.ok(pathKey2.indexOf(testDirectory) === -1, "Validate path was removed from registry after installation")
+            assert.ok(
+                pathKey2.indexOf(testDirectory) === -1,
+                "Validate path was removed from registry after installation",
+            )
         })
     })
 }
