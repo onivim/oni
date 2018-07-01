@@ -33,6 +33,14 @@ export class Assertor {
         }
     }
 
+    public equal(o1: any, o2: any): void {
+        if (o1 === o2) {
+            this._lastSuccessIndex += 1
+        } else {
+            this.failed(`${o1} !== ${o2}`)
+        }
+    }
+
     /**
      * A temporary solution that works around the issue that assert doesn't print the error
      */

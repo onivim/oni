@@ -239,18 +239,18 @@ class FileContentSearch implements IAsyncSearch {
             return
         }
 
-        ;(this._activeQuery = this._oniNext.search.findInFile({
+        const searchParams = {
             searchQuery: newText,
             fileFilter: null,
             workspace: null,
-        })),
-            this._activeQuery.onSearchResults.subscribe(result => {
-                const items = result.items.map(i => FileContentSearch.toQuickOpenItem(i))
-                this._onSearchResults.dispatch({
-                    items,
-                    isComplete: result.isComplete,
-                })
+        }
+        this._activeQuery = this._oniNext.search.findInFile(searchParams)
+        this._activeQuery.onSearchResults.subscribe(result => {
+            this._onSearchResults.dispatch({
+                items: result.items.map(i => FileContentSearch.toQuickOpenItem(i)),
+                isComplete: result.isComplete,
             })
+        })
         this._activeQuery.start()
     }
 
