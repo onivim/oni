@@ -11,4 +11,8 @@ export const makeSingleInstance = (options, callbackFunction) => {
     if (isSecondInstance) {
         app.quit()
     }
+
+    app.on("ready", () => {
+        callbackFunction(options)
+    })
 }
