@@ -2,13 +2,13 @@ import * as path from "path"
 import * as React from "react"
 import { connect } from "react-redux"
 
+import { Icon } from "../../UI/Icon"
 import Caret from "./../../UI/components/Caret"
 import { css, styled, withProps } from "./../../UI/components/common"
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 import { StatusResult } from "./VersionControlProvider"
 import { IState } from "./VersionControlStore"
-import { Icon } from "../../UI/Icon"
 
 const Row = styled.div`
     display: flex;
