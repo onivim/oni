@@ -25,13 +25,11 @@ exports[`<VersionControlView /> should match the last recorded snapshot unless a
       isSelected={false}
       onClick={[Function]}
     >
-      <styled.span>
-        test1
-      </styled.span>
       <styled.div>
-        <strong>
-          M
-        </strong>
+        <Icon />
+        <styled.span>
+          test1
+        </styled.span>
       </styled.div>
     </styled.div>
   </Sneakable>
@@ -43,13 +41,11 @@ exports[`<VersionControlView /> should match the last recorded snapshot unless a
       isSelected={false}
       onClick={[Function]}
     >
-      <styled.span>
-        test2
-      </styled.span>
       <styled.div>
-        <strong>
-          M
-        </strong>
+        <Icon />
+        <styled.span>
+          test2
+        </styled.span>
       </styled.div>
     </styled.div>
   </Sneakable>
