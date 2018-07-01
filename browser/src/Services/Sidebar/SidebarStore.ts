@@ -7,6 +7,8 @@
 import { Reducer, Store } from "redux"
 import { createStore as createReduxStore } from "./../../Redux"
 
+import { Configuration } from "../Configuration"
+import { DefaultConfiguration } from "../Configuration/DefaultConfiguration"
 import { WindowManager, WindowSplitHandle } from "./../WindowManager"
 import { SidebarContentSplit } from "./SidebarContentSplit"
 import { SidebarSplit } from "./SidebarSplit"
@@ -20,6 +22,8 @@ export interface ISidebarState {
     activeEntryId: string
 
     isActive: boolean
+
+    width: string
 }
 
 export type SidebarIcon = string
@@ -62,15 +66,42 @@ export class SidebarManager {
         return this._store
     }
 
-    constructor(private _windowManager: WindowManager = null) {
+    constructor(
+        private _windowManager: WindowManager = null,
+        private _configuration: Configuration,
+    ) {
         this._store = createStore()
 
-        if (_windowManager) {
-            this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
-            this._contentSplit = this._windowManager.createSplit(
-                "left",
-                new SidebarContentSplit(this),
-            )
+        this._configuration.onConfigurationChanged.subscribe(val => {
+            if (typeof val["sidebar.width"] === "string") {
+                this.setWidth(val["sidebar.width"])
+            }
+        })
+
+        this.setWidth(this._configuration.getValue("sidebar.width"))
+
+        this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
+        this._contentSplit = this._windowManager.createSplit("left", new SidebarContentSplit(this))
+    }
+
+    public increaseWidth(): void {
+        if (this._contentSplit.isVisible) {
+            this.store.dispatch({ type: "INCREASE_WIDTH" })
+        }
+    }
+
+    public decreaseWidth(): void {
+        if (this._contentSplit.isVisible) {
+            this.store.dispatch({ type: "DECREASE_WIDTH" })
+        }
+    }
+
+    public setWidth(width: string): void {
+        if (width) {
+            this._store.dispatch({
+                type: "SET_WIDTH",
+                width,
+            })
         }
     }
 
@@ -85,13 +116,19 @@ export class SidebarManager {
 
     public setActiveEntry(id: string): void {
         if (id) {
+            const oldId = this._store.getState().activeEntryId
+
             this._store.dispatch({
                 type: "SET_ACTIVE_ID",
                 activeEntryId: id,
             })
 
-            if (!this._contentSplit.isVisible) {
+            if (oldId !== id) {
                 this._contentSplit.show()
+            } else if (!this._contentSplit.isVisible) {
+                this._contentSplit.show()
+            } else if (this._contentSplit.isVisible) {
+                this._contentSplit.hide()
             }
         }
     }
@@ -114,6 +151,28 @@ export class SidebarManager {
         }
     }
 
+    public toggleVisibilityById(id: string): void {
+        if (id) {
+            if (id !== this.activeEntryId) {
+                this._store.dispatch({
+                    type: "SET_ACTIVE_ID",
+                    activeEntryId: id,
+                })
+
+                this._contentSplit.show()
+                this._contentSplit.focus()
+            } else {
+                if (this._contentSplit.isVisible) {
+                    this._contentSplit.hide()
+                } else {
+                    // In some cases you can have an ACTIVE entry that is hidden
+                    this._contentSplit.show()
+                    this._contentSplit.focus()
+                }
+            }
+        }
+    }
+
     public enter(): void {
         this._store.dispatch({ type: "ENTER" })
     }
@@ -133,12 +192,18 @@ export class SidebarManager {
             entry,
         })
     }
+
+    public hide(): void {
+        this._contentSplit.hide()
+        this._iconSplit.hide()
+    }
 }
 
 const DefaultSidebarState: ISidebarState = {
     entries: [],
     activeEntryId: null,
     isActive: false,
+    width: null,
 }
 
 export type SidebarActions =
@@ -155,11 +220,50 @@ export type SidebarActions =
           id: string
       }
     | {
+          type: "SET_WIDTH"
+          width: string
+      }
+    | {
           type: "ENTER"
       }
     | {
           type: "LEAVE"
       }
+    | {
+          type: "INCREASE_WIDTH"
+      }
+    | {
+          type: "DECREASE_WIDTH"
+      }
+
+export const changeSize = (change: "increase" | "decrease") => (
+    size: string,
+    defaultValue = DefaultConfiguration["sidebar.width"],
+): string => {
+    const [numberString, letters = "em"] = size.match(/[a-zA-Z]+|[0-9]+/g)
+    const isAllowedUnit = ["em", "px", "vw"].includes(letters)
+    const unitsToUse = isAllowedUnit ? letters : "em"
+    const convertedNumber = Number(numberString)
+    if (isNaN(convertedNumber)) {
+        return defaultValue
+    }
+
+    // If too small don't allow a decrease and vice versa
+    const tooSmall = convertedNumber - 1 < 1 && change === "decrease"
+    const tooBig = convertedNumber + 1 > 50 && change === "increase"
+
+    const changed =
+        tooBig || tooSmall
+            ? convertedNumber
+            : change === "increase"
+                ? convertedNumber + 1
+                : convertedNumber - 1
+
+    return `${changed}${unitsToUse}`
+}
+
+export const increaseWidth = changeSize("increase")
+export const decreaseWidth = changeSize("decrease")
 
 export const sidebarReducer: Reducer<ISidebarState> = (
     state: ISidebarState = DefaultSidebarState,
@@ -181,6 +285,11 @@ export const sidebarReducer: Reducer<ISidebarState> = (
                 ...newState,
                 isActive: false,
             }
+        case "SET_WIDTH":
+            return {
+                ...newState,
+                width: action.width,
+            }
         case "SET_ACTIVE_ID":
             return {
                 ...newState,
@@ -194,6 +303,16 @@ export const sidebarReducer: Reducer<ISidebarState> = (
                 }
             } else {
                 return newState
+            }
+        case "DECREASE_WIDTH":
+            return {
+                ...newState,
+                width: decreaseWidth(newState.width),
+            }
+        case "INCREASE_WIDTH":
+            return {
+                ...newState,
+                width: increaseWidth(newState.width),
             }
         default:
             return newState

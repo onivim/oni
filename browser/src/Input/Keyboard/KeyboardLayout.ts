@@ -1,6 +1,6 @@
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
 
-import * as Log from "./../../Log"
 import * as Platform from "./../../Platform"
 
 export interface IKeyMap {

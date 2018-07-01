@@ -12,7 +12,7 @@ export class VerticalMovementTutorial implements ITutorial {
 
     constructor() {
         const lines = []
-        for (let i = 0; i < 150; i++) {
+        for (let i = 1; i < 151; i++) {
             lines.push(`This is line ${i} of a large file!`)
         }
 
@@ -32,9 +32,9 @@ export class VerticalMovementTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
             id: "oni.tutorials.vertical_movement",
-            name: "Motion: gg, G",
+            name: "File Motion: gg, G",
             description:
-                "When working with large files, it's very helpful to quickly be able to move to the top or bottom of the file, as well as to particular lines. `gg`, `G`, and `<x>G` can help us here!",
+                "When working with large files, it's very helpful to be able to quickly move to the top or bottom of the file, as well as to a particular line number. `gg`, `G`, and `<n>G` can help us here!",
             level: 150,
         }
     }

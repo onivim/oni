@@ -12,12 +12,12 @@ import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { IEvent } from "oni-types"
 
 // import { remote } from "electron"
 
 import * as App from "./../../App"
-import * as Log from "./../../Log"
 import * as Utility from "./../../Utility"
 
 import { PluginManager } from "./../../Plugins/PluginManager"
@@ -51,7 +51,9 @@ import { NeovimEditor } from "./../NeovimEditor"
 
 import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 
+import { IBuffer } from "../BufferManager"
 import { ImageBufferLayer } from "./ImageBufferLayer"
+import IndentLineBufferLayer from "./IndentGuideBufferLayer"
 
 // Helper method to wrap a react component into a layer
 const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.BufferLayer => {
@@ -170,11 +172,23 @@ export class OniEditor extends Utility.Disposable implements IEditor {
             wrapReactComponentWithLayer("oni.layer.errors", <ErrorsContainer />),
         )
 
-        const extensions = this._configuration.getValue("editor.imageLayerExtensions")
+        const imageExtensions = this._configuration.getValue("editor.imageLayerExtensions")
+        const indentExtensions = this._configuration.getValue("experimental.indentLines.filetypes")
         this._neovimEditor.bufferLayers.addBufferLayer(
-            buf => extensions.includes(path.extname(buf.filePath)),
+            buf => imageExtensions.includes(path.extname(buf.filePath)),
             buf => new ImageBufferLayer(buf),
         )
+
+        if (this._configuration.getValue("experimental.indentLines.enabled")) {
+            this._neovimEditor.bufferLayers.addBufferLayer(
+                buf => indentExtensions.includes(path.extname(buf.filePath)),
+                buffer =>
+                    new IndentLineBufferLayer({
+                        buffer: buffer as IBuffer,
+                        configuration: this._configuration,
+                    }),
+            )
+        }
     }
 
     public dispose(): void {
@@ -244,6 +258,10 @@ export class OniEditor extends Utility.Disposable implements IEditor {
 
     public async setSelection(range: types.Range): Promise<void> {
         return this._neovimEditor.setSelection(range)
+    }
+
+    public async setTextOptions(textOptions: Oni.EditorTextOptions): Promise<void> {
+        return this._neovimEditor.setTextOptions(textOptions)
     }
 
     public async blockInput(

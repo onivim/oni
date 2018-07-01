@@ -10,10 +10,13 @@ import { ChangeOperatorTutorial } from "./ChangeOperatorTutorial"
 import { CopyPasteTutorial } from "./CopyPasteTutorial"
 import { DeleteCharacterTutorial } from "./DeleteCharacterTutorial"
 import { DeleteOperatorTutorial } from "./DeleteOperatorTutorial"
+import { DotCommandTutorial } from "./DotCommandTutorial"
+import { InlineFindingTutorial } from "./InlineFindingTutorial"
 import { InsertAndUndoTutorial } from "./InsertAndUndoTutorial"
 import { SearchInBufferTutorial } from "./SearchInBufferTutorial"
 import { SwitchModeTutorial } from "./SwitchModeTutorial"
 import { TargetsVimPluginTutorial } from "./TargetsVimPluginTutorial"
+import { TextObjectsTutorial } from "./TextObjectsTutorial"
 import { VerticalMovementTutorial } from "./VerticalMovementTutorial"
 import { VisualModeTutorial } from "./VisualModeTutorial"
 import { WordMotionTutorial } from "./WordMotionTutorial"
@@ -35,4 +38,7 @@ export const AllTutorials: ITutorial[] = [
     new ChangeOperatorTutorial(),
     new VisualModeTutorial(),
     new TargetsVimPluginTutorial(),
+    new InlineFindingTutorial(),
+    new TextObjectsTutorial(),
+    new DotCommandTutorial(),
 ]

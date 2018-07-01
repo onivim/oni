@@ -5,7 +5,7 @@
  */
 
 import * as fs from "fs"
-import { emptyDirSync, ensureDirSync, mkdirp, move, pathExists, remove, writeFile } from "fs-extra"
+import { ensureDirSync, mkdirp, move, pathExists, remove, writeFile } from "fs-extra"
 import * as os from "os"
 import * as path from "path"
 import { promisify } from "util"
@@ -53,7 +53,6 @@ export class FileSystem implements IFileSystem {
 
     public init = () => {
         ensureDirSync(this._backupDirectory)
-        emptyDirSync(this._backupDirectory)
     }
 
     public async readdir(directoryPath: string): Promise<FolderOrFile[]> {
@@ -61,8 +60,11 @@ export class FileSystem implements IFileSystem {
 
         const filesAndFolders = files.map(async f => {
             const fullPath = path.join(directoryPath, f)
-            const stat = await this._fs.stat(fullPath)
-            if (stat.isDirectory()) {
+            const isDirectory = await this._fs
+                .stat(fullPath)
+                .then(stat => stat.isDirectory())
+                .catch(() => false)
+            if (isDirectory) {
                 return {
                     type: "folder",
                     fullPath,

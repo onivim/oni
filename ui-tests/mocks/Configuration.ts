@@ -5,5 +5,5 @@ const Configuration = jest.fn().mockImplementation(() => {
     }
 })
 
-export const configuration = Configuration
+export const configuration = new Configuration()
 export default Configuration

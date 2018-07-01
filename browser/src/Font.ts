@@ -6,7 +6,12 @@ export interface IFontMeasurement {
     height: number
 }
 
-export function measureFont(fontFamily: string, fontSize: string, characterToTest = "H") {
+export function measureFont(
+    fontFamily: string,
+    fontSize: string,
+    fontWeight: string,
+    characterToTest = "H",
+) {
     const div = document.createElement("div")
 
     div.style.position = "absolute"
@@ -18,6 +23,7 @@ export function measureFont(fontFamily: string, fontSize: string, characterToTes
     div.textContent = characterToTest
     div.style.fontFamily = `${fontFamily},${FallbackFonts}`
     div.style.fontSize = fontSize
+    div.style.fontWeight = fontWeight
 
     const isItalicAvailable = isStyleAvailable(fontFamily, "italic", fontSize)
     const isBoldAvailable = isStyleAvailable(fontFamily, "bold", fontSize)

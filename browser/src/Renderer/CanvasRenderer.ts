@@ -123,13 +123,16 @@ export class CanvasRenderer implements INeovimRenderer {
     public _draw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
         Performance.mark("CanvasRenderer.update.start")
 
-        this._canvasContext.font = screenInfo.fontSize + " " + screenInfo.fontFamily
+        this._canvasContext.font = `${screenInfo.fontWeight} ${screenInfo.fontSize} ${
+            screenInfo.fontFamily
+        }`
         this._canvasContext.textBaseline = "top"
         this._canvasContext.setTransform(this._devicePixelRatio, 0, 0, this._devicePixelRatio, 0, 0)
         this._canvasContext.imageSmoothingEnabled = false
 
         this._editorElement.style.fontFamily = screenInfo.fontFamily
         this._editorElement.style.fontSize = screenInfo.fontSize
+        this._editorElement.style.fontWeight = screenInfo.fontWeight
 
         const rowsToEdit = getSpansToEdit(this._grid, modifiedCells)
 

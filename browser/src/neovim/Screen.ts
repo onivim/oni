@@ -27,6 +27,7 @@ export interface IScreen {
     fontFamily: null | string
     fontHeightInPixels: number
     fontSize: null | string
+    fontWeight: null | string
     fontWidthInPixels: number
     foregroundColor: string
     height: number
@@ -171,6 +172,7 @@ export class NeovimScreen implements IScreen {
     private _fontFamily: null | string = null
     private _fontHeightInPixels: number
     private _fontSize: null | string = null
+    private _fontWeight: null | string = null
     private _fontWidthInPixels: number
     private _foregroundColor: string = "#000000"
     private _grid: Grid<ICell> = new Grid<ICell>()
@@ -194,6 +196,10 @@ export class NeovimScreen implements IScreen {
 
     public get fontSize(): null | string {
         return this._fontSize
+    }
+
+    public get fontWeight(): null | string {
+        return this._fontWeight
     }
 
     public get fontWidthInPixels(): number {
@@ -336,6 +342,7 @@ export class NeovimScreen implements IScreen {
             case Actions.SET_FONT:
                 this._fontFamily = action.fontFamily
                 this._fontSize = action.fontSize
+                this._fontWeight = action.fontWeight
                 this._fontWidthInPixels = action.fontWidthInPixels
                 this._fontHeightInPixels = action.fontHeightInPixels
                 this._linePaddingInPixels = action.linePaddingInPixels

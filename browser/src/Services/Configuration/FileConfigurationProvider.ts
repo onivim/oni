@@ -8,16 +8,18 @@ import * as fs from "fs"
 import * as isError from "lodash/isError"
 import * as mkdirp from "mkdirp"
 import * as path from "path"
+import * as vm from "vm"
 
+import "rxjs/add/operator/debounceTime"
 import { Subject } from "rxjs/Subject"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
-
-import * as Log from "./../../Log"
 
 import { IConfigurationProvider } from "./Configuration"
 import { IConfigurationValues } from "./IConfigurationValues"
+// import * as Utility from "./../../Utility"
 
 const CONFIG_UPDATE_DEBOUNCE_TIME = 100 /*ms */
 
@@ -126,15 +128,30 @@ export class FileConfigurationProvider implements IConfigurationProvider {
         if (fs.existsSync(this._configurationFilePath)) {
             try {
                 const configurationContent = fs.readFileSync(this._configurationFilePath, "utf-8")
+                const script = new vm.Script(configurationContent, {
+                    filename: __filename,
+                })
 
-                // Wrap as commonjs module and execute it to use current file path, and so resolve module relativly to current process
-                const module = { exports: {} }
-                Function("require", "exports", "module", configurationContent)(
-                    (global as any).require,
-                    module.exports,
-                    module,
-                )
-                userRuntimeConfig = promoteConfigurationToRootLevel(module.exports)
+                const windowAsAny = window as any
+                const sandbox = {
+                    console,
+                    __filename,
+                    __dirname,
+                    module: {} as any,
+                    require: (str: string) => {
+                        const val = windowAsAny.require(str)
+                        return val
+                    },
+                    exports: {},
+                }
+                const context = vm.createContext(sandbox)
+                script.runInContext(context)
+
+                const exports = sandbox.module
+                    ? sandbox.module.exports || sandbox.exports
+                    : sandbox.exports
+
+                userRuntimeConfig = promoteConfigurationToRootLevel(exports)
             } catch (e) {
                 e.message =
                     "[Config Error] Failed to parse " +

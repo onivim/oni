@@ -9,14 +9,13 @@ import * as path from "path"
 
 import * as mkdirp from "mkdirp"
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 
 import { loadSnippetsFromFile } from "./SnippetProvider"
 
 import { CommandManager } from "./../CommandManager"
 import { Configuration, getUserConfigFolderPath } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
-
-import * as Log from "./../../Log"
 
 const GLOBAL_SNIPPET_NAME = "global_snippets"
 

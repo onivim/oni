@@ -2,10 +2,14 @@
  * FocusManager.ts
  */
 
-import * as Log from "./../Log"
+import * as Log from "oni-core-logging"
 
 class FocusManager {
     private _focusElementStack: HTMLElement[] = []
+
+    public get focusedElement(): HTMLElement | null {
+        return this._focusElementStack.length > 0 ? this._focusElementStack[0] : null
+    }
 
     public pushFocus(element: HTMLElement) {
         this._focusElementStack = [element, ...this._focusElementStack]

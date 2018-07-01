@@ -13,13 +13,14 @@ import "rxjs/add/operator/distinctUntilChanged"
 import * as isEqual from "lodash/isEqual"
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
+
 import * as types from "vscode-languageserver-types"
 
 import { EventContext } from "./EventContext"
 import { NeovimInstance } from "./index"
 
-import * as Log from "./../Log"
 import * as Utility from "./../Utility"
 
 export interface NeovimTabPageState {
@@ -106,7 +107,9 @@ export class NeovimWindowManager extends Utility.Disposable {
                 return Observable.defer(() => this._remeasure(evt))
             })
             .subscribe((tabState: NeovimTabPageState) => {
-                this._onWindowStateChangedEvent.dispatch(tabState)
+                if (tabState) {
+                    this._onWindowStateChangedEvent.dispatch(tabState)
+                }
             })
     }
 
