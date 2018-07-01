@@ -8,6 +8,7 @@ import { Sneakable } from "./../../UI/components/Sneakable"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 import { StatusResult } from "./VersionControlProvider"
 import { IState } from "./VersionControlStore"
+import { Icon } from "../../UI/Icon"
 
 const Row = styled.div`
     display: flex;
@@ -33,6 +34,7 @@ const Column = withProps<SelectionProps>(styled.div)`
 `
 
 const Name = styled.span`
+    margin-left: 0.5em;
     word-wrap: break-word;
 `
 
@@ -53,7 +55,7 @@ interface IModifiedFilesProps {
     files?: string[]
     titleId: string
     selectedId: string
-    symbol: string
+    icon: string
     onClick: (id: string) => void
     toggleVisibility: () => void
     visibility: boolean
@@ -68,7 +70,7 @@ const truncate = (str: string) =>
 export const GitStatus = ({
     files,
     selectedId,
-    symbol,
+    icon,
     onClick,
     toggleVisibility,
     titleId,
@@ -92,9 +94,9 @@ export const GitStatus = ({
                             onClick={() => onClick(filePath)}
                             isSelected={selectedId === filePath}
                         >
-                            <Name>{truncate(filePath)}</Name>
                             <Row>
-                                <strong>{symbol}</strong>
+                                <Icon name={icon} />
+                                <Name>{truncate(filePath)}</Name>
                             </Row>
                         </Column>
                     </Sneakable>
@@ -180,7 +182,7 @@ class VersionControlView extends React.Component<IProps, State> {
                 render={selectedId => (
                     <StatusContainer>
                         <GitStatus
-                            symbol="M"
+                            icon="minus-circle"
                             files={modified}
                             titleId="modified"
                             selectedId={selectedId}
@@ -189,7 +191,7 @@ class VersionControlView extends React.Component<IProps, State> {
                             toggleVisibility={() => this.toggleVisibility("modified")}
                         />
                         <GitStatus
-                            symbol="S"
+                            icon="plus-circle"
                             titleId="staged"
                             files={staged}
                             selectedId={selectedId}
@@ -199,7 +201,7 @@ class VersionControlView extends React.Component<IProps, State> {
                         />
                         <GitStatus
                             files={untracked}
-                            symbol="?"
+                            icon="question-circle"
                             titleId="untracked"
                             selectedId={selectedId}
                             visibility={this.state.untracked}

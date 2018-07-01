@@ -6,6 +6,7 @@ import { Provider } from "react-redux"
 
 import { store, SupportedProviders, VersionControlProvider, VersionControlView } from "./"
 import { IWorkspace } from "./../Workspace"
+import { ISendVCSNotification } from "./VersionControlManager"
 
 export default class VersionControlPane {
     private _store = store
@@ -21,6 +22,7 @@ export default class VersionControlPane {
         private _workspace: IWorkspace,
         private _vcsProvider: VersionControlProvider,
         private _name: SupportedProviders,
+        private _sendNotification: ISendVCSNotification,
     ) {
         this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
             await this.getStatus()
@@ -65,7 +67,15 @@ export default class VersionControlPane {
 
     public stageFile = async (file: string) => {
         const { activeWorkspace } = this._workspace
-        await this._vcsProvider.stageFile(file, activeWorkspace)
+        try {
+            await this._vcsProvider.stageFile(file, activeWorkspace)
+        } catch (e) {
+            this._sendNotification({
+                detail: e.message,
+                level: "warn",
+                title: "Error Staging File",
+            })
+        }
     }
 
     public setError = async (e: Error) => {

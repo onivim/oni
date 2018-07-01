@@ -11,6 +11,14 @@ import { MenuManager } from "./../Menu"
 import { SidebarManager } from "./../Sidebar"
 import { IWorkspace } from "./../Workspace"
 
+interface INotificationArgs {
+    detail: string
+    level: "info" | "warn"
+    title: string
+}
+
+export type ISendVCSNotification = ({ detail, level, title }: INotificationArgs) => void
+
 export class VersionControlManager {
     private _vcs: SupportedProviders
     private _vcsProvider: VersionControlProvider
@@ -49,6 +57,15 @@ export class VersionControlManager {
                 this.handleProviderStatus(providerToUse)
             })
         }
+    }
+
+    // Use arrow function to maintain this binding of sendNotification
+    public sendNotification = ({ detail, level, title }: INotificationArgs) => {
+        const notification = this._notifications.createItem()
+        notification.setContents(title, detail)
+        notification.setExpiration(3_000)
+        notification.setLevel(level)
+        notification.show()
     }
 
     public deactivateProvider(): void {
@@ -106,17 +123,25 @@ export class VersionControlManager {
 
             const subscriptions = [
                 this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
-                    await this._updateBranchIndicator()
+                    if (this._vcsProvider && this._vcsProvider.isActivated) {
+                        await this._updateBranchIndicator()
+                    }
                 }),
                 this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
-                    await this._updateBranchIndicator(newBranch)
-                    await this._editorManager.activeEditor.neovim.command("e!")
+                    if (this._vcsProvider && this._vcsProvider.isActivated) {
+                        await this._updateBranchIndicator(newBranch)
+                        await this._editorManager.activeEditor.neovim.command("e!")
+                    }
                 }),
                 this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
-                    await this._updateBranchIndicator()
+                    if (this._vcsProvider && this._vcsProvider.isActivated) {
+                        await this._updateBranchIndicator()
+                    }
                 }),
                 (this._workspace as any).onFocusGained.subscribe(async () => {
-                    await this._updateBranchIndicator()
+                    if (this._vcsProvider && this._vcsProvider.isActivated) {
+                        await this._updateBranchIndicator()
+                    }
                 }),
             ]
 
@@ -129,6 +154,7 @@ export class VersionControlManager {
                     this._workspace,
                     this._vcsProvider,
                     this._vcs,
+                    this.sendNotification,
                 )
                 this._sidebar.add("code-fork", vcsPane)
             }
@@ -155,28 +181,15 @@ export class VersionControlManager {
         })
     }
 
-    private sendNotification({
-        detail,
-        level,
-        title,
-    }: {
-        level: "info" | "warn"
-        title: string
-        detail: string
-    }) {
-        const notification = this._notifications.createItem()
-        notification.setContents(title, detail)
-        notification.setExpiration(3_000)
-        notification.setLevel(level)
-        notification.show()
-    }
-
     private _updateBranchIndicator = async (branchName?: string) => {
         if (!this._vcsProvider) {
             return
         }
-        const vcsId = `oni.status.${this._vcs}`
-        this._vcsStatusItem = this._statusBar.createItem(1, vcsId)
+
+        if (!this._vcsStatusItem) {
+            const vcsId = `oni.status.${this._vcs}`
+            this._vcsStatusItem = this._statusBar.createItem(1, vcsId)
+        }
 
         try {
             const [branch, diff] = await Promise.all([

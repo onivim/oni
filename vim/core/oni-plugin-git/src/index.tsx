@@ -33,6 +33,8 @@ export interface StatusResult {
     remoteTrackingBranch: string
 }
 
+export type Diff = GitP.DiffResult
+
 export interface VersionControlProvider {
     // Events
     onFileStatusChanged: IEvent<VCSFileStatusChangedEvent>
@@ -46,6 +48,7 @@ export interface VersionControlProvider {
     getStatus(): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
     getBranch(): Promise<string | void>
+    getDiff(): Promise<Diff | void>
     getLocalBranches(): Promise<GitP.BranchSummary | void>
     stageFile(file: string): Promise<void>
     fetchBranchFromRemote(args: {
@@ -236,12 +239,17 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
+    private _isStaged = (file: FileSummary) => {
+        const GitPIndicators = ["M", "A"]
+        return GitPIndicators.some(status => file.index.includes(status))
+    }
+
     private _getModifiedAndStaged(files: FileSummary[]): { modified: string[]; staged: string[] } {
         return files.reduce(
             (acc, file) => {
                 if (file.working_dir === "M") {
                     acc.modified.push(file.path)
-                } else if (file.index === "M") {
+                } else if (this._isStaged(file)) {
                     acc.staged.push(file.path)
                 }
                 return acc
