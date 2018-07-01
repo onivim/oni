@@ -1,4 +1,5 @@
 import * as capitalize from "lodash/capitalize"
+import * as Oni from "oni-api"
 import * as Log from "oni-core-logging"
 import * as React from "react"
 import { Provider } from "react-redux"
@@ -16,10 +17,15 @@ export default class VersionControlPane {
         return capitalize(this._name)
     }
     constructor(
+        private _editorManager: Oni.EditorManager,
         private _workspace: IWorkspace,
         private _vcsProvider: VersionControlProvider,
         private _name: SupportedProviders,
     ) {
+        this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
+            await this.getStatus()
+        })
+
         this._vcsProvider.onBranchChanged.subscribe(async () => {
             await this.getStatus()
         })

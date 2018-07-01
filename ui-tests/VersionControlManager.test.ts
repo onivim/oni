@@ -12,13 +12,29 @@ import {
 } from "./../browser/src/Services/VersionControl"
 import { IWorkspace, Workspace } from "./../browser/src/Services/Workspace"
 
+jest.unmock("lodash")
+
 const MockWorkspace = jest.fn<IWorkspace>().mockImplementation(() => ({
     activeDirectory: "test/dir",
+    onDirectoryChanged: {
+        subscribe: jest.fn(),
+    },
+    onFocusGained: {
+        subscribe: jest.fn(),
+    },
 }))
 
 const MockEditorManager = jest.fn<EditorManager>().mockImplementation(() => ({
-    activeBuffer: {
-        onBufferEnter: new Event(),
+    activeEditor: {
+        activeBuffer: {
+            filePath: "test.txt",
+        },
+        onBufferEnter: {
+            subscribe: jest.fn(),
+        },
+        onBufferSaved: {
+            subscribe: jest.fn(),
+        },
     },
 }))
 
@@ -28,7 +44,7 @@ const mockStatusBarSetContents = jest.fn()
 const mockStatusBarDisposal = jest.fn()
 
 const MockStatusbar = jest.fn<Oni.StatusBar>().mockImplementation(() => ({
-    createItem() {
+    createItem(alignment: number, vcsId: string) {
         return {
             show: mockStatusBarShow,
             hide: mockStatusBarHide,
@@ -39,7 +55,11 @@ const MockStatusbar = jest.fn<Oni.StatusBar>().mockImplementation(() => ({
 }))
 
 const MockSidebar = jest.fn<SidebarManager>().mockImplementation(() => ({
-    activeDirectory: "test/dir",
+    entries: [
+        {
+            id: "git-vcs",
+        },
+    ],
 }))
 
 const mockMenuShow = jest.fn()
@@ -50,23 +70,27 @@ const MockMenu = jest.fn<MenuManager>().mockImplementation(() => ({
             setItems(items: {}) {
                 return items
             },
+            onItemSelected: {
+                subscribe: jest.fn(),
+            },
         }
     },
 }))
 
+const mockRegisterCommands = jest.fn()
 const MockCommands = jest.fn<CommandManager>().mockImplementation(() => ({
-    activeDirectory: "test/dir",
+    registerCommand: mockRegisterCommands,
 }))
 
 const MockNotifications = jest.fn<Notifications>().mockImplementation(() => ({}))
 
 const provider: VersionControlProvider = {
     name: "svn",
-    onFileStatusChanged: null,
-    onBranchChanged: null,
-    onPluginActivated: null,
-    onPluginDeactivated: null,
-    onStagedFilesChanged: null,
+    onFileStatusChanged: new Event(),
+    onBranchChanged: new Event(),
+    onPluginActivated: new Event(),
+    onPluginDeactivated: new Event(),
+    onStagedFilesChanged: new Event(),
     isActivated: true,
     fetchBranchFromRemote: () => null,
     stageFile: () => null,
@@ -96,12 +120,6 @@ describe("Version Control Manager tests", () => {
         vcsManager.registerProvider(provider)
     })
 
-    it("Should create a status bar item once initialised in a compatible repo", () => {
-        // FIXME: this test relies on spying on a global mock need to figure out
-        // how to refresh the mocks and have each be initialised correctly
-        expect(mockStatusBarShow.mock.calls.length).toBe(1)
-    })
-
     it("Should register a vcs provider", () => {
         expect(vcsManager.providers.size).toBe(1)
     })
@@ -116,7 +134,7 @@ describe("Version Control Manager tests", () => {
     })
 
     it("Should correctly hide the status bar item if the dir cannot handle the workspace", () => {
-        provider.canHandleWorkspace = async () => Promise.reject(false)
+        provider.canHandleWorkspace = async () => Promise.resolve(false)
         vcsManager.registerProvider(provider)
         expect(mockStatusBarHide.mock.calls.length).toBe(1)
     })

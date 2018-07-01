@@ -1,4 +1,4 @@
-import * as capitalize from "lodash/capitalize"
+import { capitalize } from "lodash"
 import * as Oni from "oni-api"
 import * as Log from "oni-core-logging"
 import { IDisposable } from "oni-types"
@@ -96,38 +96,47 @@ export class VersionControlManager {
     private _activateVCSProvider = async (provider: VersionControlProvider) => {
         this._vcs = provider.name
         this._vcsProvider = provider
-        this._initialize()
+        await this._initialize()
         provider.activate()
     }
 
-    private _initialize() {
-        this._updateBranchIndicator()
+    private async _initialize() {
+        try {
+            await this._updateBranchIndicator()
 
-        const subscriptions = [
-            this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
-                await this._updateBranchIndicator()
-            }),
-            this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
-                await this._updateBranchIndicator(newBranch)
-                await this._editorManager.activeEditor.neovim.command("e!")
-            }),
-            this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
-                await this._updateBranchIndicator()
-            }),
-            (this._workspace as any).onFocusGained.subscribe(async () => {
-                await this._updateBranchIndicator()
-            }),
-        ]
+            const subscriptions = [
+                this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
+                    await this._updateBranchIndicator()
+                }),
+                this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
+                    await this._updateBranchIndicator(newBranch)
+                    await this._editorManager.activeEditor.neovim.command("e!")
+                }),
+                this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
+                    await this._updateBranchIndicator()
+                }),
+                (this._workspace as any).onFocusGained.subscribe(async () => {
+                    await this._updateBranchIndicator()
+                }),
+            ]
 
-        this._subscriptions = subscriptions
-        const hasVcsSidebar = this._sidebar.entries.some(({ id }) => id.includes("vcs"))
+            this._subscriptions = subscriptions
+            const hasVcsSidebar = this._sidebar.entries.some(({ id }) => id.includes("vcs"))
 
-        if (!hasVcsSidebar) {
-            const vcsPane = new VersionControlPane(this._workspace, this._vcsProvider, this._vcs)
-            this._sidebar.add("code-fork", vcsPane)
+            if (!hasVcsSidebar) {
+                const vcsPane = new VersionControlPane(
+                    this._editorManager,
+                    this._workspace,
+                    this._vcsProvider,
+                    this._vcs,
+                )
+                this._sidebar.add("code-fork", vcsPane)
+            }
+
+            this._registerCommands()
+        } catch (e) {
+            Log.warn(`Failed to initialise provider, because, ${e.message}`)
         }
-
-        this._registerCommands()
     }
 
     private _registerCommands = () => {
