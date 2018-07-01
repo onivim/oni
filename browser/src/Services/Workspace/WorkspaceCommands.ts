@@ -69,6 +69,11 @@ export const activateCommands = (
             return null
         }
 
+        // If we have no active workspace, we don't know where test files live.
+        if (!workspace.activeWorkspace) {
+            return null
+        }
+
         const currentEditor = editorManager.activeEditor
 
         if (!currentEditor || !currentEditor.activeBuffer) {

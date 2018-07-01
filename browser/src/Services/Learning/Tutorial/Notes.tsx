@@ -116,6 +116,12 @@ export const UKey = (): JSX.Element => {
     return <KeyWithDescription keyCharacter="u" description={<span>Undo a single change</span>} />
 }
 
+export const RedoKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription keyCharacter="Ctrl-r" description={<span>Redo a single undo</span>} />
+    )
+}
+
 export const GGKey = (): JSX.Element => {
     return (
         <KeyWithDescription
@@ -193,6 +199,34 @@ export const EndKey = (): JSX.Element => {
         />
     )
 }
+export const BigWordKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="W"
+            description={
+                <span>Moves the cursor to the BEGINNING of the NEXT word by WHITESPACE.</span>
+            }
+        />
+    )
+}
+export const BigBeginningKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="B"
+            description={
+                <span>Moves the cursor to the BEGINNING of the PREVIOUS word by WHITESPACE.</span>
+            }
+        />
+    )
+}
+export const BigEndKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="E"
+            description={<span>Moves the cursor to the END of the NEXT word by WHITESPACE.</span>}
+        />
+    )
+}
 export const SlashKey = (): JSX.Element => {
     return (
         <KeyWithDescription
@@ -233,7 +267,7 @@ export const DeleteOperatorKey = (): JSX.Element => {
             keyCharacter="d"
             description={
                 <span>
-                    <Bold>+ motion</Bold>: Deletes text specified by a `motion`. Examples:
+                    <Bold>+ motion</Bold>: Deletes text specified by a `motion`
                 </span>
             }
         />
@@ -278,7 +312,7 @@ export const ChangeOperatorKey = (): JSX.Element => {
             keyCharacter="c"
             description={
                 <span>
-                    <Bold>+ motion</Bold>: Change text specified by a `motion`. Examples:
+                    <Bold>+ motion</Bold>: Change text specified by a `motion`
                 </span>
             }
         />
@@ -505,6 +539,33 @@ export const RepeatOppositeKey = (): JSX.Element => {
         <KeyWithDescription
             keyCharacter=","
             description={<span>Repeats last f, t, F, or T in the opposite direction.</span>}
+        />
+    )
+}
+
+export const innerTextObjectKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="i"
+            description={<span>Select a Text Object within delimiter characters</span>}
+        />
+    )
+}
+
+export const aTextObjectKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="a"
+            description={<span>Select a Text Object and its delimiter characters</span>}
+        />
+    )
+}
+
+export const DotKey = (): JSX.Element => {
+    return (
+        <KeyWithDescription
+            keyCharacter="."
+            description={<span>Repeat the last file change made</span>}
         />
     )
 }

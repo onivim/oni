@@ -8,6 +8,7 @@ export enum QuickOpenType {
     folder,
     folderHelp,
     bufferLine,
+    unknown,
 }
 
 // Wrapper around quick open items, this not only allows us to show multiple icons
@@ -30,6 +31,25 @@ export class QuickOpenItem {
                 return "angle-right"
             default:
                 return "question-circle-o"
+        }
+    }
+
+    public static convertIconToType(icon: string): QuickOpenType {
+        switch (icon) {
+            case "star-o":
+                return QuickOpenType.bookmark
+            case "info":
+                return QuickOpenType.bookmarkHelp
+            case "file-text-o":
+                return QuickOpenType.file
+            case "folder-o":
+                return QuickOpenType.folder
+            case "folder-open-o":
+                return QuickOpenType.folderHelp
+            case "angle-right":
+                return QuickOpenType.bufferLine
+            default:
+                return QuickOpenType.unknown
         }
     }
 

@@ -1,5 +1,5 @@
 const path = require("path")
-const prettier = require("prettier")
+const { requireLocalPkg } = require("./requirePackage")
 
 // Helper functions
 const compose = (...fns) => argument => fns.reduceRight((arg, fn) => fn(arg), argument)
@@ -19,17 +19,25 @@ const isCompatible = (allowedFiletypes, defaultFiletypes) => filePath => {
     return filetypes.includes(extension)
 }
 
-const getSupportedLanguages = async () => {
+const getSupportedLanguages = async prettier => {
     const info = await prettier.getSupportInfo()
     return flatten(info.languages.map(lang => lang.extensions))
 }
 
 const activate = async Oni => {
+    // Prettier Module to Use - local or oni-bundled
+    let PrettierModule = requireLocalPkg(process.cwd(), "prettier")
+
     const config = Oni.configuration.getValue("oni.plugins.prettier")
     const prettierItem = Oni.statusBar.createItem(0, "oni.plugins.prettier")
 
+    // Update Prettier Module to use when oni dir changes
+    Oni.workspace.onDirectoryChanged.subscribe(dir => {
+        PrettierModule = requireLocalPkg(dir, "prettier")
+    })
+
     const applyPrettierWithState = applyPrettier()
-    const defaultFiletypes = await getSupportedLanguages()
+    const defaultFiletypes = await getSupportedLanguages(PrettierModule)
 
     const callback = async () => {
         const isNormalMode = Oni.editors.activeEditor.mode === "normal"
@@ -48,7 +56,7 @@ const activate = async Oni => {
             throw new Error(`No buffer path passed for prettier to check for a Prettierrc`)
         }
         try {
-            return await prettier.resolveConfig(bufferPath)
+            return await PrettierModule.resolveConfig(bufferPath)
         } catch (e) {
             throw new Error(`Error parsing config file, ${e}`)
         }
@@ -95,7 +103,7 @@ const activate = async Oni => {
                 const prettierConfig = eitherOr(prettierrc, config.settings)
 
                 // Pass in the file path so prettier can infer the correct parser to use
-                const { formatted, cursorOffset } = prettier.formatWithCursor(
+                const { formatted, cursorOffset } = PrettierModule.formatWithCursor(
                     join(arrayOfLines),
                     Object.assign({ filepath: activeBuffer.filePath }, prettierConfig, {
                         cursorOffset: activeBuffer.cursorOffset,
@@ -158,7 +166,6 @@ function createPrettierComponent(Oni, onClick) {
         paddingLeft: "8px",
         paddingRight: "8px",
         color: "white",
-        backgroundColor: foreground,
     }
 
     const prettierIcon = (type = "magic") =>

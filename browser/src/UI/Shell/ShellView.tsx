@@ -83,8 +83,16 @@ export class ShellView extends React.PureComponent<IShellViewComponentProps, ISh
     }
 
     private _onRootKeyDown(evt: React.KeyboardEvent<HTMLElement>): void {
+        // onCompositionStart can't detect composing mode for the first character
+        // because it is fired after onKeyDown.
+        // keyCode is deprecated but it seems this is the only method to detect
+        // composing mode for the first character for now.
+        let isComposing = false
+        if (evt.keyCode === 229) {
+            isComposing = true
+        }
         const vimKey = inputManager.resolvers.resolveKeyEvent(evt.nativeEvent)
-        if (!this.state.isComposing && inputManager.handleKey(vimKey)) {
+        if (!this.state.isComposing && !isComposing && inputManager.handleKey(vimKey)) {
             evt.stopPropagation()
             evt.preventDefault()
         } else {

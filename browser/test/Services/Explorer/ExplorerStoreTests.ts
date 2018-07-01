@@ -588,7 +588,10 @@ describe("ExplorerStore", () => {
             assert.deepEqual(head(newState), testAction)
         })
         describe("Register Reducer test", () => {
-            const { yankRegisterReducer, DefaultExplorerState: { register } } = ExplorerState
+            const {
+                yankRegisterReducer,
+                DefaultExplorerState: { register },
+            } = ExplorerState
 
             it("It should add paste items to both the paste and undo registers", () => {
                 const newState = yankRegisterReducer(clone(register), pasteAction)

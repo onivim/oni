@@ -57,6 +57,21 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
 
+    "experimental.indentLines.enabled": false,
+    "experimental.indentLines.color": null,
+    "experimental.indentLines.filetypes": [
+        ".tsx",
+        ".ts",
+        ".jsx",
+        ".js",
+        ".go",
+        ".re",
+        ".py",
+        ".c",
+        ".cc",
+        ".lua",
+        ".java",
+    ],
     "experimental.markdownPreview.enabled": false,
     "experimental.markdownPreview.autoScroll": true,
 
@@ -165,6 +180,19 @@ const BaseConfiguration: IConfigurationValues = {
         "css.tmLanguage.json",
     ),
     "language.css.tokenRegex": "[$_a-zA-Z0-9-]",
+
+    "language.elixir.textMateGrammar": {
+        ".ex": path.join(__dirname, "extensions", "elixir", "syntaxes", "elixir.tmLanguage.json"),
+        ".exs": path.join(__dirname, "extensions", "elixir", "syntaxes", "elixir.tmLanguage.json"),
+        ".eex": path.join(__dirname, "extensions", "elixir", "syntaxes", "eex.tmLanguage.json"),
+        ".html.eex": path.join(
+            __dirname,
+            "extensions",
+            "elixir",
+            "syntaxes",
+            "html(eex).tmLanguage.json",
+        ),
+    },
 
     "language.less.languageServer.command": cssLanguageServerPath,
     "language.less.languageServer.arguments": ["--stdio"],
