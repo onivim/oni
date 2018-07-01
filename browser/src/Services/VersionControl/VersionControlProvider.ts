@@ -3,7 +3,10 @@ import { BranchSummary, DiffResult, FetchResult } from "simple-git/promise"
 
 export type VCSBranchChangedEvent = string
 export type VCSStagedFilesChangedEvent = string
-export type VCSFileStatusChangedEvent = string
+export interface VCSFileStatusChangedEvent {
+    path: string
+    status: "staged"
+}
 
 export interface StatusResult {
     ahead: number

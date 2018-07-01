@@ -11,13 +11,17 @@ import { MenuManager } from "./../Menu"
 import { SidebarManager } from "./../Sidebar"
 import { IWorkspace } from "./../Workspace"
 
-interface INotificationArgs {
-    detail: string
-    level: "info" | "warn"
-    title: string
-}
-
-export type ISendVCSNotification = ({ detail, level, title }: INotificationArgs) => void
+export type ISendVCSNotification = (
+    {
+        detail,
+        level,
+        title,
+    }: {
+        detail: string
+        level: "info" | "warn"
+        title: string
+    },
+) => void
 
 export class VersionControlManager {
     private _vcs: SupportedProviders
@@ -60,7 +64,7 @@ export class VersionControlManager {
     }
 
     // Use arrow function to maintain this binding of sendNotification
-    public sendNotification = ({ detail, level, title }: INotificationArgs) => {
+    public sendNotification: ISendVCSNotification = ({ detail, level, title }) => {
         const notification = this._notifications.createItem()
         notification.setContents(title, detail)
         notification.setExpiration(3_000)
@@ -73,7 +77,6 @@ export class VersionControlManager {
         this._subscriptions.map(s => s.dispose())
         if (this._vcsStatusItem) {
             this._vcsStatusItem.hide()
-            this._vcsStatusItem.dispose()
         }
         this._vcsProvider = null
         this._vcs = null

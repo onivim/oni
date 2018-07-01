@@ -13,6 +13,9 @@ export interface VCSFileStatusChangedEvent {
     path: string
     status: "staged"
 }
+export type Diff = GitP.DiffResult
+export type Summary = StatusResult
+export type SupportedProviders = "git" | "svn"
 
 interface FileSummary {
     index: string
@@ -33,8 +36,6 @@ export interface StatusResult {
     remoteTrackingBranch: string
 }
 
-export type Diff = GitP.DiffResult
-
 export interface VersionControlProvider {
     // Events
     onFileStatusChanged: IEvent<VCSFileStatusChangedEvent>
@@ -43,19 +44,23 @@ export interface VersionControlProvider {
     onPluginActivated: IEvent<void>
     onPluginDeactivated: IEvent<void>
 
-    name: string
+    name: SupportedProviders
+    isActivated: boolean
+    deactivate(): void
+    activate(): void
     canHandleWorkspace(dir?: string): Promise<boolean>
     getStatus(): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
-    getBranch(): Promise<string | void>
     getDiff(): Promise<Diff | void>
+    getBranch(): Promise<string | void>
     getLocalBranches(): Promise<GitP.BranchSummary | void>
-    stageFile(file: string): Promise<void>
+    changeBranch(branch: string): Promise<void>
+    stageFile(file: string, projectRoot?: string): Promise<void>
     fetchBranchFromRemote(args: {
         branch: string
         origin?: string
         currentDir: string
-    }): Promise<GitP.FetchResult | void>
+    }): Promise<GitP.FetchResult>
 }
 
 export class GitVersionControlProvider implements VersionControlProvider {
@@ -98,7 +103,11 @@ export class GitVersionControlProvider implements VersionControlProvider {
         return this._onPluginDeactivated
     }
 
-    get name(): string {
+    get isActivated(): boolean {
+        return this._isActivated
+    }
+
+    get name(): SupportedProviders {
         return this._name
     }
 
