@@ -46,6 +46,7 @@ export interface MinimalScreenForRendering {
     height: number
     fontFamily: string
     fontSize: string
+    fontWeight: null | string
     fontWidthInPixels: number
     fontHeightInPixels: number
     linePaddingInPixels: number
@@ -123,6 +124,10 @@ export class ScreenWithPredictions {
 
     public get fontHeightInPixels(): number {
         return this._screen.fontHeightInPixels
+    }
+
+    public get fontWeight(): string {
+        return this._screen.fontWeight
     }
 }
 
