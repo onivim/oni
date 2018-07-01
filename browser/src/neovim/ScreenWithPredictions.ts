@@ -5,7 +5,7 @@
  * keystrokes we get prior to be round-tripped to Neovim.
  */
 
-import { IScreen, ICell } from "./Screen"
+import { ICell, IScreen } from "./Screen"
 
 import { Configuration } from "./../Services/Configuration"
 import { ITypingPrediction } from "./../Services/TypingPredictionManager"

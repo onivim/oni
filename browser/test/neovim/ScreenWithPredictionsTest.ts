@@ -7,8 +7,8 @@ import * as assert from "assert"
 import { ScreenWithPredictions } from "./../../src/neovim/ScreenWithPredictions"
 import { ITypingPrediction } from "./../../src/Services/TypingPredictionManager"
 
-import { MockScreen } from "./../Mocks/neovim"
 import { MockConfiguration } from "./../Mocks"
+import { MockScreen } from "./../Mocks/neovim"
 
 const createTypingPredictions = (
     predictedCursorColumn: number,
