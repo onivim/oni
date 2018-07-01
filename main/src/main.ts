@@ -1,4 +1,3 @@
-import * as minimist from "minimist"
 import * as path from "path"
 
 import { app, BrowserWindow, ipcMain, Menu } from "electron"
@@ -23,16 +22,7 @@ if (isAutomation) {
     Log.info("Verbose flag set since running automation")
 }
 
-// We want to check for the 'help' flag before initializing electron
-const argv = minimist(process.argv.slice(1))
-const version = require(path.join(__dirname, "..", "..", "..", "package.json")).version // tslint:disable-line no-var-requires
-if (argv.help || argv.h) {
-    process.stdout.write("ONI: Modern Modal Editing - powered by Neovim\n")
-    process.stdout.write(` version: ${version}\n`)
-    process.stdout.write("\nUsage:\n oni [FILE]\t\tEdit file\n")
-    process.stdout.write("\nhttps://github.com/onivim/oni\n")
-    process.exit(0)
-}
+// const argv = minimist(process.argv.slice(1))
 
 interface IWindowState {
     bounds?: {
