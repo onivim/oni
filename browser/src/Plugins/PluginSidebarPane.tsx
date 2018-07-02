@@ -16,7 +16,11 @@ import { SidebarContainerView, SidebarItemView } from "./../UI/components/Sideba
 import { VimNavigator } from "./../UI/components/VimNavigator"
 
 import { PluginManager } from "./../Plugins/PluginManager"
-import { PluginInfo, PluginRepository, CompositePluginRepository } from "./../Plugins/PluginRepository"
+import {
+    PluginInfo,
+    PluginRepository,
+    CompositePluginRepository,
+} from "./../Plugins/PluginRepository"
 
 import { noop } from "./../Utility"
 
@@ -65,7 +69,9 @@ export class PluginSidebarItemView extends React.PureComponent<PluginSidebarItem
             <Common.Container direction={"horizontal"} fullWidth={true}>
                 <PluginInfoWrapper>
                     <PluginTitleWrapper>{this.props.name}</PluginTitleWrapper>
-                    <PluginDescription>{this.props.description ? this.props.description : " "}</PluginDescription>
+                    <PluginDescription>
+                        {this.props.description ? this.props.description : " "}
+                    </PluginDescription>
                 </PluginInfoWrapper>
             </Common.Container>
         )
@@ -85,7 +91,7 @@ export class PluginsSidebarPane implements SidebarPane {
         return "Plugins"
     }
 
-    constructor(private _pluginManager: PluginManager) { } 
+    constructor(private _pluginManager: PluginManager) {}
 
     public enter(): void {
         this._onEnter.dispatch()
@@ -170,18 +176,20 @@ export class PluginsSidebarPaneView extends React.PureComponent<
         const userPluginIds = this.state.userPluginsExpanded ? userPlugins.map(p => p.id) : []
 
         const isSearchActive = !!this.state.searchText
-        const allIds = isSearchActive ? [
-            "textbox.query",
-            "container.searchResults",
-            ...this.state.searchResults.map(sr => sr.yarnInstallPackageName),
-        ] : [
-            "textbox.query",
-            "container.default",
-            ...defaultPluginIds,
-            "container.workspace",
-            "container.user",
-            ...userPluginIds,
-        ]
+        const allIds = isSearchActive
+            ? [
+                  "textbox.query",
+                  "container.searchResults",
+                  ...this.state.searchResults.map(sr => sr.yarnInstallPackageName),
+              ]
+            : [
+                  "textbox.query",
+                  "container.default",
+                  ...defaultPluginIds,
+                  "container.workspace",
+                  "container.user",
+                  ...userPluginIds,
+              ]
 
         return (
             <VimNavigator
@@ -209,23 +217,31 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                         />
                     ))
 
-                    const pluginItems = isSearchActive ? 
-                            (<SidebarContainerView
-                                text={"Search Results"}
-                                isContainer={true}
-                                isExpanded={true}
-                                isFocused={selectedId === "container.searchResults"}
-                                onClick={() => this._onSelect("container.searchResults")}
-                            >
-                                {this.state.searchResults.map((sr) => <SidebarItemView 
-                                                                        indentationLevel={0}
-                                                                        isFocused={selectedId === sr.yarnInstallPackageName}
-                                                                        isContainer={false}
-                                                                        text={<PluginSidebarItemView name={sr.name} description={sr.description} />}
+                    const pluginItems = isSearchActive ? (
+                        <SidebarContainerView
+                            text={"Search Results"}
+                            isContainer={true}
+                            isExpanded={true}
+                            isFocused={selectedId === "container.searchResults"}
+                            onClick={() => this._onSelect("container.searchResults")}
+                        >
+                            {this.state.searchResults.map(sr => (
+                                <SidebarItemView
+                                    indentationLevel={0}
+                                    isFocused={selectedId === sr.yarnInstallPackageName}
+                                    isContainer={false}
+                                    text={
+                                        <PluginSidebarItemView
+                                            name={sr.name}
+                                            description={sr.description}
+                                        />
+                                    }
                                     onClick={noop}
-                                                                        />)}
-                            </SidebarContainerView>) :
-                                <React.Fragment>
+                                />
+                            ))}
+                        </SidebarContainerView>
+                    ) : (
+                        <React.Fragment>
                             <SidebarContainerView
                                 text={"Bundled"}
                                 isContainer={true}
@@ -253,19 +269,20 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                             >
                                 {userPluginItems}
                             </SidebarContainerView>
-                                </React.Fragment>
+                        </React.Fragment>
+                    )
 
                     return (
                         <div>
                             <SearchTextBox
                                 val={this.state.searchText || "Type to search.."}
-                                onChangeText={(newText) => this._onSearchTextChanged(newText)}
+                                onChangeText={newText => this._onSearchTextChanged(newText)}
                                 onCommit={() => this._clearSearchText()}
                                 onDismiss={() => this._clearSearchText()}
                                 isFocused={selectedId === "textbox.query"}
                                 isActive={this.state.isSearchTextFocused}
                                 onClick={() => this._onSelect("textbox.query")}
-                                />
+                            />
                             {pluginItems}
                         </div>
                     )
@@ -280,12 +297,11 @@ export class PluginsSidebarPaneView extends React.PureComponent<
         })
 
         let currentSearchText = searchText
-        this.props.pluginDiscovery.searchPlugins(searchText)
-            .then((result) => {
-                if (searchText === currentSearchText && this.state.searchText) {
-                    this.setState({ searchResults: result })
-                }
-            })
+        this.props.pluginDiscovery.searchPlugins(searchText).then(result => {
+            if (searchText === currentSearchText && this.state.searchText) {
+                this.setState({ searchResults: result })
+            }
+        })
     }
 
     private _clearSearchText(): void {

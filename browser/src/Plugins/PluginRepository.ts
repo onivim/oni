@@ -17,7 +17,6 @@ export interface PluginInfo {
     // Icon?
 }
 
-
 /**
  * PluginRepository
  *
@@ -42,25 +41,27 @@ export interface VimAwesomeResult {
     plugins: VimAwesomePluginResult[]
 }
 
-const mapVimAwesomePluginsToPluginInfo = (vimAwesomePluginInfo: VimAwesomePluginResult[]): PluginInfo[] => {
+const mapVimAwesomePluginsToPluginInfo = (
+    vimAwesomePluginInfo: VimAwesomePluginResult[],
+): PluginInfo[] => {
     return vimAwesomePluginInfo.map(vpi => ({
         name: vpi.name,
         author: vpi.github_author,
         description: vpi.short_desc,
-        yarnInstallPackageName: `${vpi.github_owner}/${vpi.github_repo_name}`
+        yarnInstallPackageName: `${vpi.github_owner}/${vpi.github_repo_name}`,
     }))
 }
 
 export class VimAwesomePluginRepository {
-
     public async searchPlugins(query: string): Promise<PluginInfo[]> {
-        const initialResult = await fetch(`https://vimawesome.com/api/plugins?page=1&query=${query}`)
-        const info = await initialResult.json() as VimAwesomeResult
+        const initialResult = await fetch(
+            `https://vimawesome.com/api/plugins?page=1&query=${query}`,
+        )
+        const info = (await initialResult.json()) as VimAwesomeResult
 
         // TODO: Iterate through pages until we get them all!
         return mapVimAwesomePluginsToPluginInfo(info.plugins)
     }
-
 }
 
 /**
@@ -69,7 +70,6 @@ export class VimAwesomePluginRepository {
  * Implementation of PluginRepository that queries against multiple providers simulatenously
  */
 export class CompositePluginRepository implements PluginRepository {
-
     private _repositories: PluginRepository[] = []
 
     constructor() {
