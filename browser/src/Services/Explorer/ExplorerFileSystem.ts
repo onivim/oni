@@ -45,7 +45,8 @@ export class FileSystem implements IFileSystem {
         this._fs = {
             readdir: promisify(nfs.readdir.bind(nfs)),
             stat: promisify(nfs.stat.bind(nfs)),
-            exists: promisify(nfs.exists.bind(nfs)),
+            exists: filePath =>
+                new Promise(resolve => nfs.exists(filePath, result => resolve(result))),
         }
 
         this.init()

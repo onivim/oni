@@ -123,6 +123,7 @@ export class YarnPluginInstaller implements IPluginInstaller {
     }
 
     private async _runYarnCommand(command: string, args: string[]): Promise<void> {
+        Log.info(`[PluginInstaller] Running yarn command: ${command}...`)
         const yarnPath = this._getYarnPath()
 
         const workingDirectory = getUserConfigFolderPath()
@@ -140,6 +141,7 @@ export class YarnPluginInstaller implements IPluginInstaller {
                         return
                     }
 
+                    Log.info(`[PluginInstaller] Yarn command completely successfully.`)
                     resolve()
                 },
             )
