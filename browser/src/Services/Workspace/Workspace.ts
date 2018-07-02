@@ -163,22 +163,6 @@ export class Workspace implements IWorkspace {
         )
     }
 
-    public setDefaultWorkspace(workspace: string): void {
-        const settings = this._configuration.getValue("workspace.autoDetectWorkspace")
-        switch (settings) {
-            case "never":
-                break
-            case "always":
-                this.changeDirectory(workspace)
-                break
-            case "noworkspace":
-            default:
-                if (!this._activeWorkspace) {
-                    this.changeDirectory(workspace)
-                }
-        }
-    }
-
     public autoDetectWorkspace(filePath: string): void {
         const settings = this._configuration.getValue("workspace.autoDetectWorkspace")
         switch (settings) {
@@ -211,7 +195,7 @@ export const activate = (
     const defaultWorkspace = workspaceToLoad || configuration.getValue("workspace.defaultWorkspace")
 
     if (defaultWorkspace) {
-        _workspace.setDefaultWorkspace(defaultWorkspace)
+        _workspace.changeDirectory(defaultWorkspace)
     }
 
     _workspace.onDirectoryChanged.subscribe(newDirectory => {

@@ -116,7 +116,7 @@ export const start = async (args: string[]): Promise<void> => {
 
     let workspaceToLoad = null
 
-    // Get a folder to potentially be used as the new workspace, dependant on
+    // Get a folder to be used as the new workspace, dependant on
     // user workspace settings. If a folder has been specified, then use that.
     // If no folder was given, but a file was, then instead use that. Finally,
     // if neither a folder or file was given and Oni was invoked from the
