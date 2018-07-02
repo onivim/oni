@@ -17,8 +17,11 @@ matrix:
     sudo: required
     dist: trusty
     node_js: 8
-  - os: osx
+  - os: osx # OSX 10.12
     node_js: 8
+  - os: osx # OSX 10.11
+    node_js: 8
+    osx_image: xcode8
 
 addons:
   apt:
