@@ -132,7 +132,15 @@ if (!isDevelopment && !isDebug && !isAutomation) {
         }
 
         if (process.platform.includes("darwin")) {
-            ;(systemPreferences as any).setUserDefault("ApplePressAndHoldEnabled", "boolean", false)
+            const pressAndHold = systemPreferences.getUserDefault(
+                "ApplePressAndHoldEnabled",
+                "boolean",
+            )
+
+            if (pressAndHold) {
+                const untypedPrefs = systemPreferences as any
+                untypedPrefs.setUserDefault("ApplePressAndHoldEnabled", "boolean", false)
+            }
         }
         loadFileFromArguments(process.platform, argsToUse, process.env.ONI_CWD || process.cwd())
     })
