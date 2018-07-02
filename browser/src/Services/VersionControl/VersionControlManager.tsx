@@ -193,7 +193,6 @@ export class VersionControlManager {
                 await this._vcsProvider.getBranch(),
                 await this._vcsProvider.getDiff(),
             ])
-            console.log("diff: ", diff)
 
             if (!branch) {
                 return Log.warn("The branch name could not be found")
