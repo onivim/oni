@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<ExternalMenus /> Should match the last snapshot 1`] = `
+<styled.div
+  loaded={false}
+  visible={true}
+/>
+`;
