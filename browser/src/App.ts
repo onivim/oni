@@ -88,7 +88,7 @@ export const start = async (args: string[]): Promise<void> => {
     const snippetPromise = import("./Services/Snippets")
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
     const quickOpenPromise = import("./Services/QuickOpen")
-    const taksPromise = import("./Services/Tasks")
+    const taskPromise = import("./Services/Tasks")
     const terminalPromise = import("./Services/Terminal")
     const workspacePromise = import("./Services/Workspace")
     const workspaceCommandsPromise = import("./Services/Workspace/WorkspaceCommands")
@@ -100,6 +100,7 @@ export const start = async (args: string[]): Promise<void> => {
     const completionProvidersPromise = import("./Services/Completion/CompletionProviders")
 
     const parsedArgs = minimist(args)
+    const isCLI = process.env.ONI_CLI === "1"
     const currentWorkingDirectory = process.cwd()
     const normalizedFiles = parsedArgs._.map(
         arg => (path.isAbsolute(arg) ? arg : path.join(currentWorkingDirectory, arg)),
@@ -115,11 +116,17 @@ export const start = async (args: string[]): Promise<void> => {
 
     let workspaceToLoad = null
 
-    // If a folder has been specified, we'll change directory to it
+    // Get a folder to potentially be used as the new workspace, dependant on
+    // user workspace settings. If a folder has been specified, then use that.
+    // If no folder was given, but a file was, then instead use that. Finally,
+    // if neither a folder or file was given and Oni was invoked from the
+    // command line, use the current folder.
     if (foldersToOpen.length > 0) {
         workspaceToLoad = foldersToOpen[0]
     } else if (filesToOpen.length > 0) {
         workspaceToLoad = path.dirname(filesToOpen[0])
+    } else if (isCLI) {
+        workspaceToLoad = process.env.ONI_CLI_LAUNCH_FOLDER
     }
 
     // Helper for debugging:
@@ -255,7 +262,7 @@ export const start = async (args: string[]): Promise<void> => {
 
     UnhandledErrorMonitor.start(configuration, Notifications.getInstance())
 
-    const Tasks = await taksPromise
+    const Tasks = await taskPromise
     Tasks.activate(menuManager)
     const tasks = Tasks.getInstance()
 

@@ -29,6 +29,7 @@ export async function main(cli_arguments: string[]): Promise<any> {
 
     const env = assign({}, process.env, {
         ONI_CLI: "1", // Let Oni know it was started from the CLI
+        ONI_CLI_LAUNCH_FOLDER: process.cwd(), // The folder that Oni was launched from.
         ELECTRON_NO_ATTACH_CONSOLE: "1",
     })
 

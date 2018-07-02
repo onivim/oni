@@ -97,7 +97,7 @@ const activeWindow = () => {
 if (!isDevelopment && !isDebug && !isAutomation) {
     const currentOptions = {
         args: processArgs,
-        workingDirectory: process.env["ONI_CWD"] || process.cwd(), // tslint:disable-line no-string-literal
+        workingDirectory: process.cwd(), // tslint:disable-line no-string-literal
     }
 
     Log.info("Making single instance...")
@@ -120,7 +120,7 @@ if (!isDevelopment && !isDebug && !isAutomation) {
         if (!isAutomation) {
             await addDevExtensions()
         }
-        loadFileFromArguments(process.platform, argsToUse, process.env.ONI_CWD || process.cwd())
+        loadFileFromArguments(process.platform, argsToUse, process.cwd())
     })
 }
 
@@ -325,5 +325,3 @@ function loadFileFromArguments(platform, args, workingDirectory) {
         createWindow(args.slice(2), workingDirectory)
     }
 }
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
