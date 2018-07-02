@@ -11,17 +11,13 @@ import { MenuManager } from "./../Menu"
 import { SidebarManager } from "./../Sidebar"
 import { IWorkspace } from "./../Workspace"
 
-export type ISendVCSNotification = (
-    {
-        detail,
-        level,
-        title,
-    }: {
-        detail: string
-        level: "info" | "warn"
-        title: string
-    },
-) => void
+interface ISendNotificationsArgs {
+    detail: string
+    level: "info" | "warn"
+    title: string
+}
+
+export type ISendVCSNotification = (args: ISendNotificationsArgs) => void
 
 export class VersionControlManager {
     private _vcs: SupportedProviders
@@ -123,32 +119,8 @@ export class VersionControlManager {
     private async _initialize() {
         try {
             await this._updateBranchIndicator()
+            this._setupSubscriptions()
 
-            const subscriptions = [
-                this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
-                    if (this._vcsProvider && this._vcsProvider.isActivated) {
-                        await this._updateBranchIndicator()
-                    }
-                }),
-                this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
-                    if (this._vcsProvider && this._vcsProvider.isActivated) {
-                        await this._updateBranchIndicator(newBranch)
-                        await this._editorManager.activeEditor.neovim.command("e!")
-                    }
-                }),
-                this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
-                    if (this._vcsProvider && this._vcsProvider.isActivated) {
-                        await this._updateBranchIndicator()
-                    }
-                }),
-                (this._workspace as any).onFocusGained.subscribe(async () => {
-                    if (this._vcsProvider && this._vcsProvider.isActivated) {
-                        await this._updateBranchIndicator()
-                    }
-                }),
-            ]
-
-            this._subscriptions = subscriptions
             const hasVcsSidebar = this._sidebar.entries.some(({ id }) => id.includes("vcs"))
 
             if (!hasVcsSidebar) {
@@ -168,6 +140,26 @@ export class VersionControlManager {
         }
     }
 
+    private _setupSubscriptions() {
+        const subscriptions = [
+            this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
+                await this._updateBranchIndicator()
+            }),
+            this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
+                await this._updateBranchIndicator(newBranch)
+                await this._editorManager.activeEditor.neovim.command("e!")
+            }),
+            this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
+                await this._updateBranchIndicator()
+            }),
+            (this._workspace as any).onFocusGained.subscribe(async () => {
+                await this._updateBranchIndicator()
+            }),
+        ]
+
+        this._subscriptions = subscriptions
+    }
+
     private _registerCommands = () => {
         this._commands.registerCommand({
             command: `oni.${this._vcs}.fetch`,
@@ -185,8 +177,10 @@ export class VersionControlManager {
     }
 
     private _updateBranchIndicator = async (branchName?: string) => {
-        if (!this._vcsProvider) {
-            return
+        if (!this._vcsProvider && this._vcsStatusItem) {
+            return this._vcsStatusItem.hide()
+        } else if (!this._vcsProvider) {
+            return null
         }
 
         if (!this._vcsStatusItem) {
@@ -199,19 +193,15 @@ export class VersionControlManager {
                 await this._vcsProvider.getBranch(),
                 await this._vcsProvider.getDiff(),
             ])
+            console.log("diff: ", diff)
 
             if (!branch) {
-                Log.warn("The branch name could not be found")
+                return Log.warn("The branch name could not be found")
             }
             this._vcsStatusItem.setContents(<Branch branch={branch} diff={diff} />)
             this._vcsStatusItem.show()
         } catch (e) {
-            const name = this._vcsProvider && this._vcs ? capitalize(this._vcs) : "VCS"
-            this.sendNotification({
-                title: `${name} Plugin Error:`,
-                detail: `${name} plugin encountered an error ${e && e.message ? e.message : null}`,
-                level: "warn",
-            })
+            this._notifyOfError(e)
             return this._vcsStatusItem.hide()
         }
     }
@@ -220,6 +210,7 @@ export class VersionControlManager {
         if (!this._vcsProvider) {
             return
         }
+
         const [currentBranch, branches] = await Promise.all([
             this._vcsProvider.getBranch(),
             this._vcsProvider.getLocalBranches(),
@@ -245,14 +236,19 @@ export class VersionControlManager {
                 try {
                     await this._vcsProvider.changeBranch(menuItem.label)
                 } catch (e) {
-                    const name = this._vcsProvider ? capitalize(this._vcs) : "VCS"
-                    this.sendNotification({
-                        title: `${capitalize(name)} Plugin Error:`,
-                        detail: e.message,
-                        level: "warn",
-                    })
+                    this._notifyOfError(e)
                 }
             }
+        })
+    }
+
+    private _notifyOfError(error: Error) {
+        const name = this._vcsProvider ? capitalize(this._vcs) : "VCS"
+        const errorMessage = error && error.message ? error.message : null
+        this.sendNotification({
+            title: `${capitalize(name)} Plugin Error:`,
+            detail: `${name} plugin encountered an error ${errorMessage}`,
+            level: "warn",
         })
     }
 
@@ -264,12 +260,7 @@ export class VersionControlManager {
                     branch: this._menuInstance.selectedItem.label,
                 })
             } catch (e) {
-                const name = this._vcsProvider ? capitalize(this._vcs) : "VCS"
-                this.sendNotification({
-                    title: `${capitalize(name)} Plugin Error:`,
-                    detail: e.message,
-                    level: "warn",
-                })
+                this._notifyOfError(e)
             }
         }
     }
