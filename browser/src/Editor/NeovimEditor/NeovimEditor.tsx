@@ -938,6 +938,56 @@ export class NeovimEditor extends Editor implements IEditor {
         return this.activeBuffer
     }
 
+    public async openFolder(
+        folder: string,
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> {
+        const tabsMode = this._configuration.getValue("tabs.mode") === "tabs"
+        const cmd = new Proxy(
+            {
+                [Oni.FileOpenMode.NewTab]: "Texplore!",
+                [Oni.FileOpenMode.HorizontalSplit]: "Vexplore!",
+                [Oni.FileOpenMode.VerticalSplit]: "Hexplore!",
+                [Oni.FileOpenMode.Edit]: tabsMode ? "Texplore!" : "Explore!",
+                [Oni.FileOpenMode.ExistingTab]: "Explore!",
+            },
+            {
+                get: (target: { [cmd: string]: string }, name: string) =>
+                    name in target ? target[name] : "Explore!",
+            },
+        )
+
+        await this._neovimInstance.command(
+            `:${cmd[openOptions.openMode]} ${this._escapeSpaces(folder)}`,
+        )
+        return this.activeBuffer
+    }
+
+    public openFolders = async (
+        folders: string[],
+        openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
+    ): Promise<Oni.Buffer> => {
+        if (!folders) {
+            return this.activeBuffer
+        }
+
+        // Open the first folder in the current buffer if there is no file there,
+        // otherwise use the passed option.
+        // Respects the users config and uses "Texplore!" for Tab users, and "Explore!"
+        // otherwise.
+        if (this.activeBuffer.filePath === "") {
+            await this.openFile(folders[0], { openMode: Oni.FileOpenMode.Edit })
+        } else {
+            await this.openFile(folders[0], openOptions)
+        }
+
+        for (let i = 1; i < folders.length; i++) {
+            await this.openFile(folders[i], openOptions)
+        }
+
+        return this.activeBuffer
+    }
+
     public async newFile(filePath: string): Promise<Oni.Buffer> {
         await this._neovimInstance.command(":vsp " + filePath)
         const context = await this._neovimInstance.getContext()
@@ -958,9 +1008,11 @@ export class NeovimEditor extends Editor implements IEditor {
 
     public async init(
         filesToOpen: string[],
+        foldersToOpen: string[],
         startOptions?: Partial<INeovimStartOptions>,
     ): Promise<void> {
         Log.info("[NeovimEditor::init] Called with filesToOpen: " + filesToOpen)
+        Log.info("[NeovimEditor::init] Called with foldersToOpen: " + foldersToOpen)
         const defaultOptions: INeovimStartOptions = {
             runtimePaths: this._pluginManager.getAllRuntimePaths(),
             transport: this._configuration.getValue("experimental.neovim.transport"),
@@ -1001,9 +1053,21 @@ export class NeovimEditor extends Editor implements IEditor {
             await this.setColorSchemeFromTheme(this._themeManager.activeTheme)
         }
 
+        let openWelcome = true
+
         if (filesToOpen && filesToOpen.length > 0) {
             await this.openFiles(filesToOpen, { openMode: Oni.FileOpenMode.Edit })
-        } else {
+            openWelcome = false
+        }
+
+        if (foldersToOpen && foldersToOpen.length > 0) {
+            if (this._configuration.getValue("oni.openNETRWOnLaunch")) {
+                await this.openFolders(foldersToOpen, { openMode: Oni.FileOpenMode.Edit })
+                openWelcome = false
+            }
+        }
+
+        if (openWelcome) {
             if (this._configuration.getValue("experimental.welcome.enabled")) {
                 const buf = await this.openFile("WELCOME")
                 buf.addLayer(new WelcomeBufferLayer())

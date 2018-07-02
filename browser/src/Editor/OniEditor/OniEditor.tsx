@@ -282,10 +282,11 @@ export class OniEditor extends Utility.Disposable implements IEditor {
         this._neovimEditor.bufferDelete(bufferId)
     }
 
-    public async init(filesToOpen: string[]): Promise<void> {
+    public async init(filesToOpen: string[], foldersToOpen: string[]): Promise<void> {
         Log.info("[OniEditor::init] Called with filesToOpen: " + filesToOpen)
+        Log.info("[OniEditor::init] Called with foldersToOpen: " + foldersToOpen)
 
-        return this._neovimEditor.init(filesToOpen)
+        return this._neovimEditor.init(filesToOpen, foldersToOpen)
     }
 
     public async input(key: string): Promise<void> {
@@ -327,7 +328,7 @@ export class OniEditor extends Utility.Disposable implements IEditor {
         )
 
         windowManager.createSplit(direction, newEditor, this)
-        await newEditor.init([])
+        await newEditor.init([], [])
         return newEditor
     }
 }

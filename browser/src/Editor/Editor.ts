@@ -13,7 +13,7 @@ import { Disposable } from "./../Utility"
 
 export interface IEditor extends Oni.Editor {
     // Methods
-    init(filesToOpen: string[]): void
+    init(filesToOpen: string[], foldersToOpen: string[]): void
     render(): JSX.Element
 
     setSelection(selectionRange: types.Range): Promise<void>

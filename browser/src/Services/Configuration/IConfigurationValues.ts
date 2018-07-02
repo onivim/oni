@@ -107,6 +107,9 @@ export interface IConfigurationValues {
     // bookmarks to open if opened in install dir
     "oni.bookmarks": string[]
 
+    // Should NETRW be opened for folders when launching Oni.
+    "oni.openNETRWOnLaunch": boolean
+
     // Editor settings
 
     // Setting this to "webgl" switches to the experimental

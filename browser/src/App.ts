@@ -291,6 +291,7 @@ export const start = async (args: string[]): Promise<void> => {
     const initializeAllEditors = async () => {
         await startEditors(
             filesToOpen,
+            foldersToOpen,
             Colors.getInstance(),
             CompletionProviders.getInstance(),
             configuration,
