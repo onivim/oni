@@ -9,17 +9,17 @@ import * as React from "react"
 import { Event, IDisposable, IEvent } from "oni-types"
 
 import { Configuration } from "./../Services/Configuration"
-import { SidebarManager, SidebarPane } from "./../Services/Sidebar"
 import { SearchTextBox } from "./../Services/Search/SearchTextBox"
+import { SidebarManager, SidebarPane } from "./../Services/Sidebar"
 
 import { SidebarContainerView, SidebarItemView } from "./../UI/components/SidebarItemView"
 import { VimNavigator } from "./../UI/components/VimNavigator"
 
 import { PluginManager } from "./../Plugins/PluginManager"
 import {
+    CompositePluginRepository,
     PluginInfo,
     PluginRepository,
-    CompositePluginRepository,
 } from "./../Plugins/PluginRepository"
 
 import { noop } from "./../Utility"
@@ -296,7 +296,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
             searchText,
         })
 
-        let currentSearchText = searchText
+        const currentSearchText = searchText
         this.props.pluginDiscovery.searchPlugins(searchText).then(result => {
             if (searchText === currentSearchText && this.state.searchText) {
                 this.setState({ searchResults: result })
