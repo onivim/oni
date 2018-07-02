@@ -78,19 +78,18 @@ export class VersionControlManager {
         this._vcs = null
     }
 
-    public handleProviderStatus(providerToUse: VersionControlProvider): void {
-        const isSameProvider =
-            this._vcsProvider && providerToUse && this._vcsProvider.name === providerToUse.name
+    public handleProviderStatus(newProvider: VersionControlProvider): void {
+        const isSameProvider = this._vcsProvider && newProvider && this._vcs === newProvider.name
 
         if (isSameProvider) {
             return
-        } else if (this._vcsProvider && !providerToUse) {
+        } else if (this._vcsProvider && !newProvider) {
             this.deactivateProvider()
-        } else if (this._vcsProvider && providerToUse) {
+        } else if (this._vcsProvider && newProvider) {
             this.deactivateProvider()
-            this._activateVCSProvider(providerToUse)
-        } else if (!this._vcsProvider && providerToUse) {
-            this._activateVCSProvider(providerToUse)
+            this._activateVCSProvider(newProvider)
+        } else if (!this._vcsProvider && newProvider) {
+            this._activateVCSProvider(newProvider)
         }
     }
 
