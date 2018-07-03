@@ -4,6 +4,7 @@
  * Manages snippet integration
  */
 
+import * as detectIndent from "detect-indent"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
@@ -145,6 +146,7 @@ export class SnippetSession {
         this._position = cursorPosition
 
         const [prefix, suffix] = splitLineAtPosition(currentLine, cursorPosition.character)
+        const currentIndent = detectIndent(currentLine)
 
         this._prefix = prefix
         this._suffix = suffix
@@ -154,7 +156,15 @@ export class SnippetSession {
         snippetLines[0] = this._prefix + snippetLines[0]
         snippetLines[lastIndex] = snippetLines[lastIndex] + this._suffix
 
-        await this._buffer.setLines(cursorPosition.line, cursorPosition.line + 1, snippetLines)
+        const indentedLines = snippetLines.map((line, index) => {
+            if (index === 0) {
+                return line
+            } else {
+                return currentIndent.indent + line
+            }
+        })
+
+        await this._buffer.setLines(cursorPosition.line, cursorPosition.line + 1, indentedLines)
 
         const placeholders = this._snippet.getPlaceholders()
 
