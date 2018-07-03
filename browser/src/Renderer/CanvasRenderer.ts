@@ -1,5 +1,5 @@
 import { Grid } from "./../Grid"
-import { ICell, IScreen } from "./../neovim"
+import { ICell, MinimalScreenForRendering } from "./../neovim"
 import * as Performance from "./../Performance"
 import { INeovimRenderer } from "./INeovimRenderer"
 import { getSpansToEdit, IPosition, ISpan } from "./Span"
@@ -70,7 +70,7 @@ export class CanvasRenderer implements INeovimRenderer {
         // In the future, something like scrolling could be potentially optimized here
     }
 
-    public redrawAll(screenInfo: IScreen): void {
+    public redrawAll(screenInfo: MinimalScreenForRendering): void {
         if (!this._editorElement) {
             return
         }
@@ -99,7 +99,7 @@ export class CanvasRenderer implements INeovimRenderer {
         this._draw(screenInfo, cellsToUpdate)
     }
 
-    public draw(screenInfo: IScreen): void {
+    public draw(screenInfo: MinimalScreenForRendering): void {
         if (!this._editorElement) {
             return
         }
@@ -120,7 +120,7 @@ export class CanvasRenderer implements INeovimRenderer {
         this._draw(screenInfo, cellsToUpdate)
     }
 
-    public _draw(screenInfo: IScreen, modifiedCells: IPosition[]): void {
+    public _draw(screenInfo: MinimalScreenForRendering, modifiedCells: IPosition[]): void {
         Performance.mark("CanvasRenderer.update.start")
 
         this._canvasContext.font = `${screenInfo.fontWeight} ${screenInfo.fontSize} ${
@@ -186,7 +186,7 @@ export class CanvasRenderer implements INeovimRenderer {
         Performance.mark("CanvasRenderer.update.end")
     }
 
-    private _renderSpan(span: ISpan, y: number, screenInfo: IScreen): void {
+    private _renderSpan(span: ISpan, y: number, screenInfo: MinimalScreenForRendering): void {
         let prevState: IRenderState = {
             isWhitespace: false,
             foregroundColor: screenInfo.foregroundColor,
@@ -269,7 +269,7 @@ export class CanvasRenderer implements INeovimRenderer {
         return oldState.startX !== newState.startX
     }
 
-    private _renderText(state: IRenderState, screenInfo: IScreen): void {
+    private _renderText(state: IRenderState, screenInfo: MinimalScreenForRendering): void {
         // Spans can have a width of 0 if they are placeholders for cells
         // after a multibyte character. In this case, we don't need to bother
         // rendering or clearing, because that occurs with the multibyte character.

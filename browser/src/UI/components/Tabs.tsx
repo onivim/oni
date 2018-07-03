@@ -256,11 +256,14 @@ import { createSelector } from "reselect"
 const getTabState = (state: State.IState) => state.tabState
 
 const sanitizedModeForColors = (mode: string): string => {
-    if (mode === "showmatch") {
-        return "insert"
+    switch (mode) {
+        case "showmatch":
+            return "insert"
+        case "cmdline_normal":
+            return "normal"
+        default:
+            return mode
     }
-
-    return mode
 }
 
 export const getHighlightColor = (state: State.IState) => {
