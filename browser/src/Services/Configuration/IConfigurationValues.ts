@@ -223,6 +223,11 @@ export interface IConfigurationValues {
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
 
+    /* can be anything the a css color property accepts e.g.:
+     * "red", "#112233", "rgb(11,22,33)"
+     */
+    "editor.dirtyMarker.userColor": string
+
     "keyDisplayer.showInInsertMode": boolean
 
     "learning.enabled": boolean
