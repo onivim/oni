@@ -27,6 +27,8 @@
             "!**/*.oni",
             "!**/*.vscode",
             "!**/travis_wait*.log",
+            "!.oni_build_cache",
+            "!.github",
             "!app",
             "!assets",
             "!browser",
@@ -34,7 +36,9 @@
             "!build",
             "!examples",
             "!lib_test",
+            "!main",
             "!test",
+            "!ui-tests",
             "!node_modules/oni-api",
             "!node_modules/typescript"
         ],
