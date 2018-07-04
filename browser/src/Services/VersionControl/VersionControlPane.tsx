@@ -2,27 +2,28 @@ import * as capitalize from "lodash/capitalize"
 import * as Oni from "oni-api"
 import * as Log from "oni-core-logging"
 import * as React from "react"
-import { Provider } from "react-redux"
+import { Provider, Store } from "react-redux"
 
-import { store, SupportedProviders, VersionControlProvider, VersionControlView } from "./"
+import { VersionControlProvider, VersionControlView } from "./"
 import { IWorkspace } from "./../Workspace"
 import { ISendVCSNotification } from "./VersionControlManager"
+import { IState } from "./VersionControlStore"
 
 export default class VersionControlPane {
-    private _store = store
     public get id(): string {
         return "oni.sidebar.vcs"
     }
 
     public get title(): string {
-        return capitalize(this._name)
+        return capitalize(this._vcsProvider.name)
     }
+
     constructor(
         private _editorManager: Oni.EditorManager,
         private _workspace: IWorkspace,
         private _vcsProvider: VersionControlProvider,
-        private _name: SupportedProviders,
         private _sendNotification: ISendVCSNotification,
+        private _store: Store<IState>,
     ) {
         this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
             await this.getStatus()

@@ -4,7 +4,7 @@ import * as Log from "oni-core-logging"
 import { IDisposable } from "oni-types"
 import * as React from "react"
 
-import { SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
+import { store, SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
 import { Notifications } from "./../../Services/Notifications"
 import { Branch } from "./../../UI/components/VersionControl"
 import { MenuManager } from "./../Menu"
@@ -127,8 +127,8 @@ export class VersionControlManager {
                     this._editorManager,
                     this._workspace,
                     this._vcsProvider,
-                    this._vcs,
                     this.sendNotification,
+                    store,
                 )
                 this._sidebar.add("code-fork", vcsPane)
             }
@@ -176,9 +176,9 @@ export class VersionControlManager {
     }
 
     private _updateBranchIndicator = async (branchName?: string) => {
-        if (!this._vcsProvider && this._vcsStatusItem) {
+        if ((!this._vcsProvider && this._vcsStatusItem) || !this._vcsProvider.isActivated) {
             return this._vcsStatusItem.hide()
-        } else if (!this._vcsProvider) {
+        } else if (!this._vcsProvider || !this._vcsProvider.isActivated) {
             return null
         }
 

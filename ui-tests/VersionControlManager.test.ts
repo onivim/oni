@@ -1,88 +1,20 @@
 import * as Oni from "oni-api"
 import { Event } from "oni-types"
 
-import { CommandManager } from "./../browser/src/Services/CommandManager"
-import { EditorManager } from "./../browser/src/Services/EditorManager"
-import { MenuManager } from "./../browser/src/Services/Menu"
-import { Notifications } from "./../browser/src/Services/Notifications"
-import { SidebarManager } from "./../browser/src/Services/Sidebar"
 import {
     VersionControlManager,
     VersionControlProvider,
 } from "./../browser/src/Services/VersionControl"
-import { IWorkspace, Workspace } from "./../browser/src/Services/Workspace"
+
+import MockCommands from "./mocks/CommandManager"
+import MockEditorManager from "./mocks/EditorManager"
+import MockMenu from "./mocks/MenuManager"
+import MockNotifications from "./mocks/Notifications"
+import MockSidebar from "./mocks/Sidebar"
+import MockStatusbar, { mockStatusBarHide } from "./mocks/Statusbar"
+import MockWorkspace from "./mocks/Workspace"
 
 jest.unmock("lodash")
-
-const MockWorkspace = jest.fn<IWorkspace>().mockImplementation(() => ({
-    activeDirectory: "test/dir",
-    onDirectoryChanged: {
-        subscribe: jest.fn(),
-    },
-    onFocusGained: {
-        subscribe: jest.fn(),
-    },
-}))
-
-const MockEditorManager = jest.fn<EditorManager>().mockImplementation(() => ({
-    activeEditor: {
-        activeBuffer: {
-            filePath: "test.txt",
-        },
-        onBufferEnter: {
-            subscribe: jest.fn(),
-        },
-        onBufferSaved: {
-            subscribe: jest.fn(),
-        },
-    },
-}))
-
-const mockStatusBarShow = jest.fn()
-const mockStatusBarHide = jest.fn()
-const mockStatusBarSetContents = jest.fn()
-const mockStatusBarDisposal = jest.fn()
-
-const MockStatusbar = jest.fn<Oni.StatusBar>().mockImplementation(() => ({
-    createItem(alignment: number, vcsId: string) {
-        return {
-            show: mockStatusBarShow,
-            hide: mockStatusBarHide,
-            setContents: mockStatusBarSetContents,
-            dispose: mockStatusBarDisposal,
-        }
-    },
-}))
-
-const MockSidebar = jest.fn<SidebarManager>().mockImplementation(() => ({
-    entries: [
-        {
-            id: "git-vcs",
-        },
-    ],
-}))
-
-const mockMenuShow = jest.fn()
-const MockMenu = jest.fn<MenuManager>().mockImplementation(() => ({
-    create() {
-        return {
-            show: mockMenuShow,
-            setItems(items: {}) {
-                return items
-            },
-            onItemSelected: {
-                subscribe: jest.fn(),
-            },
-        }
-    },
-}))
-
-const mockRegisterCommands = jest.fn()
-const MockCommands = jest.fn<CommandManager>().mockImplementation(() => ({
-    registerCommand: mockRegisterCommands,
-}))
-
-const MockNotifications = jest.fn<Notifications>().mockImplementation(() => ({}))
 
 const provider: VersionControlProvider = {
     name: "svn",
