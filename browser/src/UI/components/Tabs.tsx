@@ -162,7 +162,7 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
         const handleTitleClick = this._handleTitleClick.bind(this)
         const handleCloseButtonClick = this._handleCloseButtonClick.bind(this)
 
-        const userColor = configuration.getValue("editor.dirtyMarker.userColor")
+        const userColor = configuration.getValue("tabs.dirtyMarker.userColor")
         const DirtyMarker = styled<{ userColor?: string }, "div">("div")`
             width: 8px;
             height: 8px;

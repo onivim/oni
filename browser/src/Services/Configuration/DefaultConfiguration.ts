@@ -153,8 +153,6 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
 
-    "editor.dirtyMarker.userColor": "",
-
     "explorer.persistDeletedFiles": true,
     "explorer.maxUndoFileSizeInBytes": 500_000,
 
@@ -452,6 +450,7 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.showFileIcon": true,
     "tabs.showIndex": false,
     "tabs.wrap": false,
+    "tabs.dirtyMarker.userColor": "",
 
     "terminal.shellCommand": null,
 

@@ -223,11 +223,6 @@ export interface IConfigurationValues {
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
 
-    /* can be anything the a css color property accepts e.g.:
-     * "red", "#112233", "rgb(11,22,33)"
-     */
-    "editor.dirtyMarker.userColor": string
-
     "keyDisplayer.showInInsertMode": boolean
 
     "learning.enabled": boolean
@@ -315,6 +310,10 @@ export interface IConfigurationValues {
     // Whether or not the file icon
     // should be shown in the tab
     "tabs.showFileIcon": boolean
+
+    // can be anything the a css color property accepts e.g.:
+    // "red", "#112233", "rgb(11,22,33)"
+    "tabs.dirtyMarker.userColor": string
 
     "terminal.shellCommand": string
 
