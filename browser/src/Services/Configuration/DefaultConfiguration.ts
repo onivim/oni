@@ -450,7 +450,6 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.showFileIcon": true,
     "tabs.showIndex": false,
     "tabs.wrap": false,
-    "tabs.dirtyMarker.userColor": "",
 
     "terminal.shellCommand": null,
 

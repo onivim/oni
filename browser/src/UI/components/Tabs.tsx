@@ -21,8 +21,6 @@ import { styled } from "./../components/common"
 
 import { FileIcon } from "./../../Services/FileIcon"
 
-import { configuration } from "./../../Services/Configuration"
-
 export interface ITabProps {
     id: number
     name: string
@@ -162,14 +160,6 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
         const handleTitleClick = this._handleTitleClick.bind(this)
         const handleCloseButtonClick = this._handleCloseButtonClick.bind(this)
 
-        const userColor = configuration.getValue("tabs.dirtyMarker.userColor")
-        const DirtyMarker = styled<{ userColor?: string }, "div">("div")`
-            width: 8px;
-            height: 8px;
-            border-radius: 4px;
-            background-color: ${props => props.userColor || props.theme.foreground};
-        `
-
         return (
             <Sneakable callback={() => this.props.onSelect(this.props.id)} tag={this.props.name}>
                 <TabWrapper
@@ -193,7 +183,7 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
                             <Icon name="times" />
                         </div>
                         <div className="icon-container circle-icon-container">
-                            <DirtyMarker userColor={userColor} />
+                            <div className="circle" />
                         </div>
                     </div>
                 </TabWrapper>
