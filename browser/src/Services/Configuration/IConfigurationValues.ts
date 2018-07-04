@@ -311,6 +311,10 @@ export interface IConfigurationValues {
     // should be shown in the tab
     "tabs.showFileIcon": boolean
 
+    // can be anything the a css color property accepts e.g.:
+    // "red", "#112233", "rgb(11,22,33)"
+    "tabs.dirtyMarker.userColor": string
+
     "terminal.shellCommand": string
 
     "ui.animations.enabled": boolean
