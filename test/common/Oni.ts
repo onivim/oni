@@ -19,7 +19,7 @@ const isCiBuild = () => {
     return ciBuild
 }
 
-const getWindowsExcutablePathOnCiMachine = () => {
+const getWindowsExecutablePathOnCiMachine = () => {
     switch (process.env.PLATFORM) {
         case "x86":
             return path.join(__dirname, "..", "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
@@ -33,7 +33,7 @@ const getWindowsExcutablePathOnCiMachine = () => {
 const getExecutablePathOnCiMachine = () => {
     switch (process.platform) {
         case "win32":
-            return getWindowsExcutablePathOnCiMachine()
+            return getWindowsExecutablePathOnCiMachine()
         case "darwin":
             return path.join(
                 __dirname,
@@ -149,8 +149,10 @@ export class Oni {
                 log("- Race complete. didStop: " + didStop)
 
                 if (!didStop) {
-                    log("- Attemping to force close processes:")
+                    log("- Attempting to force close processes:")
                     await ensureProcessNotRunning("nvim")
+                    await ensureProcessNotRunning("oni")
+                    await ensureProcessNotRunning("chromedriver")
                     log("- Force close complete")
                 }
 

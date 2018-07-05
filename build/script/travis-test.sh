@@ -13,7 +13,7 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
   sleep 3
 
   # Install Neovim
-  curl -LO https://github.com/neovim/neovim/releases/download/v0.2.2/nvim.appimage
+  curl -LO https://github.com/neovim/neovim/releases/download/v0.3.0/nvim.appimage
   chmod u+x nvim.appimage
   ./nvim.appimage --version
   ONI_NEOVIM_PATH="$(cd "$(dirname "$1")"; pwd)/nvim.appimage"
@@ -23,7 +23,7 @@ fi
 
 echo Using neovim path: "$ONI_NEOVIM_PATH"
 
-if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+if [[ "$TRAVIS_OS_NAME" == "osx" && "$TRAVIS_PULL_REQUEST" != "false" ]]; then
    npm run demo:screenshot
 fi
 
