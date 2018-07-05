@@ -1,5 +1,7 @@
 ![alt text](./assets/oni-header.png)
 
+testing
+
 ### Modern Modal Editing
 
 [![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build status](https://ci.appveyor.com/api/projects/status/s13bs7ail9ihkpnm?svg=true)](https://ci.appveyor.com/project/oni/oni)(https://ci.appveyor.com/api/projects/status/gum9hty9hm65o7ae/branch/master?svg=true)](https://ci.appveyor.com/project/onivim/oni/branch/master)[![codecov](https://codecov.io/gh/onivim/oni/branch/master/graph/badge.svg)](https://codecov.io/gh/onivim/oni)
