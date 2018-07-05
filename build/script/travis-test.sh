@@ -23,7 +23,7 @@ fi
 
 echo Using neovim path: "$ONI_NEOVIM_PATH"
 
-if [[ "$TRAVIS_OS_NAME" == "osx" && "$TRAVIS_PULL_REQUEST" != "false" ]]; then
+if [[ "$TRAVIS_OS_NAME" == "osx" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
    npm run demo:screenshot
 fi
 
