@@ -7,7 +7,7 @@ import * as stock_assert from "assert"
 export class Assertor {
     private _lastSuccessIndex: number = 0
 
-    constructor(private _testName: string) {}
+    constructor(private _testName: string, private _oni: any = null) {}
 
     public contains(containing: string, contained: string, name: string): void {
         this.assert(
@@ -21,6 +21,22 @@ export class Assertor {
             str.length === 0,
             `${name} expected to be empty, instead it has \`${str}\` (${str.length} characters)`,
         )
+    }
+
+    public async waitFor(
+        getData: () => any,
+        action: (data: any) => boolean,
+        timeout: number = 10000,
+    ) {
+        const SLEEP_TIME = 50
+        let slept = 0
+        do {
+            await this._oni.automation.sleep(SLEEP_TIME)
+            slept += SLEEP_TIME
+        } while (slept < timeout && !action(getData()))
+
+        const data = getData()
+        this.assert(action(data), `timed out with "${data}" after ${slept}ms`)
     }
 
     public defined(obj: any, name: string): void {
