@@ -4,7 +4,7 @@
  * Entry point for the Oni application - managing the overall lifecycle
  */
 
-import { ipcRenderer } from "electron"
+import { ipcRenderer, remote } from "electron"
 import * as fs from "fs"
 import * as minimist from "minimist"
 import * as path from "path"
@@ -47,6 +47,11 @@ export const quit = async (): Promise<void> => {
         Log.info("[App.quit] Quit hook completed successfully")
     })
     await Promise.all([promises])
+    // On mac we should quit the application when the user press Cmd + Q
+    if (process.platform === "darwin") {
+        Log.info("[App::quit] quitting app")
+        remote.app.quit()
+    }
     Log.info("[App::quit] completed")
 }
 
