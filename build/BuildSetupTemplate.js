@@ -20,7 +20,7 @@ const packageJsonContents = fs.readFileSync(path.join(__dirname, "..", "package.
 const packageMeta = JSON.parse(packageJsonContents)
 const { version, name } = packageMeta
 const prodName = packageMeta.build.productName
-const pathVariable = "{app}\\resources\\app\\cli\\windows\\"
+const pathVariable = "{app}\\resources\\app\\cli\\win\\"
 
 let buildFolderPrefix = os.arch() === "x32" ? "ia32-" : ""
 

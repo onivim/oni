@@ -1,21 +1,30 @@
 sudo: required
 dist: trusty
 language: node_js
+
 branches:
   only:
   - master
   - /^release.*/
+
 cache:
   directories:
   - .oni_build_cache
+
 matrix:
   include:
   - os: linux
     sudo: required
     dist: trusty
     node_js: 8
-  - os: osx
+  - os: osx # OSX 10.12
     node_js: 8
+  - os: osx # OSX 10.11
+    node_js: 8
+    osx_image: xcode8
+  allow_failures:
+    - osx_image: xcode8
+
 addons:
   apt:
     packages:
@@ -26,15 +35,30 @@ addons:
     - xz-utils
     - rpm
     - bsdtar
+
+before_install:
+- |
+    # Get the files modified in this commit, and check there is
+    # actual code changes made. If there isn't, stop the build.
+    MODIFIED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
+
+    if ! echo ${MODIFIED_FILES} | grep -qvE '(\.md$)/'; then
+      echo "Only documents were updated, stopping..."
+      exit
+    fi
+
+
 install:
 - npm install -g yarn
 - yarn install
+
 script:
 - npm run check-cached-binaries
 - ./build/script/install-reason.sh
 - ./build/script/travis-build.sh
 - travis_wait ./build/script/travis-pack.sh
 - ./build/script/travis-test.sh
+
 deploy:
     - provider: s3
       access_key_id: AKIAIYMATI2CEFTHPBOQ

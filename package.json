@@ -23,20 +23,19 @@
         "productName": "Oni",
         "appId": "com.extropy.oni",
         "files": [
-            "**/*",
-            "!**/*.oni",
-            "!**/*.vscode",
-            "!**/travis_wait*.log",
-            "!app",
-            "!assets",
-            "!browser",
-            "!bin",
-            "!build",
-            "!examples",
-            "!lib_test",
-            "!test",
+            "cli/${os}",
+            "configuration",
+            "extensions",
+            "font-awesome",
+            "images",
+            "lib",
+            "!lib/**/*.map",
+            "node_modules",
             "!node_modules/oni-api",
-            "!node_modules/typescript"
+            "!node_modules/typescript",
+            "vim",
+            "index.html",
+            "preload.js"
         ],
         "extraResources": [
             {
