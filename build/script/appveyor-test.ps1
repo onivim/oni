@@ -31,7 +31,13 @@ npm run pack:win ; exitIfFailed
 
 # Run integration tests
 npm run test:integration ; exitIfFailed
-npm run demo:screenshot ; exitIfFailed
+
+# Build up demo screenshot for commits that aren't PRs.
+$prNumber = (Get-Item env:APPVEYOR_PULL_REQUEST_NUMBER).value
+
+if ($prNumber -eq "") {
+    npm run demo:screenshot ; exitIfFailed
+}
 
 # Upload bits to azure
 npm run upload:dist ; exitIfFailed
