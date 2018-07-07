@@ -3,20 +3,20 @@ import { Event } from "oni-types"
 import { MockStoreCreator } from "redux-mock-store"
 
 import { VersionControlProvider } from "../browser/src/Services/VersionControl"
-
-jest.mock("./../browser/src/Services/VersionControl/VersionControlView", () => {
-    const React = require("react")
-    return <div />
-})
-import VersionControlView from "./../browser/src/Services/VersionControl/VersionControlView"
 import VersionControlPane from "./../browser/src/Services/VersionControl/VersionControlPane"
-import { IState, DefaultState } from "./../browser/src/Services/VersionControl/VersionControlStore"
+import { DefaultState, IState } from "./../browser/src/Services/VersionControl/VersionControlStore"
+import VersionControlView from "./../browser/src/Services/VersionControl/VersionControlView"
 import MockEditorManager from "./mocks/EditorManager"
 import MockWorkspace from "./mocks/Workspace"
 
 const configureMockStore = require("redux-mock-store") // tslint:disable-line
 
 jest.mock("lodash/capitalize", (str: string) => str)
+
+jest.mock("./../browser/src/Services/VersionControl/VersionControlView", () => {
+    const React = require("react")
+    return <div />
+})
 
 const provider: VersionControlProvider = {
     name: "git",
@@ -46,7 +46,7 @@ describe("Version Control pane tests", () => {
     const mockManager = new MockEditorManager()
     const mockWorkspace = new MockWorkspace()
     const MockStore: MockStoreCreator<IState> = configureMockStore()
-    let store = MockStore({ ...DefaultState })
+    const store = MockStore({ ...DefaultState })
     const vcsPane = new VersionControlPane(
         mockManager,
         mockWorkspace,
@@ -55,12 +55,10 @@ describe("Version Control pane tests", () => {
         store,
     )
 
-    beforeAll(() => {
-        store = MockStore({ ...DefaultState })
-    })
     it("Should create a new version control pane", () => {
         expect(vcsPane.id).toBe("oni.sidebar.vcs")
     })
+
     it("get status should return the value expected", async () => {
         const result = await vcsPane.getStatus()
         if (result) {
@@ -72,9 +70,9 @@ describe("Version Control pane tests", () => {
         try {
             const result = await vcsPane.getStatus()
             const state = store.getState()
+            expect(state.status.currentBranch).toEqual("master")
         } catch (e) {
             console.warn(e)
         }
-        // expect(state.status.currentBranch).toEqual("master")
     })
 })

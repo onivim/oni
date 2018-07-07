@@ -14,6 +14,11 @@ const mockStore: MockStoreCreator<IState> = configureStore()
 
 const noop = () => ({})
 
+// jest.mock("./../browser/src/UI/components/VimNavigator", () => {
+//     const React = require("react") // tslint:disable-line
+//     return <div />
+// })
+
 jest.mock("../browser/src/UI/components/Sneakable", () => {
     const React = require("react") // tslint:disable-line
     return { Sneakable: () => <div /> }
