@@ -189,9 +189,14 @@ export class OniEditor extends Utility.Disposable implements IEditor {
                         configuration: this._configuration,
                     }),
             )
+        }
+        if (this._configuration.getValue("experimental.colorHighlight.enabled")) {
             this._neovimEditor.bufferLayers.addBufferLayer(
-                buf => [".css", ".js", ".jsx", ".tsx", ".ts"].includes(path.extname(buf.filePath)),
-                buffer => new ColorHighlightLayer(),
+                buf =>
+                    this._configuration
+                        .getValue("experimental.colorHighlight.filetypes")
+                        .includes(path.extname(buf.filePath)),
+                buffer => new ColorHighlightLayer(this._configuration),
             )
         }
     }

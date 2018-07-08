@@ -1,3 +1,4 @@
+import * as Color from "color"
 import * as memoize from "lodash/memoize"
 import * as Oni from "oni-api"
 import * as React from "react"
@@ -10,9 +11,11 @@ interface IProps {
     height: number
     width: number
     color: string
+    fontFamily: string
+    fontSize: string
 }
 
-const ColorHighlight = withProps<IProps>(styled.span).attrs({
+const ColorHighlight = withProps<IProps>(styled.div).attrs({
     style: (props: IProps) => ({
         top: pixel(props.top),
         left: pixel(props.left),
@@ -20,9 +23,14 @@ const ColorHighlight = withProps<IProps>(styled.span).attrs({
         width: pixel(props.width),
     }),
 })`
-  opacity: 0.3;
-  background-color: ${p => p.color};
-  position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: ${p => p.color};
+    position: absolute;
+    color: ${p => (Color(p.color).dark() ? "white" : "black")};
+    font-family: ${p => p.fontFamily};
+    font-size: ${p => p.fontSize};
 `
 
 export default class ColorHighlightLayer implements Oni.BufferLayer {
@@ -185,13 +193,17 @@ export default class ColorHighlightLayer implements Oni.BufferLayer {
     // the first section matches a hex code which can be 3 or 6 digits long the
     // next section matches rgb or hsl value with an a optionally
     // NB - the regex was tweaked so it could match inside a string
-    private _colorCodeRegexStr = "#(?:[0-9a-f]{3}){1,2}|(rgb|hsl)a?((-?d+%?[,s]+){2,3}s*[d.]+%?)"
+    private _colorCodeRegex = /#(?:[0-9a-f]{3}){1,2}|(rgb|hsl)a?\((-?\d+%?[,\s]+){2,3}\s*[\d\.]+%?\)/gi
     private _colorRegex: RegExp
 
-    constructor() {
-        const colorNames = this.CSS_COLOR_NAMES.map(name => `\\b${name}\\b`)
-        // Construct a regex checking for both color codes and all the different css colornames
-        this._colorRegex = new RegExp(`${this._colorCodeRegexStr}|(${colorNames.join("|")})`, "gi")
+    private _fontSize: string
+    private _fontFamily: string
+
+    constructor(private _config: Oni.Configuration) {
+        this._fontSize = this._config.getValue("editor.fontSize")
+        this._fontFamily = this._config.getValue("editor.fontFamily")
+
+        this._constructRegex()
     }
 
     public get id() {
@@ -202,16 +214,26 @@ export default class ColorHighlightLayer implements Oni.BufferLayer {
         return "CSS color highlight layer"
     }
 
+    private _constructRegex() {
+        // Construct a regex checking for both color codes and all the different css colornames
+        const colorNames = this.CSS_COLOR_NAMES.map(name => `\\b${name}\\b`)
+        const colorNamesRegex = new RegExp("(" + colorNames.join("|") + ")")
+        this._colorRegex = new RegExp(
+            colorNamesRegex.source + "|" + this._colorCodeRegex.source,
+            "gi",
+        )
+    }
+
     private _getColorHighlights = (context: Oni.BufferLayerRenderContext) => {
         return context.visibleLines.map((line, idx) => {
             const matches = line.match(this._colorRegex)
             if (matches) {
                 const colors = matches.filter(Boolean)
                 if (colors.length) {
-                    const locations = colors.map(color => ({
-                        color,
-                        start: line.indexOf(color),
-                        end: line.indexOf(color) + color.length,
+                    const locations = colors.map(c => ({
+                        color: c,
+                        start: line.indexOf(c),
+                        end: line.indexOf(c) + c.length,
                     }))
                     const currentLine = context.topBufferLine + idx - 1
                     return locations.map(location => {
@@ -223,19 +245,21 @@ export default class ColorHighlightLayer implements Oni.BufferLayer {
                             line: currentLine,
                             character: location.end,
                         })
-                        const halfACharacter = context.fontPixelWidth / 2
-                        const width =
-                            endPosition.pixelX - startPosition.pixelX + context.fontPixelWidth
-                        const adjustedLeft = startPosition.pixelX - halfACharacter
+
+                        const width = endPosition.pixelX - startPosition.pixelX
                         return (
                             <ColorHighlight
                                 width={width}
                                 color={location.color}
-                                left={adjustedLeft}
+                                left={startPosition.pixelX}
                                 top={startPosition.pixelY}
                                 height={context.fontPixelHeight}
+                                fontSize={this._fontSize}
+                                fontFamily={this._fontFamily}
                                 data-id="color-highlight"
-                            />
+                            >
+                                {location.color}
+                            </ColorHighlight>
                         )
                     })
                 }
