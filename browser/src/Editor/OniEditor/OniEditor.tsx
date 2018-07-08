@@ -54,6 +54,7 @@ import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 import { IBuffer } from "../BufferManager"
 import { ImageBufferLayer } from "./ImageBufferLayer"
 import IndentLineBufferLayer from "./IndentGuideBufferLayer"
+import ColorHighlightLayer from "./ColorHighlightLayer"
 
 // Helper method to wrap a react component into a layer
 const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.BufferLayer => {
@@ -186,6 +187,13 @@ export class OniEditor extends Utility.Disposable implements IEditor {
                     new IndentLineBufferLayer({
                         buffer: buffer as IBuffer,
                         configuration: this._configuration,
+                    }),
+            )
+            this._neovimEditor.bufferLayers.addBufferLayer(
+                buf => [".css", ".js", ".jsx", ".tsx", ".ts"].includes(path.extname(buf.filePath)),
+                buffer =>
+                    new ColorHighlightLayer({
+                        buffer,
                     }),
             )
         }
