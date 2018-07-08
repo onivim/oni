@@ -26,9 +26,9 @@ const ColorHighlight = withProps<IProps>(styled.span).attrs({
 `
 
 export default class ColorHighlightLayer implements Oni.BufferLayer {
-    public render = memoize((context: Oni.BufferLayerRenderContext) => {
-        return <>{this._getColorHighlights(context)}</>
-    })
+    public render = memoize((context: Oni.BufferLayerRenderContext) => (
+        <>{this._getColorHighlights(context)}</>
+    ))
 
     private readonly CSS_COLOR_NAMES = [
         "AliceBlue",
@@ -183,8 +183,8 @@ export default class ColorHighlightLayer implements Oni.BufferLayer {
     // Match hex/rgb/rgba/hsl/hsla colors -
     // courtesy of https://gist.github.com/olmokramer/82ccce673f86db7cda5e
     // the first section matches a hex code which can be 3 or 6 digits long the
-    // next section matches rgb or hsl value or with an a optionally
-    // NB - the regex was tweak so it could match inside a string
+    // next section matches rgb or hsl value with an a optionally
+    // NB - the regex was tweaked so it could match inside a string
     private _colorCodeRegexStr = "#(?:[0-9a-f]{3}){1,2}|(rgb|hsl)a?((-?d+%?[,s]+){2,3}s*[d.]+%?)"
     private _colorRegex: RegExp
 
@@ -224,7 +224,8 @@ export default class ColorHighlightLayer implements Oni.BufferLayer {
                             character: location.end,
                         })
                         const halfACharacter = context.fontPixelWidth / 2
-                        const width = endPosition.pixelX - startPosition.pixelX + halfACharacter
+                        const width =
+                            endPosition.pixelX - startPosition.pixelX + context.fontPixelWidth
                         const adjustedLeft = startPosition.pixelX - halfACharacter
                         return (
                             <ColorHighlight
