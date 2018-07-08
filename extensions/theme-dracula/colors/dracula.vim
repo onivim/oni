@@ -1,4 +1,4 @@
-" Dracula Theme v1.2.7
+" Dracula Theme: v1.5.0 {{{
 "
 " https://github.com/zenorocha/dracula-theme
 "
@@ -9,170 +9,326 @@
 "
 " @author Trevor Heins <@heinst>
 " @author Éverton Ribeiro <nuxlli@gmail.com>
+" @author Derek Sifford <dereksifford@gmail.com>
 " @author Zeno Rocha <hi@zenorocha.com>
+scriptencoding utf8
+" }}}
 
-set background=dark
-highlight clear
+" Configuration: {{{
 
-if exists("syntax_on")
-  syntax reset
+if v:version > 580
+  highlight clear
+  if exists('syntax_on')
+    syntax reset
+  endif
 endif
 
-let g:colors_name = "dracula"
+let g:colors_name = 'dracula'
 
-hi Cursor ctermfg=17 ctermbg=231 cterm=NONE guifg=#282a36 guibg=#f8f8f0 gui=NONE
-hi Visual ctermfg=NONE ctermbg=241 cterm=NONE guifg=NONE guibg=#44475a gui=NONE
-hi CursorLine ctermbg=234 cterm=NONE guifg=NONE guibg=#44475a gui=NONE
-hi CursorColumn ctermbg=234 cterm=NONE guifg=NONE guibg=#44475a gui=NONE
-hi ColorColumn ctermfg=NONE ctermbg=236 cterm=NONE guifg=NONE guibg=#3d3f49 gui=NONE
-hi LineNr ctermfg=60 ctermbg=NONE cterm=NONE guifg=#909194 guibg=#282a36 gui=NONE
-hi CursorLineNr ctermfg=228 ctermbg=234 cterm=NONE guifg=#f1fa8c guibg=#44475a gui=NONE
-hi VertSplit ctermfg=231 ctermbg=236 cterm=bold guifg=#64666d guibg=#64666d gui=bold
-hi MatchParen ctermfg=212 ctermbg=NONE cterm=underline guifg=#ff79c6 guibg=NONE gui=underline
-hi StatusLine ctermfg=231 ctermbg=236 cterm=bold guifg=#f8f8f2 guibg=#64666d gui=bold
-hi StatusLineNC ctermfg=231 ctermbg=236 cterm=NONE guifg=#f8f8f2 guibg=#64666d gui=NONE
-hi Pmenu ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi PmenuSel ctermfg=NONE ctermbg=236 cterm=NONE guifg=NONE guibg=#44475a gui=NONE
-hi IncSearch ctermfg=17 ctermbg=84 cterm=none guifg=#282a36 guibg=#50fa7b gui=none
-hi Search ctermfg=17 ctermbg=84 cterm=none guifg=#282a36 guibg=#50fa7b gui=none
-hi Directory ctermfg=141 ctermbg=NONE cterm=NONE guifg=#bd93f9 guibg=NONE gui=NONE
-hi Folded ctermfg=61 ctermbg=235 cterm=NONE guifg=#6272a4 guibg=#282a36 gui=NONE
-hi SignColumn ctermfg=246 ctermbg=235 cterm=NONE guifg=#909194 guibg=#44475a gui=NONE
-hi FoldColmun ctermfg=246 ctermbg=235 cterm=NONE guifg=#909194 guibg=#44475a gui=NONE
-hi Normal guifg=#f8f8f2 guibg=#282a36 gui=NONE
-hi Boolean ctermfg=141 ctermbg=NONE cterm=NONE guifg=#bd93f9 guibg=NONE gui=NONE
-hi Character ctermfg=141 ctermbg=NONE cterm=NONE guifg=#bd93f9 guibg=NONE gui=NONE
-hi Comment ctermfg=61 ctermbg=NONE cterm=NONE guifg=#6272a4 guibg=NONE gui=NONE
-hi Conditional ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi Constant ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi Define ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi DiffAdd ctermfg=231 ctermbg=64 cterm=bold guifg=#f8f8f2 guibg=#468410 gui=bold
-hi DiffDelete ctermfg=88 ctermbg=NONE cterm=NONE guifg=#8b080b guibg=NONE gui=NONE
-hi DiffChange ctermfg=231 ctermbg=23 cterm=NONE guifg=#f8f8f2 guibg=#243a5f gui=NONE
-hi DiffText ctermfg=231 ctermbg=24 cterm=bold guifg=#f8f8f2 guibg=#204a87 gui=bold
-hi ErrorMsg ctermfg=231 ctermbg=212 cterm=NONE guifg=#f8f8f0 guibg=#ff79c6 gui=NONE
-hi WarningMsg ctermfg=231 ctermbg=212 cterm=NONE guifg=#f8f8f0 guibg=#ff79c6 gui=NONE
-hi Float ctermfg=141 ctermbg=NONE cterm=NONE guifg=#bd93f9 guibg=NONE gui=NONE
-hi Function ctermfg=84 ctermbg=NONE cterm=NONE guifg=#50fa7b guibg=NONE gui=NONE
-hi Identifier ctermfg=117 ctermbg=NONE cterm=NONE guifg=#8be9fd guibg=NONE gui=italic
-hi Keyword ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi Label ctermfg=228 ctermbg=NONE cterm=NONE guifg=#f1fa8c guibg=NONE gui=NONE
-hi NonText ctermfg=231 ctermbg=NONE cterm=NONE guifg=#525563 guibg=NONE gui=NONE
-hi Number ctermfg=141 ctermbg=NONE cterm=NONE guifg=#bd93f9 guibg=NONE gui=NONE
-hi Operator ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi PreProc ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi Special ctermfg=231 ctermbg=NONE cterm=NONE guifg=#f8f8f2 guibg=NONE gui=NONE
-hi SpecialKey ctermfg=231 ctermbg=235 cterm=NONE guifg=#525563 guibg=NONE gui=NONE
-hi Statement ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi StorageClass ctermfg=117 ctermbg=NONE cterm=NONE guifg=#8be9fd guibg=NONE gui=italic
-hi String ctermfg=228 ctermbg=NONE cterm=NONE guifg=#f1fa8c guibg=NONE gui=NONE
-hi Tag ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi Title ctermfg=231 ctermbg=NONE cterm=bold guifg=#f8f8f2 guibg=NONE gui=bold
-hi Todo ctermfg=61 ctermbg=NONE cterm=inverse,bold guifg=#6272a4 guibg=NONE gui=inverse,bold
-hi Type ctermfg=117 ctermbg=NONE cterm=NONE guifg=#8be9fd guibg=NONE gui=NONE
-hi Underlined ctermfg=NONE ctermbg=NONE cterm=underline guifg=NONE guibg=NONE gui=underline
-hi rubyClass ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi rubyFunction ctermfg=84 ctermbg=NONE cterm=NONE guifg=#50fa7b guibg=NONE gui=NONE
-hi rubyInterpolationDelimiter ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi rubySymbol ctermfg=141 ctermbg=NONE cterm=NONE guifg=#bd93f9 guibg=NONE gui=NONE
-hi rubyConstant ctermfg=81 ctermbg=NONE cterm=NONE guifg=#66d9ef guibg=NONE gui=italic
-hi rubyStringDelimiter ctermfg=228 ctermbg=NONE cterm=NONE guifg=#f1fa8c guibg=NONE gui=NONE
-hi rubyBlockParameter ctermfg=215 ctermbg=NONE cterm=NONE guifg=#ffb86c guibg=NONE gui=italic
-hi rubyInstanceVariable ctermfg=203 ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi rubyInclude ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi rubyGlobalVariable ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi rubyRegexp ctermfg=228 ctermbg=NONE cterm=NONE guifg=#f1fa8c guibg=NONE gui=NONE
-hi rubyRegexpDelimiter ctermfg=228 ctermbg=NONE cterm=NONE guifg=#f1fa8c guibg=NONE gui=NONE
-hi rubyEscape ctermfg=141 ctermbg=NONE cterm=NONE guifg=#bd93f9 guibg=NONE gui=NONE
-hi rubyControl ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi rubyClassVariable ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi rubyOperator ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi rubyException ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi rubyPseudoVariable ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi rubyRailsUserClass ctermfg=81 ctermbg=NONE cterm=NONE guifg=#66d9ef guibg=NONE gui=italic
-hi rubyRailsARAssociationMethod ctermfg=117 ctermbg=NONE cterm=NONE guifg=#8be9fd guibg=NONE gui=NONE
-hi rubyRailsARMethod ctermfg=117 ctermbg=NONE cterm=NONE guifg=#8be9fd guibg=NONE gui=NONE
-hi rubyRailsRenderMethod ctermfg=117 ctermbg=NONE cterm=NONE guifg=#8be9fd guibg=NONE gui=NONE
-hi rubyRailsMethod ctermfg=117 ctermbg=NONE cterm=NONE guifg=#8be9fd guibg=NONE gui=NONE
-hi erubyDelimiter ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi erubyComment ctermfg=61 ctermbg=NONE cterm=NONE guifg=#6272a4 guibg=NONE gui=NONE
-hi erubyRailsMethod ctermfg=117 ctermbg=NONE cterm=NONE guifg=#8be9fd guibg=NONE gui=NONE
-hi htmlTag ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi htmlEndTag ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi htmlTagName ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi htmlArg ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi htmlSpecialChar ctermfg=141 ctermbg=NONE cterm=NONE guifg=#bd93f9 guibg=NONE gui=NONE
-hi javaScriptFunction ctermfg=117 ctermbg=NONE cterm=NONE guifg=#8be9fd guibg=NONE gui=italic
-hi javaScriptRailsFunction ctermfg=117 ctermbg=NONE cterm=NONE guifg=#8be9fd guibg=NONE gui=NONE
-hi javaScriptBraces ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi yamlKey ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi yamlAnchor ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi yamlAlias ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi yamlDocumentHeader ctermfg=228 ctermbg=NONE cterm=NONE guifg=#f1fa8c guibg=NONE gui=NONE
-hi cssURL ctermfg=215 ctermbg=NONE cterm=NONE guifg=#ffb86c guibg=NONE gui=italic
-hi cssFunctionName ctermfg=117 ctermbg=NONE cterm=NONE guifg=#8be9fd guibg=NONE gui=NONE
-hi cssColor ctermfg=141 ctermbg=NONE cterm=NONE guifg=#bd93f9 guibg=NONE gui=NONE
-hi cssPseudoClassId ctermfg=84 ctermbg=NONE cterm=NONE guifg=#50fa7b guibg=NONE gui=NONE
-hi cssClassName ctermfg=84 ctermbg=NONE cterm=NONE guifg=#50fa7b guibg=NONE gui=NONE
-hi cssValueLength ctermfg=141 ctermbg=NONE cterm=NONE guifg=#bd93f9 guibg=NONE gui=NONE
-hi cssCommonAttr ctermfg=81 ctermbg=NONE cterm=NONE guifg=#6be5fd guibg=NONE gui=NONE
-hi cssBraces ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE gui=NONE
-hi TabLineFill  guifg=#333333 guibg=#282a36 gui=none
-hi TabLine      guifg=#666666 guibg=#282a36 gui=none
-hi TabLineSel   guifg=WHITE guibg=#282a36 gui=none
+if !(has('termguicolors') && &termguicolors) && !has('gui_running') && &t_Co != 256
+  finish
+endif
 
-" Elixir {{{
-hi elixirAtom ctermfg=81 ctermbg=NONE cterm=NONE guifg=#66d9ef guibg=NONE gui=italic"
-hi elixirModuleDeclaration ctermfg=81 ctermbg=NONE cterm=NONE guifg=#66d9ef guibg=NONE gui=italic"
-hi elixirAlias ctermfg=81 ctermbg=NONE cterm=NONE guifg=#66d9ef guibg=NONE gui=italic"
-hi elixirInterpolationDelimiter ctermfg=84 ctermbg=NONE cterm=NONE guifg=#50fa7b guibg=NONE gui=NONE
-hi elixirStringDelimiter ctermfg=228 ctermbg=NONE cterm=NONE guifg=#f1fa8c guibg=NONE gui=NONE
+" Palette: {{{2
+
+let s:fg        = ['#F8F8F2', 255]
+
+let s:bglighter = ['#424450', 238]
+let s:bglight   = ['#343746', 237]
+let s:bg        = ['#282A36', 236]
+let s:bgdark    = ['#21222C', 235]
+let s:bgdarker  = ['#191A21', 234]
+
+let s:subtle    = ['#424450', 238]
+
+let s:selection = ['#44475A', 239]
+let s:comment   = ['#6272A4',  61]
+let s:cyan      = ['#8BE9FD', 117]
+let s:green     = ['#50FA7B',  84]
+let s:orange    = ['#FFB86C', 215]
+let s:pink      = ['#FF79C6', 212]
+let s:purple    = ['#BD93F9', 141]
+let s:red       = ['#FF5555', 203]
+let s:yellow    = ['#F1FA8C', 228]
+
+let s:none      = ['NONE', 'NONE']
+
+let g:dracula_palette = {
+      \ 'fg': s:fg,
+      \ 'bg': s:bg,
+      \ 'selection': s:selection,
+      \ 'comment': s:comment,
+      \ 'cyan': s:cyan,
+      \ 'green': s:green,
+      \ 'orange': s:orange,
+      \ 'pink': s:pink,
+      \ 'purple': s:purple,
+      \ 'red': s:red,
+      \ 'yellow': s:yellow,
+      \
+      \ 'bglighter': s:bglighter,
+      \ 'bglight': s:bglight,
+      \ 'bgdark': s:bgdark,
+      \ 'bgdarker': s:bgdarker,
+      \ 'subtle': s:subtle,
+      \}
+
+if has('nvim')
+  let g:terminal_color_0  = '#21222C'
+  let g:terminal_color_1  = '#FF5555'
+  let g:terminal_color_2  = '#50FA7B'
+  let g:terminal_color_3  = '#F1FA8C'
+  let g:terminal_color_4  = '#BD93F9'
+  let g:terminal_color_5  = '#FF79C6'
+  let g:terminal_color_6  = '#8BE9FD'
+  let g:terminal_color_7  = '#F8F8F2'
+  let g:terminal_color_8  = '#6272A4'
+  let g:terminal_color_9  = '#FF6E6E'
+  let g:terminal_color_10 = '#69FF94'
+  let g:terminal_color_11 = '#FFFFA5'
+  let g:terminal_color_12 = '#D6ACFF'
+  let g:terminal_color_13 = '#FF92DF'
+  let g:terminal_color_14 = '#A4FFFF'
+  let g:terminal_color_15 = '#FFFFFF'
+endif
+
+" }}}2
+" User Configuration: {{{2
+
+if !exists('g:dracula_bold')
+  let g:dracula_bold = 1
+endif
+
+if !exists('g:dracula_italic')
+  let g:dracula_italic = 1
+endif
+
+if !exists('g:dracula_underline')
+  let g:dracula_underline = 1
+endif
+
+if !exists('g:dracula_undercurl') && g:dracula_underline != 0
+  let g:dracula_undercurl = 1
+endif
+
+if !exists('g:dracula_inverse')
+  let g:dracula_inverse = 1
+endif
+
+if !exists('g:dracula_colorterm')
+  let g:dracula_colorterm = 1
+endif
+
+"}}}2
+" Script Helpers: {{{2
+
+let s:attrs = {
+      \ 'bold': g:dracula_bold == 1 ? 'bold' : 0,
+      \ 'italic': g:dracula_italic == 1 ? 'italic' : 0,
+      \ 'underline': g:dracula_underline == 1 ? 'underline' : 0,
+      \ 'undercurl': g:dracula_undercurl == 1 ? 'undercurl' : 0,
+      \ 'inverse': g:dracula_inverse == 1 ? 'inverse' : 0,
+      \}
+
+function! s:h(scope, fg, ...) " bg, attr_list, special
+  let l:fg = copy(a:fg)
+  let l:bg = get(a:, 1, ['NONE', 'NONE'])
+
+  let l:attr_list = filter(get(a:, 2, ['NONE']), 'type(v:val) == 1')
+  let l:attrs = len(l:attr_list) > 0 ? join(l:attr_list, ',') : 'NONE'
+
+  " Falls back to coloring foreground group on terminals because
+  " nearly all do not support undercurl
+  let l:special = get(a:, 3, ['NONE', 'NONE'])
+  if l:special[0] !=# 'NONE' && l:fg[0] ==# 'NONE' && !has('gui_running')
+    let l:fg[0] = l:special[0]
+    let l:fg[1] = l:special[1]
+  endif
+
+  let l:hl_string = [
+        \ 'highlight', a:scope,
+        \ 'guifg=' . l:fg[0], 'ctermfg=' . l:fg[1],
+        \ 'guibg=' . l:bg[0], 'ctermbg=' . l:bg[1],
+        \ 'gui=' . l:attrs, 'cterm=' . l:attrs,
+        \ 'guisp=' . l:special[0],
+        \]
+
+  execute join(l:hl_string, ' ')
+endfunction
+
+function! s:Background()
+  if g:dracula_colorterm || has('gui_running')
+    return s:bg
+  else
+    return s:none
+  endif
+endfunction
+
+"}}}2
+" Dracula Highlight Groups: {{{2
+
+call s:h('DraculaBgLight', s:none, s:bglight)
+call s:h('DraculaBgLighter', s:none, s:bglighter)
+call s:h('DraculaBgDark', s:none, s:bgdark)
+call s:h('DraculaBgDarker', s:none, s:bgdarker)
+
+call s:h('DraculaFg', s:fg)
+call s:h('DraculaFgUnderline', s:fg, s:none, [s:attrs.underline])
+call s:h('DraculaFgBold', s:fg, s:none, [s:attrs.bold])
+
+call s:h('DraculaComment', s:comment)
+call s:h('DraculaCommentBold', s:comment, s:none, [s:attrs.bold])
+
+call s:h('DraculaSelection', s:none, s:selection)
+
+call s:h('DraculaSubtle', s:subtle)
+
+call s:h('DraculaCyan', s:cyan)
+call s:h('DraculaCyanItalic', s:cyan, s:none, [s:attrs.italic])
+
+call s:h('DraculaGreen', s:green)
+call s:h('DraculaGreenBold', s:green, s:none, [s:attrs.bold])
+call s:h('DraculaGreenItalic', s:green, s:none, [s:attrs.italic])
+call s:h('DraculaGreenItalicUnderline', s:green, s:none, [s:attrs.italic, s:attrs.underline])
+
+call s:h('DraculaOrange', s:orange)
+call s:h('DraculaOrangeBold', s:orange, s:none, [s:attrs.bold])
+call s:h('DraculaOrangeItalic', s:orange, s:none, [s:attrs.italic])
+call s:h('DraculaOrangeBoldItalic', s:orange, s:none, [s:attrs.bold, s:attrs.italic])
+call s:h('DraculaOrangeInverse', s:bg, s:orange)
+
+call s:h('DraculaPink', s:pink)
+call s:h('DraculaPinkItalic', s:pink, s:none, [s:attrs.italic])
+
+call s:h('DraculaPurple', s:purple)
+call s:h('DraculaPurpleBold', s:purple, s:none, [s:attrs.bold])
+call s:h('DraculaPurpleItalic', s:purple, s:none, [s:attrs.italic])
+
+call s:h('DraculaRed', s:red)
+call s:h('DraculaRedInverse', s:fg, s:red)
+
+call s:h('DraculaYellow', s:yellow)
+call s:h('DraculaYellowItalic', s:yellow, s:none, [s:attrs.italic])
+
+call s:h('DraculaError', s:red, s:none, [], s:red)
+
+call s:h('DraculaErrorLine', s:none, s:none, [s:attrs.undercurl], s:red)
+call s:h('DraculaWarnLine', s:none, s:none, [s:attrs.undercurl], s:orange)
+call s:h('DraculaInfoLine', s:none, s:none, [s:attrs.undercurl], s:cyan)
+
+call s:h('DraculaTodo', s:cyan, s:none, [s:attrs.bold, s:attrs.inverse])
+call s:h('DraculaSearch', s:green, s:none, [s:attrs.inverse])
+call s:h('DraculaBoundary', s:comment, s:bgdark)
+call s:h('DraculaLink', s:cyan, s:none, [s:attrs.underline])
+
+call s:h('DraculaDiffChange', s:none, s:none)
+call s:h('DraculaDiffText', s:bg, s:orange)
+call s:h('DraculaDiffDelete', s:red, s:bgdark)
+
+" }}}2
+
+" }}}
+" User Interface: {{{
+
+set background=dark
+
+" Required as some plugins will overwrite
+call s:h('Normal', s:fg, s:Background())
+call s:h('StatusLine', s:none, s:bglighter, [s:attrs.bold])
+call s:h('StatusLineNC', s:none, s:bglight)
+call s:h('WildMenu', s:bg, s:purple, [s:attrs.bold])
+call s:h('CursorLine', s:none, s:subtle)
+
+hi! link ColorColumn  DraculaSelection
+hi! link CursorColumn DraculaSelection
+hi! link CursorLineNr DraculaYellow
+hi! link DiffAdd      DraculaGreen
+hi! link DiffAdded    DiffAdd
+hi! link DiffChange   DraculaDiffChange
+hi! link DiffDelete   DraculaDiffDelete
+hi! link DiffRemoved  DiffDelete
+hi! link DiffText     DraculaDiffText
+hi! link Directory    DraculaPurpleBold
+hi! link ErrorMsg     DraculaRedInverse
+hi! link FoldColumn   DraculaSubtle
+hi! link Folded       DraculaBoundary
+hi! link IncSearch    DraculaOrangeInverse
+hi! link LineNr       DraculaComment
+hi! link MoreMsg      DraculaFgBold
+hi! link NonText      DraculaSubtle
+hi! link Pmenu        DraculaBgDark
+hi! link PmenuSbar    DraculaBgDark
+hi! link PmenuSel     DraculaSelection
+hi! link PmenuThumb   DraculaSelection
+hi! link Question     DraculaFgBold
+hi! link Search       DraculaSearch
+hi! link SignColumn   DraculaComment
+hi! link TabLine      DraculaBoundary
+hi! link TabLineFill  DraculaBgDarker
+hi! link TabLineSel   Normal
+hi! link Title        DraculaGreenBold
+hi! link VertSplit    DraculaBoundary
+hi! link Visual       DraculaSelection
+hi! link VisualNOS    Visual
+hi! link WarningMsg   DraculaOrangeInverse
+
+" }}}
+" Syntax: {{{
+
+" Required as some plugins will overwrite
+call s:h('MatchParen', s:fg, s:pink, [s:attrs.underline])
+call s:h('Conceal', s:comment, s:bglight)
+
+hi! link Comment DraculaComment
+hi! link Underlined DraculaFgUnderline
+hi! link Todo DraculaTodo
+
+hi! link Error DraculaError
+hi! link SpellBad DraculaErrorLine
+hi! link SpellLocal DraculaWarnLine
+hi! link SpellCap DraculaInfoLine
+hi! link SpellRare DraculaInfoLine
+
+hi! link Constant DraculaPurple
+hi! link String DraculaYellow
+hi! link Character DraculaPink
+hi! link Number Constant
+hi! link Boolean Constant
+hi! link Float Constant
+
+hi! link Identifier DraculaFg
+hi! link Function DraculaGreen
+
+hi! link Statement DraculaPink
+hi! link Conditional DraculaPink
+hi! link Repeat DraculaPink
+hi! link Label DraculaPink
+hi! link Operator DraculaPink
+hi! link Keyword DraculaPink
+hi! link Exception DraculaPink
+
+hi! link PreProc DraculaPink
+hi! link Include DraculaPink
+hi! link Define DraculaPink
+hi! link Macro DraculaPink
+hi! link PreCondit DraculaPink
+hi! link StorageClass DraculaPink
+hi! link Structure DraculaPink
+hi! link Typedef DraculaPink
+
+hi! link Type DraculaCyanItalic
+
+hi! link Delimiter DraculaFg
+
+hi! link Special DraculaPink
+hi! link SpecialKey DraculaRed
+hi! link SpecialComment DraculaCyanItalic
+hi! link Tag DraculaCyan
+hi! link helpHyperTextJump DraculaLink
+hi! link helpCommand DraculaPurple
+hi! link helpExample DraculaGreen
+hi! link helpBacktick Special
+
 "}}}
-"
-" Vim Script {{{
-hi vimGroupName ctermfg=81 ctermbg=NONE cterm=NONE guifg=#66d9ef guibg=NONE
-hi vimGroup ctermfg=81 ctermbg=NONE cterm=NONE guifg=#66d9ef guibg=NONE
-hi vimOption ctermfg=81 ctermbg=NONE cterm=NONE guifg=#66d9ef guibg=NONE
-hi vimHiCtermFgBg ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE
-hi vimHiGuiFgBg ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE guibg=NONE
-" }}}
-" Markdown: {{{
-hi markdownH1 ctermfg=141 ctermbg=NONE cterm=bold guifg=#bd93f9 guibg=NONE gui=bold"
-hi markdownH2 ctermfg=141 ctermbg=NONE cterm=bold guifg=#bd93f9 guibg=NONE gui=bold"
-hi markdownH3 ctermfg=212 ctermbg=NONE cterm=bold guifg=#ff79c6 guibg=NONE gui=bold"
-hi markdownH4 ctermfg=212 ctermbg=NONE cterm=bold guifg=#ff79c6 guibg=NONE gui=bold"
-hi markdownH5 ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
-hi markdownH6 ctermfg=212 ctermbg=NONE cterm=NONE guifg=#ff79c6 guibg=NONE gui=NONE
 
-hi markdownCode ctermfg=228 ctermbg=NONE cterm=NONE guifg=#f1fa8c guibg=NONE gui=NONE
-hi markdownCodeBlock ctermfg=228 ctermbg=NONE cterm=NONE guifg=#f1fa8c guibg=NONE gui=NONE
-hi markdownCodeDelimiter ctermfg=228 ctermbg=NONE cterm=NONE guifg=#f1fa8c guibg=NONE gui=NONE
-
-hi markdownBlockquote ctermfg=84 ctermbg=NONE cterm=NONE guifg=#50fa7b guibg=NONE gui=NONE
-hi markdownListMarker ctermfg=84 ctermbg=NONE cterm=NONE guifg=#50fa7b guibg=NONE gui=NONE
-hi markdownOrderedListMarker ctermfg=84 ctermbg=NONE cterm=NONE guifg=#50fa7b guibg=NONE gui=NONE
-hi markdownRule ctermfg=84 ctermbg=NONE cterm=NONE guifg=#50fa7b guibg=NONE gui=NONE
-hi markdownHeadingRule ctermfg=84 ctermbg=NONE cterm=NONE guifg=#50fa7b guibg=NONE gui=NONE
-
-hi markdownUrlDelimiter ctermfg=215 ctermbg=NONE cterm=NONE guifg=#ffb86c guibg=NONE gui=italic"
-hi markdownLinkDelimiter ctermfg=215 ctermbg=NONE cterm=NONE guifg=#ffb86c guibg=NONE gui=italic"
-hi markdownLinkTextDelimiter ctermfg=215 ctermbg=NONE cterm=NONE guifg=#ffb86c guibg=NONE gui=italic"
-
-hi markdownHeadingDelimiter ctermfg=117 ctermbg=NONE cterm=bold guifg=#8be9fd guibg=NONE gui=bold"
-hi markdownUrl ctermfg=141 ctermbg=NONE cterm=NONE guifg=#bd93f9 guibg=NONE gui=NONE
-hi markdownUrlTitleDelimiter ctermfg=84 ctermbg=NONE cterm=NONE guifg=#50fa7b guibg=NONE gui=NONE
-" }}}
-
-
-"
-"cygwin has an annoying behavior where it resets background to light
-"regardless of what is set above, so we force it yet again
-"
-"add these to get cygwin shell working when used to ssh into a centos6 vm
-"this requires your TERM=xterm-256color in the guest vm
-"- one way to do this is to append to /home/vagrant/.bash_profile ala:
-"      TERM=xterm-256color
-"      export $TERM
-
-execute "set background=dark"
-"-------------------
+" vim: fdm=marker ts=2 sts=2 sw=2:

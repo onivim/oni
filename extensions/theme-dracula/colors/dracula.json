@@ -2,7 +2,7 @@
     "name": "dracula",
     "baseVimTheme": "dracula",
     "colors": {
-        "background": "#282a36",
+        "background": "#191A21",
         "foreground": "#f8f8f2",
 
         "title.background": "#21222d",
