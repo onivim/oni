@@ -8,6 +8,7 @@ import * as React from "react"
 import { connect } from "react-redux"
 
 import * as State from "./ShellState"
+import { StackLayer } from "../components/common"
 
 export interface IOverlaysViewProps {
     overlays: State.IOverlay[]
@@ -16,11 +17,7 @@ export interface IOverlaysViewProps {
 export class OverlaysView extends React.PureComponent<IOverlaysViewProps, {}> {
     public render(): JSX.Element[] {
         const overlays = this.props.overlays.map(overlay => {
-            return (
-                <div className="stack layer" key={overlay.id}>
-                    {overlay.contents}
-                </div>
-            )
+            return <StackLayer key={overlay.id}>{overlay.contents}</StackLayer>
         })
 
         return overlays

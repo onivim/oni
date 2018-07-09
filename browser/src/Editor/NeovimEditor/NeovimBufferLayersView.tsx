@@ -14,6 +14,7 @@ import { NeovimActiveWindow } from "./NeovimActiveWindow"
 
 import * as State from "./NeovimEditorStore"
 
+import { StackLayer } from "../../UI/components/common"
 import { EmptyArray } from "./../../Utility"
 
 export interface NeovimBufferLayersViewProps {
@@ -80,7 +81,7 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
             )
         })
 
-        return <div className="stack layer">{containers}</div>
+        return <StackLayer>{containers}</StackLayer>
     }
 }
 
