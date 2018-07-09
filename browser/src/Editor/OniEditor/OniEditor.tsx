@@ -196,7 +196,7 @@ export class OniEditor extends Utility.Disposable implements IEditor {
                     this._configuration
                         .getValue("experimental.colorHighlight.filetypes")
                         .includes(path.extname(buf.filePath)),
-                buffer => new ColorHighlightLayer(this._configuration),
+                _buf => new ColorHighlightLayer(this._configuration),
             )
         }
     }

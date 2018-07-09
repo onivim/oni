@@ -17,7 +17,11 @@ export interface IOverlaysViewProps {
 export class OverlaysView extends React.PureComponent<IOverlaysViewProps, {}> {
     public render(): JSX.Element[] {
         const overlays = this.props.overlays.map(overlay => {
-            return <StackLayer key={overlay.id}>{overlay.contents}</StackLayer>
+            return (
+                <StackLayer zIndex={3} key={overlay.id}>
+                    {overlay.contents}
+                </StackLayer>
+            )
         })
 
         return overlays

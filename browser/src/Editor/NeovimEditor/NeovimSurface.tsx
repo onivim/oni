@@ -87,7 +87,7 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
                                     screen={this.props.screen}
                                 />
                             </div>
-                            <StackLayer zIndex={20}>
+                            <StackLayer zIndex={2}>
                                 <Cursor typingPrediction={this.props.typingPrediction} />
                                 <CursorLine lineType={"line"} />
                                 <CursorLine lineType={"column"} />
