@@ -48,8 +48,9 @@ export class VersionControlManager {
     public async registerProvider(provider: VersionControlProvider): Promise<void> {
         if (provider) {
             this._providers.set(provider.name, provider)
-            if (await provider.canHandleWorkspace()) {
-                this._activateVCSProvider(provider)
+            const canHandleWorkspace = await provider.canHandleWorkspace()
+            if (canHandleWorkspace) {
+                await this._activateVCSProvider(provider)
             }
 
             this._workspace.onDirectoryChanged.subscribe(async dir => {
@@ -78,18 +79,24 @@ export class VersionControlManager {
         this._vcs = null
     }
 
-    public handleProviderStatus(newProvider: VersionControlProvider): void {
+    public async handleProviderStatus(newProvider: VersionControlProvider): Promise<void> {
         const isSameProvider = this._vcsProvider && newProvider && this._vcs === newProvider.name
 
-        if (isSameProvider) {
-            return
-        } else if (this._vcsProvider && !newProvider) {
-            this.deactivateProvider()
-        } else if (this._vcsProvider && newProvider) {
-            this.deactivateProvider()
-            this._activateVCSProvider(newProvider)
-        } else if (!this._vcsProvider && newProvider) {
-            this._activateVCSProvider(newProvider)
+        switch (true) {
+            case isSameProvider:
+                break
+            case Boolean(this._vcsProvider && !newProvider):
+                this.deactivateProvider()
+                break
+            case Boolean(this._vcsProvider && newProvider):
+                this.deactivateProvider()
+                await this._activateVCSProvider(newProvider)
+                break
+            case Boolean(!this._vcsProvider && newProvider):
+                await this._activateVCSProvider(newProvider)
+                break
+            default:
+                break
         }
     }
 
@@ -176,10 +183,10 @@ export class VersionControlManager {
     }
 
     private _updateBranchIndicator = async (branchName?: string) => {
-        if ((!this._vcsProvider && this._vcsStatusItem) || !this._vcsProvider.isActivated) {
+        if (!this._vcsProvider && this._vcsStatusItem) {
             return this._vcsStatusItem.hide()
         } else if (!this._vcsProvider || !this._vcsProvider.isActivated) {
-            return null
+            return
         }
 
         if (!this._vcsStatusItem) {
@@ -196,6 +203,7 @@ export class VersionControlManager {
             if (!branch) {
                 return Log.warn("The branch name could not be found")
             }
+
             this._vcsStatusItem.setContents(<Branch branch={branch} diff={diff} />)
             this._vcsStatusItem.show()
         } catch (e) {

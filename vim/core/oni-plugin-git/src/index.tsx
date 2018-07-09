@@ -123,10 +123,9 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
     public async canHandleWorkspace(dir?: string): Promise<boolean> {
         try {
-            const isRepo = await this._git(this._projectRoot)
+            return this._git(this._projectRoot)
                 .silent()
                 .checkIsRepo()
-            return isRepo
         } catch (e) {
             this._oni.log.warn(
                 `Git provider was unable to check if this directory is a repository because ${
@@ -147,22 +146,19 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
     public getStatus = async (): Promise<StatusResult | void> => {
         try {
-            const isRepo = await this._git(this._projectRoot).checkIsRepo()
-            if (isRepo) {
-                const status = await this._git(this._projectRoot).status()
-                const { modified, staged } = this._getModifiedAndStaged(status.files)
-                return {
-                    staged,
-                    modified,
-                    ahead: status.ahead,
-                    behind: status.behind,
-                    created: status.created,
-                    deleted: status.deleted,
-                    currentBranch: status.current,
-                    conflicted: status.conflicted,
-                    untracked: status.not_added,
-                    remoteTrackingBranch: status.tracking,
-                }
+            const status = await this._git(this._projectRoot).status()
+            const { modified, staged } = this._getModifiedAndStaged(status.files)
+            return {
+                staged,
+                modified,
+                ahead: status.ahead,
+                behind: status.behind,
+                created: status.created,
+                deleted: status.deleted,
+                currentBranch: status.current,
+                conflicted: status.conflicted,
+                untracked: status.not_added,
+                remoteTrackingBranch: status.tracking,
             }
         } catch (error) {
             this._oni.log.warn(
@@ -171,12 +167,10 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public getDiff = async (): Promise<GitP.DiffResult | void> => {
+    public getDiff = async (): Promise<Diff | void> => {
         try {
-            const isRepo = await this._git(this._projectRoot).checkIsRepo()
-            if (isRepo) {
-                return this._git(this._projectRoot).diffSummary()
-            }
+            console.log("this._projectRoot: ", this._projectRoot)
+            return this._git(this._projectRoot).diffSummary()
         } catch (e) {
             const error = `Git provider unable to get current status because of: ${e.message}`
             this._oni.log.warn(error)
@@ -206,8 +200,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
         currentDir: string
     }) => {
         try {
-            const fetched = await this._git(this._projectRoot).fetch(remote, branch)
-            return fetched
+            return this._git(this._projectRoot).fetch(remote, branch)
         } catch (e) {
             const error = `Git provider unable to fetch branch because of: ${e.message}`
             this._oni.log.warn(error)
@@ -217,8 +210,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
     public getLocalBranches = async (): Promise<GitP.BranchSummary | void> => {
         try {
-            const summary = await this._git(this._projectRoot).branchLocal()
-            return summary
+            return this._git(this._projectRoot).branchLocal()
         } catch (e) {
             const error = `Git provider unable to get local branches because of: ${e.message}`
             this._oni.log.warn(error)
