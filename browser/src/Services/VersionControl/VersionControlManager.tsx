@@ -55,7 +55,7 @@ export class VersionControlManager {
 
             this._workspace.onDirectoryChanged.subscribe(async dir => {
                 const providerToUse = await this.getCompatibleProvider(dir)
-                this.handleProviderStatus(providerToUse)
+                await this.handleProviderStatus(providerToUse)
             })
         }
     }
