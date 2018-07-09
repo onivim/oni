@@ -1,6 +1,7 @@
 import * as Color from "color"
 import * as memoize from "lodash/memoize"
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 import * as React from "react"
 
 import styled, { pixel, withProps } from "../../UI/components/common"
@@ -226,43 +227,52 @@ export default class ColorHighlightLayer implements Oni.BufferLayer {
 
     private _getColorHighlights = (context: Oni.BufferLayerRenderContext) => {
         return context.visibleLines.map((line, idx) => {
-            const matches = line.match(this._colorRegex)
-            if (matches) {
-                const colors = matches.filter(Boolean)
-                if (colors.length) {
-                    const locations = colors.map(c => ({
-                        color: c,
-                        start: line.indexOf(c),
-                        end: line.indexOf(c) + c.length,
-                    }))
-                    const currentLine = context.topBufferLine + idx - 1
-                    return locations.map(location => {
-                        const startPosition = context.bufferToPixel({
-                            line: currentLine,
-                            character: location.start,
-                        })
-                        const endPosition = context.bufferToPixel({
-                            line: currentLine,
-                            character: location.end,
-                        })
+            try {
+                const matches = line.match(this._colorRegex)
+                if (matches) {
+                    const colors = matches.filter(Boolean)
+                    if (colors.length) {
+                        const locations = colors.map(c => ({
+                            color: c,
+                            start: line.indexOf(c),
+                            end: line.indexOf(c) + c.length,
+                        }))
+                        const currentLine = context.topBufferLine + idx - 1
+                        return locations.map(location => {
+                            const startPosition = context.bufferToPixel({
+                                line: currentLine,
+                                character: location.start,
+                            })
+                            const endPosition = context.bufferToPixel({
+                                line: currentLine,
+                                character: location.end,
+                            })
 
-                        const width = endPosition.pixelX - startPosition.pixelX
-                        return (
-                            <ColorHighlight
-                                width={width}
-                                color={location.color}
-                                left={startPosition.pixelX}
-                                top={startPosition.pixelY}
-                                height={context.fontPixelHeight}
-                                fontSize={this._fontSize}
-                                fontFamily={this._fontFamily}
-                                data-id="color-highlight"
-                            >
-                                {location.color}
-                            </ColorHighlight>
-                        )
-                    })
+                            if (!startPosition || !endPosition) {
+                                return null
+                            }
+
+                            const width = endPosition.pixelX - startPosition.pixelX
+                            return (
+                                <ColorHighlight
+                                    width={width}
+                                    left={startPosition.pixelX}
+                                    top={startPosition.pixelY}
+                                    height={context.fontPixelHeight}
+                                    fontSize={this._fontSize}
+                                    fontFamily={this._fontFamily}
+                                    color={location.color.toLowerCase()}
+                                    data-id="color-highlight"
+                                >
+                                    {location.color}
+                                </ColorHighlight>
+                            )
+                        })
+                    }
                 }
+            } catch (e) {
+                Log.warn(`Failed to create color highlights because ${e.message}`)
+                return null
             }
             return null
         })
