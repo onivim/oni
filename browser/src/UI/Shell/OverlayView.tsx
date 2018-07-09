@@ -7,8 +7,8 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import * as State from "./ShellState"
 import { StackLayer } from "../components/common"
+import * as State from "./ShellState"
 
 export interface IOverlaysViewProps {
     overlays: State.IOverlay[]
