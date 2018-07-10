@@ -49,6 +49,10 @@ export interface IConfigurationValues {
     // Whether or not the learning pane is available
     "experimental.particles.enabled": boolean
 
+    // Whether the color highlight layer is enabled
+    "experimental.colorHighlight.enabled": boolean
+    // Whitelist of extension for the color highlight layer
+    "experimental.colorHighlight.filetypes": string[]
     // Whether the indent lines should be shown
     "experimental.indentLines.enabled": boolean
     "experimental.indentLines.color": string

@@ -57,6 +57,23 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
 
+    "experimental.colorHighlight.enabled": false,
+    "experimental.colorHighlight.filetypes": [
+        ".css",
+        ".js",
+        ".jsx",
+        ".tsx",
+        ".ts",
+        ".re",
+        ".sass",
+        ".scss",
+        ".less",
+        ".pcss",
+        ".sss",
+        ".stylus",
+        ".xml",
+        ".svg",
+    ],
     "experimental.indentLines.enabled": false,
     "experimental.indentLines.color": null,
     "experimental.indentLines.filetypes": [
