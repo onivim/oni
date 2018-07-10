@@ -276,6 +276,6 @@ export const activate = (
         name: "Plugins: Toggle Visibility",
         detail: "Toggles the plugins pane in the sidebar",
         execute: togglePlugins,
-        enabled: () => configuration.getValue("sidebar.plugins.enabled")
+        enabled: () => configuration.getValue("sidebar.plugins.enabled"),
     })
 }
