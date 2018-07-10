@@ -15,7 +15,7 @@ const rootPath = path.join(__dirname, "..", "..")
 const cachePath = path.join(rootPath, ".oni_build_cache")
 
 const modulesToCheck =
-    os.platform() === "darwin" ? ["oni-neovim-binaries", "oni-ripgrep"] : ["oni-ripgrep"]
+    os.platform() !== "linux" ? ["oni-neovim-binaries", "oni-ripgrep"] : ["oni-ripgrep"]
 
 const isAuthenticated = !!process.env["GITHUB_TOKEN"]
 

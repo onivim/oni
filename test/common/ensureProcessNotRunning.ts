@@ -18,11 +18,10 @@ export const ensureProcessNotRunning = async (processName: string) => {
     while (attempts < maxAttempts) {
         console.log(`${attempts}/${maxAttempts} Active Processes:`)
 
-        const nvimProcessGone = await tryToKillProcess(processName)
-        const oniProcessGone = await tryToKillProcess(processName)
+        const targetProcessGone = await tryToKillProcess(processName)
 
-        if (nvimProcessGone && oniProcessGone) {
-            console.log("All processes gone!")
+        if (targetProcessGone) {
+            console.log(`All ${processName} processes gone!`)
             return
         }
 
@@ -30,22 +29,26 @@ export const ensureProcessNotRunning = async (processName: string) => {
     }
 }
 
-const tryToKillProcess = async (name: string): Promise<boolean> => {
-    const oniProcesses = await findProcess("name", "oni")
-    oniProcesses.forEach(processInfo => {
+const tryToKillProcess = async (processName: string): Promise<boolean> => {
+    const targetProcesses = await findProcess("name", processName)
+
+    targetProcesses.forEach(processInfo => {
         console.log(` - Name: ${processInfo.name} PID: ${processInfo.pid}`)
     })
-    const isOniProcess = processInfo => processInfo.name.toLowerCase().indexOf(name) >= 0
-    const filteredProcesses = oniProcesses.filter(isOniProcess)
-    console.log(`- Found ${filteredProcesses.length} processes with name:  ${name}`)
+
+    const isValidTargetProcess = processInfo =>
+        processInfo.name.toLowerCase().indexOf(processName) >= 0
+    const filteredProcesses = targetProcesses.filter(isValidTargetProcess)
+
+    console.log(`- Found ${filteredProcesses.length} processes with name:  ${processName}`)
 
     if (filteredProcesses.length === 0) {
-        console.log("No Oni processes found - leaving.")
+        console.log(`No ${processName} processes found - leaving.`)
         return true
     }
 
     filteredProcesses.forEach(processInfo => {
-        console.log("Attemping to kill pid: " + processInfo.pid)
+        console.log("Attempting to kill pid: " + processInfo.pid)
         // Sometimes, there can be a race condition here. For example,
         // the process may have closed between when we queried above
         // and when we try to kill it. So we'll wrap it in a try/catch.

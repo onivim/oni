@@ -13,15 +13,14 @@ import { NeovimInstance, NeovimScreen } from "./../../neovim"
 import { INeovimRenderer } from "./../../Renderer"
 import FileDropHandler from "./FileDropHandler"
 
+import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 import { Cursor } from "./../../UI/components/Cursor"
 import { CursorLine } from "./../../UI/components/CursorLine"
 import { InstallHelp } from "./../../UI/components/InstallHelp"
 import { TabsContainer } from "./../../UI/components/Tabs"
 import { ToolTips } from "./../../UI/components/ToolTip"
-import { TypingPrediction } from "./../../UI/components/TypingPredictions"
 
-import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
-
+import { StackLayer } from "../../UI/components/common"
 import { setViewport } from "./../NeovimEditor/NeovimEditorActions"
 import { NeovimBufferLayers } from "./NeovimBufferLayersView"
 import { NeovimEditorLoadingOverlay } from "./NeovimEditorLoadingOverlay"
@@ -88,12 +87,11 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
                                     screen={this.props.screen}
                                 />
                             </div>
-                            <div className="stack layer">
-                                <TypingPrediction typingPrediction={this.props.typingPrediction} />
+                            <StackLayer zIndex={2}>
                                 <Cursor typingPrediction={this.props.typingPrediction} />
                                 <CursorLine lineType={"line"} />
                                 <CursorLine lineType={"column"} />
-                            </div>
+                            </StackLayer>
                             <NeovimInput
                                 startActive={this.props.autoFocus}
                                 onActivate={this.props.onActivate}
@@ -107,9 +105,9 @@ class NeovimSurface extends React.Component<INeovimSurfaceProps> {
                                 onKeyDown={this.props.onKeyDown}
                             />
                             <NeovimBufferLayers />
-                            <div className="stack layer">
+                            <StackLayer>
                                 <ToolTips />
-                            </div>
+                            </StackLayer>
                             <NeovimEditorLoadingOverlay />
                             <InstallHelp />
                         </div>

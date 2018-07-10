@@ -69,27 +69,32 @@ export const startNeovim = async (
 
     const noopInitVimPath = remapPathToUnpackedAsar(path.join(__dirname, "vim", "noop.vim"))
 
-    const nvimWindowsProcessPath = path.join(
-        __dirname,
-        "node_modules",
-        "oni-neovim-binaries",
-        "bin",
-        "Neovim",
-        "bin",
-        "nvim.exe",
-    )
-    const nvimMacProcessPath = path.join(
-        __dirname,
-        "node_modules",
-        "oni-neovim-binaries",
-        "bin",
-        "nvim-osx64",
-        "bin",
-        "nvim",
-    )
+    const nvimWindowsProcessPath =
+        process.env.ONI_NEOVIM_PATH ||
+        path.join(
+            __dirname,
+            "node_modules",
+            "oni-neovim-binaries",
+            "bin",
+            "Neovim",
+            "bin",
+            "nvim.exe",
+        )
+
+    const nvimMacProcessPath =
+        process.env.ONI_NEOVIM_PATH ||
+        path.join(
+            __dirname,
+            "node_modules",
+            "oni-neovim-binaries",
+            "bin",
+            "nvim-osx64",
+            "bin",
+            "nvim",
+        )
 
     // Assume nvim is available in path for Linux
-    const nvimLinuxPath = process.env["ONI_NEOVIM_PATH"] || "nvim" // tslint:disable-line
+    const nvimLinuxPath = process.env.ONI_NEOVIM_PATH || "nvim"
 
     let nvimProcessPath = Platform.isWindows()
         ? nvimWindowsProcessPath

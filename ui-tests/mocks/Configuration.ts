@@ -2,6 +2,7 @@ const Configuration = jest.fn().mockImplementation(() => {
     return {
         notifyListeners: jest.fn(),
         updateConfig: jest.fn(),
+        getValue: jest.fn(),
     }
 })
 

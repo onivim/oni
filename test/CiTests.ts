@@ -58,6 +58,7 @@ const CiTests = [
     "TextmateHighlighting.ScopesOnEnterTest",
     "TextmateHighlighting.TokenColorOverrideTest",
     "IndentGuide.BufferLayerTest",
+    "ColorHighlight.BufferLayerTest",
 
     "Theming.LightAndDarkColorsTest",
 

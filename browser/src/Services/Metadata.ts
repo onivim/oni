@@ -42,7 +42,7 @@ export const showAboutMessage = async () => {
         `${metadata.name} version ${metadata.version}`,
         "https://www.onivim.io",
         "",
-        "Copyright 2017 Bryan Phelps",
+        "Copyright 2018 Bryan Phelps",
         "MIT License",
     ]
 
