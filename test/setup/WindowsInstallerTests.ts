@@ -14,8 +14,8 @@ const oniVersion = require(packageJsonPath).version // tslint:disable-line
 
 let arch = os.arch() === "x32" ? "-ia32" : ""
 
-if (process.env["APPVEYOR"]) {
-    arch  = process.env["PLATFORM"] === "x86" ? "-ia32" : ""
+if (process.env.APPVEYOR) {
+    arch = process.env.PLATFORM === "x86" ? "-ia32" : ""
 }
 
 const installExecutablePath = path.join(rootPath, "dist", `Oni-${oniVersion}${arch}-win.exe`)
