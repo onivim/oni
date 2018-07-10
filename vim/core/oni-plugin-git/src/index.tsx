@@ -7,9 +7,7 @@ import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 import * as GitP from "simple-git/promise"
 
-// TODO:
-// Add types to Oni-api and import this from there
-import * as VCS from "./../../../../browser/src/Services/VersionControl/VersionControlProvider"
+import * as VCS from "./vcs" // TODO: import from oni-api
 
 interface FileSummary {
     index: string

@@ -58,11 +58,4 @@ describe("Version Control pane tests", () => {
             expect(result.currentBranch).toEqual("master")
         }
     })
-
-    // it("Should update the redux store with new status", async () => {
-    // const result = await vcsPane.getStatus()
-    // const state = store.getState()
-    // const actions = store.getActions()
-    // expect(state.status.currentBranch).toEqual("master")
-    // })
 })
