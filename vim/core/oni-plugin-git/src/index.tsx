@@ -169,7 +169,6 @@ export class GitVersionControlProvider implements VersionControlProvider {
 
     public getDiff = async (): Promise<Diff | void> => {
         try {
-            console.log("this._projectRoot: ", this._projectRoot)
             return this._git(this._projectRoot).diffSummary()
         } catch (e) {
             const error = `Git provider unable to get current status because of: ${e.message}`

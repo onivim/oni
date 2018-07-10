@@ -147,7 +147,7 @@ export class VersionControlManager {
     }
 
     private _setupSubscriptions() {
-        const subscriptions = [
+        this._subscriptions = [
             this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
                 await this._updateBranchIndicator()
             }),
@@ -162,8 +162,6 @@ export class VersionControlManager {
                 await this._updateBranchIndicator()
             }),
         ]
-
-        this._subscriptions = subscriptions
     }
 
     private _registerCommands = () => {
