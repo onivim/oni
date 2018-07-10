@@ -11,7 +11,9 @@ import * as path from "path"
 const rootPath = path.join(__dirname, "..", "..", "..")
 const packageJsonPath = path.join(rootPath, "package.json")
 const oniVersion = require(packageJsonPath).version // tslint:disable-line
-const installExecutablePath = path.join(rootPath, "dist", `Oni-${oniVersion}-win.exe`)
+
+const arch = os.arch() === "x64" ? "" : "-ia32"
+const installExecutablePath = path.join(rootPath, "dist", `Oni-${oniVersion}${arch}-win.exe`)
 
 const runInstaller = (setupExecutablePath: string, installDirectory: string) => {
     return cp.spawnSync(installExecutablePath, [
