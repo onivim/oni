@@ -52,12 +52,12 @@ const ChangeSpan = styled.span`
 `
 
 interface BranchProps {
-    branch: string | void
+    branch: string
     children?: React.ReactNode
-    diff: Diff | void
+    diff: Diff
 }
 
-export const Branch = ({ diff, branch, children }: BranchProps) =>
+export const Branch: React.SFC<BranchProps> = ({ diff, branch, children }) =>
     branch && (
         <BranchContainer>
             <BranchText>
@@ -93,7 +93,7 @@ interface ChangesProps {
     insertions: number
 }
 
-export const DeletionsAndInsertions = ({ deletions, insertions }: ChangesProps) => (
+export const DeletionsAndInsertions: React.SFC<ChangesProps> = ({ deletions, insertions }) => (
     <span>
         <VCSIcon type="addition" num={insertions} />
         {!!(deletions && insertions) && <span key={2}>, </span>}
@@ -101,7 +101,7 @@ export const DeletionsAndInsertions = ({ deletions, insertions }: ChangesProps) 
     </span>
 )
 
-export const VCSIcon = ({ type, num }: ICreateIconArgs) =>
+export const VCSIcon: React.SFC<ICreateIconArgs> = ({ type, num }) =>
     !!num && (
         <span>
             <ChangeSpanContainer type={type}>

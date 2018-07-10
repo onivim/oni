@@ -184,25 +184,21 @@ export class VersionControlManager {
     }
 
     private _updateBranchIndicator = async (branchName?: string) => {
-        if (!this._vcsProvider && this._vcsStatusItem) {
-            return this._vcsStatusItem.hide()
-        } else if (!this._vcsProvider || !this._vcsProvider.isActivated) {
+        if (!this._vcsProvider) {
             return
-        }
-
-        if (!this._vcsStatusItem) {
+        } else if (!this._vcsStatusItem) {
             const vcsId = `oni.status.${this._vcs}`
             this._vcsStatusItem = this._statusBar.createItem(1, vcsId)
         }
 
         try {
-            const [branch, diff] = await Promise.all([
-                await this._vcsProvider.getBranch(),
-                await this._vcsProvider.getDiff(),
-            ])
+            const branch = await this._vcsProvider.getBranch()
+            const diff = await this._vcsProvider.getDiff()
 
-            if (!branch) {
-                return Log.warn("The branch name could not be found")
+            if (!branch || !diff) {
+                return Log.warn(`The ${!branch ? "branch name" : "diff"} could not be found`)
+            } else if (!branch && !diff) {
+                return this._vcsStatusItem.hide()
             }
 
             this._vcsStatusItem.setContents(<Branch branch={branch} diff={diff} />)
