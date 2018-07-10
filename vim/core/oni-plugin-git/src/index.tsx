@@ -7,15 +7,9 @@ import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 import * as GitP from "simple-git/promise"
 
-export type VCSBranchChangedEvent = string
-export type VCSStagedFilesChangedEvent = string
-export interface VCSFileStatusChangedEvent {
-    path: string
-    status: "staged"
-}
-export type Diff = GitP.DiffResult
-export type Summary = StatusResult
-export type SupportedProviders = "git" | "svn"
+// TODO:
+// Add types to Oni-api and import this from there
+import * as VCS from "./../../../../browser/src/Services/VersionControl/VersionControlProvider"
 
 interface FileSummary {
     index: string
@@ -23,55 +17,15 @@ interface FileSummary {
     working_dir: string
 }
 
-export interface StatusResult {
-    ahead: number
-    behind: number
-    currentBranch: string
-    modified: string[]
-    staged: string[]
-    conflicted: string[]
-    created: string[]
-    deleted: string[]
-    untracked: string[]
-    remoteTrackingBranch: string
-}
-
-export interface VersionControlProvider {
-    // Events
-    onFileStatusChanged: IEvent<VCSFileStatusChangedEvent>
-    onStagedFilesChanged: IEvent<VCSStagedFilesChangedEvent>
-    onBranchChanged: IEvent<VCSBranchChangedEvent>
-    onPluginActivated: IEvent<void>
-    onPluginDeactivated: IEvent<void>
-
-    name: SupportedProviders
-    isActivated: boolean
-    deactivate(): void
-    activate(): void
-    canHandleWorkspace(dir?: string): Promise<boolean>
-    getStatus(): Promise<StatusResult | void>
-    getRoot(): Promise<string | void>
-    getDiff(): Promise<Diff | void>
-    getBranch(): Promise<string | void>
-    getLocalBranches(): Promise<GitP.BranchSummary | void>
-    changeBranch(branch: string): Promise<void>
-    stageFile(file: string, projectRoot?: string): Promise<void>
-    fetchBranchFromRemote(args: {
-        branch: string
-        origin?: string
-        currentDir: string
-    }): Promise<GitP.FetchResult>
-}
-
-export class GitVersionControlProvider implements VersionControlProvider {
+export class GitVersionControlProvider implements VCS.VersionControlProvider {
     private readonly _name = "git"
     private _onPluginActivated = new Event<void>("Oni::VCSPluginActivated")
     private _onPluginDeactivated = new Event<void>("Oni::VCSPluginDeactivated")
-    private _onBranchChange = new Event<VCSBranchChangedEvent>("Oni::VCSBranchChanged")
-    private _onStagedFilesChanged = new Event<VCSStagedFilesChangedEvent>(
+    private _onBranchChange = new Event<VCS.BranchChangedEvent>("Oni::VCSBranchChanged")
+    private _onStagedFilesChanged = new Event<VCS.StagedFilesChangedEvent>(
         "Oni::VCSStagedFilesChanged",
     )
-    private _onFileStatusChanged = new Event<VCSFileStatusChangedEvent>(
+    private _onFileStatusChanged = new Event<VCS.FileStatusChangedEvent>(
         "Oni::VCSFilesStatusChanged",
     )
     private _isActivated = false
@@ -83,15 +37,15 @@ export class GitVersionControlProvider implements VersionControlProvider {
         })
     }
 
-    get onBranchChanged(): IEvent<VCSBranchChangedEvent> {
+    get onBranchChanged(): IEvent<VCS.BranchChangedEvent> {
         return this._onBranchChange
     }
 
-    get onFileStatusChanged(): IEvent<VCSFileStatusChangedEvent> {
+    get onFileStatusChanged(): IEvent<VCS.FileStatusChangedEvent> {
         return this._onFileStatusChanged
     }
 
-    get onStagedFilesChanged(): IEvent<VCSStagedFilesChangedEvent> {
+    get onStagedFilesChanged(): IEvent<VCS.StagedFilesChangedEvent> {
         return this._onStagedFilesChanged
     }
 
@@ -107,7 +61,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
         return this._isActivated
     }
 
-    get name(): SupportedProviders {
+    get name(): VCS.SupportedProviders {
         return this._name
     }
 
@@ -144,7 +98,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public getStatus = async (): Promise<StatusResult | void> => {
+    public getStatus = async (): Promise<VCS.StatusResult | void> => {
         try {
             const status = await this._git(this._projectRoot).status()
             const { modified, staged } = this._getModifiedAndStaged(status.files)
@@ -167,7 +121,7 @@ export class GitVersionControlProvider implements VersionControlProvider {
         }
     }
 
-    public getDiff = async (): Promise<Diff | void> => {
+    public getDiff = async () => {
         try {
             return this._git(this._projectRoot).diffSummary()
         } catch (e) {

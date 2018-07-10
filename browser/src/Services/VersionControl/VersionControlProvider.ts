@@ -1,9 +1,9 @@
 import { IEvent } from "oni-types"
-import { BranchSummary, DiffResult, FetchResult } from "simple-git/promise"
+import { BranchSummary, FetchResult } from "simple-git/promise"
 
-export type VCSBranchChangedEvent = string
-export type VCSStagedFilesChangedEvent = string
-export interface VCSFileStatusChangedEvent {
+export type BranchChangedEvent = string
+export type StagedFilesChangedEvent = string
+export interface FileStatusChangedEvent {
     path: string
     status: "staged"
 }
@@ -21,11 +21,11 @@ export interface StatusResult {
     remoteTrackingBranch: string
 }
 
-export default interface VersionControlProvider {
+export interface VersionControlProvider {
     // Events
-    onFileStatusChanged: IEvent<VCSFileStatusChangedEvent>
-    onStagedFilesChanged: IEvent<VCSStagedFilesChangedEvent>
-    onBranchChanged: IEvent<VCSBranchChangedEvent>
+    onFileStatusChanged: IEvent<FileStatusChangedEvent>
+    onStagedFilesChanged: IEvent<StagedFilesChangedEvent>
+    onBranchChanged: IEvent<BranchChangedEvent>
     onPluginActivated: IEvent<void>
     onPluginDeactivated: IEvent<void>
 
@@ -36,7 +36,7 @@ export default interface VersionControlProvider {
     canHandleWorkspace(dir?: string): Promise<boolean>
     getStatus(): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
-    getDiff(): Promise<DiffResult | void>
+    getDiff(): Promise<Diff | void>
     getBranch(): Promise<string | void>
     getLocalBranches(): Promise<BranchSummary | void>
     changeBranch(branch: string): Promise<void>
@@ -48,6 +48,28 @@ export default interface VersionControlProvider {
     }): Promise<FetchResult>
 }
 
-export type Diff = DiffResult
+export interface DiffResultTextFile {
+    file: string
+    changes: number
+    insertions: number
+    deletions: number
+    binary: boolean
+}
+
+export interface DiffResultBinaryFile {
+    file: string
+    before: number
+    after: number
+    binary: boolean
+}
+
+export interface Diff {
+    files: Array<DiffResultTextFile | DiffResultBinaryFile>
+    insertions: number
+    deletions: number
+}
+
 export type Summary = StatusResult
 export type SupportedProviders = "git" | "svn"
+
+export default VersionControlProvider
