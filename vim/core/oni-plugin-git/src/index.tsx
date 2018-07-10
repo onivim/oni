@@ -30,6 +30,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
     private _projectRoot: string
 
     constructor(private _oni: Oni.Plugin.Api, private _git = GitP) {
+        this._projectRoot = this._oni.workspace.activeWorkspace
         this._oni.workspace.onDirectoryChanged.subscribe(workspace => {
             this._projectRoot = workspace
         })
@@ -159,7 +160,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         }
     }
 
-    public getLocalBranches = async (): Promise<GitP.BranchSummary | void> => {
+    public getLocalBranches = async () => {
         try {
             return this._git(this._projectRoot).branchLocal()
         } catch (e) {
