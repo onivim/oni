@@ -8,7 +8,7 @@ import { css, styled, withProps } from "./../../UI/components/common"
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 import { StatusResult } from "./VersionControlProvider"
-import { IState } from "./VersionControlStore"
+import { VersionControlState } from "./VersionControlStore"
 
 const Row = styled.div`
     display: flex;
@@ -215,8 +215,8 @@ class VersionControlView extends React.Component<IProps, State> {
     }
 }
 
-export default connect<IState>(
-    (state: IState): IProps => ({
+export default connect<VersionControlState>(
+    (state: VersionControlState): IProps => ({
         status: state.status,
         hasFocus: state.hasFocus,
         hasError: state.hasError,

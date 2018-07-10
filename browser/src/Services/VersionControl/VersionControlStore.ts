@@ -1,7 +1,7 @@
 import { createStore as createReduxStore } from "./../../Redux"
 import { StatusResult } from "./VersionControlProvider"
 
-export interface VersionControlStore {
+export interface VersionControlState {
     status: StatusResult
     hasFocus: boolean
     hasError: boolean
@@ -13,7 +13,7 @@ interface IGenericAction<T, P = undefined> {
     payload?: P
 }
 
-export const DefaultState: VersionControlStore = {
+export const DefaultState: VersionControlState = {
     status: {
         currentBranch: null,
         staged: [],
@@ -45,7 +45,7 @@ type IAction =
     | IDeactivateAction
     | IActivateAction
 
-export function reducer(state: VersionControlStore, action: IAction) {
+export function reducer(state: VersionControlState, action: IAction) {
     switch (action.type) {
         case "ENTER":
             return { ...state, hasFocus: true }

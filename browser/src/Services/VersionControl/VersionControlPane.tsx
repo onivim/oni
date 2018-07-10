@@ -7,7 +7,7 @@ import { Provider, Store } from "react-redux"
 import { VersionControlProvider, VersionControlView } from "./"
 import { IWorkspace } from "./../Workspace"
 import { ISendVCSNotification } from "./VersionControlManager"
-import { IState } from "./VersionControlStore"
+import { VersionControlState } from "./VersionControlStore"
 
 export default class VersionControlPane {
     public get id(): string {
@@ -23,7 +23,7 @@ export default class VersionControlPane {
         private _workspace: IWorkspace,
         private _vcsProvider: VersionControlProvider,
         private _sendNotification: ISendVCSNotification,
-        private _store: Store<IState>,
+        private _store: Store<VersionControlState>,
     ) {
         this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
             await this.getStatus()

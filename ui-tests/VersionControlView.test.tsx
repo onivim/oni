@@ -4,13 +4,16 @@ import * as React from "react"
 import { Provider } from "react-redux"
 import configureStore, { MockStore, MockStoreCreator } from "redux-mock-store"
 
-import { DefaultState, IState } from "./../browser/src/Services/VersionControl/VersionControlStore"
+import {
+    DefaultState,
+    VersionControlState,
+} from "./../browser/src/Services/VersionControl/VersionControlStore"
 import VersionControlView, {
     GitStatus,
     SectionTitle,
 } from "./../browser/src/Services/VersionControl/VersionControlView"
 
-const mockStore: MockStoreCreator<IState> = configureStore()
+const mockStore: MockStoreCreator<VersionControlState> = configureStore()
 
 const noop = () => ({})
 
