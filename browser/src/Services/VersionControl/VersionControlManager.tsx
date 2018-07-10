@@ -81,18 +81,21 @@ export class VersionControlManager {
 
     public async handleProviderStatus(newProvider: VersionControlProvider): Promise<void> {
         const isSameProvider = this._vcsProvider && newProvider && this._vcs === newProvider.name
+        const noCompatibleProvider = this._vcsProvider && !newProvider
+        const newReplacementProvider = Boolean(this._vcsProvider && newProvider)
+        const compatibleProvider = Boolean(!this._vcsProvider && newProvider)
 
         switch (true) {
             case isSameProvider:
                 break
-            case Boolean(this._vcsProvider && !newProvider):
+            case noCompatibleProvider:
                 this.deactivateProvider()
                 break
-            case Boolean(this._vcsProvider && newProvider):
+            case newReplacementProvider:
                 this.deactivateProvider()
                 await this._activateVCSProvider(newProvider)
                 break
-            case Boolean(!this._vcsProvider && newProvider):
+            case compatibleProvider:
                 await this._activateVCSProvider(newProvider)
                 break
             default:
