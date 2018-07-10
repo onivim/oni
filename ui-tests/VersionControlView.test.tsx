@@ -14,10 +14,9 @@ const mockStore: MockStoreCreator<IState> = configureStore()
 
 const noop = () => ({})
 
-// jest.mock("./../browser/src/UI/components/VimNavigator", () => {
-//     const React = require("react") // tslint:disable-line
-//     return <div />
-// })
+// jest.mock("./../browser/src/UI/components/VimNavigator", props => ({
+//     render: () => props.children,
+// }))
 
 jest.mock("../browser/src/UI/components/Sneakable", () => {
     const React = require("react") // tslint:disable-line
@@ -48,7 +47,7 @@ describe("<VersionControlView />", () => {
                 visibility={true}
                 titleId="modified"
                 selectedId="file1"
-                symbol="M"
+                icon="M"
                 files={null}
             />,
         )
@@ -63,7 +62,7 @@ describe("<VersionControlView />", () => {
                 toggleVisibility={noop}
                 onClick={noop}
                 selectedId="file1"
-                symbol="M"
+                icon="M"
                 files={["test1", "test2"]}
             />,
         )

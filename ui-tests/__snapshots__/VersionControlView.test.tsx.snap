@@ -26,7 +26,9 @@ exports[`<VersionControlView /> should match the last recorded snapshot unless a
       onClick={[Function]}
     >
       <styled.div>
-        <Icon />
+        <Icon
+          name="M"
+        />
         <styled.span>
           test1
         </styled.span>
@@ -42,7 +44,9 @@ exports[`<VersionControlView /> should match the last recorded snapshot unless a
       onClick={[Function]}
     >
       <styled.div>
-        <Icon />
+        <Icon
+          name="M"
+        />
         <styled.span>
           test2
         </styled.span>
