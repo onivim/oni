@@ -16,6 +16,14 @@ const arch = os.arch() === "x64" ? "" : "-ia32"
 const installExecutablePath = path.join(rootPath, "dist", `Oni-${oniVersion}${arch}-win.exe`)
 
 const runInstaller = (setupExecutablePath: string, installDirectory: string) => {
+    const doesInstallerExist = fs.existsSync(setupExecutablePath)
+
+    assert.strictEqual(
+        doesInstallerExist,
+        true,
+        "Validate installer exists at: " + setupExecutablePath,
+    )
+
     return cp.spawnSync(installExecutablePath, [
         "/silent",
         "/norestart",
