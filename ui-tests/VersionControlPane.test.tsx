@@ -13,6 +13,8 @@ import MockWorkspace from "./mocks/Workspace"
 jest.mock("lodash/capitalize", (str: string) => str)
 jest.mock("./../browser/src/Services/VersionControl/VersionControlView", () => "VersionControlView")
 
+const makePromise = (arg?: any) => Promise.resolve(arg)
+
 const provider: VersionControlProvider = {
     name: "git",
     onFileStatusChanged: new Event(),
@@ -24,17 +26,17 @@ const provider: VersionControlProvider = {
     fetchBranchFromRemote: () => null,
     stageFile: () => null,
     changeBranch: () => null,
-    getLocalBranches: () => Promise.resolve(["branch1", "branch2"]),
-    canHandleWorkspace: () => Promise.resolve(true),
-    getDiff: () => Promise.resolve({}),
+    getLocalBranches: () => makePromise(["branch1", "branch2"]),
+    canHandleWorkspace: () => makePromise(true),
+    getDiff: () => makePromise({}),
     activate: () => null,
     deactivate: () => null,
     getStatus: () =>
-        Promise.resolve({
+        makePromise({
             currentBranch: "master",
         }),
-    getRoot: () => Promise.resolve("/test/dir"),
-    getBranch: () => Promise.resolve("local"),
+    getRoot: () => makePromise("/test/dir"),
+    getBranch: () => makePromise("local"),
 }
 
 describe("Version Control pane tests", () => {

@@ -656,7 +656,7 @@
         "ccov:instrument":
             "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
         "ccov:test:browser":
-            "cross-env ONI_CCOV=1 electron-mocha --renderer --require browser/testHelpers.js -R browser/testCoverageReporter --recursive lib_test/browser/test",
+            "cross-env ONI_CCOV=1 electron-mocha --renderer --require browser/testHelpers.js -R browser/testCoverageReporter --recursive lib_test/browser/test && yarn run test:unit:react:coverage",
         "ccov:remap:browser:html":
             "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output html-report --type html",
         "ccov:remap:browser:lcov":

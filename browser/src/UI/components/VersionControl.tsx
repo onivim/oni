@@ -96,7 +96,7 @@ interface ChangesProps {
 export const DeletionsAndInsertions: React.SFC<ChangesProps> = ({ deletions, insertions }) => (
     <span>
         <VCSIcon type="addition" num={insertions} />
-        {!!(deletions && insertions) && <span key={2}>, </span>}
+        {deletions && insertions && <span key={2}>, </span>}
         <VCSIcon type="deletion" num={deletions} />
     </span>
 )

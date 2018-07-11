@@ -74,7 +74,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         this._onPluginDeactivated.dispatch()
     }
 
-    public async canHandleWorkspace(dir?: string): Promise<boolean> {
+    public async canHandleWorkspace(dir?: string) {
         try {
             return this._git(this._projectRoot)
                 .silent()
@@ -89,7 +89,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         }
     }
 
-    public async getRoot(): Promise<string | void> {
+    public async getRoot() {
         try {
             return this._git(this._projectRoot).revparse(["--show-toplevel"])
         } catch (e) {

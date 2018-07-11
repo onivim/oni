@@ -25,6 +25,8 @@ jest.mock("./../browser/src/neovim/SharedNeovimInstance", () => ({
     }),
 }))
 
+const makePromise = (arg?: any) => Promise.resolve(arg)
+
 jest.mock("../browser/src/UI/components/Sneakable", () => {
     const React = require("react") // tslint:disable-line
     return { Sneakable: () => <div /> }
@@ -32,9 +34,7 @@ jest.mock("../browser/src/UI/components/Sneakable", () => {
 
 describe("<VersionControlView />", () => {
     const state = { ...DefaultState, activated: true, hasFocus: true }
-    const container = shallow(
-        <VersionControlView {...state} getStatus={() => Promise.resolve({})} />,
-    )
+    const container = shallow(<VersionControlView {...state} getStatus={() => makePromise({})} />)
     it("renders without crashing", () => {
         expect(container.length).toBe(1)
     })
@@ -94,7 +94,7 @@ describe("<VersionControlView />", () => {
         }
 
         const statusComponent = shallow(
-            <VersionControlView {...stateCopy} getStatus={() => Promise.resolve({})} />,
+            <VersionControlView {...stateCopy} getStatus={() => makePromise({})} />,
         )
             .dive()
             .findWhere(component => component.prop("titleId") === "modified")

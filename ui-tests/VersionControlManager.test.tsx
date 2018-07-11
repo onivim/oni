@@ -2,6 +2,7 @@ import * as Oni from "oni-api"
 import { Event } from "oni-types"
 import * as React from "react"
 
+import { Branch } from "../browser/src/UI/components/VersionControl"
 import {
     VersionControlManager,
     VersionControlProvider,
@@ -13,11 +14,12 @@ import MockEditorManager from "./mocks/EditorManager"
 import MockMenu from "./mocks/MenuManager"
 import MockNotifications from "./mocks/Notifications"
 import MockSidebar from "./mocks/Sidebar"
-import MockStatusbar, { mockStatusBarSetContents, mockStatusBarHide } from "./mocks/Statusbar"
+import MockStatusbar, { mockStatusBarHide, mockStatusBarSetContents } from "./mocks/Statusbar"
 import MockWorkspace from "./mocks/Workspace"
-import { Branch } from "../browser/src/UI/components/VersionControl"
 
 jest.unmock("lodash")
+
+const makePromise = (arg?: any) => Promise.resolve(arg)
 
 const provider: VersionControlProvider = {
     name: "svn",
@@ -30,14 +32,14 @@ const provider: VersionControlProvider = {
     fetchBranchFromRemote: () => null,
     stageFile: () => null,
     changeBranch: () => null,
-    getLocalBranches: () => Promise.resolve(["branch1", "branch2"]),
-    canHandleWorkspace: () => Promise.resolve(true),
-    getDiff: () => Promise.resolve({}),
+    getLocalBranches: () => makePromise(["branch1", "branch2"]),
+    canHandleWorkspace: () => makePromise(true),
+    getDiff: () => makePromise({}),
     activate: () => null,
     deactivate: () => null,
-    getStatus: () => Promise.resolve({}),
-    getRoot: () => Promise.resolve("/test/dir"),
-    getBranch: () => Promise.resolve("local"),
+    getStatus: () => makePromise({}),
+    getRoot: () => makePromise("/test/dir"),
+    getBranch: () => makePromise("local"),
 }
 
 describe("Version Control Manager tests", () => {
@@ -70,7 +72,7 @@ describe("Version Control Manager tests", () => {
     })
 
     it("Should correctly hide the status bar item if the dir cannot handle the workspace", () => {
-        provider.canHandleWorkspace = async () => Promise.resolve(false)
+        provider.canHandleWorkspace = async () => makePromise(false)
         vcsManager.registerProvider(provider)
         expect(mockStatusBarHide.mock.calls.length).toBe(1)
     })
