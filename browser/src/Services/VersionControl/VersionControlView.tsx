@@ -126,7 +126,7 @@ interface State {
     untracked: boolean
 }
 
-class VersionControlView extends React.Component<IProps, State> {
+export class VersionControlView extends React.Component<IProps, State> {
     public state: State = {
         modified: true,
         staged: true,

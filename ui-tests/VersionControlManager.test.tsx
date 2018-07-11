@@ -1,5 +1,6 @@
 import * as Oni from "oni-api"
 import { Event } from "oni-types"
+import * as React from "react"
 
 import {
     VersionControlManager,
@@ -7,12 +8,14 @@ import {
 } from "./../browser/src/Services/VersionControl"
 
 import MockCommands from "./mocks/CommandManager"
+import { configuration as MockConfiguration } from "./mocks/Configuration"
 import MockEditorManager from "./mocks/EditorManager"
 import MockMenu from "./mocks/MenuManager"
 import MockNotifications from "./mocks/Notifications"
 import MockSidebar from "./mocks/Sidebar"
-import MockStatusbar, { mockStatusBarHide } from "./mocks/Statusbar"
+import MockStatusbar, { mockStatusBarSetContents, mockStatusBarHide } from "./mocks/Statusbar"
 import MockWorkspace from "./mocks/Workspace"
+import { Branch } from "../browser/src/UI/components/VersionControl"
 
 jest.unmock("lodash")
 
@@ -48,6 +51,7 @@ describe("Version Control Manager tests", () => {
             new MockCommands(),
             new MockSidebar(),
             new MockNotifications(),
+            MockConfiguration,
         )
         vcsManager.registerProvider(provider)
     })
@@ -79,5 +83,10 @@ describe("Version Control Manager tests", () => {
     it("Should return the correct local branches", async () => {
         const localBranches = await provider.getLocalBranches()
         expect(localBranches).toEqual(expect.arrayContaining(["branch1", "branch2"]))
+    })
+
+    it("should set the contents of the statusbar correctly", () => {
+        const branch = <Branch diff={{} as any} branch="local" />
+        expect(mockStatusBarSetContents.mock.calls[0][0]).toEqual(branch)
     })
 })

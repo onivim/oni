@@ -1,15 +1,17 @@
 import * as Oni from "oni-api"
 import { Event } from "oni-types"
-import configureMockStore, { MockStoreCreator } from "redux-mock-store"
 
 import { VersionControlProvider } from "../browser/src/Services/VersionControl"
 import VersionControlPane from "./../browser/src/Services/VersionControl/VersionControlPane"
-import { DefaultState, IState } from "./../browser/src/Services/VersionControl/VersionControlStore"
-import VersionControlView from "./../browser/src/Services/VersionControl/VersionControlView"
+import store, {
+    DefaultState,
+    VersionControlState,
+} from "./../browser/src/Services/VersionControl/VersionControlStore"
 import MockEditorManager from "./mocks/EditorManager"
 import MockWorkspace from "./mocks/Workspace"
 
 jest.mock("lodash/capitalize", (str: string) => str)
+jest.mock("./../browser/src/Services/VersionControl/VersionControlView", () => "VersionControlView")
 
 const provider: VersionControlProvider = {
     name: "git",
@@ -38,8 +40,7 @@ const provider: VersionControlProvider = {
 describe("Version Control pane tests", () => {
     const mockManager = new MockEditorManager()
     const mockWorkspace = new MockWorkspace()
-    const MockStore: MockStoreCreator<IState> = configureMockStore()
-    const store = MockStore({ ...DefaultState })
+    const vcsStore = store
     const vcsPane = new VersionControlPane(
         mockManager,
         mockWorkspace,
@@ -57,5 +58,10 @@ describe("Version Control pane tests", () => {
         if (result) {
             expect(result.currentBranch).toEqual("master")
         }
+    })
+    it("Correctly update the store", async () => {
+        await vcsPane.getStatus()
+        const state = store.getState()
+        expect(state.status.currentBranch).toBe("master")
     })
 })

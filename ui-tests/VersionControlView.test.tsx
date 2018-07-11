@@ -1,21 +1,29 @@
-import { mount, shallow } from "enzyme"
+import { shallow } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
-import { Provider } from "react-redux"
-import configureStore, { MockStore, MockStoreCreator } from "redux-mock-store"
 
 import {
     DefaultState,
     VersionControlState,
 } from "./../browser/src/Services/VersionControl/VersionControlStore"
-import VersionControlView, {
+import {
     GitStatus,
     SectionTitle,
+    VersionControlView,
 } from "./../browser/src/Services/VersionControl/VersionControlView"
 
-const mockStore: MockStoreCreator<VersionControlState> = configureStore()
-
 const noop = () => ({})
+
+jest.mock("./../browser/src/neovim/SharedNeovimInstance", () => ({
+    getInstance: () => ({
+        bindToMenu: () => ({
+            setItems: jest.fn(),
+            onCursorMoved: {
+                subscribe: jest.fn(),
+            },
+        }),
+    }),
+}))
 
 jest.mock("../browser/src/UI/components/Sneakable", () => {
     const React = require("react") // tslint:disable-line
@@ -23,18 +31,16 @@ jest.mock("../browser/src/UI/components/Sneakable", () => {
 })
 
 describe("<VersionControlView />", () => {
-    const store = mockStore({ ...DefaultState, activated: true, hasFocus: true })
-    const container = mount(
-        <Provider store={store}>
-            <VersionControlView getStatus={() => Promise.resolve({})} />
-        </Provider>,
+    const state = { ...DefaultState, activated: true, hasFocus: true }
+    const container = shallow(
+        <VersionControlView {...state} getStatus={() => Promise.resolve({})} />,
     )
     it("renders without crashing", () => {
         expect(container.length).toBe(1)
     })
 
     it("should render an untracked, staged and modified section", () => {
-        const sections = container.find(GitStatus).length
+        const sections = container.dive().find(GitStatus).length
         expect(sections).toBe(3)
     })
 
@@ -86,14 +92,13 @@ describe("<VersionControlView />", () => {
                 behind: null,
             },
         }
-        const storeWithMods = mockStore(stateCopy)
-        const containerWithMods = mount(
-            <Provider store={storeWithMods}>
-                <VersionControlView getStatus={() => Promise.resolve({})} />
-            </Provider>,
-        )
 
-        const modified = containerWithMods.find("[data-test='modified-2'] > strong")
-        expect(modified.text()).toBe("2")
+        const statusComponent = shallow(
+            <VersionControlView {...stateCopy} getStatus={() => Promise.resolve({})} />,
+        )
+            .dive()
+            .findWhere(component => component.prop("titleId") === "modified")
+
+        expect(statusComponent.prop("files").length).toBe(2)
     })
 })
