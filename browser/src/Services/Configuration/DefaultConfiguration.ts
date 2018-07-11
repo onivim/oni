@@ -53,6 +53,7 @@ const BaseConfiguration: IConfigurationValues = {
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
+    "experimental.vcs.sidebar": false,
     "experimental.particles.enabled": false,
     "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,

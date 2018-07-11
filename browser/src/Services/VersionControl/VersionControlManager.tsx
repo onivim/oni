@@ -35,6 +35,7 @@ export class VersionControlManager {
         private _commands: Oni.Commands.Api,
         private _sidebar: SidebarManager,
         private _notifications: Notifications,
+        private _configuration: Oni.Configuration,
     ) {}
 
     public get providers() {
@@ -131,8 +132,9 @@ export class VersionControlManager {
             this._setupSubscriptions()
 
             const hasVcsSidebar = this._sidebar.entries.some(({ id }) => id.includes("vcs"))
+            const enabled = this._configuration.getValue("experimental.vcs.sidebar")
 
-            if (!hasVcsSidebar) {
+            if (!hasVcsSidebar && enabled) {
                 const vcsPane = new VersionControlPane(
                     this._editorManager,
                     this._workspace,
@@ -281,6 +283,7 @@ function init() {
         menu: MenuManager,
         sidebar: SidebarManager,
         notifications: Notifications,
+        configuration: Oni.Configuration,
     ): void => {
         Provider = new VersionControlManager(
             workspace,
@@ -290,6 +293,7 @@ function init() {
             commands,
             sidebar,
             notifications,
+            configuration,
         )
     }
 

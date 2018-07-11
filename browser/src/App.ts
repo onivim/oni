@@ -327,6 +327,7 @@ export const start = async (args: string[]): Promise<void> => {
         menuManager,
         sidebarManager,
         notifications,
+        configuration,
     )
 
     Explorer.activate(

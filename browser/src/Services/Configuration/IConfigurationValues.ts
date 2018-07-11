@@ -49,6 +49,8 @@ export interface IConfigurationValues {
     // Whether or not the learning pane is available
     "experimental.particles.enabled": boolean
 
+    // Whether Version control sidebar item is enabled
+    "experimental.vcs.sidebar": boolean
     // Whether the color highlight layer is enabled
     "experimental.colorHighlight.enabled": boolean
     // Whitelist of extension for the color highlight layer
