@@ -11,6 +11,11 @@ const mkdirp = require("mkdirp")
 const istanbulAPI = require("istanbul-api")
 const libCoverage = require("istanbul-lib-coverage")
 
+const addJestCoverage = (map, file = "./../coverage/jest/coverage-final.json") => {
+    const json = fs.readFileSync(file)
+    map.merge(JSON.parse(json))
+}
+
 function Coverage(runner) {
     runner.on("end", () => {
         const mainReporter = istanbulAPI.createReporter()
@@ -18,6 +23,8 @@ function Coverage(runner) {
         console.log("Merging coverage map...")
         coverageMap.merge(window.__coverage__ || {})
         console.log("Merging coverage map complete")
+        addJestCoverage(coverageMap)
+        console.log("Adding jest coverage map")
 
         console.log("Adding reporters...")
         mainReporter.addAll(["text", "json", "html", "lcov"])
