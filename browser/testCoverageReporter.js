@@ -12,7 +12,7 @@ const istanbulAPI = require("istanbul-api")
 const libCoverage = require("istanbul-lib-coverage")
 
 const addJestCoverage = coverageMap => {
-    const jestCoverageFile = path.join(__dirname, "coverage", "jest", "coverage-final.json")
+    const jestCoverageFile = path.join(__dirname, "..", "coverage", "jest", "coverage-final.json")
     try {
         const json = fs.readFileSync(jestCoverageFile)
         console.log("coverage file", json)
