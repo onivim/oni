@@ -629,7 +629,7 @@
             "yarn run build:test:integration && mocha -t 120000 --recursive lib_test/test/setup",
         "test:integration":
             "yarn run build:test:integration && mocha -t 120000 lib_test/test/CiTests.js --bail",
-        "test:unit:react": "jest --config ./jest.config.js ./ui-tests",
+        "test:unit:react": "jest --config ./jest.config.js ./ui-tests --coverage",
         "test:unit:react:watch": "jest --config ./jest.config.js ./ui-tests --watch",
         "test:unit:react:coverage": "jest --config ./jest.config.js ./ui-tests --coverage",
         "test:unit:browser":
