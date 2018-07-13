@@ -53,6 +53,12 @@ function OniNotifyEvent(eventName)
     call OniNotify(["event", a:eventName, context])
 endfunction
 
+function OniOnBufferWrite()
+    " Save is updating the changedtick, we need to reflect that to avoid
+    " useless updates
+    let b:last_change_tick = b:changedtick
+    call OniNotifyEvent("BufWritePost")
+endfunction
 
 function! s:filter_buffer(i)
   return bufexists(a:i) && buflisted(a:i) && "quickfix" !=? getbufvar(a:i, "&buftype")
@@ -139,6 +145,7 @@ augroup OniEventListeners
     autocmd! DirChanged * :call OniNotifyEvent("DirChanged")
     autocmd! VimResized * :call OniNotifyEvent("VimResized")
     autocmd! VimLeave * :call OniNotifyEvent("VimLeave")
+    autocmd! BufWritePost * :call OniOnBufferWrite()
 augroup END
 
 augroup OniNotifyBufferUpdates
