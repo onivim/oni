@@ -130,7 +130,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         }
     }
 
-    public stageFile = async (file: string, dir?: string): Promise<void> => {
+    public stageFile = async (file: string, dir?: string) => {
         try {
             await this._git(this._projectRoot).add(file)
             this._onStagedFilesChanged.dispatch(file)
@@ -181,7 +181,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         }
     }
 
-    public async changeBranch(targetBranch: string): Promise<void> {
+    public async changeBranch(targetBranch: string) {
         try {
             await this._git(this._projectRoot).checkout(targetBranch)
             this._onBranchChange.dispatch(targetBranch)
