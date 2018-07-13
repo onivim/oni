@@ -662,6 +662,7 @@
         "ccov:remap:browser:lcov":
             "cd lib_test/browser/src && remap-istanbul --input ../../../coverage/coverage-final.json --output lcov.info --type lcovonly",
         "ccov:clean": "rimraf coverage",
+        "ccov:upload:jest": "cd ./coverage/jest && codecov",
         "ccov:upload": "codecov",
         "launch": "electron lib/main/src/main.js",
         "start":
