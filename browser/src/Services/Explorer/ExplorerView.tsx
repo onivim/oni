@@ -345,9 +345,7 @@ const mapStateToProps = (
     // If parent has told us to select a file, attempt to convert the file path into a node ID.
     if (fileToSelect) {
         const [nodeToSelect] = nodes.filter((node: ExplorerSelectors.ExplorerNode) => {
-            const nodePath: string =
-                (node as ExplorerSelectors.IFileNode).filePath ||
-                (node as ExplorerSelectors.IFolderNode).folderPath
+            const nodePath: string = ExplorerSelectors.nodePath(node)
             return nodePath === fileToSelect
         })
         if (nodeToSelect) {

@@ -50,6 +50,20 @@ export const isPathExpanded = (state: IExplorerState, pathToCheck: string): bool
     return !!state.expandedFolders[pathToCheck]
 }
 
+/**
+ * Extract path component from an ExplorerNode.
+ */
+export const nodePath = (node: ExplorerNode) => {
+    switch (node.type) {
+        case "file":
+            return (node as IFileNode).filePath
+        case "folder":
+            return (node as IFolderNode).folderPath
+        default:
+            return node.name
+    }
+}
+
 export const mapStateToNodeList = (state: IExplorerState): ExplorerNode[] => {
     let ret: ExplorerNode[] = []
 
