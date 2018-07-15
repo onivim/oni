@@ -4,7 +4,7 @@
  * Entry point for explorer-related features
  */
 
-import { CommandManager } from "./../CommandManager"
+import { CommandManager, CallbackCommand } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 import { SidebarManager } from "./../Sidebar"
@@ -26,20 +26,34 @@ export const activate = (
         defaultValue: false,
     })
 
-    sidebarManager.add(
-        "files-o",
-        new ExplorerSplit(configuration, workspace, commandManager, editorManager),
+    const explorerSplit: ExplorerSplit = new ExplorerSplit(
+        configuration,
+        workspace,
+        commandManager,
+        editorManager,
+    )
+    sidebarManager.add("files-o", explorerSplit)
+
+    commandManager.registerCommand(
+        new CallbackCommand(
+            "explorer.toggle",
+            "Explorer: Toggle Visibility",
+            "Toggles the explorer in the sidebar",
+            () => sidebarManager.toggleVisibilityById("oni.sidebar.explorer"),
+            () => !!workspace.activeWorkspace,
+        ),
     )
 
-    const toggleExplorer = () => {
-        sidebarManager.toggleVisibilityById("oni.sidebar.explorer")
-    }
-
-    commandManager.registerCommand({
-        command: "explorer.toggle",
-        name: "Explorer: Toggle Visibility",
-        detail: "Toggles the explorer in the sidebar",
-        execute: toggleExplorer,
-        enabled: () => !!workspace.activeWorkspace,
-    })
+    commandManager.registerCommand(
+        new CallbackCommand(
+            "explorer.locate.buffer",
+            "Explorer: Locate Current Buffer",
+            "Locate current buffer in file tree",
+            () => {
+                sidebarManager.setActiveEntry("oni.sidebar.explorer")
+                explorerSplit.locateFile(editorManager.activeEditor.activeBuffer.filePath)
+            },
+            () => !!workspace.activeWorkspace,
+        ),
+    )
 }
