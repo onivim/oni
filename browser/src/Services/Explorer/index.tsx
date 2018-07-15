@@ -7,10 +7,9 @@
 import { CommandManager, CallbackCommand } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
+import { ExplorerSplit } from "./ExplorerSplit"
 import { SidebarManager } from "./../Sidebar"
 import { Workspace } from "./../Workspace"
-
-import { ExplorerSplit } from "./ExplorerSplit"
 
 export const activate = (
     commandManager: CommandManager,
@@ -34,12 +33,14 @@ export const activate = (
     )
     sidebarManager.add("files-o", explorerSplit)
 
+    const explorerId = "oni.sidebar.explorer"
+
     commandManager.registerCommand(
         new CallbackCommand(
             "explorer.toggle",
             "Explorer: Toggle Visibility",
             "Toggles the explorer in the sidebar",
-            () => sidebarManager.toggleVisibilityById("oni.sidebar.explorer"),
+            () => sidebarManager.toggleVisibilityById(explorerId),
             () => !!workspace.activeWorkspace,
         ),
     )
@@ -50,7 +51,9 @@ export const activate = (
             "Explorer: Locate Current Buffer",
             "Locate current buffer in file tree",
             () => {
-                sidebarManager.setActiveEntry("oni.sidebar.explorer")
+                if (sidebarManager.activeEntryId !== explorerId || !sidebarManager.isVisible) {
+                    sidebarManager.setActiveEntry(explorerId)
+                }
                 explorerSplit.locateFile(editorManager.activeEditor.activeBuffer.filePath)
             },
             () => !!workspace.activeWorkspace,
