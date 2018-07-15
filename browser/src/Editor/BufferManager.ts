@@ -199,10 +199,26 @@ export class Buffer implements IBuffer {
         return types.Position.create(line - 1, column)
     }
 
+    public async convertColumnToLineByte(
+        row = this._cursor.line,
+        column = this._cursor.column,
+    ): Promise<number> {
+        const lines = await this.getLines(this._cursor.line, this._cursor.line + 1)
+        const characters: string = await this._neovimInstance.callFunction("strcharpart", [
+            lines[0],
+            0,
+            column,
+        ])
+        return this._neovimInstance.callFunction("strlen", [characters])
+    }
+
     public async getCursorPosition(): Promise<types.Position> {
-        const pos = await this._neovimInstance.callFunction("getpos", ["."])
-        const [, oneBasedLine, oneBasedColumn] = pos
-        return types.Position.create(oneBasedLine - 1, oneBasedColumn - 1)
+        const row: number = await this._neovimInstance.callFunction("line", ["."])
+        const column: number = await this._neovimInstance.eval<number>(
+            "strchars((getline('.') . '.')[0:col('.') - 1])",
+        )
+
+        return types.Position.create(row - 1, column - 1)
     }
 
     public async getLines(start?: number, end?: number): Promise<string[]> {
@@ -389,7 +405,8 @@ export class Buffer implements IBuffer {
     }
 
     public async setCursorPosition(row: number, column: number): Promise<void> {
-        await this._neovimInstance.eval(`setpos(".", [${this._id}, ${row + 1}, ${column + 1}, 0])`)
+        const bytePosition: number = await this.convertColumnToLineByte(row, column)
+        await this._neovimInstance.eval(`cursor([${row + 1}, ${bytePosition + 1}, 0])`)
     }
 
     public async getSelectionRange(): Promise<types.Range | null> {

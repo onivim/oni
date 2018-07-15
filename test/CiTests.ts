@@ -62,6 +62,8 @@ const CiTests = [
 
     "Theming.LightAndDarkColorsTest",
 
+    "MultiByteCursorColumnTest",
+
     // This test occasionally hangs and breaks tests after - trying to move it later...
     "LargeFileTest",
 ]

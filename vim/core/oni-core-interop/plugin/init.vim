@@ -157,7 +157,10 @@ let context.bufferNumber = bufnr("%")
 let context.bufferFullPath = expand("%:p")
 let context.bufferTotalLines = line("$")
 let context.line = line(".")
-let context.column = col(".")
+" the col function returns the position in bytes instead of characters
+" this is problematic for multi-byte characters
+" work around it by taking a slice of the line and counting characters
+let context.column = strchars((getline('.') . '.')[0:col('.') - 1])
 let context.mode = mode()
 let context.tabNumber = tabpagenr()
 let context.windowNumber = win_getid()
