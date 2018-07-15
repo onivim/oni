@@ -230,7 +230,7 @@ export class ExplorerSplit {
         // If we are trying to select a file, check if it's now selected, and if so trigger success.
         const fileToSelect: string = this._store.getState().fileToSelect
         if (fileToSelect) {
-            const selectedPath: string = ExplorerSelectors.nodePath(this._getSelectedItem())
+            const selectedPath: string = getPathForNode(this._getSelectedItem())
             if (selectedPath === fileToSelect) {
                 this._store.dispatch({ type: "SELECT_FILE_SUCCESS" })
             }

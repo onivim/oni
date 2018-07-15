@@ -21,7 +21,7 @@ import { DragAndDrop, Droppeable } from "./../DragAndDrop"
 import { FileIcon } from "./../FileIcon"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
-import { IExplorerState } from "./ExplorerStore"
+import { IExplorerState, getPathForNode } from "./ExplorerStore"
 
 type Node = ExplorerSelectors.ExplorerNode
 
@@ -345,7 +345,7 @@ const mapStateToProps = (
     // If parent has told us to select a file, attempt to convert the file path into a node ID.
     if (fileToSelect) {
         const [nodeToSelect] = nodes.filter((node: ExplorerSelectors.ExplorerNode) => {
-            const nodePath: string = ExplorerSelectors.nodePath(node)
+            const nodePath: string = getPathForNode(node)
             return nodePath === fileToSelect
         })
         if (nodeToSelect) {
