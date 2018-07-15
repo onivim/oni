@@ -217,7 +217,7 @@ export class Buffer implements IBuffer {
     }
 
     public async getPosition(element: string): Promise<types.Position> {
-        const row: number = await this._neovimInstance.callFunction("line", ["."])
+        const row: number = await this._neovimInstance.callFunction("line", [element])
         const column: number = await this._neovimInstance.eval<number>(
             `strchars((getline('${element}') . '.')[0:col('${element}') - 1])`,
         )
