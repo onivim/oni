@@ -169,6 +169,7 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
     public createThemeFromTokens(tokens: TokenColor[]) {
         if (!this.enhancedTokens) {
             this.enhancedTokens = this.generateTokens({ defaultTokens: this.tokenColors })
+            console.log("this.enhancedTokens: ", this.enhancedTokens)
         }
         const tokenColorsMap = this.enhancedTokens.reduce((theme, token) => {
             return {

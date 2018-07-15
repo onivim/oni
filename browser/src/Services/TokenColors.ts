@@ -6,8 +6,9 @@
  * - Also will handle 'fallback logic' for tokenColors
  */
 
-import { unionWith } from "lodash"
 import { Event, IDisposable, IEvent } from "oni-types"
+
+const deepmerge = require("deepmerge").default // tslint:disable-line
 
 export interface TokenColor {
     scope: string
@@ -101,9 +102,8 @@ export class TokenColors implements IDisposable {
     }
 
     private _mergeTokenColors({ user, defaultTokens, theme }: { [key: string]: TokenColor[] }) {
-        const defaultAndTheme = unionWith(defaultTokens, theme)
-        const userAndTheme = unionWith(user, defaultAndTheme)
-        return userAndTheme
+        const merged = deepmerge.all([defaultTokens, theme, user])
+        return merged
     }
 }
 
