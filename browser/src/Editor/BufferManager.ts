@@ -213,9 +213,13 @@ export class Buffer implements IBuffer {
     }
 
     public async getCursorPosition(): Promise<types.Position> {
+        return this.getPosition(".")
+    }
+
+    public async getPosition(element: string): Promise<types.Position> {
         const row: number = await this._neovimInstance.callFunction("line", ["."])
         const column: number = await this._neovimInstance.eval<number>(
-            "strchars((getline('.') . '.')[0:col('.') - 1])",
+            `strchars((getline('${element}') . '.')[0:col('${element}') - 1])`,
         )
 
         return types.Position.create(row - 1, column - 1)
@@ -410,11 +414,8 @@ export class Buffer implements IBuffer {
     }
 
     public async getSelectionRange(): Promise<types.Range | null> {
-        const startRange = await this._neovimInstance.callFunction("getpos", ["'<'"])
-        const endRange = await this._neovimInstance.callFunction("getpos", ["'>"])
-
-        const [, startLine, startColumn] = startRange
-        let [, endLine, endColumn] = endRange
+        const { line: startLine, character: startColumn } = await this.getPosition("'<'")
+        let { line: endLine, character: endColumn } = await this.getPosition("'>'")
 
         if (startLine === 0 && startColumn === 0 && endLine === 0 && endColumn === 0) {
             return null

@@ -88,7 +88,6 @@ export const activate = (
 
     const handleEnterCharacter = (pairs: IAutoClosingPair[], editor: Oni.Editor) => () => {
         Log.verbose("[AutoClosingPairs::handleEnterCharacter]")
-        const neovim: NeovimInstance = editor.neovim as any
         editor.blockInput(async (inputFunc: Oni.InputCallbackFunction) => {
             const activeBuffer = editor.activeBuffer
 
@@ -98,7 +97,7 @@ export const activate = (
             )
             const line = lines[0]
 
-            const { column } = activeBuffer.cursor
+            const { line: row, column } = activeBuffer.cursor
 
             const matchingPair = pairs.find(p => {
                 return column >= 1 && line[column] === p.close && line[column - 1] === p.open
@@ -109,14 +108,12 @@ export const activate = (
                 const beforePair = line.substring(0, column)
                 const afterPair = line.substring(column, line.length)
 
-                const pos = await neovim.callFunction("getpos", ["."])
-                const [, oneBasedLine] = pos
                 await activeBuffer.setLines(
                     activeBuffer.cursor.line,
                     activeBuffer.cursor.line + 1,
                     [beforePair, whiteSpacePrefix, whiteSpacePrefix + afterPair],
                 )
-                await activeBuffer.setCursorPosition(oneBasedLine, whiteSpacePrefix.length)
+                await activeBuffer.setCursorPosition(row + 1, whiteSpacePrefix.length)
                 await inputFunc("<tab>")
             } else {
                 await inputFunc("<enter>")
