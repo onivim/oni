@@ -4,12 +4,12 @@
  * Entry point for explorer-related features
  */
 
-import { CommandManager, CallbackCommand } from "./../CommandManager"
+import { CallbackCommand, CommandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
-import { ExplorerSplit } from "./ExplorerSplit"
 import { SidebarManager } from "./../Sidebar"
 import { Workspace } from "./../Workspace"
+import { ExplorerSplit } from "./ExplorerSplit"
 
 export const activate = (
     commandManager: CommandManager,

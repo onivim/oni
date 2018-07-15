@@ -21,7 +21,7 @@ import { DragAndDrop, Droppeable } from "./../DragAndDrop"
 import { FileIcon } from "./../FileIcon"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
-import { IExplorerState, getPathForNode } from "./ExplorerStore"
+import { getPathForNode, IExplorerState } from "./ExplorerStore"
 
 type Node = ExplorerSelectors.ExplorerNode
 
