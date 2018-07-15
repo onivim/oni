@@ -67,9 +67,11 @@ export const activate = (
                 const beforePair = line.substring(0, column - 1)
                 const afterPair = line.substring(column + 1, line.length)
 
-                const pos = await neovim.callFunction("getpos", ["."])
-                const [, oneBasedLine, oneBasedColumn] = pos
-                await editor.activeBuffer.setCursorPosition(oneBasedLine - 1, oneBasedColumn - 2)
+                const cursorPosition = await editor.activeBuffer.getCursorPosition()
+                await editor.activeBuffer.setCursorPosition(
+                    cursorPosition.line,
+                    cursorPosition.character - 1,
+                )
 
                 await activeBuffer.setLines(
                     activeBuffer.cursor.line,
