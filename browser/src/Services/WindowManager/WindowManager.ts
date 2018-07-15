@@ -52,6 +52,8 @@ export class WindowSplitHandle implements Oni.WindowSplitHandle {
             type: "HIDE_SPLIT",
             splitId: this._id,
         })
+
+        this._windowManager.swapToPreviousSplit(this._id)
     }
 
     public show(): void {
@@ -137,7 +139,11 @@ export class WindowManager {
         return this._store
     }
 
-    public get activeSplit(): IAugmentedSplitInfo {
+    get activeSplitHandle(): WindowSplitHandle {
+        return new WindowSplitHandle(this._store, this, this.activeSplit.id)
+    }
+
+    private get activeSplit(): IAugmentedSplitInfo {
         const focusedSplit = this._store.getState().focusedSplitId
 
         if (!focusedSplit) {
@@ -256,6 +262,13 @@ export class WindowManager {
     }
 
     public close(splitId: string) {
+        this.swapToPreviousSplit(splitId)
+        delete this._idToSplit[splitId]
+    }
+
+    // Swaps focus to the most recently focused window, and hides
+    // the passed split.
+    public swapToPreviousSplit(splitId: string) {
         const currentActiveSplit = this.activeSplit
 
         // Send focus back to most recently focused window
@@ -280,8 +293,6 @@ export class WindowManager {
             type: "SET_PRIMARY_SPLITS",
             splits: state,
         })
-
-        delete this._idToSplit[splitId]
     }
 
     public focusSplit(splitId: string): void {

@@ -57,6 +57,41 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
 
+    "experimental.colorHighlight.enabled": false,
+    "experimental.colorHighlight.filetypes": [
+        ".css",
+        ".js",
+        ".jsx",
+        ".tsx",
+        ".ts",
+        ".re",
+        ".sass",
+        ".scss",
+        ".less",
+        ".pcss",
+        ".sss",
+        ".stylus",
+        ".xml",
+        ".svg",
+    ],
+    "experimental.indentLines.enabled": false,
+    "experimental.indentLines.color": null,
+    "experimental.indentLines.filetypes": [
+        ".tsx",
+        ".ts",
+        ".jsx",
+        ".js",
+        ".go",
+        ".re",
+        ".py",
+        ".c",
+        ".cc",
+        ".lua",
+        ".java",
+    ],
+    "experimental.markdownPreview.enabled": false,
+    "experimental.markdownPreview.autoScroll": true,
+
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows
     // "experimental.neovim.transport": Platform.isWindows() ? "pipe" : "stdio",
@@ -162,6 +197,19 @@ const BaseConfiguration: IConfigurationValues = {
         "css.tmLanguage.json",
     ),
     "language.css.tokenRegex": "[$_a-zA-Z0-9-]",
+
+    "language.elixir.textMateGrammar": {
+        ".ex": path.join(__dirname, "extensions", "elixir", "syntaxes", "elixir.tmLanguage.json"),
+        ".exs": path.join(__dirname, "extensions", "elixir", "syntaxes", "elixir.tmLanguage.json"),
+        ".eex": path.join(__dirname, "extensions", "elixir", "syntaxes", "eex.tmLanguage.json"),
+        ".html.eex": path.join(
+            __dirname,
+            "extensions",
+            "elixir",
+            "syntaxes",
+            "html(eex).tmLanguage.json",
+        ),
+    },
 
     "language.less.languageServer.command": cssLanguageServerPath,
     "language.less.languageServer.arguments": ["--stdio"],
@@ -419,6 +467,7 @@ const BaseConfiguration: IConfigurationValues = {
     "tabs.showFileIcon": true,
     "tabs.showIndex": false,
     "tabs.wrap": false,
+    "tabs.dirtyMarker.userColor": "",
 
     "terminal.shellCommand": null,
 
@@ -459,7 +508,9 @@ const LinuxConfigOverrides: Partial<IConfigurationValues> = {
 
 const PlatformConfigOverride = Platform.isWindows()
     ? WindowsConfigOverrides
-    : Platform.isLinux() ? LinuxConfigOverrides : MacConfigOverrides
+    : Platform.isLinux()
+        ? LinuxConfigOverrides
+        : MacConfigOverrides
 
 export const DefaultConfiguration = {
     ...BaseConfiguration,

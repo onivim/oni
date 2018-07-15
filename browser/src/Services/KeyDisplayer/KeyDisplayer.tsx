@@ -10,6 +10,7 @@ import { Store } from "redux"
 
 import { IDisposable } from "oni-types"
 
+import { parseChordParts } from "./../../Input/KeyParser"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 import { InputManager } from "./../InputManager"
@@ -53,7 +54,7 @@ export class KeyDisplayer {
 
                 this._store.dispatch({
                     type: "ADD_KEY",
-                    key: resolution,
+                    key: parseChordParts(resolution).join("+"),
                     timeInMilliseconds: new Date().getTime(),
                 })
 

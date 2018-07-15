@@ -1,3 +1,32 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<Commandline /> should match last known snapshot unless we make a change 1`] = `""`;
+exports[`<Commandline /> should match last known snapshot unless we make a change 1`] = `
+<styled.div
+  className="command-line"
+  visible={true}
+>
+  <styled.div
+    className="command-line-output"
+    innerRef={[Function]}
+  >
+    :
+    <styled.span />
+    c
+    o
+    m
+    m
+    a
+    n
+    d
+    l
+    i
+    n
+    e
+     
+    t
+    e
+    s
+    t
+  </styled.div>
+</styled.div>
+`;

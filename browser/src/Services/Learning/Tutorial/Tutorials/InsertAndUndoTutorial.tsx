@@ -1,7 +1,7 @@
 /**
  * InsertAndUndoTutorial.tsx
  *
- * Tutorial that brings together moving and inserting
+ * Tutorial for undo and redo before we learn destructive changes
  */
 
 import * as React from "react"
@@ -64,15 +64,39 @@ export class InsertAndUndoTutorial implements ITutorial {
                 "There is some text msing this .",
                 TutorialLine1Correct,
             ]),
+            new Stages.WaitForStateStage("Press 'u' to undo yet another change", [
+                "There is text msing this .",
+                TutorialLine1Correct,
+            ]),
+            new Stages.WaitForStateStage("Press 'Ctrl+r' to redo the last undo", [
+                "There is some text msing this .",
+                TutorialLine1Correct,
+            ]),
+            new Stages.WaitForStateStage("Press 'Ctrl+r' to redo the next undo", [
+                "There is some text missing this .",
+                TutorialLine1Correct,
+            ]),
+            new Stages.WaitForStateStage("Press 'Ctrl+r' to redo yet another undo", [
+                "There is some text missing from this .",
+                TutorialLine1Correct,
+            ]),
+            new Stages.WaitForStateStage("Press 'Ctrl+r' to redo yet another undo", [
+                "There is some text missing from this line.",
+                TutorialLine1Correct,
+            ]),
+            new Stages.WaitForStateStage("Press 'u' to undo the last change", [
+                "There is some text missing from this .",
+                TutorialLine1Correct,
+            ]),
         ]
     }
 
     public get metadata(): ITutorialMetadata {
         return {
-            id: "oni.tutorial.insert_and_undo",
-            name: "Insert and Undo",
+            id: "oni.tutorial.undo_and_redo",
+            name: "Undo and Redo",
             description:
-                "It's important to be able to switch between normal and insert mode, in order to edit text! Let's put together the cursor motion and insert mode from the previous tutorials.  If you make any mistakes, you can undo inserted text with 'u'.",
+                "It's important to be able to switch between normal and insert mode, in order to edit text! Let's put together the cursor motion and insert mode from the previous tutorials.  If you make any mistakes, you can undo inserted text with 'u'.  To bring back an undo, hit 'Ctrl+r' to redo.",
             level: 170,
         }
     }
@@ -82,6 +106,12 @@ export class InsertAndUndoTutorial implements ITutorial {
     }
 
     public get notes(): JSX.Element[] {
-        return [<Notes.HJKLKeys />, <Notes.IKey />, <Notes.EscKey />, <Notes.UKey />]
+        return [
+            <Notes.HJKLKeys />,
+            <Notes.IKey />,
+            <Notes.EscKey />,
+            <Notes.UKey />,
+            <Notes.RedoKey />,
+        ]
     }
 }

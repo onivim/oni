@@ -50,6 +50,24 @@ export const Center = styled.div`
     align-items: center;
 `
 
+export const stack = css`
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+`
+
+export const layer = css`
+    will-change: transform;
+`
+
+export const StackLayer = styled<{ zIndex?: number | string }, "div">("div")`
+    ${stack};
+    ${layer};
+    ${p => p.zIndex && `z-index: ${p.zIndex}`};
+`
+
 export type StyledFunction<T> = styledComponents.ThemedStyledFunction<T, IThemeColors>
 
 export function withProps<T, U extends HTMLElement = HTMLElement>(

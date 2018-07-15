@@ -8,6 +8,7 @@ import styled from "styled-components"
 
 import * as React from "react"
 
+import { parseChordParts } from "./../../Input/KeyParser"
 import { inputManager } from "./../../Services/InputManager"
 
 export interface IKeyBindingInfoProps {
@@ -31,39 +32,17 @@ export class KeyBindingInfo extends React.PureComponent<IKeyBindingInfoProps, {}
             return null
         }
 
-        const parsedKeys = inputManager.parseKeys(boundKeys[0])
-
-        if (!parsedKeys || !parsedKeys.chord || !parsedKeys.chord.length) {
-            return null
-        }
-
-        const firstChord = parsedKeys.chord[0]
-
-        const elems: JSX.Element[] = []
-
-        if (firstChord.meta) {
-            elems.push(<KeyWrapper>{"meta"}</KeyWrapper>)
-            elems.push(<KeyWrapper>{"+"}</KeyWrapper>)
-        }
-
-        if (firstChord.control) {
-            elems.push(<KeyWrapper>{"control"}</KeyWrapper>)
-            elems.push(<KeyWrapper>{"+"}</KeyWrapper>)
-        }
-
-        if (firstChord.alt) {
-            elems.push(<KeyWrapper>{"alt"}</KeyWrapper>)
-            elems.push(<KeyWrapper>{"+"}</KeyWrapper>)
-        }
-
-        if (firstChord.shift) {
-            elems.push(<KeyWrapper>{"shift"}</KeyWrapper>)
-            elems.push(<KeyWrapper>{"+"}</KeyWrapper>)
-        }
-
-        elems.push(<KeyWrapper>{firstChord.character}</KeyWrapper>)
-
-        return <span>{elems}</span>
+        // 1. Get the key(s) in the chord binding
+        // 2. Intersperse with "+"
+        // 3. Create KeyWrappers for each segment
+        return (
+            <span>
+                {parseChordParts(boundKeys[0])
+                    .reduce((acc, chordKey) => acc.concat(chordKey, "+"), [])
+                    .slice(0, -1)
+                    .map((chordPart, index) => <KeyWrapper key={index}>{chordPart}</KeyWrapper>)}
+            </span>
+        )
     }
 }
 

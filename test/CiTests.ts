@@ -8,6 +8,7 @@ import * as mkdirp from "mkdirp"
 import { IFailedTest, Oni, runInProcTest } from "./common"
 
 const LongTimeout = 5000
+
 const CiTests = [
     // Core functionality tests
     "Api.Buffer.AddLayer",
@@ -16,6 +17,8 @@ const CiTests = [
     "AutoCompletionTest-CSS",
     "AutoCompletionTest-HTML",
     "AutoCompletionTest-TypeScript",
+
+    "Browser.LocationTest",
 
     "Configuration.JavaScriptEditorTest",
     "Configuration.TypeScriptEditor.NewConfigurationTest",
@@ -54,6 +57,8 @@ const CiTests = [
     "TextmateHighlighting.DebugScopesTest",
     "TextmateHighlighting.ScopesOnEnterTest",
     "TextmateHighlighting.TokenColorOverrideTest",
+    "IndentGuide.BufferLayerTest",
+    "ColorHighlight.BufferLayerTest",
 
     "Theming.LightAndDarkColorsTest",
 
@@ -87,7 +92,9 @@ const FGYELLOW = "\x1b[33m"
 describe("ci tests", function() {
     const tests = Platform.isWindows()
         ? [...CiTests, ...WindowsOnlyTests]
-        : Platform.isMac() ? [...CiTests, ...OSXOnlyTests] : CiTests
+        : Platform.isMac()
+            ? [...CiTests, ...OSXOnlyTests]
+            : CiTests
 
     const testFailures: IFailedTest[] = []
     tests.forEach(test => {
