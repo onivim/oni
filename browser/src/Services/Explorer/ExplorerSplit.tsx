@@ -67,6 +67,15 @@ export class ExplorerSplit {
                 rootPath: this._workspace.activeWorkspace,
             })
         }
+
+        this._commandManager.registerCommand(
+            new CallbackCommand(
+                "explorer.locate.buffer",
+                "Explorer: Locate Current Buffer",
+                "Locate current buffer in file tree",
+                () => this._locateFile(this._editorManager.activeEditor.activeBuffer.filePath),
+            ),
+        )
     }
 
     public enter(): void {
@@ -223,6 +232,7 @@ export class ExplorerSplit {
 
     private _onSelectionChanged(id: string): void {
         this._selectedId = id
+        this._store.dispatch({ type: "SELECT_FILE_SUCCESS" })
     }
 
     private _onOpenItem(id?: string): void {
@@ -280,6 +290,10 @@ export class ExplorerSplit {
         )
 
         return parentNode
+    }
+
+    private _locateFile = (filePath: string) => {
+        this._store.dispatch({ type: "SELECT_FILE", filePath })
     }
 
     private _renameItem = () => {
