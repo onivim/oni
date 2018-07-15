@@ -400,7 +400,7 @@ export const start = async (args: string[]): Promise<void> => {
     Bookmarks.activate(configuration, editorManager, Sidebar.getInstance())
 
     const PluginsSidebarPane = await import("./Plugins/PluginSidebarPane")
-    PluginsSidebarPane.activate(configuration, pluginManager, sidebarManager)
+    PluginsSidebarPane.activate(commandManager, configuration, pluginManager, sidebarManager)
 
     const Terminal = await terminalPromise
     Terminal.activate(commandManager, configuration, editorManager)
