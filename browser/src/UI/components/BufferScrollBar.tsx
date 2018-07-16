@@ -59,7 +59,7 @@ export class BufferScrollBar extends React.PureComponent<
         this.endScroll = this.endScroll.bind(this)
     }
 
-    setLine(y: number) {
+    private setLine(y: number) {
         const lineFraction = Math.min(
             Math.max((y - this.state.scrollBarTop) / this.props.height, 0),
             1,
@@ -68,7 +68,7 @@ export class BufferScrollBar extends React.PureComponent<
         editorManager.activeEditor.activeBuffer.setCursorPosition(newLine, 0)
     }
 
-    beginScroll(e: React.MouseEvent<HTMLDivElement>) {
+    private beginScroll(e: React.MouseEvent<HTMLDivElement>) {
         e.preventDefault()
         // offsetY is definitely on the scrollbar in the beginning of the click
         this.setState({ scrollBarTop: e.nativeEvent.clientY - e.nativeEvent.offsetY })
@@ -77,12 +77,12 @@ export class BufferScrollBar extends React.PureComponent<
         document.addEventListener("mouseup", this.endScroll, true)
     }
 
-    trackScroll(e: MouseEvent) {
+    private trackScroll(e: MouseEvent) {
         e.preventDefault()
         this.setLine(e.clientY)
     }
 
-    endScroll(e: MouseEvent) {
+    private endScroll(e: MouseEvent) {
         e.preventDefault()
         this.setLine(e.clientY)
         document.removeEventListener("mousemove", this.trackScroll, true)
