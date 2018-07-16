@@ -2,9 +2,9 @@ import * as React from "react"
 
 import * as uniqBy from "lodash/uniqBy"
 import styled from "styled-components"
-import { editorManager } from "./../../Services/EditorManager"
 import { bufferScrollBarSize } from "./common"
 
+import { editorManager } from "./../../Services/EditorManager"
 import { EmptyArray } from "./../../Utility"
 
 export interface IBufferScrollBarProps {
@@ -84,17 +84,35 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
             return <div style={markerStyle} key={`${this.props.windowId}_${m.color}_${m.line}`} />
         })
 
-        const moveToLine = (e: React.MouseEvent<HTMLDivElement>) => {
-            const lineFraction = e.nativeEvent.offsetY / this.props.height
+        const setLine = (y: number) => {
+            const lineFraction = Math.min(Math.max(y / this.props.height, 0), 1)
             const newLine = Math.ceil(
                 editorManager.activeEditor.activeBuffer.lineCount * lineFraction,
             )
             editorManager.activeEditor.activeBuffer.setCursorPosition(newLine, 0)
+        }
+
+        const beginScroll = (e: React.MouseEvent<HTMLDivElement>) => {
             e.preventDefault()
+            setLine(e.nativeEvent.offsetY)
+            document.addEventListener("mousemove", trackScroll, true)
+            document.addEventListener("mouseup", endScroll, true)
+        }
+
+        const trackScroll = (e: MouseEvent) => {
+            e.preventDefault()
+            setLine(e.offsetY)
+        }
+
+        const endScroll = (e: MouseEvent) => {
+            e.preventDefault()
+            setLine(e.offsetY)
+            document.removeEventListener("mousemove", trackScroll, true)
+            document.removeEventListener("mouseup", endScroll, true)
         }
 
         return (
-            <ScrollBarContainer key={this.props.windowId} onClick={moveToLine} onDrag={moveToLine}>
+            <ScrollBarContainer key={this.props.windowId} onMouseDown={beginScroll}>
                 <ScrollBarWindow style={windowStyle} />
                 {markerElements}
             </ScrollBarContainer>
