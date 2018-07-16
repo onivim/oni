@@ -17,6 +17,10 @@ export interface IBufferScrollBarProps {
     visible: boolean
 }
 
+export interface IBufferScrollBarState {
+    scrollBarTop: number
+}
+
 export interface IScrollBarMarker {
     line: number
     height: number
@@ -43,9 +47,46 @@ const ScrollBarWindow = styled.div`
     pointer-events: none;
 `
 
-export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, {}> {
+export class BufferScrollBar extends React.PureComponent<
+    IBufferScrollBarProps,
+    IBufferScrollBarState
+> {
     constructor(props: any) {
         super(props)
+        this.state = { scrollBarTop: 0 }
+        // allow scroll events to be added and removed as event handlers
+        this.trackScroll = this.trackScroll.bind(this)
+        this.endScroll = this.endScroll.bind(this)
+    }
+
+    setLine(y: number) {
+        const lineFraction = Math.min(
+            Math.max((y - this.state.scrollBarTop) / this.props.height, 0),
+            1,
+        )
+        const newLine = Math.ceil(editorManager.activeEditor.activeBuffer.lineCount * lineFraction)
+        editorManager.activeEditor.activeBuffer.setCursorPosition(newLine, 0)
+    }
+
+    beginScroll(e: React.MouseEvent<HTMLDivElement>) {
+        e.preventDefault()
+        // offsetY is definitely on the scrollbar in the beginning of the click
+        this.setState({ scrollBarTop: e.nativeEvent.clientY - e.nativeEvent.offsetY })
+        this.setLine(e.nativeEvent.clientY)
+        document.addEventListener("mousemove", this.trackScroll, true)
+        document.addEventListener("mouseup", this.endScroll, true)
+    }
+
+    trackScroll(e: MouseEvent) {
+        e.preventDefault()
+        this.setLine(e.clientY)
+    }
+
+    endScroll(e: MouseEvent) {
+        e.preventDefault()
+        this.setLine(e.clientY)
+        document.removeEventListener("mousemove", this.trackScroll, true)
+        document.removeEventListener("mouseup", this.endScroll, true)
     }
 
     public render(): JSX.Element {
@@ -84,38 +125,8 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
             return <div style={markerStyle} key={`${this.props.windowId}_${m.color}_${m.line}`} />
         })
 
-        let scrollBarTop: number
-        const setLine = (y: number) => {
-            const lineFraction = Math.min(Math.max((y - scrollBarTop) / this.props.height, 0), 1)
-            const newLine = Math.ceil(
-                editorManager.activeEditor.activeBuffer.lineCount * lineFraction,
-            )
-            editorManager.activeEditor.activeBuffer.setCursorPosition(newLine, 0)
-        }
-
-        const beginScroll = (e: React.MouseEvent<HTMLDivElement>) => {
-            e.preventDefault()
-            // offsetY is definitely on the scrollbar in the beginning of the click
-            scrollBarTop = e.nativeEvent.clientY - e.nativeEvent.offsetY
-            setLine(e.nativeEvent.clientY)
-            document.addEventListener("mousemove", trackScroll, true)
-            document.addEventListener("mouseup", endScroll, true)
-        }
-
-        const trackScroll = (e: MouseEvent) => {
-            e.preventDefault()
-            setLine(e.clientY)
-        }
-
-        const endScroll = (e: MouseEvent) => {
-            e.preventDefault()
-            setLine(e.clientY)
-            document.removeEventListener("mousemove", trackScroll, true)
-            document.removeEventListener("mouseup", endScroll, true)
-        }
-
         return (
-            <ScrollBarContainer key={this.props.windowId} onMouseDown={beginScroll}>
+            <ScrollBarContainer key={this.props.windowId} onMouseDown={this.beginScroll.bind(this)}>
                 <ScrollBarWindow style={windowStyle} />
                 {markerElements}
             </ScrollBarContainer>
