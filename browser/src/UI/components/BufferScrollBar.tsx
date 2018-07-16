@@ -51,18 +51,15 @@ export class BufferScrollBar extends React.PureComponent<
     IBufferScrollBarProps,
     IBufferScrollBarState
 > {
-    constructor(props: any) {
-        super(props)
-        // allow scroll events to be added and removed as event handlers
-        // this.trackScroll = (e: MouseEvent) => this.trackScroll(e)
-        // this.endScroll = (e: MouseEvent) => this.endScroll(e)
-    }
-    
     public state = {
-        scrollBarTop: 0
+        scrollBarTop: 0,
     }
 
-    public setLine(y: number) {
+    constructor(props: any) {
+        super(props)
+    }
+
+    public setLine = (y: number) => {
         const lineFraction = Math.min(
             Math.max((y - this.state.scrollBarTop) / this.props.height, 0),
             1,
@@ -129,7 +126,7 @@ export class BufferScrollBar extends React.PureComponent<
         })
 
         return (
-            <ScrollBarContainer key={this.props.windowId} onMouseDown={this.beginScroll.bind(this)}>
+            <ScrollBarContainer key={this.props.windowId} onMouseDown={this.beginScroll}>
                 <ScrollBarWindow style={windowStyle} />
                 {markerElements}
             </ScrollBarContainer>
