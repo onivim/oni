@@ -53,10 +53,13 @@ export class BufferScrollBar extends React.PureComponent<
 > {
     constructor(props: any) {
         super(props)
-        this.state = { scrollBarTop: 0 }
         // allow scroll events to be added and removed as event handlers
-        this.trackScroll = this.trackScroll.bind(this)
-        this.endScroll = this.endScroll.bind(this)
+        // this.trackScroll = (e: MouseEvent) => this.trackScroll(e)
+        // this.endScroll = (e: MouseEvent) => this.endScroll(e)
+    }
+    
+    public state = {
+        scrollBarTop: 0
     }
 
     public setLine(y: number) {
@@ -68,7 +71,7 @@ export class BufferScrollBar extends React.PureComponent<
         editorManager.activeEditor.activeBuffer.setCursorPosition(newLine, 0)
     }
 
-    public beginScroll(e: React.MouseEvent<HTMLDivElement>) {
+    public beginScroll = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault()
         // offsetY is definitely on the scrollbar in the beginning of the click
         this.setState({ scrollBarTop: e.nativeEvent.clientY - e.nativeEvent.offsetY })
@@ -77,12 +80,12 @@ export class BufferScrollBar extends React.PureComponent<
         document.addEventListener("mouseup", this.endScroll, true)
     }
 
-    public trackScroll(e: MouseEvent) {
+    public trackScroll = (e: MouseEvent) => {
         e.preventDefault()
         this.setLine(e.clientY)
     }
 
-    public endScroll(e: MouseEvent) {
+    public endScroll = (e: MouseEvent) => {
         e.preventDefault()
         this.setLine(e.clientY)
         document.removeEventListener("mousemove", this.trackScroll, true)
