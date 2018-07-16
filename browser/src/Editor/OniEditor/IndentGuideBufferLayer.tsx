@@ -75,12 +75,14 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         return flatten(
             guidePositions.map(({ line, height, characterWidth, indentBy, left, top }, lineNo) => {
                 const indentation = characterWidth * this._userSpacing
-                return Array.from({ length: indentBy }, (_, level) => {
-                    const adjustedLeft = left - level * indentation - characterWidth
+                console.log("indentBy - 1: ", indentBy - 1)
+                return Array.from({ length: indentBy - 1 }, (_, level) => {
+                    const adjustedLeft = left - (level + 1) * indentation - characterWidth
+                    console.log("adjustedLeft: ", adjustedLeft)
                     return (
                         <IndentLine
                             top={top}
-                            color={color}
+                            color={"navy"}
                             height={height}
                             left={adjustedLeft}
                             key={`${line.trim()}-${lineNo}-${indentation}-${level}`}
