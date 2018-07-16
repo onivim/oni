@@ -141,7 +141,8 @@ export class NodeView extends React.PureComponent<INodeViewProps> {
     }
 
     public componentDidUpdate(prevProps: INodeViewProps) {
-        if (this.calculateIfShouldMeasure(prevProps)) {
+        const shouldRemeasure = this.calculateIfShouldMeasure(prevProps)
+        if (shouldRemeasure) {
             this.props.measure()
         }
     }
@@ -386,6 +387,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps> {
                                             ref={this._list}
                                             overscanRowCount={3}
                                             scrollToAlignment="end"
+                                            style={{ outline: "none" }}
                                             rowHeight={cache.rowHeight}
                                             deferredMeasurementCache={cache}
                                             rowCount={this.props.nodes.length}
