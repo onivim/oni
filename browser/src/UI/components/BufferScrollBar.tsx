@@ -85,19 +85,16 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
         })
 
         const moveToLine = (e: React.MouseEvent<HTMLDivElement>) => {
-            e.persist()
-            console.log(e)
             const lineFraction = e.nativeEvent.offsetY / this.props.height
             const newLine = Math.ceil(
                 editorManager.activeEditor.activeBuffer.lineCount * lineFraction,
             )
-            console.log(`newline: ${newLine}`, windowHeight, lineFraction)
             editorManager.activeEditor.activeBuffer.setCursorPosition(newLine, 0)
             e.preventDefault()
         }
 
         return (
-            <ScrollBarContainer key={this.props.windowId} onClick={moveToLine}>
+            <ScrollBarContainer key={this.props.windowId} onClick={moveToLine} onDrag={moveToLine}>
                 <ScrollBarWindow style={windowStyle} />
                 {markerElements}
             </ScrollBarContainer>
