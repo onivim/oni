@@ -71,36 +71,37 @@ export class LanguageEditorIntegration implements OniTypes.IDisposable {
             this._definitionRequestor,
         )
 
-        const sub1 = this._editor.onModeChanged.subscribe((newMode: string) => {
-            this._store.dispatch({
-                type: "MODE_CHANGED",
-                mode: newMode,
-            })
-        })
+        this._subscriptions = [
+            this._editor.onModeChanged.subscribe((newMode: string) => {
+                this._store.dispatch({
+                    type: "MODE_CHANGED",
+                    mode: newMode,
+                })
+            }),
 
-        const sub2 = this._editor.onBufferEnter.subscribe(
-            (bufferEvent: Oni.EditorBufferEventArgs) => {
+            this._editor.onBufferEnter.subscribe((bufferEvent: Oni.EditorBufferEventArgs) => {
                 this._store.dispatch({
                     type: "BUFFER_ENTER",
                     filePath: bufferEvent.filePath,
                     language: bufferEvent.language,
                 })
-            },
-        )
-
-        const sub3 = this._editor.onCursorMoved.subscribe((cursorMoveEvent: Oni.Cursor) => {
-            this._store.dispatch({
-                type: "CURSOR_MOVED",
-                line: cursorMoveEvent.line,
-                column: cursorMoveEvent.column,
-            })
-        })
+            }),
+            this._editor.onCursorMoved.subscribe((cursorMoveEvent: Oni.Cursor) => {
+                this._store.dispatch({
+                    type: "CURSOR_MOVED",
+                    line: cursorMoveEvent.line,
+                    column: cursorMoveEvent.column,
+                })
+            }),
+            this._editor.onBufferScrolled.subscribe(scrollEvent => {
+                this._onHideHover.dispatch()
+                this._onHideDefinition.dispatch()
+            }),
+        ]
 
         this._storeUnsubscribe = this._store.subscribe(() =>
             this._onStateUpdate(this._store.getState()),
         )
-
-        this._subscriptions = [sub1, sub2, sub3]
     }
 
     // Explicit gesture to show hover - ignores the setting
