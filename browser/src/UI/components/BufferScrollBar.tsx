@@ -59,6 +59,36 @@ export class BufferScrollBar extends React.PureComponent<
         this.endScroll = this.endScroll.bind(this)
     }
 
+    public setLine(y: number) {
+        const lineFraction = Math.min(
+            Math.max((y - this.state.scrollBarTop) / this.props.height, 0),
+            1,
+        )
+        const newLine = Math.ceil(editorManager.activeEditor.activeBuffer.lineCount * lineFraction)
+        editorManager.activeEditor.activeBuffer.setCursorPosition(newLine, 0)
+    }
+
+    public beginScroll(e: React.MouseEvent<HTMLDivElement>) {
+        e.preventDefault()
+        // offsetY is definitely on the scrollbar in the beginning of the click
+        this.setState({ scrollBarTop: e.nativeEvent.clientY - e.nativeEvent.offsetY })
+        this.setLine(e.nativeEvent.clientY)
+        document.addEventListener("mousemove", this.trackScroll, true)
+        document.addEventListener("mouseup", this.endScroll, true)
+    }
+
+    public trackScroll(e: MouseEvent) {
+        e.preventDefault()
+        this.setLine(e.clientY)
+    }
+
+    public endScroll(e: MouseEvent) {
+        e.preventDefault()
+        this.setLine(e.clientY)
+        document.removeEventListener("mousemove", this.trackScroll, true)
+        document.removeEventListener("mouseup", this.endScroll, true)
+    }
+
     public render(): JSX.Element {
         if (!this.props.visible) {
             return null
@@ -101,35 +131,5 @@ export class BufferScrollBar extends React.PureComponent<
                 {markerElements}
             </ScrollBarContainer>
         )
-    }
-
-    private setLine(y: number) {
-        const lineFraction = Math.min(
-            Math.max((y - this.state.scrollBarTop) / this.props.height, 0),
-            1,
-        )
-        const newLine = Math.ceil(editorManager.activeEditor.activeBuffer.lineCount * lineFraction)
-        editorManager.activeEditor.activeBuffer.setCursorPosition(newLine, 0)
-    }
-
-    private beginScroll(e: React.MouseEvent<HTMLDivElement>) {
-        e.preventDefault()
-        // offsetY is definitely on the scrollbar in the beginning of the click
-        this.setState({ scrollBarTop: e.nativeEvent.clientY - e.nativeEvent.offsetY })
-        this.setLine(e.nativeEvent.clientY)
-        document.addEventListener("mousemove", this.trackScroll, true)
-        document.addEventListener("mouseup", this.endScroll, true)
-    }
-
-    private trackScroll(e: MouseEvent) {
-        e.preventDefault()
-        this.setLine(e.clientY)
-    }
-
-    private endScroll(e: MouseEvent) {
-        e.preventDefault()
-        this.setLine(e.clientY)
-        document.removeEventListener("mousemove", this.trackScroll, true)
-        document.removeEventListener("mouseup", this.endScroll, true)
     }
 }
