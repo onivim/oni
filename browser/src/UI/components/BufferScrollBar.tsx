@@ -2,7 +2,7 @@ import * as React from "react"
 
 import * as uniqBy from "lodash/uniqBy"
 import styled from "styled-components"
-
+import { editorManager } from "./../../Services/EditorManager"
 import { bufferScrollBarSize } from "./common"
 
 import { EmptyArray } from "./../../Utility"
@@ -31,6 +31,7 @@ const ScrollBarContainer = styled.div`
     background-color: rgba(0, 0, 0, 0.2);
     width: ${bufferScrollBarSize};
     border-bottom: 1px solid black;
+    pointer-events: auto;
 `
 
 const ScrollBarWindow = styled.div`
@@ -39,6 +40,7 @@ const ScrollBarWindow = styled.div`
     background-color: rgba(200, 200, 200, 0.2);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: none;
 `
 
 export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, {}> {
@@ -76,13 +78,26 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
                 height: size,
                 backgroundColor: m.color,
                 width: "100%",
+                pointerEvents: "none",
             }
 
             return <div style={markerStyle} key={`${this.props.windowId}_${m.color}_${m.line}`} />
         })
 
+        const moveToLine = (e: React.MouseEvent<HTMLDivElement>) => {
+            e.persist()
+            console.log(e)
+            const lineFraction = e.nativeEvent.offsetY / this.props.height
+            const newLine = Math.ceil(
+                editorManager.activeEditor.activeBuffer.lineCount * lineFraction,
+            )
+            console.log(`newline: ${newLine}`, windowHeight, lineFraction)
+            editorManager.activeEditor.activeBuffer.setCursorPosition(newLine, 0)
+            e.preventDefault()
+        }
+
         return (
-            <ScrollBarContainer key={this.props.windowId}>
+            <ScrollBarContainer key={this.props.windowId} onClick={moveToLine}>
                 <ScrollBarWindow style={windowStyle} />
                 {markerElements}
             </ScrollBarContainer>
