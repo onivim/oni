@@ -84,8 +84,9 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
             return <div style={markerStyle} key={`${this.props.windowId}_${m.color}_${m.line}`} />
         })
 
+        let scrollBarTop: number
         const setLine = (y: number) => {
-            const lineFraction = Math.min(Math.max(y / this.props.height, 0), 1)
+            const lineFraction = Math.min(Math.max((y - scrollBarTop) / this.props.height, 0), 1)
             const newLine = Math.ceil(
                 editorManager.activeEditor.activeBuffer.lineCount * lineFraction,
             )
@@ -94,19 +95,21 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
 
         const beginScroll = (e: React.MouseEvent<HTMLDivElement>) => {
             e.preventDefault()
-            setLine(e.nativeEvent.offsetY)
+            // offsetY is definitely on the scrollbar in the beginning of the click
+            scrollBarTop = e.nativeEvent.clientY - e.nativeEvent.offsetY
+            setLine(e.nativeEvent.clientY)
             document.addEventListener("mousemove", trackScroll, true)
             document.addEventListener("mouseup", endScroll, true)
         }
 
         const trackScroll = (e: MouseEvent) => {
             e.preventDefault()
-            setLine(e.offsetY)
+            setLine(e.clientY)
         }
 
         const endScroll = (e: MouseEvent) => {
             e.preventDefault()
-            setLine(e.offsetY)
+            setLine(e.clientY)
             document.removeEventListener("mousemove", trackScroll, true)
             document.removeEventListener("mouseup", endScroll, true)
         }
