@@ -76,7 +76,6 @@ describe("ExplorerStore", () => {
     const rootPath = path.normalize(path.join(TestHelpers.getRootDirectory(), "a", "test", "dir"))
     const filePath = path.join(rootPath, "file.txt")
     const target = { filePath, id: "1" }
-    const epicStore = mockStore({ ...ExplorerState.DefaultExplorerState })
 
     const pasted1 = {
         type: "file",
@@ -111,25 +110,21 @@ describe("ExplorerStore", () => {
         sources: [pasted1],
     } as ExplorerState.IPasteAction
 
-    beforeEach(() => {
-        fileSystem = new MemoryFileSystem()
-        fileSystem.mkdirpSync(rootPath)
-        fileSystem.writeFileSync(filePath, "Hello World")
-
-        explorerFileSystem = new MockedFileSystem(
-            new ExplorerFileSystem.FileSystem(fileSystem as any),
-        )
-        store = ExplorerState.createStore({
-            fileSystem: explorerFileSystem,
-            notifications: {} as any,
-        })
-    })
-
-    afterEach(() => {
-        epicMiddleware.replaceEpic(rootEpic)
-    })
-
     describe("SET_ROOT_DIRECTORY", () => {
+        beforeEach(() => {
+            fileSystem = new MemoryFileSystem()
+            fileSystem.mkdirpSync(rootPath)
+            fileSystem.writeFileSync(filePath, "Hello World")
+
+            explorerFileSystem = new MockedFileSystem(
+                new ExplorerFileSystem.FileSystem(fileSystem as any),
+            )
+            store = ExplorerState.createStore({
+                fileSystem: explorerFileSystem,
+                notifications: {} as any,
+            })
+        })
+
         it("expands directory automatically", async () => {
             store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
@@ -180,11 +175,11 @@ describe("ExplorerStore", () => {
         } as any
 
         it("dispatches a clear register action after a minute", async () => {
+            const epicStore = mockStore({ ...ExplorerState.DefaultExplorerState })
             epicStore.dispatch({ type: "YANK", target })
             const actions = epicStore.getActions()
             await TestHelpers.waitForAllAsyncOperations()
-            // three because an init action is sent first
-            await assert.ok(actions.length === 3)
+            await assert.equal(actions.length, 2)
             const clearedRegister = !!actions.find(action => action.type === "CLEAR_REGISTER")
             assert.ok(clearedRegister)
         })
