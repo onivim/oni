@@ -145,6 +145,31 @@ describe("ExplorerStore", () => {
         })
     })
 
+    describe("selectFileReducer", () => {
+        it("returns state unchanged if action is not recognized", () => {
+            const state = ExplorerState.selectFileReducer("shouldn't change", {
+                type: "UNRECOGNISED",
+                filePath: "not me",
+            })
+            assert.equal(state, "shouldn't change")
+        })
+
+        it("flags pending file to select in state when given pending action", () => {
+            const state = ExplorerState.selectFileReducer("should change", {
+                type: "SELECT_FILE_PENDING",
+                filePath: "change to me",
+            })
+            assert.equal(state, "change to me")
+        })
+
+        it("resets pending file to select in state when given success action", () => {
+            const state = ExplorerState.selectFileReducer("should change", {
+                type: "SELECT_FILE_SUCCESS",
+            })
+            assert.equal(state, null)
+        })
+    })
+
     describe("YANK_AND_PASTE_EPICS", async () => {
         const fs = {
             move: async (source, dest) => null,
