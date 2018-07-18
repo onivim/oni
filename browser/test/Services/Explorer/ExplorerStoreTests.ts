@@ -187,11 +187,11 @@ describe("ExplorerStore", () => {
         })
 
         it("dispatches actions to expand folders and select file", () => {
-            const filePath = path.normalize(path.join(rootPath, "dir1", "dir2", "file.cpp"))
-            epicStore.dispatch({ type: "SELECT_FILE", filePath })
+            const fileToSelect = path.normalize(path.join(rootPath, "dir1", "dir2", "file.cpp"))
+            epicStore.dispatch({ type: "SELECT_FILE", filePath: fileToSelect })
             const actions = epicStore.getActions()
             assert.deepStrictEqual(actions, [
-                { type: "SELECT_FILE", filePath },
+                { type: "SELECT_FILE", filePath: fileToSelect },
                 {
                     type: "EXPAND_DIRECTORY",
                     directoryPath: path.normalize(path.join(rootPath, "dir1")),
@@ -200,22 +200,50 @@ describe("ExplorerStore", () => {
                     type: "EXPAND_DIRECTORY",
                     directoryPath: path.normalize(path.join(rootPath, "dir1", "dir2")),
                 },
-                { type: "SELECT_FILE_PENDING", filePath },
+                { type: "SELECT_FILE_PENDING", filePath: fileToSelect },
             ])
         })
 
         it("dispatches failure if target is not in workspace", () => {
-            epicStore.dispatch({
-                type: "SELECT_FILE",
-                filePath: "/root/other/dir1/dir2/file.cpp",
-            })
+            const fileToSelect = path.normalize(path.join(TestHelpers.getRootDirectory(), "other"))
+            epicStore.dispatch({ type: "SELECT_FILE", filePath: fileToSelect })
             const actions = epicStore.getActions()
             assert.deepStrictEqual(actions, [
-                { type: "SELECT_FILE", filePath: "/root/other/dir1/dir2/file.cpp" },
-                {
-                    type: "SELECT_FILE_FAIL",
-                    reason: "File is not in workspace: /root/other/dir1/dir2/file.cpp",
-                },
+                { type: "SELECT_FILE", filePath: fileToSelect },
+                { type: "SELECT_FILE_FAIL", reason: "File is not in workspace: " + fileToSelect },
+            ])
+        })
+    })
+
+    describe("notificationEpic", () => {
+        let epicStore: any
+        let notifications: any
+        let notification: any
+
+        beforeEach(() => {
+            notifications = sinon.createStubInstance(Notifications)
+            notification = sinon.createStubInstance(Notification)
+            notifications.createItem.returns(notification)
+            epicStore = mockStoreFactory([ExplorerState.notificationEpic], notifications as any)({
+                ...ExplorerState.DefaultExplorerState,
+                rootFolder: { type: "folder", fullPath: rootPath },
+            })
+        })
+
+        it("notifies on failing to select a file in explorer", () => {
+            epicStore.dispatch({ type: "SELECT_FILE_FAIL", reason: "broken" })
+            const actions = epicStore.getActions()
+
+            assert(notification.setContents.calledWith("Select Failed", "broken"))
+            assert(notification.setLevel.calledWith("warn"))
+            assert(notification.setExpiration.calledWith(5_000))
+            assert(notification.show.calledWith())
+            assert(notification.show.calledAfter(notification.setContents))
+            assert(notification.show.calledAfter(notification.setLevel))
+            assert(notification.show.calledAfter(notification.setExpiration))
+            assert.deepStrictEqual(actions, [
+                { type: "SELECT_FILE_FAIL", reason: "broken" },
+                { type: "NOTIFICATION_SENT", typeOfNotification: "SELECT_FILE_FAIL" },
             ])
         })
     })
