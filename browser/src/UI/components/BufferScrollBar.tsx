@@ -2,9 +2,9 @@ import * as React from "react"
 
 import * as uniqBy from "lodash/uniqBy"
 import styled from "styled-components"
-
 import { bufferScrollBarSize } from "./common"
 
+import { editorManager } from "./../../Services/EditorManager"
 import { EmptyArray } from "./../../Utility"
 
 export interface IBufferScrollBarProps {
@@ -15,6 +15,10 @@ export interface IBufferScrollBarProps {
     windowBottomLine: number
     markers: IScrollBarMarker[]
     visible: boolean
+}
+
+export interface IBufferScrollBarState {
+    scrollBarTop: number
 }
 
 export interface IScrollBarMarker {
@@ -31,6 +35,7 @@ const ScrollBarContainer = styled.div`
     background-color: rgba(0, 0, 0, 0.2);
     width: ${bufferScrollBarSize};
     border-bottom: 1px solid black;
+    pointer-events: auto;
 `
 
 const ScrollBarWindow = styled.div`
@@ -39,11 +44,49 @@ const ScrollBarWindow = styled.div`
     background-color: rgba(200, 200, 200, 0.2);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: none;
 `
 
-export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, {}> {
+export class BufferScrollBar extends React.PureComponent<
+    IBufferScrollBarProps,
+    IBufferScrollBarState
+> {
+    public state = {
+        scrollBarTop: 0,
+    }
+
     constructor(props: any) {
         super(props)
+    }
+
+    public setLine = (y: number) => {
+        const lineFraction = Math.min(
+            Math.max((y - this.state.scrollBarTop) / this.props.height, 0),
+            1,
+        )
+        const newLine = Math.ceil(editorManager.activeEditor.activeBuffer.lineCount * lineFraction)
+        editorManager.activeEditor.activeBuffer.setCursorPosition(newLine, 0)
+    }
+
+    public beginScroll = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault()
+        // offsetY is definitely on the scrollbar in the beginning of the click
+        this.setState({ scrollBarTop: e.nativeEvent.clientY - e.nativeEvent.offsetY })
+        this.setLine(e.nativeEvent.clientY)
+        document.addEventListener("mousemove", this.trackScroll, true)
+        document.addEventListener("mouseup", this.endScroll, true)
+    }
+
+    public trackScroll = (e: MouseEvent) => {
+        e.preventDefault()
+        this.setLine(e.clientY)
+    }
+
+    public endScroll = (e: MouseEvent) => {
+        e.preventDefault()
+        this.setLine(e.clientY)
+        document.removeEventListener("mousemove", this.trackScroll, true)
+        document.removeEventListener("mouseup", this.endScroll, true)
     }
 
     public render(): JSX.Element {
@@ -76,13 +119,14 @@ export class BufferScrollBar extends React.PureComponent<IBufferScrollBarProps, 
                 height: size,
                 backgroundColor: m.color,
                 width: "100%",
+                pointerEvents: "none",
             }
 
             return <div style={markerStyle} key={`${this.props.windowId}_${m.color}_${m.line}`} />
         })
 
         return (
-            <ScrollBarContainer key={this.props.windowId}>
+            <ScrollBarContainer key={this.props.windowId} onMouseDown={this.beginScroll}>
                 <ScrollBarWindow style={windowStyle} />
                 {markerElements}
             </ScrollBarContainer>

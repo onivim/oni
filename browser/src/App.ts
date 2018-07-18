@@ -89,6 +89,7 @@ export const start = async (args: string[]): Promise<void> => {
     const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const vcsManagerPromise = import("./Services/VersionControl")
     const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
@@ -235,9 +236,9 @@ export const start = async (args: string[]): Promise<void> => {
 
     const Notifications = await notificationsPromise
     Notifications.activate(configuration, overlayManager)
+    const notifications = Notifications.getInstance()
 
     if (typeof developmentPluginError !== "undefined") {
-        const notifications = Notifications.getInstance()
         const notification = notifications.createItem()
         notification.setContents(developmentPluginError.title, developmentPluginError.errorText)
         notification.setLevel("error")
@@ -248,7 +249,6 @@ export const start = async (args: string[]): Promise<void> => {
     }
 
     configuration.onConfigurationError.subscribe(err => {
-        const notifications = Notifications.getInstance()
         const notification = notifications.createItem()
         notification.setContents("Error Loading Configuration", err.toString())
         notification.setLevel("error")
@@ -317,6 +317,18 @@ export const start = async (args: string[]): Promise<void> => {
 
     Sidebar.activate(configuration, workspace)
     const sidebarManager = Sidebar.getInstance()
+
+    const VCSManager = await vcsManagerPromise
+    VCSManager.activate(
+        workspace,
+        editorManager,
+        statusBar,
+        commandManager,
+        menuManager,
+        sidebarManager,
+        notifications,
+        configuration,
+    )
 
     Explorer.activate(
         commandManager,
