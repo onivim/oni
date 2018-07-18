@@ -37,6 +37,10 @@ export default class VersionControlPane {
             await this.getStatus()
         })
 
+        this._vcsProvider.onFileStatusChanged.subscribe(async () => {
+            await this.getStatus()
+        })
+
         this._vcsProvider.onPluginActivated.subscribe(async () => {
             this._store.dispatch({ type: "ACTIVATE" })
             await this.getStatus()
@@ -66,6 +70,13 @@ export default class VersionControlPane {
         return status
     }
 
+    public commitFiles = async (messages: string[], files: string[]) => {
+        const summary = await this._vcsProvider.commitFiles(messages, files)
+        if (summary) {
+            this._store.dispatch({ type: "COMMIT_SUCCESS", payload: { commit: summary } })
+        }
+    }
+
     public stageFile = async (file: string) => {
         const { activeWorkspace } = this._workspace
         try {
@@ -84,6 +95,10 @@ export default class VersionControlPane {
         this._store.dispatch({ type: "ERROR" })
     }
 
+    public updateSelection = (selected: string) => {
+        this._store.dispatch({ type: "SELECT", payload: { selected } })
+    }
+
     public handleSelection = async (file: string): Promise<void> => {
         const { status } = this._store.getState()
         switch (true) {
@@ -92,6 +107,8 @@ export default class VersionControlPane {
                 await this.stageFile(file)
                 break
             case status.staged.includes(file):
+                this._store.dispatch({ type: "COMMIT_START" })
+                break
             default:
                 break
         }
@@ -103,7 +120,9 @@ export default class VersionControlPane {
                 <VersionControlView
                     setError={this.setError}
                     getStatus={this.getStatus}
+                    commitFiles={this.commitFiles}
                     handleSelection={this.handleSelection}
+                    updateSelection={this.updateSelection}
                 />
             </Provider>
         )

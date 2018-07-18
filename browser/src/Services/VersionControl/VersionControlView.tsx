@@ -1,3 +1,4 @@
+import * as os from "os"
 import * as path from "path"
 import * as React from "react"
 import { connect } from "react-redux"
@@ -5,10 +6,11 @@ import { connect } from "react-redux"
 import { Icon } from "../../UI/Icon"
 import Caret from "./../../UI/components/Caret"
 import { css, styled, withProps } from "./../../UI/components/common"
+import TextInput from "./../../UI/components/LightweightText"
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 import { StatusResult } from "./VersionControlProvider"
-import { VersionControlState } from "./VersionControlStore"
+import { VersionControlActions, VersionControlState } from "./VersionControlStore"
 
 const Row = styled.div`
     display: flex;
@@ -58,6 +60,10 @@ interface IModifiedFilesProps {
     icon: string
     onClick: (id: string) => void
     toggleVisibility: () => void
+    committing?: boolean
+    handleCancel?: () => void
+    handleComplete?: () => void
+    handleChange?: (evt: React.ChangeEvent<HTMLInputElement>) => void
     visibility: boolean
 }
 
@@ -67,11 +73,25 @@ const truncate = (str: string) =>
         .slice(-2)
         .join(path.sep)
 
+const inputStyles = css`
+    width: 100%;
+    background-color: inherit;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    padding: 0.5em;
+    box-sizing: border-box;
+`
+
 export const GitStatus = ({
     files,
     selectedId,
     icon,
     onClick,
+    committing,
+    handleCancel,
+    handleChange,
+    handleComplete,
     toggleVisibility,
     titleId,
     visibility,
@@ -87,7 +107,7 @@ export const GitStatus = ({
                 <Title>{titleId.toUpperCase()}</Title>
                 <strong>{files.length}</strong>
             </SectionTitle>
-            {visibility &&
+            {visibility && !committing ? (
                 files.map(filePath => (
                     <Sneakable callback={() => onClick(filePath)} key={filePath}>
                         <Column
@@ -100,7 +120,15 @@ export const GitStatus = ({
                             </Row>
                         </Column>
                     </Sneakable>
-                ))}
+                ))
+            ) : (
+                <TextInput
+                    styles={inputStyles}
+                    onComplete={handleComplete}
+                    onChange={handleChange}
+                    onCancel={handleCancel}
+                />
+            )}
         </div>
     )
 
@@ -109,16 +137,30 @@ const StatusContainer = styled.div`
     overflow-y: auto;
 `
 
-interface IProps {
+interface IStateProps {
     status: StatusResult
     hasFocus: boolean
     hasError: boolean
     activated: boolean
+    committing: boolean
+    message: string[]
+    selectedItem: string
+}
+
+interface IDispatchProps {
+    cancelCommit: () => void
+    updateCommitMessage: (message: string[]) => void
+}
+
+interface IProps {
     setError?: (e: Error) => void
     getStatus?: () => Promise<StatusResult | void>
+    commitFiles?: (message: string[], files: string[]) => Promise<void>
+    updateSelection?: (selection: string) => void
     handleSelection?: (selection: string) => void
-    children?: React.ReactNode
 }
+
+type ConnectedProps = IProps & IStateProps & IDispatchProps
 
 interface State {
     modified: boolean
@@ -126,7 +168,7 @@ interface State {
     untracked: boolean
 }
 
-export class VersionControlView extends React.Component<IProps, State> {
+export class VersionControlView extends React.Component<ConnectedProps, State> {
     public state: State = {
         modified: true,
         staged: true,
@@ -152,6 +194,21 @@ export class VersionControlView extends React.Component<IProps, State> {
         this.props.handleSelection(id)
     }
 
+    public handleCommitMessage = (evt: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = evt.currentTarget
+        const message = value.split(os.EOL)
+        this.props.updateCommitMessage(message)
+    }
+
+    public handleCommitComplete = async () => {
+        const { message, selectedItem } = this.props
+        await this.props.commitFiles(message, [selectedItem])
+    }
+
+    public handleCommitCancel = () => {
+        this.props.cancelCommit()
+    }
+
     public insertIf(condition: boolean, element: string[]) {
         return condition ? element : []
     }
@@ -160,7 +217,11 @@ export class VersionControlView extends React.Component<IProps, State> {
         const error = this.props.hasError && "Something Went Wrong!"
         const inactive = !this.props.activated && "Version Control Not Available"
         const warning = error || inactive
-        const { modified, staged, untracked } = this.props.status
+        const {
+            committing,
+            status: { modified, staged, untracked },
+        } = this.props
+
         const ids = [
             "modified",
             ...this.insertIf(this.state.modified, modified),
@@ -177,8 +238,9 @@ export class VersionControlView extends React.Component<IProps, State> {
         ) : (
             <VimNavigator
                 ids={ids}
-                active={this.props.hasFocus}
+                active={this.props.hasFocus && !committing}
                 onSelected={this.toggleOrAction}
+                onSelectionChanged={this.props.updateSelection}
                 render={selectedId => (
                     <StatusContainer>
                         <GitStatus
@@ -195,6 +257,10 @@ export class VersionControlView extends React.Component<IProps, State> {
                             titleId="staged"
                             files={staged}
                             selectedId={selectedId}
+                            committing={committing}
+                            handleChange={this.handleCommitMessage}
+                            handleCancel={this.handleCommitCancel}
+                            handleComplete={this.handleCommitComplete}
                             visibility={this.state.staged}
                             onClick={this.props.handleSelection}
                             toggleVisibility={() => this.toggleVisibility("staged")}
@@ -215,12 +281,19 @@ export class VersionControlView extends React.Component<IProps, State> {
     }
 }
 
-export default connect<VersionControlState>(
-    (state: VersionControlState): IProps => ({
-        status: state.status,
-        hasFocus: state.hasFocus,
-        hasError: state.hasError,
-        activated: state.activated,
-    }),
-    null,
+const mapStateToProps = (state: VersionControlState): IStateProps => ({
+    status: state.status,
+    hasFocus: state.hasFocus,
+    hasError: state.hasError,
+    activated: state.activated,
+    committing: state.commit.active,
+    message: state.commit.message,
+    selectedItem: state.selected,
+})
+
+const ConnectedGitComponent = connect<IStateProps, IDispatchProps, IProps>(
+    mapStateToProps,
+    VersionControlActions,
 )(VersionControlView)
+
+export default ConnectedGitComponent

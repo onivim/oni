@@ -665,15 +665,13 @@
         "ccov:upload:jest": "cd ./coverage/jest && codecov",
         "ccov:upload": "codecov",
         "launch": "electron lib/main/src/main.js",
-        "start":
-            "concurrently --kill-others \"yarn run start-hot\" \"yarn run watch:browser\" \"yarn run watch:plugins\"",
+        "start": "run-p --race start-hot watch:browser watch:plugins",
         "start-hot":
             "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
         "start-not-dev": "cross-env electron main.js",
         "watch:browser":
             "webpack-dev-server --config browser/webpack.development.config.js --host localhost --port 8191",
-        "watch:plugins":
-            "yarn watch:plugins:oni-plugin-typescript && watch:plugins:oni-plugin-markdown-preview && watch:plugins:oni-plugin-git",
+        "watch:plugins": "run-s watch:plugins:*",
         "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
         "watch:plugins:oni-plugin-markdown-preview":
             "cd extensions/oni-plugin-markdown-preview && tsc --watch",

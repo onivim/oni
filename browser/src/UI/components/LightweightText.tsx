@@ -138,3 +138,5 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         }
     }
 }
+
+export default TextInputView

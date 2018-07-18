@@ -130,11 +130,26 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         }
     }
 
+    public commitFiles = async (message: string[], files: string[]): Promise<VCS.Commits> => {
+        if (!files.length) {
+            throw new Error("No files were selected")
+        }
+        try {
+            const commit = this._git(this._projectRoot).commit(message, files)
+            const changed = files.map(file => ({ path: file, status: VCS.Statuses.committed }))
+            this._onFileStatusChanged.dispatch(changed)
+            return commit
+        } catch (e) {
+            this._oni.log.warn(e.warn)
+            throw new Error(e)
+        }
+    }
+
     public stageFile = async (file: string, dir?: string) => {
         try {
             await this._git(this._projectRoot).add(file)
             this._onStagedFilesChanged.dispatch(file)
-            this._onFileStatusChanged.dispatch({ path: file, status: "staged" })
+            this._onFileStatusChanged.dispatch([{ path: file, status: VCS.Statuses.staged }])
         } catch (e) {
             const error = `Git provider unable to add ${file} because ${e.message}`
             this._oni.log.warn(error)

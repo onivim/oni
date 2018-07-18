@@ -1,12 +1,17 @@
 import { IEvent } from "oni-types"
 import { BranchSummary, FetchResult } from "simple-git/promise"
 
+export enum Statuses {
+    staged,
+    committed,
+}
+
 export type BranchChangedEvent = string
 export type StagedFilesChangedEvent = string
-export interface FileStatusChangedEvent {
+export type FileStatusChangedEvent = Array<{
     path: string
-    status: "staged"
-}
+    status: Statuses
+}>
 
 export interface StatusResult {
     ahead: number
@@ -41,6 +46,7 @@ export interface VersionControlProvider {
     getLocalBranches(): Promise<BranchSummary | void>
     changeBranch(branch: string): Promise<void>
     stageFile(file: string, projectRoot?: string): Promise<void>
+    commitFiles(message: string[], files: string[]): Promise<Commits>
     fetchBranchFromRemote(args: {
         branch: string
         origin?: string
@@ -67,6 +73,20 @@ export interface Diff {
     files: Array<DiffResultTextFile | DiffResultBinaryFile>
     insertions: number
     deletions: number
+}
+
+export interface Commits {
+    author: null | {
+        email: string
+        name: string
+    }
+    branch: string
+    commit: string
+    summary: {
+        changes: number
+        insertions: number
+        deletions: number
+    }
 }
 
 export type Summary = StatusResult
