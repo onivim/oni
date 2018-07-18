@@ -70,8 +70,8 @@ export class PluginSidebarItemView extends React.PureComponent<PluginSidebarItem
 }
 
 export class PluginsSidebarPane implements SidebarPane {
-    private _onEnter = new Event<void>()
-    private _onLeave = new Event<void>()
+    private _onEnter = new Event<void>("PluginSidebarPane::onEnter")
+    private _onLeave = new Event<void>("PluginSidebarPane::onLeave")
 
     public get id(): string {
         return "oni.sidebar.plugins"

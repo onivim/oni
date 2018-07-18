@@ -109,7 +109,7 @@ export class WindowManager {
     private _lastId: number = 0
     private _idToSplit: { [key: string]: IAugmentedSplitInfo } = {}
 
-    private _onUnhandledMoveEvent = new Event<Direction>()
+    private _onUnhandledMoveEvent = new Event<Direction>("WindowManager::onUnhandledMoveEvent")
 
     private _leftDock: WindowDockNavigator = null
     private _primarySplit: LinearSplitProvider
@@ -125,7 +125,9 @@ export class WindowManager {
         return this._onUnhandledMoveEvent
     }
 
-    private _onFocusChanged = new Event<ISplitInfo<Oni.IWindowSplit>>()
+    private _onFocusChanged = new Event<ISplitInfo<Oni.IWindowSplit>>(
+        "WindowManager::onFocusChanged",
+    )
 
     public get onFocusChanged(): IEvent<ISplitInfo<Oni.IWindowSplit>> {
         return this._onFocusChanged

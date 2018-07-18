@@ -41,7 +41,9 @@ export class AchievementsManager {
     private _enabled: boolean
 
     private _currentIdleCallback: number | null = null
-    private _onAchievementAccomplishedEvent = new Event<AchievementDefinition>()
+    private _onAchievementAccomplishedEvent = new Event<AchievementDefinition>(
+        "AchievementsManager::onAchievementAccomplishedEvent",
+    )
 
     public get enabled(): boolean {
         return this._enabled

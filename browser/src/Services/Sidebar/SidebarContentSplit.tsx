@@ -24,8 +24,8 @@ export const getActiveEntry = (state: ISidebarState): ISidebarEntry => {
  * Split that is the container for the active sidebar item
  */
 export class SidebarContentSplit {
-    private _onEnterEvent = new Event<void>()
-    private _onLeaveEvent = new Event<void>()
+    private _onEnterEvent = new Event<void>("SidebarContentSplit::onEnterEvent")
+    private _onLeaveEvent = new Event<void>("SidebarContentSplit::onLeaveEvent")
 
     public get activePane(): SidebarPane {
         const entry = getActiveEntry(this._sidebarManager.store.getState())

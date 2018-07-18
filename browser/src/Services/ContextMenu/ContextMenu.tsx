@@ -80,10 +80,10 @@ export class ContextMenuManager {
 }
 
 export class ContextMenu {
-    private _onItemSelected = new Event<any>()
-    private _onFilterTextChanged = new Event<string>()
-    private _onHide = new Event<void>()
-    private _onSelectedItemChanged = new Event<any>()
+    private _onItemSelected = new Event<any>("ContextMenu::onItemSelected")
+    private _onFilterTextChanged = new Event<string>("ContextMenu::onFilterTextChanged")
+    private _onHide = new Event<void>("ContextMenu::onHide")
+    private _onSelectedItemChanged = new Event<any>("ContextMenu::onSelectedItemChanged")
 
     private _lastItems: any = null
 

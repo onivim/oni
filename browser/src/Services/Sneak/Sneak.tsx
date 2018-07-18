@@ -26,7 +26,7 @@ export class Sneak {
     private _activeOverlay: Overlay
     private _providers: SneakProvider[] = []
     private _store: Store<ISneakState>
-    private _onSneakCompleted = new Event<ISneakInfo>()
+    private _onSneakCompleted = new Event<ISneakInfo>("Sneak::onSneakCompleted")
 
     public get onSneakCompleted(): IEvent<ISneakInfo> {
         return this._onSneakCompleted

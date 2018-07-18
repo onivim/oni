@@ -54,7 +54,9 @@ export interface NeovimInactiveWindowState {
 export class NeovimWindowManager extends Utility.Disposable {
     private _scrollObservable: Subject<EventContext>
 
-    private _onWindowStateChangedEvent = new Event<NeovimTabPageState>()
+    private _onWindowStateChangedEvent = new Event<NeovimTabPageState>(
+        "NeovimWindowManager::onWindowStateChangedEvent",
+    )
 
     public get onWindowStateChanged(): IEvent<NeovimTabPageState> {
         return this._onWindowStateChangedEvent

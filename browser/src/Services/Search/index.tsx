@@ -30,10 +30,10 @@ import { SearchPaneView } from "./SearchPaneView"
 import { SearchResultSpinnerView } from "./SearchResultsSpinnerView"
 
 export class SearchPane {
-    private _onEnter = new Event<void>()
-    private _onLeave = new Event<void>()
-    private _onSearchStarted = new Event<void>()
-    private _onSearchCompleted = new Event<void>()
+    private _onEnter = new Event<void>("Search::onEnter")
+    private _onLeave = new Event<void>("Search::onLeave")
+    private _onSearchStarted = new Event<void>("Search::onSearchStarted")
+    private _onSearchCompleted = new Event<void>("Search::onSearchCompleted")
     private _shouldFocusAutomatically: boolean = false
 
     private _searchProvider: ISearchProvider
@@ -131,7 +131,7 @@ export const activate = (
     sidebarManager: SidebarManager,
     workspace: Workspace,
 ) => {
-    const onFocusEvent = new Event<void>()
+    const onFocusEvent = new Event<void>("Search::onFocusEvent")
     sidebarManager.add("search", new SearchPane(editorManager, workspace, onFocusEvent))
 
     const searchAllFiles = () => {

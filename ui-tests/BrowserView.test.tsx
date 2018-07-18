@@ -11,7 +11,7 @@ import {
 } from "../browser/src/Services/Browser/BrowserView"
 import { Configuration } from "../browser/src/Services/Configuration"
 
-const mockEvent = new Event<void>()
+const mockEvent = new Event<void>("BrowserView::mockEvent")
 const dispatch = () => mockEvent.dispatch()
 
 const MockWebviewElement = (spy: (args?: any) => void) =>

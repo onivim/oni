@@ -99,7 +99,7 @@ export const parseMarkLine = (markLine: string): INeovimMarkInfo => {
 }
 
 export class NeovimMarks {
-    private _onMarksUpdatedEvent = new Event<INeovimMarkInfo[]>()
+    private _onMarksUpdatedEvent = new Event<INeovimMarkInfo[]>("NeovimMarks::onMarksUpdatedEvent")
     private _isWatching: boolean = false
 
     public get onMarksUpdated(): IEvent<INeovimMarkInfo[]> {

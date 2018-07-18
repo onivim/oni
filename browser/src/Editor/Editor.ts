@@ -24,13 +24,17 @@ export interface IEditor extends Oni.Editor {
  */
 export class Editor extends Disposable implements Oni.Editor {
     private _currentMode: string
-    private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
-    private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
-    private _onBufferChangedEvent = new Event<Oni.EditorBufferChangedEventArgs>()
-    private _onBufferSavedEvent = new Event<Oni.EditorBufferEventArgs>()
-    private _onBufferScrolledEvent = new Event<Oni.EditorBufferScrolledEventArgs>()
-    private _onCursorMoved = new Event<Oni.Cursor>()
-    private _onModeChangedEvent = new Event<Oni.Vim.Mode>()
+    private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>("Editor::onBufferEnterEvent")
+    private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>("Editor::onBufferLeaveEvent")
+    private _onBufferChangedEvent = new Event<Oni.EditorBufferChangedEventArgs>(
+        "Editor::onBufferChangedEvent",
+    )
+    private _onBufferSavedEvent = new Event<Oni.EditorBufferEventArgs>("Editor::onBufferSavedEvent")
+    private _onBufferScrolledEvent = new Event<Oni.EditorBufferScrolledEventArgs>(
+        "Editor::onBufferScrolledEvent",
+    )
+    private _onCursorMoved = new Event<Oni.Cursor>("Editor::onCursorMoved")
+    private _onModeChangedEvent = new Event<Oni.Vim.Mode>("Editor::onModeChangedEvent")
 
     public get mode(): string {
         return this._currentMode

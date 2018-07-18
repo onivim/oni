@@ -31,16 +31,7 @@ describe("TokenColors", () => {
         await themeManager.setTheme("testTheme")
 
         assert.strictEqual(hitCount, 1, "Validate onTokenColorsChanged was fired")
-    })
-
-    it("if configuration is updated, but 'editor.tokenColors' isn't there, onTokenColorsChanged should not be triggered", () => {
-        const tokenColors = new TokenColors(mockConfiguration as any, themeManager)
-
-        let hitCount = 0
-        tokenColors.onTokenColorsChanged.subscribe(() => hitCount++)
-
-        mockConfiguration.simulateConfigurationChangedEvent({ someConfigValue: 2 })
-        assert.strictEqual(hitCount, 0, "Validate onTokenColorsChanged was fired")
+        tokenColors.dispose()
     })
 
     it("if 'editor.tokenColors' is updated from the config, onTokenColorsChanged event should be triggered", () => {
@@ -51,5 +42,17 @@ describe("TokenColors", () => {
 
         mockConfiguration.simulateConfigurationChangedEvent({ "editor.tokenColors": [] })
         assert.strictEqual(hitCount, 1, "Validate onTokenColorsChanged was fired")
+        tokenColors.dispose()
+    })
+
+    it("if configuration is updated, but 'editor.tokenColors' isn't there, onTokenColorsChanged should not be triggered", () => {
+        const tokenColors = new TokenColors(mockConfiguration as any, themeManager)
+
+        let hitCount = 0
+        tokenColors.onTokenColorsChanged.subscribe(() => hitCount++)
+
+        mockConfiguration.simulateConfigurationChangedEvent({ someConfigValue: 2 })
+        assert.strictEqual(hitCount, 0, "Validate onTokenColorsChanged was fired")
+        tokenColors.dispose()
     })
 })

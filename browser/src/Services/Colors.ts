@@ -36,7 +36,7 @@ export interface IColors extends OniApi.IColors {
 export class Colors implements OniApi.IColors, IDisposable {
     private _subscriptions: IDisposable[] = []
     private _colors: ColorsDictionary = {}
-    private _onColorsChangedEvent: Event<void> = new Event<void>()
+    private _onColorsChangedEvent: Event<void> = new Event<void>("Colors::onColorsChangedEvent")
 
     public get onColorsChanged(): IEvent<void> {
         return this._onColorsChangedEvent

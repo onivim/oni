@@ -38,9 +38,9 @@ export interface IWorkspace extends Oni.Workspace.Api {
 }
 
 export class Workspace implements IWorkspace {
-    private _onDirectoryChangedEvent = new Event<string>()
-    private _onFocusGainedEvent = new Event<Oni.Buffer>()
-    private _onFocusLostEvent = new Event<Oni.Buffer>()
+    private _onDirectoryChangedEvent = new Event<string>("Workspace::onDirectoryChangedEvent")
+    private _onFocusGainedEvent = new Event<Oni.Buffer>("Workspace::onFocusGainedEvent")
+    private _onFocusLostEvent = new Event<Oni.Buffer>("Workspace::onFocusLostEvent")
     private _mainWindow = remote.getCurrentWindow()
     private _lastActiveBuffer: Oni.Buffer
     private _activeWorkspace: string

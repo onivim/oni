@@ -26,7 +26,7 @@ import { Explorer } from "./ExplorerView"
 type Node = ExplorerSelectors.ExplorerNode
 
 export class ExplorerSplit {
-    private _onEnterEvent: Event<void> = new Event<void>()
+    private _onEnterEvent: Event<void> = new Event<void>("ExplorerSplit::onEnterEvent")
     private _selectedId: string = null
     private _store: Store<IExplorerState>
     private _watcher: FileSystemWatcher = null

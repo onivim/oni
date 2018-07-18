@@ -32,7 +32,7 @@ const marksToBookmarks = (mark: INeovimMarkInfo): IBookmark => ({
 
 export class NeovimBookmarksProvider implements IBookmarksProvider {
     private _lastBookmarks: IBookmark[] = []
-    private _onBookmarksUpdated = new Event<void>()
+    private _onBookmarksUpdated = new Event<void>("Bookmarks::onBookmarksUpdated")
 
     public get bookmarks(): IBookmark[] {
         return this._lastBookmarks

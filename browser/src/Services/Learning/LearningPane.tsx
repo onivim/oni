@@ -24,8 +24,8 @@ import { ITutorialMetadataWithProgress, TutorialManager } from "./Tutorial/Tutor
 import { noop } from "./../../Utility"
 
 export class LearningPane implements SidebarPane {
-    private _onEnter = new Event<void>()
-    private _onLeave = new Event<void>()
+    private _onEnter = new Event<void>("LearningPane::onEnter")
+    private _onLeave = new Event<void>("LearningPane::onLeave")
 
     constructor(
         private _tutorialManager: TutorialManager,

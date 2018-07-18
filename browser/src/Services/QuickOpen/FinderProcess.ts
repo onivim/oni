@@ -16,9 +16,9 @@ export class FinderProcess {
 
     private _lastData: string = ""
 
-    private _onData = new Event<string[]>()
-    private _onError = new Event<string>()
-    private _onComplete = new Event<void>()
+    private _onData = new Event<string[]>("FinderProcess::onData")
+    private _onError = new Event<string>("FinderProcess::onError")
+    private _onComplete = new Event<void>("FinderProcess::onComplete")
     private _workspace = getInstance()
 
     public get onData(): IEvent<string[]> {

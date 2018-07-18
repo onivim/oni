@@ -25,10 +25,10 @@ export const TICK_RATE = 50 /* 50 ms, or 20 times pers second */
 export class TutorialGameplayManager {
     private _activeTutorial: ITutorial
     private _currentStageIdx: number
-    private _onStateChanged = new Event<ITutorialState>()
-    private _onCompleted = new Event<boolean>()
+    private _onStateChanged = new Event<ITutorialState>("TutorialGameplayManager::onStateChanged")
+    private _onCompleted = new Event<boolean>("TutorialGameplayManager::onCompleted")
     private _currentState: ITutorialState = null
-    private _onTick = new Event<void>()
+    private _onTick = new Event<void>("TutorialGameplayManager::onTick")
 
     private _isTickInProgress: boolean = false
     private _buf: Oni.Buffer

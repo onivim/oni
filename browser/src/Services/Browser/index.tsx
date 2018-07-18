@@ -24,14 +24,14 @@ import {
 import { BrowserView } from "./BrowserView"
 
 export class BrowserLayer implements Oni.BufferLayer {
-    private _debugEvent = new Event<void>()
-    private _goBackEvent = new Event<void>()
-    private _goForwardEvent = new Event<void>()
-    private _reloadEvent = new Event<void>()
-    private _scrollUpEvent = new Event<void>()
-    private _scrollDownEvent = new Event<void>()
-    private _scrollRightEvent = new Event<void>()
-    private _scrollLeftEvent = new Event<void>()
+    private _debugEvent = new Event<void>("Browser::debugEvent")
+    private _goBackEvent = new Event<void>("Browser::goBackEvent")
+    private _goForwardEvent = new Event<void>("Browser::goForwardEvent")
+    private _reloadEvent = new Event<void>("Browser::reloadEvent")
+    private _scrollUpEvent = new Event<void>("Browser::scrollUpEvent")
+    private _scrollDownEvent = new Event<void>("Browser::scrollDownEvent")
+    private _scrollRightEvent = new Event<void>("Browser::scrollRightEvent")
+    private _scrollLeftEvent = new Event<void>("Browser::scrollLeftEvent")
 
     private _webview: WebviewTag | null = null
     private _activeTagName: string | null = null

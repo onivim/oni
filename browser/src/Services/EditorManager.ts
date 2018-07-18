@@ -17,7 +17,9 @@ export class EditorManager implements Oni.EditorManager {
     private _allEditors: Oni.Editor[] = []
     private _activeEditor: Oni.Editor = null
     private _anyEditorProxy: AnyEditorProxy = new AnyEditorProxy()
-    private _onActiveEditorChanged: Event<Oni.Editor> = new Event<Oni.Editor>()
+    private _onActiveEditorChanged: Event<Oni.Editor> = new Event<Oni.Editor>(
+        "EditorManager::onActiveEditorChanged",
+    )
 
     private _closeWhenNoEditors: boolean = true
 
@@ -95,13 +97,17 @@ class AnyEditorProxy implements Oni.Editor {
     private _activeEditor: Oni.Editor
     private _subscriptions: IDisposable[] = []
 
-    private _onModeChanged = new Event<Oni.Vim.Mode>()
-    private _onBufferEnter = new Event<Oni.EditorBufferEventArgs>()
-    private _onBufferLeave = new Event<Oni.EditorBufferEventArgs>()
-    private _onBufferChanged = new Event<Oni.EditorBufferChangedEventArgs>()
-    private _onBufferSaved = new Event<Oni.EditorBufferEventArgs>()
-    private _onBufferScrolled = new Event<Oni.EditorBufferScrolledEventArgs>()
-    private _onCursorMoved = new Event<Oni.Cursor>()
+    private _onModeChanged = new Event<Oni.Vim.Mode>("EditorManager::onModeChanged")
+    private _onBufferEnter = new Event<Oni.EditorBufferEventArgs>("EditorManager::onBufferEnter")
+    private _onBufferLeave = new Event<Oni.EditorBufferEventArgs>("EditorManager::onBufferLeave")
+    private _onBufferChanged = new Event<Oni.EditorBufferChangedEventArgs>(
+        "EditorManager::onBufferChanged",
+    )
+    private _onBufferSaved = new Event<Oni.EditorBufferEventArgs>("EditorManager::onBufferSaved")
+    private _onBufferScrolled = new Event<Oni.EditorBufferScrolledEventArgs>(
+        "EditorManager::onBufferScrolled",
+    )
+    private _onCursorMoved = new Event<Oni.Cursor>("EditorManager::onCursorMoved")
 
     /**
      * API Methods

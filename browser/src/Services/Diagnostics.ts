@@ -65,7 +65,7 @@ export const getAllErrorsForFile = (fileName: string, errors: Errors): types.Dia
 
 export class DiagnosticsDataSource {
     private _errors: Errors = {}
-    private _onErrorsChangedEvent = new Event<void>()
+    private _onErrorsChangedEvent = new Event<void>("Diagnostics::onErrorsChangedEvent")
 
     public get onErrorsChanged(): IEvent<void> {
         return this._onErrorsChangedEvent

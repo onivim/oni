@@ -26,8 +26,12 @@ const CONFIG_UPDATE_DEBOUNCE_TIME = 100 /*ms */
 export class FileConfigurationProvider implements IConfigurationProvider {
     private _configurationFilePath: string
     private _containingFolder: string
-    private _configurationChangedEvent = new Event<void>()
-    private _configurationErrorEvent = new Event<Error>()
+    private _configurationChangedEvent = new Event<void>(
+        "FileConfigurationProvider::configurationChangedEvent",
+    )
+    private _configurationErrorEvent = new Event<Error>(
+        "FileConfigurationProvider::configurationErrorEvent",
+    )
     private _latestConfiguration: Partial<IConfigurationValues> = null
     private _lastError: Error | null = null
     private _configEverHadValue: boolean = false

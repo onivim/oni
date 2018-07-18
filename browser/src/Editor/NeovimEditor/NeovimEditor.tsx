@@ -114,7 +114,7 @@ export class NeovimEditor extends Editor implements IEditor {
 
     private _pendingAnimationFrame: boolean = false
 
-    private _onEnterEvent: Event<void> = new Event<void>()
+    private _onEnterEvent: Event<void> = new Event<void>("NeovimEditor::onEnterEvent")
 
     private _modeChanged$: Observable<Oni.Vim.Mode>
     private _cursorMoved$: Observable<Oni.Cursor>
@@ -144,7 +144,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _bufferLayerManager: BufferLayerManager
     private _screenWithPredictions: ScreenWithPredictions
 
-    private _onNeovimQuit: Event<void> = new Event<void>()
+    private _onNeovimQuit: Event<void> = new Event<void>("NeovimEditor::onNeovimQuit")
 
     private _autoFocus: boolean = true
 

@@ -40,8 +40,12 @@ export class TutorialManager {
     private _initPromise: Promise<IPersistedTutorialState>
 
     private _persistedState: IPersistedTutorialState = { completionInfo: {} }
-    private _onTutorialCompletedEvent: Event<void> = new Event<void>()
-    private _onTutorialProgressChanged: Event<void> = new Event<void>()
+    private _onTutorialCompletedEvent: Event<void> = new Event<void>(
+        "TutorialManager::onTutorialCompletedEvent",
+    )
+    private _onTutorialProgressChanged: Event<void> = new Event<void>(
+        "TutorialManager::onTutorialProgressChanged",
+    )
 
     public get onTutorialCompletedEvent(): IEvent<void> {
         return this._onTutorialCompletedEvent

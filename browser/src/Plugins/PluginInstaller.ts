@@ -44,9 +44,15 @@ export interface IPluginInstaller {
 }
 
 export class YarnPluginInstaller implements IPluginInstaller {
-    private _onOperationStarted = new Event<IPluginInstallerOperationEvent>()
-    private _onOperationCompleted = new Event<IPluginInstallerOperationEvent>()
-    private _onOperationError = new Event<IPluginInstallerOperationEvent>()
+    private _onOperationStarted = new Event<IPluginInstallerOperationEvent>(
+        "PluginInstaller::onOperationStarted",
+    )
+    private _onOperationCompleted = new Event<IPluginInstallerOperationEvent>(
+        "PluginInstaller::onOperationCompleted",
+    )
+    private _onOperationError = new Event<IPluginInstallerOperationEvent>(
+        "PluginInstaller::onOperationError",
+    )
 
     public get onOperationStarted(): IEvent<IPluginInstallerOperationEvent> {
         return this._onOperationStarted
