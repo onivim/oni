@@ -8,10 +8,12 @@ import * as path from "path"
 import { Store } from "redux"
 import { MockStoreCreator } from "redux-mock-store"
 import { ActionsObservable, combineEpics, createEpicMiddleware } from "redux-observable"
+import * as sinon from "sinon"
 
 import * as ExplorerFileSystem from "./../../../src/Services/Explorer/ExplorerFileSystem"
 import { ExplorerNode } from "./../../../src/Services/Explorer/ExplorerSelectors"
 import * as ExplorerState from "./../../../src/Services/Explorer/ExplorerStore"
+import { Notification } from "./../../../src/Services/Notifications/Notification"
 import { Notifications } from "./../../../src/Services/Notifications/Notifications"
 
 import * as clone from "lodash/clone"
@@ -19,6 +21,7 @@ import * as head from "lodash/head"
 import * as TestHelpers from "./../../TestHelpers"
 
 const configureMockStore = require("redux-mock-store") // tslint:disable-line
+const MemoryFileSystem = require("memory-fs") // tslint:disable-line
 
 export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
     public promises: Array<Promise<any>>
@@ -54,29 +57,24 @@ export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
     // tslint:enable
 }
 
-const rootEpic = combineEpics(
-    ExplorerState.clearYankRegisterEpic,
-    ExplorerState.pasteEpic,
-    ExplorerState.selectFileEpic,
-)
+const mockStoreFactory = (
+    epics: any[],
+    notifications = {} as Notifications,
+): MockStoreCreator<ExplorerState.IExplorerState> => {
+    const rootEpic = combineEpics(...epics)
 
-const epicMiddleware = createEpicMiddleware(rootEpic, {
-    dependencies: {
-        fileSystem: MockedFileSystem as any,
-        notifications: {} as Notifications,
-    },
-})
+    const epicMiddleware = createEpicMiddleware(rootEpic, {
+        dependencies: { fileSystem: MockedFileSystem as any, notifications },
+    })
 
-const MemoryFileSystem = require("memory-fs") // tslint:disable-line
-const mockStore: MockStoreCreator<ExplorerState.IExplorerState> = configureMockStore([
-    epicMiddleware,
-])
+    const mockStore: MockStoreCreator<ExplorerState.IExplorerState> = configureMockStore([
+        epicMiddleware,
+    ])
+
+    return mockStore
+}
 
 describe("ExplorerStore", () => {
-    let fileSystem: any
-    let store: Store<ExplorerState.IExplorerState>
-    let explorerFileSystem: MockedFileSystem
-
     const rootPath = path.normalize(path.join(TestHelpers.getRootDirectory(), "a", "test", "dir"))
     const filePath = path.join(rootPath, "file.txt")
     const target = { filePath, id: "1" }
@@ -115,7 +113,11 @@ describe("ExplorerStore", () => {
     } as ExplorerState.IPasteAction
 
     describe("SET_ROOT_DIRECTORY", () => {
+        let store: Store<ExplorerState.IExplorerState>
+        let explorerFileSystem: MockedFileSystem
+
         beforeEach(() => {
+            let fileSystem: any
             fileSystem = new MemoryFileSystem()
             fileSystem.mkdirpSync(rootPath)
             fileSystem.writeFileSync(filePath, "Hello World")
@@ -178,23 +180,27 @@ describe("ExplorerStore", () => {
         let epicStore: any
 
         beforeEach(() => {
-            epicStore = mockStore({
+            epicStore = mockStoreFactory([ExplorerState.selectFileEpic])({
                 ...ExplorerState.DefaultExplorerState,
-                rootFolder: { type: "folder", fullPath: "/root/workspace" },
+                rootFolder: { type: "folder", fullPath: rootPath },
             })
         })
 
         it("dispatches actions to expand folders and select file", () => {
-            epicStore.dispatch({
-                type: "SELECT_FILE",
-                filePath: "/root/workspace/dir1/dir2/file.cpp",
-            })
+            const filePath = path.normalize(path.join(rootPath, "dir1", "dir2", "file.cpp"))
+            epicStore.dispatch({ type: "SELECT_FILE", filePath })
             const actions = epicStore.getActions()
             assert.deepStrictEqual(actions, [
-                { type: "SELECT_FILE", filePath: "/root/workspace/dir1/dir2/file.cpp" },
-                { type: "EXPAND_DIRECTORY", directoryPath: "/root/workspace/dir1" },
-                { type: "EXPAND_DIRECTORY", directoryPath: "/root/workspace/dir1/dir2" },
-                { type: "SELECT_FILE_PENDING", filePath: "/root/workspace/dir1/dir2/file.cpp" },
+                { type: "SELECT_FILE", filePath },
+                {
+                    type: "EXPAND_DIRECTORY",
+                    directoryPath: path.normalize(path.join(rootPath, "dir1")),
+                },
+                {
+                    type: "EXPAND_DIRECTORY",
+                    directoryPath: path.normalize(path.join(rootPath, "dir1", "dir2")),
+                },
+                { type: "SELECT_FILE_PENDING", filePath },
             ])
         })
 
@@ -215,19 +221,11 @@ describe("ExplorerStore", () => {
     })
 
     describe("YANK_AND_PASTE_EPICS", async () => {
-        const fs = {
-            move: async (source, dest) => null,
-            readdir: () => null as any,
-            exists: async file => true,
-            persistNode: async file => null,
-            restoreNode: async file => null,
-            deleteNode: file => null,
-            canPersistNode: async (file, size) => true,
-            moveNodesBack: async collection => null,
-            writeFile: async name => null,
-            mkdir: async name => null,
-        } as ExplorerFileSystem.IFileSystem
+        let fs: any
 
+        beforeEach(() => {
+            fs = new MockedFileSystem(new ExplorerFileSystem.FileSystem(new MemoryFileSystem()))
+        })
         const notifications = {
             _id: 0,
             _overlay: null,
@@ -242,6 +240,11 @@ describe("ExplorerStore", () => {
                 show: () => ({}),
             }),
         } as any
+
+        const mockStore = mockStoreFactory([
+            ExplorerState.pasteEpic,
+            ExplorerState.clearYankRegisterEpic,
+        ])
 
         it("dispatches a clear register action after a minute", async () => {
             const epicStore = mockStore({ ...ExplorerState.DefaultExplorerState })
@@ -311,15 +314,12 @@ describe("ExplorerStore", () => {
                 persist: true,
             } as ExplorerState.IDeleteAction)
 
+            sinon.stub(fs, "persistNode").throws(new Error("Doesnt work"))
+
             const expected = [{ type: "DELETE_FAIL", reason: "Doesnt work" }]
 
             ExplorerState.deleteEpic(action$, null, {
-                fileSystem: {
-                    ...fs,
-                    persistNode: async node => {
-                        throw new Error("Doesnt work")
-                    },
-                },
+                fileSystem: fs,
                 notifications,
             })
                 .toArray()
