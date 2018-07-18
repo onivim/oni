@@ -54,7 +54,11 @@ export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
     // tslint:enable
 }
 
-const rootEpic = combineEpics(ExplorerState.clearYankRegisterEpic, ExplorerState.pasteEpic)
+const rootEpic = combineEpics(
+    ExplorerState.clearYankRegisterEpic,
+    ExplorerState.pasteEpic,
+    ExplorerState.selectFileEpic,
+)
 
 const epicMiddleware = createEpicMiddleware(rootEpic, {
     dependencies: {
@@ -167,6 +171,46 @@ describe("ExplorerStore", () => {
                 type: "SELECT_FILE_SUCCESS",
             })
             assert.equal(state, null)
+        })
+    })
+
+    describe("selectFileEpic", () => {
+        let epicStore: any
+
+        beforeEach(() => {
+            epicStore = mockStore({
+                ...ExplorerState.DefaultExplorerState,
+                rootFolder: { type: "folder", fullPath: "/root/workspace" },
+            })
+        })
+
+        it("dispatches actions to expand folders and select file", () => {
+            epicStore.dispatch({
+                type: "SELECT_FILE",
+                filePath: "/root/workspace/dir1/dir2/file.cpp",
+            })
+            const actions = epicStore.getActions()
+            assert.deepStrictEqual(actions, [
+                { type: "SELECT_FILE", filePath: "/root/workspace/dir1/dir2/file.cpp" },
+                { type: "EXPAND_DIRECTORY", directoryPath: "/root/workspace/dir1" },
+                { type: "EXPAND_DIRECTORY", directoryPath: "/root/workspace/dir1/dir2" },
+                { type: "SELECT_FILE_PENDING", filePath: "/root/workspace/dir1/dir2/file.cpp" },
+            ])
+        })
+
+        it("dispatches failure if target is not in workspace", () => {
+            epicStore.dispatch({
+                type: "SELECT_FILE",
+                filePath: "/root/other/dir1/dir2/file.cpp",
+            })
+            const actions = epicStore.getActions()
+            assert.deepStrictEqual(actions, [
+                { type: "SELECT_FILE", filePath: "/root/other/dir1/dir2/file.cpp" },
+                {
+                    type: "SELECT_FILE_FAIL",
+                    reason: "File is not in workspace: /root/other/dir1/dir2/file.cpp",
+                },
+            ])
         })
     })
 
