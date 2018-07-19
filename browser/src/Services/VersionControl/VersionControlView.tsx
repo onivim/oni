@@ -1,4 +1,3 @@
-import * as os from "os"
 import * as React from "react"
 import { connect } from "react-redux"
 
@@ -73,9 +72,13 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
         this.props.handleSelection(id)
     }
 
+    public formatCommit = (message: string) => {
+        return message.length >= 50 ? [message.substr(0, 50), message.substr(50)] : [message]
+    }
+
     public handleCommitMessage = (evt: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = evt.currentTarget
-        const message = value.split(os.EOL)
+        const message = this.formatCommit(value)
         this.props.updateCommitMessage(message)
     }
 

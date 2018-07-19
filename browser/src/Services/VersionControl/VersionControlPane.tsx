@@ -10,11 +10,11 @@ import { ISendVCSNotification } from "./VersionControlManager"
 import { VersionControlState } from "./VersionControlStore"
 
 export default class VersionControlPane {
-    public get id(): string {
+    public get id() {
         return "oni.sidebar.vcs"
     }
 
-    public get title(): string {
+    public get title() {
         return capitalize(this._vcsProvider.name)
     }
 
@@ -51,14 +51,14 @@ export default class VersionControlPane {
         })
     }
 
-    public enter(): void {
+    public enter() {
         this._store.dispatch({ type: "ENTER" })
         this._workspace.onDirectoryChanged.subscribe(async () => {
             await this.getStatus()
         })
     }
 
-    public leave(): void {
+    public leave() {
         this._store.dispatch({ type: "LEAVE" })
     }
 
