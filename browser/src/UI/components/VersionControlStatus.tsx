@@ -68,7 +68,7 @@ const truncate = (str: string) =>
         .slice(-2)
         .join(path.sep)
 
-const inputStyles = css`
+const TextArea = styled.textarea`
     width: 100%;
     background-color: inherit;
     color: inherit;
@@ -76,6 +76,8 @@ const inputStyles = css`
     font-family: inherit;
     padding: 0.5em;
     box-sizing: border-box;
+    overflow: hidden;
+    resize: vertical;
 `
 
 export const VersionControlStatus = ({
@@ -118,7 +120,7 @@ export const VersionControlStatus = ({
                 ))
             ) : (
                 <TextInput
-                    styles={inputStyles}
+                    InputComponent={TextArea}
                     onComplete={handleComplete}
                     onChange={handleChange}
                     onCancel={handleCancel}

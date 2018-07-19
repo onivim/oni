@@ -10,6 +10,7 @@ export interface ITextInputViewProps {
     styles?: any
 
     defaultValue?: string
+    InputComponent?: any
 }
 
 export interface IInputProps extends ITextInputViewProps {
@@ -47,10 +48,11 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         }
 
         const defaultValue = this.props.defaultValue || ""
+        const { InputComponent = Input } = this.props
 
         return (
             <div className="input-container enable-mouse">
-                <Input
+                <InputComponent
                     type="text"
                     inputStyles={this.props.styles}
                     style={inputStyle}
