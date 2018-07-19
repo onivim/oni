@@ -76,6 +76,7 @@ export interface Diff {
 }
 
 export interface Commits {
+    message: string
     author: null | {
         email: string
         name: string

@@ -6,11 +6,9 @@ import {
     DefaultState,
     VersionControlState,
 } from "./../browser/src/Services/VersionControl/VersionControlStore"
-import {
-    GitStatus,
-    SectionTitle,
-    VersionControlView,
-} from "./../browser/src/Services/VersionControl/VersionControlView"
+import { VersionControlView } from "./../browser/src/Services/VersionControl/VersionControlView"
+import { SectionTitle } from "./../browser/src/UI/components/VersionControl/SectionTitle"
+import VersionControlStatus from "./../browser/src/UI/components/VersionControl/Status"
 
 const noop = () => ({})
 
@@ -34,19 +32,30 @@ jest.mock("../browser/src/UI/components/Sneakable", () => {
 
 describe("<VersionControlView />", () => {
     const state = { ...DefaultState, activated: true, hasFocus: true }
-    const container = shallow(<VersionControlView {...state} getStatus={() => makePromise({})} />)
+    const container = shallow(
+        <VersionControlView
+            committing={false}
+            cancelCommit={noop}
+            updateCommitMessage={noop}
+            commits={[]}
+            message={[]}
+            selectedItem={null}
+            {...state}
+            getStatus={() => makePromise({})}
+        />,
+    )
     it("renders without crashing", () => {
         expect(container.length).toBe(1)
     })
 
     it("should render an untracked, staged and modified section", () => {
-        const sections = container.dive().find(GitStatus).length
+        const sections = container.dive().find(VersionControlStatus).length
         expect(sections).toBe(3)
     })
 
     it("shouldn't show a section if it has no content", () => {
         const wrapper = shallow(
-            <GitStatus
+            <VersionControlStatus
                 onClick={noop}
                 toggleVisibility={noop}
                 visibility={true}
@@ -61,7 +70,7 @@ describe("<VersionControlView />", () => {
 
     it("should match the last recorded snapshot unless a change was made", () => {
         const wrapper = shallow(
-            <GitStatus
+            <VersionControlStatus
                 titleId="modified"
                 visibility={true}
                 toggleVisibility={noop}
@@ -94,7 +103,16 @@ describe("<VersionControlView />", () => {
         }
 
         const statusComponent = shallow(
-            <VersionControlView {...stateCopy} getStatus={() => makePromise({})} />,
+            <VersionControlView
+                selectedItem={null}
+                committing={false}
+                cancelCommit={noop}
+                updateCommitMessage={noop}
+                commits={[]}
+                message={[]}
+                {...stateCopy}
+                getStatus={() => makePromise({})}
+            />,
         )
             .dive()
             .findWhere(component => component.prop("titleId") === "modified")

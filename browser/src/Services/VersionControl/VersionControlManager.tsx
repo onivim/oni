@@ -6,7 +6,7 @@ import * as React from "react"
 
 import { store, SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
 import { Notifications } from "./../../Services/Notifications"
-import { Branch } from "./../../UI/components/VersionControlBranch"
+import { Branch } from "./../../UI/components/VersionControl/Branch"
 import { MenuManager } from "./../Menu"
 import { SidebarManager } from "./../Sidebar"
 import { IWorkspace } from "./../Workspace"

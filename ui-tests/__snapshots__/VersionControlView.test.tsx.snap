@@ -2,21 +2,14 @@
 
 exports[`<VersionControlView /> should match the last recorded snapshot unless a change was made 1`] = `
 <div>
-  <styled.div
-    data-test="modified-2"
+  <VCSSectionTitle
+    active={true}
+    count={2}
     isSelected={false}
     onClick={[Function]}
-  >
-    <Caret
-      active={true}
-    />
-    <styled.h4>
-      MODIFIED
-    </styled.h4>
-    <strong>
-      2
-    </strong>
-  </styled.div>
+    testId="modified-2"
+    title="modified"
+  />
   <Sneakable
     callback={[Function]}
     key="test1"

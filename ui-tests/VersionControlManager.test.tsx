@@ -2,7 +2,7 @@ import * as Oni from "oni-api"
 import { Event } from "oni-types"
 import * as React from "react"
 
-import { Branch } from "../browser/src/UI/components/VersionControl"
+import { Branch } from "../browser/src/UI/components/VersionControl/Branch"
 import {
     VersionControlManager,
     VersionControlProvider,

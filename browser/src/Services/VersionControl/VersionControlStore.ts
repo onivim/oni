@@ -93,12 +93,18 @@ export function reducer(state: VersionControlState, action: IAction) {
         case "COMMIT_CANCEL":
             return { ...state, commit: { ...state.commit, message: [], active: false } }
         case "COMMIT_SUCCESS":
+            const {
+                message: [message],
+            } = state.commit
             return {
                 ...state,
                 commit: {
-                    message: [],
+                    message: [] as string[],
                     active: false,
-                    previousCommits: [...state.commit.previousCommits, action.payload.commit],
+                    previousCommits: [
+                        ...state.commit.previousCommits,
+                        { ...action.payload.commit, message },
+                    ],
                 },
             }
         case "UPDATE_COMMIT_MESSAGE":
