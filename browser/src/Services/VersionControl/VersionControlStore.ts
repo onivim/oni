@@ -1,10 +1,14 @@
 import { createStore as createReduxStore } from "./../../Redux"
 import { Commits, StatusResult } from "./VersionControlProvider"
 
+interface PrevCommits extends Commits {
+    message: string
+}
+
 interface ICommit {
     active: boolean
     message: string[]
-    previousCommits: Commits[]
+    previousCommits: PrevCommits[]
 }
 
 export interface VersionControlState {

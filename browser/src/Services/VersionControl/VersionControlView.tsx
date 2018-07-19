@@ -88,8 +88,9 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
     }
 
     public toggleOrAction = (id: string) => {
-        if (id === "modified" || id === "staged" || id === "untracked" || id === "commits") {
-            this.toggleVisibility(id)
+        const isSectionId = Object.keys(this.state).includes(id)
+        if (isSectionId) {
+            this.toggleVisibility(id as keyof State)
         }
         this.props.handleSelection(id)
     }
