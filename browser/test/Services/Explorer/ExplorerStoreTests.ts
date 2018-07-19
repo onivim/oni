@@ -6,7 +6,7 @@ import * as assert from "assert"
 import * as path from "path"
 
 import { Store } from "redux"
-import { MockStoreCreator } from "redux-mock-store"
+import configureMockStore, { MockStoreCreator } from "redux-mock-store"
 import { ActionsObservable, combineEpics, createEpicMiddleware } from "redux-observable"
 import * as sinon from "sinon"
 
@@ -20,7 +20,6 @@ import * as clone from "lodash/clone"
 import * as head from "lodash/head"
 import * as TestHelpers from "./../../TestHelpers"
 
-const configureMockStore = require("redux-mock-store") // tslint:disable-line
 const MemoryFileSystem = require("memory-fs") // tslint:disable-line
 
 export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {

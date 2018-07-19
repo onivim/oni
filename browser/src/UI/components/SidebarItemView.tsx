@@ -8,6 +8,7 @@ import * as React from "react"
 
 import { styled, withProps } from "./common"
 
+import Caret from "./../../UI/components/Caret"
 import { Sneakable } from "./../../UI/components/Sneakable"
 
 export interface ISidebarItemViewProps {
@@ -129,11 +130,6 @@ const SidebarContainer = withProps<IContainerProps>(styled.div)`
 
 export class SidebarContainerView extends React.PureComponent<ISidebarContainerViewProps, {}> {
     public render(): JSX.Element {
-        const caretStyle = {
-            transform: this.props.isExpanded ? "rotateZ(45deg)" : "rotateZ(0deg)",
-            transition: "transform 0.1s ease-in",
-        }
-        const icon = <i style={caretStyle} className="fa fa-caret-right" />
         const indentationlevel = this.props.indentationLevel || 0
 
         return (
@@ -148,7 +144,7 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
                     updated={this.props.updated}
                     didDrop={this.props.didDrop}
                     indentationLevel={indentationlevel}
-                    icon={icon}
+                    icon={<Caret active={this.props.isExpanded} />}
                     text={this.props.text}
                     isFocused={this.props.isFocused}
                     isContainer={this.props.isContainer}

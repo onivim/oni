@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<VersionControlView /> should match the last recorded snapshot unless a change was made 1`] = `
+<div>
+  <styled.div
+    data-test="modified-2"
+    isSelected={false}
+    onClick={[Function]}
+  >
+    <Caret
+      active={true}
+    />
+    <styled.h4>
+      MODIFIED
+    </styled.h4>
+    <strong>
+      2
+    </strong>
+  </styled.div>
+  <Sneakable
+    callback={[Function]}
+    key="test1"
+  >
+    <styled.div
+      isSelected={false}
+      onClick={[Function]}
+    >
+      <styled.div>
+        <Icon
+          name="M"
+        />
+        <styled.span>
+          test1
+        </styled.span>
+      </styled.div>
+    </styled.div>
+  </Sneakable>
+  <Sneakable
+    callback={[Function]}
+    key="test2"
+  >
+    <styled.div
+      isSelected={false}
+      onClick={[Function]}
+    >
+      <styled.div>
+        <Icon
+          name="M"
+        />
+        <styled.span>
+          test2
+        </styled.span>
+      </styled.div>
+    </styled.div>
+  </Sneakable>
+</div>
+`;
