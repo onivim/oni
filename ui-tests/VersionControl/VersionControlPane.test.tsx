@@ -1,17 +1,20 @@
 import * as Oni from "oni-api"
 import { Event } from "oni-types"
 
-import { VersionControlProvider } from "../browser/src/Services/VersionControl"
-import VersionControlPane from "./../browser/src/Services/VersionControl/VersionControlPane"
+import { VersionControlProvider } from "./../../browser/src/Services/VersionControl"
+import VersionControlPane from "./../../browser/src/Services/VersionControl/VersionControlPane"
 import store, {
     DefaultState,
     VersionControlState,
-} from "./../browser/src/Services/VersionControl/VersionControlStore"
-import MockEditorManager from "./mocks/EditorManager"
-import MockWorkspace from "./mocks/Workspace"
+} from "./../../browser/src/Services/VersionControl/VersionControlStore"
+import MockEditorManager from "./../mocks/EditorManager"
+import MockWorkspace from "./../mocks/Workspace"
 
 jest.mock("lodash/capitalize", (str: string) => str)
-jest.mock("./../browser/src/Services/VersionControl/VersionControlView", () => "VersionControlView")
+jest.mock(
+    "./../../browser/src/Services/VersionControl/VersionControlView",
+    () => "VersionControlView",
+)
 
 const makePromise = (arg?: any) => Promise.resolve(arg)
 

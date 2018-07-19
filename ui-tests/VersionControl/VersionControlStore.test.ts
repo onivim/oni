@@ -1,6 +1,6 @@
 import { Store } from "redux"
 
-import store from "./../browser/src/Services/VersionControl/VersionControlStore"
+import store from "./../../browser/src/Services/VersionControl/VersionControlStore"
 
 describe("Version control reducer test", () => {
     const vcsStore = store

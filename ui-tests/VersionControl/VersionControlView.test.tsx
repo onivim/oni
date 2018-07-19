@@ -5,14 +5,14 @@ import * as React from "react"
 import {
     DefaultState,
     VersionControlState,
-} from "./../browser/src/Services/VersionControl/VersionControlStore"
-import { VersionControlView } from "./../browser/src/Services/VersionControl/VersionControlView"
-import { SectionTitle } from "./../browser/src/UI/components/VersionControl/SectionTitle"
-import VersionControlStatus from "./../browser/src/UI/components/VersionControl/Status"
+} from "./../../browser/src/Services/VersionControl/VersionControlStore"
+import { VersionControlView } from "./../../browser/src/Services/VersionControl/VersionControlView"
+import { SectionTitle } from "./../../browser/src/UI/components/VersionControl/SectionTitle"
+import VersionControlStatus from "./../../browser/src/UI/components/VersionControl/Status"
 
 const noop = () => ({})
 
-jest.mock("./../browser/src/neovim/SharedNeovimInstance", () => ({
+jest.mock("./../../browser/src/neovim/SharedNeovimInstance", () => ({
     getInstance: () => ({
         bindToMenu: () => ({
             setItems: jest.fn(),
@@ -25,7 +25,7 @@ jest.mock("./../browser/src/neovim/SharedNeovimInstance", () => ({
 
 const makePromise = (arg?: any) => Promise.resolve(arg)
 
-jest.mock("../browser/src/UI/components/Sneakable", () => {
+jest.mock("../../browser/src/UI/components/Sneakable", () => {
     const React = require("react") // tslint:disable-line
     return { Sneakable: () => <div /> }
 })
