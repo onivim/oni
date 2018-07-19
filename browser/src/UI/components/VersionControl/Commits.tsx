@@ -18,7 +18,7 @@ const List = styled.ul`
     margin: 0;
     padding: 0;
 `
-const ListItem = withProps<{ isSelected?: boolean }>(styled.li)`
+export const ListItem = withProps<{ isSelected?: boolean }>(styled.li)`
     ${({ isSelected }) => isSelected && sidebarItemSelected};
     padding: 0.4rem;
 `
