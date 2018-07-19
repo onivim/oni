@@ -7,8 +7,8 @@ import CommitsSection from "./../../UI/components/VersionControl/Commits"
 import { SectionTitle, Title } from "./../../UI/components/VersionControl/SectionTitle"
 import VersionControlStatus from "./../../UI/components/VersionControl/Status"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
-import { Commits, StatusResult } from "./VersionControlProvider"
-import { VersionControlActions, VersionControlState } from "./VersionControlStore"
+import { StatusResult } from "./VersionControlProvider"
+import { PrevCommits, VersionControlActions, VersionControlState } from "./VersionControlStore"
 
 const TextArea = styled.textarea`
     width: 100%;
@@ -42,7 +42,7 @@ interface IStateProps {
     committing: boolean
     message: string[]
     selectedItem: string
-    commits: Commits[]
+    commits: PrevCommits[]
 }
 
 interface IDispatchProps {
