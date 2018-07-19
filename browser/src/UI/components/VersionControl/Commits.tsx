@@ -1,11 +1,11 @@
 import * as React from "react"
 
-import { Commits } from "./../../../Services/VersionControl/VersionControlProvider"
+import { PrevCommits } from "./../../../Services/VersionControl/VersionControlStore"
 import { sidebarItemSelected, styled, withProps } from "./../../../UI/components/common"
 import VCSSectionTitle from "./SectionTitle"
 
 interface ICommitsSection {
-    commits: Commits[]
+    commits: PrevCommits[]
     selectedId: string
     titleId: string
     visibility: boolean

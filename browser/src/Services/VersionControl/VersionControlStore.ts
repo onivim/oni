@@ -1,7 +1,7 @@
 import { createStore as createReduxStore } from "./../../Redux"
 import { Commits, StatusResult } from "./VersionControlProvider"
 
-interface PrevCommits extends Commits {
+export interface PrevCommits extends Commits {
     message: string
 }
 
