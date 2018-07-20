@@ -4,12 +4,12 @@ import * as Log from "oni-core-logging"
 import * as React from "react"
 import { Provider, Store } from "react-redux"
 
+import { SidebarManager } from "../Sidebar"
 import { VersionControlProvider, VersionControlView } from "./"
 import { IWorkspace } from "./../Workspace"
 import { ISendVCSNotification } from "./VersionControlManager"
 import { Commits } from "./VersionControlProvider"
 import { ProviderActions, VersionControlState } from "./VersionControlStore"
-import { SidebarManager } from "../Sidebar"
 
 export interface IDsMap {
     modified: "modified"
