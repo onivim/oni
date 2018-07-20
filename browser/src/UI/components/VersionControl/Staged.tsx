@@ -37,62 +37,73 @@ const OptionsBar = withProps<{ isSelected: boolean }>(styled.span)`
     width: 100%;
 `
 
-const StagedSection: React.SFC<IProps> = props => (
-    <div>
-        <SectionTitle
-            isSelected={props.selectedId === props.titleId}
-            testId={`${props.titleId}-${props.files.length}`}
-            onClick={props.toggleVisibility}
-            active={props.visible && !!props.files.length}
-            title={props.titleId}
-            count={props.files.length}
-        />
-        {props.visible && props.files.length ? (
-            <OptionsBar isSelected={"commit_all" === props.selectedId}>
-                {props.selectedToCommit("commit_all") ? (
-                    <CommitMessage
-                        handleCommitCancel={props.handleCommitCancel}
-                        handleCommitComplete={props.handleCommitAll}
-                        handleCommitMessage={props.handleCommitMessage}
-                    />
-                ) : (
-                    <Explainer onClick={() => props.handleSelection(props.titleId)}>
-                        commit all ({props.files.length})
-                    </Explainer>
-                )}
-            </OptionsBar>
-        ) : null}
-        {props.visible &&
-            props.files.map(file => {
-                const isSelected = file === props.selectedId
-                if (props.loading && isSelected) {
-                    return (
-                        <Center>
-                            <LoadingSpinner iconSize="0.4em" />
-                        </Center>
-                    )
-                }
-                if (props.selectedToCommit(file)) {
-                    return (
-                        <CommitMessage
-                            key={file}
-                            handleCommitCancel={props.handleCommitCancel}
-                            handleCommitComplete={props.handleCommitOne}
-                            handleCommitMessage={props.handleCommitMessage}
-                        />
-                    )
-                }
-                return (
-                    <File
-                        key={file}
-                        file={file}
-                        icon={props.icon}
-                        onClick={props.handleSelection}
-                        isSelected={isSelected}
-                    />
-                )
-            })}
-    </div>
+const LoadingHandler: React.SFC<{ loading: boolean }> = ({ loading, children }) => (
+    <>
+        {loading ? (
+            <Center>
+                <LoadingSpinner iconSize="0.4em" />
+            </Center>
+        ) : (
+            children
+        )}
+    </>
 )
+
+const StagedSection: React.SFC<IProps> = props => {
+    const commitAllSelected = "commit_all" === props.selectedId
+    return (
+        <div>
+            <SectionTitle
+                isSelected={props.selectedId === props.titleId}
+                testId={`${props.titleId}-${props.files.length}`}
+                onClick={props.toggleVisibility}
+                active={props.visible && !!props.files.length}
+                title={props.titleId}
+                count={props.files.length}
+            />
+            {props.visible && props.files.length ? (
+                <LoadingHandler loading={props.loading && commitAllSelected}>
+                    <OptionsBar isSelected={commitAllSelected}>
+                        {props.selectedToCommit("commit_all") ? (
+                            <CommitMessage
+                                handleCommitCancel={props.handleCommitCancel}
+                                handleCommitComplete={props.handleCommitAll}
+                                handleCommitMessage={props.handleCommitMessage}
+                            />
+                        ) : (
+                            <Explainer onClick={() => props.handleSelection(props.titleId)}>
+                                commit all ({props.files.length})
+                            </Explainer>
+                        )}
+                    </OptionsBar>
+                </LoadingHandler>
+            ) : null}
+            {props.visible &&
+                props.files.map(file => {
+                    const isSelected = file === props.selectedId
+                    return (
+                        <LoadingHandler loading={isSelected && props.loading}>
+                            {props.selectedToCommit(file) ? (
+                                <CommitMessage
+                                    key={file}
+                                    handleCommitCancel={props.handleCommitCancel}
+                                    handleCommitComplete={props.handleCommitOne}
+                                    handleCommitMessage={props.handleCommitMessage}
+                                />
+                            ) : (
+                                <File
+                                    key={file}
+                                    file={file}
+                                    icon={props.icon}
+                                    onClick={props.handleSelection}
+                                    isSelected={isSelected}
+                                />
+                            )}
+                        </LoadingHandler>
+                    )
+                })}
+        </div>
+    )
+}
 
 export default StagedSection
