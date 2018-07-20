@@ -89,8 +89,16 @@ export default class VersionControlPane {
     }
 
     public commitFile = async (messages: string[], files: string[]) => {
-        const summary = await this._vcsProvider.commitFiles(messages, files)
-        this.registerCommitSuccess(summary)
+        try {
+            const summary = await this._vcsProvider.commitFiles(messages, files)
+            this.registerCommitSuccess(summary)
+        } catch (e) {
+            this._sendNotification({
+                detail: e.message,
+                level: "warn",
+                title: `Error Commiting ${files[0]}`,
+            })
+        }
     }
 
     public commitFiles = async (messages: string[]) => {
@@ -98,8 +106,17 @@ export default class VersionControlPane {
             status: { staged },
         } = this._store.getState()
 
-        const summary = await this._vcsProvider.commitFiles(messages, staged)
-        this.registerCommitSuccess(summary)
+        try {
+            const summary = await this._vcsProvider.commitFiles(messages, staged)
+            this.registerCommitSuccess(summary)
+        } catch (e) {
+            this._sendNotification({
+                detail: e.message,
+                level: "warn",
+                title: "Error Commiting Files",
+                expiration: 8_000,
+            })
+        }
     }
 
     public stageFile = async (file: string) => {
@@ -111,6 +128,7 @@ export default class VersionControlPane {
                 detail: e.message,
                 level: "warn",
                 title: "Error Staging File",
+                expiration: 8_000,
             })
         }
     }
@@ -189,7 +207,7 @@ export default class VersionControlPane {
             command: "vcs.openFile",
             detail: null,
             name: null,
-            enabled: this._hasFocus,
+            enabled: () => !this._isCommiting(),
             execute: async () => {
                 const { selected } = this._store.getState()
                 await this._editorManager.openFile(selected)

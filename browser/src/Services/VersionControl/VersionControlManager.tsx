@@ -15,6 +15,7 @@ interface ISendNotificationsArgs {
     detail: string
     level: "info" | "warn"
     title: string
+    expiration?: number
 }
 
 export type ISendVCSNotification = (args: ISendNotificationsArgs) => void
@@ -62,11 +63,11 @@ export class VersionControlManager {
     }
 
     // Use arrow function to maintain this binding of sendNotification
-    public sendNotification: ISendVCSNotification = ({ detail, level, title }) => {
+    public sendNotification: ISendVCSNotification = ({ expiration = 3_000, ...args }) => {
         const notification = this._notifications.createItem()
-        notification.setContents(title, detail)
-        notification.setExpiration(3_000)
-        notification.setLevel(level)
+        notification.setContents(args.title, args.detail)
+        notification.setExpiration(expiration)
+        notification.setLevel(args.level)
         notification.show()
     }
 

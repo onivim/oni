@@ -65,14 +65,16 @@ const StagedSection: React.SFC<IProps> = props => (
         {props.visible &&
             props.files.map(
                 file =>
-                    props.committing && props.selectedToCommit && !props.selectedToCommit(file) ? (
+                    props.selectedToCommit(file) ? (
                         <CommitMessage
+                            key={file}
                             handleCommitCancel={props.handleCommitCancel}
                             handleCommitComplete={props.handleCommitOne}
                             handleCommitMessage={props.handleCommitMessage}
                         />
                     ) : (
                         <File
+                            key={file}
                             file={file}
                             icon={props.icon}
                             onClick={props.handleSelection}
