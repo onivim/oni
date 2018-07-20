@@ -24,7 +24,7 @@ export const ListItem = withProps<{ isSelected?: boolean }>(styled.li)`
 `
 
 const Detail = styled.p`
-    margin: 0.4 0;
+    margin: 0.4rem 0;
 `
 
 const CommitsSection: React.SFC<ICommitsSection> = ({ commits, ...props }) => {

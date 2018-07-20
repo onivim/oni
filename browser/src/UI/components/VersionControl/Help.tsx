@@ -22,7 +22,7 @@ const Help: React.SFC<{ showHelp: boolean }> = ({ showHelp }) =>
             {commands.map(command => (
                 <div>
                     <p>
-                        <span>{command.key}</span> <span>{command.explanation}</span>
+                        <span>{command.key}</span> - <span>{command.explanation}</span>
                     </p>
                 </div>
             ))}

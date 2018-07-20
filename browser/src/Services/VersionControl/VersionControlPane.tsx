@@ -8,7 +8,15 @@ import { VersionControlProvider, VersionControlView } from "./"
 import { IWorkspace } from "./../Workspace"
 import { ISendVCSNotification } from "./VersionControlManager"
 import { Commits } from "./VersionControlProvider"
-import { VersionControlState } from "./VersionControlStore"
+import { ProviderActions, VersionControlState } from "./VersionControlStore"
+
+export interface IDsMap {
+    modified: "modified"
+    staged: "staged"
+    untracked: "untracked"
+    commits: "commits"
+    commitAll: "commit_all"
+}
 
 export default class VersionControlPane {
     public get id() {
@@ -17,6 +25,14 @@ export default class VersionControlPane {
 
     public get title() {
         return capitalize(this._vcsProvider.name)
+    }
+
+    public readonly IDs: IDsMap = {
+        modified: "modified",
+        commits: "commits",
+        untracked: "untracked",
+        staged: "staged",
+        commitAll: "commit_all",
     }
 
     constructor(
@@ -93,6 +109,7 @@ export default class VersionControlPane {
     public commitFile = async (messages: string[], files: string[]) => {
         let summary = null
         try {
+            this._dispatchLoading(true)
             summary = await this._vcsProvider.commitFiles(messages, files)
         } catch (e) {
             this._sendNotification({
@@ -102,6 +119,7 @@ export default class VersionControlPane {
             })
         } finally {
             this.handleCommitResult(summary)
+            this._dispatchLoading(false)
         }
     }
 
@@ -112,6 +130,7 @@ export default class VersionControlPane {
 
         let summary = null
         try {
+            this._dispatchLoading(true)
             summary = await this._vcsProvider.commitFiles(messages, staged)
         } catch (e) {
             this._sendNotification({
@@ -122,6 +141,7 @@ export default class VersionControlPane {
             })
         } finally {
             this.handleCommitResult(summary)
+            this._dispatchLoading(false)
         }
     }
 
@@ -169,6 +189,7 @@ export default class VersionControlPane {
         return (
             <Provider store={this._store}>
                 <VersionControlView
+                    IDs={this.IDs}
                     setError={this.setError}
                     getStatus={this.getStatus}
                     commitOne={this.commitFile}
@@ -179,6 +200,20 @@ export default class VersionControlPane {
             </Provider>
         )
     }
+
+    private _dispatchLoading = (loading: boolean, type: ProviderActions = "commit") => {
+        this._store.dispatch({ type: "LOADING", payload: { loading, type } })
+    }
+
+    /**
+     * Checks to see if an Id/field can be interacted with
+     *
+     * @name values
+     * @function
+     * @param {Object} this.IDs Map of all readonly/id fields
+     * @returns {boolean} Whether or not a field is a readonly field
+     */
+    private _isReadonlyField = (field: string) => Object.values(this.IDs).includes(field)
 
     private _toggleHelp = () => {
         this._store.dispatch({ type: "TOGGLE_HELP" })
@@ -220,7 +255,9 @@ export default class VersionControlPane {
             enabled: () => !this._isCommiting(),
             execute: async () => {
                 const { selected } = this._store.getState()
-                await this._editorManager.openFile(selected)
+                if (!this._isReadonlyField(selected)) {
+                    await this._editorManager.openFile(selected)
+                }
             },
         })
 

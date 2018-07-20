@@ -11,7 +11,13 @@ interface ICommit {
     previousCommits: PrevCommits[]
 }
 
+export type ProviderActions = "commit" | "pull" | "fetch" | "stage"
+
 export interface VersionControlState {
+    loading: {
+        active: boolean
+        type: ProviderActions
+    }
     selected: string
     status: StatusResult
     commit: ICommit
@@ -29,6 +35,10 @@ interface IGenericAction<T, P = undefined> {
 }
 
 export const DefaultState: VersionControlState = {
+    loading: {
+        active: false,
+        type: null,
+    },
     selected: null,
     status: {
         currentBranch: null,
@@ -56,6 +66,7 @@ export const DefaultState: VersionControlState = {
 }
 
 type ISelectAction = IGenericAction<"SELECT", { selected: string }>
+type ILoadingAction = IGenericAction<"LOADING", { loading: boolean; type: ProviderActions }>
 type IActivateAction = IGenericAction<"ACTIVATE">
 type IDeactivateAction = IGenericAction<"DEACTIVATE">
 type IToggleHelpAction = IGenericAction<"TOGGLE_HELP">
@@ -69,6 +80,7 @@ type ICommitSuccessAction = IGenericAction<"COMMIT_SUCCESS", { commit: Commits }
 type ICommitFailAction = IGenericAction<"COMMIT_FAIL">
 type IUpdateCommitMessageAction = IGenericAction<"UPDATE_COMMIT_MESSAGE", { message: string[] }>
 type IAction =
+    | ILoadingAction
     | IToggleHelpAction
     | ISelectAction
     | IStatusAction
@@ -100,6 +112,14 @@ export function reducer(state: VersionControlState, action: IAction) {
     switch (action.type) {
         case "ENTER":
             return { ...state, hasFocus: true }
+        case "LOADING":
+            return {
+                ...state,
+                loading: {
+                    active: action.payload.loading,
+                    type: action.payload.type,
+                },
+            }
         case "SELECT":
             return { ...state, selected: action.payload.selected }
         case "COMMIT_START":

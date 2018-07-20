@@ -1,6 +1,7 @@
 import * as React from "react"
 
-import styled, { sidebarItemSelected, withProps } from "../common"
+import styled, { Center, sidebarItemSelected, withProps } from "../common"
+import { LoadingSpinner } from "./../../../UI/components/LoadingSpinner"
 import CommitMessage from "./CommitMessage"
 import File from "./File"
 import SectionTitle from "./SectionTitle"
@@ -18,6 +19,7 @@ interface IProps {
     titleId: string
     selectedId: string
     icon: string
+    loading: boolean
     handleSelection: (id: string) => void
     committing?: boolean
     toggleVisibility: () => void
@@ -25,7 +27,6 @@ interface IProps {
     handleCommitOne: () => void
     handleCommitCancel: () => void
     handleCommitAll: () => void
-    optionsBar?: JSX.Element
     selectedToCommit?: (id: string) => boolean
     visible: boolean
 }
@@ -35,14 +36,6 @@ const OptionsBar = withProps<{ isSelected: boolean }>(styled.span)`
     display: block;
     width: 100%;
 `
-
-interface IOptionProps {
-    isSelected: boolean
-}
-
-const Options: React.SFC<IOptionProps> = ({ isSelected, children }) => {
-    return <OptionsBar isSelected={isSelected}>{children}</OptionsBar>
-}
 
 const StagedSection: React.SFC<IProps> = props => (
     <div>
@@ -55,7 +48,7 @@ const StagedSection: React.SFC<IProps> = props => (
             count={props.files.length}
         />
         {props.visible && props.files.length ? (
-            <Options isSelected={"commit_all" === props.selectedId}>
+            <OptionsBar isSelected={"commit_all" === props.selectedId}>
                 {props.selectedToCommit("commit_all") ? (
                     <CommitMessage
                         handleCommitCancel={props.handleCommitCancel}
@@ -67,28 +60,37 @@ const StagedSection: React.SFC<IProps> = props => (
                         commit all ({props.files.length})
                     </Explainer>
                 )}
-            </Options>
+            </OptionsBar>
         ) : null}
         {props.visible &&
-            props.files.map(
-                file =>
-                    props.selectedToCommit(file) ? (
+            props.files.map(file => {
+                if (props.loading) {
+                    return (
+                        <Center>
+                            <LoadingSpinner iconSize="0.4em" />
+                        </Center>
+                    )
+                }
+                if (props.selectedToCommit(file)) {
+                    return (
                         <CommitMessage
                             key={file}
                             handleCommitCancel={props.handleCommitCancel}
                             handleCommitComplete={props.handleCommitOne}
                             handleCommitMessage={props.handleCommitMessage}
                         />
-                    ) : (
-                        <File
-                            key={file}
-                            file={file}
-                            icon={props.icon}
-                            onClick={props.handleSelection}
-                            isSelected={props.selectedId === file}
-                        />
-                    ),
-            )}
+                    )
+                }
+                return (
+                    <File
+                        key={file}
+                        file={file}
+                        icon={props.icon}
+                        onClick={props.handleSelection}
+                        isSelected={props.selectedId === file}
+                    />
+                )
+            })}
     </div>
 )
 
