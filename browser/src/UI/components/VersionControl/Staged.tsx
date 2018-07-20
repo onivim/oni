@@ -82,17 +82,15 @@ const StagedSection: React.SFC<IProps> = props => {
                 props.files.map(file => {
                     const isSelected = file === props.selectedId
                     return (
-                        <LoadingHandler loading={isSelected && props.loading}>
+                        <LoadingHandler loading={isSelected && props.loading} key={file}>
                             {props.selectedToCommit(file) ? (
                                 <CommitMessage
-                                    key={file}
                                     handleCommitCancel={props.handleCommitCancel}
                                     handleCommitComplete={props.handleCommitOne}
                                     handleCommitMessage={props.handleCommitMessage}
                                 />
                             ) : (
                                 <File
-                                    key={file}
                                     file={file}
                                     icon={props.icon}
                                     onClick={props.handleSelection}
