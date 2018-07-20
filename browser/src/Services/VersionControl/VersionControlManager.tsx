@@ -142,6 +142,7 @@ export class VersionControlManager {
                     this._vcsProvider,
                     this.sendNotification,
                     this._commands,
+                    this._sidebar,
                     store,
                 )
                 this._sidebar.add("code-fork", vcsPane)

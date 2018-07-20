@@ -64,7 +64,8 @@ const StagedSection: React.SFC<IProps> = props => (
         ) : null}
         {props.visible &&
             props.files.map(file => {
-                if (props.loading) {
+                const isSelected = file === props.selectedId
+                if (props.loading && isSelected) {
                     return (
                         <Center>
                             <LoadingSpinner iconSize="0.4em" />
@@ -87,7 +88,7 @@ const StagedSection: React.SFC<IProps> = props => (
                         file={file}
                         icon={props.icon}
                         onClick={props.handleSelection}
-                        isSelected={props.selectedId === file}
+                        isSelected={isSelected}
                     />
                 )
             })}
