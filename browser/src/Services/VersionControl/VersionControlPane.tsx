@@ -7,8 +7,8 @@ import { Provider, Store } from "react-redux"
 import { VersionControlProvider, VersionControlView } from "./"
 import { IWorkspace } from "./../Workspace"
 import { ISendVCSNotification } from "./VersionControlManager"
-import { VersionControlState } from "./VersionControlStore"
 import { Commits } from "./VersionControlProvider"
+import { VersionControlState } from "./VersionControlStore"
 
 export default class VersionControlPane {
     public get id() {
@@ -30,7 +30,15 @@ export default class VersionControlPane {
         this._registerCommands()
 
         this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
-            await this.getStatus()
+            if (this._hasFocus()) {
+                await this.getStatus()
+            }
+        })
+
+        this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
+            if (this._hasFocus()) {
+                await this.getStatus()
+            }
         })
 
         this._vcsProvider.onBranchChanged.subscribe(async () => {
@@ -153,6 +161,11 @@ export default class VersionControlPane {
         return state.hasFocus && state.commit.active
     }
 
+    private _hasFocus = () => {
+        const state = this._store.getState()
+        return state.hasFocus
+    }
+
     private _getCurrentCommitMessage() {
         const state = this._store.getState()
         return state.commit.message
@@ -160,15 +173,36 @@ export default class VersionControlPane {
 
     private _registerCommands() {
         this._commands.registerCommand({
-            command: "oni.vcs.commitAll",
+            command: "vcs.commitAll",
             detail: "Commit all staged files",
             name: "Version Control: Commit all",
-            enabled: () => this._isCommiting(),
+            enabled: this._isCommiting,
             execute: async () => {
                 const currentMessage = this._getCurrentCommitMessage()
                 if (currentMessage.length) {
                     await this.commitFiles(currentMessage)
                 }
+            },
+        })
+
+        this._commands.registerCommand({
+            command: "vcs.openFile",
+            detail: null,
+            name: null,
+            enabled: this._hasFocus,
+            execute: async () => {
+                const { selected } = this._store.getState()
+                await this._editorManager.openFile(selected)
+            },
+        })
+
+        this._commands.registerCommand({
+            command: "vcs.refresh",
+            detail: "Refresh Version Control pane",
+            name: "Version Control: Refresh pane",
+            enabled: this._hasFocus,
+            execute: async () => {
+                await this.getStatus()
             },
         })
     }
