@@ -77,12 +77,6 @@ export default class VersionControlPane {
             }
         })
 
-        this._vcsProvider.onFileStatusChanged.subscribe(async () => {
-            if (this._isVisible()) {
-                await this.getStatus()
-            }
-        })
-
         this._vcsProvider.onPluginActivated.subscribe(async () => {
             this._store.dispatch({ type: "ACTIVATE" })
             await this.getStatus()
@@ -129,6 +123,7 @@ export default class VersionControlPane {
             })
         } finally {
             this.handleCommitResult(summary)
+            await this.getStatus()
             this._dispatchLoading(false)
         }
     }
@@ -151,6 +146,7 @@ export default class VersionControlPane {
             })
         } finally {
             this.handleCommitResult(summary)
+            await this.getStatus()
             this._dispatchLoading(false)
         }
     }
