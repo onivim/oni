@@ -9,6 +9,7 @@ import { IWorkspace } from "./../Workspace"
 import { ISendVCSNotification } from "./VersionControlManager"
 import { Commits } from "./VersionControlProvider"
 import { ProviderActions, VersionControlState } from "./VersionControlStore"
+import { SidebarManager } from "../Sidebar"
 
 export interface IDsMap {
     modified: "modified"
@@ -41,36 +42,45 @@ export default class VersionControlPane {
         private _vcsProvider: VersionControlProvider,
         private _sendNotification: ISendVCSNotification,
         private _commands: Oni.Commands.Api,
+        private _sidebarManager: SidebarManager,
         private _store: Store<VersionControlState>,
     ) {
         this._registerCommands()
 
         this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
-            if (this._hasFocus()) {
+            if (this._isVisible()) {
                 await this.getStatus()
             }
         })
 
         this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
-            if (this._hasFocus()) {
+            if (this._isVisible()) {
                 await this.getStatus()
             }
         })
 
         this._workspace.onDirectoryChanged.subscribe(async () => {
-            await this.getStatus()
+            if (this._isVisible()) {
+                await this.getStatus()
+            }
         })
 
         this._vcsProvider.onBranchChanged.subscribe(async () => {
-            await this.getStatus()
+            if (this._isVisible()) {
+                await this.getStatus()
+            }
         })
 
         this._vcsProvider.onStagedFilesChanged.subscribe(async () => {
-            await this.getStatus()
+            if (this._isVisible()) {
+                await this.getStatus()
+            }
         })
 
         this._vcsProvider.onFileStatusChanged.subscribe(async () => {
-            await this.getStatus()
+            if (this._isVisible()) {
+                await this.getStatus()
+            }
         })
 
         this._vcsProvider.onPluginActivated.subscribe(async () => {
@@ -205,14 +215,9 @@ export default class VersionControlPane {
         this._store.dispatch({ type: "LOADING", payload: { loading, type } })
     }
 
-    /**
-     * Checks to see if an Id/field can be interacted with
-     *
-     * @name values
-     * @function
-     * @param {Object} this.IDs Map of all readonly/id fields
-     * @returns {boolean} Whether or not a field is a readonly field
-     */
+    private _isVisible = () =>
+        this._sidebarManager.isVisible && this._sidebarManager.activeEntryId === this.id
+
     private _isReadonlyField = (field: string) => Object.values(this.IDs).includes(field)
 
     private _toggleHelp = () => {
