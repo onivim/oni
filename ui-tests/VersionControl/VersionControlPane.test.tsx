@@ -9,6 +9,7 @@ import store, {
 } from "./../../browser/src/Services/VersionControl/VersionControlStore"
 import MockCommands from "./../mocks/CommandManager"
 import MockEditorManager from "./../mocks/EditorManager"
+import MockSidebar from "./../mocks/Sidebar"
 import MockWorkspace from "./../mocks/Workspace"
 
 jest.mock("lodash/capitalize", (str: string) => str)
@@ -47,6 +48,7 @@ describe("Version Control pane tests", () => {
     const mockManager = new MockEditorManager()
     const mockWorkspace = new MockWorkspace()
     const mockCommands = new MockCommands()
+    const mockSidebar = new MockSidebar()
     const vcsStore = store
     const vcsPane = new VersionControlPane(
         mockManager,
@@ -54,6 +56,7 @@ describe("Version Control pane tests", () => {
         provider,
         args => null,
         mockCommands,
+        mockSidebar,
         store,
     )
 
