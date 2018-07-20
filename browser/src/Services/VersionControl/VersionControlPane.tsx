@@ -174,6 +174,10 @@ export default class VersionControlPane {
         )
     }
 
+    private _toggleHelp = () => {
+        this._store.dispatch({ type: "TOGGLE_HELP" })
+    }
+
     private _isCommiting = () => {
         const state = this._store.getState()
         return state.hasFocus && state.commit.active
@@ -222,6 +226,14 @@ export default class VersionControlPane {
             execute: async () => {
                 await this.getStatus()
             },
+        })
+
+        this._commands.registerCommand({
+            command: "vcs.showHelp",
+            detail: null,
+            name: null,
+            enabled: () => !this._isCommiting(),
+            execute: this._toggleHelp,
         })
     }
 }

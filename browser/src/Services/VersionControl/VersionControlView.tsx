@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 
 import { styled } from "./../../UI/components/common"
 import CommitsSection from "./../../UI/components/VersionControl/Commits"
+import Help from "./../../UI/components/VersionControl/Help"
 import { SectionTitle, Title } from "./../../UI/components/VersionControl/SectionTitle"
 import StagedSection from "./../../UI/components/VersionControl/Staged"
 import VersionControlStatus from "./../../UI/components/VersionControl/Status"
@@ -24,6 +25,7 @@ interface IStateProps {
     message: string[]
     selectedItem: string
     commits: PrevCommits[]
+    showHelp: boolean
 }
 
 interface IDispatchProps {
@@ -135,6 +137,7 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
         const warning = error || inactive
         const {
             commits,
+            showHelp,
             committing,
             status: { modified, staged, untracked },
         } = this.props
@@ -144,57 +147,60 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
                 <Title>{warning}</Title>
             </SectionTitle>
         ) : (
-            <VimNavigator
-                ids={this.getIds()}
-                active={this.props.hasFocus && !committing}
-                onSelected={this.toggleOrAction}
-                onSelectionChanged={this.props.updateSelection}
-                render={selectedId => (
-                    <StatusContainer>
-                        <CommitsSection
-                            titleId="commits"
-                            commits={commits}
-                            selectedId={selectedId}
-                            visibility={this.state.commits}
-                            onClick={this.props.handleSelection}
-                            toggleVisibility={() => this.toggleVisibility("commits")}
-                        />
-                        <StagedSection
-                            titleId="staged"
-                            icon="plus-circle"
-                            files={staged}
-                            selectedId={selectedId}
-                            committing={committing}
-                            selectedToCommit={this.isSelected}
-                            visible={this.state.staged}
-                            handleSelection={this.props.handleSelection}
-                            toggleVisibility={() => this.toggleVisibility("staged")}
-                            handleCommitOne={this.handleCommitOne}
-                            handleCommitAll={this.handleCommitAll}
-                            handleCommitMessage={this.handleCommitMessage}
-                            handleCommitCancel={this.handleCommitCancel}
-                        />
-                        <VersionControlStatus
-                            icon="minus-circle"
-                            files={modified}
-                            titleId="modified"
-                            selectedId={selectedId}
-                            visibility={this.state.modified}
-                            onClick={this.props.handleSelection}
-                            toggleVisibility={() => this.toggleVisibility("modified")}
-                        />
-                        <VersionControlStatus
-                            files={untracked}
-                            icon="question-circle"
-                            titleId="untracked"
-                            selectedId={selectedId}
-                            visibility={this.state.untracked}
-                            onClick={this.props.handleSelection}
-                            toggleVisibility={() => this.toggleVisibility("untracked")}
-                        />
-                    </StatusContainer>
-                )}
-            />
+            <>
+                <Help showHelp={showHelp} />
+                <VimNavigator
+                    ids={this.getIds()}
+                    active={this.props.hasFocus && !committing}
+                    onSelected={this.toggleOrAction}
+                    onSelectionChanged={this.props.updateSelection}
+                    render={selectedId => (
+                        <StatusContainer>
+                            <CommitsSection
+                                titleId="commits"
+                                commits={commits}
+                                selectedId={selectedId}
+                                visibility={this.state.commits}
+                                onClick={this.props.handleSelection}
+                                toggleVisibility={() => this.toggleVisibility("commits")}
+                            />
+                            <StagedSection
+                                titleId="staged"
+                                icon="plus-circle"
+                                files={staged}
+                                selectedId={selectedId}
+                                committing={committing}
+                                selectedToCommit={this.isSelected}
+                                visible={this.state.staged}
+                                handleSelection={this.props.handleSelection}
+                                toggleVisibility={() => this.toggleVisibility("staged")}
+                                handleCommitOne={this.handleCommitOne}
+                                handleCommitAll={this.handleCommitAll}
+                                handleCommitMessage={this.handleCommitMessage}
+                                handleCommitCancel={this.handleCommitCancel}
+                            />
+                            <VersionControlStatus
+                                icon="minus-circle"
+                                files={modified}
+                                titleId="modified"
+                                selectedId={selectedId}
+                                visibility={this.state.modified}
+                                onClick={this.props.handleSelection}
+                                toggleVisibility={() => this.toggleVisibility("modified")}
+                            />
+                            <VersionControlStatus
+                                files={untracked}
+                                icon="question-circle"
+                                titleId="untracked"
+                                selectedId={selectedId}
+                                visibility={this.state.untracked}
+                                onClick={this.props.handleSelection}
+                                toggleVisibility={() => this.toggleVisibility("untracked")}
+                            />
+                        </StatusContainer>
+                    )}
+                />
+            </>
         )
     }
 }
@@ -208,6 +214,7 @@ const mapStateToProps = (state: VersionControlState): IStateProps => ({
     message: state.commit.message,
     selectedItem: state.selected,
     commits: state.commit.previousCommits,
+    showHelp: state.help.active,
 })
 
 const ConnectedGitComponent = connect<IStateProps, IDispatchProps, IProps>(

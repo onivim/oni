@@ -18,6 +18,9 @@ export interface VersionControlState {
     hasFocus: boolean
     hasError: boolean
     activated: boolean
+    help: {
+        active: boolean
+    }
 }
 
 interface IGenericAction<T, P = undefined> {
@@ -47,11 +50,15 @@ export const DefaultState: VersionControlState = {
     hasFocus: null,
     activated: null,
     hasError: false,
+    help: {
+        active: false,
+    },
 }
 
 type ISelectAction = IGenericAction<"SELECT", { selected: string }>
 type IActivateAction = IGenericAction<"ACTIVATE">
 type IDeactivateAction = IGenericAction<"DEACTIVATE">
+type IToggleHelpAction = IGenericAction<"TOGGLE_HELP">
 type IEnterAction = IGenericAction<"ENTER">
 type ILeaveAction = IGenericAction<"LEAVE">
 type IErrorAction = IGenericAction<"ERROR">
@@ -61,6 +68,7 @@ type ICommitCancelAction = IGenericAction<"COMMIT_CANCEL">
 type ICommitSuccessAction = IGenericAction<"COMMIT_SUCCESS", { commit: Commits }>
 type IUpdateCommitMessageAction = IGenericAction<"UPDATE_COMMIT_MESSAGE", { message: string[] }>
 type IAction =
+    | IToggleHelpAction
     | ISelectAction
     | IStatusAction
     | IEnterAction
@@ -135,6 +143,13 @@ export function reducer(state: VersionControlState, action: IAction) {
             return {
                 ...state,
                 hasError: true,
+            }
+        case "TOGGLE_HELP":
+            return {
+                ...state,
+                help: {
+                    active: !state.help.active,
+                },
             }
         default:
             return state
