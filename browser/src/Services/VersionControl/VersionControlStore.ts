@@ -66,6 +66,7 @@ type IStatusAction = IGenericAction<"STATUS", { status: StatusResult }>
 type ICommitStartAction = IGenericAction<"COMMIT_START">
 type ICommitCancelAction = IGenericAction<"COMMIT_CANCEL">
 type ICommitSuccessAction = IGenericAction<"COMMIT_SUCCESS", { commit: Commits }>
+type ICommitFailAction = IGenericAction<"COMMIT_FAIL">
 type IUpdateCommitMessageAction = IGenericAction<"UPDATE_COMMIT_MESSAGE", { message: string[] }>
 type IAction =
     | IToggleHelpAction
@@ -79,6 +80,7 @@ type IAction =
     | ICommitStartAction
     | ICommitCancelAction
     | ICommitSuccessAction
+    | ICommitFailAction
     | IUpdateCommitMessageAction
 
 export interface IVersionControlActions {
@@ -117,6 +119,15 @@ export function reducer(state: VersionControlState, action: IAction) {
                         ...state.commit.previousCommits,
                         { ...action.payload.commit, message },
                     ],
+                },
+            }
+        case "COMMIT_FAIL":
+            return {
+                ...state,
+                commit: {
+                    ...state.commit,
+                    message: [] as string[],
+                    active: false,
                 },
             }
         case "UPDATE_COMMIT_MESSAGE":

@@ -23,6 +23,10 @@ export const ListItem = withProps<{ isSelected?: boolean }>(styled.li)`
     padding: 0.4rem;
 `
 
+const Detail = styled.p`
+    margin: 0.4 0;
+`
+
 const CommitsSection: React.SFC<ICommitsSection> = ({ commits, ...props }) => {
     return (
         <div>
@@ -42,12 +46,12 @@ const CommitsSection: React.SFC<ICommitsSection> = ({ commits, ...props }) => {
                             onClick={() => props.onClick(prevCommit.commit)}
                             isSelected={props.selectedId === prevCommit.commit}
                         >
-                            <p>
+                            <Detail>
                                 <strong> {prevCommit.message}</strong>
-                            </p>
-                            <p>{prevCommit.commit}</p>
-                            <p>Deletions: {prevCommit.summary.deletions}</p>
-                            <p>Insertions: {prevCommit.summary.insertions}</p>
+                            </Detail>
+                            <Detail>{prevCommit.commit}</Detail>
+                            <Detail>Deletions: {prevCommit.summary.deletions}</Detail>
+                            <Detail>Insertions: {prevCommit.summary.insertions}</Detail>
                         </ListItem>
                     ))}
                 </List>

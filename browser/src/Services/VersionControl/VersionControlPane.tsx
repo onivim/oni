@@ -41,6 +41,10 @@ export default class VersionControlPane {
             }
         })
 
+        this._workspace.onDirectoryChanged.subscribe(async () => {
+            await this.getStatus()
+        })
+
         this._vcsProvider.onBranchChanged.subscribe(async () => {
             await this.getStatus()
         })
@@ -63,11 +67,9 @@ export default class VersionControlPane {
         })
     }
 
-    public enter() {
+    public async enter() {
         this._store.dispatch({ type: "ENTER" })
-        this._workspace.onDirectoryChanged.subscribe(async () => {
-            await this.getStatus()
-        })
+        await this.getStatus()
     }
 
     public leave() {
@@ -82,22 +84,24 @@ export default class VersionControlPane {
         return status
     }
 
-    public registerCommitSuccess = (summary: Commits) => {
-        if (summary) {
-            this._store.dispatch({ type: "COMMIT_SUCCESS", payload: { commit: summary } })
-        }
+    public handleCommitResult = (summary: Commits) => {
+        return summary
+            ? this._store.dispatch({ type: "COMMIT_SUCCESS", payload: { commit: summary } })
+            : this._store.dispatch({ type: "COMMIT_FAIL" })
     }
 
     public commitFile = async (messages: string[], files: string[]) => {
+        let summary = null
         try {
-            const summary = await this._vcsProvider.commitFiles(messages, files)
-            this.registerCommitSuccess(summary)
+            summary = await this._vcsProvider.commitFiles(messages, files)
         } catch (e) {
             this._sendNotification({
                 detail: e.message,
                 level: "warn",
                 title: `Error Commiting ${files[0]}`,
             })
+        } finally {
+            this.handleCommitResult(summary)
         }
     }
 
@@ -106,9 +110,9 @@ export default class VersionControlPane {
             status: { staged },
         } = this._store.getState()
 
+        let summary = null
         try {
-            const summary = await this._vcsProvider.commitFiles(messages, staged)
-            this.registerCommitSuccess(summary)
+            summary = await this._vcsProvider.commitFiles(messages, staged)
         } catch (e) {
             this._sendNotification({
                 detail: e.message,
@@ -116,6 +120,8 @@ export default class VersionControlPane {
                 title: "Error Commiting Files",
                 expiration: 8_000,
             })
+        } finally {
+            this.handleCommitResult(summary)
         }
     }
 
