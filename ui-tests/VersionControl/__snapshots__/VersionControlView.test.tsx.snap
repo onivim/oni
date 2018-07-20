@@ -10,41 +10,19 @@ exports[`<VersionControlView /> should match the last recorded snapshot unless a
     testId="modified-2"
     title="modified"
   />
-  <Sneakable
-    callback={[Function]}
+  <File
+    file="test1"
+    icon="M"
+    isSelected={false}
     key="test1"
-  >
-    <styled.div
-      isSelected={false}
-      onClick={[Function]}
-    >
-      <styled.div>
-        <Icon
-          name="M"
-        />
-        <styled.span>
-          test1
-        </styled.span>
-      </styled.div>
-    </styled.div>
-  </Sneakable>
-  <Sneakable
-    callback={[Function]}
+    onClick={[Function]}
+  />
+  <File
+    file="test2"
+    icon="M"
+    isSelected={false}
     key="test2"
-  >
-    <styled.div
-      isSelected={false}
-      onClick={[Function]}
-    >
-      <styled.div>
-        <Icon
-          name="M"
-        />
-        <styled.span>
-          test2
-        </styled.span>
-      </styled.div>
-    </styled.div>
-  </Sneakable>
+    onClick={[Function]}
+  />
 </div>
 `;

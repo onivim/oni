@@ -178,21 +178,21 @@ export class VersionControlManager {
 
         this._commands.registerCommand({
             command: "vcs.sidebar.toggle",
-            name: "Version Control: Toggle VCS Pane Visibility",
+            name: "Version Control: Toggle Visibility",
             detail: "Toggles the vcs pane in the sidebar",
             execute: toggleVCS,
             enabled: () => this._configuration.getValue("experimental.vcs.sidebar"),
         })
 
         this._commands.registerCommand({
-            command: `oni.${this._vcs}.fetch`,
+            command: `vcs.fetch`,
             name: "Fetch the selected branch",
             detail: "",
             execute: this._fetchBranch,
         })
 
         this._commands.registerCommand({
-            command: `oni.${this._vcs}.branches`,
+            command: `vcs.branches`,
             name: `Local ${capitalize(this._vcs)} Branches`,
             detail: "Open a menu with a list of all local branches",
             execute: this._createBranchList,
@@ -208,6 +208,7 @@ export class VersionControlManager {
         }
 
         try {
+            // FIXME: there is race condition on deactivation of the provider
             const branch = await this._vcsProvider.getBranch()
             const diff = await this._vcsProvider.getDiff()
 

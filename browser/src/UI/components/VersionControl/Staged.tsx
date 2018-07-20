@@ -1,9 +1,17 @@
 import * as React from "react"
 
 import styled, { sidebarItemSelected, withProps } from "../common"
-import CommitMessage, { Explainer } from "./CommitMessage"
+import CommitMessage from "./CommitMessage"
 import File from "./File"
 import SectionTitle from "./SectionTitle"
+
+const Explainer = styled.div`
+    width: 100%;
+    text-align: left;
+    display: block;
+    opacity: 0.4;
+    padding: 0.5rem;
+`
 
 interface IProps {
     files?: string[]
@@ -26,7 +34,6 @@ const OptionsBar = withProps<{ isSelected: boolean }>(styled.span)`
     ${p => p.isSelected && sidebarItemSelected};
     display: block;
     width: 100%;
-    font-size: 0.8em;
 `
 
 interface IOptionProps {
