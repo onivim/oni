@@ -35,6 +35,7 @@ interface IModifiedFilesProps {
     selectedId: string
     icon: string
     onClick: (id: string) => void
+    committing?: boolean
     toggleVisibility: () => void
     optionsBar?: JSX.Element
     selectedToCommit?: (id: string) => boolean
@@ -53,6 +54,7 @@ export const VersionControlStatus: React.SFC<IModifiedFilesProps> = ({
     children,
     icon,
     onClick,
+    committing,
     selectedToCommit,
     toggleVisibility,
     titleId,
@@ -72,25 +74,24 @@ export const VersionControlStatus: React.SFC<IModifiedFilesProps> = ({
                 />
                 {visibility && optionsBar}
                 {visibility &&
-                    files.map(filePath => {
-                        const committingFile = selectedToCommit && !selectedToCommit(filePath)
-                        if (committingFile) {
-                            return children
-                        }
-                        return (
-                            <Sneakable callback={() => onClick(filePath)} key={filePath}>
-                                <Column
-                                    onClick={() => onClick(filePath)}
-                                    isSelected={selectedId === filePath}
-                                >
-                                    <Row>
-                                        <Icon name={icon} />
-                                        <Name>{truncate(filePath)}</Name>
-                                    </Row>
-                                </Column>
-                            </Sneakable>
-                        )
-                    })}
+                    files.map(
+                        filePath =>
+                            committing && selectedToCommit && !selectedToCommit(filePath) ? (
+                                children
+                            ) : (
+                                <Sneakable callback={() => onClick(filePath)} key={filePath}>
+                                    <Column
+                                        onClick={() => onClick(filePath)}
+                                        isSelected={selectedId === filePath}
+                                    >
+                                        <Row>
+                                            <Icon name={icon} />
+                                            <Name>{truncate(filePath)}</Name>
+                                        </Row>
+                                    </Column>
+                                </Sneakable>
+                            ),
+                    )}
             </div>
         )
     )

@@ -238,6 +238,7 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
                             titleId="staged"
                             files={staged}
                             selectedId={selectedId}
+                            committing={committing}
                             selectedToCommit={this.isSelected}
                             visibility={this.state.staged}
                             onClick={this.props.handleSelection}

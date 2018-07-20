@@ -8,6 +8,7 @@ import { VersionControlProvider, VersionControlView } from "./"
 import { IWorkspace } from "./../Workspace"
 import { ISendVCSNotification } from "./VersionControlManager"
 import { VersionControlState } from "./VersionControlStore"
+import { Commits } from "./VersionControlProvider"
 
 export default class VersionControlPane {
     public get id() {
@@ -73,7 +74,7 @@ export default class VersionControlPane {
         return status
     }
 
-    public registerCommitSuccess = (summary: any) => {
+    public registerCommitSuccess = (summary: Commits) => {
         if (summary) {
             this._store.dispatch({ type: "COMMIT_SUCCESS", payload: { commit: summary } })
         }
