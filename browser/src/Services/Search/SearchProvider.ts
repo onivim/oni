@@ -1,125 +1,119 @@
-/**
- * Search
- *
- * Service for workspace-wide search
- */
-
 import { Event, IEvent } from "oni-types"
 
-import { FinderProcess } from "./../QuickOpen/FinderProcess"
-import * as RipGrep from "./../QuickOpen/RipGrep"
+import { configuration } from "./../Configuration"
 
-export interface ISearchResultItem {
-    fileName: string
-    line: number
-    column: number
-    text: string
-}
+import * as SearchApi from "./../../Plugins/Api/Search" // TODO: Import oni-api instead
 
-export interface ISearchResult {
-    items: ISearchResultItem[]
-    isComplete: boolean
-}
+import { FinderProcess } from "./FinderProcess"
+import * as RipGrep from "./RipGrep"
 
-export interface ISearchQuery {
-    onSearchStarted: IEvent<void>
-    onSearchCompleted: IEvent<ISearchResult>
+class NullSearchQuery implements SearchApi.Query {
+    public _onSearchResults = new Event<SearchApi.Result>()
 
-    start(): void
-    cancel(): void
-}
+    public start(): void {
+        return undefined
+    }
 
-export interface ISearchOptions {
-    searchQuery: string
-    fileFilter: string
-    workspace: string
-}
+    public cancel(): void {
+        return undefined
+    }
 
-export interface ISearchProvider {
-    search(opts: ISearchOptions): ISearchQuery
-}
-
-export class RipGrepSearchProvider {
-    public search(opts: ISearchOptions): ISearchQuery {
-        return new RipGrepSearchQuery(opts)
+    public get onSearchResults(): IEvent<SearchApi.Result> {
+        return this._onSearchResults
     }
 }
 
-export const getArgumentsFromSearchOptions = (searchOpts: ISearchOptions): string[] => {
-    const args = []
-
-    args.push("--vimgrep")
-    args.push("-e")
-    args.push(searchOpts.searchQuery)
-
-    if (searchOpts.fileFilter) {
-        args.push("-g")
-        args.push(searchOpts.fileFilter)
+export class Search implements SearchApi.ISearch {
+    public get nullSearch(): SearchApi.Query {
+        return new NullSearchQuery()
     }
 
-    args.push("--")
-    args.push(".")
+    public findInFile(opts: SearchApi.Options): SearchApi.Query {
+        const commandParts = [
+            RipGrep.getCommand(),
+            "--ignore-case",
+            ...RipGrep.getArguments(configuration.getValue("oni.exclude")),
+            // "-e",
+            ...(opts.fileFilter ? ["-g", opts.fileFilter] : []),
+            "--",
+            opts.searchQuery,
+            opts.workspace ? opts.workspace : ".",
+        ]
+        return new SearchQuery(commandParts.join(" "), parseRipGrepLine)
+    }
 
-    return args
+    public findInPath(opts: SearchApi.Options): SearchApi.Query {
+        const commandParts = [
+            RipGrep.getCommand(),
+            ...RipGrep.getArguments(configuration.getValue("oni.exclude")),
+            "--files",
+            "--",
+            opts.workspace ? opts.workspace : ".",
+        ]
+        return new SearchQuery(commandParts.join(" "), parseRipGrepFilesLine)
+    }
 }
 
-// Command format:
-// E:\\oni\\node_modules\\oni-ripgrep\\bin\\rg.exe" --vimgrep -e test -g *.tsx -- .', [], { shell: true, cwd: "E:\\oni" }).stdout.toString()
-
-export const ripGrepLineToSearchResultItem = (ripGrepResult: string): ISearchResultItem => {
+function parseRipGrepLine(ripGrepResult: string): SearchApi.ResultItem {
     if (!ripGrepResult || ripGrepResult.length === 0) {
         return null
     }
 
     const splitString = ripGrepResult.split(":")
-
     if (splitString.length < 4) {
         return null
     }
 
     const [fileName, line, column, ...result] = splitString
-
     const text = result.join(":")
 
-    const ret: ISearchResultItem = {
+    return {
         fileName,
         line: parseInt(line, 10),
         column: parseInt(column, 10),
         text,
     }
-    return ret
 }
 
-export class RipGrepSearchQuery {
-    private _onSearchStartedEvent = new Event<void>()
-    private _onSearchCompletedEvent = new Event<ISearchResult>()
+function parseRipGrepFilesLine(line: string): SearchApi.ResultItem {
+    if (!line || line.length === 0) {
+        return null
+    }
+
+    return {
+        fileName: line,
+        line: 0,
+        column: 0,
+        text: "",
+    }
+}
+
+type IParseLine = (line: string) => SearchApi.ResultItem
+
+class SearchQuery implements SearchApi.Query {
+    private _onSearchResults = new Event<SearchApi.Result>()
     private _finderProcess: FinderProcess
 
-    private _items: ISearchResultItem[] = []
+    private _items: SearchApi.ResultItem[] = []
 
-    public get onSearchStarted(): IEvent<void> {
-        return this._onSearchStartedEvent
+    public get onSearchResults(): IEvent<SearchApi.Result> {
+        return this._onSearchResults
     }
 
-    public get onSearchCompleted(): IEvent<ISearchResult> {
-        return this._onSearchCompletedEvent
-    }
+    constructor(command: string, parseLine: IParseLine) {
+        this._finderProcess = new FinderProcess(command, "\n")
 
-    constructor(opts: ISearchOptions) {
-        const args = getArgumentsFromSearchOptions(opts)
-
-        this._finderProcess = new FinderProcess(RipGrep.getCommand() + " " + args.join(" "), "\n")
-
-        this._finderProcess.onData.subscribe((items: string[]) => {
-            const searchResultItems = items
-                .map(ripGrepLineToSearchResultItem)
-                .filter(item => item !== null)
-
-            this._items = [...this._items, ...searchResultItems]
+        this._finderProcess.onData.subscribe((lines: string[]) => {
+            const results = lines.map(parseLine).filter(item => item !== null)
+            this._items = [...this._items, ...results]
+            this._onSearchResults.dispatch({
+                items: this._items,
+                isComplete: false,
+            })
         })
 
         this._finderProcess.onComplete.subscribe(() => {
-            this._onSearchCompletedEvent.dispatch({
+            this._onSearchResults.dispatch({
                 items: this._items,
                 isComplete: true,
             })
@@ -133,30 +127,5 @@ export class RipGrepSearchQuery {
 
     public cancel(): void {
         this._finderProcess.stop()
-    }
-}
-
-import { EditorManager } from "./../EditorManager"
-
-export interface ISearchResultsViewer {
-    showResults(results: ISearchResult): void
-}
-
-const itemsToQuickFixItems = (item: ISearchResultItem) => ({
-    filename: item.fileName,
-    lnum: item.line,
-    col: item.column,
-    text: item.text,
-})
-
-export class QuickFixSearchResultsViewer {
-    constructor(private _editorManager: EditorManager) {}
-
-    public showResult(results: ISearchResult): void {
-        const quickFixEntries = results.items.map(itemsToQuickFixItems)
-
-        const neovim: any = this._editorManager.activeEditor.neovim
-        neovim.quickFix.setqflist(quickFixEntries, "Search Results")
-        neovim.command(":copen")
     }
 }

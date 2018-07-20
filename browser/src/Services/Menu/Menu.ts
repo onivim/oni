@@ -10,12 +10,11 @@ import thunk from "redux-thunk"
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
+import { filter as fuseFilter } from "./Filter/FuseFilter"
 import * as ActionCreators from "./MenuActionCreators"
-import * as MenuFilter from "./MenuFilter"
+import { MenuContainer } from "./MenuComponent"
 import { createReducer } from "./MenuReducer"
 import * as State from "./MenuState"
-
-import { MenuContainer } from "./MenuComponent"
 
 import { Configuration } from "./../Configuration"
 import { Overlay, OverlayManager } from "./../Overlay"
@@ -110,7 +109,7 @@ export class Menu implements Oni.Menu.MenuInstance {
     private _onSelectedItemChanged = new Event<Oni.Menu.MenuOption>()
     private _onFilterTextChanged = new Event<string>()
     private _onHide = new Event<void>()
-    private _filterFunction = MenuFilter.fuseFilter
+    private _filterFunction = fuseFilter
 
     public get onHide(): IEvent<void> {
         return this._onHide

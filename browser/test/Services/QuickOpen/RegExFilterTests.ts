@@ -5,10 +5,10 @@
 import * as assert from "assert"
 import { createLetterCountDictionary } from "../../../src/UI/components/HighlightText"
 import {
+    filter,
     getHighlightsFromString,
     processSearchTerm,
-    regexFilter,
-} from "./../../../src/Services/QuickOpen/RegExFilter"
+} from "./../../../src/Services/Menu/Filter/RegExFilter"
 
 describe("processSearchTerm", () => {
     it("Correctly matches word.", async () => {
@@ -59,7 +59,7 @@ describe("regexFilter", () => {
             { label: "index.ts", detail: "browser/test/index.ts" },
         ]
 
-        const result = regexFilter(testList, testString)
+        const result = filter(testList, testString)
 
         // Remove the added highlights since they can be tested
         // elsewhere.
@@ -83,7 +83,7 @@ describe("regexFilter", () => {
             { label: "index.ts", detail: "browser/test/index.ts" },
         ]
 
-        const result = regexFilter(testList, testString)
+        const result = filter(testList, testString)
 
         // Remove the added highlights since they can be tested
         // elsewhere.
@@ -102,7 +102,7 @@ describe("regexFilter", () => {
             { label: "index.ts", detail: "browser/src/services/quickopen/index.ts" },
         ]
 
-        const result = regexFilter(testList, testString)
+        const result = filter(testList, testString)
 
         // Remove the added highlights since they can be tested
         // elsewhere.
@@ -123,7 +123,7 @@ describe("regexFilter", () => {
             { label: "index.ts", detail: "browser/src/services/quickopen/index.ts" },
         ]
 
-        const result = regexFilter(testList, testString)
+        const result = filter(testList, testString)
 
         assert.deepEqual(result, [])
     })
@@ -137,7 +137,7 @@ describe("regexFilter", () => {
 
         // Should return no results, since the first term should restrict the second
         // search to return no results.
-        const result = regexFilter(testList, testString)
+        const result = filter(testList, testString)
 
         assert.deepEqual(result, [])
     })

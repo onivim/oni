@@ -145,7 +145,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.linePadding": 2,
 
-    "editor.quickOpen.execCommand": null,
+    "editor.quickOpen.execCommand": undefined,
     "editor.quickOpen.filterStrategy": "vscode",
     "editor.quickOpen.defaultOpenMode": Oni.FileOpenMode.Edit,
     "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode.ExistingTab,
