@@ -1,8 +1,6 @@
 import { shallow } from "enzyme"
-import * as _ from "lodash"
 import * as React from "react"
-import { createStore, Reducer, Store } from "redux"
-import configureMockStore, { MockStoreCreator, MockStore } from "redux-mock-store"
+import { createStore } from "redux"
 
 import { Explorer } from "../browser/src/Services/Explorer/ExplorerView"
 jest.mock("../browser/src/Services/Explorer/ExplorerSelectors")
@@ -34,8 +32,8 @@ describe("<ExplorerView />", () => {
     })
 
     it("sets idToSelect prop from fileToSelect state", () => {
-        const mock = ExplorerSelectors.mapStateToNodeList as jest.Mock
-        mock.mockImplementation(
+        const mockMapStateToNodeList = ExplorerSelectors.mapStateToNodeList as jest.Mock
+        mockMapStateToNodeList.mockImplementation(
             () =>
                 [
                     {
@@ -57,8 +55,9 @@ describe("<ExplorerView />", () => {
                 ] as ExplorerSelectors.ExplorerNode[],
         )
 
+        expect(wrapper.props().idToSelect).toBeNull()
         store.dispatch({
-            type: "mock",
+            type: "",
             state: { fileToSelect: "/root/workspace/dir1/dir3/file2.cpp" },
         })
         wrapper.update()
