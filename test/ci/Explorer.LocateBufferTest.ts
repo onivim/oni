@@ -2,14 +2,14 @@
  * Test script to validate explorer locating currently open buffer
  */
 
+import * as assert from "assert"
 import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
-import * as assert from "assert"
 
 import * as Oni from "oni-api"
 
-import { waitForCommand, getElementsBySelector, getTemporaryFolder, navigateToFile } from "./Common"
+import { getElementsBySelector, getTemporaryFolder, navigateToFile, waitForCommand } from "./Common"
 
 const command = "explorer.locate.buffer"
 const fileToLocate = "file.ts"
