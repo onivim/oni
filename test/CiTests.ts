@@ -110,6 +110,7 @@ describe("ci tests", function() {
                 console.log(FGWHITE, "     Expected:", FGGREEN, failure.expected)
                 console.log(FGWHITE, "     Actual:", FGRED, failure.actual)
                 console.log(FGWHITE, "     Path:", failure.path, "\n")
+                // TODO: Add line number
             })
             console.log("")
         }
