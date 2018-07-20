@@ -7,12 +7,16 @@ import {
     VersionControlState,
 } from "./../../browser/src/Services/VersionControl/VersionControlStore"
 import { VersionControlView } from "./../../browser/src/Services/VersionControl/VersionControlView"
+import CommitMessage, {
+    Explainer,
+} from "./../../browser/src/UI/components/VersionControl/CommitMessage"
 import Commits from "./../../browser/src/UI/components/VersionControl/Commits"
+import Help from "./../../browser/src/UI/components/VersionControl/Help"
 import { SectionTitle } from "./../../browser/src/UI/components/VersionControl/SectionTitle"
-import Staged from "./../../browser/src/UI/components/VersionControl/Staged"
+import Staged, { LoadingHandler } from "./../../browser/src/UI/components/VersionControl/Staged"
 import VersionControlStatus from "./../../browser/src/UI/components/VersionControl/Status"
 
-const noop = () => ({})
+const noop = jest.fn()
 
 jest.mock("./../../browser/src/neovim/SharedNeovimInstance", () => ({
     getInstance: () => ({
@@ -25,6 +29,14 @@ jest.mock("./../../browser/src/neovim/SharedNeovimInstance", () => ({
     }),
 }))
 
+const IDs: any = {
+    modified: "modified",
+    commits: "commits",
+    untracked: "untracked",
+    staged: "staged",
+    commitAll: "commit_all",
+}
+
 const makePromise = (arg?: any) => Promise.resolve(arg)
 
 jest.mock("../../browser/src/UI/components/Sneakable", () => {
@@ -36,14 +48,17 @@ describe("<VersionControlView />", () => {
     const state = { ...DefaultState, activated: true, hasFocus: true }
     const container = shallow(
         <VersionControlView
-            showHelp={false}
+            {...state}
+            IDs={IDs}
+            showHelp={true}
             committing={false}
             cancelCommit={noop}
             updateCommitMessage={noop}
             commits={[]}
             message={[]}
             selectedItem={null}
-            {...state}
+            loadingSection={null}
+            loading={false}
             getStatus={() => makePromise({})}
         />,
     )
@@ -54,6 +69,10 @@ describe("<VersionControlView />", () => {
     it("should render an untracked, staged and modified section", () => {
         const container = mount(
             <VersionControlView
+                {...state}
+                IDs={IDs}
+                loading={false}
+                loadingSection={null}
                 showHelp={false}
                 committing={false}
                 cancelCommit={noop}
@@ -61,7 +80,6 @@ describe("<VersionControlView />", () => {
                 commits={[]}
                 message={[]}
                 selectedItem={null}
-                {...state}
                 getStatus={() => makePromise({})}
             />,
         )
@@ -103,45 +121,69 @@ describe("<VersionControlView />", () => {
         expect(shallowToJson(wrapper)).toMatchSnapshot()
     })
 
-    // it("render the correct number of modified files", () => {
-    //     const stateCopy = {
-    //         ...DefaultState,
-    //         activated: true,
-    //         hasFocus: true,
-    //         status: {
-    //             currentBranch: null,
-    //             staged: [],
-    //             conflicted: [],
-    //             created: [],
-    //             modified: ["test1", "test2"],
-    //             remoteTrackingBranch: null,
-    //             deleted: [],
-    //             untracked: [],
-    //             ahead: null,
-    //             behind: null,
-    //         },
-    //     }
-    //
-    //     const statusComponent = shallow(
-    //         <VersionControlView
-    //             showHelp={false}
-    //             selectedItem={null}
-    //             committing={false}
-    //             cancelCommit={noop}
-    //             updateCommitMessage={noop}
-    //             commits={[]}
-    //             message={[]}
-    //             {...stateCopy}
-    //             getStatus={() => makePromise({})}
-    //         />,
-    //     )
-    //         .dive()
-    //         .dive()
-    //         .findWhere(component => {
-    //             console.log("component: ", component)
-    //             return component.prop("titleId") === "modified"
-    //         })
-    //
-    //     expect(statusComponent.prop("files").length).toBe(2)
-    // })
+    it("Should render only the title if not visible", () => {
+        const wrapper = mount(
+            <Staged
+                files={[]}
+                titleId="staged"
+                visible={false}
+                handleCommitOne={jest.fn()}
+                handleCommitMessage={jest.fn()}
+                handleCommitCancel={jest.fn()}
+                handleCommitAll={jest.fn()}
+                toggleVisibility={noop}
+                selectedId="commit_all"
+                icon="cross"
+                loading={false}
+                handleSelection={noop}
+            />,
+        )
+
+        expect(wrapper.find(SectionTitle).length).toBe(1)
+        expect(wrapper.children.length).toBe(1)
+    })
+
+    it("should render a loading spinner if loading is true", () => {
+        const wrapper = mount(
+            <Staged
+                files={["test.txt"]}
+                selectedToCommit={() => false}
+                titleId="staged"
+                visible
+                handleCommitOne={jest.fn()}
+                handleCommitMessage={jest.fn()}
+                handleCommitCancel={jest.fn()}
+                handleCommitAll={jest.fn()}
+                toggleVisibility={noop}
+                selectedId="commit_all"
+                icon="cross"
+                loading
+                handleSelection={noop}
+            />,
+        )
+        expect(wrapper.find(LoadingHandler).length).toBe(2)
+    })
+    it("should render an in place of the commit all explainer", () => {
+        const wrapper = mount(
+            <Staged
+                files={["test.txt"]}
+                selectedToCommit={() => true}
+                titleId="staged"
+                visible
+                handleCommitOne={jest.fn()}
+                handleCommitMessage={jest.fn()}
+                handleCommitCancel={jest.fn()}
+                handleCommitAll={jest.fn()}
+                toggleVisibility={noop}
+                selectedId="commit_all"
+                icon="cross"
+                loading
+                handleSelection={noop}
+            />,
+        )
+        expect(wrapper.find(CommitMessage).length).toBe(1)
+    })
+    it("should render help if show help is true", () => {
+        expect(container.find(Help).length).toBe(1)
+    })
 })

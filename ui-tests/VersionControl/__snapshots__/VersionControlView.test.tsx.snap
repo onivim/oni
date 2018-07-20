@@ -6,7 +6,7 @@ exports[`<VersionControlView /> should match the last recorded snapshot unless a
     active={true}
     count={2}
     isSelected={false}
-    onClick={[Function]}
+    onClick={[MockFunction]}
     testId="modified-2"
     title="modified"
   />
@@ -15,14 +15,14 @@ exports[`<VersionControlView /> should match the last recorded snapshot unless a
     icon="M"
     isSelected={false}
     key="test1"
-    onClick={[Function]}
+    onClick={[MockFunction]}
   />
   <File
     file="test2"
     icon="M"
     isSelected={false}
     key="test2"
-    onClick={[Function]}
+    onClick={[MockFunction]}
   />
 </div>
 `;

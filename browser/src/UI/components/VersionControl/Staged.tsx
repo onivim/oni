@@ -37,7 +37,7 @@ const OptionsBar = withProps<{ isSelected: boolean }>(styled.span)`
     width: 100%;
 `
 
-const LoadingHandler: React.SFC<{ loading: boolean }> = ({ loading, children }) => (
+export const LoadingHandler: React.SFC<{ loading: boolean }> = ({ loading, children }) => (
     <>
         {loading ? (
             <Center>
