@@ -30,7 +30,7 @@ const CommitsSection: React.SFC<ICommitsSection> = ({ commits, ...props }) => {
                 isSelected={props.selectedId === props.titleId}
                 testId={`${props.titleId}-${commits.length}`}
                 onClick={props.toggleVisibility}
-                active={props.visibility}
+                active={!!(props.visibility && commits.length)}
                 title="Recent Commits"
                 count={commits.length}
             />
