@@ -23,8 +23,11 @@ export default class VersionControlPane {
         private _workspace: IWorkspace,
         private _vcsProvider: VersionControlProvider,
         private _sendNotification: ISendVCSNotification,
+        private _commands: Oni.Commands.Api,
         private _store: Store<VersionControlState>,
     ) {
+        this._registerCommands()
+
         this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
             await this.getStatus()
         })
@@ -70,11 +73,24 @@ export default class VersionControlPane {
         return status
     }
 
-    public commitFiles = async (messages: string[], files: string[]) => {
-        const summary = await this._vcsProvider.commitFiles(messages, files)
+    public registerCommitSuccess = (summary: any) => {
         if (summary) {
             this._store.dispatch({ type: "COMMIT_SUCCESS", payload: { commit: summary } })
         }
+    }
+
+    public commitFile = async (messages: string[], files: string[]) => {
+        const summary = await this._vcsProvider.commitFiles(messages, files)
+        this.registerCommitSuccess(summary)
+    }
+
+    public commitFiles = async (messages: string[]) => {
+        const {
+            status: { staged },
+        } = this._store.getState()
+
+        const summary = await this._vcsProvider.commitFiles(messages, staged)
+        this.registerCommitSuccess(summary)
     }
 
     public stageFile = async (file: string) => {
@@ -99,14 +115,16 @@ export default class VersionControlPane {
         this._store.dispatch({ type: "SELECT", payload: { selected } })
     }
 
-    public handleSelection = async (file: string): Promise<void> => {
+    public handleSelection = async (selected: string) => {
         const { status } = this._store.getState()
+        const commitAll = selected === "commit_all" && !!status.staged.length
         switch (true) {
-            case status.untracked.includes(file):
-            case status.modified.includes(file):
-                await this.stageFile(file)
+            case status.untracked.includes(selected):
+            case status.modified.includes(selected):
+                await this.stageFile(selected)
                 break
-            case status.staged.includes(file):
+            case status.staged.includes(selected):
+            case commitAll:
                 this._store.dispatch({ type: "COMMIT_START" })
                 break
             default:
@@ -114,17 +132,43 @@ export default class VersionControlPane {
         }
     }
 
-    public render(): JSX.Element {
+    public render() {
         return (
             <Provider store={this._store}>
                 <VersionControlView
                     setError={this.setError}
                     getStatus={this.getStatus}
-                    commitFiles={this.commitFiles}
+                    commitOne={this.commitFile}
+                    commitAll={this.commitFiles}
                     handleSelection={this.handleSelection}
                     updateSelection={this.updateSelection}
                 />
             </Provider>
         )
+    }
+
+    private _isCommiting = () => {
+        const state = this._store.getState()
+        return state.hasFocus && state.commit.active
+    }
+
+    private _getCurrentCommitMessage() {
+        const state = this._store.getState()
+        return state.commit.message
+    }
+
+    private _registerCommands() {
+        this._commands.registerCommand({
+            command: "oni.vcs.commitAll",
+            detail: "Commit all staged files",
+            name: "Version Control: Commit all",
+            enabled: () => this._isCommiting(),
+            execute: async () => {
+                const currentMessage = this._getCurrentCommitMessage()
+                if (currentMessage.length) {
+                    await this.commitFiles(currentMessage)
+                }
+            },
+        })
     }
 }

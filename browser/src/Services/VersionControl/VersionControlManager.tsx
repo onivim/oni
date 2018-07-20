@@ -140,6 +140,7 @@ export class VersionControlManager {
                     this._workspace,
                     this._vcsProvider,
                     this.sendNotification,
+                    this._commands,
                     store,
                 )
                 this._sidebar.add("code-fork", vcsPane)
@@ -170,6 +171,18 @@ export class VersionControlManager {
     }
 
     private _registerCommands = () => {
+        const toggleVCS = () => {
+            this._sidebar.toggleVisibilityById("oni.sidebar.vcs")
+        }
+
+        this._commands.registerCommand({
+            command: "vcs.sidebar.toggle",
+            name: "Version Control: Toggle VCS Pane Visibility",
+            detail: "Toggles the vcs pane in the sidebar",
+            execute: toggleVCS,
+            enabled: () => this._configuration.getValue("experimental.vcs.sidebar"),
+        })
+
         this._commands.registerCommand({
             command: `oni.${this._vcs}.fetch`,
             name: "Fetch the selected branch",

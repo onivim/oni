@@ -7,6 +7,7 @@ import store, {
     DefaultState,
     VersionControlState,
 } from "./../../browser/src/Services/VersionControl/VersionControlStore"
+import MockCommands from "./../mocks/CommandManager"
 import MockEditorManager from "./../mocks/EditorManager"
 import MockWorkspace from "./../mocks/Workspace"
 
@@ -45,12 +46,14 @@ const provider: VersionControlProvider = {
 describe("Version Control pane tests", () => {
     const mockManager = new MockEditorManager()
     const mockWorkspace = new MockWorkspace()
+    const mockCommands = new MockCommands()
     const vcsStore = store
     const vcsPane = new VersionControlPane(
         mockManager,
         mockWorkspace,
         provider,
         args => null,
+        mockCommands,
         store,
     )
 

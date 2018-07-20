@@ -36,7 +36,8 @@ interface IModifiedFilesProps {
     icon: string
     onClick: (id: string) => void
     toggleVisibility: () => void
-    committing?: boolean
+    optionsBar?: JSX.Element
+    selectedToCommit?: (id: string) => boolean
     visibility: boolean
 }
 
@@ -52,37 +53,47 @@ export const VersionControlStatus: React.SFC<IModifiedFilesProps> = ({
     children,
     icon,
     onClick,
-    committing,
+    selectedToCommit,
     toggleVisibility,
     titleId,
+    optionsBar,
     visibility,
-}) =>
-    files && (
-        <div>
-            <VCSSectionTitle
-                isSelected={selectedId === titleId}
-                testId={`${titleId}-${files.length}`}
-                onClick={toggleVisibility}
-                active={visibility && !!files.length}
-                title={titleId}
-                count={files.length}
-            />
-            {visibility && !committing
-                ? files.map(filePath => (
-                      <Sneakable callback={() => onClick(filePath)} key={filePath}>
-                          <Column
-                              onClick={() => onClick(filePath)}
-                              isSelected={selectedId === filePath}
-                          >
-                              <Row>
-                                  <Icon name={icon} />
-                                  <Name>{truncate(filePath)}</Name>
-                              </Row>
-                          </Column>
-                      </Sneakable>
-                  ))
-                : children}
-        </div>
+}) => {
+    return (
+        files && (
+            <div>
+                <VCSSectionTitle
+                    isSelected={selectedId === titleId}
+                    testId={`${titleId}-${files.length}`}
+                    onClick={toggleVisibility}
+                    active={visibility && !!files.length}
+                    title={titleId}
+                    count={files.length}
+                />
+                {visibility && optionsBar}
+                {visibility &&
+                    files.map(filePath => {
+                        const committingFile = selectedToCommit && !selectedToCommit(filePath)
+                        if (committingFile) {
+                            return children
+                        }
+                        return (
+                            <Sneakable callback={() => onClick(filePath)} key={filePath}>
+                                <Column
+                                    onClick={() => onClick(filePath)}
+                                    isSelected={selectedId === filePath}
+                                >
+                                    <Row>
+                                        <Icon name={icon} />
+                                        <Name>{truncate(filePath)}</Name>
+                                    </Row>
+                                </Column>
+                            </Sneakable>
+                        )
+                    })}
+            </div>
+        )
     )
+}
 
 export default VersionControlStatus

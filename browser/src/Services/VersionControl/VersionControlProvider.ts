@@ -47,7 +47,7 @@ export interface VersionControlProvider {
     getLocalBranches(): Promise<BranchSummary | void>
     changeBranch(branch: string): Promise<void>
     stageFile(file: string, projectRoot?: string): Promise<void>
-    commitFiles(message: string[], files: string[]): Promise<Commits>
+    commitFiles(message: string[], files?: string[]): Promise<Commits>
     fetchBranchFromRemote(args: {
         branch: string
         origin?: string

@@ -1,7 +1,7 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
-import { styled } from "./../../UI/components/common"
+import { sidebarItemSelected, styled, withProps } from "./../../UI/components/common"
 import TextInput from "./../../UI/components/LightweightText"
 import CommitsSection from "./../../UI/components/VersionControl/Commits"
 import { SectionTitle, Title } from "./../../UI/components/VersionControl/SectionTitle"
@@ -28,7 +28,8 @@ const StatusContainer = styled.div`
 `
 const Explainer = styled.span`
     width: 100%;
-    text-align: center;
+    padding-left: 0.5rem;
+    text-align: left;
     font-size: 0.8em;
     display: block;
     opacity: 0.4;
@@ -53,7 +54,8 @@ interface IDispatchProps {
 interface IProps {
     setError?: (e: Error) => void
     getStatus?: () => Promise<StatusResult | void>
-    commitFiles?: (message: string[], files: string[]) => Promise<void>
+    commitOne?: (message: string[], files: string[]) => Promise<void>
+    commitAll?: (message: string[]) => Promise<void>
     updateSelection?: (selection: string) => void
     handleSelection?: (selection: string) => void
 }
@@ -66,6 +68,65 @@ interface State {
     untracked: boolean
     commits: boolean
 }
+
+interface ICommitHandlers {
+    handleCommitMessage: (evt: React.ChangeEvent<HTMLInputElement>) => void
+    handleCommitCancel: () => void
+    handleCommitComplete: () => void
+}
+
+const CommitMessage: React.SFC<ICommitHandlers> = props => (
+    <>
+        <Explainer>Hit enter to commit the file</Explainer>
+        <TextInput
+            InputComponent={TextArea}
+            onChange={props.handleCommitMessage}
+            onCancel={props.handleCommitCancel}
+            onComplete={props.handleCommitComplete}
+            defaultValue="Enter a commit message"
+        />
+    </>
+)
+
+const OptionsBar = withProps<{ isSelected: boolean }>(styled.span)`
+    ${p => p.isSelected && sidebarItemSelected};
+    display: block;
+    width: 100%;
+    font-size: 0.8em;
+`
+
+interface IOptionProps {
+    isSelected: boolean
+}
+
+const Options: React.SFC<IOptionProps> = ({ isSelected, children }) => {
+    return <OptionsBar isSelected={isSelected}>{children}</OptionsBar>
+}
+
+interface IStagedOptions extends ICommitHandlers {
+    titleId: string
+    selectedId: string
+    committing: boolean
+    onClick: (selection: string) => void
+    count: number
+}
+
+const StagedOptions: React.SFC<IStagedOptions> = props =>
+    props.count ? (
+        <Options isSelected={props.titleId === props.selectedId}>
+            {props.committing ? (
+                <CommitMessage
+                    handleCommitCancel={props.handleCommitCancel}
+                    handleCommitComplete={props.handleCommitComplete}
+                    handleCommitMessage={props.handleCommitMessage}
+                />
+            ) : (
+                <Explainer onClick={() => props.onClick(props.titleId)}>
+                    commit all ({props.count})
+                </Explainer>
+            )}
+        </Options>
+    ) : null
 
 export class VersionControlView extends React.Component<ConnectedProps, State> {
     public state: State = {
@@ -105,9 +166,14 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
         this.props.updateCommitMessage(message)
     }
 
-    public handleCommitComplete = async () => {
+    public handleCommitOne = async () => {
         const { message, selectedItem } = this.props
-        await this.props.commitFiles(message, [selectedItem])
+        await this.props.commitOne(message, [selectedItem])
+    }
+
+    public handleCommitAll = async () => {
+        const { message } = this.props
+        await this.props.commitAll(message)
     }
 
     public handleCommitCancel = () => {
@@ -117,6 +183,12 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
     public insertIf(condition: boolean, element: string[]) {
         return condition ? element : []
     }
+
+    public isSelected = (id: string) =>
+        this.props.committing &&
+        this.props.status.staged.length &&
+        this.state.staged &&
+        this.props.selectedItem === id
 
     public render() {
         const error = this.props.hasError && "Something Went Wrong!"
@@ -134,7 +206,7 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
             "commits",
             ...this.insertIf(this.state.commits, commitSHAs),
             "staged",
-            ...this.insertIf(this.state.staged, staged),
+            ...this.insertIf(this.state.staged, ["commit_all", ...staged]),
             "modified",
             ...this.insertIf(this.state.modified, modified),
             "untracked",
@@ -166,23 +238,28 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
                             titleId="staged"
                             files={staged}
                             selectedId={selectedId}
-                            committing={committing && this.state.staged}
+                            selectedToCommit={this.isSelected}
                             visibility={this.state.staged}
                             onClick={this.props.handleSelection}
+                            optionsBar={
+                                <StagedOptions
+                                    titleId="commit_all"
+                                    count={staged.length}
+                                    selectedId={selectedId}
+                                    onClick={this.props.handleSelection}
+                                    handleCommitCancel={this.handleCommitCancel}
+                                    handleCommitComplete={this.handleCommitAll}
+                                    handleCommitMessage={this.handleCommitMessage}
+                                    committing={this.isSelected("commit_all")}
+                                />
+                            }
                             toggleVisibility={() => this.toggleVisibility("staged")}
                         >
-                            {this.state.staged && (
-                                <>
-                                    <Explainer>Hit enter to commit the file</Explainer>
-                                    <TextInput
-                                        InputComponent={TextArea}
-                                        onChange={this.handleCommitMessage}
-                                        onCancel={this.handleCommitCancel}
-                                        onComplete={this.handleCommitComplete}
-                                        defaultValue="Enter a commit message"
-                                    />
-                                </>
-                            )}
+                            <CommitMessage
+                                handleCommitCancel={this.handleCommitCancel}
+                                handleCommitComplete={this.handleCommitOne}
+                                handleCommitMessage={this.handleCommitMessage}
+                            />
                         </VersionControlStatus>
                         <VersionControlStatus
                             icon="minus-circle"

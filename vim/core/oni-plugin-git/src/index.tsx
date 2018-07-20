@@ -130,13 +130,13 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         }
     }
 
-    public commitFiles = async (message: string[], files: string[]): Promise<VCS.Commits> => {
-        if (!files.length) {
-            throw new Error("No files were selected")
-        }
+    public commitFiles = async (message: string[], files?: string[]): Promise<VCS.Commits> => {
         try {
             const commit = this._git(this._projectRoot).commit(message, files)
-            const changed = files.map(file => ({ path: file, status: VCS.Statuses.committed }))
+            const changed = (files || []).map(file => ({
+                path: file,
+                status: VCS.Statuses.committed,
+            }))
             this._onFileStatusChanged.dispatch(changed)
             return commit
         } catch (e) {
