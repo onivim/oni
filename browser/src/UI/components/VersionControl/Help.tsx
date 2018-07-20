@@ -2,6 +2,7 @@ import * as React from "react"
 
 import { SectionTitle, Title } from "./SectionTitle"
 
+// TODO: Get this from command API
 const commands = [
     {
         key: "ctrl-r",
