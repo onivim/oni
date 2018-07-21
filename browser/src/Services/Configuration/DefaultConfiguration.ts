@@ -269,7 +269,7 @@ const BaseConfiguration: IConfigurationValues = {
     "language.haskell.languageServer.configuration": {},
 
     "language.typescript.languageServer.rootFiles": ["tsconfig.json", "package.json"],
-    "language.typescript.languageServer.command": TypescriptLanguageServerPath,
+    "language.typescript.languageServer.command": typescriptLanguageServerPath,
     "language.typescript.languageServer.arguments": ["--stdio"],
     "language.typescript.completionTriggerCharacters": [".", "/", "\\"],
     "language.typescript.textMateGrammar": {
