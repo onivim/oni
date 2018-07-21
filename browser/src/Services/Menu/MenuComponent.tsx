@@ -16,6 +16,7 @@ import { focusManager } from "./../FocusManager"
 import { IMenuOptionWithHighlights, menuStore } from "./Menu"
 import * as ActionCreators from "./MenuActionCreators"
 import * as State from "./MenuState"
+import { render as renderPinnedIcon } from "./PinnedIconView"
 
 import { withProps } from "./../../UI/components/common"
 
@@ -228,20 +229,7 @@ const MenuItemWrapper = withProps<IMenuItemWrapperProps>(styled.div)`
 
 export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
     public render(): JSX.Element {
-        let className = "item"
-
-        if (this.props.isSelected) {
-            className += " selected"
-        }
-
-        let iconToUse: any = <Icon name={"default"} />
-
-        if (this.props.icon) {
-            iconToUse =
-                typeof this.props.icon === "string"
-                    ? (iconToUse = <Icon name={this.props.icon} />)
-                    : this.props.icon
-        }
+        const className = "item" + (this.props.isSelected ? " selected" : "")
 
         return (
             <MenuItemWrapper
@@ -250,7 +238,7 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
                 onClick={() => this.props.onClick()}
                 style={{ height: this.props.height + "px" }}
             >
-                {iconToUse}
+                {this.getIcon()}
                 <HighlightTextByIndex
                     className="label"
                     text={this.props.label}
@@ -264,8 +252,19 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
                     highlightComponent={DetailHighlight}
                 />
                 {this.props.additionalComponent}
+                {renderPinnedIcon({ pinned: this.props.pinned })}
             </MenuItemWrapper>
         )
+    }
+
+    private getIcon(): any {
+        if (!this.props.icon) {
+            return <Icon name={"default"} />
+        }
+        if (typeof this.props.icon === "string") {
+            return <Icon name={this.props.icon} />
+        }
+        return this.props.icon
     }
 }
 

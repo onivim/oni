@@ -4,11 +4,12 @@
  * Entry point for explorer-related features
  */
 
+import { IWorkspace } from "./../../Services/Workspace"
 import { CallbackCommand, CommandManager } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
 import { SidebarManager } from "./../Sidebar"
-import { Workspace } from "./../Workspace"
+
 import { ExplorerSplit } from "./ExplorerSplit"
 
 export const activate = (
@@ -16,7 +17,7 @@ export const activate = (
     configuration: Configuration,
     editorManager: EditorManager,
     sidebarManager: SidebarManager,
-    workspace: Workspace,
+    workspace: IWorkspace,
 ) => {
     configuration.registerSetting("explorer.autoRefresh", {
         description:

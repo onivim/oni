@@ -1,24 +1,20 @@
-/**
- * RegExFilter.ts
- *
- * Implements RegEx filtering logic for the menu
- */
-
 import * as sortBy from "lodash/sortBy"
 
 import * as Oni from "oni-api"
 
-import { IMenuOptionWithHighlights, shouldFilterbeCaseSensitive } from "./../Menu"
+import * as utils from "./Utils"
+
+import { IMenuOptionWithHighlights } from "./../Menu"
 
 import {
     createLetterCountDictionary,
     LetterCountDictionary,
-} from "./../../UI/components/HighlightText"
+} from "./../../../UI/components/HighlightText"
 
-export const regexFilter = (
+export function filter(
     options: Oni.Menu.MenuOption[],
     searchString: string,
-): IMenuOptionWithHighlights[] => {
+): IMenuOptionWithHighlights[] {
     if (!searchString) {
         const opt = options.map(o => {
             return {
@@ -31,7 +27,7 @@ export const regexFilter = (
         return sortBy(opt, o => (o.pinned ? 0 : 1))
     }
 
-    const isCaseSensitive = shouldFilterbeCaseSensitive(searchString)
+    const isCaseSensitive = utils.shouldBeCaseSensitive(searchString)
 
     if (!isCaseSensitive) {
         searchString = searchString.toLowerCase()
@@ -69,11 +65,11 @@ export const regexFilter = (
     return ret
 }
 
-export const processSearchTerm = (
+export function processSearchTerm(
     searchString: string,
     options: Oni.Menu.MenuOption[],
     isCaseSensitive: boolean,
-): Oni.Menu.MenuOption[] => {
+): Oni.Menu.MenuOption[] {
     const filterRegExp = new RegExp(".*" + searchString.split("").join(".*") + ".*")
 
     return options.filter(f => {
@@ -87,11 +83,11 @@ export const processSearchTerm = (
     })
 }
 
-export const getHighlightsFromString = (
+export function getHighlightsFromString(
     text: string,
     letterCountDictionary: LetterCountDictionary,
     isCaseSensitive: boolean = false,
-): number[] => {
+): number[] {
     if (!text) {
         return []
     }

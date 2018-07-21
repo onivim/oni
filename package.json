@@ -597,12 +597,12 @@
         "build:browser-debug": "webpack --config browser/webpack.debug.config.js",
         "build:main": "cd main && tsc -p tsconfig.json",
         "build:plugins":
-            "yarn run build:plugin:oni-plugin-typescript && yarn run build:plugin:oni-plugin-git && yarn run build:plugin:oni-plugin-markdown-preview",
+            "yarn run build:plugin:oni-plugin-typescript && yarn run build:plugin:oni-plugin-git && yarn run build:plugin:oni-plugin-markdown-preview && yarn run build:plugin:oni-plugin-quickopen",
         "build:cli": "cd cli && tsc -p tsconfig.json",
         "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && yarn run build",
         "build:plugin:oni-plugin-git": "cd vim/core/oni-plugin-git && yarn run build",
-        "build:plugin:oni-plugin-markdown-preview":
-            "cd extensions/oni-plugin-markdown-preview && yarn run build",
+        "build:plugin:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && yarn run build",
+        "build:plugin:oni-plugin-quickopen": "cd extensions/oni-plugin-quickopen && yarn run build",
         "build:test": "yarn run build:test:unit && yarn run build:test:integration",
         "build:test:integration": "cd test && tsc -p tsconfig.json",
         "build:test:unit": "run-s build:test:unit:*",

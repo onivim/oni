@@ -93,7 +93,6 @@ export const start = async (args: string[]): Promise<void> => {
     const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
-    const quickOpenPromise = import("./Services/QuickOpen")
     const taksPromise = import("./Services/Tasks")
     const terminalPromise = import("./Services/Terminal")
     const workspacePromise = import("./Services/Workspace")
@@ -231,9 +230,6 @@ export const start = async (args: string[]): Promise<void> => {
     Menu.activate(configuration, overlayManager)
     const menuManager = Menu.getInstance()
 
-    const QuickOpen = await quickOpenPromise
-    QuickOpen.activate(commandManager, menuManager, editorManager, workspace)
-
     const Notifications = await notificationsPromise
     Notifications.activate(configuration, overlayManager)
     const notifications = Notifications.getInstance()
@@ -337,7 +333,6 @@ export const start = async (args: string[]): Promise<void> => {
         Sidebar.getInstance(),
         workspace,
     )
-    Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Learning.activate(
         commandManager,
         configuration,
@@ -358,6 +353,7 @@ export const start = async (args: string[]): Promise<void> => {
 
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()
+    Search.activate(api)
     configuration.activate(api)
 
     Snippets.activateProviders(
