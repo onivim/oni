@@ -641,7 +641,7 @@
         "upload:dist": "node build/script/UploadDistributionBuildsToAzure",
         "fix-lint": "run-p fix-lint:*",
         "fix-lint:browser":
-            "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json && tslint --fix --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+            "tslint --fix --project browser/tsconfig.json --exclude **/node_modules/**/* --config tslint.json  && tslint --fix --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "fix-lint:cli": "tslint --fix --project cli/tsconfig.json --config tslint.json",
         "fix-lint:main": "tslint --fix --project main/tsconfig.json --config tslint.json",
         "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
