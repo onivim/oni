@@ -1,5 +1,4 @@
 import * as path from "path"
-
 import { CLIArgs, parseCLIProcessArgv } from "./cli_args"
 
 import { spawn } from "child_process"
@@ -27,7 +26,10 @@ export async function main(cli_arguments: string[]): Promise<any> {
 
     // Otherwise, was loaded normally, so launch Oni.
 
-    const env = assign({}, process.env, {
+    const shellEnvPromise = import("shell-env")
+    const shellEnv = (await shellEnvPromise).sync()
+
+    const env = assign({}, process.env, shellEnv, {
         ONI_CLI: "1", // Let Oni know it was started from the CLI
         ELECTRON_NO_ATTACH_CONSOLE: "1",
     })
