@@ -960,35 +960,46 @@ const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     })
 
 export const selectFileEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
-    action$.ofType("SELECT_FILE").mergeMap(({ filePath }: ISelectFileAction): ExplorerAction[] => {
-        // Normalize, e.g. to remove trailing slash so that subsequent string comparisons work.
-        const rootPath = path.format(
-            path.parse(path.normalize(store.getState().rootFolder.fullPath)),
-        )
-        filePath = path.format(path.parse(path.normalize(filePath)))
-        // Can only select files in the workspace.
-        if (!filePath.startsWith(rootPath)) {
-            const failure: ISelectFileFailAction = {
-                type: "SELECT_FILE_FAIL",
-                reason: `File is not in workspace: ${filePath}`,
-            }
-            Log.warn(`Attempted to select ${filePath} which is not a descendent of ${rootPath}`)
-            return [failure]
-        }
-        const relDirectoryPath = path.relative(rootPath, path.dirname(filePath))
-        const directories = relDirectoryPath.split(path.sep)
-        const actions = []
+    action$.ofType("SELECT_FILE").mergeMap(({ filePath }: ISelectFileAction) => {
+        const rootPath = store.getState().rootFolder.fullPath
 
-        // Expand each directory in turn from the project root down to the file we want.
-        for (let dirNum = 1; dirNum <= directories.length; dirNum++) {
-            const relParentDirectoryPath = directories.slice(0, dirNum).join(path.sep)
-            const parentDirectoryPath = path.join(rootPath, relParentDirectoryPath)
-            actions.push(Actions.expandDirectory(parentDirectoryPath))
-        }
-        // Update the state with the file path we want the VimNaviator to select.
-        const pending: ISelectFilePendingAction = { type: "SELECT_FILE_PENDING", filePath }
-        actions.push(pending)
-        return actions
+        // We need to resolve any symlinks, since the buffer and workspace path can otherwise
+        // appear to be unrelated (at least on OSX).
+        return fromPromise(
+            Promise.all([fileSystem.realPath(rootPath), fileSystem.realPath(filePath)]),
+        ).flatMap(([realRootPath, realFilePath]): ExplorerAction[] => {
+            const relPath = path.relative(realRootPath, realFilePath)
+            Log.info(
+                `Selecting ${filePath} (which resolves to ${realFilePath}) if it is a descendent` +
+                    ` of ${rootPath} (which resolves to ${realRootPath}) given the relative path is` +
+                    ` ${relPath}`,
+            )
+            // Can only select files in the workspace.
+            if (relPath.startsWith("..") || path.isAbsolute(relPath)) {
+                const failure: ISelectFileFailAction = {
+                    type: "SELECT_FILE_FAIL",
+                    reason: `File is not in workspace: ${filePath}`,
+                }
+                return [failure]
+            }
+            // Get the list of directories to expand in the Explorer.
+            const relDirectoryPath = path.relative(realRootPath, path.dirname(realFilePath))
+            const directories = relDirectoryPath.split(path.sep)
+            const actions = []
+            // Expand each directory in turn from the project root down to the file we want.
+            for (let dirNum = 1; dirNum <= directories.length; dirNum++) {
+                const relParentDirectoryPath = directories.slice(0, dirNum).join(path.sep)
+                const parentDirectoryPath = path.join(rootPath, relParentDirectoryPath)
+                actions.push(Actions.expandDirectory(parentDirectoryPath))
+            }
+            // Update the state with the file path we want the VimNaviator to select.
+            const pending: ISelectFilePendingAction = {
+                type: "SELECT_FILE_PENDING",
+                filePath,
+            }
+            actions.push(pending)
+            return actions
+        })
     })
 
 export const createNodeEpic: ExplorerEpic = (action$, store, { fileSystem }) =>

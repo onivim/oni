@@ -32,17 +32,15 @@ export const test = async (oni: Oni.Plugin.Api) => {
     // Create our "workspace"
     const rootPath = getTemporaryFolder()
     fs.mkdirSync(rootPath)
-    // Switch to workspace.
-    await oni.workspace.changeDirectory(rootPath)
-    Log.info(`Created ${rootPath} and switched to workspace ${oni.workspace.activeWorkspace}`)
-    // Create workspace subdir. Use `activeWorkspace` rather than `rootPath` in case of symlinks.
-    const directoryPath = path.join(oni.workspace.activeWorkspace, "src")
+    // Create workspace subdir.
+    const directoryPath = path.join(rootPath, "src")
     fs.mkdirSync(directoryPath)
     // Create workspace file.
     const filePath = path.join(directoryPath, fileToLocate)
     fs.writeFileSync(filePath, "some stuff")
-    // Refresh explorer so it knows about our new file.
+    // Switch to workspace.
     await oni.workspace.changeDirectory(rootPath)
+    Log.info(`Created ${rootPath} and switched to workspace ${oni.workspace.activeWorkspace}`)
     // Open file in workspace.
     await navigateToFile(filePath, oni)
     // File shouldn't yet be shown in the explorer.

@@ -41,6 +41,12 @@ export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
         return promise
     }
 
+    public realPath(fullPath: string): Promise<string> {
+        const promise = this._inner.realPath(fullPath)
+        this.promises.push(promise)
+        return promise
+    }
+
     public async canPersistNode() {
         return true
     }
