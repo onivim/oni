@@ -34,17 +34,17 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     oni.automation.sendKeys(":")
     await oni.automation.waitFor(() => !!getElementByClassName("command-line"))
-    oni.automation.sendKeys('call OniCommand("ciTest.test", "testFile.tsx")')
+    oni.automation.sendKeys('call OniCommand("ciTest.test", "testFile")')
     oni.automation.sendKeys("<enter>")
 
     await oni.automation.waitFor(() =>
-        oni.editors.activeEditor.activeBuffer.filePath.endsWith("testFile.tsx"),
+        oni.editors.activeEditor.activeBuffer.filePath.endsWith("testFile"),
     )
 
     const currentBuffer = oni.editors.activeEditor.activeBuffer.filePath
 
     assert(
-        currentBuffer.endsWith("testFile.tsx"),
+        currentBuffer.endsWith("testFile"),
         "Check file opened correctly after being passed over.",
     )
 
@@ -62,7 +62,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     oni.automation.sendKeys(":")
     await oni.automation.waitFor(() => !!getElementByClassName("command-line"))
     oni.automation.sendKeys(
-        'call OniCommand("ciTest.test2", "testFile2.tsx", "testFile3.tsx", "testFile4.tsx")',
+        'call OniCommand("ciTest.test2", "testFile2", "testFile3", "testFile4")',
     )
     oni.automation.sendKeys("<enter>")
 
