@@ -74,8 +74,10 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
 
     private _getIndentLines = (
         guidePositions: IndentLinesProps[],
-        skipFirst: boolean,
-        color?: string,
+        options: {
+            skipFirst: boolean
+            color?: string
+        },
     ) => {
         return flatten(
             guidePositions.map((props, idx) => {
@@ -88,16 +90,16 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                         levelOfIndentation * props.indentSize +
                         props.characterWidth / 3
 
-                    const skip = skipFirst && levelOfIndentation === props.indentBy - 1
+                    const skip = options.skipFirst && levelOfIndentation === props.indentBy - 1
                     const key = `${props.line.trim()}-${idx}-${levelOfIndentation}`
                     return (
                         !skip && (
                             <IndentLine
                                 key={key}
-                                color={color}
+                                color={options.color}
                                 top={props.top}
-                                height={props.height}
                                 left={adjustedLeft}
+                                height={props.height}
                                 data-id="indent-line"
                             />
                         )
@@ -152,10 +154,12 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         // 1. If the beginning of the visible lines is wrapping no lines are drawn
         // 2. If a line wraps but the wrapped line has no content line positions are off by one
         const wrappedScreenLines = this._getWrappedLines(bufferLayerContext)
-        const color = this._configuration.getValue<string>("experimental.indentLines.color")
-        const skipFirst = this._configuration.getValue<boolean>(
-            "experimental.indentLines.skipFirst",
-        )
+
+        const options = {
+            color: this._configuration.getValue<string>("experimental.indentLines.color"),
+            skipFirst: this._configuration.getValue<boolean>("experimental.indentLines.skipFirst"),
+        }
+
         const { visibleLines, fontPixelHeight, fontPixelWidth, topBufferLine } = bufferLayerContext
         const indentSize = this._userSpacing * fontPixelWidth
 
@@ -220,7 +224,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
             { allIndentations: [], wrappedHeightAdjustment: 0 },
         )
 
-        return this._getIndentLines(allIndentations, skipFirst, color)
+        return this._getIndentLines(allIndentations, options)
     }
 }
 
