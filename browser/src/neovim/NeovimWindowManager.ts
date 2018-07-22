@@ -139,9 +139,11 @@ export class NeovimWindowManager extends Utility.Disposable {
 
         const inactiveWindowIds = allWindows.filter(w => w.id !== context.windowNumber)
 
-        const inactiveWindows = await Promise.all(
-            inactiveWindowIds.map(window => this._remeasureInactiveWindow(window.id)),
-        )
+        const windowPromise = await inactiveWindowIds.map((window: NeovimWindow) => {
+            return this._remeasureInactiveWindow(window.id)
+        })
+
+        const inactiveWindows = await Promise.all(windowPromise)
 
         return {
             tabId: tabNumber,
