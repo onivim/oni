@@ -22,6 +22,15 @@ interface IProps {
     color?: string
 }
 
+interface ConfigOptions {
+    skipFirst: boolean
+    color?: string
+}
+
+interface LinePropsWithLevels extends IndentLinesProps {
+    levelOfIndentation: number
+}
+
 interface IndentLinesProps {
     top: number
     left: number
@@ -72,33 +81,23 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         return "Indent Guide Lines"
     }
 
-    private _getIndentLines = (
-        guidePositions: IndentLinesProps[],
-        options: {
-            skipFirst: boolean
-            color?: string
-        },
-    ) => {
+    private _getIndentLines = (guidePositions: IndentLinesProps[], options: ConfigOptions) => {
         return flatten(
             guidePositions.map((props, idx) => {
+                // Create a line per indentation
                 return Array.from({ length: props.indentBy }, (_, levelOfIndentation) => {
-                    // remove one indent from left positioning, create a line per indentation, move lines
-                    // slightly inwards - by a third of a character width for a better visual appearance
-                    const adjustedLeft =
-                        props.left -
-                        props.indentSize -
-                        levelOfIndentation * props.indentSize +
-                        props.characterWidth / 3
-
-                    const skip = options.skipFirst && levelOfIndentation === props.indentBy - 1
+                    const lineProps = { ...props, levelOfIndentation }
+                    const adjustedLeft = this._calculateLeftPosition(lineProps)
+                    const shouldSkip = this._determineIfShouldSkip(lineProps, options)
                     const key = `${props.line.trim()}-${idx}-${levelOfIndentation}`
+
                     return (
-                        !skip && (
+                        !shouldSkip && (
                             <IndentLine
                                 key={key}
-                                color={options.color}
                                 top={props.top}
                                 left={adjustedLeft}
+                                color={options.color}
                                 height={props.height}
                                 data-id="indent-line"
                             />
@@ -107,6 +106,43 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 })
             }),
         )
+    }
+
+    /**
+     * Determines if the current indent line should be skipped
+     *
+     * @name _determineIfShouldSkip
+     * @function
+     * @param {LinePropsWithLevels} props Guide Lines metadata
+     * @param {ConfigOptions} options Configuration Options
+     * @returns {boolean} Whether or not the current indent should be skipped
+     */
+    private _determineIfShouldSkip(props: LinePropsWithLevels, options: ConfigOptions) {
+        const isEmpty = !props.line && props.indentBy > 1 && !props.levelOfIndentation
+        const skipFirstIndentLine =
+            options.skipFirst && props.levelOfIndentation === props.indentBy - 1
+        const shouldSkip = skipFirstIndentLine || isEmpty
+
+        return shouldSkip
+    }
+
+    /**
+     * Remove one indent from left positioning and move lines slightly inwards -
+     * by a third of a character for a better visual appearance
+     *
+     * @name _calculateLeftPosition
+     * @function
+     * @param {LinePropsWithLevels} props Guide Lines metadata
+     * @returns {number} Left position of indent line
+     */
+    private _calculateLeftPosition(props: LinePropsWithLevels) {
+        const adjustedLeft =
+            props.left -
+            props.indentSize -
+            props.levelOfIndentation * props.indentSize +
+            props.characterWidth / 3
+
+        return adjustedLeft
     }
 
     private _getWrappedLines(context: Oni.BufferLayerRenderContext): IWrappedLine[] {
