@@ -52,10 +52,10 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
                 bottomBufferLine: windowState.bottomBufferLine,
             }
 
-            const layerElements = layers.map(({ render, id }) => {
+            const layerElements = layers.map(layer => {
                 return (
-                    <InnerLayer key={`${id}.${windowState.windowId}.${windowState.bufferId}`}>
-                        {render(layerContext)}
+                    <InnerLayer key={`${layer.id}.${windowState.windowId}.${windowState.bufferId}`}>
+                        {layer.render(layerContext)}
                     </InnerLayer>
                 )
             })
