@@ -28,6 +28,7 @@ interface IndentLinesProps {
     height: number
     line: string
     indentBy: number
+    indentSize: number
     characterWidth: number
 }
 
@@ -71,23 +72,33 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         return "Indent Guide Lines"
     }
 
-    private _getIndentLines = (guidePositions: IndentLinesProps[], color?: string) => {
+    private _getIndentLines = (
+        guidePositions: IndentLinesProps[],
+        skipFirst: boolean,
+        color?: string,
+    ) => {
         return flatten(
-            guidePositions.map(({ line, height, characterWidth, indentBy, left, top }, lineNo) => {
-                const indentation = characterWidth * this._userSpacing
-                return Array.from({ length: indentBy }, (_, level) => {
-                    const adjustedLeft = left - level * indentation + characterWidth / 3
-                    // skip the furthest (inwards) indent if there are one or more indents
-                    const skipIndentLine = !level && indentBy >= 1
+            guidePositions.map((props, idx) => {
+                return Array.from({ length: props.indentBy }, (_, levelOfIndentation) => {
+                    // remove one indent from left positioning, create a line per indentation, move lines
+                    // slightly inwards - by a third of a character width for a better visual appearance
+                    const adjustedLeft =
+                        props.left -
+                        props.indentSize -
+                        levelOfIndentation * props.indentSize +
+                        props.characterWidth / 3
+
+                    const skip = skipFirst && levelOfIndentation === props.indentBy - 1
+                    const key = `${props.line.trim()}-${idx}-${levelOfIndentation}`
                     return (
-                        !skipIndentLine && (
+                        !skip && (
                             <IndentLine
-                                top={top}
+                                key={key}
                                 color={color}
-                                height={height}
+                                top={props.top}
+                                height={props.height}
                                 left={adjustedLeft}
                                 data-id="indent-line"
-                                key={`${line.trim()}-${lineNo}-${indentation}-${level}`}
                             />
                         )
                     )
@@ -137,13 +148,16 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
      * @returns {JSX.Element[]} An array of react elements
      */
     private _renderIndentLines = (bufferLayerContext: Oni.BufferLayerRenderContext) => {
-        // FIXME: Outstanding issues -
+        // TODO:
         // 1. If the beginning of the visible lines is wrapping no lines are drawn
         // 2. If a line wraps but the wrapped line has no content line positions are off by one
-
         const wrappedScreenLines = this._getWrappedLines(bufferLayerContext)
         const color = this._configuration.getValue<string>("experimental.indentLines.color")
+        const skipFirst = this._configuration.getValue<boolean>(
+            "experimental.indentLines.skipFirst",
+        )
         const { visibleLines, fontPixelHeight, fontPixelWidth, topBufferLine } = bufferLayerContext
+        const indentSize = this._userSpacing * fontPixelWidth
 
         const { allIndentations } = visibleLines.reduce(
             (acc, line, currenLineNumber) => {
@@ -192,6 +206,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 const indent = {
                     left,
                     line,
+                    indentSize,
                     top: adjustedTop,
                     height: adjustedHeight,
                     characterWidth: fontPixelWidth,
@@ -205,7 +220,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
             { allIndentations: [], wrappedHeightAdjustment: 0 },
         )
 
-        return this._getIndentLines(allIndentations, color)
+        return this._getIndentLines(allIndentations, skipFirst, color)
     }
 }
 

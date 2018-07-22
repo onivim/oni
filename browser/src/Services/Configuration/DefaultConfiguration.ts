@@ -77,6 +77,7 @@ const BaseConfiguration: IConfigurationValues = {
     ],
     "experimental.indentLines.enabled": false,
     "experimental.indentLines.color": null,
+    "experimental.indentLines.skipFirst": false,
     "experimental.indentLines.bannedFiletypes": [],
     "experimental.markdownPreview.enabled": false,
     "experimental.markdownPreview.autoScroll": true,
