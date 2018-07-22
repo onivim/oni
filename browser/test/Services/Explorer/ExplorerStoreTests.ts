@@ -21,6 +21,13 @@ import * as head from "lodash/head"
 import * as TestHelpers from "./../../TestHelpers"
 
 const MemoryFileSystem = require("memory-fs") // tslint:disable-line
+// Monkey patch realpath since it doesn't exist in memory-fs.
+MemoryFileSystem.prototype.realpath = (
+    fullPath: string,
+    callback: (err: any, fullPath: string) => void,
+) => {
+    callback(null, fullPath)
+}
 
 export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
     public promises: Array<Promise<any>>
@@ -41,8 +48,8 @@ export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
         return promise
     }
 
-    public realPath(fullPath: string): Promise<string> {
-        const promise = this._inner.realPath(fullPath)
+    public realpath(fullPath: string): Promise<string> {
+        const promise = this._inner.realpath(fullPath)
         this.promises.push(promise)
         return promise
     }
@@ -62,14 +69,23 @@ export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
     // tslint:enable
 }
 
+const mockFileSystem = (): MockedFileSystem => {
+    const memoryFileSystem = new MemoryFileSystem()
+    const fileSystem = new MockedFileSystem(
+        new ExplorerFileSystem.FileSystem(memoryFileSystem as any),
+    )
+    return fileSystem
+}
+
 const mockStoreFactory = (
     epics: any[],
     notifications = {} as Notifications,
+    fileSystem: ExplorerFileSystem.IFileSystem = mockFileSystem(),
 ): MockStoreCreator<ExplorerState.IExplorerState> => {
     const rootEpic = combineEpics(...epics)
 
     const epicMiddleware = createEpicMiddleware(rootEpic, {
-        dependencies: { fileSystem: MockedFileSystem as any, notifications },
+        dependencies: { fileSystem, notifications },
     })
 
     const mockStore: MockStoreCreator<ExplorerState.IExplorerState> = configureMockStore([
@@ -191,9 +207,10 @@ describe("ExplorerStore", () => {
             })
         })
 
-        it("dispatches actions to expand folders and select file", () => {
+        it("dispatches actions to expand folders and select file", async () => {
             const fileToSelect = path.normalize(path.join(rootPath, "dir1", "dir2", "file.cpp"))
             epicStore.dispatch({ type: "SELECT_FILE", filePath: fileToSelect })
+            await TestHelpers.waitForAllAsyncOperations()
             const actions = epicStore.getActions()
             assert.deepStrictEqual(actions, [
                 { type: "SELECT_FILE", filePath: fileToSelect },
@@ -209,9 +226,10 @@ describe("ExplorerStore", () => {
             ])
         })
 
-        it("dispatches failure if target is not in workspace", () => {
+        it("dispatches failure if target is not in workspace", async () => {
             const fileToSelect = path.normalize(path.join(TestHelpers.getRootDirectory(), "other"))
             epicStore.dispatch({ type: "SELECT_FILE", filePath: fileToSelect })
+            await TestHelpers.waitForAllAsyncOperations()
             const actions = epicStore.getActions()
             assert.deepStrictEqual(actions, [
                 { type: "SELECT_FILE", filePath: fileToSelect },

@@ -136,6 +136,9 @@ describe("readdir", () => {
             exists(targetPath: string, callback: any) {
                 assert.fail("Should not be used")
             },
+            realpath(targetPath: string) {
+                assert.fail("Should not be used")
+            },
         } as any)
 
         const expected = [

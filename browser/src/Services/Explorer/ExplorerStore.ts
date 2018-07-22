@@ -966,7 +966,7 @@ export const selectFileEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         // We need to resolve any symlinks, since the buffer and workspace path can otherwise
         // appear to be unrelated (at least on OSX).
         return fromPromise(
-            Promise.all([fileSystem.realPath(rootPath), fileSystem.realPath(filePath)]),
+            Promise.all([fileSystem.realpath(rootPath), fileSystem.realpath(filePath)]),
         ).flatMap(([realRootPath, realFilePath]): ExplorerAction[] => {
             const relPath = path.relative(realRootPath, realFilePath)
             Log.info(

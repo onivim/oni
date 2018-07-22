@@ -18,7 +18,7 @@ import { FolderOrFile } from "./ExplorerStore"
 export interface IFileSystem {
     readdir(fullPath: string): Promise<FolderOrFile[]>
     exists(fullPath: string): Promise<boolean>
-    realPath(fullPath: string): Promise<string>
+    realpath(fullPath: string): Promise<string>
     persistNode(fullPath: string): Promise<void>
     restoreNode(fullPath: string): Promise<void>
     deleteNode(fullPath: string): Promise<void>
@@ -90,7 +90,7 @@ export class FileSystem implements IFileSystem {
     /**
      * Resolve symlinks in a path to give the real absolute path.
      */
-    public realPath(fullPath: string): Promise<string> {
+    public realpath(fullPath: string): Promise<string> {
         return this._fs.realpath(fullPath)
     }
 
