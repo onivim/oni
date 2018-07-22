@@ -108,17 +108,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         )
     }
 
-    /**
-     * Determines if the current indent line should be skipped
-     *
-     * @name _determineIfShouldSkip
-     * @function
-     * @param {LinePropsWithLevels} props Guide Lines metadata
-     * @param {ConfigOptions} options Configuration Options
-     * @returns {boolean} Whether or not the current indent should be skipped
-     */
     private _determineIfShouldSkip(props: LinePropsWithLevels, options: ConfigOptions) {
-        // const isEmpty = !props.line && props.indentBy > 1 && !props.levelOfIndentation
         const skipFirstIndentLine =
             options.skipFirst && props.levelOfIndentation === props.indentBy - 1
 
@@ -128,11 +118,6 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
     /**
      * Remove one indent from left positioning and move lines slightly inwards -
      * by a third of a character for a better visual appearance
-     *
-     * @name _calculateLeftPosition
-     * @function
-     * @param {LinePropsWithLevels} props Guide Lines metadata
-     * @returns {number} Left position of indent line
      */
     private _calculateLeftPosition(props: LinePropsWithLevels) {
         const adjustedLeft =
