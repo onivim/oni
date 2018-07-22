@@ -50,8 +50,7 @@ export class BrowserLayer implements Oni.BufferLayer {
         return this._activeTagName
     }
 
-    // Arrow function prevents the loss of the this binding
-    public render = () => {
+    public render(): JSX.Element {
         return (
             <BrowserView
                 configuration={this._configuration}
