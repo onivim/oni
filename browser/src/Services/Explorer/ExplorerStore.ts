@@ -961,8 +961,10 @@ const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
 
 export const selectFileEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("SELECT_FILE").mergeMap(({ filePath }: ISelectFileAction): ExplorerAction[] => {
-        const rootPath = store.getState().rootFolder.fullPath
         // Normalize, e.g. to remove trailing slash so that subsequent string comparisons work.
+        const rootPath = path.format(
+            path.parse(path.normalize(store.getState().rootFolder.fullPath)),
+        )
         filePath = path.format(path.parse(path.normalize(filePath)))
         // Can only select files in the workspace.
         if (!filePath.startsWith(rootPath)) {
@@ -970,6 +972,7 @@ export const selectFileEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
                 type: "SELECT_FILE_FAIL",
                 reason: `File is not in workspace: ${filePath}`,
             }
+            Log.warn(`Attempted to select ${filePath} which is not a descendent of ${rootPath}`)
             return [failure]
         }
         const relDirectoryPath = path.relative(rootPath, path.dirname(filePath))
