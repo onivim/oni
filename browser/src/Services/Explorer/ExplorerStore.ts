@@ -995,7 +995,7 @@ export const selectFileEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
             // Update the state with the file path we want the VimNaviator to select.
             const pending: ISelectFilePendingAction = {
                 type: "SELECT_FILE_PENDING",
-                filePath,
+                filePath: realFilePath,
             }
             actions.push(pending)
             return actions
