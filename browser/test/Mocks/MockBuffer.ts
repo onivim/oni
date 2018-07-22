@@ -4,11 +4,14 @@
  * Implementations of test mocks and doubles,
  * to exercise boundaries of class implementations
  */
+import * as os from "os"
 
 export * from "./MockPluginManager"
 export * from "./MockThemeLoader"
 
 import * as Oni from "oni-api"
+
+import * as detectIndent from "detect-indent"
 
 import * as types from "vscode-languageserver-types"
 
@@ -22,11 +25,7 @@ export class MockBuffer {
     private _cursor = { line: 0, column: 0 }
     private _modified = false
 
-    private _indentationInfo: BufferIndentationInfo = {
-        indent: "   ",
-        type: "space",
-        amount: 3,
-    }
+    private _indentationInfo: BufferIndentationInfo | null = null
 
     public get id(): number {
         return this._id
@@ -64,7 +63,7 @@ export class MockBuffer {
     ) {}
 
     public async detectIndentation(): Promise<BufferIndentationInfo> {
-        return this._indentationInfo
+        return this._indentationInfo || detectIndent(this._lines.join(os.EOL))
     }
 
     public async getCursorPosition(): Promise<types.Position> {

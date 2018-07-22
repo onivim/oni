@@ -368,12 +368,16 @@ export const start = async (args: string[]): Promise<void> => {
     const { inputManager } = await inputManagerPromise
 
     const autoClosingPairsPromise = import("./Services/AutoClosingPairs")
+    const indentationPromise = import("./Services/Indentation")
 
     const ConfigurationCommands = await configurationCommandsPromise
     ConfigurationCommands.activate(commandManager, configuration, editorManager)
 
     const AutoClosingPairs = await autoClosingPairsPromise
     AutoClosingPairs.activate(configuration, editorManager, inputManager, languageManager)
+
+    const Indentation = await indentationPromise
+    Indentation.activate(configuration, editorManager)
 
     const GlobalCommands = await globalCommandsPromise
     GlobalCommands.activate(commandManager, editorManager, menuManager, tasks)
