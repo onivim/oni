@@ -229,7 +229,7 @@ export default class ColorHighlightLayer implements Oni.BufferLayer {
         const colorNames = this.CSS_COLOR_NAMES.map(name => `\\b${name}\\b`)
         const colorNamesRegex = new RegExp("(" + colorNames.join("|") + ")")
         this._colorRegex = new RegExp(
-            "\\b" + colorNamesRegex.source + "|" + this._colorCodeRegex.source + "\\b",
+            colorNamesRegex.source + "|" + this._colorCodeRegex.source,
             "gi",
         )
     }
