@@ -10,10 +10,10 @@ import * as path from "path"
 import * as Oni from "oni-api"
 import * as Log from "oni-core-logging"
 
-import { getElementsBySelector, getTemporaryFolder, navigateToFile, waitForCommand } from "./Common"
+import { getElementsBySelector, navigateToFile, useTempWorkspace, waitForCommand } from "./Common"
 
 const command = "explorer.locate.buffer"
-const fileToLocate = "file.ts"
+const fileToLocate = "File.ts"
 
 const isFileToLocateVisibleAndHighlighted = () => {
     return !![].slice
@@ -29,20 +29,10 @@ export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitFor(() => document.querySelectorAll(".sidebar-content").length === 1)
     // Ensure command exists.
     await waitForCommand(command, oni)
-    // Create our "workspace"
-    const rootPath = getTemporaryFolder()
-    fs.mkdirSync(rootPath)
-    // Create workspace subdir.
-    const directoryPath = path.join(rootPath, "src")
-    fs.mkdirSync(directoryPath)
-    // Create workspace file.
-    const filePath = path.join(directoryPath, fileToLocate)
-    fs.writeFileSync(filePath, "some stuff")
-    // Switch to workspace.
-    await oni.workspace.changeDirectory(rootPath)
-    Log.info(`Created ${rootPath} and switched to workspace ${oni.workspace.activeWorkspace}`)
+    // Switch to temporary workspace.
+    const rootPath = await useTempWorkspace(oni)
     // Open file in workspace.
-    await navigateToFile(filePath, oni)
+    await navigateToFile(path.join(rootPath, "src", fileToLocate), oni)
     // File shouldn't yet be shown in the explorer.
     await oni.automation.waitFor(() => !isFileToLocateVisibleAndHighlighted())
     // Execure the command to locate the file in the explorer.

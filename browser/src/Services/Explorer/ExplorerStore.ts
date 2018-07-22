@@ -969,11 +969,6 @@ export const selectFileEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
             Promise.all([fileSystem.realpath(rootPath), fileSystem.realpath(filePath)]),
         ).flatMap(([realRootPath, realFilePath]): ExplorerAction[] => {
             const relPath = path.relative(realRootPath, realFilePath)
-            Log.info(
-                `Selecting ${filePath} (which resolves to ${realFilePath}) if it is a descendent` +
-                    ` of ${rootPath} (which resolves to ${realRootPath}) given the relative path is` +
-                    ` ${relPath}`,
-            )
             // Can only select files in the workspace.
             if (relPath.startsWith("..") || path.isAbsolute(relPath)) {
                 const failure: ISelectFileFailAction = {
