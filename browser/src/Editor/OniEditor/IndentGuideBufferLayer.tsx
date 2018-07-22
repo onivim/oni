@@ -118,12 +118,11 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
      * @returns {boolean} Whether or not the current indent should be skipped
      */
     private _determineIfShouldSkip(props: LinePropsWithLevels, options: ConfigOptions) {
-        const isEmpty = !props.line && props.indentBy > 1 && !props.levelOfIndentation
+        // const isEmpty = !props.line && props.indentBy > 1 && !props.levelOfIndentation
         const skipFirstIndentLine =
             options.skipFirst && props.levelOfIndentation === props.indentBy - 1
-        const shouldSkip = skipFirstIndentLine || isEmpty
 
-        return shouldSkip
+        return skipFirstIndentLine
     }
 
     /**
