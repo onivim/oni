@@ -32,6 +32,7 @@ const ColorHighlight = withProps<IProps>(styled.div).attrs({
     color: ${p => (Color(p.color).dark() ? "white" : "black")};
     font-family: ${p => p.fontFamily};
     font-size: ${p => p.fontSize};
+    white-space: nowrap;
 `
 
 export default class ColorHighlightLayer implements Oni.BufferLayer {
@@ -203,6 +204,7 @@ export default class ColorHighlightLayer implements Oni.BufferLayer {
     constructor(private _config: Oni.Configuration) {
         this._fontSize = this._config.getValue("editor.fontSize")
         this._fontFamily = this._config.getValue("editor.fontFamily")
+        this._config.onConfigurationChanged.subscribe(this._updateFontFamily)
 
         this._constructRegex()
     }
@@ -215,12 +217,19 @@ export default class ColorHighlightLayer implements Oni.BufferLayer {
         return "CSS color highlight layer"
     }
 
+    private _updateFontFamily = (configChanges: Partial<Oni.ConfigurationValues>) => {
+        const fontFamilyChanged = Object.keys(configChanges).includes("editor.fontFamily")
+        if (fontFamilyChanged) {
+            this._fontFamily = configChanges["editor.fontFamily"]
+        }
+    }
+
     private _constructRegex() {
         // Construct a regex checking for both color codes and all the different css colornames
         const colorNames = this.CSS_COLOR_NAMES.map(name => `\\b${name}\\b`)
         const colorNamesRegex = new RegExp("(" + colorNames.join("|") + ")")
         this._colorRegex = new RegExp(
-            colorNamesRegex.source + "|" + this._colorCodeRegex.source,
+            "\\b" + colorNamesRegex.source + "|" + this._colorCodeRegex.source + "\\b",
             "gi",
         )
     }
