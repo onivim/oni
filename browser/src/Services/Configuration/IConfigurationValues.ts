@@ -58,8 +58,8 @@ export interface IConfigurationValues {
     // Whether the indent lines should be shown
     "experimental.indentLines.enabled": boolean
     "experimental.indentLines.color": string
-    // Filetypes the indent lines are shown for
-    "experimental.indentLines.filetypes": string[]
+    // Filetypes the indent lines are not shown for
+    "experimental.indentLines.bannedFiletypes": string[]
     // Whether the markdown preview pane should be shown
     "experimental.markdownPreview.enabled": boolean
     "experimental.markdownPreview.autoScroll": boolean
