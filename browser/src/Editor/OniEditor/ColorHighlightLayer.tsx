@@ -67,6 +67,7 @@ class Highlight extends React.PureComponent<IProps, IState> {
                     left={this.props.left}
                     height={this.props.height}
                     width={this.props.width}
+                    data-id="color-highlight"
                 >
                     <HighlightSpan
                         fontFamily={this.props.fontFamily}
@@ -318,7 +319,6 @@ export default class ColorHighlightLayer implements Oni.BufferLayer {
                                     fontSize={this._fontSize}
                                     fontFamily={this._fontFamily}
                                     color={location.color.toLowerCase()}
-                                    data-id="color-highlight"
                                 >
                                     {location.color}
                                 </Highlight>
