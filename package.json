@@ -601,7 +601,8 @@
         "build:cli": "cd cli && tsc -p tsconfig.json",
         "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && yarn run build",
         "build:plugin:oni-plugin-git": "cd vim/core/oni-plugin-git && yarn run build",
-        "build:plugin:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && yarn run build",
+        "build:plugin:oni-plugin-markdown-preview":
+            "cd extensions/oni-plugin-markdown-preview && yarn run build",
         "build:plugin:oni-plugin-quickopen": "cd extensions/oni-plugin-quickopen && yarn run build",
         "build:test": "yarn run build:test:unit && yarn run build:test:integration",
         "build:test:integration": "cd test && tsc -p tsconfig.json",
@@ -710,6 +711,7 @@
         "oni-neovim-binaries": "0.1.2",
         "oni-ripgrep": "0.0.4",
         "oni-types": "^0.0.8",
+        "p-queue": "^2.4.2",
         "react": "^16.3.2",
         "react-dnd": "^2.5.4",
         "react-dnd-html5-backend": "^2.5.4",
@@ -728,6 +730,7 @@
         "vscode-textmate": "3.2.0"
     },
     "devDependencies": {
+        "@types/p-queue": "^2.3.1",
         "@types/chokidar": "^1.7.5",
         "@types/color": "2.0.0",
         "@types/detect-indent": "^5.0.0",

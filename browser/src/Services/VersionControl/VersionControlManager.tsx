@@ -2,6 +2,7 @@ import { capitalize } from "lodash"
 import * as Oni from "oni-api"
 import * as Log from "oni-core-logging"
 import { IDisposable } from "oni-types"
+import * as PQueue from "p-queue"
 import * as React from "react"
 
 import { store, SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
@@ -26,6 +27,7 @@ export class VersionControlManager {
     private _vcsStatusItem: Oni.StatusBarItem
     private _subscriptions: IDisposable[] = []
     private _providers = new Map<string, VersionControlProvider>()
+    private _queue = new PQueue()
 
     constructor(
         private _workspace: IWorkspace,
@@ -70,14 +72,16 @@ export class VersionControlManager {
         notification.show()
     }
 
-    public deactivateProvider(): void {
-        this._vcsProvider.deactivate()
-        this._subscriptions.map(s => s.dispose())
-        if (this._vcsStatusItem) {
-            this._vcsStatusItem.hide()
-        }
-        this._vcsProvider = null
-        this._vcs = null
+    public deactivateProvider() {
+        this._queue.onIdle().then(() => {
+            this._vcsProvider.deactivate()
+            this._subscriptions.map(s => s.dispose())
+            if (this._vcsStatusItem) {
+                this._vcsStatusItem.hide()
+            }
+            this._vcsProvider = null
+            this._vcs = null
+        })
     }
 
     public async handleProviderStatus(newProvider: VersionControlProvider): Promise<void> {
@@ -154,17 +158,19 @@ export class VersionControlManager {
     private _setupSubscriptions() {
         this._subscriptions = [
             this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
-                await this._updateBranchIndicator()
+                await this._queue.add(this._updateBranchIndicator)
             }),
             this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
-                await this._updateBranchIndicator(newBranch)
-                await this._editorManager.activeEditor.neovim.command("e!")
+                await this._queue.add(async () => {
+                    await this._updateBranchIndicator(newBranch)
+                    await this._editorManager.activeEditor.neovim.command("e!")
+                })
             }),
             this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
-                await this._updateBranchIndicator()
+                await this._queue.add(this._updateBranchIndicator)
             }),
             (this._workspace as any).onFocusGained.subscribe(async () => {
-                await this._updateBranchIndicator()
+                await this._queue.add(this._updateBranchIndicator)
             }),
         ]
     }
