@@ -170,9 +170,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
      * @returns {JSX.Element[]} An array of react elements
      */
     private _renderIndentLines = (bufferLayerContext: Oni.BufferLayerRenderContext) => {
-        // TODO:
-        // 1. If the beginning of the visible lines is wrapping no lines are drawn
-        // 2. If a line wraps but the wrapped line has no content line positions are off by one
+        // TODO: If the beginning of the visible lines is wrapping no lines are drawn
         const wrappedScreenLines = this._getWrappedLines(bufferLayerContext)
 
         const options = {
