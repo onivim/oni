@@ -66,10 +66,6 @@ export async function test(oni: Oni.Plugin.Api) {
     const prettierPlugin: IPrettierPlugin = await oni.plugins.getPlugin("oni-plugin-prettier")
     assert.defined(prettierPlugin, "plugin instance")
     assert.defined(prettierPlugin.applyPrettier, "plugin formatting method")
-    // Test that the prettier status bar item is present
-    const prettierElement = getElementByClassName("prettier")
-    assert.defined(prettierElement, "Prettier status icon element is present")
-
     const { activeBuffer } = oni.editors.activeEditor
     assert.assert(
         prettierPlugin.checkCompatibility(activeBuffer.filePath),
@@ -89,4 +85,7 @@ export async function test(oni: Oni.Plugin.Api) {
     assert.assert(!bufferString.includes(";"), "Semi colons are removed from the text")
     assert.assert(!bufferString.includes("'"), "Single quotes are removed from the formatted text")
     assert.assert(bufferText.length === 3, "The code is split into 3 lines")
+    // Test that the prettier status bar item is present
+    const prettierElement = getElementByClassName("prettier")
+    assert.defined(prettierElement, "Prettier status icon element is present")
 }
