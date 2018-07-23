@@ -1,5 +1,4 @@
 import * as ChildProcess from "child_process"
-
 import * as Oni from "oni-api"
 import * as Log from "oni-core-logging"
 
@@ -7,22 +6,32 @@ import * as Platform from "./../../Platform"
 import { configuration } from "./../../Services/Configuration"
 
 export interface IShellEnvironmentFetcher {
-    getEnvironmentVariables(): Promise<any>
+    getEnvironmentVariables(): Promise<NodeJS.ProcessEnv>
 }
 
 export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
-    private _shellEnvPromise: Promise<any>
-    private _shellEnv: any
+    public _env: NodeJS.ProcessEnv
 
-    constructor() {
-        this._shellEnvPromise = import("shell-env")
-    }
+    constructor(private _shellEnvPromise = import("shell-env")) {}
 
-    public async getEnvironmentVariables(): Promise<any> {
-        if (!this._shellEnv) {
-            this._shellEnv = await this._shellEnvPromise
-            return this._shellEnv.sync()
+    public async getEnvironmentVariables(): Promise<NodeJS.ProcessEnv> {
+        if (!this._env) {
+            const shellEnv = await this._shellEnvPromise
+            // TODO:
+            // Shell Env currently doesn't derive the users
+            // shell correctly for non-Windows systems
+            // https://github.com/sindresorhus/default-shell/issues/3
+            // const { shell } = os.userInfo() - this accomplishes that
+            // though issue here is that it reads the relevant dotfile which
+            // if it has issues will stop oni from starting up
+            try {
+                this._env = shellEnv.default.sync()
+            } catch {
+                this._env = process.env
+            }
         }
+
+        return this._env
     }
 }
 
@@ -30,9 +39,7 @@ export class Process implements Oni.Process {
     public _spawnedProcessIds: number[] = []
     private _env: NodeJS.ProcessEnv
 
-    constructor(
-        private _shellEnvironmentFetcher: IShellEnvironmentFetcher = new ShellEnvironmentFetcher(),
-    ) {}
+    constructor(private _shellEnvFetcher: IShellEnvironmentFetcher) {}
 
     public getPathSeparator = () => {
         return Platform.isWindows() ? ";" : ":"
@@ -122,30 +129,33 @@ export class Process implements Oni.Process {
         return proc
     }
 
+    public getPath() {
+        return this._env ? this._env.PATH : process.env.Path || process.env.PATH
+    }
+
     public mergeSpawnOptions = async (
         originalSpawnOptions: ChildProcess.ExecOptions | ChildProcess.SpawnOptions,
     ): Promise<any> => {
-        let existingPath: string
-
-        try {
-            if (!this._env) {
-                this._env = (await this._shellEnvironmentFetcher.getEnvironmentVariables()) || {}
+        if (!this._env) {
+            try {
+                this._env = await this._shellEnvFetcher.getEnvironmentVariables()
+            } catch (e) {
+                Log.error(
+                    `[Oni Process Error]: failed to fetch shell environment because ${e.message}`,
+                )
             }
-            existingPath = process.env.Path || process.env.PATH
-        } catch (e) {
-            existingPath = process.env.Path || process.env.PATH
         }
 
         const requiredOptions = {
             env: {
                 ...process.env,
-                ...this._env,
+                ...(this._env || {}),
                 ...originalSpawnOptions.env,
-            },
+            } as NodeJS.ProcessEnv,
         }
 
         requiredOptions.env.PATH = this.mergePathEnvironmentVariable(
-            existingPath,
+            this.getPath(),
             configuration.getValue("environment.additionalPaths"),
         )
 
@@ -156,4 +166,7 @@ export class Process implements Oni.Process {
     }
 }
 
-export default new Process()
+const shellEnvFetcher = new ShellEnvironmentFetcher()
+const OniProcess = new Process(shellEnvFetcher)
+
+export default OniProcess
