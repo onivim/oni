@@ -6,39 +6,49 @@ import * as React from "react"
 
 import styled, { pixel, withProps } from "../../UI/components/common"
 
-interface IProps {
+interface IBackground {
     top: number
     left: number
     height: number
     width: number
+}
+
+interface IHighlight {
     color: string
     fontFamily: string
+    height: number
     fontSize: string
 }
 
-const ColorHighlight = withProps<IProps>(styled.div).attrs({
-    style: (props: IProps) => ({
+const Background = withProps<IBackground>(styled.div).attrs({
+    style: (props: IBackground) => ({
         top: pixel(props.top),
         left: pixel(props.left),
         height: pixel(props.height),
         width: pixel(props.width),
     }),
 })`
-    display: block;
-    justify-content: center;
-    align-items: center;
-    background-color: ${p => p.color};
+    background-color: ${p => p.theme["editor.background"]};
     position: absolute;
+    white-space: nowrap;
+`
+
+const HighlightSpan = withProps<IHighlight>(styled.div)`
+    display: block;
+    height: 100%;
+    width: 100%;
     color: ${p => (Color(p.color).dark() ? "white" : "black")};
     font-family: ${p => p.fontFamily};
     font-size: ${p => p.fontSize};
-    line-height: ${p => pixel(p.height + 5)} /* vertically center text inside the highlight */
-    white-space: nowrap;
+    line-height: ${p => pixel(p.height + 5)}; /* vertically center text inside the highlight */
+    background-color: ${p => p.color};
 `
 
 interface IState {
     error: Error
 }
+
+type IProps = IHighlight & IBackground
 
 class Highlight extends React.PureComponent<IProps, IState> {
     public state: IState = {
@@ -50,8 +60,25 @@ class Highlight extends React.PureComponent<IProps, IState> {
     }
 
     public render() {
-        const { error } = this.state
-        return !error && <ColorHighlight {...this.props} />
+        return (
+            !this.state.error && (
+                <Background
+                    top={this.props.top}
+                    left={this.props.left}
+                    height={this.props.height}
+                    width={this.props.width}
+                >
+                    <HighlightSpan
+                        fontFamily={this.props.fontFamily}
+                        fontSize={this.props.fontSize}
+                        height={this.props.height}
+                        color={this.props.color}
+                    >
+                        {this.props.children}
+                    </HighlightSpan>
+                </Background>
+            )
+        )
     }
 }
 
