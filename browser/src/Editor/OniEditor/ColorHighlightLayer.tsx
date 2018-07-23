@@ -24,7 +24,7 @@ const ColorHighlight = withProps<IProps>(styled.div).attrs({
         width: pixel(props.width),
     }),
 })`
-    display: flex;
+    display: block;
     justify-content: center;
     align-items: center;
     background-color: ${p => p.color};
@@ -32,8 +32,28 @@ const ColorHighlight = withProps<IProps>(styled.div).attrs({
     color: ${p => (Color(p.color).dark() ? "white" : "black")};
     font-family: ${p => p.fontFamily};
     font-size: ${p => p.fontSize};
+    line-height: ${p => pixel(p.height + 5)} /* vertically center text inside the highlight */
     white-space: nowrap;
 `
+
+interface IState {
+    error: Error
+}
+
+class Highlight extends React.PureComponent<IProps, IState> {
+    public state: IState = {
+        error: null,
+    }
+
+    public componentDidCatch(error: Error) {
+        this.setState({ error })
+    }
+
+    public render() {
+        const { error } = this.state
+        return !error && <ColorHighlight {...this.props} />
+    }
+}
 
 export default class ColorHighlightLayer implements Oni.BufferLayer {
     public render = memoize((context: Oni.BufferLayerRenderContext) => (
@@ -263,7 +283,7 @@ export default class ColorHighlightLayer implements Oni.BufferLayer {
 
                             const width = endPosition.pixelX - startPosition.pixelX
                             return (
-                                <ColorHighlight
+                                <Highlight
                                     width={width}
                                     left={startPosition.pixelX}
                                     top={startPosition.pixelY}
@@ -274,7 +294,7 @@ export default class ColorHighlightLayer implements Oni.BufferLayer {
                                     data-id="color-highlight"
                                 >
                                     {location.color}
-                                </ColorHighlight>
+                                </Highlight>
                             )
                         })
                     }
