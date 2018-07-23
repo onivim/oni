@@ -84,14 +84,18 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
     private _getIndentLines = (guidePositions: IndentLinesProps[], options: ConfigOptions) => {
         return flatten(
             guidePositions.map((props, idx) => {
+                const indents: JSX.Element[] = []
                 // Create a line per indentation
-                return Array.from({ length: props.indentBy }, (_, levelOfIndentation) => {
+                for (
+                    let levelOfIndentation = 0;
+                    levelOfIndentation < props.indentBy;
+                    levelOfIndentation++
+                ) {
                     const lineProps = { ...props, levelOfIndentation }
                     const adjustedLeft = this._calculateLeftPosition(lineProps)
                     const shouldSkip = this._determineIfShouldSkip(lineProps, options)
                     const key = `${props.line.trim()}-${idx}-${levelOfIndentation}`
-
-                    return (
+                    indents.push(
                         !shouldSkip && (
                             <IndentLine
                                 key={key}
@@ -101,9 +105,10 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                                 height={props.height}
                                 data-id="indent-line"
                             />
-                        )
+                        ),
                     )
-                })
+                }
+                return indents
             }),
         )
     }
