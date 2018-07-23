@@ -4,6 +4,8 @@
 
 import * as stock_assert from "assert"
 import * as os from "os"
+import * as path from "path"
+
 import { Assertor } from "./Assert"
 import {
     awaitEditorMode,
@@ -11,6 +13,8 @@ import {
     getElementByClassName,
     getTemporaryFilePath,
     insertText,
+    navigateToFile,
+    useTempWorkspace,
 } from "./Common"
 
 import * as Oni from "oni-api"
@@ -50,21 +54,21 @@ export const settings = {
 
 export async function test(oni: Oni.Plugin.Api) {
     const assert = new Assertor("Prettier-plugin")
-
     await oni.automation.waitForEditors()
-    await createNewFile("ts", oni)
-
-    await insertText(oni, "function test(){console.log('test')};")
-
     await oni.automation.waitFor(() => oni.plugins.loaded)
-
-    // Test that the prettier status bar item is present
-    const prettierElement = getElementByClassName("prettier")
-    assert.defined(prettierElement, "Prettier status icon element is present")
-
+    // Switch to temporary workspace.
+    const rootPath = await useTempWorkspace(oni)
+    // Open file in workspace.
+    await navigateToFile(path.join(rootPath, "src", "File.ts"), oni)
+    // Insert text to be prettified.
+    await insertText(oni, "function test(){console.log('test')};")
+    // Assert that plugin exists.
     const prettierPlugin: IPrettierPlugin = await oni.plugins.getPlugin("oni-plugin-prettier")
     assert.defined(prettierPlugin, "plugin instance")
     assert.defined(prettierPlugin.applyPrettier, "plugin formatting method")
+    // Test that the prettier status bar item is present
+    const prettierElement = getElementByClassName("prettier")
+    assert.defined(prettierElement, "Prettier status icon element is present")
 
     const { activeBuffer } = oni.editors.activeEditor
     assert.assert(

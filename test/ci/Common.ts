@@ -104,7 +104,7 @@ export async function useTempWorkspace(oni: Oni.Plugin.Api) {
     fs.mkdirSync(directoryPath)
     // Create workspace file.
     const filePath = path.join(directoryPath, "File.ts")
-    fs.writeFileSync(filePath, "some stuff")
+    fs.writeFileSync(filePath, "")
     // Switch to workspace.
     await oni.workspace.changeDirectory(rootPath)
     return rootPath
