@@ -1,6 +1,6 @@
 import { shallow } from "enzyme"
-import * as React from "react"
 import { BufferLayer, BufferLayerRenderContext } from "oni-api"
+import * as React from "react"
 
 import { IBufferLayer } from "./../browser/src/Editor/NeovimEditor/BufferLayerManager"
 import { NeovimBufferLayersView } from "./../browser/src/Editor/NeovimEditor/NeovimBufferLayersView"
