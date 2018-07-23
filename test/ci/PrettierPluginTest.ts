@@ -59,8 +59,7 @@ export async function test(oni: Oni.Plugin.Api) {
     await oni.automation.waitFor(() => oni.plugins.loaded)
 
     // Test that the prettier status bar item is present
-    const prettierElement = getElementByClassName("prettier")
-    assert.defined(prettierElement, "Prettier status icon element is present")
+    await oni.automation.waitFor(() => !!getElementByClassName("prettier"))
 
     const prettierPlugin: IPrettierPlugin = await oni.plugins.getPlugin("oni-plugin-prettier")
     assert.defined(prettierPlugin, "plugin instance")
