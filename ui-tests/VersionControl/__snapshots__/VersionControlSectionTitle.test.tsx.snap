@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<VersionControlTitle /> should match last known snapshot 1`] = `
+<styled.div
+  data-test="test"
+  isSelected={true}
+  onClick={[Function]}
+>
+  <Caret
+    active={true}
+  />
+  <styled.h4>
+    TEST
+  </styled.h4>
+  <strong />
+</styled.div>
+`;

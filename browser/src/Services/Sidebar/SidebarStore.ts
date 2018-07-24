@@ -62,6 +62,10 @@ export class SidebarManager {
         return this._contentSplit.isFocused
     }
 
+    get isVisible(): boolean {
+        return this._contentSplit.isVisible
+    }
+
     public get store(): Store<ISidebarState> {
         return this._store
     }
