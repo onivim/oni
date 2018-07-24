@@ -1,8 +1,6 @@
 const path = require("path")
 const { requireLocalPkg } = require("./requirePackage")
 
-import * as Log from "oni-core-logging"
-
 // Helper functions
 const compose = (...fns) => argument => fns.reduceRight((arg, fn) => fn(arg), argument)
 const joinOrSplit = (method, by = "\n") => array => array[method](by)
@@ -139,7 +137,7 @@ const activate = async Oni => {
 
     Oni.editors.activeEditor.onBufferEnter.subscribe(({ filePath }) => {
         const hasCompatibility = checkCompatibility(filePath)
-        Log.info(`[Prettier] ${filePath} is compatible: ${hasCompatibility}`)
+        console.log(`[Prettier] ${filePath} is compatible: ${hasCompatibility}`)
 
         hasCompatibility ? prettierItem.show() : prettierItem.hide()
     })

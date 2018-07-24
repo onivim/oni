@@ -75,7 +75,7 @@ export const showStatusBarItem = (
     }
 
     Log.info(
-        "[Prettier] showing statusbar item: " +
+        "Showing statusbar item: " +
             JSON.stringify({
                 id,
                 contents,
