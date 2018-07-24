@@ -20,7 +20,7 @@ export const getCollateralPath = () => {
 export const getElementByClassName = (className: string): HTMLElement => {
     const elements = document.body.getElementsByClassName(className)
 
-    Log.info(`getElementByClassName(${className}): ${elements}`)
+    Log.info(`getElementByClassName(${className}): ${elements.length}`)
 
     if (!elements || !elements.length) {
         return null
