@@ -3,6 +3,7 @@
  */
 
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
 
 import * as fs from "fs"
 import * as os from "os"
@@ -18,6 +19,8 @@ export const getCollateralPath = () => {
 
 export const getElementByClassName = (className: string): HTMLElement => {
     const elements = document.body.getElementsByClassName(className)
+
+    Log.info(`getElementByClassName(${className}): ${elements}`)
 
     if (!elements || !elements.length) {
         return null

@@ -86,6 +86,7 @@ export async function test(oni: Oni.Plugin.Api) {
     assert.assert(!bufferString.includes("'"), "Single quotes are removed from the formatted text")
     assert.assert(bufferText.length === 3, "The code is split into 3 lines")
     // Test that the prettier status bar item is present
+    oni.automation.waitFor(() => !!getElementByClassName("prettier"))
     const prettierElement = getElementByClassName("prettier")
     assert.defined(prettierElement, "Prettier status icon element is present")
 }
