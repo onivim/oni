@@ -118,9 +118,9 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
         this.props.selectedItem === id
 
     public getIds = () => {
-        const { commits, status, IDs } = this.props
+        const { logs, status, IDs } = this.props
         const { modified, staged, untracked } = status
-        const commitSHAs = commits.map(({ commit }) => commit)
+        const commitSHAs = logs.all.slice(0, 1).map(({ hash }) => hash)
         const ids = [
             IDs.commits,
             ...this.insertIf(this.state.commits, commitSHAs),
