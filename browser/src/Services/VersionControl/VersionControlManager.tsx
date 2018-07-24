@@ -75,7 +75,7 @@ export class VersionControlManager {
     public deactivateProvider() {
         return this._queue.onIdle().then(() => {
             this._vcsProvider.deactivate()
-            this._subscriptions.map(s => s.dispose())
+            this._subscriptions.map(sub => sub && sub.dispose())
             if (this._vcsStatusItem) {
                 this._vcsStatusItem.hide()
             }
