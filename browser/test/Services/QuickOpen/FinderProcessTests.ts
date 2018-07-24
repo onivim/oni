@@ -3,7 +3,7 @@
  */
 
 import * as assert from "assert"
-import { extractSplitData } from "../../../src/Services/QuickOpen/FinderProcess"
+import { extractSplitData } from "../../../src/Services/Search/FinderProcess"
 
 describe("extractSplitData", () => {
     it("Splits the data by the delimiter", () => {

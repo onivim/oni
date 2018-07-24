@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<VersionControlView /> should match the last recorded snapshot unless a change was made 1`] = `
+<div>
+  <VCSSectionTitle
+    active={true}
+    count={2}
+    isSelected={false}
+    onClick={[MockFunction]}
+    testId="modified-2"
+    title="modified"
+  />
+  <File
+    file="test1"
+    icon="M"
+    isSelected={false}
+    key="test1"
+    onClick={[MockFunction]}
+  />
+  <File
+    file="test2"
+    icon="M"
+    isSelected={false}
+    key="test2"
+    onClick={[MockFunction]}
+  />
+</div>
+`;

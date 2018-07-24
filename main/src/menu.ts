@@ -634,12 +634,6 @@ export const buildMenu = (mainWindow, loadInit) => {
                 },
             },
             {
-                label: "File Explorer Split",
-                click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, ":Lexplore | vertical resize 30")
-                },
-            },
-            {
                 type: "separator",
             },
             {

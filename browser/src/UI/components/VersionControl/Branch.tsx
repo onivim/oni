@@ -1,8 +1,8 @@
 import * as React from "react"
 
-import { Diff } from "./../../Services/VersionControl"
-import styled, { IThemeColors, withProps } from "./../../UI/components/common"
-import { Icon } from "./../../UI/Icon"
+import { Diff } from "./../../../Services/VersionControl"
+import styled, { IThemeColors, withProps } from "./../../../UI/components/common"
+import { Icon } from "./../../../UI/Icon"
 
 type ChangeTypes = "change" | "addition" | "deletion"
 

@@ -1,33 +1,21 @@
-/**
- * Search/index.tsx
- *
- * Entry point for search-related features
- */
+import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
+
+import * as OniImpl from "./../../Plugins/Api/Oni" // TODO: Import oni-api instead
+import * as SearchApi from "./../../Plugins/Api/Search" // TODO: Import oni-api instead
+
+import { Workspace } from "./../Workspace"
 
 import * as React from "react"
 
 import { Subject } from "rxjs/Subject"
 
-import * as Log from "oni-core-logging"
 import { Event, IEvent } from "oni-types"
-
-import { CommandManager } from "./../CommandManager"
-import { EditorManager } from "./../EditorManager"
-import { SidebarManager } from "./../Sidebar"
-import { Workspace } from "./../Workspace"
-
-export * from "./SearchProvider"
-
-import {
-    ISearchOptions,
-    ISearchProvider,
-    ISearchQuery,
-    QuickFixSearchResultsViewer,
-    RipGrepSearchProvider,
-} from "./SearchProvider"
 
 import { SearchPaneView } from "./SearchPaneView"
 import { SearchResultSpinnerView } from "./SearchResultsSpinnerView"
+
+import { getInstance as getSidebarManager } from "../Sidebar" // TODO: Replace with oni-api usage
 
 export class SearchPane {
     private _onEnter = new Event<void>()
@@ -36,10 +24,9 @@ export class SearchPane {
     private _onSearchCompleted = new Event<void>()
     private _shouldFocusAutomatically: boolean = false
 
-    private _searchProvider: ISearchProvider
-    private _currentQuery: ISearchQuery
+    private _currentQuery: SearchApi.Query
 
-    private _searchOptionsObservable = new Subject<ISearchOptions>()
+    private _searchOptionsObservable = new Subject<SearchApi.Options>()
 
     public get id(): string {
         return "oni.sidebar.search"
@@ -50,13 +37,10 @@ export class SearchPane {
     }
 
     constructor(
-        private _editorManager: EditorManager,
-        private _workspace: Workspace,
         private _onFocusEvent: IEvent<void>,
+        private _oni: OniImpl.Oni, // TODO: Change to Oni.Plugin.Api
     ) {
-        this._searchProvider = new RipGrepSearchProvider()
-
-        this._searchOptionsObservable.auditTime(100).subscribe((opts: ISearchOptions) => {
+        this._searchOptionsObservable.auditTime(100).subscribe((opts: SearchApi.Options) => {
             this._startNewSearch(opts)
         })
 
@@ -76,10 +60,14 @@ export class SearchPane {
     public render(): JSX.Element {
         const immedateFocus = this._shouldFocusAutomatically
         this._shouldFocusAutomatically = false
+
+        const typelessWorkspace: any = this._oni.workspace // TODO: Work-around this hack
+        const workspace: Workspace = typelessWorkspace // TODO: Work-around this hack
+
         return (
             <div>
                 <SearchPaneView
-                    workspace={this._workspace}
+                    workspace={workspace}
                     onEnter={this._onEnter}
                     onLeave={this._onLeave}
                     onFocus={this._onFocusEvent}
@@ -94,11 +82,11 @@ export class SearchPane {
         )
     }
 
-    private _onSearchOptionsChanged(searchOpts: ISearchOptions): void {
+    private _onSearchOptionsChanged(searchOpts: SearchApi.Options): void {
         this._searchOptionsObservable.next(searchOpts)
     }
 
-    private _startNewSearch(searchOpts: ISearchOptions): void {
+    private _startNewSearch(searchOpts: SearchApi.Options): void {
         if (this._currentQuery) {
             this._currentQuery.cancel()
         }
@@ -111,40 +99,42 @@ export class SearchPane {
 
         this._onSearchStarted.dispatch()
 
-        const query = this._searchProvider.search(searchOpts)
+        const query = this._oni.search.findInFile(searchOpts)
 
         query.start()
 
-        query.onSearchCompleted.subscribe(result => {
-            this._onSearchCompleted.dispatch()
-            const visualizer = new QuickFixSearchResultsViewer(this._editorManager)
-            visualizer.showResult(result)
+        query.onSearchResults.subscribe(result => {
+            if (result.isComplete) {
+                this._onSearchCompleted.dispatch()
+            }
         })
 
         this._currentQuery = query
     }
 }
 
-export const activate = (
-    commandManager: CommandManager,
-    editorManager: EditorManager,
-    sidebarManager: SidebarManager,
-    workspace: Workspace,
-) => {
+export function activate(oni: any): any {
     const onFocusEvent = new Event<void>()
-    sidebarManager.add("search", new SearchPane(editorManager, workspace, onFocusEvent))
+
+    const oniApi: Oni.Plugin.Api = oni
+
+    // TODO: Add sidebar.add to the API and use oniApi instead of oni
+    oni.sidebar.add("search", new SearchPane(onFocusEvent, oni))
+
+    const sidebarManager = getSidebarManager() // TODO: Remove
 
     const searchAllFiles = () => {
-        sidebarManager.toggleVisibilityById("oni.sidebar.search")
-
+        sidebarManager.toggleVisibilityById("oni.sidebar.search") // TODO: Use oni-api instead
+        // TODO: Add sidebar.setActiveEntry to the API and use oniApi instead of oni
+        // oni.sidebar.setActiveEntry("oni.sidebar.search")
         onFocusEvent.dispatch()
     }
 
-    commandManager.registerCommand({
+    oniApi.commands.registerCommand({
         command: "search.searchAllFiles",
         name: "Search: All files",
         detail: "Search across files in the active workspace",
         execute: searchAllFiles,
-        enabled: () => !!workspace.activeWorkspace,
+        enabled: () => !!oniApi.workspace.activeWorkspace,
     })
 }
