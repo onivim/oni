@@ -206,7 +206,9 @@ export const runInProcTest = (
                 assert.ok(result.passed)
             } finally {
                 try {
+                    logWithTimeStamp("Calling oni.close...")
                     await oni.close()
+                    logWithTimeStamp("Completed oni.close")
                     // tslint:disable-next-line:no-empty
                 } catch (e) {}
             }
