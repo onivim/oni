@@ -2,20 +2,20 @@ import * as Oni from "oni-api"
 import { Event } from "oni-types"
 import * as React from "react"
 
-import { Branch } from "../browser/src/UI/components/VersionControl"
+import { Branch } from "../../browser/src/UI/components/VersionControl/Branch"
 import {
     VersionControlManager,
     VersionControlProvider,
-} from "./../browser/src/Services/VersionControl"
+} from "./../../browser/src/Services/VersionControl"
 
-import MockCommands from "./mocks/CommandManager"
-import { configuration as MockConfiguration } from "./mocks/Configuration"
-import MockEditorManager from "./mocks/EditorManager"
-import MockMenu from "./mocks/MenuManager"
-import MockNotifications from "./mocks/Notifications"
-import MockSidebar from "./mocks/Sidebar"
-import MockStatusbar, { mockStatusBarHide, mockStatusBarSetContents } from "./mocks/Statusbar"
-import MockWorkspace from "./mocks/Workspace"
+import MockCommands from "./../mocks/CommandManager"
+import { configuration as MockConfiguration } from "./../mocks/Configuration"
+import MockEditorManager from "./../mocks/EditorManager"
+import MockMenu from "./../mocks/MenuManager"
+import MockNotifications from "./../mocks/Notifications"
+import MockSidebar from "./../mocks/Sidebar"
+import MockStatusbar, { mockStatusBarHide, mockStatusBarSetContents } from "./../mocks/Statusbar"
+import MockWorkspace from "./../mocks/Workspace"
 
 jest.unmock("lodash")
 

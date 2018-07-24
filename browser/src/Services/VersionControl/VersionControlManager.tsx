@@ -7,7 +7,7 @@ import * as React from "react"
 
 import { store, SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
 import { Notifications } from "./../../Services/Notifications"
-import { Branch } from "./../../UI/components/VersionControl"
+import { Branch } from "./../../UI/components/VersionControl/Branch"
 import { MenuManager } from "./../Menu"
 import { SidebarManager } from "./../Sidebar"
 import { IWorkspace } from "./../Workspace"
@@ -16,6 +16,7 @@ interface ISendNotificationsArgs {
     detail: string
     level: "info" | "warn"
     title: string
+    expiration?: number
 }
 
 export type ISendVCSNotification = (args: ISendNotificationsArgs) => void
@@ -64,11 +65,11 @@ export class VersionControlManager {
     }
 
     // Use arrow function to maintain this binding of sendNotification
-    public sendNotification: ISendVCSNotification = ({ detail, level, title }) => {
+    public sendNotification: ISendVCSNotification = ({ expiration = 3_000, ...args }) => {
         const notification = this._notifications.createItem()
-        notification.setContents(title, detail)
-        notification.setExpiration(3_000)
-        notification.setLevel(level)
+        notification.setContents(args.title, args.detail)
+        notification.setExpiration(expiration)
+        notification.setLevel(args.level)
         notification.show()
     }
 
@@ -144,6 +145,8 @@ export class VersionControlManager {
                     this._workspace,
                     this._vcsProvider,
                     this.sendNotification,
+                    this._commands,
+                    this._sidebar,
                     store,
                 )
                 this._sidebar.add("code-fork", vcsPane)
@@ -176,15 +179,27 @@ export class VersionControlManager {
     }
 
     private _registerCommands = () => {
+        const toggleVCS = () => {
+            this._sidebar.toggleVisibilityById("oni.sidebar.vcs")
+        }
+
         this._commands.registerCommand({
-            command: `oni.${this._vcs}.fetch`,
+            command: "vcs.sidebar.toggle",
+            name: "Version Control: Toggle Visibility",
+            detail: "Toggles the vcs pane in the sidebar",
+            execute: toggleVCS,
+            enabled: () => this._configuration.getValue("experimental.vcs.sidebar"),
+        })
+
+        this._commands.registerCommand({
+            command: `vcs.fetch`,
             name: "Fetch the selected branch",
             detail: "",
             execute: this._fetchBranch,
         })
 
         this._commands.registerCommand({
-            command: `oni.${this._vcs}.branches`,
+            command: `vcs.branches`,
             name: `Local ${capitalize(this._vcs)} Branches`,
             detail: "Open a menu with a list of all local branches",
             execute: this._createBranchList,
@@ -200,6 +215,7 @@ export class VersionControlManager {
         }
 
         try {
+            // FIXME: there is race condition on deactivation of the provider
             const branch = await this._vcsProvider.getBranch()
             const diff = await this._vcsProvider.getDiff()
 
