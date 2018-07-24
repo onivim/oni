@@ -73,7 +73,7 @@ export class VersionControlManager {
     }
 
     public deactivateProvider() {
-        this._queue.onIdle().then(() => {
+        return this._queue.onIdle().then(() => {
             this._vcsProvider.deactivate()
             this._subscriptions.map(s => s.dispose())
             if (this._vcsStatusItem) {
@@ -94,10 +94,10 @@ export class VersionControlManager {
             case isSameProvider:
                 break
             case noCompatibleProvider:
-                this.deactivateProvider()
+                await this.deactivateProvider()
                 break
             case newReplacementProvider:
-                this.deactivateProvider()
+                await this.deactivateProvider()
                 await this._activateVCSProvider(newProvider)
                 break
             case compatibleProvider:
