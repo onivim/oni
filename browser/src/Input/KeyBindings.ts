@@ -165,6 +165,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
 
     // VCS
     input.bind("e", "vcs.openFile", isVCSActive)
+    input.bind("u", "vcs.unstage", isVCSActive)
     input.bind("<c-r>", "vcs.refresh", isVCSActive)
     input.bind("?", "vcs.showHelp", isVCSActive)
 }

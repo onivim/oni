@@ -4,6 +4,7 @@ import { BranchSummary, FetchResult } from "simple-git/promise"
 export enum Statuses {
     staged,
     committed,
+    modified,
 }
 
 export type FileStatusChangedEvent = Array<{
@@ -47,6 +48,7 @@ export interface VersionControlProvider {
     getLocalBranches(): Promise<BranchSummary | void>
     changeBranch(branch: string): Promise<void>
     stageFile(file: string, projectRoot?: string): Promise<void>
+    unstage(files: string[]): Promise<void>
     commitFiles(message: string[], files?: string[]): Promise<Commits>
     fetchBranchFromRemote(args: {
         branch: string

@@ -45,8 +45,7 @@ interface IProps {
     IDs: IDsMap
     setError?: (e: Error) => void
     getStatus?: () => Promise<StatusResult | void>
-    commitOne?: (message: string[], files: string[]) => Promise<void>
-    commitAll?: (message: string[]) => Promise<void>
+    commit?: (message: string[], files?: string[]) => Promise<void>
     updateSelection?: (selection: string) => void
     handleSelection?: (selection: string) => void
 }
@@ -100,12 +99,12 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
 
     public handleCommitOne = async () => {
         const { message, selectedItem } = this.props
-        await this.props.commitOne(message, [selectedItem])
+        await this.props.commit(message, [selectedItem])
     }
 
     public handleCommitAll = async () => {
         const { message } = this.props
-        await this.props.commitAll(message)
+        await this.props.commit(message)
     }
 
     public handleCommitCancel = () => {

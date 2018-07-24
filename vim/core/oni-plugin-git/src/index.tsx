@@ -120,6 +120,18 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         }
     }
 
+    public unstage = async (files: string[]) => {
+        const flags = ["HEAD", ...files]
+        try {
+            await this._git(this._projectRoot).reset(flags)
+            const changed = files.map(path => ({ path, status: VCS.Statuses.modified }))
+            this._onFileStatusChanged.dispatch(changed)
+        } catch (error) {
+            this._oni.log.warn(`
+                Git Provider unable to get current status because of: ${error.message}`)
+        }
+    }
+
     public getDiff = async () => {
         try {
             return this._git(this._projectRoot).diffSummary()
