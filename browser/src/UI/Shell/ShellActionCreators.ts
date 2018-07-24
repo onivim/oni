@@ -7,6 +7,8 @@
  * http://redux.js.org/docs/basics/Actions.html
  */
 
+import * as Log from "oni-core-logging"
+
 import { IConfigurationValues } from "./../../Services/Configuration"
 import { IThemeColors } from "./../../Services/Themes"
 
@@ -71,6 +73,16 @@ export const showStatusBarItem = (
         alignment = alignment || currentStatusBarItem.alignment
         priority = priority || currentStatusBarItem.priority
     }
+
+    Log.info(
+        "[Prettier] showing statusbar item: " +
+            JSON.stringify({
+                id,
+                contents,
+                alignment,
+                priority,
+            }),
+    )
 
     dispatch({
         type: "STATUSBAR_SHOW",

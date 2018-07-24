@@ -1,6 +1,7 @@
 import styled, { keyframes } from "styled-components"
 
 import * as keys from "lodash/keys"
+import * as Log from "oni-core-logging"
 import * as React from "react"
 
 import { connect } from "react-redux"
@@ -182,6 +183,8 @@ const getStatusBarItems = createSelector([getStatusBar], statusBar => {
 
 const mapStateToProps = (state: IState): StatusBarProps => {
     const statusBarItems = getStatusBarItems(state)
+
+    Log.info("[StatusBar] items: " + JSON.stringify(statusBarItems))
 
     return {
         fontFamily: state.configuration["ui.fontFamily"],
