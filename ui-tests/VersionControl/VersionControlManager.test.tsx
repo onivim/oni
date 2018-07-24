@@ -57,8 +57,8 @@ describe("Version Control Manager tests", () => {
         expect(vcsManager.activeProvider.name).toBe("svn")
     })
 
-    it("should correctly deregister a provider", () => {
-        vcsManager.deactivateProvider()
+    it("should correctly deregister a provider", async () => {
+        await vcsManager.deactivateProvider()
         expect(vcsManager.activeProvider).toBeFalsy()
     })
 
