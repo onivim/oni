@@ -128,7 +128,19 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
             this._onFileStatusChanged.dispatch(changed)
         } catch (error) {
             this._oni.log.warn(`
-                Git Provider unable to get current status because of: ${error.message}`)
+                Git Provider unable to unstage the file because of: ${error.message}`)
+        }
+    }
+
+    public getLogs = async (file?: string): Promise<VCS.Logs> => {
+        try {
+            // n - represents the number of logs to get alternative is to use
+            // ["--max-count=25"]
+            const options = { file, n: 25 }
+            return this._git(this._projectRoot).log(options)
+        } catch (error) {
+            this._oni.log.warn(`
+                Git Provider unable to get logs because of: ${error.message}`)
         }
     }
 

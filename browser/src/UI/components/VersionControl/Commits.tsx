@@ -1,11 +1,11 @@
 import * as React from "react"
 
-import { PrevCommits } from "./../../../Services/VersionControl/VersionControlStore"
+import { Logs } from "../../../Services/VersionControl/VersionControlProvider"
 import { sidebarItemSelected, styled, withProps } from "./../../../UI/components/common"
 import VCSSectionTitle from "./SectionTitle"
 
 interface ICommitsSection {
-    commits: PrevCommits[]
+    commits: Logs["all"]
     selectedId: string
     titleId: string
     visibility: boolean
@@ -27,9 +27,29 @@ const Detail = styled.p`
     margin: 0.4rem 0;
 `
 
+const Container = styled.div`
+    width: 100%;
+    max-height: 20em;
+    overflow-y: auto;
+    overflow-x: hidden;
+`
+
+const formatDate = (dateStr: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+    }
+    const date = new Date(dateStr)
+    return date.toLocaleDateString("en-US", options)
+}
+
 const CommitsSection: React.SFC<ICommitsSection> = ({ commits, ...props }) => {
     return (
-        <div>
+        <Container>
             <VCSSectionTitle
                 isSelected={props.selectedId === props.titleId}
                 testId={`${props.titleId}-${commits.length}`}
@@ -42,21 +62,22 @@ const CommitsSection: React.SFC<ICommitsSection> = ({ commits, ...props }) => {
                 <List>
                     {commits.map(prevCommit => (
                         <ListItem
-                            key={prevCommit.commit}
-                            onClick={() => props.onClick(prevCommit.commit)}
-                            isSelected={props.selectedId === prevCommit.commit}
+                            key={prevCommit.hash}
+                            onClick={() => props.onClick(prevCommit.hash)}
+                            isSelected={props.selectedId === prevCommit.hash}
                         >
                             <Detail>
                                 <strong> {prevCommit.message}</strong>
                             </Detail>
-                            <Detail>{prevCommit.commit}</Detail>
-                            <Detail>Deletions: {prevCommit.summary.deletions}</Detail>
-                            <Detail>Insertions: {prevCommit.summary.insertions}</Detail>
+                            <Detail>{prevCommit.hash.slice(0, 6)}</Detail>
+                            <Detail>{formatDate(prevCommit.date)}</Detail>
+                            <Detail>{prevCommit.author_email}</Detail>
+                            <Detail>{prevCommit.author_name}</Detail>
                         </ListItem>
                     ))}
                 </List>
             ) : null}
-        </div>
+        </Container>
     )
 }
 

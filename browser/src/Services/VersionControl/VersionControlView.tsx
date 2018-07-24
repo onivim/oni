@@ -9,7 +9,7 @@ import StagedSection from "./../../UI/components/VersionControl/Staged"
 import VersionControlStatus from "./../../UI/components/VersionControl/Status"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 import { IDsMap } from "./VersionControlPane"
-import { StatusResult } from "./VersionControlProvider"
+import { Logs, StatusResult } from "./VersionControlProvider"
 import {
     PrevCommits,
     ProviderActions,
@@ -34,6 +34,7 @@ interface IStateProps {
     selectedItem: string
     commits: PrevCommits[]
     showHelp: boolean
+    logs: Logs
 }
 
 interface IDispatchProps {
@@ -44,7 +45,6 @@ interface IDispatchProps {
 interface IProps {
     IDs: IDsMap
     setError?: (e: Error) => void
-    getStatus?: () => Promise<StatusResult | void>
     commit?: (message: string[], files?: string[]) => Promise<void>
     updateSelection?: (selection: string) => void
     handleSelection?: (selection: string) => void
@@ -65,10 +65,6 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
         staged: true,
         untracked: true,
         commits: true,
-    }
-
-    public async componentDidMount() {
-        await this.props.getStatus()
     }
 
     public async componentDidCatch(e: Error) {
@@ -145,7 +141,7 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
         const warning = error || inactive
         const {
             IDs,
-            commits,
+            logs,
             showHelp,
             loading,
             committing,
@@ -169,10 +165,10 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
                         <StatusContainer>
                             <CommitsSection
                                 titleId={IDs.commits}
-                                commits={commits}
                                 selectedId={selectedId}
                                 visibility={this.state.commits}
                                 onClick={this.props.handleSelection}
+                                commits={logs.all}
                                 toggleVisibility={() => this.toggleVisibility(IDs.commits)}
                             />
                             <StagedSection
@@ -229,6 +225,7 @@ const mapStateToProps = (state: VersionControlState): IStateProps => ({
     showHelp: state.help.active,
     loading: state.loading.active,
     loadingSection: state.loading.type,
+    logs: state.logs,
 })
 
 const ConnectedGitComponent = connect<IStateProps, IDispatchProps, IProps>(

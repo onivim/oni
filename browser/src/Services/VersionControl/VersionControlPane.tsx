@@ -48,17 +48,12 @@ export default class VersionControlPane {
     ) {
         this._registerCommands()
 
-        this._editorManager.activeEditor.onBufferSaved.subscribe(this._getStatusIfVisible)
-
-        this._editorManager.activeEditor.onBufferEnter.subscribe(this._getStatusIfVisible)
-
-        this._workspace.onDirectoryChanged.subscribe(this._getStatusIfVisible)
-
         this._vcsProvider.onBranchChanged.subscribe(this._getStatusIfVisible)
-
+        this._workspace.onDirectoryChanged.subscribe(this._getStatusIfVisible)
         this._vcsProvider.onFileStatusChanged.subscribe(this._getStatusIfVisible)
-
         this._vcsProvider.onStagedFilesChanged.subscribe(this._getStatusIfVisible)
+        this._editorManager.activeEditor.onBufferSaved.subscribe(this._getStatusIfVisible)
+        this._editorManager.activeEditor.onBufferEnter.subscribe(this._getStatusIfVisible)
 
         this._vcsProvider.onPluginActivated.subscribe(async () => {
             this._store.dispatch({ type: "ACTIVATE" })
@@ -73,6 +68,7 @@ export default class VersionControlPane {
     public async enter() {
         this._store.dispatch({ type: "ENTER" })
         await this.getStatus()
+        await this.getLogs()
     }
 
     public leave() {
@@ -129,6 +125,15 @@ export default class VersionControlPane {
         }
     }
 
+    public getLogs = async () => {
+        const logs = await this._vcsProvider.getLogs()
+        if (logs) {
+            this._store.dispatch({ type: "LOG", payload: { logs } })
+            return logs
+        }
+        return null
+    }
+
     public unstageFile = async () => {
         const {
             selected,
@@ -171,9 +176,8 @@ export default class VersionControlPane {
             <Provider store={this._store}>
                 <VersionControlView
                     IDs={this.IDs}
-                    setError={this.setError}
-                    getStatus={this.getStatus}
                     commit={this.commit}
+                    setError={this.setError}
                     handleSelection={this.handleSelection}
                     updateSelection={this.updateSelection}
                 />
@@ -184,6 +188,7 @@ export default class VersionControlPane {
     private _getStatusIfVisible = async () => {
         if (this._isVisible()) {
             await this.getStatus()
+            await this.getLogs()
         }
     }
 

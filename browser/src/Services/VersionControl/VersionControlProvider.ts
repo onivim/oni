@@ -45,6 +45,7 @@ export interface VersionControlProvider {
     getRoot(): Promise<string | void>
     getDiff(): Promise<Diff | void>
     getBranch(): Promise<string | void>
+    getLogs(file?: string): Promise<Logs>
     getLocalBranches(): Promise<BranchSummary | void>
     changeBranch(branch: string): Promise<void>
     stageFile(file: string, projectRoot?: string): Promise<void>
@@ -92,6 +93,21 @@ export interface Commits {
     }
 }
 
+export interface DefaultLogFields {
+    hash: string
+    date: string
+    message: string
+    author_name: string
+    author_email: string
+}
+
+export interface ListLogSummary<T = DefaultLogFields> {
+    all: ReadonlyArray<T>
+    total: number
+    latest: T
+}
+
+export type Logs = ListLogSummary<DefaultLogFields>
 export type Summary = StatusResult
 export type SupportedProviders = "git" | "svn"
 export default VersionControlProvider
