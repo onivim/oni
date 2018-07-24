@@ -49,6 +49,7 @@ export interface VersionControlProvider {
     changeBranch(branch: string): Promise<void>
     stageFile(file: string, projectRoot?: string): Promise<void>
     unstage(files: string[]): Promise<void>
+    uncommit(sha?: string): Promise<void>
     commitFiles(message: string[], files?: string[]): Promise<Commits>
     fetchBranchFromRemote(args: {
         branch: string

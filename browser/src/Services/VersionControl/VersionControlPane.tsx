@@ -58,6 +58,7 @@ export default class VersionControlPane {
         this._vcsProvider.onPluginActivated.subscribe(async () => {
             this._store.dispatch({ type: "ACTIVATE" })
             await this.getStatus()
+            await this.getLogs()
         })
 
         this._vcsProvider.onPluginDeactivated.subscribe(() => {
@@ -126,12 +127,28 @@ export default class VersionControlPane {
     }
 
     public getLogs = async () => {
+        this._dispatchLoading(true)
         const logs = await this._vcsProvider.getLogs()
         if (logs) {
             this._store.dispatch({ type: "LOG", payload: { logs } })
+            this._dispatchLoading(false)
             return logs
         }
         return null
+    }
+
+    public uncommitFile = async (sha: string) => {
+        try {
+            await this._vcsProvider.uncommit()
+            await this.getStatus()
+            await this.getLogs()
+        } catch (error) {
+            this._sendNotification({
+                title: "Unable to revert last commit",
+                detail: error.message,
+                level: "warn",
+            })
+        }
     }
 
     public unstageFile = async () => {
@@ -155,15 +172,17 @@ export default class VersionControlPane {
     }
 
     public handleSelection = async (selected: string) => {
-        const { status } = this._store.getState()
-        const commitAll = selected === "commit_all" && !!status.staged.length
+        const { status, logs } = this._store.getState()
         switch (true) {
             case status.untracked.includes(selected):
             case status.modified.includes(selected):
                 await this.stageFile(selected)
                 break
+            case logs.latest.hash === selected:
+                await this.uncommitFile(selected)
+                break
             case status.staged.includes(selected):
-            case commitAll:
+            case selected === "commit_all" && !!status.staged.length:
                 this._store.dispatch({ type: "COMMIT_START" })
                 break
             default:

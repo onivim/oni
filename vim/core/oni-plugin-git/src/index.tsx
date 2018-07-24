@@ -129,6 +129,17 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         } catch (error) {
             this._oni.log.warn(`
                 Git Provider unable to unstage the file because of: ${error.message}`)
+            throw error
+        }
+    }
+
+    public uncommit = async (sha?: string) => {
+        try {
+            return this._git(this._projectRoot).reset(["--soft", "HEAD^"])
+        } catch (error) {
+            this._oni.log.warn(`
+                Git Provider unable to get logs because of: ${error.message}`)
+            throw error
         }
     }
 
@@ -141,6 +152,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         } catch (error) {
             this._oni.log.warn(`
                 Git Provider unable to get logs because of: ${error.message}`)
+            throw error
         }
     }
 
