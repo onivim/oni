@@ -1,7 +1,6 @@
 import styled, { keyframes } from "styled-components"
 
 import * as keys from "lodash/keys"
-import * as Log from "oni-core-logging"
 import * as React from "react"
 
 import { connect } from "react-redux"
@@ -100,7 +99,6 @@ const StatusBarInner = styled.div`
 
 export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
     public render() {
-        Log.info("[StatusBar::render] enabled: " + this.props.enabled)
         if (!this.props.enabled) {
             return null
         }
@@ -119,8 +117,6 @@ export class StatusBar extends React.PureComponent<StatusBarProps, {}> {
             fontSize: this.props.fontSize,
         }
 
-        Log.info("[StatusBar::render] left: " + JSON.stringify(leftItems))
-        Log.info("[StatusBar::render] right: " + JSON.stringify(rightItems))
         return (
             <StatusBarContainer {...statusBarProps}>
                 <StatusBarInner>
@@ -160,7 +156,6 @@ export class StatusBarItem extends React.PureComponent<StatusBarItemProps, {}> {
     }
 
     public render() {
-        Log.info("[StatusBarItem::render] " + JSON.stringify(this.props))
         return this.props.hide ? null : (
             <StatusBarComponent innerRef={this.props.measureRef}>
                 {this.props.contents}
@@ -187,8 +182,6 @@ const getStatusBarItems = createSelector([getStatusBar], statusBar => {
 
 const mapStateToProps = (state: IState): StatusBarProps => {
     const statusBarItems = getStatusBarItems(state)
-
-    Log.info("[StatusBar] items: " + JSON.stringify(statusBarItems))
 
     return {
         fontFamily: state.configuration["ui.fontFamily"],

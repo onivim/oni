@@ -35,7 +35,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     await navigateToFile(path.join(rootPath, "src", fileToLocate), oni)
     // File shouldn't yet be shown in the explorer.
     await oni.automation.waitFor(() => !isFileToLocateVisibleAndHighlighted())
-    // Execure the command to locate the file in the explorer.
+    // Execute the command to locate the file in the explorer.
     oni.commands.executeCommand(command)
     // File should now be shown in the explorer.
     await oni.automation.waitFor(() => isFileToLocateVisibleAndHighlighted())

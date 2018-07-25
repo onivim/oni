@@ -117,14 +117,7 @@ export class Oni {
 
     public async close(): Promise<void> {
         log("Closing Oni...")
-        const windowCount = await Promise.race([
-            this.client.getWindowCount(),
-            new Promise(resolve => {
-                setTimeout(() => {
-                    resolve("Timed out waiting for window count")
-                }, 1000)
-            }),
-        ])
+        const windowCount = await this.client.getWindowCount()
         log(`- current window count: ${windowCount}`)
         if (this._app) {
             let attempts = 1

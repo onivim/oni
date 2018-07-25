@@ -137,7 +137,6 @@ const activate = async Oni => {
 
     Oni.editors.activeEditor.onBufferEnter.subscribe(({ filePath }) => {
         const hasCompatibility = checkCompatibility(filePath)
-        console.log(`[Prettier] ${filePath} is compatible: ${hasCompatibility}`)
 
         hasCompatibility ? prettierItem.show() : prettierItem.hide()
     })
