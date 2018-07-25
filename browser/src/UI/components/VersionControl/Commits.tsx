@@ -17,6 +17,9 @@ const List = styled.ul`
     list-style: none;
     margin: 0;
     padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 30em;
 `
 export const ListItem = withProps<{ isSelected?: boolean }>(styled.li)`
     ${({ isSelected }) => isSelected && sidebarItemSelected};
@@ -30,8 +33,7 @@ const Detail = styled.p`
 const Container = styled.div`
     width: 100%;
     max-height: 20em;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
 `
 
 const formatDate = (dateStr: string) => {
