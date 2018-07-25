@@ -9,7 +9,6 @@ import { SidebarManager } from "../Sidebar"
 import { VersionControlProvider, VersionControlView } from "./"
 import { IWorkspace } from "./../Workspace"
 import { ISendVCSNotification } from "./VersionControlManager"
-import { Commits } from "./VersionControlProvider"
 import { ProviderActions, VersionControlState } from "./VersionControlStore"
 
 export interface IDsMap {
@@ -84,12 +83,6 @@ export default class VersionControlPane {
         return status
     }
 
-    public handleCommitResult = (summary: Commits) => {
-        return summary
-            ? this._store.dispatch({ type: "COMMIT_SUCCESS", payload: { commit: summary } })
-            : this._store.dispatch({ type: "COMMIT_FAIL" })
-    }
-
     public commit = async (messages: string[], files?: string[]) => {
         let summary = null
         const {
@@ -99,15 +92,15 @@ export default class VersionControlPane {
         try {
             this._dispatchLoading(true)
             summary = await this._vcsProvider.commitFiles(messages, filesToCommit)
+            this._store.dispatch({ type: "COMMIT_SUCCESS", payload: { commit: summary } })
         } catch (e) {
             this._sendNotification({
                 detail: e.message,
                 level: "warn",
                 title: `Error Commiting ${files[0]}`,
             })
+            this._store.dispatch({ type: "COMMIT_FAIL" })
         } finally {
-            this.handleCommitResult(summary)
-            await this.getStatus()
             this._dispatchLoading(false)
         }
     }
@@ -271,9 +264,7 @@ export default class VersionControlPane {
             detail: null,
             name: null,
             enabled: this._hasFocus,
-            execute: async () => {
-                await this.getStatus()
-            },
+            execute: this.getStatus,
         })
 
         this._commands.registerCommand({
