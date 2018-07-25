@@ -8,6 +8,8 @@ const sidebarCommands = [
     { command: "vcs.openFile", description: "Open the currently selected file" },
     { command: "vcs.unstage", description: "Unstage the currently selected file" },
     { command: "vcs.commitAll", description: "Commit all staged files" },
+    { command: "vcs.refresh", description: "Manually refresh vcs pane" },
+    { command: "vcs.sidebar.toggle", description: "Toggle vcs pane" },
 ]
 const getBoundKeys = (commands = sidebarCommands) => {
     return commands.map(({ command, ...rest }) => ({
@@ -31,6 +33,10 @@ const Command = styled.span`
     background-color: ${p => p.theme["highlight.mode.insert.background"]};
 `
 
+const wrapInBrackets = (str: string) => {
+    return str.startsWith("<") && str.endsWith(">") ? str : `<${str}>`
+}
+
 const Help: React.SFC<{}> = props => {
     const commands = getBoundKeys()
     return (
@@ -41,7 +47,7 @@ const Help: React.SFC<{}> = props => {
             {commands.map(command => (
                 <CommandExplainer>
                     <Description>
-                        {command.description} - <Command>{"<" + command.key + ">"}</Command>
+                        {command.description} - <Command>{wrapInBrackets(command.key)}</Command>
                     </Description>
                 </CommandExplainer>
             ))}
