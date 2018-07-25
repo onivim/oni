@@ -48,6 +48,7 @@ interface IProps {
     commit?: (message: string[], files?: string[]) => Promise<void>
     updateSelection?: (selection: string) => void
     handleSelection?: (selection: string) => void
+    getStatus: () => void
 }
 
 type ConnectedProps = IProps & IStateProps & IDispatchProps
@@ -65,6 +66,10 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
         staged: true,
         untracked: true,
         commits: true,
+    }
+
+    public async componentDidMount() {
+        await this.props.getStatus()
     }
 
     public async componentDidCatch(e: Error) {

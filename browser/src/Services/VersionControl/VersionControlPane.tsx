@@ -185,6 +185,7 @@ export default class VersionControlPane {
                     IDs={this.IDs}
                     commit={this.commit}
                     setError={this.setError}
+                    getStatus={this.getStatus}
                     handleSelection={this.handleSelection}
                     updateSelection={this.updateSelection}
                 />
