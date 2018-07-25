@@ -280,7 +280,7 @@ export default class VersionControlPane {
             command: "vcs.unstage",
             detail: null,
             name: null,
-            enabled: this._hasFocus,
+            enabled: () => this._hasFocus() && !this._isCommiting(),
             execute: this.unstageFile,
         })
 
