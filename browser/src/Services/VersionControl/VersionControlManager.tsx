@@ -69,16 +69,15 @@ export class VersionControlManager {
         notification.show()
     }
 
-    public deactivateProvider() {
-        return this._queue.onIdle().then(() => {
-            this._vcsProvider.deactivate()
-            this._subscriptions.map(sub => sub && sub.dispose())
-            if (this._vcsStatusItem) {
-                this._vcsStatusItem.hide()
-            }
-            this._vcsProvider = null
-            this._vcs = null
-        })
+    public async deactivateProvider() {
+        await this._queue.onIdle()
+        this._vcsProvider.deactivate()
+        this._subscriptions.map(sub => sub && sub.dispose())
+        if (this._vcsStatusItem) {
+            this._vcsStatusItem.hide()
+        }
+        this._vcsProvider = null
+        this._vcs = null
     }
 
     public async handleProviderStatus(newProvider: VersionControlProvider): Promise<void> {
