@@ -58,6 +58,8 @@ const log = msg => console.log(msg) // tslint:disable-line
 
 if (os.platform() === "win32") {
     describe("WindowsInstallerTests", () => {
+        this.retries(2)
+
         it("installs / uninstalls to a test directory", () => {
             const testDirectory = "oni-test-install-" + new Date().getTime()
             const testPath = path.join("C:", testDirectory)
