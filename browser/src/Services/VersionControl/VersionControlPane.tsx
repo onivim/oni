@@ -56,8 +56,7 @@ export default class VersionControlPane {
 
         this._vcsProvider.onPluginActivated.subscribe(async () => {
             this._store.dispatch({ type: "ACTIVATE" })
-            await this.getStatus()
-            await this.getLogs()
+            await this._refresh()
         })
 
         this._vcsProvider.onPluginDeactivated.subscribe(() => {
@@ -67,8 +66,7 @@ export default class VersionControlPane {
 
     public async enter() {
         this._store.dispatch({ type: "ENTER" })
-        await this.getStatus()
-        await this.getLogs()
+        await this._refresh()
     }
 
     public leave() {
@@ -85,12 +83,10 @@ export default class VersionControlPane {
 
     public commit = async (messages: string[], files?: string[]) => {
         let summary = null
-        const {
-            status: { staged },
-        } = this._store.getState()
-        const filesToCommit = files || staged
+        const { status } = this._store.getState()
+        const filesToCommit = files || status.staged
+        this._dispatchLoading(true)
         try {
-            this._dispatchLoading(true)
             summary = await this._vcsProvider.commitFiles(messages, filesToCommit)
             this._store.dispatch({ type: "COMMIT_SUCCESS", payload: { commit: summary } })
         } catch (e) {
@@ -132,8 +128,7 @@ export default class VersionControlPane {
     public uncommitFile = async (sha: string) => {
         try {
             await this._vcsProvider.uncommit()
-            await this.getStatus()
-            await this.getLogs()
+            await this._refresh()
         } catch (error) {
             this._sendNotification({
                 title: "Unable to revert last commit",
@@ -196,10 +191,14 @@ export default class VersionControlPane {
         )
     }
 
+    private _refresh = async () => {
+        await this.getStatus()
+        await this.getLogs()
+    }
+
     private _getStatusIfVisible = async () => {
         if (this._isVisible()) {
-            await this.getStatus()
-            await this.getLogs()
+            await this._refresh()
         }
     }
 
@@ -264,7 +263,7 @@ export default class VersionControlPane {
             detail: null,
             name: null,
             enabled: this._hasFocus,
-            execute: this.getStatus,
+            execute: this._refresh,
         })
 
         this._commands.registerCommand({
