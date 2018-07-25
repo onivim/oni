@@ -4,13 +4,13 @@ import { inputManager } from "../../../Services/InputManager"
 import styled from "../common"
 import { SectionTitle, Title } from "./SectionTitle"
 
-const getBoundKeys = () => {
-    const sidebarCommands = [
-        { command: "vcs.openFile", description: "Open the currently selected file" },
-        { command: "vcs.unstage", description: "Unstage the currently selected file" },
-        { command: "vcs.commitAll", description: "Commit all staged files" },
-    ]
-    return sidebarCommands.map(({ command, ...rest }) => ({
+const sidebarCommands = [
+    { command: "vcs.openFile", description: "Open the currently selected file" },
+    { command: "vcs.unstage", description: "Unstage the currently selected file" },
+    { command: "vcs.commitAll", description: "Commit all staged files" },
+]
+const getBoundKeys = (commands = sidebarCommands) => {
+    return commands.map(({ command, ...rest }) => ({
         key: inputManager.getBoundKeys(command)[0] || "Unbound",
         ...rest,
     }))
