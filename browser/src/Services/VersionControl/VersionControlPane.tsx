@@ -113,9 +113,8 @@ export default class VersionControlPane {
     }
 
     public stageFile = async (file: string) => {
-        const { activeWorkspace } = this._workspace
         try {
-            await this._vcsProvider.stageFile(file, activeWorkspace)
+            await this._vcsProvider.stageFile(file)
         } catch (e) {
             this._sendNotification({
                 detail: e.message,

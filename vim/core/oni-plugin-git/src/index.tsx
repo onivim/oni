@@ -145,8 +145,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
 
     public getLogs = async (file?: string): Promise<VCS.Logs> => {
         try {
-            // n - represents the number of logs to get alternative is to use
-            // ["--max-count=25"]
+            // n - represents the number of logs to get alternative is to use ["--max-count=25"]
             const options = { file, n: 25 }
             return this._git(this._projectRoot).log(options)
         } catch (error) {
@@ -181,7 +180,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         }
     }
 
-    public stageFile = async (file: string, dir?: string) => {
+    public stageFile = async (file: string) => {
         try {
             await this._git(this._projectRoot).add(file)
             this._onStagedFilesChanged.dispatch(file)

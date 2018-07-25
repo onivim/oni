@@ -48,7 +48,7 @@ export interface VersionControlProvider {
     getLogs(file?: string): Promise<Logs>
     getLocalBranches(): Promise<BranchSummary | void>
     changeBranch(branch: string): Promise<void>
-    stageFile(file: string, projectRoot?: string): Promise<void>
+    stageFile(file: string): Promise<void>
     unstage(files: string[]): Promise<void>
     uncommit(sha?: string): Promise<void>
     commitFiles(message: string[], files?: string[]): Promise<Commits>
