@@ -7,9 +7,9 @@ describe("<Help />", () => {
         const wrapper = shallow(<Help />)
         expect(wrapper.length).toBe(1)
     })
-    it("Should show correct commands", () => {
+    it("Should show correct number of commands", () => {
         const wrapper = shallow(<Help />)
-        expect(wrapper.find(Description).length).toBe(3)
+        expect(wrapper.find(Description).length).toBeGreaterThan(5)
     })
     it("Should show correct first command", () => {
         const wrapper = shallow(<Help />)
