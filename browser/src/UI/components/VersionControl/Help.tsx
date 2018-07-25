@@ -22,7 +22,7 @@ const CommandExplainer = styled.div`
     padding: 0 0.5em;
 `
 
-const Description = styled.p`
+export const Description = styled.p`
     margin: 0.5em 0;
 `
 
