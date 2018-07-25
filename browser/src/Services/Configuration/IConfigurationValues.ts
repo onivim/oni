@@ -57,9 +57,11 @@ export interface IConfigurationValues {
     "experimental.colorHighlight.filetypes": string[]
     // Whether the indent lines should be shown
     "experimental.indentLines.enabled": boolean
+    // Whether or not to skip the first line of indentation
+    "experimental.indentLines.skipFirst": boolean
     "experimental.indentLines.color": string
-    // Filetypes the indent lines are shown for
-    "experimental.indentLines.filetypes": string[]
+    // Filetypes the indent lines are not shown for
+    "experimental.indentLines.bannedFiletypes": string[]
     // Whether the markdown preview pane should be shown
     "experimental.markdownPreview.enabled": boolean
     "experimental.markdownPreview.autoScroll": boolean

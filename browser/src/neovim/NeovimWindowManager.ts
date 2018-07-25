@@ -23,6 +23,10 @@ import { NeovimInstance } from "./index"
 
 import * as Utility from "./../Utility"
 
+interface NeovimWindow {
+    id: number
+}
+
 export interface NeovimTabPageState {
     tabId: number
     activeWindow: NeovimActiveWindowState
@@ -88,7 +92,6 @@ export class NeovimWindowManager extends Utility.Disposable {
         this.trackDisposable(this._neovimInstance.onScroll.subscribe(updateScroll))
 
         const shouldMeasure$: Observable<void> = this._scrollObservable
-            .auditTime(25)
             .map((evt: EventContext) => ({
                 version: evt.version,
                 bufferTotalLines: evt.bufferTotalLines,
@@ -102,10 +105,9 @@ export class NeovimWindowManager extends Utility.Disposable {
 
         shouldMeasure$
             .withLatestFrom(this._scrollObservable)
-            .switchMap((args: [any, EventContext]) => {
-                const [, evt] = args
-                return Observable.defer(() => this._remeasure(evt))
-            })
+            .switchMap(([, evt]: [any, EventContext]) =>
+                Observable.defer(() => this._remeasure(evt)),
+            )
             .subscribe((tabState: NeovimTabPageState) => {
                 if (tabState) {
                     this._onWindowStateChangedEvent.dispatch(tabState)
@@ -124,9 +126,10 @@ export class NeovimWindowManager extends Utility.Disposable {
 
     private async _remeasure(context: EventContext): Promise<NeovimTabPageState> {
         const tabNumber = context.tabNumber
-        const allWindows = await this._neovimInstance.request<any[]>("nvim_tabpage_list_wins", [
-            tabNumber,
-        ])
+        const allWindows = await this._neovimInstance.request<NeovimWindow[]>(
+            "nvim_tabpage_list_wins",
+            [tabNumber],
+        )
 
         const activeWindow = await this._remeasureActiveWindow(context.windowNumber, context)
 
@@ -136,11 +139,9 @@ export class NeovimWindowManager extends Utility.Disposable {
 
         const inactiveWindowIds = allWindows.filter(w => w.id !== context.windowNumber)
 
-        const windowPromise = await inactiveWindowIds.map(async (window: any) => {
-            return this._remeasureInactiveWindow(window.id)
-        })
-
-        const inactiveWindows = await Promise.all(windowPromise)
+        const inactiveWindows = await Promise.all(
+            inactiveWindowIds.map(window => this._remeasureInactiveWindow(window.id)),
+        )
 
         return {
             tabId: tabNumber,
