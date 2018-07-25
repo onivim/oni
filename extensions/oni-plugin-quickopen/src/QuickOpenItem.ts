@@ -47,8 +47,7 @@ export class QuickOpenItem {
         }
     }
 
-    // TODO: Uncomment ret val, requires exposing in oni-api
-    public toQuickFixItem() /*: Oni.QuickFixEntry*/ {
+    public toQuickFixItem(): Oni.QuickFixEntry {
         return {
             filename: this._path,
             lnum: this._line,
@@ -76,7 +75,7 @@ export class QuickOpenItem {
             case QuickOpenType.bookmarkHelp:
                 return "info"
             case QuickOpenType.file:
-                return (oni as any).ui.getFileIcon(this._label)
+                return oni.ui.getFileIcon(this._label)
             case QuickOpenType.folder:
                 return "folder-o"
             case QuickOpenType.folderHelp:

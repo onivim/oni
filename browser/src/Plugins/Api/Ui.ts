@@ -1,8 +1,10 @@
+import * as Oni from "oni-api"
+
 import { getFileIcon } from "../../Services/FileIcon"
 import { getInstance } from "../../Services/IconThemes"
 import { Icon, IconProps, IconSize } from "../../UI/Icon"
 
-export class Ui {
+export class Ui implements Oni.Ui.IUi {
     constructor(private _react: any) {}
 
     public createIcon(props: IconProps): any {

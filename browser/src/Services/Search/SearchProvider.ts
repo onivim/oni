@@ -2,13 +2,13 @@ import { Event, IEvent } from "oni-types"
 
 import { configuration } from "./../Configuration"
 
-import * as SearchApi from "./../../Plugins/Api/Search" // TODO: Import oni-api instead
+import * as Oni from "oni-api"
 
 import { FinderProcess } from "./FinderProcess"
 import * as RipGrep from "./RipGrep"
 
-class NullSearchQuery implements SearchApi.Query {
-    public _onSearchResults = new Event<SearchApi.Result>()
+class NullSearchQuery implements Oni.Search.Query {
+    public _onSearchResults = new Event<Oni.Search.Result>()
 
     public start(): void {
         return undefined
@@ -18,17 +18,17 @@ class NullSearchQuery implements SearchApi.Query {
         return undefined
     }
 
-    public get onSearchResults(): IEvent<SearchApi.Result> {
+    public get onSearchResults(): IEvent<Oni.Search.Result> {
         return this._onSearchResults
     }
 }
 
-export class Search implements SearchApi.ISearch {
-    public get nullSearch(): SearchApi.Query {
+export class Search implements Oni.Search.ISearch {
+    public get nullSearch(): Oni.Search.Query {
         return new NullSearchQuery()
     }
 
-    public findInFile(opts: SearchApi.Options): SearchApi.Query {
+    public findInFile(opts: Oni.Search.Options): Oni.Search.Query {
         const commandParts = [
             RipGrep.getCommand(),
             "--ignore-case",
@@ -42,7 +42,7 @@ export class Search implements SearchApi.ISearch {
         return new SearchQuery(commandParts.join(" "), parseRipGrepLine)
     }
 
-    public findInPath(opts: SearchApi.Options): SearchApi.Query {
+    public findInPath(opts: Oni.Search.Options): Oni.Search.Query {
         const commandParts = [
             RipGrep.getCommand(),
             ...RipGrep.getArguments(configuration.getValue("oni.exclude")),
@@ -54,7 +54,7 @@ export class Search implements SearchApi.ISearch {
     }
 }
 
-function parseRipGrepLine(ripGrepResult: string): SearchApi.ResultItem {
+function parseRipGrepLine(ripGrepResult: string): Oni.Search.ResultItem {
     if (!ripGrepResult || ripGrepResult.length === 0) {
         return null
     }
@@ -75,7 +75,7 @@ function parseRipGrepLine(ripGrepResult: string): SearchApi.ResultItem {
     }
 }
 
-function parseRipGrepFilesLine(line: string): SearchApi.ResultItem {
+function parseRipGrepFilesLine(line: string): Oni.Search.ResultItem {
     if (!line || line.length === 0) {
         return null
     }
@@ -88,15 +88,15 @@ function parseRipGrepFilesLine(line: string): SearchApi.ResultItem {
     }
 }
 
-type IParseLine = (line: string) => SearchApi.ResultItem
+type IParseLine = (line: string) => Oni.Search.ResultItem
 
-class SearchQuery implements SearchApi.Query {
-    private _onSearchResults = new Event<SearchApi.Result>()
+class SearchQuery implements Oni.Search.Query {
+    private _onSearchResults = new Event<Oni.Search.Result>()
     private _finderProcess: FinderProcess
 
-    private _items: SearchApi.ResultItem[] = []
+    private _items: Oni.Search.ResultItem[] = []
 
-    public get onSearchResults(): IEvent<SearchApi.Result> {
+    public get onSearchResults(): IEvent<Oni.Search.Result> {
         return this._onSearchResults
     }
 
