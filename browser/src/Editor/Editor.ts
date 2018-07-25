@@ -11,18 +11,10 @@ import * as types from "vscode-languageserver-types"
 
 import { Disposable } from "./../Utility"
 
-export interface IEditor extends Oni.Editor {
-    // Methods
-    init(filesToOpen: string[]): void
-    render(): JSX.Element
-
-    setSelection(selectionRange: types.Range): Promise<void>
-}
-
 /**
  * Base class for Editor implementations
  */
-export class Editor extends Disposable implements Oni.Editor {
+export abstract class Editor extends Disposable implements Oni.Editor {
     private _currentMode: string
     private _onBufferEnterEvent = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeaveEvent = new Event<Oni.EditorBufferEventArgs>()
@@ -44,7 +36,10 @@ export class Editor extends Disposable implements Oni.Editor {
         return this._onCursorMoved
     }
 
+    public abstract init(filesToOpen: string[]): void
+
     // Events
+
     public get onModeChanged(): IEvent<Oni.Vim.Mode> {
         return this._onModeChangedEvent
     }
@@ -89,6 +84,10 @@ export class Editor extends Disposable implements Oni.Editor {
     public setTextOptions(options: Oni.EditorTextOptions): Promise<void> {
         return Promise.reject("Not implemented")
     }
+
+    public abstract render(): JSX.Element
+
+    public abstract setSelection(selectionRange: types.Range): Promise<void>
 
     protected setMode(mode: Oni.Vim.Mode): void {
         if (mode !== this._currentMode) {

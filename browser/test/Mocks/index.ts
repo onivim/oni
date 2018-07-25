@@ -153,6 +153,10 @@ export class MockEditor extends Editor {
     private _activeBuffer: MockBuffer = null
     private _currentSelection: types.Range = null
 
+    public init(filesToOpen: string[]): void {
+        throw new Error("Not implemented")
+    }
+
     public get activeBuffer(): Oni.Buffer {
         return this._activeBuffer as any
     }
@@ -171,6 +175,10 @@ export class MockEditor extends Editor {
     public simulateBufferEnter(buffer: MockBuffer): void {
         this._activeBuffer = buffer
         this.notifyBufferEnter(buffer as any)
+    }
+
+    public render(): JSX.Element {
+        throw new Error("Not implemented")
     }
 
     public async setSelection(range: types.Range): Promise<void> {

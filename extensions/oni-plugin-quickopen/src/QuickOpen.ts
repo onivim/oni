@@ -6,74 +6,7 @@ import { Event, IEvent } from "oni-types"
 
 import { getTypeFromMenuItem, QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
 
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-interface QuickFixEntry {
-    filename: string
-    lnum: number
-    col: number
-    text: string
-}
-interface IMenuOptionWithHighlights extends Oni.Menu.MenuOption {
-    labelHighlights: number[]
-    detailHighlights: number[]
-}
-type IMenuFilter = (options: any[], searchString: string) => IMenuOptionWithHighlights[]
-interface IMenuFilters {
-    getDefault(): IMenuFilter
-    getByName(name: string): IMenuFilter
-}
-namespace SearchApi {
-    export interface ResultItem {
-        fileName: string
-        line: number
-        column: number
-        text: string
-    }
-    export interface Result {
-        items: ResultItem[]
-        isComplete: boolean
-    }
-    export interface Query {
-        onSearchResults: IEvent<Result>
-        start(): void
-        cancel(): void
-    }
-    export interface Options {
-        searchQuery: string
-        fileFilter: string
-        workspace: string
-    }
-    export interface ISearch {
-        nullSearch: Query
-        findInFile(opts: Options): Query
-        findInPath(opts: Options): Query
-    }
-}
-interface ApiNext {
-    search: SearchApi.ISearch
-    populateQuickFix(entries: QuickFixEntry[]): void
-
-    // TODO: Move to oni-api under menu
-    filter: IMenuFilters
-}
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-/* !!! DELETE !!! */
-
-type CreateQuery = (text: string) => SearchApi.Query
+type CreateQuery = (text: string) => Oni.Search.Query
 
 interface QuickOpenResult {
     items: QuickOpenItem[]
@@ -170,11 +103,11 @@ class BufferLinesSearch implements IAsyncSearch {
 }
 
 class FilePathSearch implements IAsyncSearch {
-    private _activeQuery: SearchApi.Query
+    private _activeQuery: Oni.Search.Query
     private _onSearchResults = new Event<QuickOpenResult>()
     private _cached = false
 
-    constructor(private _oni: Oni.Plugin.Api, private _oniNext: ApiNext) {}
+    constructor(private _oni: Oni.Plugin.Api) {}
 
     public cancel(): void {}
 
@@ -184,7 +117,7 @@ class FilePathSearch implements IAsyncSearch {
         }
         this._cached = true
 
-        const activeQuery = this._oniNext.search.findInPath({
+        const activeQuery = this._oni.search.findInPath({
             searchQuery: null,
             fileFilter: null,
             workspace: null,
@@ -203,7 +136,7 @@ class FilePathSearch implements IAsyncSearch {
         return this._onSearchResults
     }
 
-    private static toQuickOpenItem(i: SearchApi.ResultItem): QuickOpenItem {
+    private static toQuickOpenItem(i: Oni.Search.ResultItem): QuickOpenItem {
         return new QuickOpenItem(
             path.basename(i.fileName),
             path.dirname(i.fileName),
@@ -216,16 +149,16 @@ class FilePathSearch implements IAsyncSearch {
 }
 
 class FileContentSearch implements IAsyncSearch {
-    private _activeQuery: SearchApi.Query
+    private _activeQuery: Oni.Search.Query
     private _onSearchResults = new Event<QuickOpenResult>()
 
-    constructor(private _oni: Oni.Plugin.Api, private _oniNext: ApiNext) {
-        this._activeQuery = this._oniNext.search.nullSearch
+    constructor(private _oni: Oni.Plugin.Api) {
+        this._activeQuery = this._oni.search.nullSearch
     }
 
     public cancel(): void {
         this._activeQuery.cancel()
-        this._activeQuery = this._oniNext.search.nullSearch
+        this._activeQuery = this._oni.search.nullSearch
     }
 
     public changeQueryText(newText): void {
@@ -244,7 +177,7 @@ class FileContentSearch implements IAsyncSearch {
             fileFilter: null,
             workspace: null,
         }
-        this._activeQuery = this._oniNext.search.findInFile(searchParams)
+        this._activeQuery = this._oni.search.findInFile(searchParams)
         this._activeQuery.onSearchResults.subscribe(result => {
             this._onSearchResults.dispatch({
                 items: result.items.map(i => FileContentSearch.toQuickOpenItem(i)),
@@ -258,7 +191,7 @@ class FileContentSearch implements IAsyncSearch {
         return this._onSearchResults
     }
 
-    private static toQuickOpenItem(i: SearchApi.ResultItem): QuickOpenItem {
+    private static toQuickOpenItem(i: Oni.Search.ResultItem): QuickOpenItem {
         return new QuickOpenItem(
             i.text,
             path.basename(i.fileName),
@@ -277,14 +210,10 @@ function getHome(): string {
 export class QuickOpen {
     private _menu: Oni.Menu.MenuInstance
     private _searcher: IAsyncSearch = new NullSearch()
-    private _oniNext: ApiNext // TODO: Remove
     private _seenItems: Set<string> = new Set()
     private _itemsFound: QuickOpenItem[] = []
 
     constructor(private _oni: Oni.Plugin.Api) {
-        const typelessOni: any = _oni
-        this._oniNext = typelessOni
-
         this._menu = _oni.menu.create()
 
         this._menu.onHide.subscribe(() => {
@@ -387,7 +316,7 @@ export class QuickOpen {
     }
 
     public async setToQuickFix() {
-        this._oniNext.populateQuickFix(this._itemsFound.map(item => item.toQuickFixItem()))
+        this._oni.populateQuickFix(this._itemsFound.map(item => item.toQuickFixItem()))
         this._menu.hide()
     }
 
@@ -400,10 +329,7 @@ export class QuickOpen {
 
     public async searchFileByContent() {
         const filterName = "none" // TODO: Use a filter like `regex` (needs a few adjustments)
-        const searcher = new FileContentSearch(
-            this._oni,
-            this._oniNext, // TODO: Remove
-        )
+        const searcher = new FileContentSearch(this._oni)
         await this.search(searcher, filterName)
     }
 
@@ -414,10 +340,7 @@ export class QuickOpen {
         )
         const searchEngine = this.isInstallDirectoryOrHome()
             ? new BookmarkSearch(this._oni)
-            : new FilePathSearch(
-                  this._oni,
-                  this._oniNext, // TODO: Remove
-              )
+            : new FilePathSearch(this._oni)
         await this.search(searchEngine, filterName)
     }
 
@@ -428,7 +351,7 @@ export class QuickOpen {
 
     private async search(searcher: IAsyncSearch, filterName: string) {
         this._searcher.cancel()
-        const filterFunction = this._oniNext.filter.getByName(filterName)
+        const filterFunction = this._oni.filter.getByName(filterName)
         this._menu.setFilterFunction(filterFunction)
         this._searcher = searcher
         searcher.onSearchResults.subscribe((result: QuickOpenResult) => {

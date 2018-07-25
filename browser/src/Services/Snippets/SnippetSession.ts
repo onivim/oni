@@ -14,7 +14,6 @@ import { Event, IEvent } from "oni-types"
 import { OniSnippet, OniSnippetPlaceholder } from "./OniSnippet"
 
 import { BufferIndentationInfo, IBuffer } from "./../../Editor/BufferManager"
-import { IEditor } from "./../../Editor/Editor"
 
 import { SnippetVariableResolver } from "./SnippetVariableResolver"
 
@@ -129,7 +128,7 @@ export class SnippetSession {
         return this._snippet.getLines()
     }
 
-    constructor(private _editor: IEditor, private _snippetString: string) {}
+    constructor(private _editor: Oni.Editor, private _snippetString: string) {}
 
     public async start(): Promise<void> {
         this._buffer = this._editor.activeBuffer as IBuffer

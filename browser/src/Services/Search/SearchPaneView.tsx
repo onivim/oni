@@ -4,6 +4,7 @@
  * Entry point for search-related features
  */
 
+import * as Oni from "oni-api"
 import * as React from "react"
 
 import { IDisposable, IEvent } from "oni-types"
@@ -11,8 +12,6 @@ import { IDisposable, IEvent } from "oni-types"
 import { Workspace } from "./../Workspace"
 
 export * from "./SearchProvider"
-
-import * as SearchApi from "./../../Plugins/Api/Search" // TODO: Import oni-api instead
 
 import styled from "styled-components"
 import { SearchTextBox } from "./SearchTextBox"
@@ -31,7 +30,7 @@ export interface ISearchPaneViewProps {
     onFocus: IEvent<void>
     focusImmediately?: boolean
 
-    onSearchOptionsChanged: (opts: SearchApi.Options) => void
+    onSearchOptionsChanged: (opts: Oni.Search.Options) => void
 }
 
 export interface ISearchPaneViewState {
