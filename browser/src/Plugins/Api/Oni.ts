@@ -27,10 +27,7 @@ import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
 import { getTutorialManagerInstance } from "./../../Services/Learning"
 import { getInstance as getAchievementsInstance } from "./../../Services/Learning/Achievements"
-import {
-    getInstance as getMenuManagerInstance,
-    IMenuOptionWithHighlights,
-} from "./../../Services/Menu"
+import { getInstance as getMenuManagerInstance } from "./../../Services/Menu"
 import { getInstance as getFiltersInstance } from "./../../Services/Menu/Filter"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
@@ -47,34 +44,7 @@ import { Search } from "./../../Services/Search/SearchProvider"
 
 import * as throttle from "lodash/throttle"
 
-import { ISearch } from "./Search" // TODO: Move to oni-api
-
 const react = require("react") // tslint:disable-line no-var-requires
-
-// TODO: Move to oni-api
-export interface QuickFixEntry {
-    filename: string
-    lnum: number
-    col: number
-    text: string
-}
-
-// TODO: Move to oni-api under `menu`
-export type IMenuFilter = (options: any[], searchString: string) => IMenuOptionWithHighlights[]
-
-// TODO: Move to oni-api under `menu`
-export interface IMenuFilters {
-    getDefault(): IMenuFilter
-    getByName(name: string): IMenuFilter
-}
-
-export interface ApiNext {
-    search: ISearch
-    ui: Ui
-    filter: IMenuFilters // TODO: Move to oni-api under menu
-
-    populateQuickFix(entries: QuickFixEntry[]): void
-}
 
 export class Dependencies {
     public get React(): any {
@@ -89,7 +59,7 @@ const helpers = {
 /**
  * API instance for interacting with OniApi (and vim)
  */
-export class Oni implements OniApi.Plugin.Api, ApiNext {
+export class Oni implements OniApi.Plugin.Api {
     private _dependencies: Dependencies
     private _ui: Ui
     private _services: Services
@@ -158,7 +128,7 @@ export class Oni implements OniApi.Plugin.Api, ApiNext {
         return getMenuManagerInstance()
     }
 
-    public get filter(): IMenuFilters {
+    public get filter(): OniApi.Menu.IMenuFilters {
         return getFiltersInstance("") // TODO: Pass either "core" or plugin's name
     }
 
@@ -218,7 +188,7 @@ export class Oni implements OniApi.Plugin.Api, ApiNext {
         return helpers
     }
 
-    public get search(): ISearch {
+    public get search(): OniApi.Search.ISearch {
         return new Search()
     }
 
@@ -228,7 +198,7 @@ export class Oni implements OniApi.Plugin.Api, ApiNext {
         this._services = new Services()
     }
 
-    public populateQuickFix(entries: QuickFixEntry[]): void {
+    public populateQuickFix(entries: OniApi.QuickFixEntry[]): void {
         const neovim: any = editorManager.activeEditor.neovim
         neovim.quickFix.setqflist(entries, "Search Results")
         neovim.command(":copen")

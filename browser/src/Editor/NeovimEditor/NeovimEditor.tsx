@@ -1,7 +1,7 @@
 /**
  * NeovimEditor.ts
  *
- * IEditor implementation for Neovim
+ * Editor implementation for Neovim
  */
 
 import * as os from "os"
@@ -66,7 +66,7 @@ import { IThemeMetadata, ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 import { Workspace } from "./../../Services/Workspace"
 
-import { Editor, IEditor } from "./../Editor"
+import { Editor } from "./../Editor"
 
 import { BufferManager, IBuffer } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
@@ -99,7 +99,7 @@ import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
 import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 
-export class NeovimEditor extends Editor implements IEditor {
+export class NeovimEditor extends Editor implements Oni.Editor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
     private _renderer: INeovimRenderer

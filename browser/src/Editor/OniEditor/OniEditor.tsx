@@ -1,7 +1,7 @@
 /**
  * OniEditor.ts
  *
- * IEditor implementation for Oni
+ * Editor implementation for Oni
  *
  * Extends the capabilities of the NeovimEditor
  */
@@ -41,8 +41,6 @@ import { ThemeManager } from "./../../Services/Themes"
 import { TokenColors } from "./../../Services/TokenColors"
 import { Workspace } from "./../../Services/Workspace"
 
-import { IEditor } from "./../Editor"
-
 import { BufferScrollBarContainer } from "./containers/BufferScrollBarContainer"
 import { DefinitionContainer } from "./containers/DefinitionContainer"
 import { ErrorsContainer } from "./containers/ErrorsContainer"
@@ -64,7 +62,7 @@ const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.Bu
     }
 }
 
-export class OniEditor extends Utility.Disposable implements IEditor {
+export class OniEditor extends Utility.Disposable implements Oni.Editor {
     private _neovimEditor: NeovimEditor
 
     public get mode(): string {

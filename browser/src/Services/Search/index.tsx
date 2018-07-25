@@ -1,9 +1,6 @@
 import * as Oni from "oni-api"
 import * as Log from "oni-core-logging"
 
-import * as OniImpl from "./../../Plugins/Api/Oni" // TODO: Import oni-api instead
-import * as SearchApi from "./../../Plugins/Api/Search" // TODO: Import oni-api instead
-
 import { Workspace } from "./../Workspace"
 
 import * as React from "react"
@@ -24,9 +21,9 @@ export class SearchPane {
     private _onSearchCompleted = new Event<void>()
     private _shouldFocusAutomatically: boolean = false
 
-    private _currentQuery: SearchApi.Query
+    private _currentQuery: Oni.Search.Query
 
-    private _searchOptionsObservable = new Subject<SearchApi.Options>()
+    private _searchOptionsObservable = new Subject<Oni.Search.Options>()
 
     public get id(): string {
         return "oni.sidebar.search"
@@ -36,11 +33,8 @@ export class SearchPane {
         return "Search"
     }
 
-    constructor(
-        private _onFocusEvent: IEvent<void>,
-        private _oni: OniImpl.Oni, // TODO: Change to Oni.Plugin.Api
-    ) {
-        this._searchOptionsObservable.auditTime(100).subscribe((opts: SearchApi.Options) => {
+    constructor(private _onFocusEvent: IEvent<void>, private _oni: Oni.Plugin.Api) {
+        this._searchOptionsObservable.auditTime(100).subscribe((opts: Oni.Search.Options) => {
             this._startNewSearch(opts)
         })
 
@@ -82,11 +76,11 @@ export class SearchPane {
         )
     }
 
-    private _onSearchOptionsChanged(searchOpts: SearchApi.Options): void {
+    private _onSearchOptionsChanged(searchOpts: Oni.Search.Options): void {
         this._searchOptionsObservable.next(searchOpts)
     }
 
-    private _startNewSearch(searchOpts: SearchApi.Options): void {
+    private _startNewSearch(searchOpts: Oni.Search.Options): void {
         if (this._currentQuery) {
             this._currentQuery.cancel()
         }
@@ -125,7 +119,7 @@ export function activate(oni: any): any {
 
     const searchAllFiles = () => {
         sidebarManager.toggleVisibilityById("oni.sidebar.search") // TODO: Use oni-api instead
-        // TODO: Add sidebar.setActiveEntry to the API and use oniApi instead of oni
+        // TODO: Add sidebar.setActiveEntry to the API and use oni as Oni (API)
         // oni.sidebar.setActiveEntry("oni.sidebar.search")
         onFocusEvent.dispatch()
     }
