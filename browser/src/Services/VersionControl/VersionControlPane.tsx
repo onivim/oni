@@ -178,7 +178,7 @@ export default class VersionControlPane {
             case status.modified.includes(selected):
                 await this.stageFile(selected)
                 break
-            case logs.latest.hash === selected:
+            case logs && logs.latest && logs.latest.hash === selected:
                 await this.uncommitFile(selected)
                 break
             case status.staged.includes(selected):

@@ -155,7 +155,7 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
             </SectionTitle>
         ) : (
             <>
-                <Help showHelp={showHelp} />
+                {showHelp ? <Title>To show help press "?"</Title> : <Help />}
                 <VimNavigator
                     ids={this.getIds()}
                     active={this.props.hasFocus && !committing}
