@@ -47,9 +47,9 @@ export default class VersionControlPane {
     ) {
         this._registerCommands()
 
+        this._workspace.onDirectoryChanged.subscribe(this._refresh)
+        this._vcsProvider.onFileStatusChanged.subscribe(this._refresh)
         this._vcsProvider.onBranchChanged.subscribe(this._getStatusIfVisible)
-        this._workspace.onDirectoryChanged.subscribe(this._getStatusIfVisible)
-        this._vcsProvider.onFileStatusChanged.subscribe(this._getStatusIfVisible)
         this._vcsProvider.onStagedFilesChanged.subscribe(this._getStatusIfVisible)
         this._editorManager.activeEditor.onBufferSaved.subscribe(this._getStatusIfVisible)
         this._editorManager.activeEditor.onBufferEnter.subscribe(this._getStatusIfVisible)
