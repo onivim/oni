@@ -6,7 +6,7 @@ import * as assert from "assert"
 import * as path from "path"
 
 import { Store } from "redux"
-import { MockStoreCreator } from "redux-mock-store"
+import configureMockStore, { MockStoreCreator } from "redux-mock-store"
 import { ActionsObservable, combineEpics, createEpicMiddleware } from "redux-observable"
 
 import * as ExplorerFileSystem from "./../../../src/Services/Explorer/ExplorerFileSystem"
@@ -17,8 +17,6 @@ import { Notifications } from "./../../../src/Services/Notifications/Notificatio
 import * as clone from "lodash/clone"
 import * as head from "lodash/head"
 import * as TestHelpers from "./../../TestHelpers"
-
-const configureMockStore = require("redux-mock-store") // tslint:disable-line
 
 export class MockedFileSystem implements ExplorerFileSystem.IFileSystem {
     public promises: Array<Promise<any>>
@@ -588,7 +586,10 @@ describe("ExplorerStore", () => {
             assert.deepEqual(head(newState), testAction)
         })
         describe("Register Reducer test", () => {
-            const { yankRegisterReducer, DefaultExplorerState: { register } } = ExplorerState
+            const {
+                yankRegisterReducer,
+                DefaultExplorerState: { register },
+            } = ExplorerState
 
             it("It should add paste items to both the paste and undo registers", () => {
                 const newState = yankRegisterReducer(clone(register), pasteAction)

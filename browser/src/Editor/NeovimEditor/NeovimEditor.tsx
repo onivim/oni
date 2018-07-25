@@ -1,7 +1,7 @@
 /**
  * NeovimEditor.ts
  *
- * IEditor implementation for Neovim
+ * Editor implementation for Neovim
  */
 
 import * as os from "os"
@@ -32,6 +32,7 @@ import {
     NeovimInstance,
     NeovimScreen,
     NeovimWindowManager,
+    ScreenWithPredictions,
 } from "./../../neovim"
 import { INeovimRenderer } from "./../../Renderer"
 
@@ -65,7 +66,7 @@ import { IThemeMetadata, ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 import { Workspace } from "./../../Services/Workspace"
 
-import { Editor, IEditor } from "./../Editor"
+import { Editor } from "./../Editor"
 
 import { BufferManager, IBuffer } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
@@ -98,7 +99,7 @@ import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
 import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 
-export class NeovimEditor extends Editor implements IEditor {
+export class NeovimEditor extends Editor implements Oni.Editor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
     private _renderer: INeovimRenderer
@@ -141,6 +142,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _commands: NeovimEditorCommands
     private _externalMenuOverlay: Overlay
     private _bufferLayerManager: BufferLayerManager
+    private _screenWithPredictions: ScreenWithPredictions
 
     private _onNeovimQuit: Event<void> = new Event<void>()
 
@@ -205,6 +207,8 @@ export class NeovimEditor extends Editor implements IEditor {
         this._neovimInstance = new NeovimInstance(100, 100, this._configuration)
         this._bufferManager = new BufferManager(this._neovimInstance, this._actions, this._store)
         this._screen = new NeovimScreen()
+
+        this._screenWithPredictions = new ScreenWithPredictions(this._screen, this._configuration)
 
         this._hoverRenderer = new HoverRenderer(this, this._configuration, this._toolTipsProvider)
 
@@ -373,6 +377,9 @@ export class NeovimEditor extends Editor implements IEditor {
 
         this.trackDisposable(
             this._windowManager.onWindowStateChanged.subscribe(tabPageState => {
+                if (!tabPageState) {
+                    return
+                }
                 const filteredTabState = tabPageState.inactiveWindows.filter(w => !!w)
                 const inactiveIds = filteredTabState.map(w => w.windowNumber)
 
@@ -536,6 +543,11 @@ export class NeovimEditor extends Editor implements IEditor {
             this._screen.dispatch(action)
 
             this._scheduleRender()
+        })
+
+        this._typingPredictionManager.onPredictionsChanged.subscribe(predictions => {
+            this._screenWithPredictions.updatePredictions(predictions, this._screen.cursorRow)
+            this._renderImmediate()
         })
 
         this.trackDisposable(
@@ -721,7 +733,7 @@ export class NeovimEditor extends Editor implements IEditor {
             this._symbols,
         )
 
-        this._render()
+        this._renderImmediate()
 
         this._onConfigChanged(this._configuration.getValues())
         this.trackDisposable(
@@ -1267,18 +1279,18 @@ export class NeovimEditor extends Editor implements IEditor {
         }
 
         this._pendingAnimationFrame = true
-        window.requestAnimationFrame(() => this._render())
+        window.requestAnimationFrame(() => this._renderImmediate())
     }
 
-    private _render(): void {
+    private _renderImmediate(): void {
         this._pendingAnimationFrame = false
 
         if (this._hasLoaded) {
             if (this._isFirstRender) {
                 this._isFirstRender = false
-                this._renderer.redrawAll(this._screen)
+                this._renderer.redrawAll(this._screenWithPredictions as any)
             } else {
-                this._renderer.draw(this._screen)
+                this._renderer.draw(this._screenWithPredictions as any)
             }
         }
     }

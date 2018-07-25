@@ -4,7 +4,7 @@
  * Entry point for the Oni application - managing the overall lifecycle
  */
 
-import { ipcRenderer } from "electron"
+import { ipcRenderer, remote } from "electron"
 import * as fs from "fs"
 import * as minimist from "minimist"
 import * as path from "path"
@@ -47,6 +47,11 @@ export const quit = async (): Promise<void> => {
         Log.info("[App.quit] Quit hook completed successfully")
     })
     await Promise.all([promises])
+    // On mac we should quit the application when the user press Cmd + Q
+    if (process.platform === "darwin") {
+        Log.info("[App::quit] quitting app")
+        remote.app.quit()
+    }
     Log.info("[App::quit] completed")
 }
 
@@ -84,10 +89,10 @@ export const start = async (args: string[]): Promise<void> => {
     const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const vcsManagerPromise = import("./Services/VersionControl")
     const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
-    const quickOpenPromise = import("./Services/QuickOpen")
     const taksPromise = import("./Services/Tasks")
     const terminalPromise = import("./Services/Terminal")
     const workspacePromise = import("./Services/Workspace")
@@ -225,14 +230,11 @@ export const start = async (args: string[]): Promise<void> => {
     Menu.activate(configuration, overlayManager)
     const menuManager = Menu.getInstance()
 
-    const QuickOpen = await quickOpenPromise
-    QuickOpen.activate(commandManager, menuManager, editorManager, workspace)
-
     const Notifications = await notificationsPromise
     Notifications.activate(configuration, overlayManager)
+    const notifications = Notifications.getInstance()
 
     if (typeof developmentPluginError !== "undefined") {
-        const notifications = Notifications.getInstance()
         const notification = notifications.createItem()
         notification.setContents(developmentPluginError.title, developmentPluginError.errorText)
         notification.setLevel("error")
@@ -243,7 +245,6 @@ export const start = async (args: string[]): Promise<void> => {
     }
 
     configuration.onConfigurationError.subscribe(err => {
-        const notifications = Notifications.getInstance()
         const notification = notifications.createItem()
         notification.setContents("Error Loading Configuration", err.toString())
         notification.setLevel("error")
@@ -313,6 +314,18 @@ export const start = async (args: string[]): Promise<void> => {
     Sidebar.activate(configuration, workspace)
     const sidebarManager = Sidebar.getInstance()
 
+    const VCSManager = await vcsManagerPromise
+    VCSManager.activate(
+        workspace,
+        editorManager,
+        statusBar,
+        commandManager,
+        menuManager,
+        sidebarManager,
+        notifications,
+        configuration,
+    )
+
     Explorer.activate(
         commandManager,
         configuration,
@@ -320,7 +333,6 @@ export const start = async (args: string[]): Promise<void> => {
         Sidebar.getInstance(),
         workspace,
     )
-    Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
     Learning.activate(
         commandManager,
         configuration,
@@ -341,6 +353,7 @@ export const start = async (args: string[]): Promise<void> => {
 
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()
+    Search.activate(api)
     configuration.activate(api)
 
     Snippets.activateProviders(
@@ -395,7 +408,7 @@ export const start = async (args: string[]): Promise<void> => {
     Bookmarks.activate(configuration, editorManager, Sidebar.getInstance())
 
     const PluginsSidebarPane = await import("./Plugins/PluginSidebarPane")
-    PluginsSidebarPane.activate(configuration, pluginManager, sidebarManager)
+    PluginsSidebarPane.activate(commandManager, configuration, pluginManager, sidebarManager)
 
     const Terminal = await terminalPromise
     Terminal.activate(commandManager, configuration, editorManager)

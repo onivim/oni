@@ -62,6 +62,10 @@ export class SidebarManager {
         return this._contentSplit.isFocused
     }
 
+    get isVisible(): boolean {
+        return this._contentSplit.isVisible
+    }
+
     public get store(): Store<ISidebarState> {
         return this._store
     }
@@ -80,13 +84,8 @@ export class SidebarManager {
 
         this.setWidth(this._configuration.getValue("sidebar.width"))
 
-        if (_windowManager) {
-            this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
-            this._contentSplit = this._windowManager.createSplit(
-                "left",
-                new SidebarContentSplit(this),
-            )
-        }
+        this._iconSplit = this._windowManager.createSplit("left", new SidebarSplit(this))
+        this._contentSplit = this._windowManager.createSplit("left", new SidebarContentSplit(this))
     }
 
     public increaseWidth(): void {
@@ -156,6 +155,28 @@ export class SidebarManager {
         }
     }
 
+    public toggleVisibilityById(id: string): void {
+        if (id) {
+            if (id !== this.activeEntryId) {
+                this._store.dispatch({
+                    type: "SET_ACTIVE_ID",
+                    activeEntryId: id,
+                })
+
+                this._contentSplit.show()
+                this._contentSplit.focus()
+            } else {
+                if (this._contentSplit.isVisible) {
+                    this._contentSplit.hide()
+                } else {
+                    // In some cases you can have an ACTIVE entry that is hidden
+                    this._contentSplit.show()
+                    this._contentSplit.focus()
+                }
+            }
+        }
+    }
+
     public enter(): void {
         this._store.dispatch({ type: "ENTER" })
     }
@@ -174,6 +195,11 @@ export class SidebarManager {
             type: "ADD_ENTRY",
             entry,
         })
+    }
+
+    public hide(): void {
+        this._contentSplit.hide()
+        this._iconSplit.hide()
     }
 }
 

@@ -4,6 +4,7 @@
  * Manages snippet integration
  */
 
+import * as detectIndent from "detect-indent"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
@@ -13,7 +14,6 @@ import { Event, IEvent } from "oni-types"
 import { OniSnippet, OniSnippetPlaceholder } from "./OniSnippet"
 
 import { BufferIndentationInfo, IBuffer } from "./../../Editor/BufferManager"
-import { IEditor } from "./../../Editor/Editor"
 
 import { SnippetVariableResolver } from "./SnippetVariableResolver"
 
@@ -75,6 +75,19 @@ export const makeSnippetConsistentWithExistingWhitespace = (
     return snippet.split("\t").join(info.indent)
 }
 
+export const makeSnippetIndentationConsistent = (snippet: string, info: BufferIndentationInfo) => {
+    return snippet
+        .split("\n")
+        .map((line, index) => {
+            if (index === 0) {
+                return line
+            } else {
+                return info.indent + line
+            }
+        })
+        .join("\n")
+}
+
 export class SnippetSession {
     private _buffer: IBuffer
     private _snippet: OniSnippet
@@ -115,26 +128,10 @@ export class SnippetSession {
         return this._snippet.getLines()
     }
 
-    constructor(private _editor: IEditor, private _snippetString: string) {}
+    constructor(private _editor: Oni.Editor, private _snippetString: string) {}
 
     public async start(): Promise<void> {
         this._buffer = this._editor.activeBuffer as IBuffer
-
-        const whitespaceSettings = await this._buffer.detectIndentation()
-        const normalizedSnippet = makeSnippetConsistentWithExistingWhitespace(
-            this._snippetString,
-            whitespaceSettings,
-        )
-        this._snippet = new OniSnippet(normalizedSnippet, new SnippetVariableResolver(this._buffer))
-
-        // If there are no placeholders, add an implicit one at the end
-        if (this._snippet.getPlaceholders().length === 0) {
-            this._snippet = new OniSnippet(
-                // tslint:disable-next-line
-                normalizedSnippet + "${0}",
-                new SnippetVariableResolver(this._buffer),
-            )
-        }
 
         const cursorPosition = await this._buffer.getCursorPosition()
         const [currentLine] = await this._buffer.getLines(
@@ -145,14 +142,32 @@ export class SnippetSession {
         this._position = cursorPosition
 
         const [prefix, suffix] = splitLineAtPosition(currentLine, cursorPosition.character)
+        const currentIndent = detectIndent(currentLine)
 
         this._prefix = prefix
         this._suffix = suffix
+
+        const whitespaceSettings = await this._buffer.detectIndentation()
+        const normalizedSnippet = makeSnippetConsistentWithExistingWhitespace(
+            this._snippetString,
+            whitespaceSettings,
+        )
+        const indentedSnippet = makeSnippetIndentationConsistent(normalizedSnippet, currentIndent)
+        this._snippet = new OniSnippet(indentedSnippet, new SnippetVariableResolver(this._buffer))
 
         const snippetLines = this._snippet.getLines()
         const lastIndex = snippetLines.length - 1
         snippetLines[0] = this._prefix + snippetLines[0]
         snippetLines[lastIndex] = snippetLines[lastIndex] + this._suffix
+
+        // If there are no placeholders, add an implicit one at the end
+        if (this._snippet.getPlaceholders().length === 0) {
+            this._snippet = new OniSnippet(
+                // tslint:disable-next-line
+                indentedSnippet + "${0}",
+                new SnippetVariableResolver(this._buffer),
+            )
+        }
 
         await this._buffer.setLines(cursorPosition.line, cursorPosition.line + 1, snippetLines)
 

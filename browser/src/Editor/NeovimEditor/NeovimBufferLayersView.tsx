@@ -14,7 +14,7 @@ import { NeovimActiveWindow } from "./NeovimActiveWindow"
 
 import * as State from "./NeovimEditorStore"
 
-import { EmptyArray } from "./../../Utility"
+import styled, { StackLayer } from "../../UI/components/common"
 
 export interface NeovimBufferLayersViewProps {
     activeWindowId: number
@@ -24,21 +24,19 @@ export interface NeovimBufferLayersViewProps {
     fontPixelHeight: number
 }
 
-const InnerLayerStyle: React.CSSProperties = {
-    position: "absolute",
-    top: "0px",
-    left: "0px",
-    right: "0px",
-    bottom: "0px",
-    overflowY: "auto",
-    overflowX: "auto",
-}
+const InnerLayer = styled.div`
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    overflow: hidden;
+`
 
 export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLayersViewProps, {}> {
     public render(): JSX.Element {
         const containers = this.props.windows.map(windowState => {
-            const layers =
-                this.props.layers[windowState.bufferId] || (EmptyArray as Oni.BufferLayer[])
+            const layers: Oni.BufferLayer[] = this.props.layers[windowState.bufferId] || []
 
             const layerContext: Oni.BufferLayerRenderContext = {
                 isActive: windowState.windowId === this.props.activeWindowId,
@@ -54,20 +52,11 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
                 bottomBufferLine: windowState.bottomBufferLine,
             }
 
-            const layerElements = layers.map(l => {
+            const layerElements = layers.map(layer => {
                 return (
-                    <div
-                        key={
-                            l.id +
-                            "." +
-                            windowState.windowId.toString() +
-                            "." +
-                            windowState.bufferId.toString()
-                        }
-                        style={InnerLayerStyle}
-                    >
-                        {l.render(layerContext)}
-                    </div>
+                    <InnerLayer key={`${layer.id}.${windowState.windowId}.${windowState.bufferId}`}>
+                        {layer.render(layerContext)}
+                    </InnerLayer>
                 )
             })
 
@@ -80,7 +69,7 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
             )
         })
 
-        return <div className="stack layer">{containers}</div>
+        return <StackLayer>{containers}</StackLayer>
     }
 }
 

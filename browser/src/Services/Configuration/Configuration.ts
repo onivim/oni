@@ -265,11 +265,9 @@ export class Configuration implements Oni.Configuration {
     }
 
     public getValue<K extends keyof IConfigurationValues>(configValue: K, defaultValue?: any) {
-        if (typeof this._config[configValue] === "undefined") {
-            return defaultValue
-        } else {
-            return this._config[configValue]
-        }
+        const v = this._config[configValue]
+        const valueExists = v !== undefined
+        return valueExists ? v : defaultValue
     }
 
     public getValues(): GenericConfigurationValues {

@@ -1,0 +1,19 @@
+{
+    "name": "theme-dracula",
+    "version": "0.0.1",
+    "description": "Onivim Dracula Theme",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "engines": {
+        "oni": "0.3.6"
+    },
+    "contributes": {
+        "themes": [{
+            "name": "dracula",
+            "path": "colors/dracula.json"
+        }]
+    }, 
+    "author": "",
+    "license": "MIT"
+}

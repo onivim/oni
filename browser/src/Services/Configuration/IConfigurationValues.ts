@@ -49,6 +49,19 @@ export interface IConfigurationValues {
     // Whether or not the learning pane is available
     "experimental.particles.enabled": boolean
 
+    // Whether Version control sidebar item is enabled
+    "experimental.vcs.sidebar": boolean
+    // Whether the color highlight layer is enabled
+    "experimental.colorHighlight.enabled": boolean
+    // Whitelist of extension for the color highlight layer
+    "experimental.colorHighlight.filetypes": string[]
+    // Whether the indent lines should be shown
+    "experimental.indentLines.enabled": boolean
+    // Whether or not to skip the first line of indentation
+    "experimental.indentLines.skipFirst": boolean
+    "experimental.indentLines.color": string
+    // Filetypes the indent lines are not shown for
+    "experimental.indentLines.bannedFiletypes": string[]
     // Whether the markdown preview pane should be shown
     "experimental.markdownPreview.enabled": boolean
     "experimental.markdownPreview.autoScroll": boolean
@@ -95,7 +108,8 @@ export interface IConfigurationValues {
 
     // If true, hide Menu bar by default
     // (can still be activated by pressing 'Alt')
-    "oni.hideMenu": boolean
+    // If hidden, menu bar is hidden entirely.
+    "oni.hideMenu": boolean | "hidden"
 
     // glob pattern of files to exclude from fuzzy finder (Ctrl-P)
     "oni.exclude": string[]
@@ -306,6 +320,10 @@ export interface IConfigurationValues {
     // Whether or not the file icon
     // should be shown in the tab
     "tabs.showFileIcon": boolean
+
+    // can be anything the a css color property accepts e.g.:
+    // "red", "#112233", "rgb(11,22,33)"
+    "tabs.dirtyMarker.userColor": string
 
     "terminal.shellCommand": string
 

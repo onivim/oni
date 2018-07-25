@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-
+    <meta http-equiv="Content-Security-Policy" content="default-src *; img-src blob: data: *; script-src 'self' http://localhost:8191; style-src 'self' 'unsafe-inline'; media-src blob: data: mediastream: *;">
     <title>ONI</title>
     <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
     <style>
@@ -34,15 +34,6 @@
   </head>
   <body>
     <div id="host"></div>
-      <script>
-        console.timeStamp("browser.domloaded")
-        var path = "lib/browser/bundle.js"
-        if(process.env.ONI_WEBPACK_LOAD) {
-            path = "scripts/dev_webpack_loader.js"
-        }
-        var scriptTag = document.createElement("script");
-        scriptTag.src = path
-        document.body.appendChild(scriptTag);
-      </script>
+    <script src="preload.js"></script>
   </body>
 </html>

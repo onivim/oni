@@ -8,6 +8,7 @@ import * as React from "react"
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { CommandManager } from "./../Services/CommandManager"
 import { Configuration } from "./../Services/Configuration"
 import { SidebarManager, SidebarPane } from "./../Services/Sidebar"
 
@@ -256,6 +257,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
 }
 
 export const activate = (
+    commandManager: CommandManager,
     configuration: Configuration,
     pluginManager: PluginManager,
     sidebarManager: SidebarManager,
@@ -264,4 +266,16 @@ export const activate = (
         const pane = new PluginsSidebarPane(pluginManager)
         sidebarManager.add("plug", pane)
     }
+
+    const togglePlugins = () => {
+        sidebarManager.toggleVisibilityById("oni.sidebar.plugins")
+    }
+
+    commandManager.registerCommand({
+        command: "plugins.toggle",
+        name: "Plugins: Toggle Visibility",
+        detail: "Toggles the plugins pane in the sidebar",
+        execute: togglePlugins,
+        enabled: () => configuration.getValue("sidebar.plugins.enabled"),
+    })
 }
