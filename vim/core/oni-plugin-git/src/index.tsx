@@ -135,7 +135,8 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
 
     public uncommit = async (sha?: string) => {
         try {
-            return this._git(this._projectRoot).reset(["--soft", "HEAD^"])
+            await this._git(this._projectRoot).reset(["--soft", "HEAD^"])
+            this._onFileStatusChanged.dispatch()
         } catch (error) {
             this._oni.log.warn(`
                 Git Provider unable to get logs because of: ${error.message}`)
