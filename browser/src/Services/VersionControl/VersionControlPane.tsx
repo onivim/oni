@@ -97,6 +97,7 @@ export default class VersionControlPane {
             })
             this._store.dispatch({ type: "COMMIT_FAIL" })
         } finally {
+            await this._refresh()
             this._dispatchLoading(false)
         }
     }
