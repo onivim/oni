@@ -468,6 +468,11 @@ const Actions = {
             children: sortedFilesAndFolders,
         }
     },
+
+    selectFile: (filePath: string): ISelectFileAction => ({
+        type: "SELECT_FILE",
+        filePath,
+    }),
 }
 
 // Yank, Paste Delete register =============================
@@ -1004,11 +1009,10 @@ export const createNodeEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
                 create: { nodeType },
             },
         } = store.getState()
-        const shouldExpand = Actions.expandDirectory(path.dirname(name))
         const createFileOrFolder =
             nodeType === "file" ? fileSystem.writeFile(name) : fileSystem.mkdir(name)
         return fromPromise(createFileOrFolder)
-            .flatMap(() => [Actions.createNode({ nodeType, name }), shouldExpand, Actions.refresh])
+            .flatMap(() => [Actions.createNode({ nodeType, name }), Actions.selectFile(name)])
             .catch(error => [Actions.createNodeFail(error.message)])
     })
 
