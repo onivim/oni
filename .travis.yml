@@ -22,8 +22,6 @@ matrix:
   - os: osx # OSX 10.11
     node_js: 8
     osx_image: xcode8
-  allow_failures:
-    - osx_image: xcode8
 
 addons:
   apt:
@@ -42,7 +40,7 @@ before_install:
     # actual code changes made. If there isn't, stop the build.
     MODIFIED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
 
-    if ! echo ${MODIFIED_FILES} | grep -qvE '(\.md$)/'; then
+    if ! echo "${MODIFIED_FILES}" | grep -qvE '(\.md$)'; then
       echo "Only documents were updated, stopping..."
       exit
     fi
