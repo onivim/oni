@@ -118,6 +118,26 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         }
     }
 
+    public getBlame = async (args: VCS.BlameArgs) => {
+        try {
+            const cmd = [
+                "--no-pager",
+                "blame",
+                "--porcelain",
+                args.file,
+                "--show-number",
+                "-L",
+                `${args.lineOne},${args.lineTwo}`,
+            ]
+            const rawOutput = await this._git(this._projectRoot).raw(cmd)
+            console.log("rawOutput: ", rawOutput)
+            return this._formatRawBlame(rawOutput)
+        } catch (e) {
+            this._oni.log.warn(e)
+            return null
+        }
+    }
+
     public unstage = async (files: string[]) => {
         const flags = ["HEAD", ...files]
         try {
@@ -227,6 +247,35 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         throw new Error(
             `[Oni Git Provider]: Unable to ${attemptedAction} because: ${error.message}`,
         )
+    }
+
+    private _formatRawBlame(rawOutput: string): VCS.Blame {
+        const firstSpace = (str: string) => str.indexOf(" ")
+        const blameArray = rawOutput.split("\n")
+        const formatted = blameArray
+            .map(line => [line.substr(0, firstSpace(line)), line.substr(firstSpace(line) + 1)])
+            .reduce<VCS.Blame>(
+                (acc, [key, value], index) => {
+                    const formattedKey = key.replace("-", "_")
+                    if (!index) {
+                        acc.hash = formattedKey
+                        const [originalLine, finalLine, numberOfLines] = value.split(" ")
+                        acc.line = {
+                            originalLine,
+                            finalLine,
+                            numberOfLines,
+                        }
+                        return acc
+                    } else if (!key) {
+                        return acc
+                    }
+                    acc[formattedKey] = value
+                    return acc
+                },
+                {} as VCS.Blame,
+            )
+        console.log("formatted: ", formatted)
+        return formatted
     }
 
     private _isStaged = (file: FileSummary) => {
