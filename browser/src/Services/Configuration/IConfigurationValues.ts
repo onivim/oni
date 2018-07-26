@@ -65,6 +65,8 @@ export interface IConfigurationValues {
     // Whether the markdown preview pane should be shown
     "experimental.markdownPreview.enabled": boolean
     "experimental.markdownPreview.autoScroll": boolean
+    "experimental.markdownPreview.syntaxHighlights": boolean
+    "experimental.markdownPreview.syntaxTheme": string
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"

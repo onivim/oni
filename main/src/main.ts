@@ -258,7 +258,7 @@ export function createWindow(
     if (!isDevelopment) {
         currentWindow.webContents.on("will-navigate", (event, url) => {
             event.preventDefault()
-            currentWindow.webContents.send("open-oni-browser", url)
+            currentWindow.webContents.send("execute-command", "browser.openUrl", url)
         })
     }
 
