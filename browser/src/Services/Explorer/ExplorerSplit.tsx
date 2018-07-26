@@ -142,7 +142,7 @@ export class ExplorerSplit {
         this._commandManager.registerCommand(
             new CallbackCommand(
                 "explorer.yank",
-                "Yank Selected Item",
+                "Explorer: Yank Selected Item",
                 "Select a file to move",
                 () => !this._inputInProgress() && this._onYankItem(),
             ),
@@ -151,7 +151,7 @@ export class ExplorerSplit {
         this._commandManager.registerCommand(
             new CallbackCommand(
                 "explorer.undo",
-                "Undo last explorer action",
+                "Explorer: Undo Last Action",
                 null,
                 () => !this._inputInProgress() && this._onUndoItem(),
             ),
@@ -160,7 +160,7 @@ export class ExplorerSplit {
         this._commandManager.registerCommand(
             new CallbackCommand(
                 "explorer.paste",
-                "Move/Paste Selected Item",
+                "Explorer: Move/Paste Selected Item",
                 "Paste the last yanked item",
                 () => !this._inputInProgress() && this._onPasteItem(),
             ),
@@ -169,7 +169,7 @@ export class ExplorerSplit {
         this._commandManager.registerCommand(
             new CallbackCommand(
                 "explorer.refresh",
-                "Explorer: Refresh the tree",
+                "Explorer: Refresh The Tree",
                 "Updates the explorer with the latest state on the file system",
                 () => !this._inputInProgress() && this._refresh(),
             ),
@@ -178,7 +178,7 @@ export class ExplorerSplit {
         this._commandManager.registerCommand(
             new CallbackCommand(
                 "explorer.create.file",
-                "Create A New File in the Explorer",
+                "Explorer: Create A New File",
                 null,
                 () => !this._inputInProgress() && this._onCreateNode({ type: "file" }),
             ),
@@ -187,7 +187,7 @@ export class ExplorerSplit {
         this._commandManager.registerCommand(
             new CallbackCommand(
                 "explorer.create.folder",
-                "Create A New File in the Explorer",
+                "Explorer: Create A New Directory",
                 null,
                 () => !this._inputInProgress() && this._onCreateNode({ type: "folder" }),
             ),
@@ -196,7 +196,7 @@ export class ExplorerSplit {
         this._commandManager.registerCommand(
             new CallbackCommand(
                 "explorer.expand.directory",
-                "Expand a selected directory",
+                "Explorer: Expand Selected Directory",
                 null,
                 () => !this._inputInProgress() && this._toggleDirectory("expand"),
             ),
@@ -205,7 +205,7 @@ export class ExplorerSplit {
         this._commandManager.registerCommand(
             new CallbackCommand(
                 "explorer.collapse.directory",
-                "Collapse selected directory",
+                "Explorer: Collapse Selected Directory",
                 null,
                 () => !this._inputInProgress() && this._toggleDirectory("collapse"),
             ),
@@ -214,7 +214,7 @@ export class ExplorerSplit {
         this._commandManager.registerCommand(
             new CallbackCommand(
                 "explorer.rename",
-                "Rename the selected file/folder",
+                "Explorer: Rename Selected File/Folder",
                 null,
                 () => !this._inputInProgress() && this._renameItem(),
             ),
