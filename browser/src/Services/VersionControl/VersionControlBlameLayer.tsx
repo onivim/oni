@@ -37,11 +37,13 @@ const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     background-color: ${p => p.theme["menu.background"]};
     color: ${p => p.theme["menu.foreground"]};
     padding: 0.2em;
+    font-style:italic;
     ${p => !p.renderInline && boxShadow};
 `
 
 const BlameDetails = styled.span`
     color: inherit;
+    opacity: 0.8;
 `
 
 export class VCSBlame extends React.PureComponent<IProps, IState> {
@@ -54,6 +56,7 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
 
     public async componentDidMount() {
         const { cursorLine: line } = this.props
+        this.resetTimer()
         await this.updateBlame(line, line + 1)
     }
 
@@ -77,11 +80,12 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
         const { cursorLine: bufferLine, currentLineNumber: screenLine } = this.props
         const previousBufferLine = bufferLine - 1
         const currentLine = this.props.visibleLines[screenLine]
-        const character = (currentLine && currentLine.length) || null
+        const character = currentLine && currentLine.length
         const positionToRender = this.canFit()
             ? { line: bufferLine, character }
             : { line: previousBufferLine, character: 0 }
         const position = this.props.bufferToPixel(positionToRender)
+
         return {
             top: position ? position.pixelY : null,
             left: position ? position.pixelX : null,
@@ -93,27 +97,26 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
         this.setState({ blame })
     }
 
+    public formatCommitDate(timestamp: string) {
+        return new Date(parseInt(timestamp, 10) * 1000)
+    }
+
     public getBlameText = () => {
         const { blame } = this.state
         if (!blame) {
             return null
         }
         const { author, hash, committer_time } = blame
-        const message = `${author}, ${hash}, ${committer_time}`
+        const message = `${author}, ${hash.slice(0, 4)}, ${this.formatCommitDate(committer_time)}`
         return message
     }
 
     public canFit = () => {
         const { visibleLines, dimensions, currentLineNumber } = this.props
         const message = this.getBlameText()
-        if (message) {
-            const currentLine = visibleLines[currentLineNumber]
-            const canFit =
-                currentLine &&
-                dimensions.width > currentLine.length + message.length + this.LEFT_OFFSET
-            return canFit
-        }
-        return false
+        const currentLine = visibleLines[currentLineNumber] || ""
+        const canFit = dimensions.width > currentLine.length + message.length + this.LEFT_OFFSET
+        return canFit
     }
 
     public componentWillUnmount() {

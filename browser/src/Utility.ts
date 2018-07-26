@@ -258,3 +258,16 @@ export function ignoreWhilePendingPromise<T, U>(
 export const parseJson5 = <T>(text: string): T => {
     return JSON5.parse(text) as T
 }
+
+export const formatDate = (dateStr: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+    }
+    const date = new Date(dateStr)
+    return date.toLocaleDateString("en-US", options)
+}
