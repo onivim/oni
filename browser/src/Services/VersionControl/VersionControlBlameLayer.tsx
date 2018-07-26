@@ -9,6 +9,7 @@ import { Blame } from "./VersionControlProvider"
 interface IProps extends LayerContextWithCursor {
     getBlame: (lineOne: number, lineTwo: number) => Promise<Blame>
     timeout: number
+    currentLineNumber: number
 }
 interface IState {
     blame: Blame
@@ -19,6 +20,8 @@ interface IContainerProps {
     height: number
     top: number
     left: number
+    marginLeft: number
+    renderInline: boolean
 }
 
 const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
@@ -29,13 +32,12 @@ const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     }),
 })`
     position: absolute;
-    width: 100%;
+    margin-left: ${p => pixel(p.marginLeft)};
+    width: ${p => (p.renderInline ? "auto" : "100%")};
     background-color: ${p => p.theme["menu.background"]};
     color: ${p => p.theme["menu.foreground"]};
-    display: flex;
-    justify-content: space-around;
     padding: 0.2em;
-    ${boxShadow};
+    ${p => !p.renderInline && boxShadow};
 `
 
 const BlameDetails = styled.span`
@@ -48,6 +50,7 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
         showBlame: null,
     }
     private _timeout: any
+    private readonly LEFT_OFFSET = 15
 
     public async componentDidMount() {
         const { cursorLine: line } = this.props
@@ -56,7 +59,7 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
 
     public async componentDidUpdate(prevProps: IProps) {
         if (prevProps.cursorLine !== this.props.cursorLine) {
-            const { cursorLine: line } = this.props
+            const { currentLineNumber: line } = this.props
             this.resetTimer()
             await this.updateBlame(line, line + 1)
         }
@@ -70,9 +73,15 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
         }, this.props.timeout)
     }
 
-    public calculatePosition(line: number) {
-        const previousLine = line - 1
-        const position = this.props.bufferToPixel({ line: previousLine, character: 0 })
+    public calculatePosition() {
+        const { cursorLine: bufferLine, currentLineNumber: screenLine } = this.props
+        const previousBufferLine = bufferLine - 1
+        const currentLine = this.props.visibleLines[screenLine]
+        const character = (currentLine && currentLine.length) || null
+        const positionToRender = this.canFit()
+            ? { line: bufferLine, character }
+            : { line: previousBufferLine, character: 0 }
+        const position = this.props.bufferToPixel(positionToRender)
         return {
             top: position ? position.pixelY : null,
             left: position ? position.pixelX : null,
@@ -84,19 +93,46 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
         this.setState({ blame })
     }
 
+    public getBlameText = () => {
+        const { blame } = this.state
+        if (!blame) {
+            return null
+        }
+        const { author, hash, committer_time } = blame
+        const message = `${author}, ${hash}, ${committer_time}`
+        return message
+    }
+
+    public canFit = () => {
+        const { visibleLines, dimensions, currentLineNumber } = this.props
+        const message = this.getBlameText()
+        if (message) {
+            const currentLine = visibleLines[currentLineNumber]
+            const canFit =
+                currentLine &&
+                dimensions.width > currentLine.length + message.length + this.LEFT_OFFSET
+            return canFit
+        }
+        return false
+    }
+
+    public componentWillUnmount() {
+        clearTimeout(this._timeout)
+    }
+
     public render() {
         const { blame, showBlame } = this.state
-        const { cursorLine: line } = this.props
         return (
             blame &&
             showBlame && (
                 <BlameContainer
                     data-id="vcs.blame"
+                    marginLeft={this.LEFT_OFFSET}
                     height={this.props.fontPixelHeight}
-                    {...this.calculatePosition(line)}
+                    renderInline={this.canFit()}
+                    {...this.calculatePosition()}
                 >
-                    <BlameDetails>{blame.author}</BlameDetails>
-                    <BlameDetails>{blame.hash}</BlameDetails>
+                    <BlameDetails>{this.getBlameText()}</BlameDetails>
                 </BlameContainer>
             )
         )
@@ -114,6 +150,15 @@ export default class VersionControlBlameLayer implements BufferLayer {
     }
 
     public render(context: LayerContextWithCursor) {
-        return <VCSBlame {...context} getBlame={this.getBlame} timeout={1000} />
+        const currentLineNumber = context.cursorLine + 1
+        const visibleLineIndex = currentLineNumber - context.topBufferLine
+        return (
+            <VCSBlame
+                {...context}
+                timeout={1000}
+                getBlame={this.getBlame}
+                currentLineNumber={visibleLineIndex}
+            />
+        )
     }
 }

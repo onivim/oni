@@ -130,7 +130,6 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
                 `${args.lineOne},${args.lineTwo}`,
             ]
             const rawOutput = await this._git(this._projectRoot).raw(cmd)
-            console.log("rawOutput: ", rawOutput)
             return this._formatRawBlame(rawOutput)
         } catch (e) {
             this._oni.log.warn(e)
@@ -274,7 +273,6 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
                 },
                 {} as VCS.Blame,
             )
-        console.log("formatted: ", formatted)
         return formatted
     }
 
