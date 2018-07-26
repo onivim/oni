@@ -1,15 +1,18 @@
-import { Buffer, BufferLayer, BufferLayerRenderContext } from "oni-api"
+import { Buffer, BufferLayer } from "oni-api"
 import * as React from "react"
 
+import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
 import styled, { boxShadow, pixel, withProps } from "../../UI/components/common"
 import { VersionControlProvider } from "./"
 import { Blame } from "./VersionControlProvider"
 
-interface IProps extends BufferLayerRenderContext {
+interface IProps extends LayerContextWithCursor {
     getBlame: (lineOne: number, lineTwo: number) => Promise<Blame>
+    timeout: number
 }
 interface IState {
     blame: Blame
+    showBlame: boolean
 }
 
 interface IContainerProps {
@@ -42,28 +45,55 @@ const BlameDetails = styled.span`
 export class VCSBlame extends React.PureComponent<IProps, IState> {
     public state: IState = {
         blame: null,
+        showBlame: null,
     }
+    private _timeout: any
+
     public async componentDidMount() {
-        const blame = await this.props.getBlame(3, 4)
-        this.setState({ blame })
+        const { cursorLine: line } = this.props
+        await this.updateBlame(line, line + 1)
+    }
+
+    public async componentDidUpdate(prevProps: IProps) {
+        if (prevProps.cursorLine !== this.props.cursorLine) {
+            const { cursorLine: line } = this.props
+            this.resetTimer()
+            await this.updateBlame(line, line + 1)
+        }
+    }
+
+    public resetTimer = () => {
+        clearTimeout(this._timeout)
+        this.setState({ showBlame: false })
+        this._timeout = setTimeout(() => {
+            this.setState({ showBlame: true })
+        }, this.props.timeout)
     }
 
     public calculatePosition(line: number) {
-        const position = this.props.bufferToPixel({ line, character: 0 })
+        const previousLine = line - 1
+        const position = this.props.bufferToPixel({ line: previousLine, character: 0 })
         return {
             top: position ? position.pixelY : null,
             left: position ? position.pixelX : null,
         }
     }
 
+    public updateBlame = async (lineOne: number, lineTwo: number) => {
+        const blame = await this.props.getBlame(lineOne, lineTwo)
+        this.setState({ blame })
+    }
+
     public render() {
-        const { blame } = this.state
+        const { blame, showBlame } = this.state
+        const { cursorLine: line } = this.props
         return (
-            blame && (
+            blame &&
+            showBlame && (
                 <BlameContainer
                     data-id="vcs.blame"
                     height={this.props.fontPixelHeight}
-                    {...this.calculatePosition(3)}
+                    {...this.calculatePosition(line)}
                 >
                     <BlameDetails>{blame.author}</BlameDetails>
                     <BlameDetails>{blame.hash}</BlameDetails>
@@ -83,7 +113,7 @@ export default class VersionControlBlameLayer implements BufferLayer {
         return "vcs.blame"
     }
 
-    public render(context: BufferLayerRenderContext) {
-        return <VCSBlame {...context} getBlame={this.getBlame} />
+    public render(context: LayerContextWithCursor) {
+        return <VCSBlame {...context} getBlame={this.getBlame} timeout={1000} />
     }
 }
