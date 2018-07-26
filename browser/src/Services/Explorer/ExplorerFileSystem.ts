@@ -18,6 +18,7 @@ import { FolderOrFile } from "./ExplorerStore"
 export interface IFileSystem {
     readdir(fullPath: string): Promise<FolderOrFile[]>
     exists(fullPath: string): Promise<boolean>
+    realpath(fullPath: string): Promise<string>
     persistNode(fullPath: string): Promise<void>
     restoreNode(fullPath: string): Promise<void>
     deleteNode(fullPath: string): Promise<void>
@@ -33,6 +34,7 @@ export class FileSystem implements IFileSystem {
         readdir(path: string): Promise<string[]>
         stat(path: string): Promise<fs.Stats>
         exists(path: string): Promise<boolean>
+        realpath(path: string): Promise<string>
     }
 
     private _backupDirectory = path.join(os.tmpdir(), "oni_backup")
@@ -46,6 +48,7 @@ export class FileSystem implements IFileSystem {
             readdir: promisify(nfs.readdir.bind(nfs)),
             stat: promisify(nfs.stat.bind(nfs)),
             exists: promisify(nfs.exists.bind(nfs)),
+            realpath: promisify(nfs.realpath.bind(nfs)),
         }
 
         this.init()
@@ -82,6 +85,13 @@ export class FileSystem implements IFileSystem {
 
     public exists(fullPath: string): Promise<boolean> {
         return this._fs.exists(fullPath)
+    }
+
+    /**
+     * Resolve symlinks in a path to give the real absolute path.
+     */
+    public realpath(fullPath: string): Promise<string> {
+        return this._fs.realpath(fullPath)
     }
 
     /**

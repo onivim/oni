@@ -107,7 +107,7 @@ export interface IExplorerState {
     rootFolder: IFolderState
 
     expandedFolders: ExpandedFolders
-
+    fileToSelect: string
     hasFocus: boolean
     register: IRegisterState
 }
@@ -115,6 +115,7 @@ export interface IExplorerState {
 export const DefaultExplorerState: IExplorerState = {
     rootFolder: null,
     expandedFolders: {},
+    fileToSelect: null,
     hasFocus: false,
     register: DefaultRegisterState,
 }
@@ -190,6 +191,25 @@ export interface IExpandDirectoryResult {
     type: "EXPAND_DIRECTORY_RESULT"
     directoryPath: string
     children: FolderOrFile[]
+}
+
+export interface ISelectFileAction {
+    type: "SELECT_FILE"
+    filePath: string
+}
+
+export interface ISelectFilePendingAction {
+    type: "SELECT_FILE_PENDING"
+    filePath: string
+}
+
+export interface ISelectFileSuccessAction {
+    type: "SELECT_FILE_SUCCESS"
+}
+
+export interface ISelectFileFailAction {
+    type: "SELECT_FILE_FAIL"
+    reason: string
 }
 
 export interface IEnterAction {
@@ -308,6 +328,10 @@ export type ExplorerAction =
     | ICreateNodeCommitAction
     | ICreateNodeSuccessAction
     | INotificationSentAction
+    | ISelectFileAction
+    | ISelectFilePendingAction
+    | ISelectFileSuccessAction
+    | ISelectFileFailAction
 
 // Helper functions for Updating state ========================================================
 export const removePastedNode = (nodeArray: ExplorerNode[], ids: string[]): ExplorerNode[] =>
@@ -613,6 +637,20 @@ export const hasFocusReducer: Reducer<boolean> = (
     }
 }
 
+export const selectFileReducer: Reducer<string> = (
+    state: string = null,
+    action: ExplorerAction,
+) => {
+    switch (action.type) {
+        case "SELECT_FILE_PENDING":
+            return action.filePath
+        case "SELECT_FILE_SUCCESS":
+            return null
+        default:
+            return state
+    }
+}
+
 export const reducer: Reducer<IExplorerState> = (
     state: IExplorerState = DefaultExplorerState,
     action: ExplorerAction,
@@ -622,6 +660,7 @@ export const reducer: Reducer<IExplorerState> = (
         hasFocus: hasFocusReducer(state.hasFocus, action),
         rootFolder: rootFolderReducer(state.rootFolder, action),
         expandedFolders: expandedFolderReducer(state.expandedFolders, action),
+        fileToSelect: selectFileReducer(state.fileToSelect, action),
         register: yankRegisterReducer(state.register, action),
     }
 }
@@ -920,6 +959,44 @@ const expandDirectoryEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
         return Actions.expandDirectoryResult(pathToExpand, sortedFilesAndFolders)
     })
 
+export const selectFileEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
+    action$.ofType("SELECT_FILE").mergeMap(({ filePath }: ISelectFileAction) => {
+        const rootPath = store.getState().rootFolder.fullPath
+
+        // We need to resolve any symlinks, since the buffer and workspace path can otherwise
+        // appear to be unrelated (at least on OSX).
+        return fromPromise(
+            Promise.all([fileSystem.realpath(rootPath), fileSystem.realpath(filePath)]),
+        ).flatMap(([realRootPath, realFilePath]): ExplorerAction[] => {
+            const relPath = path.relative(realRootPath, realFilePath)
+            // Can only select files in the workspace.
+            if (relPath.startsWith("..") || path.isAbsolute(relPath)) {
+                const failure: ISelectFileFailAction = {
+                    type: "SELECT_FILE_FAIL",
+                    reason: `File is not in workspace: ${filePath}`,
+                }
+                return [failure]
+            }
+            // Get the list of directories to expand in the Explorer.
+            const relDirectoryPath = path.relative(realRootPath, path.dirname(realFilePath))
+            const directories = relDirectoryPath.split(path.sep)
+            const actions = []
+            // Expand each directory in turn from the project root down to the file we want.
+            for (let dirNum = 1; dirNum <= directories.length; dirNum++) {
+                const relParentDirectoryPath = directories.slice(0, dirNum).join(path.sep)
+                const parentDirectoryPath = path.join(rootPath, relParentDirectoryPath)
+                actions.push(Actions.expandDirectory(parentDirectoryPath))
+            }
+            // Update the state with the file path we want the VimNaviator to select.
+            const pending: ISelectFilePendingAction = {
+                type: "SELECT_FILE_PENDING",
+                filePath: realFilePath,
+            }
+            actions.push(pending)
+            return actions
+        })
+    })
+
 export const createNodeEpic: ExplorerEpic = (action$, store, { fileSystem }) =>
     action$.ofType("CREATE_NODE_COMMIT").mergeMap(({ name }: ICreateNodeCommitAction) => {
         const {
@@ -946,6 +1023,7 @@ export const notificationEpic: ExplorerEpic = (action$, store, { notifications }
             "PASTE_FAIL",
             "DELETE_FAIL",
             "CREATE_NODE_FAIL",
+            "SELECT_FILE_FAIL",
         )
         .map(action => {
             switch (action.type) {
@@ -985,6 +1063,7 @@ export const notificationEpic: ExplorerEpic = (action$, store, { notifications }
                 case "DELETE_FAIL":
                 case "RENAME_FAIL":
                 case "CREATE_NODE_FAIL":
+                case "SELECT_FILE_FAIL":
                     const [type] = action.type.split("_")
                     errorNotification({
                         type,
@@ -1019,6 +1098,7 @@ export const createStore = ({
                 undoEpic,
                 deleteEpic,
                 expandDirectoryEpic,
+                selectFileEpic,
                 notificationEpic,
             ),
             { dependencies: { fileSystem, notifications } },
