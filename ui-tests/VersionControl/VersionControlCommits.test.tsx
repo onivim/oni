@@ -1,32 +1,24 @@
 import { shallow } from "enzyme"
 import * as React from "react"
 
-import { PrevCommits } from "../../browser/src/Services/VersionControl/VersionControlStore"
+import { DefaultLogFields } from "../../browser/src/Services/VersionControl/VersionControlProvider"
 import VCSCommits, { ListItem } from "./../../browser/src/UI/components/VersionControl/Commits"
 
 describe("<VCSCommits />", () => {
-    const fakeCommits: PrevCommits[] = [
+    const fakeCommits: DefaultLogFields[] = [
         {
+            date: null,
             message: "test 2",
-            branch: "local",
-            author: null,
-            commit: "FG45755",
-            summary: {
-                changes: 7,
-                insertions: 1,
-                deletions: 6,
-            },
+            author_email: "test@test.com",
+            author_name: "test",
+            hash: "FG45755",
         },
         {
             message: "test",
-            branch: "master",
-            author: null,
-            commit: "FG11111",
-            summary: {
-                changes: 3,
-                insertions: 1,
-                deletions: 2,
-            },
+            date: null,
+            author_name: "john",
+            author_email: "john@test.com",
+            hash: "FG11111",
         },
     ]
     it("it renders without crashing", () => {

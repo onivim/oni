@@ -12,7 +12,7 @@ import CommitMessage, {
 } from "./../../browser/src/UI/components/VersionControl/CommitMessage"
 import Commits from "./../../browser/src/UI/components/VersionControl/Commits"
 import Help from "./../../browser/src/UI/components/VersionControl/Help"
-import { SectionTitle } from "./../../browser/src/UI/components/VersionControl/SectionTitle"
+import { SectionTitle, Title } from "./../../browser/src/UI/components/VersionControl/SectionTitle"
 import Staged, { LoadingHandler } from "./../../browser/src/UI/components/VersionControl/Staged"
 import VersionControlStatus from "./../../browser/src/UI/components/VersionControl/Status"
 
@@ -185,5 +185,14 @@ describe("<VersionControlView />", () => {
     })
     it("should render help if show help is true", () => {
         expect(container.find(Help).length).toBe(1)
+    })
+    it("should render help prompt if show help is false", () => {
+        container.setProps({ showHelp: false })
+        expect(
+            container
+                .find(Title)
+                .dive()
+                .text(),
+        ).toBe('To show help press "?"')
     })
 })

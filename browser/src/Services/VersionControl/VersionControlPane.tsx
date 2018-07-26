@@ -1,6 +1,7 @@
 import * as capitalize from "lodash/capitalize"
 import * as Oni from "oni-api"
 import * as Log from "oni-core-logging"
+import * as path from "path"
 import * as React from "react"
 import { Provider, Store } from "react-redux"
 
@@ -8,7 +9,6 @@ import { SidebarManager } from "../Sidebar"
 import { VersionControlProvider, VersionControlView } from "./"
 import { IWorkspace } from "./../Workspace"
 import { ISendVCSNotification } from "./VersionControlManager"
-import { Commits } from "./VersionControlProvider"
 import { ProviderActions, VersionControlState } from "./VersionControlStore"
 
 export interface IDsMap {
@@ -47,39 +47,16 @@ export default class VersionControlPane {
     ) {
         this._registerCommands()
 
-        this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
-            if (this._isVisible()) {
-                await this.getStatus()
-            }
-        })
-
-        this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
-            if (this._isVisible()) {
-                await this.getStatus()
-            }
-        })
-
-        this._workspace.onDirectoryChanged.subscribe(async () => {
-            if (this._isVisible()) {
-                await this.getStatus()
-            }
-        })
-
-        this._vcsProvider.onBranchChanged.subscribe(async () => {
-            if (this._isVisible()) {
-                await this.getStatus()
-            }
-        })
-
-        this._vcsProvider.onStagedFilesChanged.subscribe(async () => {
-            if (this._isVisible()) {
-                await this.getStatus()
-            }
-        })
+        this._workspace.onDirectoryChanged.subscribe(this._refresh)
+        this._vcsProvider.onFileStatusChanged.subscribe(this._refresh)
+        this._vcsProvider.onBranchChanged.subscribe(this._getStatusIfVisible)
+        this._vcsProvider.onStagedFilesChanged.subscribe(this._getStatusIfVisible)
+        this._editorManager.activeEditor.onBufferSaved.subscribe(this._getStatusIfVisible)
+        this._editorManager.activeEditor.onBufferEnter.subscribe(this._getStatusIfVisible)
 
         this._vcsProvider.onPluginActivated.subscribe(async () => {
             this._store.dispatch({ type: "ACTIVATE" })
-            await this.getStatus()
+            await this._refresh()
         })
 
         this._vcsProvider.onPluginDeactivated.subscribe(() => {
@@ -89,7 +66,7 @@ export default class VersionControlPane {
 
     public async enter() {
         this._store.dispatch({ type: "ENTER" })
-        await this.getStatus()
+        await this._refresh()
     }
 
     public leave() {
@@ -104,57 +81,30 @@ export default class VersionControlPane {
         return status
     }
 
-    public handleCommitResult = (summary: Commits) => {
-        return summary
-            ? this._store.dispatch({ type: "COMMIT_SUCCESS", payload: { commit: summary } })
-            : this._store.dispatch({ type: "COMMIT_FAIL" })
-    }
-
-    public commitFile = async (messages: string[], files: string[]) => {
+    public commit = async (messages: string[], files?: string[]) => {
         let summary = null
+        const { status } = this._store.getState()
+        const filesToCommit = files || status.staged
+        this._dispatchLoading(true)
         try {
-            this._dispatchLoading(true)
-            summary = await this._vcsProvider.commitFiles(messages, files)
+            summary = await this._vcsProvider.commitFiles(messages, filesToCommit)
+            this._store.dispatch({ type: "COMMIT_SUCCESS", payload: { commit: summary } })
         } catch (e) {
             this._sendNotification({
                 detail: e.message,
                 level: "warn",
                 title: `Error Commiting ${files[0]}`,
             })
+            this._store.dispatch({ type: "COMMIT_FAIL" })
         } finally {
-            this.handleCommitResult(summary)
-            await this.getStatus()
-            this._dispatchLoading(false)
-        }
-    }
-
-    public commitFiles = async (messages: string[]) => {
-        const {
-            status: { staged },
-        } = this._store.getState()
-
-        let summary = null
-        try {
-            this._dispatchLoading(true)
-            summary = await this._vcsProvider.commitFiles(messages, staged)
-        } catch (e) {
-            this._sendNotification({
-                detail: e.message,
-                level: "warn",
-                title: "Error Commiting Files",
-                expiration: 8_000,
-            })
-        } finally {
-            this.handleCommitResult(summary)
-            await this.getStatus()
+            await this._refresh()
             this._dispatchLoading(false)
         }
     }
 
     public stageFile = async (file: string) => {
-        const { activeWorkspace } = this._workspace
         try {
-            await this._vcsProvider.stageFile(file, activeWorkspace)
+            await this._vcsProvider.stageFile(file)
         } catch (e) {
             this._sendNotification({
                 detail: e.message,
@@ -162,6 +112,41 @@ export default class VersionControlPane {
                 title: "Error Staging File",
                 expiration: 8_000,
             })
+        }
+    }
+
+    public getLogs = async () => {
+        this._dispatchLoading(true)
+        const logs = await this._vcsProvider.getLogs()
+        if (logs) {
+            this._store.dispatch({ type: "LOG", payload: { logs } })
+            this._dispatchLoading(false)
+            return logs
+        }
+        return null
+    }
+
+    public uncommitFile = async (sha: string) => {
+        try {
+            await this._vcsProvider.uncommit()
+            await this._refresh()
+        } catch (error) {
+            this._sendNotification({
+                title: "Unable to revert last commit",
+                detail: error.message,
+                level: "warn",
+            })
+        }
+    }
+
+    public unstageFile = async () => {
+        const {
+            selected,
+            status: { staged },
+        } = this._store.getState()
+
+        if (!this._isReadonlyField(selected) && staged.includes(selected)) {
+            await this._vcsProvider.unstage([selected])
         }
     }
 
@@ -175,15 +160,17 @@ export default class VersionControlPane {
     }
 
     public handleSelection = async (selected: string) => {
-        const { status } = this._store.getState()
-        const commitAll = selected === "commit_all" && !!status.staged.length
+        const { status, logs } = this._store.getState()
         switch (true) {
             case status.untracked.includes(selected):
             case status.modified.includes(selected):
                 await this.stageFile(selected)
                 break
+            case logs && logs.latest && logs.latest.hash === selected:
+                await this.uncommitFile(selected)
+                break
             case status.staged.includes(selected):
-            case commitAll:
+            case selected === "commit_all" && !!status.staged.length:
                 this._store.dispatch({ type: "COMMIT_START" })
                 break
             default:
@@ -196,15 +183,25 @@ export default class VersionControlPane {
             <Provider store={this._store}>
                 <VersionControlView
                     IDs={this.IDs}
+                    commit={this.commit}
                     setError={this.setError}
                     getStatus={this.getStatus}
-                    commitOne={this.commitFile}
-                    commitAll={this.commitFiles}
                     handleSelection={this.handleSelection}
                     updateSelection={this.updateSelection}
                 />
             </Provider>
         )
+    }
+
+    private _refresh = async () => {
+        await this.getStatus()
+        await this.getLogs()
+    }
+
+    private _getStatusIfVisible = async () => {
+        if (this._isVisible()) {
+            await this._refresh()
+        }
     }
 
     private _dispatchLoading = (loading: boolean, type: ProviderActions = "commit") => {
@@ -244,7 +241,7 @@ export default class VersionControlPane {
             execute: async () => {
                 const currentMessage = this._getCurrentCommitMessage()
                 if (currentMessage.length) {
-                    await this.commitFiles(currentMessage)
+                    await this.commit(currentMessage)
                 }
             },
         })
@@ -257,19 +254,26 @@ export default class VersionControlPane {
             execute: async () => {
                 const { selected } = this._store.getState()
                 if (!this._isReadonlyField(selected)) {
-                    await this._editorManager.openFile(selected)
+                    const filePath = path.join(this._workspace.activeWorkspace, selected)
+                    await this._editorManager.openFile(filePath)
                 }
             },
         })
 
         this._commands.registerCommand({
             command: "vcs.refresh",
-            detail: "Refresh Version Control pane",
-            name: "Version Control: Refresh pane",
+            detail: null,
+            name: null,
             enabled: this._hasFocus,
-            execute: async () => {
-                await this.getStatus()
-            },
+            execute: this._refresh,
+        })
+
+        this._commands.registerCommand({
+            command: "vcs.unstage",
+            detail: null,
+            name: null,
+            enabled: () => this._hasFocus() && !this._isCommiting(),
+            execute: this.unstageFile,
         })
 
         this._commands.registerCommand({

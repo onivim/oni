@@ -1,5 +1,5 @@
 import { createStore as createReduxStore } from "./../../Redux"
-import { Commits, StatusResult } from "./VersionControlProvider"
+import { Commits, Logs, StatusResult } from "./VersionControlProvider"
 
 export interface PrevCommits extends Commits {
     message: string
@@ -19,6 +19,7 @@ export interface VersionControlState {
         type: ProviderActions
     }
     selected: string
+    logs: Logs
     status: StatusResult
     commit: ICommit
     hasFocus: boolean
@@ -40,6 +41,11 @@ export const DefaultState: VersionControlState = {
         type: null,
     },
     selected: null,
+    logs: {
+        all: [],
+        total: null,
+        latest: null,
+    },
     status: {
         currentBranch: null,
         staged: [],
@@ -74,6 +80,7 @@ type IEnterAction = IGenericAction<"ENTER">
 type ILeaveAction = IGenericAction<"LEAVE">
 type IErrorAction = IGenericAction<"ERROR">
 type IStatusAction = IGenericAction<"STATUS", { status: StatusResult }>
+type ILogAction = IGenericAction<"LOG", { logs: Logs }>
 type ICommitStartAction = IGenericAction<"COMMIT_START">
 type ICommitCancelAction = IGenericAction<"COMMIT_CANCEL">
 type ICommitSuccessAction = IGenericAction<"COMMIT_SUCCESS", { commit: Commits }>
@@ -84,6 +91,7 @@ type IAction =
     | IToggleHelpAction
     | ISelectAction
     | IStatusAction
+    | ILogAction
     | IEnterAction
     | ILeaveAction
     | IErrorAction
@@ -158,6 +166,11 @@ export function reducer(state: VersionControlState, action: IAction) {
             return {
                 ...state,
                 status: action.payload.status,
+            }
+        case "LOG":
+            return {
+                ...state,
+                logs: action.payload.logs,
             }
         case "DEACTIVATE":
             return {

@@ -9,7 +9,7 @@ import StagedSection from "./../../UI/components/VersionControl/Staged"
 import VersionControlStatus from "./../../UI/components/VersionControl/Status"
 import { VimNavigator } from "./../../UI/components/VimNavigator"
 import { IDsMap } from "./VersionControlPane"
-import { StatusResult } from "./VersionControlProvider"
+import { Logs, StatusResult } from "./VersionControlProvider"
 import {
     PrevCommits,
     ProviderActions,
@@ -34,6 +34,7 @@ interface IStateProps {
     selectedItem: string
     commits: PrevCommits[]
     showHelp: boolean
+    logs: Logs
 }
 
 interface IDispatchProps {
@@ -44,11 +45,10 @@ interface IDispatchProps {
 interface IProps {
     IDs: IDsMap
     setError?: (e: Error) => void
-    getStatus?: () => Promise<StatusResult | void>
-    commitOne?: (message: string[], files: string[]) => Promise<void>
-    commitAll?: (message: string[]) => Promise<void>
+    commit?: (message: string[], files?: string[]) => Promise<void>
     updateSelection?: (selection: string) => void
     handleSelection?: (selection: string) => void
+    getStatus: () => void
 }
 
 type ConnectedProps = IProps & IStateProps & IDispatchProps
@@ -100,12 +100,12 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
 
     public handleCommitOne = async () => {
         const { message, selectedItem } = this.props
-        await this.props.commitOne(message, [selectedItem])
+        await this.props.commit(message, [selectedItem])
     }
 
     public handleCommitAll = async () => {
         const { message } = this.props
-        await this.props.commitAll(message)
+        await this.props.commit(message)
     }
 
     public handleCommitCancel = () => {
@@ -123,9 +123,9 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
         this.props.selectedItem === id
 
     public getIds = () => {
-        const { commits, status, IDs } = this.props
+        const { logs, status, IDs } = this.props
         const { modified, staged, untracked } = status
-        const commitSHAs = commits.map(({ commit }) => commit)
+        const commitSHAs = logs.all.slice(0, 1).map(({ hash }) => hash)
         const ids = [
             IDs.commits,
             ...this.insertIf(this.state.commits, commitSHAs),
@@ -146,7 +146,7 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
         const warning = error || inactive
         const {
             IDs,
-            commits,
+            logs,
             showHelp,
             loading,
             committing,
@@ -160,7 +160,7 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
             </SectionTitle>
         ) : (
             <>
-                <Help showHelp={showHelp} />
+                {!showHelp ? <Title>To show help press "?"</Title> : <Help />}
                 <VimNavigator
                     ids={this.getIds()}
                     active={this.props.hasFocus && !committing}
@@ -170,10 +170,10 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
                         <StatusContainer>
                             <CommitsSection
                                 titleId={IDs.commits}
-                                commits={commits}
                                 selectedId={selectedId}
                                 visibility={this.state.commits}
                                 onClick={this.props.handleSelection}
+                                commits={logs.all}
                                 toggleVisibility={() => this.toggleVisibility(IDs.commits)}
                             />
                             <StagedSection
@@ -230,6 +230,7 @@ const mapStateToProps = (state: VersionControlState): IStateProps => ({
     showHelp: state.help.active,
     loading: state.loading.active,
     loadingSection: state.loading.type,
+    logs: state.logs,
 })
 
 const ConnectedGitComponent = connect<IStateProps, IDispatchProps, IProps>(

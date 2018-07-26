@@ -93,7 +93,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         try {
             return this._git(this._projectRoot).revparse(["--show-toplevel"])
         } catch (e) {
-            this._oni.log.warn(`Git provider unable to find vcs root due to ${e.message}`)
+            this._handleVCSError(e, `find vcs root`)
         }
     }
 
@@ -113,10 +113,38 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
                 untracked: status.not_added,
                 remoteTrackingBranch: status.tracking,
             }
-        } catch (error) {
-            this._oni.log.warn(
-                `Git provider unable to get current status because of: ${error.message}`,
-            )
+        } catch (e) {
+            this._handleVCSError(e, "get current status")
+        }
+    }
+
+    public unstage = async (files: string[]) => {
+        const flags = ["HEAD", ...files]
+        try {
+            await this._git(this._projectRoot).reset(flags)
+            const changed = files.map(path => ({ path, status: VCS.Statuses.modified }))
+            this._onFileStatusChanged.dispatch(changed)
+        } catch (e) {
+            this._handleVCSError(e, "unstage the file")
+        }
+    }
+
+    public uncommit = async (sha?: string) => {
+        try {
+            await this._git(this._projectRoot).reset(["--soft", "HEAD^"])
+            this._onFileStatusChanged.dispatch()
+        } catch (e) {
+            this._handleVCSError(e, "undo most recent commit")
+        }
+    }
+
+    public getLogs = async (file?: string): Promise<VCS.Logs> => {
+        try {
+            // n - represents the number of logs to get alternative is to use ["--max-count=25"]
+            const options = { file, n: 25 }
+            return this._git(this._projectRoot).log(options)
+        } catch (e) {
+            this._handleVCSError(e, "get logs")
         }
     }
 
@@ -124,9 +152,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         try {
             return this._git(this._projectRoot).diffSummary()
         } catch (e) {
-            const error = `Git provider unable to get current status because of: ${e.message}`
-            this._oni.log.warn(error)
-            throw new Error(error)
+            this._handleVCSError(e, "get current status")
         }
     }
 
@@ -140,20 +166,17 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
             this._onFileStatusChanged.dispatch(changed)
             return commit
         } catch (e) {
-            this._oni.log.warn(e.warn)
-            throw new Error(e)
+            this._handleVCSError(e, "commit files")
         }
     }
 
-    public stageFile = async (file: string, dir?: string) => {
+    public stageFile = async (file: string) => {
         try {
             await this._git(this._projectRoot).add(file)
             this._onStagedFilesChanged.dispatch(file)
             this._onFileStatusChanged.dispatch([{ path: file, status: VCS.Statuses.staged }])
         } catch (e) {
-            const error = `Git provider unable to add ${file} because ${e.message}`
-            this._oni.log.warn(error)
-            throw new Error(error)
+            this._handleVCSError(e, `add ${file}`)
         }
     }
 
@@ -169,9 +192,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         try {
             return this._git(this._projectRoot).fetch(remote, branch)
         } catch (e) {
-            const error = `Git provider unable to fetch branch because of: ${e.message}`
-            this._oni.log.warn(error)
-            throw new Error(error)
+            this._handleVCSError(e, "to fetch branch")
         }
     }
 
@@ -179,9 +200,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         try {
             return this._git(this._projectRoot).branchLocal()
         } catch (e) {
-            const error = `Git provider unable to get local branches because of: ${e.message}`
-            this._oni.log.warn(error)
-            throw new Error(error)
+            this._handleVCSError(e, "get local branches")
         }
     }
 
@@ -190,9 +209,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
             const status = await this._git(this._projectRoot).status()
             return status.current
         } catch (e) {
-            const error = `Git Provider was unable to get current status because of: ${e.message}`
-            this._oni.log.warn(error)
-            throw new Error(error)
+            this._handleVCSError(e, "get current status")
         }
     }
 
@@ -201,10 +218,15 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
             await this._git(this._projectRoot).checkout(targetBranch)
             this._onBranchChange.dispatch(targetBranch)
         } catch (e) {
-            const error = `Git Provider was unable change branch because of: ${e.message}`
-            this._oni.log.warn(error)
-            throw new Error(error)
+            this._handleVCSError(e, "change branch")
         }
+    }
+
+    private _handleVCSError(error: Error, attemptedAction: string) {
+        this._oni.log.warn(error)
+        throw new Error(
+            `[Oni Git Provider]: Unable to ${attemptedAction} because: ${error.message}`,
+        )
     }
 
     private _isStaged = (file: FileSummary) => {
