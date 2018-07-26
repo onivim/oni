@@ -590,7 +590,7 @@
         "precommit": "pretty-quick --staged",
         "prepush": "yarn run build && yarn run lint",
         "build":
-            "yarn run build:browser && yarn run build:webview_preload && yarn run build:main && yarn run build:plugins",
+            "yarn run build:browser && yarn run build:webview_preload && yarn run build:main && yarn run build:plugins && yarn run build:cli",
         "build-debug":
             "yarn run build:browser-debug && yarn run build:main  && yarn run build:plugins",
         "build:browser": "webpack --config browser/webpack.production.config.js",
