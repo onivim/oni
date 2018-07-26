@@ -1,12 +1,12 @@
-import { BufferLayer, BufferLayerRenderContext, Buffer } from "oni-api"
+import { Buffer, BufferLayer, BufferLayerRenderContext } from "oni-api"
 import * as React from "react"
 
-import { VersionControlProvider } from "./"
 import styled, { boxShadow, pixel, withProps } from "../../UI/components/common"
+import { VersionControlProvider } from "./"
 import { Blame } from "./VersionControlProvider"
 
 interface IProps extends BufferLayerRenderContext {
-    getBlame: () => Promise<Blame>
+    getBlame: (lineOne: number, lineTwo: number) => Promise<Blame>
 }
 interface IState {
     blame: Blame
@@ -25,6 +25,7 @@ const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
         left: pixel(left),
     }),
 })`
+    position: absolute;
     width: 100%;
     background-color: ${p => p.theme["menu.background"]};
     color: ${p => p.theme["menu.foreground"]};
@@ -43,15 +44,15 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
         blame: null,
     }
     public async componentDidMount() {
-        const blame = await this.props.getBlame()
+        const blame = await this.props.getBlame(3, 4)
         this.setState({ blame })
     }
 
     public calculatePosition(line: number) {
-        const { pixelX, pixelY } = this.props.bufferToPixel({ line, character: 0 })
+        const position = this.props.bufferToPixel({ line, character: 0 })
         return {
-            top: pixelY,
-            left: pixelX,
+            top: position ? position.pixelY : null,
+            left: position ? position.pixelX : null,
         }
     }
 
@@ -75,8 +76,8 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
 export default class VersionControlBlameLayer implements BufferLayer {
     constructor(private _buffer: Buffer, private _vcsProvider: VersionControlProvider) {}
 
-    public getBlame = () =>
-        this._vcsProvider.getBlame({ file: this._buffer.filePath, lineOne: 1, lineTwo: 2 })
+    public getBlame = (lineOne: number, lineTwo: number) =>
+        this._vcsProvider.getBlame({ file: this._buffer.filePath, lineOne, lineTwo })
 
     get id() {
         return "vcs.blame"
