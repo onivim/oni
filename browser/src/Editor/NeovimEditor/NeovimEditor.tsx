@@ -119,6 +119,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
     private _modeChanged$: Observable<Oni.Vim.Mode>
     private _cursorMoved$: Observable<Oni.Cursor>
     private _cursorMovedI$: Observable<Oni.Cursor>
+    private _onScroll$: Observable<Oni.EditorBufferScrolledEventArgs>
 
     private _hasLoaded: boolean = false
 
@@ -603,6 +604,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         })
 
         this._modeChanged$ = asObservable(this._neovimInstance.onModeChanged)
+        this._onScroll$ = asObservable(this._neovimInstance.onScroll)
 
         this.trackDisposable(
             this._neovimInstance.onModeChanged.subscribe(newMode => this._onModeChanged(newMode)),
@@ -643,6 +645,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         addInsertModeLanguageFunctionality(
             this._cursorMovedI$,
             this._modeChanged$,
+            this._onScroll$,
             this._toolTipsProvider,
         )
 
