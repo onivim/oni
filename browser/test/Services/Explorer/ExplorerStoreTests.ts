@@ -581,7 +581,7 @@ describe("ExplorerStore", () => {
                 .subscribe(actualAction => assert.deepEqual(actualAction, expected))
         })
 
-        it("Should return a create node success action if a creation is committed", () => {
+        it("Should return a create node success action if a creation is committed", async () => {
             const action$ = ActionsObservable.of({
                 type: "CREATE_NODE_COMMIT",
                 name: "/test/dir/file.txt",
@@ -604,16 +604,21 @@ describe("ExplorerStore", () => {
 
             const expected = [
                 { type: "CREATE_NODE_SUCCESS", nodeType: "file", name: "/test/dir/file.txt" },
-                { type: "EXPAND_DIRECTORY", directoryPath: "/test/dir" },
-                { type: "REFRESH" },
+                { type: "SELECT_FILE", filePath: "/test/dir/file.txt" },
             ]
 
-            ExplorerState.createNodeEpic(action$, createState, { fileSystem: fs, notifications })
+            return ExplorerState.createNodeEpic(action$, createState, {
+                fileSystem: fs,
+                notifications,
+            })
                 .toArray()
-                .subscribe(actualActions => assert.deepEqual(actualActions, expected))
+                .toPromise()
+                .then(actualActions => {
+                    assert.deepEqual(actualActions, expected)
+                })
         })
 
-        it("Should return an error action if a creation fails", () => {
+        it("Should return an error action if a creation fails", async () => {
             const action$ = ActionsObservable.of({
                 type: "CREATE_NODE_COMMIT",
                 name: "/test/dir/file.txt",
@@ -636,7 +641,7 @@ describe("ExplorerStore", () => {
 
             const expected = [{ type: "CREATE_NODE_FAIL", reason: "Duplicate" }]
 
-            ExplorerState.createNodeEpic(action$, createState, {
+            return ExplorerState.createNodeEpic(action$, createState, {
                 fileSystem: {
                     ...fs,
                     writeFile: async folderpath => {
@@ -646,7 +651,8 @@ describe("ExplorerStore", () => {
                 notifications,
             })
                 .toArray()
-                .subscribe(actualActions => {
+                .toPromise()
+                .then(actualActions => {
                     assert.deepEqual(actualActions, expected)
                 })
         })
