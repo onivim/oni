@@ -11,6 +11,11 @@ import { Blame as IBlame } from "./VersionControlProvider"
 
 type TransitionStates = "entering" | "entered"
 
+interface ICanFit {
+    canFit: boolean
+    message: string
+}
+
 interface IProps extends LayerContextWithCursor {
     getBlame: (lineOne: number, lineTwo: number) => Promise<IBlame>
     timeout: number
@@ -80,6 +85,10 @@ const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
 
 const BlameDetails = styled.span`
     color: inherit;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 `
 
 // CurrentLine - the string in the current line
@@ -149,12 +158,11 @@ export class Blame extends React.PureComponent<IProps, IState> {
         }, this.props.timeout)
     }
 
-    public calculatePosition() {
+    public calculatePosition(canFit: boolean) {
         const { cursorLine, cursorScreenLine } = this.props
         const previousBufferLine = cursorLine - 1
         const currentLine = this.props.visibleLines[cursorScreenLine]
         const character = currentLine && currentLine.length
-        const canFit = this.canFit()
 
         const positionToRender = canFit
             ? { line: cursorLine, character }
@@ -196,7 +204,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
         )
     }
 
-    public getBlameText = () => {
+    public getBlameText = (truncationAmount = 0) => {
         const { blame } = this.state
         if (!blame) {
             return null
@@ -205,17 +213,30 @@ export class Blame extends React.PureComponent<IProps, IState> {
         const formattedDate = this.formatCommitDate(committer_time)
         const timeSince = getTimeSince(formattedDate)
         const formattedHash = hash.slice(0, 4).toUpperCase()
-        const message = `${author}, ${timeSince} ago, ${blame.summary} #${formattedHash}`
+
+        const words = blame.summary.split(" ")
+        const shortened = words.slice(0, words.length - truncationAmount).join(" ")
+        const formattedSummary = truncationAmount ? shortened + "..." : shortened
+        const message = `${author}, ${timeSince} ago, ${formattedSummary} #${formattedHash}`
         return message
     }
 
-    public canFit = () => {
+    // Recursively calls get blame text if the message will not fit onto the screen up
+    // to a limit of 6 times each time removing one word from the blame message
+    // if after 6 attempts the message is still not small enought then we render the popup
+    public canFit = (truncationAmount = 0): ICanFit => {
         const { visibleLines, dimensions, cursorScreenLine, fontPixelWidth } = this.props
         const offset = Math.round(this.LEFT_OFFSET / fontPixelWidth)
-        const message = this.getBlameText()
+        const message = this.getBlameText(truncationAmount)
         const currentLine = visibleLines[cursorScreenLine] || ""
         const canFit = dimensions.width > currentLine.length + message.length + offset
-        return canFit
+        if (!canFit && truncationAmount <= 6) {
+            return this.canFit(truncationAmount + 1)
+        }
+        return {
+            canFit,
+            message: !canFit ? this.getBlameText() : message,
+        }
     }
 
     public componentWillUnmount() {
@@ -224,25 +245,26 @@ export class Blame extends React.PureComponent<IProps, IState> {
 
     public render() {
         const { blame, showBlame } = this.state
+        if (!blame || !showBlame) {
+            return null
+        }
+        const { message, canFit } = this.canFit()
         return (
             <Transition in={blame && showBlame} timeout={this.DURATION}>
-                {(state: TransitionStates) =>
-                    blame &&
-                    showBlame && (
-                        <BlameContainer
-                            data-id="vcs.blame"
-                            timeout={this.DURATION}
-                            inline={this.canFit()}
-                            animationState={state}
-                            marginLeft={this.LEFT_OFFSET}
-                            height={this.props.fontPixelHeight}
-                            fontFamily={this.props.fontFamily}
-                            {...this.calculatePosition()}
-                        >
-                            <BlameDetails>{this.getBlameText()}</BlameDetails>
-                        </BlameContainer>
-                    )
-                }
+                {(state: TransitionStates) => (
+                    <BlameContainer
+                        data-id="vcs.blame"
+                        timeout={this.DURATION}
+                        inline={canFit}
+                        animationState={state}
+                        marginLeft={this.LEFT_OFFSET}
+                        height={this.props.fontPixelHeight}
+                        fontFamily={this.props.fontFamily}
+                        {...this.calculatePosition(canFit)}
+                    >
+                        <BlameDetails>{message}</BlameDetails>
+                    </BlameContainer>
+                )}
             </Transition>
         )
     }
