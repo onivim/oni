@@ -22,7 +22,7 @@ interface IContainerProps {
     top: number
     left: number
     marginLeft: number
-    renderInline: boolean
+    inline: boolean
 }
 
 const inlineStyles = css`
@@ -50,7 +50,7 @@ const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     width: auto;
     font-style: italic;
     color: ${p => p.theme["menu.foreground"]};
-    ${p => (p.renderInline ? inlineStyles : hoverStyles)};
+    ${p => (p.inline ? inlineStyles : hoverStyles)};
 `
 
 const BlameDetails = styled.span`
@@ -148,7 +148,7 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
                     data-id="vcs.blame"
                     marginLeft={this.LEFT_OFFSET}
                     height={this.props.fontPixelHeight}
-                    renderInline={this.canFit()}
+                    inline={this.canFit()}
                     {...this.calculatePosition()}
                 >
                     <BlameDetails>{this.getBlameText()}</BlameDetails>
