@@ -2,7 +2,7 @@ import { Buffer, BufferLayer } from "oni-api"
 import * as React from "react"
 
 import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
-import styled, { boxShadow, css, pixel, withProps } from "../../UI/components/common"
+import styled, { boxShadow, css, pixel, withProps, darken } from "../../UI/components/common"
 import { getTimeSince } from "../../Utility"
 import { VersionControlProvider } from "./"
 import { Blame } from "./VersionControlProvider"
@@ -49,7 +49,7 @@ const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     position: absolute;
     width: auto;
     font-style: italic;
-    color: ${p => p.theme["menu.foreground"]};
+    color: ${p => darken(p.theme["menu.foreground"])};
     ${p => (p.inline ? inlineStyles : hoverStyles)};
 `
 
