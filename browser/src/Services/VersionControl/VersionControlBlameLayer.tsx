@@ -62,7 +62,7 @@ const getOpacity = (state: TransitionStates, inline: boolean) => {
 }
 
 const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
-    style: ({ height, top, left }: IContainerProps) => ({
+    style: ({ top, left }: IContainerProps) => ({
         top: pixel(top),
         left: pixel(left),
     }),
