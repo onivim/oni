@@ -59,7 +59,7 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.welcome.enabled": false,
     "experimental.vcs.blame.enabled": false,
     "experimental.vcs.blame.mode": "auto",
-    "experimental.vcs.blame.timeout": 300,
+    "experimental.vcs.blame.timeout": 400,
 
     "experimental.colorHighlight.enabled": false,
     "experimental.colorHighlight.filetypes": [

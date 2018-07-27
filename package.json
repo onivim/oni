@@ -665,7 +665,8 @@
         "ccov:upload:jest": "cd ./coverage/jest && codecov",
         "ccov:upload": "codecov",
         "launch": "electron lib/main/src/main.js",
-        "start": "run-p --race start-hot watch:browser watch:plugins",
+        "start":
+            "concurrently --kill-others yarn run start-hot yarn run watch:browser yarn run watch:plugins",
         "start-hot":
             "cross-env ONI_WEBPACK_LOAD=1 NODE_ENV=development electron lib/main/src/main.js",
         "start-not-dev": "cross-env electron main.js",
@@ -754,7 +755,7 @@
         "@types/react-motion": "0.0.23",
         "@types/react-redux": "5.0.12",
         "@types/react-test-renderer": "^16.0.0",
-        "@types/react-transition-group": "2.0.6",
+        "@types/react-transition-group": "^2.0.11",
         "@types/react-virtualized": "^9.7.10",
         "@types/redux-batched-subscribe": "^0.1.2",
         "@types/redux-mock-store": "^1.0.0",

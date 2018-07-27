@@ -1,24 +1,31 @@
 import { pathExists } from "fs-extra"
-import { Buffer, BufferLayer, Commands, Configuration } from "oni-api"
+import { Buffer, BufferLayer, Commands, Configuration, Coordinates } from "oni-api"
 import * as React from "react"
+import Transition from "react-transition-group/Transition"
 
 import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
-import styled, { boxShadow, css, darken, pixel, withProps } from "../../UI/components/common"
+import styled, { boxShadow, css, pixel, withProps } from "../../UI/components/common"
 import { getTimeSince } from "../../Utility"
 import { VersionControlProvider } from "./"
-import { Blame } from "./VersionControlProvider"
+import { Blame as IBlame } from "./VersionControlProvider"
+
+type TransitionStates = "entering" | "entered"
 
 interface IProps extends LayerContextWithCursor {
-    getBlame: (lineOne: number, lineTwo: number) => Promise<Blame>
+    getBlame: (lineOne: number, lineTwo: number) => Promise<IBlame>
     timeout: number
     cursorScreenLine: number
     cursorBufferLine: number
+    currentLine: string
     mode: "auto" | "manual"
+    fontFamily: string
     setupCommand: (callback: () => void) => void
 }
 interface IState {
-    blame: Blame
+    blame: IBlame
     showBlame: boolean
+    currentLineContent: string
+    currentCursorBufferLine: number
 }
 
 interface IContainerProps {
@@ -27,6 +34,9 @@ interface IContainerProps {
     left: number
     marginLeft: number
     inline: boolean
+    fontFamily: string
+    animationState: TransitionStates
+    timeout: number
 }
 
 const inlineStyles = css`
@@ -34,7 +44,6 @@ const inlineStyles = css`
         height: ${pixel(p.height)};
         line-height: ${pixel(p.height)};
         margin-left: ${pixel(p.marginLeft)};
-        opacity: 0.5;
     `};
 `
 
@@ -44,35 +53,70 @@ const hoverStyles = css`
     ${boxShadow};
 `
 
+const getOpacity = (state: TransitionStates, inline: boolean) => {
+    const transitionStyles = {
+        entering: 0,
+        entered: inline ? 0.5 : 1,
+    }
+    return transitionStyles[state]
+}
+
 const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     style: ({ height, top, left }: IContainerProps) => ({
         top: pixel(top),
         left: pixel(left),
     }),
 })`
+    width: auto;
     box-sizing: border-box;
     position: absolute;
-    width: auto;
     font-style: italic;
-    color: ${p => darken(p.theme["menu.foreground"])};
+    font-family: ${p => p.fontFamily};
+    color: ${p => p.theme["menu.foreground"]};
+    transition: opacity ${p => p.timeout}ms ease-in-out;
+    opacity: ${p => getOpacity(p.animationState, p.inline)};
     ${p => (p.inline ? inlineStyles : hoverStyles)};
 `
 
 const BlameDetails = styled.span`
     color: inherit;
-    opacity: 0.8;
 `
 
-// CursorLine is the 0 based position of the cursor in the file i.e. at line 30 this will be 29
-// CursorBufferLine is the 1 based position of the cursor in the file i.e. at line 30 it will be 30
-// CursorScreenLine the position of the cursor within the visible lines so if line 30 is at the
+// CurrentLine - the string in the current line
+// CursorLine - The 0 based position of the cursor in the file i.e. at line 30 this will be 29
+// CursorBufferLine - The 1 based position of the cursor in the file i.e. at line 30 it will be 30
+// CursorScreenLine - the position of the cursor within the visible lines so if line 30 is at the
 // top of the viewport it will be 0
-export class VCSBlame extends React.PureComponent<IProps, IState> {
+export class Blame extends React.PureComponent<IProps, IState> {
+    public static getDerivedStateFromProps(nextProps: IProps, prevState: IState) {
+        // Reset show blame to false when props change - do it here so it happens before rendering
+        // hide if the current line has changed or if the text of the line has changed
+        // aka input is in progress or if there is an empty line
+        const lineNumberChanged = nextProps.cursorBufferLine !== prevState.currentCursorBufferLine
+        const lineContentChanged = prevState.currentLineContent !== nextProps.currentLine
+        if (
+            (prevState.showBlame && (lineNumberChanged || lineContentChanged)) ||
+            !nextProps.currentLine
+        ) {
+            return {
+                showBlame: false,
+                blame: prevState.blame,
+                currentCursorBufferLine: prevState.currentCursorBufferLine,
+            }
+        }
+        return null
+    }
+
     public state: IState = {
         blame: null,
         showBlame: null,
+        currentCursorBufferLine: this.props.cursorBufferLine,
+        currentLineContent: this.props.currentLine,
     }
+
     private _timeout: any
+    private readonly DURATION = 100
+    private readonly TOP_OFFSET = 20
     private readonly LEFT_OFFSET = 15
 
     public async componentDidMount() {
@@ -87,20 +131,22 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
         })
     }
 
-    public async componentDidUpdate(prevProps: IProps) {
-        const { cursorBufferLine, mode } = this.props
-        if (prevProps.cursorBufferLine !== cursorBufferLine) {
+    public async componentDidUpdate(prevProps: IProps, prevState: IState) {
+        const { cursorBufferLine, currentLine, mode } = this.props
+        if (prevProps.cursorBufferLine !== cursorBufferLine && currentLine) {
+            this.setState({
+                currentLineContent: currentLine,
+                currentCursorBufferLine: cursorBufferLine,
+            })
             await this.updateBlame(cursorBufferLine, cursorBufferLine + 1)
             if (mode === "auto") {
                 return this.resetTimer()
             }
-            this.setState({ showBlame: false })
         }
     }
 
     public resetTimer = () => {
         clearTimeout(this._timeout)
-        this.setState({ showBlame: false })
         this._timeout = setTimeout(() => {
             this.setState({ showBlame: true })
         }, this.props.timeout)
@@ -112,15 +158,13 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
         const currentLine = this.props.visibleLines[cursorScreenLine]
         const character = currentLine && currentLine.length
         const canFit = this.canFit()
+
         const positionToRender = canFit
             ? { line: cursorLine, character }
             : { line: previousBufferLine, character: 0 }
         const position = this.props.bufferToPixel(positionToRender)
 
-        return {
-            top: position && canFit ? position.pixelY : !canFit ? position.pixelY - 15 : null,
-            left: position ? position.pixelX : null,
-        }
+        return this.getPosition(position, canFit)
     }
 
     public updateBlame = async (lineOne: number, lineTwo: number) => {
@@ -131,6 +175,22 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
 
     public formatCommitDate(timestamp: string) {
         return new Date(parseInt(timestamp, 10) * 1000)
+    }
+
+    public getPosition(position: Coordinates.PixelSpacePoint, canFit: boolean) {
+        if (!position) {
+            return {
+                top: null,
+                left: null,
+            }
+        }
+
+        // if cannot fit reduce the top position aka raise the tooltip up
+        const top = canFit ? position.pixelY : !canFit ? position.pixelY - this.TOP_OFFSET : null
+        return {
+            top,
+            left: position ? position.pixelX : null,
+        }
     }
 
     public isOutOfBounds = (...lines: number[]) => {
@@ -168,18 +228,25 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
     public render() {
         const { blame, showBlame } = this.state
         return (
-            blame &&
-            showBlame && (
-                <BlameContainer
-                    data-id="vcs.blame"
-                    inline={this.canFit()}
-                    marginLeft={this.LEFT_OFFSET}
-                    height={this.props.fontPixelHeight}
-                    {...this.calculatePosition()}
-                >
-                    <BlameDetails>{this.getBlameText()}</BlameDetails>
-                </BlameContainer>
-            )
+            <Transition in={blame && showBlame} timeout={this.DURATION}>
+                {(state: TransitionStates) =>
+                    blame &&
+                    showBlame && (
+                        <BlameContainer
+                            data-id="vcs.blame"
+                            timeout={this.DURATION}
+                            inline={this.canFit()}
+                            animationState={state}
+                            marginLeft={this.LEFT_OFFSET}
+                            height={this.props.fontPixelHeight}
+                            fontFamily={this.props.fontFamily}
+                            {...this.calculatePosition()}
+                        >
+                            <BlameDetails>{this.getBlameText()}</BlameDetails>
+                        </BlameContainer>
+                    )
+                }
+            </Transition>
         )
     }
 }
@@ -209,17 +276,18 @@ export default class VersionControlBlameLayer implements BufferLayer {
             command: "experimental.vcs.blame.toggleBlame",
             name: null,
             detail: null,
-            enabled: () => true,
+            enabled: this._isActive,
             execute: callback,
         })
     }
 
     public getConfigOpts() {
-        const activated = this._configuration.getValue<boolean>("experimental.vcs.blame.enabled")
+        const fontFamily = this._configuration.getValue<string>("editor.fontFamily")
         const timeout = this._configuration.getValue<number>("experimental.vcs.blame.timeout")
+        const activated = this._configuration.getValue<boolean>("experimental.vcs.blame.enabled")
         const mode = this._configuration.getValue<"auto" | "manual">("experimental.vcs.blame.mode")
 
-        return { timeout, activated, mode }
+        return { timeout, activated, mode, fontFamily }
     }
 
     public render(context: LayerContextWithCursor) {
@@ -229,14 +297,16 @@ export default class VersionControlBlameLayer implements BufferLayer {
         const activated = this._isActive() && config.activated
         return (
             activated && (
-                <VCSBlame
+                <Blame
                     {...context}
                     mode={config.mode}
                     timeout={config.timeout}
                     getBlame={this.getBlame}
+                    fontFamily={config.fontFamily}
                     setupCommand={this.setupCommand}
                     cursorBufferLine={cursorBufferLine}
                     cursorScreenLine={cursorScreenLine}
+                    currentLine={context.visibleLines[cursorScreenLine]}
                 />
             )
         )
