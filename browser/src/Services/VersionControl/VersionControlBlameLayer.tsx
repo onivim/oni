@@ -2,7 +2,7 @@ import { Buffer, BufferLayer } from "oni-api"
 import * as React from "react"
 
 import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
-import styled, { boxShadow, pixel, withProps } from "../../UI/components/common"
+import styled, { boxShadow, css, pixel, withProps } from "../../UI/components/common"
 import { getTimeSince } from "../../Utility"
 import { VersionControlProvider } from "./"
 import { Blame } from "./VersionControlProvider"
@@ -25,6 +25,20 @@ interface IContainerProps {
     renderInline: boolean
 }
 
+const inlineStyles = css`
+    ${(p: IContainerProps) => `
+        height: ${pixel(p.height)};
+        line-height: ${pixel(p.height)};
+        margin-left: ${pixel(p.marginLeft)};
+    `};
+`
+
+const hoverStyles = css`
+    background-color: ${p => p.theme["toolTip.background"]};
+    padding: 0.5em;
+    ${boxShadow};
+`
+
 const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     style: ({ height, top, left }: IContainerProps) => ({
         top: pixel(top),
@@ -35,12 +49,8 @@ const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     position: absolute;
     width: auto;
     font-style: italic;
-    margin-left: ${p => pixel(p.marginLeft)};
-    background-color: ${p => p.theme["menu.background"]};
-    height: ${p => (p.renderInline ? pixel(p.height) : "auto")};
     color: ${p => p.theme["menu.foreground"]};
-    padding: ${p => (p.renderInline ? "0.2em" : "0.5em")};
-    ${p => !p.renderInline && boxShadow};
+    ${p => (p.renderInline ? inlineStyles : hoverStyles)};
 `
 
 const BlameDetails = styled.span`
