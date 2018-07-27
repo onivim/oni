@@ -34,7 +34,7 @@ const inlineStyles = css`
 `
 
 const hoverStyles = css`
-    background-color: ${p => p.theme["toolTip.background"]};
+    background-color: ${p => p.theme["editor.hover.contents.background"]};
     padding: 0.5em;
     ${boxShadow};
 `
@@ -117,7 +117,7 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
 
     public isOutOfBounds = (...lines: number[]) => {
         return lines.some(
-            line => line > this.props.bottomBufferLine || line < this.props.topBufferLine,
+            line => !line || line > this.props.bottomBufferLine || line < this.props.topBufferLine,
         )
     }
 
