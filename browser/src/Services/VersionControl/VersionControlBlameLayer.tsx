@@ -225,7 +225,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
 
     // Recursively calls get blame text if the message will not fit onto the screen up
     // to a limit of 6 times each time removing one word from the blame message
-    // if after 6 attempts the message is still not small enought then we render the popup
+    // if after 6 attempts the message is still not small enougth then we render the popup
     public canFit = (truncationAmount = 0): ICanFit => {
         const { visibleLines, dimensions, cursorScreenLine, fontPixelWidth } = this.props
         const offset = Math.round(this.LEFT_OFFSET / fontPixelWidth)
