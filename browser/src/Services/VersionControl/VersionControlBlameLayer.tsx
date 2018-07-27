@@ -216,7 +216,9 @@ export class Blame extends React.PureComponent<IProps, IState> {
 
         const words = blame.summary.split(" ")
         const shortened = words.slice(0, words.length - truncationAmount).join(" ")
-        const formattedSummary = truncationAmount ? shortened + "..." : shortened
+        const formattedSummary =
+            truncationAmount && shortened.length ? shortened + "..." : shortened
+
         const message = !shortened.length
             ? `${author}, ${timeSince}`
             : `${author}, ${timeSince} ago, ${formattedSummary} #${formattedHash}`
