@@ -4,7 +4,7 @@ import * as React from "react"
 import Transition from "react-transition-group/Transition"
 
 import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
-import styled, { boxShadow, css, pixel, withProps } from "../../UI/components/common"
+import styled, { pixel, withProps } from "../../UI/components/common"
 import { getTimeSince } from "../../Utility"
 import { VersionControlProvider } from "./"
 import { Blame as IBlame } from "./VersionControlProvider"
@@ -37,31 +37,17 @@ interface IContainerProps {
     height: number
     top: number
     left: number
-    marginLeft: number
     inline: boolean
     fontFamily: string
     animationState: TransitionStates
+    hide: boolean
     timeout: number
 }
-
-const inlineStyles = css`
-    ${(p: IContainerProps) => `
-        height: ${pixel(p.height)};
-        line-height: ${pixel(p.height)};
-        margin-left: ${pixel(p.marginLeft)};
-    `};
-`
-
-const hoverStyles = css`
-    background-color: ${p => p.theme["editor.hover.contents.background"]};
-    padding: 0.5em;
-    ${boxShadow};
-`
 
 const getOpacity = (state: TransitionStates, inline: boolean) => {
     const transitionStyles = {
         entering: 0,
-        entered: inline ? 0.5 : 1,
+        entered: 0.5,
     }
     return transitionStyles[state]
 }
@@ -72,6 +58,7 @@ const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
         left: pixel(left),
     }),
 })`
+    ${p => p.hide && `visibility: hidden`};
     width: auto;
     box-sizing: border-box;
     position: absolute;
@@ -80,14 +67,15 @@ const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     color: ${p => p.theme["menu.foreground"]};
     transition: opacity ${p => p.timeout}ms ease-in-out;
     opacity: ${p => getOpacity(p.animationState, p.inline)};
-    ${p => (p.inline ? inlineStyles : hoverStyles)};
+    height: ${p => pixel(p.height)};
+    line-height: ${p => pixel(p.height)};
 `
 
 const BlameDetails = styled.span`
     color: inherit;
     width: 100%;
+    white-space: pre;
     overflow: hidden;
-    white-space: nowrap;
     text-overflow: ellipsis;
 `
 
@@ -125,9 +113,8 @@ export class Blame extends React.PureComponent<IProps, IState> {
     }
 
     private _timeout: any
-    private readonly DURATION = 100
-    private readonly TOP_OFFSET = 20
-    private readonly LEFT_OFFSET = 15
+    private readonly DURATION = 300
+    private readonly LEFT_OFFSET = 8
 
     public async componentDidMount() {
         const { cursorBufferLine, mode } = this.props
@@ -158,18 +145,38 @@ export class Blame extends React.PureComponent<IProps, IState> {
         }, this.props.timeout)
     }
 
+    public getLastEmptyLine = () => {
+        const { cursorScreenLine, visibleLines, topBufferLine } = this.props
+        let lastEmptyLineIndex: number = null
+        for (let i = cursorScreenLine; i < topBufferLine; i--) {
+            if (!visibleLines[i].length) {
+                lastEmptyLineIndex = topBufferLine + i
+                break
+            }
+        }
+        return lastEmptyLineIndex
+    }
+
     public calculatePosition(canFit: boolean) {
-        const { cursorLine, cursorScreenLine } = this.props
-        const previousBufferLine = cursorLine - 1
-        const currentLine = this.props.visibleLines[cursorScreenLine]
+        const { cursorLine, cursorScreenLine, visibleLines } = this.props
+        const currentLine = visibleLines[cursorScreenLine]
         const character = currentLine && currentLine.length
 
-        const positionToRender = canFit
-            ? { line: cursorLine, character }
-            : { line: previousBufferLine, character: 0 }
-        const position = this.props.bufferToPixel(positionToRender)
+        if (canFit) {
+            const positionToRender = { line: cursorLine, character }
+            const position = this.props.bufferToPixel(positionToRender)
+            return this.getPosition(position, canFit)
+        }
 
-        return this.getPosition(position, canFit)
+        const lastEmptyLine = this.getLastEmptyLine()
+
+        if (lastEmptyLine) {
+            const positionToRender = { line: lastEmptyLine - 1, character: 0 }
+            const position = this.props.bufferToPixel(positionToRender)
+            return this.getPosition(position, canFit)
+        }
+
+        return this.getPosition(null, canFit)
     }
 
     public updateBlame = async (lineOne: number, lineTwo: number) => {
@@ -185,16 +192,16 @@ export class Blame extends React.PureComponent<IProps, IState> {
     public getPosition(position: Coordinates.PixelSpacePoint, canFit: boolean) {
         if (!position) {
             return {
+                hide: true,
                 top: null,
                 left: null,
             }
         }
-
         // if cannot fit reduce the top position aka raise the tooltip up
-        const top = canFit ? position.pixelY : !canFit ? position.pixelY - this.TOP_OFFSET : null
         return {
-            top,
-            left: position ? position.pixelX : null,
+            hide: false,
+            top: position.pixelY,
+            left: position.pixelX,
         }
     }
 
@@ -219,9 +226,10 @@ export class Blame extends React.PureComponent<IProps, IState> {
         const formattedSummary =
             truncationAmount && shortened.length ? shortened + "..." : shortened
 
+        const spacing = " ".repeat(this.LEFT_OFFSET)
         const message = !shortened.length
-            ? `${author}, ${timeSince}`
-            : `${author}, ${timeSince} ago, ${formattedSummary} #${formattedHash}`
+            ? `${spacing}${author}, ${timeSince}`
+            : `${spacing}${author}, ${timeSince} ago, ${formattedSummary} #${formattedHash}`
         return message
     }
 
@@ -229,11 +237,10 @@ export class Blame extends React.PureComponent<IProps, IState> {
     // to a limit of 6 times each time removing one word from the blame message
     // if after 6 attempts the message is still not small enougth then we render the popup
     public canFit = (truncationAmount = 0): ICanFit => {
-        const { visibleLines, dimensions, cursorScreenLine, fontPixelWidth } = this.props
-        const offset = Math.round(this.LEFT_OFFSET / fontPixelWidth)
+        const { visibleLines, dimensions, cursorScreenLine } = this.props
         const message = this.getBlameText(truncationAmount)
         const currentLine = visibleLines[cursorScreenLine] || ""
-        const canFit = dimensions.width > currentLine.length + message.length + offset
+        const canFit = dimensions.width >= currentLine.length + message.length + this.LEFT_OFFSET
         if (!canFit && truncationAmount <= 6) {
             return this.canFit(truncationAmount + 1)
         }
@@ -253,18 +260,18 @@ export class Blame extends React.PureComponent<IProps, IState> {
             return null
         }
         const { message, canFit } = this.canFit()
+        const position = this.calculatePosition(canFit)
         return (
             <Transition in={blame && showBlame} timeout={this.DURATION}>
                 {(state: TransitionStates) => (
                     <BlameContainer
+                        {...position}
+                        inline={canFit}
                         data-id="vcs.blame"
                         timeout={this.DURATION}
-                        inline={canFit}
                         animationState={state}
-                        marginLeft={this.LEFT_OFFSET}
                         height={this.props.fontPixelHeight}
                         fontFamily={this.props.fontFamily}
-                        {...this.calculatePosition(canFit)}
                     >
                         <BlameDetails>{message}</BlameDetails>
                     </BlameContainer>
