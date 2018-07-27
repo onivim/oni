@@ -2,7 +2,7 @@ import { Buffer, BufferLayer } from "oni-api"
 import * as React from "react"
 
 import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
-import styled, { boxShadow, css, pixel, withProps, darken } from "../../UI/components/common"
+import styled, { boxShadow, css, darken, pixel, withProps } from "../../UI/components/common"
 import { getTimeSince } from "../../Utility"
 import { VersionControlProvider } from "./"
 import { Blame } from "./VersionControlProvider"
