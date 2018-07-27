@@ -64,7 +64,7 @@ const BlameDetails = styled.span`
 `
 
 // CursorLine is the 0 based position of the cursor in the file i.e. at line 30 this will be 29
-// CursorBuffer line is the 1 based position of the cursor in the file i.e. at line 30 it will be 30
+// CursorBufferLine is the 1 based position of the cursor in the file i.e. at line 30 it will be 30
 // CursorScreenLine the position of the cursor within the visible lines so if line 30 is at the
 // top of the viewport it will be 0
 export class VCSBlame extends React.PureComponent<IProps, IState> {
@@ -77,6 +77,7 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
 
     public async componentDidMount() {
         const { cursorBufferLine, mode } = this.props
+        await this.updateBlame(cursorBufferLine, cursorBufferLine + 1)
         if (mode === "auto") {
             this.resetTimer()
         }
@@ -84,17 +85,16 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
             const { showBlame } = this.state
             this.setState({ showBlame: !showBlame })
         })
-        await this.updateBlame(cursorBufferLine, cursorBufferLine + 1)
     }
 
     public async componentDidUpdate(prevProps: IProps) {
         const { cursorBufferLine, mode } = this.props
         if (prevProps.cursorBufferLine !== cursorBufferLine) {
+            await this.updateBlame(cursorBufferLine, cursorBufferLine + 1)
             if (mode === "auto") {
                 return this.resetTimer()
             }
             this.setState({ showBlame: false })
-            await this.updateBlame(cursorBufferLine, cursorBufferLine + 1)
         }
     }
 
