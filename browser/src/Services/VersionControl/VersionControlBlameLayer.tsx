@@ -3,6 +3,7 @@ import * as React from "react"
 
 import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
 import styled, { boxShadow, pixel, withProps } from "../../UI/components/common"
+import { getTimeSince } from "../../Utility"
 import { VersionControlProvider } from "./"
 import { Blame } from "./VersionControlProvider"
 
@@ -26,18 +27,19 @@ interface IContainerProps {
 
 const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     style: ({ height, top, left }: IContainerProps) => ({
-        height: pixel(height),
         top: pixel(top),
         left: pixel(left),
     }),
 })`
+    box-sizing: border-box;
     position: absolute;
+    width: auto;
+    font-style: italic;
     margin-left: ${p => pixel(p.marginLeft)};
-    width: ${p => (p.renderInline ? "auto" : "100%")};
     background-color: ${p => p.theme["menu.background"]};
+    height: ${p => (p.renderInline ? pixel(p.height) : "auto")};
     color: ${p => p.theme["menu.foreground"]};
-    padding: 0.2em;
-    font-style:italic;
+    padding: ${p => (p.renderInline ? "0.2em" : "0.5em")};
     ${p => !p.renderInline && boxShadow};
 `
 
@@ -81,13 +83,14 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
         const previousBufferLine = bufferLine - 1
         const currentLine = this.props.visibleLines[screenLine]
         const character = currentLine && currentLine.length
-        const positionToRender = this.canFit()
+        const canFit = this.canFit()
+        const positionToRender = canFit
             ? { line: bufferLine, character }
             : { line: previousBufferLine, character: 0 }
         const position = this.props.bufferToPixel(positionToRender)
 
         return {
-            top: position ? position.pixelY : null,
+            top: position && canFit ? position.pixelY : !canFit ? position.pixelY - 15 : null,
             left: position ? position.pixelX : null,
         }
     }
@@ -107,15 +110,18 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
             return null
         }
         const { author, hash, committer_time } = blame
-        const message = `${author}, ${this.formatCommitDate(committer_time)}, ${hash.slice(0, 4)}`
+        const formattedDate = this.formatCommitDate(committer_time)
+        const timeSince = getTimeSince(formattedDate)
+        const message = `${author}, ${timeSince} ago, #${hash.slice(0, 4).toUpperCase()}`
         return message
     }
 
     public canFit = () => {
-        const { visibleLines, dimensions, currentLineNumber } = this.props
+        const { visibleLines, dimensions, currentLineNumber, fontPixelWidth } = this.props
+        const offset = Math.round(this.LEFT_OFFSET / fontPixelWidth)
         const message = this.getBlameText()
         const currentLine = visibleLines[currentLineNumber] || ""
-        const canFit = dimensions.width > currentLine.length + message.length // + this.LEFT_OFFSET
+        const canFit = dimensions.width > currentLine.length + message.length + offset
         return canFit
     }
 
@@ -154,14 +160,17 @@ export default class VersionControlBlameLayer implements BufferLayer {
 
     public render(context: LayerContextWithCursor) {
         const currentLineNumber = context.cursorLine + 1
-        const visibleLineIndex = currentLineNumber - context.topBufferLine
+        const currentLineIndex = currentLineNumber - context.topBufferLine
+        const activated = this._vcsProvider && this._vcsProvider.isActivated
         return (
-            <VCSBlame
-                {...context}
-                timeout={1000}
-                getBlame={this.getBlame}
-                currentLineNumber={visibleLineIndex}
-            />
+            activated && (
+                <VCSBlame
+                    {...context}
+                    timeout={1000}
+                    getBlame={this.getBlame}
+                    currentLineNumber={currentLineIndex}
+                />
+            )
         )
     }
 }
