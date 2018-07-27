@@ -144,7 +144,13 @@ export class VersionControlManager {
 
             this._bufferLayerManager.addBufferLayer(
                 () => true,
-                buf => new VersionControlBlameLayer(buf, this._vcsProvider),
+                buf =>
+                    new VersionControlBlameLayer(
+                        buf,
+                        this._vcsProvider,
+                        this._configuration,
+                        this._commands,
+                    ),
             )
 
             this._registerCommands()

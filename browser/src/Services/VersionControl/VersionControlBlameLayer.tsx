@@ -1,4 +1,4 @@
-import { Buffer, BufferLayer } from "oni-api"
+import { Buffer, BufferLayer, Configuration, Commands } from "oni-api"
 import * as React from "react"
 
 import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
@@ -6,11 +6,14 @@ import styled, { boxShadow, css, darken, pixel, withProps } from "../../UI/compo
 import { getTimeSince } from "../../Utility"
 import { VersionControlProvider } from "./"
 import { Blame } from "./VersionControlProvider"
+import { pathExists } from "fs-extra"
 
 interface IProps extends LayerContextWithCursor {
     getBlame: (lineOne: number, lineTwo: number) => Promise<Blame>
     timeout: number
     currentLineNumber: number
+    mode: "auto" | "manual"
+    setupCommand: (callback: () => void) => void
 }
 interface IState {
     blame: Blame
@@ -67,15 +70,25 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
     private readonly LEFT_OFFSET = 15
 
     public async componentDidMount() {
-        const { cursorLine: line } = this.props
-        this.resetTimer()
-        await this.updateBlame(line, line + 1)
+        const { showBlame } = this.state
+        const { cursorLine, mode } = this.props
+        if (mode === "auto") {
+            this.resetTimer()
+        }
+        this.props.setupCommand(() => {
+            this.setState({ showBlame: !showBlame })
+        })
+        await this.updateBlame(cursorLine, cursorLine + 1)
     }
 
     public async componentDidUpdate(prevProps: IProps) {
-        if (prevProps.cursorLine !== this.props.cursorLine) {
-            const { currentLineNumber: line } = this.props
-            this.resetTimer()
+        const { currentLineNumber: line, cursorLine, mode } = this.props
+        if (prevProps.cursorLine !== cursorLine) {
+            if (mode === "auto") {
+                this.resetTimer()
+            } else {
+                this.setState({ showBlame: false })
+            }
             await this.updateBlame(line, line + 1)
         }
     }
@@ -166,29 +179,63 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
 }
 
 export default class VersionControlBlameLayer implements BufferLayer {
-    constructor(private _buffer: Buffer, private _vcsProvider: VersionControlProvider) {}
+    constructor(
+        private _buffer: Buffer,
+        private _vcsProvider: VersionControlProvider,
+        private _configuration: Configuration,
+        private _commands: Commands.Api,
+    ) {}
 
-    public getBlame = (lineOne: number, lineTwo: number) => {
-        return this._vcsProvider.getBlame({ file: this._buffer.filePath, lineOne, lineTwo })
+    public getBlame = async (lineOne: number, lineTwo: number) => {
+        const fileExists = await pathExists(this._buffer.filePath)
+        return (
+            fileExists &&
+            this._vcsProvider.getBlame({ file: this._buffer.filePath, lineOne, lineTwo })
+        )
     }
 
     get id() {
         return "vcs.blame"
     }
 
+    public setupCommand = (callback: () => void) => {
+        this._commands.registerCommand({
+            command: "experimental.vcs.blame.toggleBlame",
+            name: null,
+            detail: null,
+            enabled: () => true,
+            execute: callback,
+        })
+    }
+
+    public getConfigOpts() {
+        const activated = this._configuration.getValue<boolean>("experimental.vcs.blame.enabled")
+        const timeout = this._configuration.getValue<number>("experimental.vcs.blame.timeout")
+        const mode = this._configuration.getValue<"auto" | "manual">("experimental.vcs.blame.mode")
+
+        return { timeout, activated, mode }
+    }
+
     public render(context: LayerContextWithCursor) {
         const currentLineNumber = context.cursorLine + 1
         const currentLineIndex = currentLineNumber - context.topBufferLine
-        const activated = this._vcsProvider && this._vcsProvider.isActivated
+        const config = this.getConfigOpts()
+        const activated = this._isActive() && config.activated
         return (
             activated && (
                 <VCSBlame
                     {...context}
-                    timeout={1000}
+                    mode={config.mode}
+                    timeout={config.timeout}
                     getBlame={this.getBlame}
+                    setupCommand={this.setupCommand}
                     currentLineNumber={currentLineIndex}
                 />
             )
         )
+    }
+
+    private _isActive() {
+        return this._vcsProvider && this._vcsProvider.isActivated
     }
 }
