@@ -143,7 +143,7 @@ export class VersionControlManager {
             }
 
             this._bufferLayerManager.addBufferLayer(
-                () => true,
+                () => this._configuration.getValue("experimental.vcs.blame.enabled"),
                 buf =>
                     new VersionControlBlameLayer(
                         buf,

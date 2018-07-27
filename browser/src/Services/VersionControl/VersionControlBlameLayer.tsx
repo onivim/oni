@@ -281,17 +281,16 @@ export default class VersionControlBlameLayer implements BufferLayer {
     public getConfigOpts() {
         const fontFamily = this._configuration.getValue<string>("editor.fontFamily")
         const timeout = this._configuration.getValue<number>("experimental.vcs.blame.timeout")
-        const activated = this._configuration.getValue<boolean>("experimental.vcs.blame.enabled")
         const mode = this._configuration.getValue<"auto" | "manual">("experimental.vcs.blame.mode")
 
-        return { timeout, activated, mode, fontFamily }
+        return { timeout, mode, fontFamily }
     }
 
     public render(context: LayerContextWithCursor) {
         const cursorBufferLine = context.cursorLine + 1
         const cursorScreenLine = cursorBufferLine - context.topBufferLine
         const config = this.getConfigOpts()
-        const activated = this._isActive() && config.activated
+        const activated = this._isActive()
         return (
             activated && (
                 <Blame
