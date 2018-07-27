@@ -106,12 +106,19 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
     }
 
     public updateBlame = async (lineOne: number, lineTwo: number) => {
-        const blame = await this.props.getBlame(lineOne, lineTwo)
+        const outOfBounds = !this.isOutOfBounds(lineOne, lineTwo)
+        const blame = !outOfBounds ? await this.props.getBlame(lineOne, lineTwo) : null
         this.setState({ blame })
     }
 
     public formatCommitDate(timestamp: string) {
         return new Date(parseInt(timestamp, 10) * 1000)
+    }
+
+    public isOutOfBounds = (...lines: number[]) => {
+        return lines.some(
+            line => line > this.props.bottomBufferLine || line < this.props.topBufferLine,
+        )
     }
 
     public getBlameText = () => {
@@ -161,8 +168,9 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
 export default class VersionControlBlameLayer implements BufferLayer {
     constructor(private _buffer: Buffer, private _vcsProvider: VersionControlProvider) {}
 
-    public getBlame = (lineOne: number, lineTwo: number) =>
-        this._vcsProvider.getBlame({ file: this._buffer.filePath, lineOne, lineTwo })
+    public getBlame = (lineOne: number, lineTwo: number) => {
+        return this._vcsProvider.getBlame({ file: this._buffer.filePath, lineOne, lineTwo })
+    }
 
     get id() {
         return "vcs.blame"
