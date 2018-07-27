@@ -11,7 +11,8 @@ import { Blame } from "./VersionControlProvider"
 interface IProps extends LayerContextWithCursor {
     getBlame: (lineOne: number, lineTwo: number) => Promise<Blame>
     timeout: number
-    currentLineNumber: number
+    cursorScreenLine: number
+    cursorBufferLine: number
     mode: "auto" | "manual"
     setupCommand: (callback: () => void) => void
 }
@@ -33,6 +34,7 @@ const inlineStyles = css`
         height: ${pixel(p.height)};
         line-height: ${pixel(p.height)};
         margin-left: ${pixel(p.marginLeft)};
+        opacity: 0.5;
     `};
 `
 
@@ -61,6 +63,10 @@ const BlameDetails = styled.span`
     opacity: 0.8;
 `
 
+// CursorLine is the 0 based position of the cursor in the file i.e. at line 30 this will be 29
+// CursorBuffer line is the 1 based position of the cursor in the file i.e. at line 30 it will be 30
+// CursorScreenLine the position of the cursor within the visible lines so if line 30 is at the
+// top of the viewport it will be 0
 export class VCSBlame extends React.PureComponent<IProps, IState> {
     public state: IState = {
         blame: null,
@@ -70,26 +76,25 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
     private readonly LEFT_OFFSET = 15
 
     public async componentDidMount() {
-        const { showBlame } = this.state
-        const { cursorLine, mode } = this.props
+        const { cursorBufferLine, mode } = this.props
         if (mode === "auto") {
             this.resetTimer()
         }
         this.props.setupCommand(() => {
+            const { showBlame } = this.state
             this.setState({ showBlame: !showBlame })
         })
-        await this.updateBlame(cursorLine, cursorLine + 1)
+        await this.updateBlame(cursorBufferLine, cursorBufferLine + 1)
     }
 
     public async componentDidUpdate(prevProps: IProps) {
-        const { currentLineNumber: line, cursorLine, mode } = this.props
-        if (prevProps.cursorLine !== cursorLine) {
+        const { cursorBufferLine, mode } = this.props
+        if (prevProps.cursorBufferLine !== cursorBufferLine) {
             if (mode === "auto") {
-                this.resetTimer()
-            } else {
-                this.setState({ showBlame: false })
+                return this.resetTimer()
             }
-            await this.updateBlame(line, line + 1)
+            this.setState({ showBlame: false })
+            await this.updateBlame(cursorBufferLine, cursorBufferLine + 1)
         }
     }
 
@@ -102,13 +107,13 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
     }
 
     public calculatePosition() {
-        const { cursorLine: bufferLine, currentLineNumber: screenLine } = this.props
-        const previousBufferLine = bufferLine - 1
-        const currentLine = this.props.visibleLines[screenLine]
+        const { cursorLine, cursorScreenLine } = this.props
+        const previousBufferLine = cursorLine - 1
+        const currentLine = this.props.visibleLines[cursorScreenLine]
         const character = currentLine && currentLine.length
         const canFit = this.canFit()
         const positionToRender = canFit
-            ? { line: bufferLine, character }
+            ? { line: cursorLine, character }
             : { line: previousBufferLine, character: 0 }
         const position = this.props.bufferToPixel(positionToRender)
 
@@ -119,7 +124,7 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
     }
 
     public updateBlame = async (lineOne: number, lineTwo: number) => {
-        const outOfBounds = !this.isOutOfBounds(lineOne, lineTwo)
+        const outOfBounds = this.isOutOfBounds(lineOne, lineTwo)
         const blame = !outOfBounds ? await this.props.getBlame(lineOne, lineTwo) : null
         this.setState({ blame })
     }
@@ -142,15 +147,16 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
         const { author, hash, committer_time } = blame
         const formattedDate = this.formatCommitDate(committer_time)
         const timeSince = getTimeSince(formattedDate)
-        const message = `${author}, ${timeSince} ago, #${hash.slice(0, 4).toUpperCase()}`
+        const formattedHash = hash.slice(0, 4).toUpperCase()
+        const message = `${author}, ${timeSince} ago, ${blame.summary} #${formattedHash}`
         return message
     }
 
     public canFit = () => {
-        const { visibleLines, dimensions, currentLineNumber, fontPixelWidth } = this.props
+        const { visibleLines, dimensions, cursorScreenLine, fontPixelWidth } = this.props
         const offset = Math.round(this.LEFT_OFFSET / fontPixelWidth)
         const message = this.getBlameText()
-        const currentLine = visibleLines[currentLineNumber] || ""
+        const currentLine = visibleLines[cursorScreenLine] || ""
         const canFit = dimensions.width > currentLine.length + message.length + offset
         return canFit
     }
@@ -166,9 +172,9 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
             showBlame && (
                 <BlameContainer
                     data-id="vcs.blame"
+                    inline={this.canFit()}
                     marginLeft={this.LEFT_OFFSET}
                     height={this.props.fontPixelHeight}
-                    inline={this.canFit()}
                     {...this.calculatePosition()}
                 >
                     <BlameDetails>{this.getBlameText()}</BlameDetails>
@@ -217,8 +223,8 @@ export default class VersionControlBlameLayer implements BufferLayer {
     }
 
     public render(context: LayerContextWithCursor) {
-        const currentLineNumber = context.cursorLine + 1
-        const currentLineIndex = currentLineNumber - context.topBufferLine
+        const cursorBufferLine = context.cursorLine + 1
+        const cursorScreenLine = cursorBufferLine - context.topBufferLine
         const config = this.getConfigOpts()
         const activated = this._isActive() && config.activated
         return (
@@ -229,7 +235,8 @@ export default class VersionControlBlameLayer implements BufferLayer {
                     timeout={config.timeout}
                     getBlame={this.getBlame}
                     setupCommand={this.setupCommand}
-                    currentLineNumber={currentLineIndex}
+                    cursorBufferLine={cursorBufferLine}
+                    cursorScreenLine={cursorScreenLine}
                 />
             )
         )

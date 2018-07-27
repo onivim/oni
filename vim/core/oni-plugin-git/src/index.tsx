@@ -129,8 +129,8 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
                 "-L",
                 `${args.lineOne},${args.lineTwo}`,
             ]
-            const rawOutput = await this._git(this._projectRoot).raw(cmd)
-            return this._formatRawBlame(rawOutput)
+            const raw = await this._git(this._projectRoot).raw(cmd)
+            return this._formatRawBlame(raw)
         } catch (e) {
             this._oni.log.warn(e)
             return null
