@@ -101,7 +101,8 @@ export class Blame extends React.PureComponent<IProps, IState> {
             return {
                 showBlame: false,
                 blame: prevState.blame,
-                currentCursorBufferLine: prevState.currentCursorBufferLine,
+                currentLineContent: nextProps.currentLine,
+                currentCursorBufferLine: nextProps.cursorBufferLine,
             }
         }
         return null
@@ -121,7 +122,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
 
     public async componentDidMount() {
         const { cursorBufferLine, mode } = this.props
-        await this.updateBlame(cursorBufferLine, cursorBufferLine + 1)
+        await this.updateBlame(cursorBufferLine, cursorBufferLine)
         if (mode === "auto") {
             this.resetTimer()
         }
@@ -134,11 +135,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
     public async componentDidUpdate(prevProps: IProps, prevState: IState) {
         const { cursorBufferLine, currentLine, mode } = this.props
         if (prevProps.cursorBufferLine !== cursorBufferLine && currentLine) {
-            this.setState({
-                currentLineContent: currentLine,
-                currentCursorBufferLine: cursorBufferLine,
-            })
-            await this.updateBlame(cursorBufferLine, cursorBufferLine + 1)
+            await this.updateBlame(cursorBufferLine, cursorBufferLine)
             if (mode === "auto") {
                 return this.resetTimer()
             }
