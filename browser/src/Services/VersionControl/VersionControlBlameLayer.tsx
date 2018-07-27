@@ -107,7 +107,7 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
             return null
         }
         const { author, hash, committer_time } = blame
-        const message = `${author}, ${hash.slice(0, 4)}, ${this.formatCommitDate(committer_time)}`
+        const message = `${author}, ${this.formatCommitDate(committer_time)}, ${hash.slice(0, 4)}`
         return message
     }
 
@@ -115,7 +115,7 @@ export class VCSBlame extends React.PureComponent<IProps, IState> {
         const { visibleLines, dimensions, currentLineNumber } = this.props
         const message = this.getBlameText()
         const currentLine = visibleLines[currentLineNumber] || ""
-        const canFit = dimensions.width > currentLine.length + message.length + this.LEFT_OFFSET
+        const canFit = dimensions.width > currentLine.length + message.length // + this.LEFT_OFFSET
         return canFit
     }
 
