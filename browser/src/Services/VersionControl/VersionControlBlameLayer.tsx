@@ -1,4 +1,5 @@
-import { Buffer, BufferLayer, Configuration, Commands } from "oni-api"
+import { pathExists } from "fs-extra"
+import { Buffer, BufferLayer, Commands, Configuration } from "oni-api"
 import * as React from "react"
 
 import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
@@ -6,7 +7,6 @@ import styled, { boxShadow, css, darken, pixel, withProps } from "../../UI/compo
 import { getTimeSince } from "../../Utility"
 import { VersionControlProvider } from "./"
 import { Blame } from "./VersionControlProvider"
-import { pathExists } from "fs-extra"
 
 interface IProps extends LayerContextWithCursor {
     getBlame: (lineOne: number, lineTwo: number) => Promise<Blame>
