@@ -1,5 +1,6 @@
 import { pathExists } from "fs-extra"
 import { Buffer, BufferLayer, Commands, Configuration } from "oni-api"
+import { warn } from "oni-core-logging"
 import * as React from "react"
 import { Transition } from "react-transition-group"
 import { Position } from "vscode-languageserver-types"
@@ -45,6 +46,7 @@ export interface IState {
     showBlame: boolean
     currentLineContent: string
     currentCursorBufferLine: number
+    error: Error
 }
 
 interface IContainerProps {
@@ -83,7 +85,7 @@ export const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     transition: opacity ${p => p.timeout}ms ease-in-out;
     height: ${p => pixel(p.height)};
     line-height: ${p => pixel(p.height)};
-    right: 10px;
+    right: 3em;
     ${textOverflow}
 `
 
@@ -120,6 +122,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
     }
 
     public state: IState = {
+        error: null,
         blame: null,
         showBlame: null,
         currentLineContent: this.props.currentLine,
@@ -150,6 +153,15 @@ export class Blame extends React.PureComponent<IProps, IState> {
                 return this.resetTimer()
             }
         }
+    }
+
+    public componentWillUnmount() {
+        clearTimeout(this._timeout)
+    }
+
+    public componentDidCatch(error: Error) {
+        warn(`Oni VCS Blame layer failed because: ${error.message}`)
+        this.setState({ error })
     }
 
     public resetTimer = () => {
@@ -243,7 +255,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
         )
     }
 
-    public getBlameText = (truncationAmount = 0) => {
+    public getBlameText = (numberOfTruncations = 0) => {
         const { blame } = this.state
         if (!blame) {
             return null
@@ -254,11 +266,13 @@ export class Blame extends React.PureComponent<IProps, IState> {
         const formattedHash = hash.slice(0, 4).toUpperCase()
 
         const words = blame.summary.split(" ")
-        const shortened = words.slice(0, words.length - truncationAmount).join(" ")
+        const message = words.slice(0, words.length - numberOfTruncations).join(" ")
 
-        return shortened.length <= 2
+        const summary = numberOfTruncations ? message.concat("…") : message
+
+        return words.length < 2
             ? `${author}, ${timeSince}`
-            : `${author}, ${timeSince}, ${shortened}... #${formattedHash}`
+            : `${author}, ${timeSince}, ${summary} #${formattedHash}`
     }
 
     // Recursively calls get blame text if the message will not fit onto the screen up
@@ -281,13 +295,9 @@ export class Blame extends React.PureComponent<IProps, IState> {
         }
     }
 
-    public componentWillUnmount() {
-        clearTimeout(this._timeout)
-    }
-
     public render() {
-        const { blame, showBlame } = this.state
-        if (!blame || !showBlame) {
+        const { blame, showBlame, error } = this.state
+        if (!blame || !showBlame || error) {
             return null
         }
         const { message, position } = this.canFit()
