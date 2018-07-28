@@ -10,7 +10,7 @@ import { getTimeSince } from "../../Utility"
 import { VersionControlProvider } from "./"
 import { Blame as IBlame } from "./VersionControlProvider"
 
-type TransitionStates = "entering" | "entered"
+type TransitionStates = "entering" | "entered" | "exiting"
 
 interface ICanFit {
     canFit: boolean
@@ -53,6 +53,7 @@ const getOpacity = (state: TransitionStates) => {
     const transitionStyles = {
         entering: 0,
         entered: 0.5,
+        exiting: 0,
     }
     return transitionStyles[state]
 }
@@ -117,7 +118,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
         currentCursorBufferLine: this.props.cursorBufferLine,
     }
 
-    private readonly LEFT_OFFSET = 7
+    private readonly LEFT_OFFSET = 4
     private readonly DURATION = 300
     private _timeout: any
 
@@ -253,7 +254,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
         const { visibleLines, dimensions, cursorScreenLine } = this.props
         const message = this.getBlameText(truncationAmount)
         const currentLine = visibleLines[cursorScreenLine] || ""
-        const canFit = dimensions.width >= currentLine.length + message.length + this.LEFT_OFFSET
+        const canFit = dimensions.width > currentLine.length + message.length + this.LEFT_OFFSET
 
         if (!canFit && truncationAmount <= 6) {
             return this.canFit(truncationAmount + 1)
