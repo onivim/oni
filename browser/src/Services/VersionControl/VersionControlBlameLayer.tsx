@@ -22,6 +22,11 @@ interface ICanFit {
     }
 }
 
+interface ILineDetails {
+    nextSpacing: number
+    lastEmptyLine: number
+}
+
 interface IProps extends LayerContextWithCursor {
     getBlame: (lineOne: number, lineTwo: number) => Promise<IBlame>
     timeout: number
@@ -146,16 +151,19 @@ export class Blame extends React.PureComponent<IProps, IState> {
 
     public resetTimer = () => {
         clearTimeout(this._timeout)
+        const lastLinePosition = this.state.currentCursorBufferLine
         this._timeout = setTimeout(() => {
-            this.setState({ showBlame: true })
+            if (this.state.currentCursorBufferLine === lastLinePosition) {
+                this.setState({ showBlame: true })
+            }
         }, this.props.timeout)
     }
 
     public getLastEmptyLine() {
         const { cursorLine, visibleLines, topBufferLine } = this.props
-        const lineDetails = {
-            lastEmptyLine: null as number,
-            nextSpacing: null as number,
+        const lineDetails: ILineDetails = {
+            lastEmptyLine: null,
+            nextSpacing: null,
         }
         for (
             let currentBufferLine = cursorLine;
