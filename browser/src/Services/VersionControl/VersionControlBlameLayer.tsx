@@ -71,8 +71,8 @@ const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     font-style: italic;
     font-family: ${p => p.fontFamily};
     color: ${p => p.theme["menu.foreground"]};
-    transition: opacity ${p => p.timeout}ms ease-in-out;
     opacity: ${p => getOpacity(p.animationState)};
+    transition: opacity ${p => p.timeout}ms ease-in-out;
     height: ${p => pixel(p.height)};
     line-height: ${p => pixel(p.height)};
 `
@@ -118,9 +118,9 @@ export class Blame extends React.PureComponent<IProps, IState> {
         currentCursorBufferLine: this.props.cursorBufferLine,
     }
 
-    private readonly LEFT_OFFSET = 4
-    private readonly DURATION = 300
     private _timeout: any
+    private readonly DURATION = 300
+    private readonly LEFT_OFFSET = 4
 
     public async componentDidMount() {
         const { cursorBufferLine, mode } = this.props
@@ -194,6 +194,8 @@ export class Blame extends React.PureComponent<IProps, IState> {
         return this.getPosition(null)
     }
 
+    // TODO: possibly add a caching strategy so a new call isn't made each time or
+    // get a blame for the entire file and store it
     public updateBlame = async (lineOne: number, lineTwo: number) => {
         const outOfBounds = this.isOutOfBounds(lineOne, lineTwo)
         const blame = !outOfBounds ? await this.props.getBlame(lineOne, lineTwo) : null
