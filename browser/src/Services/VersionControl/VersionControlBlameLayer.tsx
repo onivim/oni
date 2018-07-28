@@ -5,7 +5,7 @@ import { Transition } from "react-transition-group"
 import { Position } from "vscode-languageserver-types"
 
 import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
-import styled, { pixel, withProps, textOverflow } from "../../UI/components/common"
+import styled, { pixel, textOverflow, withProps } from "../../UI/components/common"
 import { getTimeSince } from "../../Utility"
 import { VersionControlProvider } from "./"
 import { Blame as IBlame } from "./VersionControlProvider"
