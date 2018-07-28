@@ -268,7 +268,8 @@ export class Blame extends React.PureComponent<IProps, IState> {
         const words = blame.summary.split(" ")
         const message = words.slice(0, words.length - numberOfTruncations).join(" ")
 
-        const summary = numberOfTruncations ? message.concat("…") : message
+        const symbol = "…"
+        const summary = numberOfTruncations && words.length > 2 ? message.concat(symbol) : message
 
         return words.length < 2
             ? `${author}, ${timeSince}`

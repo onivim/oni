@@ -135,7 +135,7 @@ describe("<VersionControlBlameLayer />", () => {
         expect(outOfBounds).toBe(false)
     })
     it("should correctly truncate the blame text based on window width prop", () => {
-        const expected = "ernest hemmingway, 2 days ago, the first... #2234"
+        const expected = "ernest hemmingway, 2 days ago, the first… #2234"
         wrapper.setProps({ dimensions: { width: 60, height: 100, x: 0, y: 0 } })
         const { message, canFit, position } = instance.canFit()
         expect(message).toEqual(expected)
