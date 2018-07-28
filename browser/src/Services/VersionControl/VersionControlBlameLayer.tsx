@@ -43,14 +43,13 @@ interface IContainerProps {
     height: number
     top: number
     left: number
-    inline: boolean
     fontFamily: string
-    animationState: TransitionStates
     hide: boolean
     timeout: number
+    animationState: TransitionStates
 }
 
-const getOpacity = (state: TransitionStates, inline: boolean) => {
+const getOpacity = (state: TransitionStates) => {
     const transitionStyles = {
         entering: 0,
         entered: 0.5,
@@ -72,7 +71,7 @@ const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     font-family: ${p => p.fontFamily};
     color: ${p => p.theme["menu.foreground"]};
     transition: opacity ${p => p.timeout}ms ease-in-out;
-    opacity: ${p => getOpacity(p.animationState, p.inline)};
+    opacity: ${p => getOpacity(p.animationState)};
     height: ${p => pixel(p.height)};
     line-height: ${p => pixel(p.height)};
 `
@@ -118,9 +117,9 @@ export class Blame extends React.PureComponent<IProps, IState> {
         currentCursorBufferLine: this.props.cursorBufferLine,
     }
 
-    private _timeout: any
+    private readonly LEFT_OFFSET = 7
     private readonly DURATION = 300
-    private readonly LEFT_OFFSET = 4
+    private _timeout: any
 
     public async componentDidMount() {
         const { cursorBufferLine, mode } = this.props
@@ -255,6 +254,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
         const message = this.getBlameText(truncationAmount)
         const currentLine = visibleLines[cursorScreenLine] || ""
         const canFit = dimensions.width >= currentLine.length + message.length + this.LEFT_OFFSET
+
         if (!canFit && truncationAmount <= 6) {
             return this.canFit(truncationAmount + 1)
         }
@@ -275,13 +275,12 @@ export class Blame extends React.PureComponent<IProps, IState> {
         if (!blame || !showBlame) {
             return null
         }
-        const { message, position, canFit } = this.canFit()
+        const { message, position } = this.canFit()
         return (
             <Transition in={blame && showBlame} timeout={this.DURATION}>
                 {(state: TransitionStates) => (
                     <BlameContainer
                         {...position}
-                        inline={canFit}
                         data-id="vcs.blame"
                         timeout={this.DURATION}
                         animationState={state}
