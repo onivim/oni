@@ -1,7 +1,7 @@
 import { pathExists } from "fs-extra"
 import { Buffer, BufferLayer, Commands, Configuration } from "oni-api"
 import * as React from "react"
-import Transition from "react-transition-group/Transition"
+import { Transition } from "react-transition-group"
 import { Position } from "vscode-languageserver-types"
 
 import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
@@ -29,7 +29,7 @@ interface ILineDetails {
     lastEmptyLine: number
 }
 
-interface IProps extends LayerContextWithCursor {
+export interface IProps extends LayerContextWithCursor {
     getBlame: (lineOne: number, lineTwo: number) => Promise<IBlame>
     timeout: number
     cursorScreenLine: number
@@ -39,7 +39,8 @@ interface IProps extends LayerContextWithCursor {
     fontFamily: string
     setupCommand: (callback: () => void) => void
 }
-interface IState {
+
+export interface IState {
     blame: IBlame
     showBlame: boolean
     currentLineContent: string
@@ -65,7 +66,7 @@ const getOpacity = (state: TransitionStates) => {
     return transitionStyles[state]
 }
 
-const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
+export const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     style: ({ top, left }: IContainerProps) => ({
         top: pixel(top),
         left: pixel(left),
