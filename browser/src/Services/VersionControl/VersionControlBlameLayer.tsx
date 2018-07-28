@@ -5,7 +5,7 @@ import { Transition } from "react-transition-group"
 import { Position } from "vscode-languageserver-types"
 
 import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
-import styled, { pixel, withProps } from "../../UI/components/common"
+import styled, { pixel, withProps, textOverflow } from "../../UI/components/common"
 import { getTimeSince } from "../../Utility"
 import { VersionControlProvider } from "./"
 import { Blame as IBlame } from "./VersionControlProvider"
@@ -83,14 +83,13 @@ export const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     transition: opacity ${p => p.timeout}ms ease-in-out;
     height: ${p => pixel(p.height)};
     line-height: ${p => pixel(p.height)};
+    right: 10px;
+    ${textOverflow}
 `
 
 const BlameDetails = styled.span`
     color: inherit;
     width: 100%;
-    white-space: pre;
-    overflow: hidden;
-    text-overflow: ellipsis;
 `
 
 // CurrentLine - the string in the current line
@@ -98,11 +97,12 @@ const BlameDetails = styled.span`
 // CursorBufferLine - The 1 based position of the cursor in the file i.e. at line 30 it will be 30
 // CursorScreenLine - the position of the cursor within the visible lines so if line 30 is at the
 // top of the viewport it will be 0
+
 export class Blame extends React.PureComponent<IProps, IState> {
+    // Reset show blame to false when props change - do it here so it happens before rendering
+    // hide if the current line has changed or if the text of the line has changed
+    // aka input is in progress or if there is an empty line
     public static getDerivedStateFromProps(nextProps: IProps, prevState: IState) {
-        // Reset show blame to false when props change - do it here so it happens before rendering
-        // hide if the current line has changed or if the text of the line has changed
-        // aka input is in progress or if there is an empty line
         const lineNumberChanged = nextProps.cursorBufferLine !== prevState.currentCursorBufferLine
         const lineContentChanged = prevState.currentLineContent !== nextProps.currentLine
         if (
@@ -250,17 +250,15 @@ export class Blame extends React.PureComponent<IProps, IState> {
         }
         const { author, hash, committer_time } = blame
         const formattedDate = this.formatCommitDate(committer_time)
-        const timeSince = getTimeSince(formattedDate)
+        const timeSince = `${getTimeSince(formattedDate)} ago`
         const formattedHash = hash.slice(0, 4).toUpperCase()
 
         const words = blame.summary.split(" ")
         const shortened = words.slice(0, words.length - truncationAmount).join(" ")
 
-        const message =
-            shortened.length <= 2
-                ? `${author}, ${timeSince} ago`
-                : `${author}, ${timeSince} ago, ${shortened}... #${formattedHash}`
-        return message
+        return shortened.length <= 2
+            ? `${author}, ${timeSince}`
+            : `${author}, ${timeSince}, ${shortened}... #${formattedHash}`
     }
 
     // Recursively calls get blame text if the message will not fit onto the screen up
