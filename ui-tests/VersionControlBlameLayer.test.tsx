@@ -1,4 +1,4 @@
-import { shallow, mount } from "enzyme"
+import { mount } from "enzyme"
 import * as React from "react"
 
 import { LayerContextWithCursor } from "./../browser/src/Editor/NeovimEditor/NeovimBufferLayersView"
@@ -55,7 +55,7 @@ describe("<VersionControlBlameLayer />", () => {
         topBufferLine: 20,
         bottomBufferLine: 40,
     }
-    const wrapper = shallow<IProps, IState>(
+    const wrapper = mount<IProps, IState>(
         <Blame
             mode="auto"
             timeout={0}
@@ -72,21 +72,11 @@ describe("<VersionControlBlameLayer />", () => {
         expect(wrapper.length).toBe(1)
     })
     it("should render the component if there is a blame present and show blame is true", () => {
-        const mounted = mount<IProps, IState>(
-            <Blame
-                mode="auto"
-                timeout={0}
-                {...context}
-                getBlame={getBlame}
-                setupCommand={jest.fn()}
-                cursorScreenLine={context.cursorLine - context.topBufferLine}
-                cursorBufferLine={context.cursorLine + 1}
-                currentLine={context.visibleLines[2]}
-                fontFamily="arial"
-            />,
-        )
-        mounted.setState({ showBlame: true, blame })
-        console.log(mounted.find(BlameContainer))
-        expect(mounted.find(BlameContainer).length).toBe(1)
+        wrapper.setState({ showBlame: true, blame })
+        expect(wrapper.find(BlameContainer).length).toBe(1)
+    })
+    it("should render the correct message", () => {
+        const text = wrapper.find("span").text()
+        expect(text).toMatch(/the first paragraph/)
     })
 })
