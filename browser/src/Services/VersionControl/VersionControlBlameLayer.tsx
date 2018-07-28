@@ -12,14 +12,16 @@ import { Blame as IBlame } from "./VersionControlProvider"
 
 type TransitionStates = "entering" | "entered" | "exiting"
 
+interface IBlamePosition {
+    top: number
+    left: number
+    hide: boolean
+}
+
 interface ICanFit {
     canFit: boolean
     message: string
-    position: {
-        top: number
-        left: number
-        hide: boolean
-    }
+    position: IBlamePosition
 }
 
 interface ILineDetails {
@@ -199,7 +201,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
             return this.getPosition({ line: lastEmptyLine - 1, character: nextSpacing })
         }
 
-        return this.getPosition(null)
+        return this.getPosition()
     }
 
     // TODO: possibly add a caching strategy so a new call isn't made each time or
@@ -214,14 +216,18 @@ export class Blame extends React.PureComponent<IProps, IState> {
         return new Date(parseInt(timestamp, 10) * 1000)
     }
 
-    public getPosition(positionToRender: Position) {
+    public getPosition(positionToRender?: Position): IBlamePosition {
+        const emptyPosition: IBlamePosition = {
+            hide: true,
+            top: null,
+            left: null,
+        }
+        if (!positionToRender) {
+            return emptyPosition
+        }
         const position = this.props.bufferToPixel(positionToRender)
         if (!position) {
-            return {
-                hide: true,
-                top: null,
-                left: null,
-            }
+            return emptyPosition
         }
         return {
             hide: false,
