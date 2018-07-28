@@ -1,7 +1,8 @@
 import { pathExists } from "fs-extra"
-import { Buffer, BufferLayer, Commands, Configuration, Coordinates } from "oni-api"
+import { Buffer, BufferLayer, Commands, Configuration } from "oni-api"
 import * as React from "react"
 import Transition from "react-transition-group/Transition"
+import { Position } from "vscode-languageserver-types"
 
 import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
 import styled, { pixel, withProps } from "../../UI/components/common"
@@ -14,6 +15,11 @@ type TransitionStates = "entering" | "entered"
 interface ICanFit {
     canFit: boolean
     message: string
+    position: {
+        top: number
+        left: number
+        hide: boolean
+    }
 }
 
 interface IProps extends LayerContextWithCursor {
@@ -108,13 +114,13 @@ export class Blame extends React.PureComponent<IProps, IState> {
     public state: IState = {
         blame: null,
         showBlame: null,
-        currentCursorBufferLine: this.props.cursorBufferLine,
         currentLineContent: this.props.currentLine,
+        currentCursorBufferLine: this.props.cursorBufferLine,
     }
 
     private _timeout: any
     private readonly DURATION = 300
-    private readonly LEFT_OFFSET = 8
+    private readonly LEFT_OFFSET = 4
 
     public async componentDidMount() {
         const { cursorBufferLine, mode } = this.props
@@ -145,38 +151,47 @@ export class Blame extends React.PureComponent<IProps, IState> {
         }, this.props.timeout)
     }
 
-    public getLastEmptyLine = () => {
-        const { cursorScreenLine, visibleLines, topBufferLine } = this.props
-        let lastEmptyLineIndex: number = null
-        for (let i = cursorScreenLine; i < topBufferLine; i--) {
-            if (!visibleLines[i].length) {
-                lastEmptyLineIndex = topBufferLine + i
+    public getLastEmptyLine() {
+        const { cursorLine, visibleLines, topBufferLine } = this.props
+        const lineDetails = {
+            lastEmptyLine: null as number,
+            nextSpacing: null as number,
+        }
+        for (
+            let currentBufferLine = cursorLine;
+            currentBufferLine >= topBufferLine;
+            currentBufferLine--
+        ) {
+            const screenLine = currentBufferLine - topBufferLine
+            const line = visibleLines[screenLine]
+            if (!line.length) {
+                const nextLine = visibleLines[screenLine + 1]
+                lineDetails.lastEmptyLine = currentBufferLine
+                // search for index of first non-whitespace character which is equivalent
+                // to the whitespace count
+                lineDetails.nextSpacing = nextLine.search(/\S/)
                 break
             }
         }
-        return lastEmptyLineIndex
+        return lineDetails
     }
 
     public calculatePosition(canFit: boolean) {
         const { cursorLine, cursorScreenLine, visibleLines } = this.props
         const currentLine = visibleLines[cursorScreenLine]
-        const character = currentLine && currentLine.length
+        const character = currentLine && currentLine.length + this.LEFT_OFFSET
 
         if (canFit) {
-            const positionToRender = { line: cursorLine, character }
-            const position = this.props.bufferToPixel(positionToRender)
-            return this.getPosition(position, canFit)
+            return this.getPosition({ line: cursorLine, character })
         }
 
-        const lastEmptyLine = this.getLastEmptyLine()
+        const { lastEmptyLine, nextSpacing } = this.getLastEmptyLine()
 
         if (lastEmptyLine) {
-            const positionToRender = { line: lastEmptyLine - 1, character: 0 }
-            const position = this.props.bufferToPixel(positionToRender)
-            return this.getPosition(position, canFit)
+            return this.getPosition({ line: lastEmptyLine - 1, character: nextSpacing })
         }
 
-        return this.getPosition(null, canFit)
+        return this.getPosition(null)
     }
 
     public updateBlame = async (lineOne: number, lineTwo: number) => {
@@ -189,7 +204,8 @@ export class Blame extends React.PureComponent<IProps, IState> {
         return new Date(parseInt(timestamp, 10) * 1000)
     }
 
-    public getPosition(position: Coordinates.PixelSpacePoint, canFit: boolean) {
+    public getPosition(positionToRender: Position) {
+        const position = this.props.bufferToPixel(positionToRender)
         if (!position) {
             return {
                 hide: true,
@@ -197,7 +213,6 @@ export class Blame extends React.PureComponent<IProps, IState> {
                 left: null,
             }
         }
-        // if cannot fit reduce the top position aka raise the tooltip up
         return {
             hide: false,
             top: position.pixelY,
@@ -226,10 +241,9 @@ export class Blame extends React.PureComponent<IProps, IState> {
         const formattedSummary =
             truncationAmount && shortened.length ? shortened + "..." : shortened
 
-        const spacing = " ".repeat(this.LEFT_OFFSET)
         const message = !shortened.length
-            ? `${spacing}${author}, ${timeSince}`
-            : `${spacing}${author}, ${timeSince} ago, ${formattedSummary} #${formattedHash}`
+            ? `${author}, ${timeSince} ago`
+            : `${author}, ${timeSince} ago, ${formattedSummary} #${formattedHash}`
         return message
     }
 
@@ -244,9 +258,11 @@ export class Blame extends React.PureComponent<IProps, IState> {
         if (!canFit && truncationAmount <= 6) {
             return this.canFit(truncationAmount + 1)
         }
+        const truncatedOrFullMessage = canFit ? message : this.getBlameText()
         return {
             canFit,
-            message: !canFit ? this.getBlameText() : message,
+            message: truncatedOrFullMessage,
+            position: this.calculatePosition(canFit),
         }
     }
 
@@ -259,8 +275,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
         if (!blame || !showBlame) {
             return null
         }
-        const { message, canFit } = this.canFit()
-        const position = this.calculatePosition(canFit)
+        const { message, position, canFit } = this.canFit()
         return (
             <Transition in={blame && showBlame} timeout={this.DURATION}>
                 {(state: TransitionStates) => (
