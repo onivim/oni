@@ -87,7 +87,7 @@ export class KeyboardInputView extends React.PureComponent<
         if (this.props.onActivate) {
             this._removeExistingDisposables()
             const d1 = this.props.onActivate.subscribe(() => {
-                focusManager.setFocus(this._keyboardElement)
+                focusManager.pushFocus(this._keyboardElement)
             })
             this._disposables.push(d1)
         }
