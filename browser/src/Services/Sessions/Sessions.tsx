@@ -45,6 +45,8 @@ interface IState {
 }
 
 class Sessions extends React.PureComponent<IConnectedProps, IState> {
+    public readonly _inputID = "new_session"
+
     public state = {
         sessionName: "",
     }
@@ -58,6 +60,9 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
     }
 
     public restoreSession = (selected: string) => {
+        if (selected === this._inputID) {
+            return this.props.createSession()
+        }
         this.props.restoreSession(selected)
     }
 
@@ -74,12 +79,15 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
     }
 
     public handleCancel = () => {
+        if (this.props.creating) {
+            this.props.cancelCreating()
+        }
         this.setState({ sessionName: "" })
     }
 
     public render() {
-        const { sessions, active } = this.props
-        const ids = ["input", ...sessions.map(({ id }) => id)]
+        const { sessions, active, creating } = this.props
+        const ids = [this._inputID, ...sessions.map(({ id }) => id)]
         return (
             <VimNavigator
                 ids={ids}
@@ -88,15 +96,18 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
                 onSelectionChanged={this.updateSelection}
                 render={selectedId => (
                     <List>
-                        <ListItem isSelected={selectedId === "input"}>
-                            <TextInputView
-                                shouldFocus={false}
-                                styles={inputStyles}
-                                onChange={this.handleChange}
-                                onCancel={this.handleCancel}
-                                onComplete={this.persistSession}
-                                defaultValue="Enter a new Session Name"
-                            />
+                        <ListItem isSelected={selectedId === this._inputID}>
+                            {creating ? (
+                                <TextInputView
+                                    styles={inputStyles}
+                                    onChange={this.handleChange}
+                                    onCancel={this.handleCancel}
+                                    onComplete={this.persistSession}
+                                    defaultValue="Enter a new Session Name"
+                                />
+                            ) : (
+                                <div>Create a new session</div>
+                            )}
                         </ListItem>
                         {sessions.length ? (
                             sessions.map(session => (
@@ -118,6 +129,7 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
 interface IStateProps {
     sessions: ISession[]
     active: boolean
+    creating: boolean
 }
 
 interface ISessionActions {
@@ -127,11 +139,14 @@ interface ISessionActions {
     updateSession: (session: ISession) => void
     restoreSession: (session: string) => void
     persistSession: (session: string) => void
+    createSession: () => void
+    cancelCreating: () => void
 }
 
-const mapStateToProps = ({ sessions, active }: ISessionState): IStateProps => ({
+const mapStateToProps = ({ sessions, active, creating }: ISessionState): IStateProps => ({
     sessions,
     active,
+    creating,
 })
 
 export default connect<IStateProps, ISessionActions>(mapStateToProps, SessionActions)(Sessions)

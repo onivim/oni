@@ -12,12 +12,14 @@ export interface ISessionState {
     sessions: ISession[]
     selected: string
     active: boolean
+    creating: boolean
 }
 
 const DefaultState: ISessionState = {
     sessions: [],
     selected: null,
     active: false,
+    creating: false,
 }
 
 interface IGenericAction<N, T = undefined> {
@@ -34,17 +36,21 @@ type IPersistSession = IGenericAction<"PERSIST_SESSION", { sessionName: string }
 type IPersistSessionSuccess = IGenericAction<"PERSIST_SESSION_SUCCESS">
 type IUpdateSession = IGenericAction<"UPDATE_SESSION", { session: ISession }>
 type IPopulateSessions = IGenericAction<"POPULATE_SESSIONS">
+type ICreateSession = IGenericAction<"CREATE_SESSION">
+type ICancelCreateSession = IGenericAction<"CANCEL_NEW_SESSION">
 type IEnter = IGenericAction<"ENTER">
 type ILeave = IGenericAction<"LEAVE">
 
 export type ISessionActions =
     | IUpdateMultipleSessions
+    | ICancelCreateSession
     | IUpdateSession
     | IPopulateSessions
     | IUpdateSelection
     | IPersistSession
     | IPersistSessionSuccess
     | IRestoreSession
+    | ICreateSession
     | IEnter
     | ILeave
 
@@ -53,6 +59,8 @@ export const SessionActions = {
         type: "PERSIST_SESSION",
         payload: { sessionName },
     }),
+    cancelCreating: () => ({ type: "CANCEL_NEW_SESSION" }),
+    createSession: () => ({ type: "CREATE_SESSION" }),
     restoreSession: (selected: string) => ({ type: "RESTORE_SESSION", payload: { selected } }),
     updateSelection: (selected: string) => ({ type: "UPDATE_SELECTION", payload: { selected } }),
     populateSessions: () => ({ type: "POPULATE_SESSIONS" }),
@@ -107,6 +115,16 @@ function reducer(state: ISessionState, action: ISessionActions) {
             return {
                 ...state,
                 sessions: action.payload.sessions,
+            }
+        case "CREATE_SESSION":
+            return {
+                ...state,
+                creating: true,
+            }
+        case "CANCEL_NEW_SESSION":
+            return {
+                ...state,
+                creating: false,
             }
         case "ENTER":
             return {
