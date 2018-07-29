@@ -105,7 +105,6 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
     public render() {
         const { sessions, active, creating } = this.props
         const ids = [this._inputID, ...sessions.map(({ id }) => id)]
-        console.log("this.props.active: ", this.props.active)
         return (
             <VimNavigator
                 ids={ids}
