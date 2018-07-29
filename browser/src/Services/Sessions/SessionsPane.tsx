@@ -19,7 +19,6 @@ export default class SessionsPane {
     private _persistSession: PaneAPI["persistSession"]
     private _restoreSession: PaneAPI["restoreSession"]
     private _commands: PaneAPI["commands"]
-    // @ts-ignore
     private _store: PaneAPI["store"]
 
     constructor({ store, commands, persistSession, restoreSession }: PaneAPI) {

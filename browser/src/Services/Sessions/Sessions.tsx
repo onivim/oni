@@ -59,15 +59,17 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
         this.props.updateSelection(selected)
     }
 
-    public handleSelection = (selected: string) => {
+    public handleSelection = async (selected: string) => {
         const { sessionName } = this.state
         if (selected === this._inputID) {
             if (this.props.creating) {
-                return this.props.persistSession(sessionName)
+                const persistedSession = await this.props.persistSession(sessionName)
+                return persistedSession
             }
             return this.props.createSession()
         }
-        return this.props.restoreSession(sessionName)
+        const restoredSession = await this.props.restoreSession(sessionName)
+        return restoredSession
     }
 
     public restoreSession = (selected: string) => {
@@ -96,6 +98,7 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
     public render() {
         const { sessions, active, creating } = this.props
         const ids = [this._inputID, ...sessions.map(({ id }) => id)]
+        console.log("this.props.active: ", this.props.active)
         return (
             <VimNavigator
                 ids={ids}
@@ -120,6 +123,7 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
                         {sessions.length ? (
                             sessions.map(session => (
                                 <SessionItem
+                                    key={session.id}
                                     session={session}
                                     isSelected={selectedId === session.id}
                                 />

@@ -897,7 +897,10 @@ export class NeovimEditor extends Editor implements Oni.Editor {
     }
 
     public async restoreSession(sessionDetails: ISession) {
-        return this._neovimInstance.command(`source! ${sessionDetails.file}`)
+        const result = await this._neovimInstance.command(`source ${sessionDetails.file}`)
+        if (result) {
+            Log.warn(result[1])
+        }
     }
 
     public async openFile(
