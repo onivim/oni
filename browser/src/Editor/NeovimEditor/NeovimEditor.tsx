@@ -44,6 +44,7 @@ import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
+import { ISession } from "./../../Services/Sessions"
 import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
 
@@ -889,6 +890,15 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         await this._neovimInstance.command(
             `set tabstop=${tabSize} shiftwidth=${tabSize} softtabstop=${tabSize}`,
         )
+    }
+
+    public async persistSession(sessionDetails: ISession) {
+        const session = await this._neovimInstance.command(`mksession! ${sessionDetails.file}`)
+        console.log("session: ", session)
+    }
+
+    public async restoreSession(sessionDetails: ISession) {
+        await this._neovimInstance.command(`source! ${sessionDetails.file}`)
     }
 
     public async openFile(

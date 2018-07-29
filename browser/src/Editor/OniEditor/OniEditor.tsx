@@ -49,6 +49,7 @@ import { NeovimEditor } from "./../NeovimEditor"
 
 import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 
+import { ISession } from "../../Services/Sessions"
 import { IBuffer } from "../BufferManager"
 import ColorHighlightLayer from "./ColorHighlightLayer"
 import { ImageBufferLayer } from "./ImageBufferLayer"
@@ -286,6 +287,14 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
 
     public executeCommand(command: string): void {
         this._neovimEditor.executeCommand(command)
+    }
+
+    public restoreSession(sessionDetails: ISession) {
+        return this._neovimEditor.restoreSession(sessionDetails)
+    }
+
+    public persistSession(sessionDetails: ISession) {
+        return this._neovimEditor.persistSession(sessionDetails)
     }
 
     public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {

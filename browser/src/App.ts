@@ -75,6 +75,7 @@ export const start = async (args: string[]): Promise<void> => {
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
 
+    const sessionManagerPromise = import("./Services/Sessions")
     const sidebarPromise = import("./Services/Sidebar")
     const overlayPromise = import("./Services/Overlay")
     const statusBarPromise = import("./Services/StatusBar")
@@ -325,6 +326,9 @@ export const start = async (args: string[]): Promise<void> => {
         notifications,
         configuration,
     )
+
+    const Sessions = await sessionManagerPromise
+    Sessions.activate(editorManager, sidebarManager, commandManager)
 
     Explorer.activate(
         commandManager,
