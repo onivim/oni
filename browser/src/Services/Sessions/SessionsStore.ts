@@ -1,31 +1,63 @@
-import { Store } from "redux"
+import "rxjs"
 
-import { ISession } from "./"
+import * as fsExtra from "fs-extra"
+import { Store } from "redux"
+import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
+import { fromPromise } from "rxjs/observable/fromPromise"
+
+import { ISession, SessionManager } from "./"
 import { createStore as createReduxStore } from "./../../Redux"
 
 export interface ISessionState {
     sessions: ISession[]
+    selected: string
+    active: boolean
 }
 
 const DefaultState: ISessionState = {
     sessions: [],
+    selected: null,
+    active: false,
 }
 
-interface IGenericAction<N, T> {
+interface IGenericAction<N, T = undefined> {
     type: N
-    payload: T
+    payload?: T
 }
 
 export type ISessionStore = Store<ISessionState>
 
-type IUpdateMultipleSessions = IGenericAction<"UPDATE_MULTIPLE_SESSIONS", { sessions: ISession[] }>
+type IUpdateMultipleSessions = IGenericAction<"GET_ALL_SESSIONS", { sessions: ISession[] }>
+type IUpdateSelection = IGenericAction<"UPDATE_SELECTION", { selected: string }>
+type IRestoreSession = IGenericAction<"RESTORE_SESSION", { selected: string }>
+type IPersistSession = IGenericAction<"PERSIST_SESSION", { sessionName: string }>
+type IPersistSessionSuccess = IGenericAction<"PERSIST_SESSION_SUCCESS">
 type IUpdateSession = IGenericAction<"UPDATE_SESSION", { session: ISession }>
+type IPopulateSessions = IGenericAction<"POPULATE_SESSIONS">
+type IEnter = IGenericAction<"ENTER">
+type ILeave = IGenericAction<"LEAVE">
 
-type ISessionActions = IUpdateMultipleSessions | IUpdateSession
+export type ISessionActions =
+    | IUpdateMultipleSessions
+    | IUpdateSession
+    | IPopulateSessions
+    | IUpdateSelection
+    | IPersistSession
+    | IPersistSessionSuccess
+    | IRestoreSession
+    | IEnter
+    | ILeave
 
 export const SessionActions = {
-    updateSessions: (sessions: ISession[]) => ({
-        type: "UPDATE_MULTIPLE_SESSIONS",
+    persistSession: (sessionName: string) => ({
+        type: "PERSIST_SESSION",
+        payload: { sessionName },
+    }),
+    restoreSession: (selected: string) => ({ type: "RESTORE_SESSION", payload: { selected } }),
+    updateSelection: (selected: string) => ({ type: "UPDATE_SELECTION", payload: { selected } }),
+    populateSessions: () => ({ type: "POPULATE_SESSIONS" }),
+    getAllSessions: (sessions: ISession[]) => ({
+        type: "GET_ALL_SESSIONS",
         payload: { sessions },
     }),
     updateSession: (session: ISession) => ({
@@ -34,6 +66,36 @@ export const SessionActions = {
     }),
 }
 
+type SessionEpic = Epic<ISessionActions, ISessionState, Dependencies>
+
+const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
+    action$.ofType("PERSIST_SESSION").flatMap((action: IPersistSession) => {
+        return fromPromise(sessionManager.persistSession(action.payload.sessionName)).flatMap(
+            session => {
+                return [{ type: "PERSIST_SESSION_SUCCESS" } as IPersistSessionSuccess]
+            },
+        )
+    })
+
+const fetchSessionsEpic: SessionEpic = (action$, store, { fs, sessionManager }) =>
+    action$.ofType("POPULATE_SESSIONS").flatMap((action: IPopulateSessions) => {
+        return fromPromise(fs.readdir(sessionManager.sessionsDir)).flatMap(dir => {
+            const metadata = dir.map(file => {
+                const [name] = file.split(".")
+                return { name, file }
+            })
+            const sessions = metadata.map(({ file, name }) =>
+                sessionManager.getSessionMetadata(name, file),
+            )
+            return [
+                {
+                    type: "GET_ALL_SESSIONS",
+                    payload: { sessions },
+                } as IUpdateMultipleSessions,
+            ]
+        })
+    })
+
 function reducer(state: ISessionState, action: ISessionActions) {
     switch (action.type) {
         case "UPDATE_SESSION":
@@ -41,14 +103,42 @@ function reducer(state: ISessionState, action: ISessionActions) {
                 ...state,
                 sessions: [...state.sessions, action.payload.session],
             }
-        case "UPDATE_MULTIPLE_SESSIONS":
+        case "GET_ALL_SESSIONS":
             return {
                 ...state,
-                sessions: [...state.sessions, ...action.payload.sessions],
+                sessions: action.payload.sessions,
+            }
+        case "ENTER":
+            return {
+                ...state,
+                active: true,
+            }
+        case "LEAVE":
+            return {
+                ...state,
+                active: false,
+            }
+        case "UPDATE_SELECTION":
+            return {
+                ...state,
+                selected: action.payload.selected,
             }
         default:
             return state
     }
 }
 
-export default createReduxStore("sessions", reducer, DefaultState)
+interface Dependencies {
+    fs: typeof fsExtra
+    sessionManager: SessionManager
+}
+
+const createStore = (dependencies: Dependencies) =>
+    createReduxStore("sessions", reducer, DefaultState, [
+        createEpicMiddleware<ISessionActions, ISessionState, Dependencies>(
+            combineEpics(fetchSessionsEpic, persistSessionEpic),
+            { dependencies },
+        ),
+    ])
+
+export default createStore

@@ -1,10 +1,12 @@
 import { Commands } from "oni-api"
 import * as React from "react"
+import { Provider } from "react-redux"
 
-import { ISessionService, Sessions } from "./"
+import { ISessionService, ISessionStore, Sessions } from "./"
 
 interface PaneAPI extends Partial<ISessionService> {
     commands: Commands.Api
+    store: ISessionStore
 }
 
 /**
@@ -14,17 +16,17 @@ interface PaneAPI extends Partial<ISessionService> {
  *
  */
 export default class SessionsPane {
-    public populateExistingSessions: ISessionService["populateExistingSessions"]
-    private _persistSession: ISessionService["persistSession"]
-    private _restoreSession: ISessionService["restoreSession"]
-    private _sessions: ISessionService["sessions"]
-    private _commands: Commands.Api
+    private _persistSession: PaneAPI["persistSession"]
+    private _restoreSession: PaneAPI["restoreSession"]
+    private _commands: PaneAPI["commands"]
+    // @ts-ignore
+    private _store: PaneAPI["store"]
 
-    constructor({ commands, persistSession, restoreSession, populateExistingSessions }: PaneAPI) {
+    constructor({ store, commands, persistSession, restoreSession }: PaneAPI) {
         this._commands = commands
         this._persistSession = persistSession
         this._restoreSession = restoreSession
-        this.populateExistingSessions = populateExistingSessions
+        this._store = store
 
         this._setupCommands()
     }
@@ -38,11 +40,11 @@ export default class SessionsPane {
     }
 
     public enter() {
-        //
+        this._store.dispatch({ type: "ENTER" })
     }
 
     public leave() {
-        //
+        this._store.dispatch({ type: "LEAVE" })
     }
 
     public persistSession = async (name: string) => {
@@ -53,12 +55,12 @@ export default class SessionsPane {
         await this._restoreSession(name)
     }
 
-    public getSessions() {
-        return Array.from(this._sessions.values())
-    }
-
     public render() {
-        return <Sessions populateExistingSessions={this.populateExistingSessions} />
+        return (
+            <Provider store={this._store}>
+                <Sessions />
+            </Provider>
+        )
     }
 
     private _setupCommands() {
