@@ -166,9 +166,8 @@ export class Blame extends React.PureComponent<IProps, IState> {
 
     public resetTimer = () => {
         clearTimeout(this._timeout)
-        const lastLinePosition = this.state.currentCursorBufferLine
         this._timeout = setTimeout(() => {
-            if (this.state.currentCursorBufferLine === lastLinePosition) {
+            if (this.props.currentLine) {
                 this.setState({ showBlame: true })
             }
         }, this.props.timeout)
