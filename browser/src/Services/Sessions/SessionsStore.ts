@@ -59,11 +59,6 @@ export const SessionActions = {
         type: "PERSIST_SESSION",
         payload: { sessionName },
     }),
-    cancelCreating: () => ({ type: "CANCEL_NEW_SESSION" }),
-    createSession: () => ({ type: "CREATE_SESSION" }),
-    restoreSession: (selected: string) => ({ type: "RESTORE_SESSION", payload: { selected } }),
-    updateSelection: (selected: string) => ({ type: "UPDATE_SELECTION", payload: { selected } }),
-    populateSessions: () => ({ type: "POPULATE_SESSIONS" }),
     getAllSessions: (sessions: ISession[]) => ({
         type: "GET_ALL_SESSIONS",
         payload: { sessions },
@@ -72,6 +67,11 @@ export const SessionActions = {
         type: "UPDATE_SESSION",
         payload: { session },
     }),
+    cancelCreating: () => ({ type: "CANCEL_NEW_SESSION" }),
+    createSession: () => ({ type: "CREATE_SESSION" }),
+    restoreSession: (selected: string) => ({ type: "RESTORE_SESSION", payload: { selected } }),
+    updateSelection: (selected: string) => ({ type: "UPDATE_SELECTION", payload: { selected } }),
+    populateSessions: () => ({ type: "POPULATE_SESSIONS" }),
 }
 
 type SessionEpic = Epic<ISessionActions, ISessionState, Dependencies>
@@ -80,9 +80,22 @@ const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.ofType("PERSIST_SESSION").flatMap((action: IPersistSession) => {
         return fromPromise(sessionManager.persistSession(action.payload.sessionName)).flatMap(
             session => {
-                return [{ type: "PERSIST_SESSION_SUCCESS" } as IPersistSessionSuccess]
+                return [
+                    { type: "CANCEL_NEW_SESSION" } as ICancelCreateSession,
+                    { type: "PERSIST_SESSION_SUCCESS" } as IPersistSessionSuccess,
+                    { type: "POPULATE_SESSIONS" } as IPopulateSessions,
+                ]
             },
         )
+    })
+
+// const deleteSessionEpic: Sessi
+
+const restoreSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
+    action$.ofType("RESTORE_SESSION").flatMap((action: IRestoreSession) => {
+        return fromPromise(sessionManager.restoreSession(action.payload.selected)).mapTo({
+            type: "POPULATE_SESSIONS",
+        } as IPopulateSessions)
     })
 
 const fetchSessionsEpic: SessionEpic = (action$, store, { fs, sessionManager }) =>
@@ -154,7 +167,7 @@ interface Dependencies {
 const createStore = (dependencies: Dependencies) =>
     createReduxStore("sessions", reducer, DefaultState, [
         createEpicMiddleware<ISessionActions, ISessionState, Dependencies>(
-            combineEpics(fetchSessionsEpic, persistSessionEpic),
+            combineEpics(fetchSessionsEpic, persistSessionEpic, restoreSessionEpic),
             { dependencies },
         ),
     ])

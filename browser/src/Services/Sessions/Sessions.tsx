@@ -59,10 +59,18 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
         this.props.updateSelection(selected)
     }
 
-    public restoreSession = (selected: string) => {
+    public handleSelection = (selected: string) => {
+        const { sessionName } = this.state
         if (selected === this._inputID) {
+            if (this.props.creating) {
+                return this.props.persistSession(sessionName)
+            }
             return this.props.createSession()
         }
+        return this.props.restoreSession(sessionName)
+    }
+
+    public restoreSession = (selected: string) => {
         this.props.restoreSession(selected)
     }
 
@@ -71,10 +79,10 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
         this.setState({ sessionName: value })
     }
 
-    public persistSession = () => {
+    public persistSession = async () => {
         const { sessionName } = this.state
         if (sessionName) {
-            this.props.persistSession(sessionName)
+            await this.props.persistSession(sessionName)
         }
     }
 
@@ -92,7 +100,7 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
             <VimNavigator
                 ids={ids}
                 active={active}
-                onSelected={this.restoreSession}
+                onSelected={this.handleSelection}
                 onSelectionChanged={this.updateSelection}
                 render={selectedId => (
                     <List>

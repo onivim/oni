@@ -57,12 +57,14 @@ export class SessionManager implements ISessionService {
 
     public persistSession = async (sessionName: string) => {
         const sessionDetails = this._updateSession(sessionName)
-        await (this._editorManager.activeEditor as any).persistSession(sessionDetails)
+        const untypedEditor: any = this._editorManager.activeEditor
+        await untypedEditor.persistSession(sessionDetails)
     }
 
     public restoreSession = async (sessionName: string) => {
         const sessionDetails = this._updateSession(sessionName)
-        await (this._editorManager.activeEditor as any).restoreSession(sessionDetails)
+        const untypedEditor: any = this._editorManager.activeEditor
+        await untypedEditor.restoreSession(sessionDetails)
         return sessionDetails
     }
 
