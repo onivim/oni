@@ -37,7 +37,7 @@ export class SessionManager implements ISessionService {
     ) {
         fs.ensureDirSync(this.sessionsDir)
         this._sidebarManager.add(
-            "archive",
+            "save",
             new SessionsPane({
                 store: this._store,
                 commands: this._commands,

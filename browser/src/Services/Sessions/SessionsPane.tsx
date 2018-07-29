@@ -16,10 +16,10 @@ interface PaneAPI extends Partial<ISessionService> {
  *
  */
 export default class SessionsPane {
+    private _store: PaneAPI["store"]
+    private _commands: PaneAPI["commands"]
     private _persistSession: PaneAPI["persistSession"]
     private _restoreSession: PaneAPI["restoreSession"]
-    private _commands: PaneAPI["commands"]
-    private _store: PaneAPI["store"]
 
     constructor({ store, commands, persistSession, restoreSession }: PaneAPI) {
         this._commands = commands

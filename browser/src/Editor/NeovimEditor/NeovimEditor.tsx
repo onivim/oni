@@ -893,13 +893,20 @@ export class NeovimEditor extends Editor implements Oni.Editor {
     }
 
     public async persistSession(sessionDetails: ISession) {
-        return this._neovimInstance.command(`mksession! ${sessionDetails.file}`)
+        const result = await this._neovimInstance.command(`mksession! ${sessionDetails.file}`)
+        if (result) {
+            const [, error] = result
+            Log.warn(error)
+            throw new Error(error)
+        }
     }
 
     public async restoreSession(sessionDetails: ISession) {
         const result = await this._neovimInstance.command(`source ${sessionDetails.file}`)
         if (result) {
-            Log.warn(result[1])
+            const [, error] = result
+            Log.warn(error)
+            throw new Error(error)
         }
     }
 

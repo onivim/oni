@@ -10,7 +10,7 @@ import { createStore as createReduxStore } from "./../../Redux"
 
 export interface ISessionState {
     sessions: ISession[]
-    selected: string
+    selected: ISession
     active: boolean
     creating: boolean
 }
@@ -31,7 +31,7 @@ export type ISessionStore = Store<ISessionState>
 
 type IUpdateMultipleSessions = IGenericAction<"GET_ALL_SESSIONS", { sessions: ISession[] }>
 type IUpdateSelection = IGenericAction<"UPDATE_SELECTION", { selected: string }>
-type IRestoreSession = IGenericAction<"RESTORE_SESSION", { selected: string }>
+type IRestoreSession = IGenericAction<"RESTORE_SESSION", { sessionName: string }>
 type IPersistSession = IGenericAction<"PERSIST_SESSION", { sessionName: string }>
 type IPersistSessionSuccess = IGenericAction<"PERSIST_SESSION_SUCCESS">
 type IUpdateSession = IGenericAction<"UPDATE_SESSION", { session: ISession }>
@@ -69,7 +69,10 @@ export const SessionActions = {
     }),
     cancelCreating: () => ({ type: "CANCEL_NEW_SESSION" }),
     createSession: () => ({ type: "CREATE_SESSION" }),
-    restoreSession: (selected: string) => ({ type: "RESTORE_SESSION", payload: { selected } }),
+    restoreSession: (sessionName: string) => ({
+        type: "RESTORE_SESSION",
+        payload: { sessionName },
+    }),
     updateSelection: (selected: string) => ({ type: "UPDATE_SELECTION", payload: { selected } }),
     populateSessions: () => ({ type: "POPULATE_SESSIONS" }),
 }
@@ -93,7 +96,7 @@ const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
 
 const restoreSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.ofType("RESTORE_SESSION").flatMap((action: IRestoreSession) => {
-        return fromPromise(sessionManager.restoreSession(action.payload.selected)).mapTo({
+        return fromPromise(sessionManager.restoreSession(action.payload.sessionName)).mapTo({
             type: "POPULATE_SESSIONS",
         } as IPopulateSessions)
     })
@@ -116,6 +119,9 @@ const fetchSessionsEpic: SessionEpic = (action$, store, { fs, sessionManager }) 
             ]
         })
     })
+
+const findSelectedSession = (sessions: ISession[], selected: string) =>
+    sessions.find(session => session.id === selected)
 
 function reducer(state: ISessionState, action: ISessionActions) {
     switch (action.type) {
@@ -152,7 +158,7 @@ function reducer(state: ISessionState, action: ISessionActions) {
         case "UPDATE_SELECTION":
             return {
                 ...state,
-                selected: action.payload.selected,
+                selected: findSelectedSession(state.sessions, action.payload.selected),
             }
         default:
             return state

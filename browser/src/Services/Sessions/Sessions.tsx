@@ -18,6 +18,7 @@ const SessionItem: React.SFC<ISessionItem> = ({ session, isSelected }) => {
         <ListItem isSelected={isSelected}>
             <div>Name: {session.name}</div>
             <div>File: {session.file}</div>
+            <div>Last updated at: {new Date(session.updatedAt).toUTCString()}</div>
         </ListItem>
     )
 }
@@ -59,17 +60,23 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
         this.props.updateSelection(selected)
     }
 
-    public handleSelection = async (selected: string) => {
+    public handleSelection = async (newSessionName: string) => {
         const { sessionName } = this.state
-        if (selected === this._inputID) {
-            if (this.props.creating) {
-                const persistedSession = await this.props.persistSession(sessionName)
-                return persistedSession
-            }
-            return this.props.createSession()
+        const inputSelected = newSessionName === this._inputID
+        switch (true) {
+            case inputSelected && this.props.creating:
+                await this.props.persistSession(sessionName)
+                break
+            case inputSelected && !this.props.creating:
+                this.props.createSession()
+                break
+            case !inputSelected:
+                const { selected } = this.props
+                await this.props.restoreSession(selected.name)
+                break
+            default:
+                break
         }
-        const restoredSession = await this.props.restoreSession(sessionName)
-        return restoredSession
     }
 
     public restoreSession = (selected: string) => {
@@ -142,6 +149,7 @@ interface IStateProps {
     sessions: ISession[]
     active: boolean
     creating: boolean
+    selected: ISession
 }
 
 interface ISessionActions {
@@ -155,10 +163,11 @@ interface ISessionActions {
     cancelCreating: () => void
 }
 
-const mapStateToProps = ({ sessions, active, creating }: ISessionState): IStateProps => ({
+const mapStateToProps = ({ sessions, selected, active, creating }: ISessionState): IStateProps => ({
     sessions,
     active,
     creating,
+    selected,
 })
 
 export default connect<IStateProps, ISessionActions>(mapStateToProps, SessionActions)(Sessions)
