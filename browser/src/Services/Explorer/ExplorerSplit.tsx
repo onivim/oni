@@ -9,14 +9,12 @@ import { Provider } from "react-redux"
 import { Store } from "redux"
 import { FileSystemWatcher } from "./../../Services/FileSystemWatcher"
 
+import * as Oni from "oni-api"
 import { Event } from "oni-types"
 
-import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
-import { Configuration } from "./../../Services/Configuration"
-import { EditorManager } from "./../../Services/EditorManager"
+import { CallbackCommand } from "./../../Services/CommandManager" // TODO: Discuss: Move to API?
 import { getInstance as NotificationsInstance } from "./../../Services/Notifications"
 import { windowManager } from "./../../Services/WindowManager"
-import { IWorkspace } from "./../../Services/Workspace"
 
 import { createStore, getPathForNode, IExplorerState } from "./ExplorerStore"
 
@@ -39,32 +37,27 @@ export class ExplorerSplit {
         return "Explorer"
     }
 
-    constructor(
-        private _configuration: Configuration,
-        private _workspace: IWorkspace,
-        private _commandManager: CommandManager,
-        private _editorManager: EditorManager,
-    ) {
+    constructor(private _oni: Oni.Plugin.Api) {
         this._store = createStore({ notifications: NotificationsInstance() })
 
         this._initializeFileSystemWatcher()
 
-        this._workspace.onDirectoryChanged.subscribe(newDirectory => {
+        this._oni.workspace.onDirectoryChanged.subscribe(newDirectory => {
             this._store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
                 rootPath: newDirectory,
             })
 
             if (this._watcher) {
-                this._watcher.unwatch(this._workspace.activeWorkspace)
+                this._watcher.unwatch(this._oni.workspace.activeWorkspace)
                 this._watcher.watch(newDirectory)
             }
         })
 
-        if (this._workspace.activeWorkspace) {
+        if (this._oni.workspace.activeWorkspace) {
             this._store.dispatch({
                 type: "SET_ROOT_DIRECTORY",
-                rootPath: this._workspace.activeWorkspace,
+                rootPath: this._oni.workspace.activeWorkspace,
             })
         }
     }
@@ -104,9 +97,9 @@ export class ExplorerSplit {
     }
 
     private _initializeFileSystemWatcher(): void {
-        if (this._configuration.getValue("explorer.autoRefresh")) {
+        if (this._oni.configuration.getValue("explorer.autoRefresh")) {
             this._watcher = new FileSystemWatcher({
-                target: this._workspace.activeWorkspace,
+                target: this._oni.workspace.activeWorkspace,
                 options: { ignoreInitial: true, ignored: "**/node_modules" },
             })
 
@@ -127,7 +120,7 @@ export class ExplorerSplit {
     }
 
     private _initialiseExplorerCommands(): void {
-        this._commandManager.registerCommand(
+        this._oni.commands.registerCommand(
             new CallbackCommand(
                 "explorer.delete.persist",
                 null,
@@ -135,7 +128,7 @@ export class ExplorerSplit {
                 () => !this._inputInProgress() && this._onDeleteItem({ persist: true }),
             ),
         )
-        this._commandManager.registerCommand(
+        this._oni.commands.registerCommand(
             new CallbackCommand(
                 "explorer.delete",
                 null,
@@ -143,7 +136,7 @@ export class ExplorerSplit {
                 () => !this._inputInProgress() && this._onDeleteItem({ persist: false }),
             ),
         )
-        this._commandManager.registerCommand(
+        this._oni.commands.registerCommand(
             new CallbackCommand(
                 "explorer.yank",
                 "Explorer: Yank Selected Item",
@@ -152,7 +145,7 @@ export class ExplorerSplit {
             ),
         )
 
-        this._commandManager.registerCommand(
+        this._oni.commands.registerCommand(
             new CallbackCommand(
                 "explorer.undo",
                 "Explorer: Undo Last Action",
@@ -161,7 +154,7 @@ export class ExplorerSplit {
             ),
         )
 
-        this._commandManager.registerCommand(
+        this._oni.commands.registerCommand(
             new CallbackCommand(
                 "explorer.paste",
                 "Explorer: Move/Paste Selected Item",
@@ -170,7 +163,7 @@ export class ExplorerSplit {
             ),
         )
 
-        this._commandManager.registerCommand(
+        this._oni.commands.registerCommand(
             new CallbackCommand(
                 "explorer.refresh",
                 "Explorer: Refresh The Tree",
@@ -179,7 +172,7 @@ export class ExplorerSplit {
             ),
         )
 
-        this._commandManager.registerCommand(
+        this._oni.commands.registerCommand(
             new CallbackCommand(
                 "explorer.create.file",
                 "Explorer: Create A New File",
@@ -188,7 +181,7 @@ export class ExplorerSplit {
             ),
         )
 
-        this._commandManager.registerCommand(
+        this._oni.commands.registerCommand(
             new CallbackCommand(
                 "explorer.create.folder",
                 "Explorer: Create A New Directory",
@@ -197,7 +190,7 @@ export class ExplorerSplit {
             ),
         )
 
-        this._commandManager.registerCommand(
+        this._oni.commands.registerCommand(
             new CallbackCommand(
                 "explorer.expand.directory",
                 "Explorer: Expand Selected Directory",
@@ -206,7 +199,7 @@ export class ExplorerSplit {
             ),
         )
 
-        this._commandManager.registerCommand(
+        this._oni.commands.registerCommand(
             new CallbackCommand(
                 "explorer.collapse.directory",
                 "Explorer: Collapse Selected Directory",
@@ -215,7 +208,7 @@ export class ExplorerSplit {
             ),
         )
 
-        this._commandManager.registerCommand(
+        this._oni.commands.registerCommand(
             new CallbackCommand(
                 "explorer.rename",
                 "Explorer: Rename Selected File/Folder",
@@ -248,7 +241,7 @@ export class ExplorerSplit {
 
         switch (selectedItem.type) {
             case "file":
-                this._editorManager.activeEditor.openFile(selectedItem.filePath)
+                this._oni.editors.activeEditor.openFile(selectedItem.filePath)
                 // FIXME: the editor manager is not a windowSplit aka this
                 // Should be being called with an ID not an active editor
                 windowManager.focusSplit("oni.window.0")

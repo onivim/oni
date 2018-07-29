@@ -1,6 +1,6 @@
-import { IWorkspace, Workspace } from "./../../browser/src/Services/Workspace"
+import { Workspace } from "./../../browser/src/Services/Workspace"
 
-const MockWorkspace = jest.fn<IWorkspace>().mockImplementation(() => ({
+const MockWorkspace = jest.fn<Workspace>().mockImplementation(() => ({
     activeDirectory: "test/dir",
     onDirectoryChanged: {
         subscribe: jest.fn(),
