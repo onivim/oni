@@ -12,7 +12,9 @@ class FocusManager {
     }
 
     public pushFocus(element: HTMLElement) {
-        this._focusElementStack = [element, ...this._focusElementStack]
+        if (!this._focusElementStack.includes(element)) {
+            this._focusElementStack = [element, ...this._focusElementStack]
+        }
 
         window.setTimeout(() => this.enforceFocus(), 0)
     }
