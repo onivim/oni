@@ -2,9 +2,9 @@ import { Commands } from "oni-api"
 import * as React from "react"
 import { Provider } from "react-redux"
 
-import { ISessionService, ISessionStore, Sessions } from "./"
+import { ISessionStore, Sessions } from "./"
 
-interface PaneAPI extends Partial<ISessionService> {
+interface SessionPaneProps {
     commands: Commands.Api
     store: ISessionStore
 }
@@ -16,18 +16,12 @@ interface PaneAPI extends Partial<ISessionService> {
  *
  */
 export default class SessionsPane {
-    private _store: PaneAPI["store"]
-    private _commands: PaneAPI["commands"]
-    private _persistSession: PaneAPI["persistSession"]
-    private _restoreSession: PaneAPI["restoreSession"]
+    private _store: ISessionStore
+    private _commands: Commands.Api
 
-    constructor({ store, commands, persistSession, restoreSession }: PaneAPI) {
+    constructor({ store, commands }: SessionPaneProps) {
         this._commands = commands
-        this._persistSession = persistSession
-        this._restoreSession = restoreSession
         this._store = store
-
-        this._setupCommands()
     }
 
     get id() {
@@ -46,28 +40,15 @@ export default class SessionsPane {
         this._store.dispatch({ type: "LEAVE" })
     }
 
-    public persistSession = async (name: string) => {
-        await this._persistSession(name)
-    }
-
-    public restoreSession = async (name: string) => {
-        await this._restoreSession(name)
-    }
-
     public render() {
         return (
             <Provider store={this._store}>
-                <Sessions />
+                <Sessions setupCommand={this._setupCommands} />
             </Provider>
         )
     }
 
-    private _setupCommands() {
-        this._commands.registerCommand({
-            command: "oni.sessions.persist",
-            name: null,
-            detail: null,
-            execute: () => this._persistSession("test"),
-        })
+    private _setupCommands(command: Commands.ICommand) {
+        this._commands.registerCommand(command)
     }
 }

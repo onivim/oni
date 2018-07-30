@@ -1,3 +1,4 @@
+import { Commands } from "oni-api"
 import * as React from "react"
 import { connect } from "react-redux"
 
@@ -5,6 +6,28 @@ import styled, { css, sidebarItemSelected, withProps } from "../../UI/components
 import TextInputView from "../../UI/components/LightweightText"
 import { VimNavigator } from "../../UI/components/VimNavigator"
 import { ISession, ISessionState, SessionActions } from "./"
+
+interface IProps {
+    setupCommands: (command: Commands.ICommand) => void
+}
+
+interface IStateProps {
+    sessions: ISession[]
+    active: boolean
+    creating: boolean
+    selected: ISession
+}
+
+interface ISessionActions {
+    populateSessions: () => void
+    updateSelection: (selected: string) => void
+    getAllSessions: (sessions: ISession[]) => void
+    updateSession: (session: ISession) => void
+    restoreSession: (session: string) => void
+    persistSession: (session: string) => void
+    createSession: () => void
+    cancelCreating: () => void
+}
 
 interface IConnectedProps extends IStateProps, ISessionActions {}
 
@@ -144,24 +167,6 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
     }
 }
 
-interface IStateProps {
-    sessions: ISession[]
-    active: boolean
-    creating: boolean
-    selected: ISession
-}
-
-interface ISessionActions {
-    populateSessions: () => void
-    updateSelection: (selected: string) => void
-    getAllSessions: (sessions: ISession[]) => void
-    updateSession: (session: ISession) => void
-    restoreSession: (session: string) => void
-    persistSession: (session: string) => void
-    createSession: () => void
-    cancelCreating: () => void
-}
-
 const mapStateToProps = ({ sessions, selected, active, creating }: ISessionState): IStateProps => ({
     sessions,
     active,
@@ -169,4 +174,6 @@ const mapStateToProps = ({ sessions, selected, active, creating }: ISessionState
     selected,
 })
 
-export default connect<IStateProps, ISessionActions>(mapStateToProps, SessionActions)(Sessions)
+export default connect<IStateProps, ISessionActions, IProps>(mapStateToProps, SessionActions)(
+    Sessions,
+)
