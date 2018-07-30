@@ -2,9 +2,10 @@ import "rxjs"
 
 import * as fsExtra from "fs-extra"
 import * as path from "path"
-import { Store } from "redux"
-import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
-import { fromPromise } from "rxjs/observable/fromPromise"
+import { MiddlewareAPI, Store } from "redux"
+import { combineEpics, createEpicMiddleware, Epic, ofType } from "redux-observable"
+import { from } from "rxjs/observable/from"
+import { catchError, filter, flatMap, mergeMap } from "rxjs/operators"
 
 import { ISession, SessionManager } from "./"
 import { createStore as createReduxStore } from "./../../Redux"
@@ -70,108 +71,133 @@ export type ISessionActions =
     | ILeave
 
 export const SessionActions = {
-    deleteSession: () => ({ type: "DELETE_SESSION" }),
+    persistSessionSuccess: () => ({ type: "PERSIST_SESSION_SUCCESS" } as IPersistSessionSuccess),
+    populateSessions: () => ({ type: "POPULATE_SESSIONS" } as IPopulateSessions),
+    deleteSession: () => ({ type: "DELETE_SESSION" } as IDeleteSession),
+    cancelCreating: () => ({ type: "CANCEL_NEW_SESSION" } as ICancelCreateSession),
+    createSession: () => ({ type: "CREATE_SESSION" } as ICreateSession),
+    updateCurrentSession: () => ({ type: "UPDATE_CURRENT_SESSION" } as IUpdateCurrentSession),
+    deleteSessionSuccess: () => ({ type: "DELETE_SESSION_SUCCESS" } as IDeleteSessionSuccess),
+
+    setCurrentSession: (session: ISession) =>
+        ({ type: "SET_CURRENT_SESSION", payload: { session } } as ISetCurrentSession),
+
+    deleteSessionFailed: (error: Error) =>
+        ({ type: "DELETE_SESSION_FAILED", error } as IDeleteSessionFailed),
+
+    persistSessionFailed: (error: Error) =>
+        ({ type: "PERSIST_SESSION_FAILED", error } as IPersistSessionFailed),
+
+    updateSelection: (selected: string) =>
+        ({ type: "UPDATE_SELECTION", payload: { selected } } as IUpdateSelection),
+
+    getAllSessions: (sessions: ISession[]) =>
+        ({
+            type: "GET_ALL_SESSIONS",
+            payload: { sessions },
+        } as IUpdateMultipleSessions),
+
     persistSession: (sessionName: string) => ({
         type: "PERSIST_SESSION",
         payload: { sessionName },
     }),
-    getAllSessions: (sessions: ISession[]) => ({
-        type: "GET_ALL_SESSIONS",
-        payload: { sessions },
-    }),
-    updateCurrentSession: () => ({
-        type: "UPDATE_CURRENT_SESSION",
-    }),
+
     updateSession: (session: ISession) => ({
         type: "UPDATE_SESSION",
         payload: { session },
     }),
-    cancelCreating: () => ({ type: "CANCEL_NEW_SESSION" }),
-    createSession: () => ({ type: "CREATE_SESSION" }),
+
     restoreSession: (sessionName: string) => ({
         type: "RESTORE_SESSION",
         payload: { sessionName },
     }),
-    updateSelection: (selected: string) => ({ type: "UPDATE_SELECTION", payload: { selected } }),
-    populateSessions: () => ({ type: "POPULATE_SESSIONS" }),
 }
 
 type SessionEpic = Epic<ISessionActions, ISessionState, Dependencies>
 
 const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
-    action$.ofType("PERSIST_SESSION").flatMap((action: IPersistSession) => {
-        return fromPromise(sessionManager.persistSession(action.payload.sessionName))
-            .flatMap(session => {
-                return [
-                    { type: "CANCEL_NEW_SESSION" } as ICancelCreateSession,
-                    { type: "PERSIST_SESSION_SUCCESS" } as IPersistSessionSuccess,
-                    { type: "SET_CURRENT_SESSION", payload: { session } } as ISetCurrentSession,
-                    { type: "POPULATE_SESSIONS" } as IPopulateSessions,
-                ]
-            })
-            .catch(error => [{ type: "PERSIST_SESSION_FAILED", error } as IPersistSessionFailed])
-    })
+    action$.pipe(
+        ofType("PERSIST_SESSION"),
+        flatMap((action: IPersistSession) => {
+            return from(sessionManager.persistSession(action.payload.sessionName)).pipe(
+                flatMap(session => {
+                    return [
+                        SessionActions.cancelCreating(),
+                        SessionActions.persistSessionSuccess(),
+                        SessionActions.setCurrentSession(session),
+                        SessionActions.populateSessions(),
+                    ]
+                }),
+                catchError(error => [SessionActions.persistSessionFailed(error)]),
+            )
+        }),
+    )
+
+const hasCurrentSession = (store: MiddlewareAPI<ISessionState>) => {
+    const { currentSession } = store.getState()
+    return !!(currentSession && currentSession.name)
+}
 
 const updateCurrentSessionEpic: SessionEpic = (action$, store, { fs, sessionManager }) => {
-    const { currentSession } = store.getState()
-    return action$
-        .ofType("UPDATE_CURRENT_SESSION")
-        .filter(_ => !!currentSession) // there is no current session on vim enter
-        .flatMap(() => {
-            return fromPromise(sessionManager.persistSession(currentSession.name))
-                .flatMap(() => {
-                    return [{ type: "PERSIST_SESSION_SUCCESS" } as IPersistSessionSuccess]
-                })
-                .catch(error => [
-                    { type: "PERSIST_SESSION_FAILED", error } as IPersistSessionFailed,
-                ])
-        })
+    return action$.pipe(
+        ofType("UPDATE_CURRENT_SESSION"),
+        filter(() => hasCurrentSession(store)),
+        mergeMap(() => {
+            const { currentSession } = store.getState()
+            return from(sessionManager.persistSession(currentSession.name)).pipe(
+                flatMap(() => [SessionActions.persistSessionSuccess()]),
+                catchError(error => [SessionActions.persistSessionFailed(error)]),
+            )
+        }),
+    )
 }
 
 const deleteSessionEpic: SessionEpic = (action$, store, { fs, sessionManager }) =>
-    action$.ofType("DELETE_SESSION").flatMap(() => {
-        const { selected, currentSession } = store.getState()
-        const sessionToDelete = selected || currentSession
-        return fromPromise(fs.remove(sessionToDelete.file))
-            .flatMap(() => {
-                return [
-                    { type: "DELETE_SESSION_SUCCESS" } as IDeleteSessionSuccess,
-                    { type: "POPULATE_SESSIONS" } as IPopulateSessions,
-                ]
-            })
-            .catch(error => [{ type: "DELETE_SESSION_FAILED", error } as IDeleteSessionFailed])
-    })
-
+    action$.pipe(
+        ofType("DELETE_SESSION"),
+        flatMap(() => {
+            const { selected, currentSession } = store.getState()
+            const sessionToDelete = selected || currentSession
+            return from(fs.remove(sessionToDelete.file)).pipe(
+                flatMap(() => [
+                    SessionActions.deleteSessionSuccess(),
+                    SessionActions.populateSessions(),
+                ]),
+                catchError(error => [SessionActions.deleteSessionFailed(error)]),
+            )
+        }),
+    )
 const restoreSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
-    action$.ofType("RESTORE_SESSION").flatMap((action: IRestoreSession) => {
-        return fromPromise(sessionManager.restoreSession(action.payload.sessionName)).flatMap(
-            session => [
-                {
-                    type: "POPULATE_SESSIONS",
-                } as IPopulateSessions,
-                { type: "SET_CURRENT_SESSION", payload: { session } } as ISetCurrentSession,
-            ],
-        )
-    })
+    action$.pipe(
+        ofType("RESTORE_SESSION"),
+        flatMap((action: IRestoreSession) => {
+            return from(sessionManager.restoreSession(action.payload.sessionName)).pipe(
+                flatMap(session => [
+                    SessionActions.populateSessions(),
+                    SessionActions.setCurrentSession(session),
+                ]),
+            )
+        }),
+    )
 
 const fetchSessionsEpic: SessionEpic = (action$, store, { fs, sessionManager }) =>
-    action$.ofType("POPULATE_SESSIONS").flatMap((action: IPopulateSessions) => {
-        return fromPromise(fs.readdir(sessionManager.sessionsDir)).flatMap(dir => {
-            const metadata = dir.map(file => {
-                const [name] = file.split(".")
-                return { name, file: path.join(sessionManager.sessionsDir, file) }
-            })
-            const sessions = metadata.map(({ file, name }) =>
-                sessionManager.getSessionMetadata(name, file),
+    action$.pipe(
+        ofType("POPULATE_SESSIONS"),
+        flatMap((action: IPopulateSessions) => {
+            return from(fs.readdir(sessionManager.sessionsDir)).pipe(
+                flatMap(dir => {
+                    const metadata = dir.map(file => {
+                        const [name] = file.split(".")
+                        return { name, file: path.join(sessionManager.sessionsDir, file) }
+                    })
+                    const sessions = metadata.map(({ file, name }) =>
+                        sessionManager.getSessionMetadata(name, file),
+                    )
+                    return [SessionActions.getAllSessions(sessions)]
+                }),
             )
-            return [
-                {
-                    type: "GET_ALL_SESSIONS",
-                    payload: { sessions },
-                } as IUpdateMultipleSessions,
-            ]
-        })
-    })
+        }),
+    )
 
 const findSelectedSession = (sessions: ISession[], selected: string) =>
     sessions.find(session => session.id === selected)

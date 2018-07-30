@@ -101,12 +101,10 @@ export class SessionManager implements ISessionService {
 
     private _setupSubscriptions() {
         this._editorManager.activeEditor.onBufferEnter.subscribe(() => {
-            const action = SessionActions.updateCurrentSession()
-            this._store.dispatch(action)
+            this._store.dispatch(SessionActions.updateCurrentSession())
         })
         this._editorManager.activeEditor.onQuit.subscribe(() => {
-            const action = SessionActions.updateCurrentSession()
-            this._store.dispatch(action)
+            this._store.dispatch(SessionActions.updateCurrentSession())
         })
     }
 }
