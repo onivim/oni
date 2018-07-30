@@ -175,7 +175,12 @@ export const activate = (oni: Oni.Plugin.Api) => {
                 removeNewLines(change.text),
             )
         } else {
-            oni.log.warn("Unhandled change request!")
+            host.changeLinesInFile(
+                filePath,
+                change.range.start.line + 1,
+                change.range.end.line + 1,
+                change.text,
+            )
         }
 
         const saveFile = oni.configuration.getValue<string>("debug.typescript.saveFile")

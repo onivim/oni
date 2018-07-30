@@ -382,16 +382,12 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
         this._bufferUpdateManager = new NeovimBufferUpdateManager(this._configuration, this)
 
-        const s1 = this._onModeChanged.subscribe(newMode => {
-            this._bufferUpdateManager.notifyModeChanged(newMode)
-        })
-
         const dispatchScroll = () => this._dispatchScrollEvent()
 
         const s2 = this._autoCommands.onCursorMoved.subscribe(dispatchScroll)
         const s3 = this._autoCommands.onCursorMovedI.subscribe(dispatchScroll)
 
-        this._disposables = [s1, s2, s3]
+        this._disposables = [s2, s3]
     }
 
     public dispose(): void {
@@ -928,13 +924,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             const pluginArgs = args[0]
             const pluginMethod = pluginArgs.shift()
 
-            // TODO: Update pluginManager to subscribe from event here, instead of dupliating this
-
-            if (pluginMethod === "buffer_update") {
-                const eventContext: EventContext = args[0][0]
-
-                this._bufferUpdateManager.notifyFullBufferUpdate(eventContext)
-            } else if (pluginMethod === "oni_yank") {
+            if (pluginMethod === "oni_yank") {
                 this._onYank.dispatch(args[0][0])
             } else if (pluginMethod === "oni_command") {
                 this._onOniCommand.dispatch(args[0][0])
@@ -954,19 +944,11 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 this._autoCommands.notifyAutocommand(eventName, eventContext)
 
                 this._dispatchEvent(eventName, eventContext)
-            } else if (pluginMethod === "incremental_buffer_update") {
-                const eventContext = args[0][0]
-                const lineContents = args[0][1]
-                const lineNumber = args[0][2]
-
-                this._bufferUpdateManager.notifyIncrementalBufferUpdate(
-                    eventContext,
-                    lineNumber,
-                    lineContents,
-                )
             } else {
                 Log.warn("Unknown event from oni_plugin_notify: " + pluginMethod)
             }
+        } else if (method === "nvim_buf_lines_event") {
+            this._bufferUpdateManager.handleUpdateEvent(args)
         } else {
             Log.warn("Unknown notification: " + method)
         }

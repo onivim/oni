@@ -28,26 +28,6 @@ function OniNoop()
 
 endfunction
 
-function OniNotifyBufferUpdate()
-
-    if !exists("b:last_change_tick")
-        let b:last_change_tick = -1
-    endif
-
-    if b:changedtick > b:last_change_tick
-        let b:last_change_tick = b:changedtick
-        if mode() == 'i'
-            let buffer_line = line(".")
-            let line_contents = getline(".")
-            let context = OniGetContext()
-            call OniNotify(["incremental_buffer_update", context, line_contents, buffer_line])
-        else
-            let context = OniGetContext()
-            call OniNotify(["buffer_update", context, 1, line('$')])
-        endif
-    endif
-endfunction
-
 function OniNotifyEvent(eventName)
     let context = OniGetContext()
     call OniNotify(["event", a:eventName, context])
@@ -139,16 +119,6 @@ augroup OniEventListeners
     autocmd! DirChanged * :call OniNotifyEvent("DirChanged")
     autocmd! VimResized * :call OniNotifyEvent("VimResized")
     autocmd! VimLeave * :call OniNotifyEvent("VimLeave")
-augroup END
-
-augroup OniNotifyBufferUpdates
-    autocmd!
-    autocmd! BufEnter * :call OniNotifyBufferUpdate()
-    autocmd! CursorMovedI * :call OniNotifyBufferUpdate()
-    autocmd! CursorMoved * :call OniNotifyBufferUpdate()
-    autocmd! InsertLeave * :call OniNotifyBufferUpdate()
-    autocmd! InsertChange * :call OniNotifyBufferUpdate()
-    autocmd! InsertEnter * :call OniNotifyBufferUpdate()
 augroup END
 
 function OniGetContext()

@@ -224,6 +224,22 @@ export class TypeScriptServerHost extends events.EventEmitter {
         })
     }
 
+    public changeLinesInFile(
+        file: string,
+        line: number,
+        endLine: number,
+        contents: string,
+    ): Promise<void> {
+        return this._makeTssRequest<void>("change", {
+            file,
+            line,
+            offset: 1,
+            endOffset: 1,
+            endLine: endLine + 1,
+            insertString: contents,
+        })
+    }
+
     public getQuickInfo(file: string, line: number, offset: number): Promise<any> {
         return this._makeTssRequest<void>("quickinfo", {
             file,
