@@ -71,9 +71,9 @@ describe("Version Control Manager tests", () => {
         expect(vcsManager.activeProvider).toBeFalsy()
     })
 
-    it("Should correctly hide the status bar item if the dir cannot handle the workspace", () => {
+    it("Should correctly hide the status bar item if the dir cannot handle the workspace", async () => {
         provider.canHandleWorkspace = async () => makePromise(false)
-        vcsManager.registerProvider(provider)
+        await vcsManager.registerProvider(provider)
         expect(mockStatusBarHide.mock.calls.length).toBe(1)
     })
 
