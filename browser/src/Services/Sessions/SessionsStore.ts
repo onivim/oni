@@ -11,6 +11,7 @@ import { createStore as createReduxStore } from "./../../Redux"
 export interface ISessionState {
     sessions: ISession[]
     selected: ISession
+    currentSession: ISession
     active: boolean
     creating: boolean
 }
@@ -20,6 +21,7 @@ const DefaultState: ISessionState = {
     selected: null,
     active: false,
     creating: false,
+    currentSession: null,
 }
 
 interface IGenericAction<N, T = undefined> {
@@ -35,6 +37,7 @@ type IRestoreSession = IGenericAction<"RESTORE_SESSION", { sessionName: string }
 type IPersistSession = IGenericAction<"PERSIST_SESSION", { sessionName: string }>
 type IPersistSessionSuccess = IGenericAction<"PERSIST_SESSION_SUCCESS">
 type IUpdateSession = IGenericAction<"UPDATE_SESSION", { session: ISession }>
+type ISetCurrentSession = IGenericAction<"SET_CURRENT_SESSION", { session: ISession }>
 type IPopulateSessions = IGenericAction<"POPULATE_SESSIONS">
 type ICreateSession = IGenericAction<"CREATE_SESSION">
 type ICancelCreateSession = IGenericAction<"CANCEL_NEW_SESSION">
@@ -50,6 +53,7 @@ export type ISessionActions =
     | IPersistSession
     | IPersistSessionSuccess
     | IRestoreSession
+    | ISetCurrentSession
     | ICreateSession
     | IEnter
     | ILeave
@@ -86,6 +90,7 @@ const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
                 return [
                     { type: "CANCEL_NEW_SESSION" } as ICancelCreateSession,
                     { type: "PERSIST_SESSION_SUCCESS" } as IPersistSessionSuccess,
+                    { type: "SET_CURRENT_SESSION", payload: { session } } as ISetCurrentSession,
                     { type: "POPULATE_SESSIONS" } as IPopulateSessions,
                 ]
             },
@@ -96,9 +101,14 @@ const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
 
 const restoreSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.ofType("RESTORE_SESSION").flatMap((action: IRestoreSession) => {
-        return fromPromise(sessionManager.restoreSession(action.payload.sessionName)).mapTo({
-            type: "POPULATE_SESSIONS",
-        } as IPopulateSessions)
+        return fromPromise(sessionManager.restoreSession(action.payload.sessionName)).flatMap(
+            session => [
+                {
+                    type: "POPULATE_SESSIONS",
+                } as IPopulateSessions,
+                { type: "SET_CURRENT_SESSION", payload: { session } } as ISetCurrentSession,
+            ],
+        )
     })
 
 const fetchSessionsEpic: SessionEpic = (action$, store, { fs, sessionManager }) =>
@@ -139,6 +149,11 @@ function reducer(state: ISessionState, action: ISessionActions) {
             return {
                 ...state,
                 creating: true,
+            }
+        case "SET_CURRENT_SESSION":
+            return {
+                ...state,
+                currentSession: action.payload.session,
             }
         case "CANCEL_NEW_SESSION":
             return {

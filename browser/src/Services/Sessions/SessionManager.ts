@@ -17,7 +17,7 @@ export interface ISession {
 export interface ISessionService {
     sessionsDir: string
     sessions: ISession[]
-    persistSession(sessionName: string): Promise<void>
+    persistSession(sessionName: string): Promise<ISession>
     restoreSession(sessionName: string): Promise<ISession>
 }
 
@@ -54,6 +54,7 @@ export class SessionManager implements ISessionService {
         const sessionDetails = this._updateSession(sessionName)
         const untypedEditor: any = this._editorManager.activeEditor
         await untypedEditor.persistSession(sessionDetails)
+        return sessionDetails
     }
 
     public restoreSession = async (sessionName: string) => {
