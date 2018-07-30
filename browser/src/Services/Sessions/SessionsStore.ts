@@ -36,7 +36,12 @@ type IUpdateSelection = IGenericAction<"UPDATE_SELECTION", { selected: string }>
 type IRestoreSession = IGenericAction<"RESTORE_SESSION", { sessionName: string }>
 type IPersistSession = IGenericAction<"PERSIST_SESSION", { sessionName: string }>
 type IPersistSessionSuccess = IGenericAction<"PERSIST_SESSION_SUCCESS">
+type IPersistSessionFailed = IGenericAction<"PERSIST_SESSION_FAILED", { error: Error }>
 type IUpdateSession = IGenericAction<"UPDATE_SESSION", { session: ISession }>
+type IDeleteSession = IGenericAction<"DELETE_SESSION">
+type IDeleteSessionSuccess = IGenericAction<"DELETE_SESSION_SUCCESS">
+type IDeleteSessionFailed = IGenericAction<"DELETE_SESSION_FAILED">
+type IUpdateCurrentSession = IGenericAction<"UPDATE_CURRENT_SESSION">
 type ISetCurrentSession = IGenericAction<"SET_CURRENT_SESSION", { session: ISession }>
 type IPopulateSessions = IGenericAction<"POPULATE_SESSIONS">
 type ICreateSession = IGenericAction<"CREATE_SESSION">
@@ -48,10 +53,15 @@ export type ISessionActions =
     | IUpdateMultipleSessions
     | ICancelCreateSession
     | IUpdateSession
+    | IUpdateCurrentSession
     | IPopulateSessions
     | IUpdateSelection
     | IPersistSession
     | IPersistSessionSuccess
+    | IPersistSessionFailed
+    | IDeleteSession
+    | IDeleteSessionSuccess
+    | IDeleteSessionFailed
     | IRestoreSession
     | ISetCurrentSession
     | ICreateSession
@@ -59,6 +69,7 @@ export type ISessionActions =
     | ILeave
 
 export const SessionActions = {
+    deleteSession: () => ({ type: "DELETE_SESSION" }),
     persistSession: (sessionName: string) => ({
         type: "PERSIST_SESSION",
         payload: { sessionName },
@@ -66,6 +77,9 @@ export const SessionActions = {
     getAllSessions: (sessions: ISession[]) => ({
         type: "GET_ALL_SESSIONS",
         payload: { sessions },
+    }),
+    updateCurrentSession: () => ({
+        type: "UPDATE_CURRENT_SESSION",
     }),
     updateSession: (session: ISession) => ({
         type: "UPDATE_SESSION",
@@ -85,19 +99,40 @@ type SessionEpic = Epic<ISessionActions, ISessionState, Dependencies>
 
 const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.ofType("PERSIST_SESSION").flatMap((action: IPersistSession) => {
-        return fromPromise(sessionManager.persistSession(action.payload.sessionName)).flatMap(
-            session => {
+        return fromPromise(sessionManager.persistSession(action.payload.sessionName))
+            .flatMap(session => {
                 return [
                     { type: "CANCEL_NEW_SESSION" } as ICancelCreateSession,
                     { type: "PERSIST_SESSION_SUCCESS" } as IPersistSessionSuccess,
                     { type: "SET_CURRENT_SESSION", payload: { session } } as ISetCurrentSession,
                     { type: "POPULATE_SESSIONS" } as IPopulateSessions,
                 ]
-            },
-        )
+            })
+            .catch(error => [{ type: "PERSIST_SESSION_FAILED", error } as IPersistSessionFailed])
     })
 
-// const deleteSessionEpic: Sessi
+const updateCurrentSessionEpic: SessionEpic = (action$, store, { fs, sessionManager }) =>
+    action$.ofType("UPDATE_CURRENT_SESSION").flatMap(() => {
+        const { currentSession } = store.getState()
+        return fromPromise(sessionManager.persistSession(currentSession.name))
+            .flatMap(() => {
+                return [{ type: "PERSIST_SESSION_SUCCESS" } as IPersistSessionSuccess]
+            })
+            .catch(error => [{ type: "PERSIST_SESSION_FAILED", error } as IPersistSessionFailed])
+    })
+
+const deleteSessionEpic: SessionEpic = (action$, store, { fs, sessionManager }) =>
+    action$.ofType("DELETE_SESSION").flatMap(() => {
+        const { selected } = store.getState()
+        return fromPromise(fs.remove(selected.file))
+            .flatMap(() => {
+                return [
+                    { type: "DELETE_SESSION_SUCCESS" } as IDeleteSessionSuccess,
+                    { type: "POPULATE_SESSIONS" } as IPopulateSessions,
+                ]
+            })
+            .catch(error => [{ type: "DELETE_SESSION_FAILED", error } as IDeleteSessionFailed])
+    })
 
 const restoreSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.ofType("RESTORE_SESSION").flatMap((action: IRestoreSession) => {
@@ -188,7 +223,13 @@ interface Dependencies {
 const createStore = (dependencies: Dependencies) =>
     createReduxStore("sessions", reducer, DefaultState, [
         createEpicMiddleware<ISessionActions, ISessionState, Dependencies>(
-            combineEpics(fetchSessionsEpic, persistSessionEpic, restoreSessionEpic),
+            combineEpics(
+                fetchSessionsEpic,
+                persistSessionEpic,
+                restoreSessionEpic,
+                updateCurrentSessionEpic,
+                deleteSessionEpic,
+            ),
             { dependencies },
         ),
     ])

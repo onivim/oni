@@ -5,6 +5,7 @@ import styled, { css, sidebarItemSelected, withProps } from "../../UI/components
 import TextInputView from "../../UI/components/LightweightText"
 import { VimNavigator } from "../../UI/components/VimNavigator"
 import { ISession, ISessionState, SessionActions } from "./"
+import { Icon } from "../../UI/Icon"
 
 interface IProps {} // tslint:disable-line
 
@@ -36,7 +37,11 @@ interface ISessionItem {
 const SessionItem: React.SFC<ISessionItem> = ({ session, isSelected }) => {
     return (
         <ListItem isSelected={isSelected}>
-            <div>Name: {session.name}</div>
+            <div>
+                <strong>
+                    <Icon name="file" /> Name: {session.name}
+                </strong>
+            </div>
             <div>File: {session.file}</div>
             <div>Last updated at: {new Date(session.updatedAt).toUTCString()}</div>
         </ListItem>
@@ -99,8 +104,10 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
         }
     }
 
-    public restoreSession = (selected: string) => {
-        this.props.restoreSession(selected)
+    public restoreSession = async (selected: string) => {
+        if (selected) {
+            await this.props.restoreSession(selected)
+        }
     }
 
     public handleChange: React.ChangeEventHandler<HTMLInputElement> = evt => {
@@ -143,7 +150,9 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
                                     defaultValue="Enter a new Session Name"
                                 />
                             ) : (
-                                <div>Create a new session</div>
+                                <div>
+                                    <Icon name="pencil" /> Create a new session
+                                </div>
                             )}
                         </ListItem>
                         {sessions.length ? (

@@ -4,7 +4,7 @@ import * as path from "path"
 
 import { SidebarManager } from "../Sidebar"
 import { SessionActions, SessionsPane, store } from "./"
-import { getUserHome } from "./../../Platform"
+import { getUserConfigFolderPath } from "./../../Services/Configuration/UserConfiguration"
 
 export interface ISession {
     name: string
@@ -40,6 +40,7 @@ export class SessionManager implements ISessionService {
             "save",
             new SessionsPane({ store: this._store, commands: this._commands }),
         )
+        this._setupSubscriptions()
     }
 
     public get sessions() {
@@ -47,7 +48,7 @@ export class SessionManager implements ISessionService {
     }
 
     public get sessionsDir() {
-        return path.join(getUserHome(), ".config", "oni", "sessions")
+        return path.join(getUserConfigFolderPath(), "sessions")
     }
 
     public persistSession = async (sessionName: string) => {
@@ -80,14 +81,21 @@ export class SessionManager implements ISessionService {
 
     private _updateSession(sessionName: string) {
         const session = this.getSessionMetadata(sessionName)
-        SessionActions.updateSession(session)
+        const action = SessionActions.updateSession(session)
+        this._store.dispatch(action)
         return session
+    }
+
+    private _setupSubscriptions() {
+        this._editorManager.activeEditor.onBufferEnter.subscribe(() => {
+            const action = SessionActions.updateCurrentSession()
+            this._store.dispatch(action)
+        })
     }
 }
 
 function init() {
     let instance: SessionManager
-
     return {
         activate: (
             editorManager: EditorManager,
