@@ -102,6 +102,10 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
         return this._neovimEditor.activeBuffer
     }
 
+    public get onQuit(): IEvent<void> {
+        return this._neovimEditor.onNeovimQuit
+    }
+
     // Capabilities
     public get neovim(): Oni.NeovimEditorCapability {
         return this._neovimEditor.neovim

@@ -1,5 +1,6 @@
 import * as fs from "fs-extra"
-import { Commands, EditorManager, Workspace } from "oni-api"
+import { Commands, Editor, EditorManager, Workspace } from "oni-api"
+import { IEvent } from "oni-types"
 import * as path from "path"
 
 import { SidebarManager } from "../Sidebar"
@@ -12,6 +13,7 @@ export interface ISession {
     file: string
     directory: string
     updatedAt: number
+    workspace: string
 }
 
 export interface ISessionService {
@@ -19,6 +21,15 @@ export interface ISessionService {
     sessions: ISession[]
     persistSession(sessionName: string): Promise<ISession>
     restoreSession(sessionName: string): Promise<ISession>
+}
+
+interface UpdatedEditor extends Editor {
+    onQuit: IEvent<void>
+    persistSession(sessionDetails: ISession): Promise<ISession>
+    restoreSession(sessionDetails: ISession): Promise<ISession>
+}
+export interface IEditorCandidate extends EditorManager {
+    activeEditor: UpdatedEditor
 }
 
 /**
@@ -32,7 +43,7 @@ export class SessionManager implements ISessionService {
     private _sessionsDir = path.join(getUserConfigFolderPath(), "sessions")
 
     constructor(
-        private _editorManager: EditorManager,
+        private _editorManager: IEditorCandidate,
         private _sidebarManager: SidebarManager,
         private _commands: Commands.Api,
         private _workspace: Workspace.Api,
@@ -55,15 +66,13 @@ export class SessionManager implements ISessionService {
 
     public persistSession = async (sessionName: string) => {
         const sessionDetails = this._updateSession(sessionName)
-        const untypedEditor: any = this._editorManager.activeEditor
-        await untypedEditor.persistSession(sessionDetails)
+        await this._editorManager.activeEditor.persistSession(sessionDetails)
         return sessionDetails
     }
 
     public restoreSession = async (sessionName: string) => {
         const sessionDetails = this._updateSession(sessionName)
-        const untypedEditor: any = this._editorManager.activeEditor
-        await untypedEditor.restoreSession(sessionDetails)
+        await this._editorManager.activeEditor.restoreSession(sessionDetails)
         return sessionDetails
     }
 
@@ -95,6 +104,10 @@ export class SessionManager implements ISessionService {
             const action = SessionActions.updateCurrentSession()
             this._store.dispatch(action)
         })
+        this._editorManager.activeEditor.onQuit.subscribe(() => {
+            const action = SessionActions.updateCurrentSession()
+            this._store.dispatch(action)
+        })
     }
 }
 
@@ -107,7 +120,12 @@ function init() {
             commandManager: Commands.Api,
             workspace: Workspace.Api,
         ) => {
-            instance = new SessionManager(editorManager, sidebarManager, commandManager, workspace)
+            instance = new SessionManager(
+                editorManager as IEditorCandidate,
+                sidebarManager,
+                commandManager,
+                workspace,
+            )
         },
         getInstance: () => instance,
     }

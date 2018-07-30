@@ -1,3 +1,4 @@
+import * as path from "path"
 import * as React from "react"
 import { connect } from "react-redux"
 
@@ -40,6 +41,11 @@ const Container = styled.div`
 `
 
 const SessionItem: React.SFC<ISessionItem> = ({ session, isSelected, onClick }) => {
+    const truncatedWorkspace = session.workspace
+        .split(path.sep)
+        .slice(-2)
+        .join(path.sep)
+
     return (
         <ListItem isSelected={isSelected} onClick={onClick}>
             <div>
@@ -47,7 +53,7 @@ const SessionItem: React.SFC<ISessionItem> = ({ session, isSelected, onClick }) 
                     <Icon name="file" /> Name: {session.name}
                 </strong>
             </div>
-            <div>File: {session.file}</div>
+            <div>Workspace: {truncatedWorkspace}</div>
             <div>Last updated at: {new Date(session.updatedAt).toUTCString()}</div>
         </ListItem>
     )
@@ -73,6 +79,7 @@ const List = styled.ul`
 
 interface IState {
     sessionName: string
+    showAll: boolean
 }
 
 class Sessions extends React.PureComponent<IConnectedProps, IState> {
@@ -83,6 +90,7 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
 
     public state = {
         sessionName: "",
+        showAll: true,
     }
 
     public async componentDidMount() {
@@ -95,6 +103,8 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
 
     public handleSelection = async (id: string) => {
         const { sessionName } = this.state
+        const inputSelected = id === this._ID.input
+        const isTitle = id === this._ID.title
         const isReadonlyField = id in this._ID
         switch (true) {
             case inputSelected && this.props.creating:
@@ -103,7 +113,10 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
             case inputSelected && !this.props.creating:
                 this.props.createSession()
                 break
-            case isReadOnlyField:
+            case isTitle:
+                this.setState({ showAll: !this.state.showAll })
+                break
+            case isReadonlyField:
                 break
             default:
                 const { selected } = this.props
@@ -138,6 +151,7 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
     }
 
     public render() {
+        const { showAll } = this.state
         const { sessions, active, creating } = this.props
         const ids = [this._ID.title, this._ID.input, ...sessions.map(({ id }) => id)]
         return (
@@ -151,37 +165,41 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
                         <SectionTitle
                             active
                             count={sessions.length}
-                            title="All Session"
+                            title="All Sessions"
                             testId="sessions-title"
                             isSelected={selectedId === this._ID.title}
                             onClick={() => this.handleSelection(selectedId)}
                         />
-                        <ListItem isSelected={selectedId === this._ID.input}>
-                            {creating ? (
-                                <TextInputView
-                                    styles={inputStyles}
-                                    onChange={this.handleChange}
-                                    onCancel={this.handleCancel}
-                                    onComplete={this.persistSession}
-                                    defaultValue="Enter a new Session Name"
-                                />
-                            ) : (
-                                <Container onClick={() => this.handleSelection(selectedId)}>
-                                    <Icon name="pencil" /> Create a new session
-                                </Container>
-                            )}
-                        </ListItem>
-                        {sessions.length ? (
-                            sessions.map((session, idx) => (
-                                <SessionItem
-                                    key={session.id}
-                                    session={session}
-                                    isSelected={selectedId === session.id}
-                                    onClick={() => this.handleSelection(selectedId)}
-                                />
-                            ))
-                        ) : (
-                            <Container>No Sessions Saved</Container>
+                        {showAll && (
+                            <>
+                                <ListItem isSelected={selectedId === this._ID.input}>
+                                    {creating ? (
+                                        <TextInputView
+                                            styles={inputStyles}
+                                            onChange={this.handleChange}
+                                            onCancel={this.handleCancel}
+                                            onComplete={this.persistSession}
+                                            defaultValue="Enter a new Session Name"
+                                        />
+                                    ) : (
+                                        <div onClick={() => this.handleSelection(selectedId)}>
+                                            <Icon name="pencil" /> Create a new session
+                                        </div>
+                                    )}
+                                </ListItem>
+                                {sessions.length ? (
+                                    sessions.map((session, idx) => (
+                                        <SessionItem
+                                            key={session.id}
+                                            session={session}
+                                            isSelected={selectedId === session.id}
+                                            onClick={() => this.handleSelection(selectedId)}
+                                        />
+                                    ))
+                                ) : (
+                                    <Container>No Sessions Saved</Container>
+                                )}
+                            </>
                         )}
                     </List>
                 )}
