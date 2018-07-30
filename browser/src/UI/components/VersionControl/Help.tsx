@@ -2,7 +2,7 @@ import * as React from "react"
 
 import { inputManager } from "../../../Services/InputManager"
 import styled from "../common"
-import { SectionTitle, Title } from "./SectionTitle"
+import { SectionTitle, Title } from "./../SectionTitle"
 
 const sidebarCommands = [
     { command: "vcs.openFile", description: "Open the currently selected file" },

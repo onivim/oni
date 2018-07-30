@@ -2,9 +2,7 @@ import * as React from "react"
 import { shallow } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 
-import VersionControlTitle, {
-    Title,
-} from "./../../browser/src/UI/components/VersionControl/SectionTitle"
+import VersionControlTitle, { Title } from "./../../browser/src/UI/components/SectionTitle"
 
 describe("<VersionControlTitle />", () => {
     it("correctly renders without crashing", () => {

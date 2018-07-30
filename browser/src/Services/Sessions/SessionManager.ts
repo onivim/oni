@@ -1,5 +1,5 @@
 import * as fs from "fs-extra"
-import { Commands, EditorManager } from "oni-api"
+import { Commands, EditorManager, Workspace } from "oni-api"
 import * as path from "path"
 
 import { SidebarManager } from "../Sidebar"
@@ -29,11 +29,13 @@ export interface ISessionService {
  */
 export class SessionManager implements ISessionService {
     private _store = store({ sessionManager: this, fs })
+    private _sessionsDir = path.join(getUserConfigFolderPath(), "sessions")
 
     constructor(
         private _editorManager: EditorManager,
         private _sidebarManager: SidebarManager,
         private _commands: Commands.Api,
+        private _workspace: Workspace.Api,
     ) {
         fs.ensureDirSync(this.sessionsDir)
         this._sidebarManager.add(
@@ -48,7 +50,7 @@ export class SessionManager implements ISessionService {
     }
 
     public get sessionsDir() {
-        return path.join(getUserConfigFolderPath(), "sessions")
+        return this._sessionsDir
     }
 
     public persistSession = async (sessionName: string) => {
@@ -66,13 +68,15 @@ export class SessionManager implements ISessionService {
     }
 
     public getSessionMetadata(sessionName: string, file = this._getSessionFilename(sessionName)) {
-        return {
+        const metadata = {
             file,
             updatedAt: Date.now(),
             name: sessionName,
             id: sessionName,
             directory: this.sessionsDir,
+            workspace: this._workspace.activeWorkspace,
         }
+        return metadata
     }
 
     private _getSessionFilename(name: string) {
@@ -101,8 +105,9 @@ function init() {
             editorManager: EditorManager,
             sidebarManager: SidebarManager,
             commandManager: Commands.Api,
+            workspace: Workspace.Api,
         ) => {
-            instance = new SessionManager(editorManager, sidebarManager, commandManager)
+            instance = new SessionManager(editorManager, sidebarManager, commandManager, workspace)
         },
         getInstance: () => instance,
     }

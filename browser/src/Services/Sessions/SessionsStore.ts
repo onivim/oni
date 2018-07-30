@@ -1,6 +1,7 @@
 import "rxjs"
 
 import * as fsExtra from "fs-extra"
+import * as path from "path"
 import { Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic } from "redux-observable"
 import { fromPromise } from "rxjs/observable/fromPromise"
@@ -111,20 +112,27 @@ const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
             .catch(error => [{ type: "PERSIST_SESSION_FAILED", error } as IPersistSessionFailed])
     })
 
-const updateCurrentSessionEpic: SessionEpic = (action$, store, { fs, sessionManager }) =>
-    action$.ofType("UPDATE_CURRENT_SESSION").flatMap(() => {
-        const { currentSession } = store.getState()
-        return fromPromise(sessionManager.persistSession(currentSession.name))
-            .flatMap(() => {
-                return [{ type: "PERSIST_SESSION_SUCCESS" } as IPersistSessionSuccess]
-            })
-            .catch(error => [{ type: "PERSIST_SESSION_FAILED", error } as IPersistSessionFailed])
-    })
+const updateCurrentSessionEpic: SessionEpic = (action$, store, { fs, sessionManager }) => {
+    const { currentSession } = store.getState()
+    return action$
+        .ofType("UPDATE_CURRENT_SESSION")
+        .filter(_ => !!currentSession) // there is no current session on vim enter
+        .flatMap(() => {
+            return fromPromise(sessionManager.persistSession(currentSession.name))
+                .flatMap(() => {
+                    return [{ type: "PERSIST_SESSION_SUCCESS" } as IPersistSessionSuccess]
+                })
+                .catch(error => [
+                    { type: "PERSIST_SESSION_FAILED", error } as IPersistSessionFailed,
+                ])
+        })
+}
 
 const deleteSessionEpic: SessionEpic = (action$, store, { fs, sessionManager }) =>
     action$.ofType("DELETE_SESSION").flatMap(() => {
-        const { selected } = store.getState()
-        return fromPromise(fs.remove(selected.file))
+        const { selected, currentSession } = store.getState()
+        const sessionToDelete = selected || currentSession
+        return fromPromise(fs.remove(sessionToDelete.file))
             .flatMap(() => {
                 return [
                     { type: "DELETE_SESSION_SUCCESS" } as IDeleteSessionSuccess,
@@ -151,7 +159,7 @@ const fetchSessionsEpic: SessionEpic = (action$, store, { fs, sessionManager }) 
         return fromPromise(fs.readdir(sessionManager.sessionsDir)).flatMap(dir => {
             const metadata = dir.map(file => {
                 const [name] = file.split(".")
-                return { name, file }
+                return { name, file: path.join(sessionManager.sessionsDir, file) }
             })
             const sessions = metadata.map(({ file, name }) =>
                 sessionManager.getSessionMetadata(name, file),
@@ -168,12 +176,15 @@ const fetchSessionsEpic: SessionEpic = (action$, store, { fs, sessionManager }) 
 const findSelectedSession = (sessions: ISession[], selected: string) =>
     sessions.find(session => session.id === selected)
 
+const updateSessions = (sessions: ISession[], newSession: ISession) =>
+    sessions.map(session => (session.id === newSession.id ? newSession : session))
+
 function reducer(state: ISessionState, action: ISessionActions) {
     switch (action.type) {
         case "UPDATE_SESSION":
             return {
                 ...state,
-                sessions: [...state.sessions, action.payload.session],
+                sessions: updateSessions(state.sessions, action.payload.session),
             }
         case "GET_ALL_SESSIONS":
             return {

@@ -27,7 +27,7 @@ export default class SessionsPane {
     }
 
     get id() {
-        return "oni.sessions"
+        return "oni.sidebar.sessions"
     }
 
     public get title() {
@@ -50,22 +50,22 @@ export default class SessionsPane {
         )
     }
 
-    private _isActive() {
+    private _isActive = () => {
         const state = this._store.getState()
         return state.active && !state.creating
     }
 
-    private _persistSession = () => {
-        this._store.dispatch({ type: "PERSIST_SESSION" })
+    private _deleteSession = () => {
+        this._store.dispatch({ type: "DELETE_SESSION" })
     }
 
     private _setupCommands() {
         this._commands.registerCommand({
-            command: "oni.session.persist",
-            detail: null,
-            name: null,
+            command: "oni.sessions.delete",
+            name: "Sessions: Delete the current session",
+            detail: "Delete the current or selected session",
             enabled: this._isActive,
-            execute: this._persistSession,
+            execute: this._deleteSession,
         })
     }
 }

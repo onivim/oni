@@ -4,7 +4,7 @@ import styled, { Center, sidebarItemSelected, withProps } from "../common"
 import { LoadingSpinner } from "./../../../UI/components/LoadingSpinner"
 import CommitMessage from "./CommitMessage"
 import File from "./File"
-import SectionTitle from "./SectionTitle"
+import SectionTitle from "./../SectionTitle"
 
 const Explainer = styled.div`
     width: 100%;

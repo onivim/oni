@@ -1,13 +1,13 @@
 import * as React from "react"
 import { connect } from "react-redux"
 
+import SectionTitle from "../../UI/components/SectionTitle"
+import { Icon } from "../../UI/Icon"
+
 import styled, { css, sidebarItemSelected, withProps } from "../../UI/components/common"
 import TextInputView from "../../UI/components/LightweightText"
 import { VimNavigator } from "../../UI/components/VimNavigator"
 import { ISession, ISessionState, SessionActions } from "./"
-import { Icon } from "../../UI/Icon"
-
-interface IProps {} // tslint:disable-line
 
 interface IStateProps {
     sessions: ISession[]
@@ -32,11 +32,16 @@ interface IConnectedProps extends IStateProps, ISessionActions {}
 interface ISessionItem {
     session: ISession
     isSelected: boolean
+    onClick: () => void
 }
 
-const SessionItem: React.SFC<ISessionItem> = ({ session, isSelected }) => {
+const Container = styled.div`
+    padding: 0 1em;
+`
+
+const SessionItem: React.SFC<ISessionItem> = ({ session, isSelected, onClick }) => {
     return (
-        <ListItem isSelected={isSelected}>
+        <ListItem isSelected={isSelected} onClick={onClick}>
             <div>
                 <strong>
                     <Icon name="file" /> Name: {session.name}
@@ -71,7 +76,10 @@ interface IState {
 }
 
 class Sessions extends React.PureComponent<IConnectedProps, IState> {
-    public readonly _inputID = "new_session"
+    public readonly _ID = {
+        input: "new_session",
+        title: "title",
+    }
 
     public state = {
         sessionName: "",
@@ -85,9 +93,9 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
         this.props.updateSelection(selected)
     }
 
-    public handleSelection = async (newSessionName: string) => {
+    public handleSelection = async (id: string) => {
         const { sessionName } = this.state
-        const inputSelected = newSessionName === this._inputID
+        const isReadonlyField = id in this._ID
         switch (true) {
             case inputSelected && this.props.creating:
                 await this.props.persistSession(sessionName)
@@ -95,11 +103,11 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
             case inputSelected && !this.props.creating:
                 this.props.createSession()
                 break
-            case !inputSelected:
-                const { selected } = this.props
-                await this.props.restoreSession(selected.name)
+            case isReadOnlyField:
                 break
             default:
+                const { selected } = this.props
+                await this.props.restoreSession(selected.name)
                 break
         }
     }
@@ -131,7 +139,7 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
 
     public render() {
         const { sessions, active, creating } = this.props
-        const ids = [this._inputID, ...sessions.map(({ id }) => id)]
+        const ids = [this._ID.title, this._ID.input, ...sessions.map(({ id }) => id)]
         return (
             <VimNavigator
                 ids={ids}
@@ -140,7 +148,15 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
                 onSelectionChanged={this.updateSelection}
                 render={selectedId => (
                     <List>
-                        <ListItem isSelected={selectedId === this._inputID}>
+                        <SectionTitle
+                            active
+                            count={sessions.length}
+                            title="All Session"
+                            testId="sessions-title"
+                            isSelected={selectedId === this._ID.title}
+                            onClick={() => this.handleSelection(selectedId)}
+                        />
+                        <ListItem isSelected={selectedId === this._ID.input}>
                             {creating ? (
                                 <TextInputView
                                     styles={inputStyles}
@@ -150,21 +166,22 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
                                     defaultValue="Enter a new Session Name"
                                 />
                             ) : (
-                                <div>
+                                <Container onClick={() => this.handleSelection(selectedId)}>
                                     <Icon name="pencil" /> Create a new session
-                                </div>
+                                </Container>
                             )}
                         </ListItem>
                         {sessions.length ? (
-                            sessions.map(session => (
+                            sessions.map((session, idx) => (
                                 <SessionItem
                                     key={session.id}
                                     session={session}
                                     isSelected={selectedId === session.id}
+                                    onClick={() => this.handleSelection(selectedId)}
                                 />
                             ))
                         ) : (
-                            <div>No Sessions Saved</div>
+                            <Container>No Sessions Saved</Container>
                         )}
                     </List>
                 )}
@@ -180,6 +197,4 @@ const mapStateToProps = ({ sessions, selected, active, creating }: ISessionState
     selected,
 })
 
-export default connect<IStateProps, ISessionActions, IProps>(mapStateToProps, SessionActions)(
-    Sessions,
-)
+export default connect<IStateProps, ISessionActions>(mapStateToProps, SessionActions)(Sessions)

@@ -672,7 +672,7 @@
         "start-not-dev": "cross-env electron main.js",
         "watch:browser":
             "webpack-dev-server --config browser/webpack.development.config.js --host localhost --port 8191",
-        "watch:plugins": "run-p watch:plugins:*",
+        "watch:plugins": "run-p --race watch:plugins:*",
         "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
         "watch:plugins:oni-plugin-markdown-preview":
             "cd extensions/oni-plugin-markdown-preview && tsc --watch",

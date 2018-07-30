@@ -328,7 +328,7 @@ export const start = async (args: string[]): Promise<void> => {
     )
 
     const Sessions = await sessionManagerPromise
-    Sessions.activate(editorManager, sidebarManager, commandManager)
+    Sessions.activate(editorManager, sidebarManager, commandManager, workspace)
 
     Explorer.activate(
         commandManager,

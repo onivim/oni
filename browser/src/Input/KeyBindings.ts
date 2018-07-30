@@ -35,6 +35,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         !isMenuOpen()
 
     const isExplorerActive = () => isSidebarPaneOpen("oni.sidebar.explorer")
+    const areSessionsActive = () => isSidebarPaneOpen("oni.sidebar.sessions")
     const isVCSActive = () => isSidebarPaneOpen("oni.sidebar.vcs")
 
     const isMenuOpen = () => menu.isMenuOpen()
@@ -168,4 +169,7 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
     input.bind("u", "vcs.unstage", isVCSActive)
     input.bind("<c-r>", "vcs.refresh", isVCSActive)
     input.bind("?", "vcs.showHelp", isVCSActive)
+
+    // Sessions
+    input.bind("<c-d>", "oni.sessions.delete", areSessionsActive)
 }
