@@ -22,6 +22,8 @@ export default class SessionsPane {
     constructor({ store, commands }: SessionPaneProps) {
         this._commands = commands
         this._store = store
+
+        this._setupCommands()
     }
 
     get id() {
@@ -43,12 +45,27 @@ export default class SessionsPane {
     public render() {
         return (
             <Provider store={this._store}>
-                <Sessions setupCommand={this._setupCommands} />
+                <Sessions />
             </Provider>
         )
     }
 
-    private _setupCommands(command: Commands.ICommand) {
-        this._commands.registerCommand(command)
+    private _isActive() {
+        const state = this._store.getState()
+        return state.active && !state.creating
+    }
+
+    private _persistSession = () => {
+        this._store.dispatch({ type: "PERSIST_SESSION" })
+    }
+
+    private _setupCommands() {
+        this._commands.registerCommand({
+            command: "oni.session.persist",
+            detail: null,
+            name: null,
+            enabled: this._isActive,
+            execute: this._persistSession,
+        })
     }
 }

@@ -1,4 +1,3 @@
-import { Commands } from "oni-api"
 import * as React from "react"
 import { connect } from "react-redux"
 
@@ -7,9 +6,7 @@ import TextInputView from "../../UI/components/LightweightText"
 import { VimNavigator } from "../../UI/components/VimNavigator"
 import { ISession, ISessionState, SessionActions } from "./"
 
-interface IProps {
-    setupCommands: (command: Commands.ICommand) => void
-}
+interface IProps {} // tslint:disable-line
 
 interface IStateProps {
     sessions: ISession[]
