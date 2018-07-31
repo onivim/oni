@@ -79,9 +79,9 @@ export class SessionManager implements ISessionService {
     public getSessionMetadata(sessionName: string, file = this._getSessionFilename(sessionName)) {
         const metadata = {
             file,
-            updatedAt: Date.now(),
-            name: sessionName,
             id: sessionName,
+            name: sessionName,
+            updatedAt: Date.now(),
             directory: this.sessionsDir,
             workspace: this._workspace.activeWorkspace,
         }

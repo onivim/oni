@@ -97,20 +97,23 @@ export const SessionActions = {
             payload: { sessions },
         } as IUpdateMultipleSessions),
 
-    persistSession: (sessionName: string) => ({
-        type: "PERSIST_SESSION",
-        payload: { sessionName },
-    }),
+    persistSession: (sessionName: string) =>
+        ({
+            type: "PERSIST_SESSION",
+            payload: { sessionName },
+        } as IPersistSession),
 
-    updateSession: (session: ISession) => ({
-        type: "UPDATE_SESSION",
-        payload: { session },
-    }),
+    updateSession: (session: ISession) =>
+        ({
+            type: "UPDATE_SESSION",
+            payload: { session },
+        } as IUpdateSession),
 
-    restoreSession: (sessionName: string) => ({
-        type: "RESTORE_SESSION",
-        payload: { sessionName },
-    }),
+    restoreSession: (sessionName: string) =>
+        ({
+            type: "RESTORE_SESSION",
+            payload: { sessionName },
+        } as IRestoreSession),
 }
 
 type SessionEpic = Epic<ISessionActions, ISessionState, Dependencies>
@@ -118,6 +121,7 @@ type SessionEpic = Epic<ISessionActions, ISessionState, Dependencies>
 const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.pipe(
         ofType("PERSIST_SESSION"),
+        auditTime(200),
         flatMap((action: IPersistSession) => {
             return from(sessionManager.persistSession(action.payload.sessionName)).pipe(
                 flatMap(session => {
@@ -134,8 +138,8 @@ const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     )
 
 const hasCurrentSession = (store: MiddlewareAPI<ISessionState>) => {
-    const { currentSession } = store.getState()
-    return !!(currentSession && currentSession.name)
+    const { currentSession /* , restoring */ } = store.getState()
+    return !!/* !restoring && */ (currentSession && currentSession.name)
 }
 
 // FIXME: Dispatches multiple actions some relating to old session
@@ -146,10 +150,7 @@ const updateCurrentSessionEpic: SessionEpic = (action$, store, { fs, sessionMana
         auditTime(200),
         mergeMap(() => {
             const { currentSession } = store.getState()
-            return from(sessionManager.persistSession(currentSession.name)).pipe(
-                flatMap(() => [SessionActions.persistSessionSuccess()]),
-                catchError(error => [SessionActions.persistSessionFailed(error)]),
-            )
+            return [SessionActions.persistSession(currentSession.name)]
         }),
     )
 }
