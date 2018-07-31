@@ -207,7 +207,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
 
         this._neovimInstance = new NeovimInstance(100, 100, this._configuration)
         this._bufferManager = new BufferManager(this._neovimInstance, this._actions, this._store)
-        this._screen = new NeovimScreen()
+        this._screen = new NeovimScreen(this._configuration)
 
         this._screenWithPredictions = new ScreenWithPredictions(this._screen, this._configuration)
 
