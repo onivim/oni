@@ -892,8 +892,9 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         )
     }
 
-    public async persistSession(sessionDetails: ISession) {
-        const result = await this._neovimInstance.command(`mksession! ${sessionDetails.file}`)
+    // Possibly use "v:this_session" |this_session-variable| to add method which verifies the session.
+    public async persistSession(session: ISession) {
+        const result = await this._neovimInstance.command(`mksession! ${session.file}`)
         if (result) {
             const [, error] = result
             Log.warn(error)
@@ -901,8 +902,9 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         }
     }
 
-    public async restoreSession(sessionDetails: ISession) {
-        const result = await this._neovimInstance.command(`source ${sessionDetails.file}`)
+    public async restoreSession(session: ISession) {
+        await this._neovimInstance.command(`bufdo bd`)
+        const result = await this._neovimInstance.command(`source ${session.file}`)
         if (result) {
             const [, error] = result
             Log.warn(error)

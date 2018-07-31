@@ -167,14 +167,15 @@ const deleteSessionEpic: SessionEpic = (action$, store, { fs, sessionManager }) 
             )
         }),
     )
+
 const restoreSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.pipe(
         ofType("RESTORE_SESSION"),
         flatMap((action: IRestoreSession) => {
             return from(sessionManager.restoreSession(action.payload.sessionName)).pipe(
                 flatMap(session => [
-                    SessionActions.populateSessions(),
                     SessionActions.setCurrentSession(session),
+                    SessionActions.populateSessions(),
                 ]),
             )
         }),
@@ -221,6 +222,11 @@ function reducer(state: ISessionState, action: ISessionActions) {
             return {
                 ...state,
                 creating: true,
+            }
+        case "DELETE_SESSION_SUCCESS":
+            return {
+                ...state,
+                currentSession: null,
             }
         case "SET_CURRENT_SESSION":
             return {
