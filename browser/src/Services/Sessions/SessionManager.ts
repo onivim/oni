@@ -65,13 +65,13 @@ export class SessionManager implements ISessionService {
     }
 
     public persistSession = async (sessionName: string) => {
-        const sessionDetails = this._updateSession(sessionName)
+        const sessionDetails = this.getSessionMetadata(sessionName)
         await this._editorManager.activeEditor.persistSession(sessionDetails)
         return sessionDetails
     }
 
     public restoreSession = async (sessionName: string) => {
-        const sessionDetails = this._updateSession(sessionName)
+        const sessionDetails = this.getSessionMetadata(sessionName)
         await this._editorManager.activeEditor.restoreSession(sessionDetails)
         return sessionDetails
     }
@@ -90,13 +90,6 @@ export class SessionManager implements ISessionService {
 
     private _getSessionFilename(name: string) {
         return path.join(this.sessionsDir, `${name}.vim`)
-    }
-
-    private _updateSession(sessionName: string) {
-        const session = this.getSessionMetadata(sessionName)
-        const action = SessionActions.updateSession(session)
-        this._store.dispatch(action)
-        return session
     }
 
     private _setupSubscriptions() {
