@@ -903,7 +903,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
     }
 
     public async restoreSession(session: ISession) {
-        await this._neovimInstance.command(`bufdo bd`)
+        await this._neovimInstance.closeAllBuffers()
         const result = await this._neovimInstance.command(`source ${session.file}`)
         if (result) {
             const [, error] = result
