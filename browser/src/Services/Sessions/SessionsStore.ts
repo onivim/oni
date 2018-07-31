@@ -5,7 +5,7 @@ import * as path from "path"
 import { MiddlewareAPI, Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic, ofType } from "redux-observable"
 import { from } from "rxjs/observable/from"
-import { catchError, filter, flatMap, mergeMap } from "rxjs/operators"
+import { auditTime, catchError, filter, flatMap, mergeMap } from "rxjs/operators"
 
 import { ISession, SessionManager } from "./"
 import { createStore as createReduxStore } from "./../../Redux"
@@ -138,10 +138,12 @@ const hasCurrentSession = (store: MiddlewareAPI<ISessionState>) => {
     return !!(currentSession && currentSession.name)
 }
 
+// FIXME: Dispatches multiple actions some relating to old session
 const updateCurrentSessionEpic: SessionEpic = (action$, store, { fs, sessionManager }) => {
     return action$.pipe(
         ofType("UPDATE_CURRENT_SESSION"),
         filter(() => hasCurrentSession(store)),
+        auditTime(200),
         mergeMap(() => {
             const { currentSession } = store.getState()
             return from(sessionManager.persistSession(currentSession.name)).pipe(
