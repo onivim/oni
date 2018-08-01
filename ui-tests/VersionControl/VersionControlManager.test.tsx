@@ -8,6 +8,7 @@ import {
     VersionControlProvider,
 } from "./../../browser/src/Services/VersionControl"
 
+import { MockOni } from "../../browser/test/Mocks"
 import MockCommands from "./../mocks/CommandManager"
 import { configuration as MockConfiguration } from "./../mocks/Configuration"
 import MockEditorManager from "./../mocks/EditorManager"
@@ -15,7 +16,7 @@ import MockMenu from "./../mocks/MenuManager"
 import MockNotifications from "./../mocks/Notifications"
 import MockSidebar from "./../mocks/Sidebar"
 import MockStatusbar, { mockStatusBarHide, mockStatusBarSetContents } from "./../mocks/Statusbar"
-import MockWorkspace from "./../mocks/Workspace"
+//import MockWorkspace from "./../mocks/Workspace"
 
 jest.unmock("lodash")
 
@@ -46,14 +47,15 @@ describe("Version Control Manager tests", () => {
     let vcsManager: VersionControlManager
     beforeEach(() => {
         vcsManager = new VersionControlManager(
-            new MockWorkspace(),
-            new MockEditorManager(),
-            new MockStatusbar(),
-            new MockMenu(),
-            new MockCommands(),
+            new MockOni(),
+            //new MockWorkspace(),
+            //new MockEditorManager(),
+            //new MockStatusbar(),
+            //new MockMenu(),
+            //new MockCommands(),
             new MockSidebar(),
             new MockNotifications(),
-            MockConfiguration,
+            //MockConfiguration,
         )
         vcsManager.registerProvider(provider)
     })

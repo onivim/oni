@@ -276,11 +276,7 @@ export class MockOni implements Oni.Plugin.Api {
     private _statusBar = new MockStatusBar()
     private _workspace = new MockWorkspace()
 
-    constructor(private _configuration: Oni.Configuration) {
-        if (!this._configuration) {
-            this._configuration = new MockConfiguration()
-        }
-
+    constructor(private _configuration: Oni.Configuration = new MockConfiguration()) {
         this._editorManager.setActiveEditor(new MockEditor())
     }
 
