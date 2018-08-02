@@ -7,9 +7,7 @@ import * as React from "react"
 import { store, SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
 import { Notifications } from "./../../Services/Notifications"
 import { Branch } from "./../../UI/components/VersionControl/Branch"
-import { MenuManager } from "./../Menu"
 import { SidebarManager } from "./../Sidebar"
-import { IWorkspace } from "./../Workspace"
 
 interface ISendNotificationsArgs {
     detail: string
@@ -29,14 +27,9 @@ export class VersionControlManager {
     private _providers = new Map<string, VersionControlProvider>()
 
     constructor(
-        private _workspace: IWorkspace,
-        private _editorManager: Oni.EditorManager,
-        private _statusBar: Oni.StatusBar,
-        private _menu: MenuManager,
-        private _commands: Oni.Commands.Api,
+        private _oni: Oni.Plugin.Api,
         private _sidebar: SidebarManager,
         private _notifications: Notifications,
-        private _configuration: Oni.Configuration,
     ) {}
 
     public get providers() {
@@ -55,7 +48,7 @@ export class VersionControlManager {
                 await this._activateVCSProvider(provider)
             }
 
-            this._workspace.onDirectoryChanged.subscribe(async dir => {
+            this._oni.workspace.onDirectoryChanged.subscribe(async dir => {
                 const providerToUse = await this.getCompatibleProvider(dir)
                 await this.handleProviderStatus(providerToUse)
             })
@@ -67,7 +60,7 @@ export class VersionControlManager {
         const notification = this._notifications.createItem()
         notification.setContents(args.title, args.detail)
         notification.setExpiration(expiration)
-        notification.setLevel(args.level)
+        notification.setLevel(args.level) // TODO: Integrate setLevel into API
         notification.show()
     }
 
@@ -132,20 +125,18 @@ export class VersionControlManager {
             await this._updateBranchIndicator()
             this._setupSubscriptions()
 
-            const hasVcsSidebar = this._sidebar.entries.some(({ id }) => id.includes("vcs"))
-            const enabled = this._configuration.getValue("experimental.vcs.sidebar")
+            const hasVcsSidebar = this._oni.sidebar.entries.some(({ id }) => id.includes("vcs"))
+            const enabled = this._oni.configuration.getValue("experimental.vcs.sidebar")
 
             if (!hasVcsSidebar && enabled) {
                 const vcsPane = new VersionControlPane(
-                    this._editorManager,
-                    this._workspace,
+                    this._oni,
                     this._vcsProvider,
                     this.sendNotification,
-                    this._commands,
-                    this._sidebar,
+                    this._sidebar, // TODO: Refactor API
                     store,
                 )
-                this._sidebar.add("code-fork", vcsPane)
+                this._sidebar.add("code-fork", vcsPane) // TODO: Refactor API
             }
 
             this._registerCommands()
@@ -156,17 +147,17 @@ export class VersionControlManager {
 
     private _setupSubscriptions() {
         this._subscriptions = [
-            this._editorManager.activeEditor.onBufferEnter.subscribe(async () => {
+            this._oni.editors.activeEditor.onBufferEnter.subscribe(async () => {
                 await this._updateBranchIndicator()
             }),
             this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
                 await this._updateBranchIndicator(newBranch)
-                await this._editorManager.activeEditor.neovim.command("e!")
+                await this._oni.editors.activeEditor.neovim.command("e!")
             }),
-            this._editorManager.activeEditor.onBufferSaved.subscribe(async () => {
+            this._oni.editors.activeEditor.onBufferSaved.subscribe(async () => {
                 await this._updateBranchIndicator()
             }),
-            (this._workspace as any).onFocusGained.subscribe(async () => {
+            (this._oni.workspace as any).onFocusGained.subscribe(async () => {
                 await this._updateBranchIndicator()
             }),
         ]
@@ -174,25 +165,25 @@ export class VersionControlManager {
 
     private _registerCommands = () => {
         const toggleVCS = () => {
-            this._sidebar.toggleVisibilityById("oni.sidebar.vcs")
+            this._sidebar.toggleVisibilityById("oni.sidebar.vcs") // TODO: Refactor API
         }
 
-        this._commands.registerCommand({
+        this._oni.commands.registerCommand({
             command: "vcs.sidebar.toggle",
             name: "Version Control: Toggle Visibility",
             detail: "Toggles the vcs pane in the sidebar",
             execute: toggleVCS,
-            enabled: () => this._configuration.getValue("experimental.vcs.sidebar"),
+            enabled: () => this._oni.configuration.getValue("experimental.vcs.sidebar"),
         })
 
-        this._commands.registerCommand({
+        this._oni.commands.registerCommand({
             command: `vcs.fetch`,
             name: "Fetch the selected branch",
             detail: "",
             execute: this._fetchBranch,
         })
 
-        this._commands.registerCommand({
+        this._oni.commands.registerCommand({
             command: `vcs.branches`,
             name: `Local ${capitalize(this._vcs)} Branches`,
             detail: "Open a menu with a list of all local branches",
@@ -205,7 +196,7 @@ export class VersionControlManager {
             return
         } else if (!this._vcsStatusItem) {
             const vcsId = `oni.status.${this._vcs}`
-            this._vcsStatusItem = this._statusBar.createItem(1, vcsId)
+            this._vcsStatusItem = this._oni.statusBar.createItem(1, vcsId)
         }
 
         try {
@@ -237,7 +228,7 @@ export class VersionControlManager {
             this._vcsProvider.getLocalBranches(),
         ])
 
-        this._menuInstance = this._menu.create()
+        this._menuInstance = this._oni.menu.create()
 
         if (!branches) {
             return
@@ -277,7 +268,7 @@ export class VersionControlManager {
         if (this._menuInstance.isOpen() && this._menuInstance.selectedItem) {
             try {
                 await this._vcsProvider.fetchBranchFromRemote({
-                    currentDir: this._workspace.activeWorkspace,
+                    currentDir: this._oni.workspace.activeWorkspace,
                     branch: this._menuInstance.selectedItem.label,
                 })
             } catch (e) {
@@ -292,25 +283,11 @@ function init() {
     let Provider: VersionControlManager
 
     const Activate = (
-        workspace: IWorkspace,
-        editorManager: Oni.EditorManager,
-        statusBar: Oni.StatusBar,
-        commands: Oni.Commands.Api,
-        menu: MenuManager,
+        oni: Oni.Plugin.Api,
         sidebar: SidebarManager,
         notifications: Notifications,
-        configuration: Oni.Configuration,
     ): void => {
-        Provider = new VersionControlManager(
-            workspace,
-            editorManager,
-            statusBar,
-            menu,
-            commands,
-            sidebar,
-            notifications,
-            configuration,
-        )
+        Provider = new VersionControlManager(oni, sidebar, notifications)
     }
 
     const GetInstance = () => {

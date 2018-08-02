@@ -7,7 +7,6 @@ import { Provider, Store } from "react-redux"
 
 import { SidebarManager } from "../Sidebar"
 import { VersionControlProvider, VersionControlView } from "./"
-import { IWorkspace } from "./../Workspace"
 import { ISendVCSNotification } from "./VersionControlManager"
 import { ProviderActions, VersionControlState } from "./VersionControlStore"
 
@@ -37,22 +36,20 @@ export default class VersionControlPane {
     }
 
     constructor(
-        private _editorManager: Oni.EditorManager,
-        private _workspace: IWorkspace,
+        private _oni: Oni.Plugin.Api,
         private _vcsProvider: VersionControlProvider,
         private _sendNotification: ISendVCSNotification,
-        private _commands: Oni.Commands.Api,
         private _sidebarManager: SidebarManager,
         private _store: Store<VersionControlState>,
     ) {
         this._registerCommands()
 
-        this._workspace.onDirectoryChanged.subscribe(this._refresh)
+        this._oni.workspace.onDirectoryChanged.subscribe(this._refresh)
         this._vcsProvider.onFileStatusChanged.subscribe(this._refresh)
         this._vcsProvider.onBranchChanged.subscribe(this._getStatusIfVisible)
         this._vcsProvider.onStagedFilesChanged.subscribe(this._getStatusIfVisible)
-        this._editorManager.activeEditor.onBufferSaved.subscribe(this._getStatusIfVisible)
-        this._editorManager.activeEditor.onBufferEnter.subscribe(this._getStatusIfVisible)
+        this._oni.editors.activeEditor.onBufferSaved.subscribe(this._getStatusIfVisible)
+        this._oni.editors.activeEditor.onBufferEnter.subscribe(this._getStatusIfVisible)
 
         this._vcsProvider.onPluginActivated.subscribe(async () => {
             this._store.dispatch({ type: "ACTIVATE" })
@@ -233,7 +230,7 @@ export default class VersionControlPane {
     }
 
     private _registerCommands() {
-        this._commands.registerCommand({
+        this._oni.commands.registerCommand({
             command: "vcs.commitAll",
             detail: "Commit all staged files",
             name: "Version Control: Commit all",
@@ -246,7 +243,7 @@ export default class VersionControlPane {
             },
         })
 
-        this._commands.registerCommand({
+        this._oni.commands.registerCommand({
             command: "vcs.openFile",
             detail: null,
             name: null,
@@ -254,13 +251,13 @@ export default class VersionControlPane {
             execute: async () => {
                 const { selected } = this._store.getState()
                 if (!this._isReadonlyField(selected)) {
-                    const filePath = path.join(this._workspace.activeWorkspace, selected)
-                    await this._editorManager.openFile(filePath)
+                    const filePath = path.join(this._oni.workspace.activeWorkspace, selected)
+                    await this._oni.editors.openFile(filePath)
                 }
             },
         })
 
-        this._commands.registerCommand({
+        this._oni.commands.registerCommand({
             command: "vcs.refresh",
             detail: null,
             name: null,
@@ -268,7 +265,7 @@ export default class VersionControlPane {
             execute: this._refresh,
         })
 
-        this._commands.registerCommand({
+        this._oni.commands.registerCommand({
             command: "vcs.unstage",
             detail: null,
             name: null,
@@ -276,7 +273,7 @@ export default class VersionControlPane {
             execute: this.unstageFile,
         })
 
-        this._commands.registerCommand({
+        this._oni.commands.registerCommand({
             command: "vcs.showHelp",
             detail: null,
             name: null,

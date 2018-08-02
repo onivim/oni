@@ -6,11 +6,7 @@ jest.mock("../browser/src/Services/Explorer/ExplorerStore")
 import * as React from "react"
 import { shallow } from "enzyme"
 
-import { Configuration } from "../browser/src/Services/Configuration"
-import MockCommands from "./mocks/CommandManager"
-import { configuration } from "./mocks/Configuration"
-import MockEditorManager from "./mocks/EditorManager"
-import MockWorkspace from "./mocks/Workspace"
+import MockOni from "./mocks/Oni"
 
 import { createStore } from "../browser/src/Services/Explorer/ExplorerStore"
 import { ExplorerSplit } from "../browser/src/Services/Explorer/ExplorerSplit"
@@ -28,12 +24,7 @@ describe("ExplorerSplit", () => {
         } as Store<any>
         ;(createStore as jest.Mock).mockReturnValue(store)
 
-        explorerSplit = new ExplorerSplit(
-            configuration as Configuration,
-            new MockWorkspace(),
-            new MockCommands(),
-            new MockEditorManager(),
-        )
+        explorerSplit = new ExplorerSplit(new MockOni())
     })
 
     describe("locateFile", () => {

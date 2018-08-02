@@ -15,8 +15,8 @@ export class LanguageClientStatusBar {
     private _item: Oni.StatusBarItem
     private _fileType: string
 
-    constructor(private _statusBar: Oni.StatusBar) {
-        this._item = this._statusBar.createItem(0, "oni.status.fileType")
+    constructor(private _oni: Oni.Plugin.Api) {
+        this._item = this._oni.statusBar.createItem(0, "oni.status.fileType")
     }
 
     public show(fileType: string): void {
