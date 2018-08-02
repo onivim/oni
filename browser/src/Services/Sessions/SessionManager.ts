@@ -77,7 +77,7 @@ export class SessionManager implements ISessionService {
     }
 
     public getSessionMetadata(sessionName: string, file = this._getSessionFilename(sessionName)) {
-        const metadata = {
+        return {
             file,
             id: sessionName,
             name: sessionName,
@@ -85,7 +85,6 @@ export class SessionManager implements ISessionService {
             directory: this.sessionsDir,
             workspace: this._oni.workspace.activeWorkspace,
         }
-        return metadata
     }
 
     private _getSessionFilename(name: string) {

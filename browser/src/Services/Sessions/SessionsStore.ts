@@ -131,7 +131,7 @@ const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
         flatMap((action: IPersistSession) => {
             return from(sessionManager.persistSession(action.payload.sessionName)).pipe(
                 flatMap(session => {
-                    // console.log("session: ", session)
+                    console.log("session: ", session)
                     return [
                         SessionActions.cancelCreating(),
                         SessionActions.persistSessionSuccess(),
