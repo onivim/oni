@@ -89,6 +89,10 @@ export class PluginManager implements Oni.IPluginManager {
         this._pluginsActivated = true
         this._pluginsLoaded.dispatch()
 
+        return this.getApi()
+    }
+
+    public getApi(): Oni.Plugin.Api {
         return this._anonymousPlugin.oni
     }
 

@@ -5,12 +5,12 @@
  */
 
 import * as fs from "fs"
+import * as Oni from "oni-api"
 import * as path from "path"
 
 import * as Log from "oni-core-logging"
 
 import { Configuration } from "./../Configuration"
-import { IWorkspace } from "./Workspace"
 
 export const getWorkspaceConfigurationPath = (workspacePath: string): string => {
     return path.join(workspacePath, ".oni", "config.js")
@@ -25,7 +25,7 @@ export class WorkspaceConfiguration {
 
     constructor(
         private _configuration: Configuration,
-        private _workspace: IWorkspace,
+        private _workspace: Oni.Workspace.Api,
         private _fs: typeof fs = fs,
     ) {
         this._checkWorkspaceConfiguration()

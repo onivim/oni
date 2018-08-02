@@ -4,20 +4,18 @@
  * Entry point for explorer-related features
  */
 
-import { IWorkspace } from "./../../Services/Workspace"
-import { CallbackCommand, CommandManager } from "./../CommandManager"
+import * as Oni from "oni-api"
+
+import { CallbackCommand } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
-import { EditorManager } from "./../EditorManager"
 import { SidebarManager } from "./../Sidebar"
 
 import { ExplorerSplit } from "./ExplorerSplit"
 
 export const activate = (
-    commandManager: CommandManager,
+    oni: Oni.Plugin.Api,
     configuration: Configuration,
-    editorManager: EditorManager,
     sidebarManager: SidebarManager,
-    workspace: IWorkspace,
 ) => {
     configuration.registerSetting("explorer.autoRefresh", {
         description:
@@ -26,27 +24,22 @@ export const activate = (
         defaultValue: false,
     })
 
-    const explorerSplit: ExplorerSplit = new ExplorerSplit(
-        configuration,
-        workspace,
-        commandManager,
-        editorManager,
-    )
+    const explorerSplit: ExplorerSplit = new ExplorerSplit(oni)
     sidebarManager.add("files-o", explorerSplit)
 
     const explorerId = "oni.sidebar.explorer"
 
-    commandManager.registerCommand(
+    oni.commands.registerCommand(
         new CallbackCommand(
             "explorer.toggle",
             "Explorer: Toggle Visibility",
             "Toggles the explorer in the sidebar",
             () => sidebarManager.toggleVisibilityById(explorerId),
-            () => !!workspace.activeWorkspace,
+            () => !!oni.workspace.activeWorkspace,
         ),
     )
 
-    commandManager.registerCommand(
+    oni.commands.registerCommand(
         new CallbackCommand(
             "explorer.locate.buffer",
             "Explorer: Locate Current Buffer",
@@ -55,9 +48,9 @@ export const activate = (
                 if (sidebarManager.activeEntryId !== explorerId || !sidebarManager.isVisible) {
                     sidebarManager.setActiveEntry(explorerId)
                 }
-                explorerSplit.locateFile(editorManager.activeEditor.activeBuffer.filePath)
+                explorerSplit.locateFile(oni.editors.activeEditor.activeBuffer.filePath)
             },
-            () => !!workspace.activeWorkspace,
+            () => !!oni.workspace.activeWorkspace,
         ),
     )
 }
