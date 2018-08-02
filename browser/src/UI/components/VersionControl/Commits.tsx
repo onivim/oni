@@ -2,6 +2,7 @@ import * as React from "react"
 
 import { Logs } from "../../../Services/VersionControl/VersionControlProvider"
 import { sidebarItemSelected, styled, withProps } from "./../../../UI/components/common"
+import { formatDate } from "./../../../Utility"
 import VCSSectionTitle from "./../SectionTitle"
 
 interface ICommitsSection {
@@ -35,19 +36,6 @@ const Container = styled.div`
     max-height: 20em;
     overflow: hidden;
 `
-
-const formatDate = (dateStr: string) => {
-    const options: Intl.DateTimeFormatOptions = {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-    }
-    const date = new Date(dateStr)
-    return date.toLocaleDateString("en-US", options)
-}
 
 const CommitsSection: React.SFC<ICommitsSection> = ({ commits, ...props }) => {
     return (

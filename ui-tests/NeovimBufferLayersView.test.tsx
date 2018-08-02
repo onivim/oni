@@ -78,6 +78,8 @@ describe("<NeovimBufferLayersView/>", () => {
             windowId: 1,
             fontPixelWidth: 3,
             fontPixelHeight: 10,
+            cursorColumn: 4,
+            cursorLine: 2,
             bufferToScreen: windows[0].bufferToScreen,
             screenToPixel: windows[0].screenToPixel,
             bufferToPixel: windows[0].bufferToPixel,

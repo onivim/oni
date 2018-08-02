@@ -45,7 +45,7 @@ const Help: React.SFC<{}> = props => {
                 <Title>Help</Title>?
             </SectionTitle>
             {commands.map(command => (
-                <CommandExplainer>
+                <CommandExplainer key={command.key}>
                     <Description>
                         {command.description} - <Command>{wrapInBrackets(command.key)}</Command>
                     </Description>

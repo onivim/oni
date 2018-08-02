@@ -129,6 +129,12 @@ const tint = (base: string, mix: string, degree: number = 0.1) =>
 
 const fontSizeSmall = `font-size: 0.9em;`
 
+export const textOverflow = css`
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`
+
 const fallBackFonts = `
     Consolas,
     Menlo,
