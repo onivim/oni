@@ -57,6 +57,9 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.particles.enabled": false,
     "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
+    "experimental.vcs.blame.enabled": false,
+    "experimental.vcs.blame.mode": "auto",
+    "experimental.vcs.blame.timeout": 800,
 
     "experimental.colorHighlight.enabled": false,
     "experimental.colorHighlight.filetypes": [

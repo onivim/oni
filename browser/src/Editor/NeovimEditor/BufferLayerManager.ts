@@ -69,6 +69,13 @@ export class BufferLayerManager {
     }
 }
 
+const getInstance = (() => {
+    const instance = new BufferLayerManager()
+    return () => instance
+})()
+
+export default getInstance
+
 export const wrapReactComponentWithLayer = (
     id: string,
     component: JSX.Element,

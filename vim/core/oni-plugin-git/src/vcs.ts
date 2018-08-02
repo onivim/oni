@@ -27,6 +27,27 @@ export interface StatusResult {
     remoteTrackingBranch: string
 }
 
+export interface BlameArgs {
+    lineOne: number
+    lineTwo: number
+    file: string
+}
+
+export interface Blame {
+    author: string
+    author_mail: string
+    author_time: string
+    author_tz: string
+    committer: string
+    committer_mail: string
+    committer_time: string
+    committer_tz: string
+    filename: string
+    hash: string
+    line: { originalLine: string; finalLine: string; numberOfLines: string }
+    summary: string
+}
+
 export interface VersionControlProvider {
     // Events
     onFileStatusChanged: IEvent<FileStatusChangedEvent>
@@ -42,6 +63,7 @@ export interface VersionControlProvider {
     canHandleWorkspace(dir?: string): Promise<boolean>
     getStatus(): Promise<StatusResult | void>
     getRoot(): Promise<string | void>
+    getBlame(args: BlameArgs): Promise<Blame>
     getDiff(): Promise<Diff | void>
     getBranch(): Promise<string | void>
     getLogs(file?: string): Promise<Logs>

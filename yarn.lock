@@ -214,9 +214,9 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-transition-group@2.0.6":
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/@types/react-transition-group/-/react-transition-group-2.0.6.tgz#8903fa2cf540ba454461590bff811a787889617c"
+"@types/react-transition-group@^2.0.11":
+  version "2.0.11"
+  resolved "https://registry.yarnpkg.com/@types/react-transition-group/-/react-transition-group-2.0.11.tgz#feb274676a39383fffaa0dff710958d2251abefb"
   dependencies:
     "@types/react" "*"
 
@@ -7574,17 +7574,17 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@^0.0.46:
-  version "0.0.46"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.46.tgz#99511a0c5488af1762b4744ce1ca79fea45b2b8b"
+oni-api@0.0.48:
+  version "0.0.48"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.48.tgz#531bfcbc72eeef48e250ae675cf8e0e0461e906c"
 
 oni-core-logging@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/oni-core-logging/-/oni-core-logging-1.0.0.tgz#7ad6c0ad8b06c23255202f97e229c2b0947dcf0b"
 
-oni-neovim-binaries@0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/oni-neovim-binaries/-/oni-neovim-binaries-0.1.2.tgz#fccfab6aa71922437119a8de149582648f4e521d"
+oni-neovim-binaries@0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/oni-neovim-binaries/-/oni-neovim-binaries-0.1.3.tgz#4855d11e9c1a6da586801bbb9996f61808c8b5b9"
 
 oni-release-downloader@^0.0.10:
   version "0.0.10"
