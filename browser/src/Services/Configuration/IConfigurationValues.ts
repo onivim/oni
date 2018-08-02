@@ -62,6 +62,13 @@ export interface IConfigurationValues {
     "experimental.indentLines.color": string
     // Filetypes the indent lines are not shown for
     "experimental.indentLines.bannedFiletypes": string[]
+    // Whether or not the vcs blame layer is enabled
+    "experimental.vcs.blame.enabled": boolean
+    // Whether or not the blame shows up automatically following a timeout or is manually
+    // triggered
+    "experimental.vcs.blame.mode": "auto" | "manual"
+    // Amount of millisenconds to delay before showing blame per line
+    "experimental.vcs.blame.timeout": number
     // Whether the markdown preview pane should be shown
     "experimental.markdownPreview.enabled": boolean
     "experimental.markdownPreview.autoScroll": boolean

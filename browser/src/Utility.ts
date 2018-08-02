@@ -258,3 +258,45 @@ export function ignoreWhilePendingPromise<T, U>(
 export const parseJson5 = <T>(text: string): T => {
     return JSON5.parse(text) as T
 }
+
+export const formatDate = (dateStr: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+    }
+    const date = new Date(dateStr)
+    return date.toLocaleDateString("en-US", options)
+}
+
+// Courtesy of https://stackoverflow.com/questions/3177836
+// /how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site
+export const getTimeSince = (date: Date) => {
+    const currentDate = Date.now()
+    const seconds = Math.floor((currentDate - date.getTime()) / 1000)
+    let interval = Math.floor(seconds / 31536000)
+
+    if (interval > 1) {
+        return interval + " years"
+    }
+    interval = Math.floor(seconds / 2592000)
+    if (interval > 1) {
+        return interval + " months"
+    }
+    interval = Math.floor(seconds / 86400)
+    if (interval > 1) {
+        return interval + " days"
+    }
+    interval = Math.floor(seconds / 3600)
+    if (interval > 1) {
+        return interval + " hours"
+    }
+    interval = Math.floor(seconds / 60)
+    if (interval > 1) {
+        return interval + " minutes"
+    }
+    return Math.floor(seconds) + " seconds"
+}

@@ -5,9 +5,11 @@ import { IDisposable } from "oni-types"
 import * as React from "react"
 
 import { store, SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
+import getBufferLayerInstance from "./../../Editor/NeovimEditor/BufferLayerManager"
 import { Notifications } from "./../../Services/Notifications"
 import { Branch } from "./../../UI/components/VersionControl/Branch"
 import { SidebarManager } from "./../Sidebar"
+import VersionControlBlameLayer from "./VersionControlBlameLayer"
 
 interface ISendNotificationsArgs {
     detail: string
@@ -25,6 +27,7 @@ export class VersionControlManager {
     private _vcsStatusItem: Oni.StatusBarItem
     private _subscriptions: IDisposable[] = []
     private _providers = new Map<string, VersionControlProvider>()
+    private _bufferLayerManager = getBufferLayerInstance()
 
     constructor(
         private _oni: Oni.Plugin.Api,
@@ -138,6 +141,17 @@ export class VersionControlManager {
                 )
                 this._sidebar.add("code-fork", vcsPane) // TODO: Refactor API
             }
+
+            this._bufferLayerManager.addBufferLayer(
+                () => this._oni.configuration.getValue("experimental.vcs.blame.enabled"),
+                buf =>
+                    new VersionControlBlameLayer(
+                        buf,
+                        this._vcsProvider,
+                        this._oni.configuration,
+                        this._oni.commands,
+                    ),
+            )
 
             this._registerCommands()
         } catch (e) {
