@@ -1,5 +1,5 @@
 import * as fs from "fs-extra"
-import { Commands, Editor, EditorManager, Workspace } from "oni-api"
+import { Editor, EditorManager, Plugin } from "oni-api"
 import { IEvent } from "oni-types"
 import * as path from "path"
 
@@ -23,13 +23,18 @@ export interface ISessionService {
     restoreSession(sessionName: string): Promise<ISession>
 }
 
+export interface UpdatedOni extends Plugin.Api {
+    editors: UpdatedEditorManager
+}
+
+interface UpdatedEditorManager extends EditorManager {
+    activeEditor: UpdatedEditor
+}
+
 interface UpdatedEditor extends Editor {
     onQuit: IEvent<void>
     persistSession(sessionDetails: ISession): Promise<ISession>
     restoreSession(sessionDetails: ISession): Promise<ISession>
-}
-export interface IEditorCandidate extends EditorManager {
-    activeEditor: UpdatedEditor
 }
 
 /**
@@ -42,16 +47,11 @@ export class SessionManager implements ISessionService {
     private _store = store({ sessionManager: this, fs })
     private _sessionsDir = path.join(getUserConfigFolderPath(), "sessions")
 
-    constructor(
-        private _editorManager: IEditorCandidate,
-        private _sidebarManager: SidebarManager,
-        private _commands: Commands.Api,
-        private _workspace: Workspace.Api,
-    ) {
+    constructor(private _oni: UpdatedOni, private _sidebarManager: SidebarManager) {
         fs.ensureDirSync(this.sessionsDir)
         this._sidebarManager.add(
             "save",
-            new SessionsPane({ store: this._store, commands: this._commands }),
+            new SessionsPane({ store: this._store, commands: this._oni.commands }),
         )
         this._setupSubscriptions()
     }
@@ -66,13 +66,13 @@ export class SessionManager implements ISessionService {
 
     public persistSession = async (sessionName: string) => {
         const sessionDetails = this.getSessionMetadata(sessionName)
-        await this._editorManager.activeEditor.persistSession(sessionDetails)
+        await this._oni.editors.activeEditor.persistSession(sessionDetails)
         return sessionDetails
     }
 
     public restoreSession = async (sessionName: string) => {
         const sessionDetails = this.getSessionMetadata(sessionName)
-        await this._editorManager.activeEditor.restoreSession(sessionDetails)
+        await this._oni.editors.activeEditor.restoreSession(sessionDetails)
         return sessionDetails
     }
 
@@ -83,7 +83,7 @@ export class SessionManager implements ISessionService {
             name: sessionName,
             updatedAt: Date.now(),
             directory: this.sessionsDir,
-            workspace: this._workspace.activeWorkspace,
+            workspace: this._oni.workspace.activeWorkspace,
         }
         return metadata
     }
@@ -93,10 +93,10 @@ export class SessionManager implements ISessionService {
     }
 
     private _setupSubscriptions() {
-        this._editorManager.activeEditor.onBufferEnter.subscribe(() => {
+        this._oni.editors.activeEditor.onBufferEnter.subscribe(() => {
             this._store.dispatch(SessionActions.updateCurrentSession())
         })
-        this._editorManager.activeEditor.onQuit.subscribe(() => {
+        this._oni.editors.activeEditor.onQuit.subscribe(() => {
             this._store.dispatch(SessionActions.updateCurrentSession())
         })
     }
@@ -105,20 +105,10 @@ export class SessionManager implements ISessionService {
 function init() {
     let instance: SessionManager
     return {
-        activate: (
-            editorManager: EditorManager,
-            sidebarManager: SidebarManager,
-            commandManager: Commands.Api,
-            workspace: Workspace.Api,
-        ) => {
-            instance = new SessionManager(
-                editorManager as IEditorCandidate,
-                sidebarManager,
-                commandManager,
-                workspace,
-            )
-        },
         getInstance: () => instance,
+        activate: (oni: Plugin.Api, sidebarManager: SidebarManager) => {
+            instance = new SessionManager(oni as UpdatedOni, sidebarManager)
+        },
     }
 }
 export const { activate, getInstance } = init()

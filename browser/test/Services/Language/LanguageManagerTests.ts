@@ -8,7 +8,6 @@ import * as sinon from "sinon"
 
 import { Event } from "oni-types"
 
-import { EditorManager } from "./../../../src/Services/EditorManager"
 import * as Language from "./../../../src/Services/Language"
 
 import * as Mocks from "./../../Mocks"
@@ -44,16 +43,13 @@ export class MockLanguageClient implements Language.ILanguageClient {
 
 describe("LanguageManager", () => {
     // Mocks
-    let mockConfiguration: Mocks.MockConfiguration
-    let mockEditor: Mocks.MockEditor
-    let editorManager: EditorManager
-    let mockWorkspace: Mocks.MockWorkspace
+    let mockOni: Mocks.MockOni
 
     // Class under test
     let languageManager: Language.LanguageManager
 
     beforeEach(() => {
-        mockConfiguration = new Mocks.MockConfiguration({
+        const mockConfiguration = new Mocks.MockConfiguration({
             "editor.quickInfo.delay": 500,
             "editor.quickInfo.enabled": true,
             "status.priority": {
@@ -64,21 +60,9 @@ describe("LanguageManager", () => {
                 "oni.status.git": 2,
             },
         })
+        mockOni = new Mocks.MockOni(mockConfiguration)
 
-        editorManager = new EditorManager()
-        mockEditor = new Mocks.MockEditor()
-        editorManager.setActiveEditor(mockEditor)
-        mockWorkspace = new Mocks.MockWorkspace()
-
-        const mockStatusBar = new Mocks.MockStatusBar()
-
-        languageManager = new Language.LanguageManager(
-            mockConfiguration as any,
-            editorManager,
-            new Mocks.MockPluginManager() as any,
-            mockStatusBar,
-            mockWorkspace,
-        )
+        languageManager = new Language.LanguageManager(mockOni)
     })
 
     it("sends didOpen request if language server is registered after enter event", async () => {
@@ -86,6 +70,7 @@ describe("LanguageManager", () => {
         // This can happen if a plugin registers a language server, because we spin
         // up the editors before initializing plugins.
         const mockBuffer = new Mocks.MockBuffer("javascript", "test.js", ["a", "b", "c"])
+        const mockEditor = mockOni.editors.activeEditor as Mocks.MockEditor
         mockEditor.simulateBufferEnter(mockBuffer)
 
         const mockLanguageClient = new MockLanguageClient()

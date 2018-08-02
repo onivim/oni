@@ -183,6 +183,8 @@ export const start = async (args: string[]): Promise<void> => {
     pluginManager.discoverPlugins()
     Performance.endMeasure("Oni.Start.Plugins.Discover")
 
+    const oniApi = pluginManager.getApi()
+
     Performance.startMeasure("Oni.Start.Themes")
     const Themes = await themesPromise
     const IconThemes = await iconThemesPromise
@@ -216,7 +218,6 @@ export const start = async (args: string[]): Promise<void> => {
 
     const StatusBar = await statusBarPromise
     StatusBar.activate(configuration)
-    const statusBar = StatusBar.getInstance()
 
     const Overlay = await overlayPromise
     Overlay.activate()
@@ -262,7 +263,7 @@ export const start = async (args: string[]): Promise<void> => {
     const tasks = Tasks.getInstance()
 
     const LanguageManager = await languageManagerPromise
-    LanguageManager.activate(configuration, editorManager, pluginManager, statusBar, workspace)
+    LanguageManager.activate(oniApi)
     const languageManager = LanguageManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Editors")
@@ -316,27 +317,11 @@ export const start = async (args: string[]): Promise<void> => {
     const sidebarManager = Sidebar.getInstance()
 
     const VCSManager = await vcsManagerPromise
-    VCSManager.activate(
-        workspace,
-        editorManager,
-        statusBar,
-        commandManager,
-        menuManager,
-        sidebarManager,
-        notifications,
-        configuration,
-    )
+    VCSManager.activate(oniApi, sidebarManager, notifications)
 
     const Sessions = await sessionManagerPromise
-    Sessions.activate(editorManager, sidebarManager, commandManager, workspace)
-
-    Explorer.activate(
-        commandManager,
-        configuration,
-        editorManager,
-        Sidebar.getInstance(),
-        workspace,
-    )
+    Sessions.activate(oniApi, sidebarManager)
+    Explorer.activate(oniApi, configuration, Sidebar.getInstance())
     Learning.activate(
         commandManager,
         configuration,
