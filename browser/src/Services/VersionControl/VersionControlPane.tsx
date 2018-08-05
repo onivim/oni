@@ -82,6 +82,7 @@ export default class VersionControlPane {
         let summary = null
         const { status } = this._store.getState()
         const filesToCommit = files || status.staged
+        this._dispatchLoading(true)
         try {
             summary = await this._vcsProvider.commitFiles(messages, filesToCommit)
             this._store.dispatch({ type: "COMMIT_SUCCESS", payload: { commit: summary } })
@@ -94,6 +95,7 @@ export default class VersionControlPane {
             this._store.dispatch({ type: "COMMIT_FAIL" })
         } finally {
             await this._refresh()
+            this._dispatchLoading(false)
         }
     }
 
@@ -165,8 +167,10 @@ export default class VersionControlPane {
                 await this.uncommitFile(selected)
                 break
             case status.staged.includes(selected):
+                this._store.dispatch({ type: "COMMIT_START", payload: { files: [selected] } })
+                break
             case selected === "commit_all" && !!status.staged.length:
-                this._store.dispatch({ type: "COMMIT_START" })
+                this._store.dispatch({ type: "COMMIT_START", payload: { files: status.staged } })
                 break
             default:
                 break
