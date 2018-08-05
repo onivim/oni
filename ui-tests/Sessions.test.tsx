@@ -2,6 +2,7 @@ import { shallow, mount } from "enzyme"
 import * as React from "react"
 
 import { Sessions, Container } from "./../browser/src/Services/Sessions/Sessions"
+import TextInputView from "../browser/src/UI/components/LightweightText"
 
 const noop = () => ({})
 
@@ -117,7 +118,7 @@ describe("<Sessions />", () => {
                 populateSessions={noop}
             />,
         )
-        const hasInput = wrapper.find("input").length
+        const hasInput = wrapper.find(TextInputView).length
 
         expect(hasInput).toBeTruthy()
     })
@@ -135,11 +136,11 @@ describe("<Sessions />", () => {
                 updateSelection={noop}
                 sessions={sessions.slice(1)}
                 creating={false}
-                selected={sessions[0]}
+                selected={null}
                 populateSessions={noop}
             />,
         )
-        const hasInput = wrapper.find("input").length
+        const hasInput = wrapper.find(TextInputView).length
 
         expect(hasInput).toBeFalsy()
     })
@@ -155,7 +156,7 @@ describe("<Sessions />", () => {
                 updateSession={noop}
                 getAllSessions={noop}
                 updateSelection={noop}
-                sessions={[]} // remove one session
+                sessions={[]}
                 creating={true}
                 selected={null}
                 populateSessions={noop}
