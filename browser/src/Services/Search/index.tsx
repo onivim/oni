@@ -93,17 +93,22 @@ export class SearchPane {
 
         this._onSearchStarted.dispatch()
 
-        const query = this._oni.search.findInFile(searchOpts)
-
-        query.start()
-
+        const query = (this._currentQuery = this._oni.search.findInFile(searchOpts))
+        const toQuickFixItem = (r: Oni.Search.ResultItem) => {
+            return {
+                filename: r.fileName,
+                lnum: r.line,
+                col: r.column,
+                text: r.text.trim(),
+            }
+        }
         query.onSearchResults.subscribe(result => {
             if (result.isComplete) {
                 this._onSearchCompleted.dispatch()
+                this._oni.populateQuickFix(result.items.map(toQuickFixItem))
             }
         })
-
-        this._currentQuery = query
+        query.start()
     }
 }
 
