@@ -82,7 +82,6 @@ export default class VersionControlPane {
         let summary = null
         const { status } = this._store.getState()
         const filesToCommit = files || status.staged
-        this._dispatchLoading(true)
         try {
             summary = await this._vcsProvider.commitFiles(messages, filesToCommit)
             this._store.dispatch({ type: "COMMIT_SUCCESS", payload: { commit: summary } })
@@ -95,7 +94,6 @@ export default class VersionControlPane {
             this._store.dispatch({ type: "COMMIT_FAIL" })
         } finally {
             await this._refresh()
-            this._dispatchLoading(false)
         }
     }
 
@@ -191,8 +189,7 @@ export default class VersionControlPane {
     }
 
     private _refresh = async () => {
-        await this.getStatus()
-        await this.getLogs()
+        await Promise.all([this.getStatus(), this.getLogs()])
     }
 
     private _getStatusIfVisible = async () => {
