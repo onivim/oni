@@ -82,8 +82,13 @@ interface IState {
     showAll: boolean
 }
 
+interface IIDs {
+    input: string
+    title: string
+}
+
 class Sessions extends React.PureComponent<IConnectedProps, IState> {
-    public readonly _ID = {
+    public readonly _ID: Readonly<IIDs> = {
         input: "new_session",
         title: "title",
     }
@@ -126,6 +131,7 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
     }
 
     public restoreSession = async (selected: string) => {
+        console.log("selected: ", selected)
         if (selected) {
             await this.props.restoreSession(selected)
         }

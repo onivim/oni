@@ -127,11 +127,11 @@ type SessionEpic = Epic<ISessionActions, ISessionState, Dependencies>
 const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.pipe(
         ofType("PERSIST_SESSION"),
-        auditTime(200),
+        auditTime(50),
         flatMap((action: IPersistSession) => {
+            console.log("persist session action: ", action)
             return from(sessionManager.persistSession(action.payload.sessionName)).pipe(
                 flatMap(session => {
-                    console.log("session: ", session)
                     return [
                         SessionActions.cancelCreating(),
                         SessionActions.persistSessionSuccess(),
