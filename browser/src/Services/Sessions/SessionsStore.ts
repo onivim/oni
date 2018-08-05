@@ -129,7 +129,7 @@ const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
         ofType("PERSIST_SESSION"),
         auditTime(50),
         flatMap((action: IPersistSession) => {
-            console.log("persist session action: ", action)
+            // console.log("persist session action: ", action)
             return from(sessionManager.persistSession(action.payload.sessionName)).pipe(
                 flatMap(session => {
                     return [
