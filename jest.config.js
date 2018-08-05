@@ -10,6 +10,7 @@ module.exports = {
         Utility: "<rootDir>/ui-tests/mocks/Utility.ts",
         Configuration: "<rootDir>/ui-tests/mocks/Configuration.ts",
         KeyboardLayout: "<rootDir>/ui-tests/mocks/keyboardLayout.ts",
+        SharedNeovimInstance: "<rootDir>/ui-tests/mocks/SharedNeovimInstance.ts",
     },
     snapshotSerializers: ["enzyme-to-json/serializer"],
     transform: {

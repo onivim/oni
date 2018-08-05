@@ -36,7 +36,7 @@ interface ISessionItem {
     onClick: () => void
 }
 
-const Container = styled.div`
+export const Container = styled.div`
     padding: 0 1em;
 `
 
@@ -87,7 +87,7 @@ interface IIDs {
     title: string
 }
 
-class Sessions extends React.PureComponent<IConnectedProps, IState> {
+export class Sessions extends React.PureComponent<IConnectedProps, IState> {
     public readonly _ID: Readonly<IIDs> = {
         input: "new_session",
         title: "title",
