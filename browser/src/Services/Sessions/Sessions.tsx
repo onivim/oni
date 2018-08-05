@@ -131,7 +131,6 @@ class Sessions extends React.PureComponent<IConnectedProps, IState> {
     }
 
     public restoreSession = async (selected: string) => {
-        console.log("selected: ", selected)
         if (selected) {
             await this.props.restoreSession(selected)
         }

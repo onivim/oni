@@ -892,15 +892,6 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         )
     }
 
-    private _handleNeovimError(result: NeovimError | void): void {
-        if (!result) {
-            return null
-        }
-        const [, error] = result
-        Log.warn(error)
-        throw new Error(error)
-    }
-
     // "v:this_session" |this_session-variable| - is a variable nvim sets to the path of
     // the current session file when one is loaded we use it here to check the current session
     // if it in oni's session dir then this is updated
@@ -1330,6 +1321,18 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             } else {
                 this._renderer.draw(this._screenWithPredictions as any)
             }
+        }
+    }
+
+    private _handleNeovimError(result: NeovimError | void): void {
+        if (!result) {
+            return null
+        }
+        // the first value of the error response is a 0
+        if (Array.isArray(result) && !result[0]) {
+            const [, error] = result
+            Log.warn(error)
+            throw new Error(error)
         }
     }
 }
