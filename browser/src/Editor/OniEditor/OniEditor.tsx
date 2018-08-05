@@ -297,6 +297,10 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
         return this._neovimEditor.restoreSession(sessionDetails)
     }
 
+    public getCurrentSession() {
+        return this._neovimEditor.getCurrentSession()
+    }
+
     public persistSession(sessionDetails: ISession) {
         return this._neovimEditor.persistSession(sessionDetails)
     }

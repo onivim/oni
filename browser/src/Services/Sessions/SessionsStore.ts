@@ -2,10 +2,10 @@ import "rxjs"
 
 import * as fsExtra from "fs-extra"
 import * as path from "path"
-import { MiddlewareAPI, Store } from "redux"
+import { Store } from "redux"
 import { combineEpics, createEpicMiddleware, Epic, ofType } from "redux-observable"
 import { from } from "rxjs/observable/from"
-import { auditTime, catchError, filter, flatMap, mergeMap, delay, mapTo } from "rxjs/operators"
+import { auditTime, catchError, filter, flatMap } from "rxjs/operators"
 
 import { ISession, SessionManager } from "./"
 import { createStore as createReduxStore } from "./../../Redux"
@@ -37,7 +37,6 @@ type IUpdateMultipleSessions = IGenericAction<"GET_ALL_SESSIONS", { sessions: IS
 type IUpdateSelection = IGenericAction<"UPDATE_SELECTION", { selected: string }>
 type IUpdateSession = IGenericAction<"UPDATE_SESSION", { session: ISession }>
 type IRestoreSession = IGenericAction<"RESTORE_SESSION", { sessionName: string }>
-type IRestoreSessionComplete = IGenericAction<"RESTORE_SESSION_COMPLETE">
 type IPersistSession = IGenericAction<"PERSIST_SESSION", { sessionName: string }>
 type IPersistSessionSuccess = IGenericAction<"PERSIST_SESSION_SUCCESS">
 type IPersistSessionFailed = IGenericAction<"PERSIST_SESSION_FAILED", { error: Error }>
@@ -68,7 +67,6 @@ export type ISessionActions =
     | IDeleteSessionSuccess
     | IDeleteSessionFailed
     | IRestoreSession
-    | IRestoreSessionComplete
     | ISetCurrentSession
     | ICreateSession
     | IEnter
@@ -82,7 +80,6 @@ export const SessionActions = {
     createSession: () => ({ type: "CREATE_SESSION" } as ICreateSession),
     updateCurrentSession: () => ({ type: "UPDATE_CURRENT_SESSION" } as IUpdateCurrentSession),
     deleteSessionSuccess: () => ({ type: "DELETE_SESSION_SUCCESS" } as IDeleteSessionSuccess),
-    restoreSessionComplete: () => ({ type: "RESTORE_SESSION_COMPLETE" } as IRestoreSessionComplete),
 
     updateSession: (session: ISession) => ({ type: "UPDATE_SESSION", session } as IUpdateSession),
     setCurrentSession: (session: ISession) =>
@@ -127,9 +124,8 @@ type SessionEpic = Epic<ISessionActions, ISessionState, Dependencies>
 const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.pipe(
         ofType("PERSIST_SESSION"),
-        auditTime(50),
+        auditTime(200),
         flatMap((action: IPersistSession) => {
-            // console.log("persist session action: ", action)
             return from(sessionManager.persistSession(action.payload.sessionName)).pipe(
                 flatMap(session => {
                     return [
@@ -144,21 +140,17 @@ const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
         }),
     )
 
-const hasCurrentSession = (store: MiddlewareAPI<ISessionState>) => {
-    const { currentSession } = store.getState()
-    return !!(currentSession && currentSession.name)
-}
-
-// FIXME: Dispatches multiple actions some relating to old session
 const updateCurrentSessionEpic: SessionEpic = (action$, store, { fs, sessionManager }) => {
     return action$.pipe(
         ofType("UPDATE_CURRENT_SESSION"),
-        filter(() => hasCurrentSession(store)),
         auditTime(200),
-        mergeMap(() => {
-            const { currentSession } = store.getState()
-            return [SessionActions.persistSession(currentSession.name)]
-        }),
+        flatMap(() =>
+            from(sessionManager.getCurrentSession()).pipe(
+                filter(session => !!session),
+                flatMap(currentSession => [SessionActions.persistSession(currentSession.name)]),
+                catchError(error => [SessionActions.persistSessionFailed(error)]),
+            ),
+        ),
     )
 }
 
@@ -181,16 +173,14 @@ const deleteSessionEpic: SessionEpic = (action$, store, { fs, sessionManager }) 
 const restoreSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.pipe(
         ofType("RESTORE_SESSION"),
-        flatMap((action: IRestoreSession) => {
-            return from(sessionManager.restoreSession(action.payload.sessionName)).pipe(
+        flatMap((action: IRestoreSession) =>
+            from(sessionManager.restoreSession(action.payload.sessionName)).pipe(
                 flatMap(session => [
                     SessionActions.setCurrentSession(session),
                     SessionActions.populateSessions(),
                 ]),
-            )
-        }),
-        delay(200),
-        mapTo(SessionActions.restoreSessionComplete()),
+            ),
+        ),
         catchError(error => [SessionActions.restoreSessionError(error)]),
     )
 

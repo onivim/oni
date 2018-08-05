@@ -100,6 +100,8 @@ import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
 import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 
+type NeovimError = [number, string]
+
 export class NeovimEditor extends Editor implements Oni.Editor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
@@ -890,24 +892,38 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         )
     }
 
-    // Possibly use "v:this_session" |this_session-variable| to add method which verifies the session.
+    private _handleNeovimError(result: NeovimError | void): void {
+        if (!result) {
+            return null
+        }
+        const [, error] = result
+        Log.warn(error)
+        throw new Error(error)
+    }
+
+    // "v:this_session" |this_session-variable| - is a variable nvim sets to the path of
+    // the current session file when one is loaded we use it here to check the current session
+    // if it in oni's session dir then this is updated
+    public async getCurrentSession(): Promise<string | void> {
+        const result = await this._neovimInstance.request<string | NeovimError>("nvim_get_vvar", [
+            "this_session",
+        ])
+
+        if (Array.isArray(result)) {
+            return this._handleNeovimError(result)
+        }
+        return result
+    }
+
     public async persistSession(session: ISession) {
         const result = await this._neovimInstance.command(`mksession! ${session.file}`)
-        if (result) {
-            const [, error] = result
-            Log.warn(error)
-            throw new Error(error)
-        }
+        return this._handleNeovimError(result)
     }
 
     public async restoreSession(session: ISession) {
         await this._neovimInstance.closeAllBuffers()
         const result = await this._neovimInstance.command(`source ${session.file}`)
-        if (result) {
-            const [, error] = result
-            Log.warn(error)
-            throw new Error(error)
-        }
+        return this._handleNeovimError(result)
     }
 
     public async openFile(

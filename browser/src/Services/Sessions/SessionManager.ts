@@ -35,6 +35,7 @@ interface UpdatedEditor extends Editor {
     onQuit: IEvent<void>
     persistSession(sessionDetails: ISession): Promise<ISession>
     restoreSession(sessionDetails: ISession): Promise<ISession>
+    getCurrentSession(): Promise<string | void>
 }
 
 /**
@@ -70,10 +71,20 @@ export class SessionManager implements ISessionService {
         return sessionDetails
     }
 
+    public getCurrentSession = async () => {
+        const filepath = await this._oni.editors.activeEditor.getCurrentSession()
+        if (!filepath) {
+            return null
+        }
+        const [name] = path.basename(filepath).split(".")
+        return filepath.includes(this._sessionsDir) ? this.getSessionMetadata(name, filepath) : null
+    }
+
     public restoreSession = async (sessionName: string) => {
         const sessionDetails = this.getSessionMetadata(sessionName)
         await this._oni.editors.activeEditor.restoreSession(sessionDetails)
-        return sessionDetails
+        const session = await this.getCurrentSession()
+        return session
     }
 
     public getSessionMetadata(sessionName: string, file = this._getSessionFilename(sessionName)) {
