@@ -5,7 +5,6 @@ import styled from "styled-components"
 import { bufferScrollBarSize, pixel, withProps } from "./common"
 
 import { editorManager } from "./../../Services/EditorManager"
-import { EmptyArray } from "./../../Utility"
 
 export interface IBufferScrollBarProps {
     windowId: number
@@ -22,6 +21,7 @@ export interface IBufferScrollBarState {
 }
 
 export interface IScrollBarMarker {
+    id?: string
     line: number
     height: number
     color: string
@@ -77,6 +77,10 @@ export class BufferScrollBar extends React.PureComponent<
     IBufferScrollBarProps,
     IBufferScrollBarState
 > {
+    public static defaultProps: Partial<IBufferScrollBarProps> = {
+        markers: [],
+    }
+
     public state: IBufferScrollBarState = {
         scrollBarTop: 0,
     }
@@ -123,9 +127,8 @@ export class BufferScrollBar extends React.PureComponent<
             return null
         }
 
-        const markers = this.props.markers || EmptyArray
-
-        const uniqueMarkers = uniqBy(markers, ({ id }) => id)
+        // FIXME: this does not do anything currently as the markers don't have ID'
+        const uniqueMarkers = uniqBy(this.props.markers, ({ id }) => id)
         const markerElements = uniqueMarkers.map(({ line, color }) => {
             const pos = line / this.props.bufferSize * this.props.height
             const size = "2px"
