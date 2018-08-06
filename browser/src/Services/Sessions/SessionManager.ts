@@ -5,8 +5,8 @@ import * as path from "path"
 
 import { SidebarManager } from "../Sidebar"
 import { SessionActions, SessionsPane, store } from "./"
+import { getPersistentStore, IPersistentStore } from "./../../PersistentStore"
 import { getUserConfigFolderPath } from "./../../Services/Configuration/UserConfiguration"
-import { getPersistentStore, IPersistentStore } from "../../PersistentStore"
 
 export interface ISession {
     name: string
@@ -132,7 +132,7 @@ export class SessionManager implements ISessionService {
             return null
         }
         const [name] = path.basename(filepath).split(".")
-        return filepath.includes(this._sessionsDir) ? await this.getSessionFromStore(name) : null
+        return filepath.includes(this._sessionsDir) ? this.getSessionFromStore(name) : null
     }
 
     public restoreSession = async (sessionName: string) => {
