@@ -121,8 +121,6 @@ export const SessionActions = {
 
 type SessionEpic = Epic<ISessionActions, ISessionState, Dependencies>
 
-const updateTimestamp = (session: ISession) => ({ ...session, updatedAt: Date.now() })
-
 const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.pipe(
         ofType("PERSIST_SESSION"),
@@ -133,7 +131,7 @@ const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
                     return [
                         SessionActions.cancelCreating(),
                         SessionActions.persistSessionSuccess(),
-                        SessionActions.setCurrentSession(updateTimestamp(session)),
+                        SessionActions.setCurrentSession(session),
                         SessionActions.populateSessions(),
                     ]
                 }),
@@ -178,7 +176,7 @@ const restoreSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
         flatMap((action: IRestoreSession) =>
             from(sessionManager.restoreSession(action.payload.sessionName)).pipe(
                 flatMap(session => [
-                    SessionActions.setCurrentSession(updateTimestamp(session)),
+                    SessionActions.setCurrentSession(session),
                     SessionActions.populateSessions(),
                 ]),
             ),
@@ -190,18 +188,26 @@ const fetchSessionsEpic: SessionEpic = (action$, store, { fs, sessionManager }) 
     action$.pipe(
         ofType("POPULATE_SESSIONS"),
         flatMap((action: IPopulateSessions) => {
-            return from(fs.readdir(sessionManager.sessionsDir)).pipe(
-                flatMap(dir => {
-                    const metadata = dir.map(file => {
+            return from(
+                fs.readdir(sessionManager.sessionsDir).then(async dir => {
+                    const promises = dir.map(async file => {
+                        // use fs.stat mtime to figure when last a file was modified
+                        const { mtime } = await fs.stat(path.join(sessionManager.sessionsDir, file))
                         const [name] = file.split(".")
-                        return { name, file: path.join(sessionManager.sessionsDir, file) }
+                        return {
+                            name,
+                            file: path.join(sessionManager.sessionsDir, file),
+                            updatedAt: mtime.toDateString(),
+                        }
                     })
-                    const sessions = metadata.map(({ file, name }) =>
-                        sessionManager.getSessionMetadata(name, file),
-                    )
-                    return [SessionActions.getAllSessions(sessions)]
+                    const metadata = await Promise.all(promises)
+                    const sessions = metadata.map(({ file, name, updatedAt }) => ({
+                        ...sessionManager.getSessionMetadata(name, file),
+                        updatedAt,
+                    }))
+                    return sessions
                 }),
-            )
+            ).flatMap(sessions => [SessionActions.getAllSessions(sessions)])
         }),
     )
 

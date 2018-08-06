@@ -54,7 +54,7 @@ const SessionItem: React.SFC<ISessionItem> = ({ session, isSelected, onClick }) 
                 </strong>
             </div>
             <div>Workspace: {truncatedWorkspace}</div>
-            <div>Last updated at: {new Date(session.updatedAt).toUTCString()}</div>
+            {<div>Last updated: {session.updatedAt}</div>}
         </ListItem>
     )
 }

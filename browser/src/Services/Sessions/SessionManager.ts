@@ -12,7 +12,7 @@ export interface ISession {
     id: string
     file: string
     directory: string
-    updatedAt: number
+    updatedAt?: string
     workspace: string
 }
 
@@ -97,7 +97,6 @@ export class SessionManager implements ISessionService {
             name: sessionName,
             directory: this.sessionsDir,
             workspace: this._oni.workspace.activeWorkspace,
-            updatedAt: null,
         }
     }
 
