@@ -121,6 +121,8 @@ export const SessionActions = {
 
 type SessionEpic = Epic<ISessionActions, ISessionState, Dependencies>
 
+const updateTimestamp = (session: ISession) => ({ ...session, updatedAt: Date.now() })
+
 const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.pipe(
         ofType("PERSIST_SESSION"),
@@ -131,7 +133,7 @@ const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
                     return [
                         SessionActions.cancelCreating(),
                         SessionActions.persistSessionSuccess(),
-                        SessionActions.setCurrentSession(session),
+                        SessionActions.setCurrentSession(updateTimestamp(session)),
                         SessionActions.populateSessions(),
                     ]
                 }),
@@ -176,7 +178,7 @@ const restoreSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
         flatMap((action: IRestoreSession) =>
             from(sessionManager.restoreSession(action.payload.sessionName)).pipe(
                 flatMap(session => [
-                    SessionActions.setCurrentSession(session),
+                    SessionActions.setCurrentSession(updateTimestamp(session)),
                     SessionActions.populateSessions(),
                 ]),
             ),

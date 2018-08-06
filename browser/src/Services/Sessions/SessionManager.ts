@@ -87,14 +87,17 @@ export class SessionManager implements ISessionService {
         return session
     }
 
-    public getSessionMetadata(sessionName: string, file = this._getSessionFilename(sessionName)) {
+    public getSessionMetadata(
+        sessionName: string,
+        file = this._getSessionFilename(sessionName),
+    ): ISession {
         return {
             file,
             id: sessionName,
             name: sessionName,
-            updatedAt: Date.now(),
             directory: this.sessionsDir,
             workspace: this._oni.workspace.activeWorkspace,
+            updatedAt: null,
         }
     }
 
