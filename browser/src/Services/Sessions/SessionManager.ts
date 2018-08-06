@@ -6,6 +6,7 @@ import * as path from "path"
 import { SidebarManager } from "../Sidebar"
 import { SessionActions, SessionsPane, store } from "./"
 import { getUserConfigFolderPath } from "./../../Services/Configuration/UserConfiguration"
+import { getPersistentStore, IPersistentStore } from "../../PersistentStore"
 
 export interface ISession {
     name: string
@@ -14,6 +15,8 @@ export interface ISession {
     directory: string
     updatedAt?: string
     workspace: string
+    // can be use to save other metadata for restoration like statusbar info or sidebar info etc
+    metadata?: { [key: string]: any }
 }
 
 export interface ISessionService {
@@ -48,7 +51,11 @@ export class SessionManager implements ISessionService {
     private _store = store({ sessionManager: this, fs })
     private _sessionsDir = path.join(getUserConfigFolderPath(), "sessions")
 
-    constructor(private _oni: UpdatedOni, private _sidebarManager: SidebarManager) {
+    constructor(
+        private _oni: UpdatedOni,
+        private _sidebarManager: SidebarManager,
+        private _persistentStore: IPersistentStore<{ [sessionName: string]: ISession }>,
+    ) {
         fs.ensureDirSync(this.sessionsDir)
         this._sidebarManager.add(
             "save",
@@ -65,8 +72,52 @@ export class SessionManager implements ISessionService {
         return this._sessionsDir
     }
 
+    public async updateOniSession(sessionName: string, value: Partial<ISession>) {
+        const persistedSessions = await this._persistentStore.get()
+        if (sessionName in persistedSessions) {
+            this._persistentStore.set({
+                ...persistedSessions,
+                [sessionName]: { ...persistedSessions[sessionName], ...value },
+            })
+        }
+    }
+
+    public async createOniSession(sessionName: string) {
+        const persistedSessions = await this._persistentStore.get()
+        const file = this._getSessionFilename(sessionName)
+
+        const session: ISession = {
+            file,
+            id: sessionName,
+            name: sessionName,
+            directory: this.sessionsDir,
+            workspace: this._oni.workspace.activeWorkspace,
+            metadata: null,
+        }
+
+        this._persistentStore.set({ ...persistedSessions, [sessionName]: session })
+
+        return session
+    }
+
+    /**
+     * Retrieve or Create a persistent Oni Session
+     *
+     * @name getSessionFromStore
+     * @function
+     * @param {string} sessionName The name of the session
+     * @returns {ISession} The session metadata object
+     */
+    public async getSessionFromStore(sessionName: string) {
+        const sessions = await this._persistentStore.get()
+        if (sessionName in sessions) {
+            return sessions[sessionName]
+        }
+        return this.createOniSession(sessionName)
+    }
+
     public persistSession = async (sessionName: string) => {
-        const sessionDetails = this.getSessionMetadata(sessionName)
+        const sessionDetails = await this.getSessionFromStore(sessionName)
         await this._oni.editors.activeEditor.persistSession(sessionDetails)
         return sessionDetails
     }
@@ -77,27 +128,14 @@ export class SessionManager implements ISessionService {
             return null
         }
         const [name] = path.basename(filepath).split(".")
-        return filepath.includes(this._sessionsDir) ? this.getSessionMetadata(name, filepath) : null
+        return filepath.includes(this._sessionsDir) ? await this.getSessionFromStore(name) : null
     }
 
     public restoreSession = async (sessionName: string) => {
-        const sessionDetails = this.getSessionMetadata(sessionName)
+        const sessionDetails = await this.getSessionFromStore(sessionName)
         await this._oni.editors.activeEditor.restoreSession(sessionDetails)
         const session = await this.getCurrentSession()
         return session
-    }
-
-    public getSessionMetadata(
-        sessionName: string,
-        file = this._getSessionFilename(sessionName),
-    ): ISession {
-        return {
-            file,
-            id: sessionName,
-            name: sessionName,
-            directory: this.sessionsDir,
-            workspace: this._oni.workspace.activeWorkspace,
-        }
     }
 
     private _getSessionFilename(name: string) {
@@ -119,7 +157,8 @@ function init() {
     return {
         getInstance: () => instance,
         activate: (oni: Plugin.Api, sidebarManager: SidebarManager) => {
-            instance = new SessionManager(oni as UpdatedOni, sidebarManager)
+            const persistentStore = getPersistentStore("sessions", {}, 1)
+            instance = new SessionManager(oni as UpdatedOni, sidebarManager, persistentStore)
         },
     }
 }

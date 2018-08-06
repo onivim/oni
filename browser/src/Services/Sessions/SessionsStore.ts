@@ -190,21 +190,27 @@ const fetchSessionsEpic: SessionEpic = (action$, store, { fs, sessionManager }) 
         flatMap((action: IPopulateSessions) => {
             return from(
                 fs.readdir(sessionManager.sessionsDir).then(async dir => {
-                    const promises = dir.map(async file => {
-                        // use fs.stat mtime to figure when last a file was modified
-                        const { mtime } = await fs.stat(path.join(sessionManager.sessionsDir, file))
-                        const [name] = file.split(".")
-                        return {
-                            name,
-                            file: path.join(sessionManager.sessionsDir, file),
-                            updatedAt: mtime.toDateString(),
-                        }
-                    })
-                    const metadata = await Promise.all(promises)
-                    const sessions = metadata.map(({ file, name, updatedAt }) => ({
-                        ...sessionManager.getSessionMetadata(name, file),
-                        updatedAt,
-                    }))
+                    const metadata = await Promise.all(
+                        dir.map(async file => {
+                            const filepath = path.join(sessionManager.sessionsDir, file)
+                            // use fs.stat mtime to figure when last a file was modified
+                            const { mtime } = await fs.stat(filepath)
+                            const [name] = file.split(".")
+                            return {
+                                name,
+                                file: filepath,
+                                updatedAt: mtime.toUTCString(),
+                            }
+                        }),
+                    )
+
+                    const sessions = Promise.all(
+                        metadata.map(async ({ file, name, updatedAt }) => {
+                            const savedSession = await sessionManager.getSessionFromStore(name)
+                            await sessionManager.updateOniSession(name, { updatedAt })
+                            return { ...savedSession, updatedAt }
+                        }),
+                    )
                     return sessions
                 }),
             ).flatMap(sessions => [SessionActions.getAllSessions(sessions)])
