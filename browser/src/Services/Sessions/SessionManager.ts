@@ -108,18 +108,22 @@ export class SessionManager implements ISessionService {
      * @param {string} sessionName The name of the session
      * @returns {ISession} The session metadata object
      */
-    public async getSessionFromStore(sessionName: string) {
+    public async getSessionFromStore(name: string) {
         const sessions = await this._persistentStore.get()
-        if (sessionName in sessions) {
-            return sessions[sessionName]
+        if (name in sessions) {
+            return sessions[name]
         }
-        return this.createOniSession(sessionName)
+        return this.createOniSession(name)
     }
 
     public persistSession = async (sessionName: string) => {
         const sessionDetails = await this.getSessionFromStore(sessionName)
         await this._oni.editors.activeEditor.persistSession(sessionDetails)
         return sessionDetails
+    }
+
+    public deleteSession = async (sessionName: string) => {
+        await this._persistentStore.delete(sessionName)
     }
 
     public getCurrentSession = async () => {

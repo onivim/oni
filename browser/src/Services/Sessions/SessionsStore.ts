@@ -160,12 +160,18 @@ const deleteSessionEpic: SessionEpic = (action$, store, { fs, sessionManager }) 
         flatMap(() => {
             const { selected, currentSession } = store.getState()
             const sessionToDelete = selected || currentSession
-            return from(fs.remove(sessionToDelete.file)).pipe(
+            return from(
+                fs
+                    .remove(sessionToDelete.file)
+                    .then(() => sessionManager.deleteSession(sessionToDelete.name)),
+            ).pipe(
                 flatMap(() => [
                     SessionActions.deleteSessionSuccess(),
                     SessionActions.populateSessions(),
                 ]),
-                catchError(error => [SessionActions.deleteSessionFailed(error)]),
+                catchError(error => {
+                    return [SessionActions.deleteSessionFailed(error)]
+                }),
             )
         }),
     )
