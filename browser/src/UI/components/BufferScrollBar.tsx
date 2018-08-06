@@ -2,7 +2,7 @@ import * as React from "react"
 
 import * as uniqBy from "lodash/uniqBy"
 import styled from "styled-components"
-import { bufferScrollBarSize } from "./common"
+import { bufferScrollBarSize, pixel, withProps } from "./common"
 
 import { editorManager } from "./../../Services/EditorManager"
 import { EmptyArray } from "./../../Utility"
@@ -28,7 +28,7 @@ export interface IScrollBarMarker {
 }
 
 const ScrollBarContainer = styled.div`
-    position: absolute;
+    position: fixed;
     top: 0px;
     bottom: 0px;
     right: 0px;
@@ -37,8 +37,17 @@ const ScrollBarContainer = styled.div`
     border-bottom: 1px solid black;
     pointer-events: auto;
 `
+interface IScrollBarWindow {
+    height: number
+    top: number
+}
 
-const ScrollBarWindow = styled.div`
+const ScrollBarWindow = withProps<IScrollBarWindow>(styled.div).attrs({
+    style: (props: IScrollBarWindow) => ({
+        top: pixel(props.top),
+        height: pixel(props.height),
+    }),
+})`
     position: absolute;
     width: ${bufferScrollBarSize};
     background-color: rgba(200, 200, 200, 0.2);
@@ -46,17 +55,30 @@ const ScrollBarWindow = styled.div`
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     pointer-events: none;
 `
+interface IMarkerElement {
+    height: string
+    top: number
+    color: string
+}
+
+const MarkerElement = withProps<IMarkerElement>(styled.div).attrs({
+    style: ({ height, top }: IMarkerElement) => ({
+        top: pixel(top),
+        height,
+    }),
+})`
+        background-color: ${p => p.color};
+        width: 100%;
+        position: absolute;
+        pointer-events: none;
+`
 
 export class BufferScrollBar extends React.PureComponent<
     IBufferScrollBarProps,
     IBufferScrollBarState
 > {
-    public state = {
+    public state: IBufferScrollBarState = {
         scrollBarTop: 0,
-    }
-
-    constructor(props: any) {
-        super(props)
     }
 
     public setLine = (y: number) => {
@@ -89,45 +111,40 @@ export class BufferScrollBar extends React.PureComponent<
         document.removeEventListener("mouseup", this.endScroll, true)
     }
 
-    public render(): JSX.Element {
+    public calculateWindowDimensions() {
+        const { windowBottomLine, windowTopLine, bufferSize, height } = this.props
+        const windowHeight = (windowBottomLine - windowTopLine + 1) / bufferSize * height
+        const windowTop = (windowTopLine - 1) / bufferSize * height
+        return { windowHeight, windowTop }
+    }
+
+    public render() {
         if (!this.props.visible) {
             return null
         }
 
-        const windowHeight =
-            (this.props.windowBottomLine - this.props.windowTopLine + 1) /
-            this.props.bufferSize *
-            this.props.height
-        const windowTop = (this.props.windowTopLine - 1) / this.props.bufferSize * this.props.height
-
-        const windowStyle: React.CSSProperties = {
-            top: windowTop + "px",
-            height: windowHeight + "px",
-        }
-
         const markers = this.props.markers || EmptyArray
 
-        const uniqueMarkers = uniqBy(markers, m => m.id)
-        const markerElements = uniqueMarkers.map(m => {
-            const line = m.line
+        const uniqueMarkers = uniqBy(markers, ({ id }) => id)
+        const markerElements = uniqueMarkers.map(({ line, color }) => {
             const pos = line / this.props.bufferSize * this.props.height
             const size = "2px"
 
-            const markerStyle: React.CSSProperties = {
-                position: "absolute",
-                top: pos + "px",
-                height: size,
-                backgroundColor: m.color,
-                width: "100%",
-                pointerEvents: "none",
-            }
-
-            return <div style={markerStyle} key={`${this.props.windowId}_${m.color}_${m.line}`} />
+            return (
+                <MarkerElement
+                    top={pos}
+                    height={size}
+                    color={color}
+                    key={`${this.props.windowId}_${color}_${line}`}
+                />
+            )
         })
+
+        const { windowHeight, windowTop } = this.calculateWindowDimensions()
 
         return (
             <ScrollBarContainer key={this.props.windowId} onMouseDown={this.beginScroll}>
-                <ScrollBarWindow style={windowStyle} />
+                <ScrollBarWindow top={windowTop} height={windowHeight} />
                 {markerElements}
             </ScrollBarContainer>
         )
