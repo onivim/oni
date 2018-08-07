@@ -21,7 +21,6 @@ export interface IBufferScrollBarState {
 }
 
 export interface IScrollBarMarker {
-    id?: string
     line: number
     height: number
     color: string
