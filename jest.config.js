@@ -9,6 +9,7 @@ module.exports = {
         PersistentSettings: "<rootDir>/ui-tests/mocks/PersistentSettings.ts",
         Utility: "<rootDir>/ui-tests/mocks/Utility.ts",
         Configuration: "<rootDir>/ui-tests/mocks/Configuration.ts",
+        UserConfiguration: "<rootDir>/ui-tests/mocks/UserConfiguration.ts",
         KeyboardLayout: "<rootDir>/ui-tests/mocks/keyboardLayout.ts",
         SharedNeovimInstance: "<rootDir>/ui-tests/mocks/SharedNeovimInstance.ts",
     },

@@ -40,7 +40,7 @@ class MockOni implements Oni.Plugin.Api {
         throw Error("Not yet implemented")
     }
 
-    get editors(): Oni.EditorManager {
+    get editors() {
         return this._editorManager
     }
 
