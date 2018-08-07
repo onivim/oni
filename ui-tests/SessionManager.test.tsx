@@ -1,3 +1,5 @@
+import * as path from "path"
+
 import {
     ISession,
     SessionManager,
@@ -42,7 +44,7 @@ describe("Session Manager Tests", () => {
     const manager = new SessionManager(oni, new Sidebar(), persistentStore)
 
     it("Should return the correct session directory", () => {
-        expect(manager.sessionsDir).toMatch(".config/oni/session")
+        expect(manager.sessionsDir).toMatch(path.join(".config", "oni", "session"))
     })
 
     it("should save a session in the persistentStore", async () => {
