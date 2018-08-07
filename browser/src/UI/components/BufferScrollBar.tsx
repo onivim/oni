@@ -27,7 +27,11 @@ export interface IScrollBarMarker {
     color: string
 }
 
-const ScrollBarContainer = styled.div`
+const ScrollBarContainer = withProps<Partial<IScrollBarWindow>>(styled.div).attrs({
+    style: ({ height }: Partial<IScrollBarWindow>) => ({
+        height: pixel(height),
+    }),
+})`
     position: fixed;
     top: 0px;
     bottom: 0px;
@@ -43,9 +47,9 @@ interface IScrollBarWindow {
 }
 
 const ScrollBarWindow = withProps<IScrollBarWindow>(styled.div).attrs({
-    style: (props: IScrollBarWindow) => ({
-        top: pixel(props.top),
-        height: pixel(props.height),
+    style: ({ top, height }: IScrollBarWindow) => ({
+        top: pixel(top),
+        height: pixel(height),
     }),
 })`
     position: absolute;
@@ -146,7 +150,11 @@ export class BufferScrollBar extends React.PureComponent<
         const { windowHeight, windowTop } = this.calculateWindowDimensions()
 
         return (
-            <ScrollBarContainer key={this.props.windowId} onMouseDown={this.beginScroll}>
+            <ScrollBarContainer
+                key={this.props.windowId}
+                height={this.props.height}
+                onMouseDown={this.beginScroll}
+            >
                 <ScrollBarWindow top={windowTop} height={windowHeight} />
                 {markerElements}
             </ScrollBarContainer>
