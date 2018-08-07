@@ -72,12 +72,12 @@ export class SessionManager implements ISessionService {
         return this._sessionsDir
     }
 
-    public async updateOniSession(sessionName: string, value: Partial<ISession>) {
+    public async updateOniSession(name: string, value: Partial<ISession>) {
         const persistedSessions = await this._persistentStore.get()
-        if (sessionName in persistedSessions) {
+        if (name in persistedSessions) {
             this._persistentStore.set({
                 ...persistedSessions,
-                [sessionName]: { ...persistedSessions[sessionName], ...value },
+                [name]: { ...persistedSessions[name], ...value },
             })
         }
     }
@@ -135,8 +135,8 @@ export class SessionManager implements ISessionService {
         return filepath.includes(this._sessionsDir) ? this.getSessionFromStore(name) : null
     }
 
-    public restoreSession = async (sessionName: string) => {
-        const sessionDetails = await this.getSessionFromStore(sessionName)
+    public restoreSession = async (name: string) => {
+        const sessionDetails = await this.getSessionFromStore(name)
         await this._oni.editors.activeEditor.restoreSession(sessionDetails)
         const session = await this.getCurrentSession()
         return session
