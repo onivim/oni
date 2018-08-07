@@ -32,9 +32,9 @@ export const Errors = (props: IErrorsProps) => {
         return null
     }
 
-    const markers = errors.map(e => {
+    const markers = errors.map((error, idx) => {
         const screenSpaceStart = props.bufferToScreen(
-            types.Position.create(e.range.start.line, e.range.start.character),
+            types.Position.create(error.range.start.line, error.range.start.character),
         )
         if (!screenSpaceStart) {
             return null
@@ -46,41 +46,51 @@ export const Errors = (props: IErrorsProps) => {
         const pixelPosition = props.screenToPixel({ screenX: 0, screenY })
         const pixelY = pixelPosition.pixelY - padding / 2
 
-        return <ErrorMarker y={pixelY} text={e.message} color={getColorFromSeverity(e.severity)} />
-    })
-
-    const squiggles = errors.filter(e => e && e.range && e.range.start && e.range.end).map(e => {
-        const lineNumber = e.range.start.line
-        const column = e.range.start.character
-        const endColumn = e.range.end.character
-
-        const startPosition = props.bufferToScreen(types.Position.create(lineNumber, column))
-
-        if (!startPosition) {
-            return null
-        }
-
-        const endPosition = props.bufferToScreen(types.Position.create(lineNumber, endColumn))
-
-        if (!endPosition) {
-            return null
-        }
-
-        const pixelStart = props.screenToPixel(startPosition)
-        const pixelEnd = props.screenToPixel(endPosition)
-        const pixelWidth = pixelEnd.pixelX - pixelStart.pixelX
-        const normalizedPixelWidth = pixelWidth === 0 ? props.fontWidthInPixels : pixelWidth
-
         return (
-            <ErrorSquiggle
-                y={pixelStart.pixelY}
-                height={props.fontHeightInPixels}
-                x={pixelStart.pixelX}
-                width={normalizedPixelWidth}
-                color={getColorFromSeverity(e.severity)}
+            <ErrorMarker
+                y={pixelY}
+                text={error.message}
+                color={getColorFromSeverity(error.severity)}
+                key={`${error.code}-${error.message}-${error.severity}-${idx}`}
             />
         )
     })
+
+    const squiggles = errors
+        .filter(e => e && e.range && e.range.start && e.range.end)
+        .map((error, idx) => {
+            const lineNumber = error.range.start.line
+            const column = error.range.start.character
+            const endColumn = error.range.end.character
+
+            const startPosition = props.bufferToScreen(types.Position.create(lineNumber, column))
+
+            if (!startPosition) {
+                return null
+            }
+
+            const endPosition = props.bufferToScreen(types.Position.create(lineNumber, endColumn))
+
+            if (!endPosition) {
+                return null
+            }
+
+            const pixelStart = props.screenToPixel(startPosition)
+            const pixelEnd = props.screenToPixel(endPosition)
+            const pixelWidth = pixelEnd.pixelX - pixelStart.pixelX
+            const normalizedPixelWidth = pixelWidth === 0 ? props.fontWidthInPixels : pixelWidth
+
+            return (
+                <ErrorSquiggle
+                    y={pixelStart.pixelY}
+                    height={props.fontHeightInPixels}
+                    x={pixelStart.pixelX}
+                    width={normalizedPixelWidth}
+                    color={getColorFromSeverity(error.severity)}
+                    key={`${error.code}-${error.message}-${error.severity}-${idx}`}
+                />
+            )
+        })
 
     return (
         <div>
@@ -97,7 +107,7 @@ interface IErrorMarkerProps {
 }
 
 const ErrorMarker = (props: IErrorMarkerProps) => (
-    <ErrorMarkerWrapper topOffset={props.y} key={props.y.toString() + props.text + props.color}>
+    <ErrorMarkerWrapper topOffset={props.y}>
         <ErrorIcon color={props.color} />
     </ErrorMarkerWrapper>
 )

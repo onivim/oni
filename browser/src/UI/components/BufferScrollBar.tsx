@@ -126,13 +126,9 @@ export class BufferScrollBar extends React.PureComponent<
         return { windowHeight, windowTop }
     }
 
-    public render() {
-        if (!this.props.visible) {
-            return null
-        }
-
-        // FIXME: this does not do anything currently as the markers don't have ID'
-        const uniqueMarkers = uniqBy(this.props.markers, ({ id }) => id)
+    public renderMarkers() {
+        // Only show one marker per line in the scroll bar
+        const uniqueMarkers = uniqBy(this.props.markers, ({ line }) => line)
         const markerElements = uniqueMarkers.map(({ line, color }) => {
             const pos = line / this.props.bufferSize * this.props.height
             const size = "2px"
@@ -142,11 +138,20 @@ export class BufferScrollBar extends React.PureComponent<
                     top={pos}
                     height={size}
                     color={color}
+                    id="scrollbar-marker-element"
                     key={`${this.props.windowId}_${color}_${line}`}
                 />
             )
         })
+        return markerElements
+    }
 
+    public render() {
+        if (!this.props.visible) {
+            return null
+        }
+
+        const markerElements = this.renderMarkers()
         const { windowHeight, windowTop } = this.calculateWindowDimensions()
 
         return (
