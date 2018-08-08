@@ -95,6 +95,8 @@ deploy:
       file:
           - dist/*.deb
           - dist/*.rpm
+          - dist/*.pacman
+          - dist/*.AppImage
           - dist/*.tar.gz
       skip_cleanup: true
       on:
