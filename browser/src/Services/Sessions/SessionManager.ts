@@ -57,10 +57,13 @@ export class SessionManager implements ISessionService {
         private _persistentStore: IPersistentStore<{ [sessionName: string]: ISession }>,
     ) {
         fs.ensureDirSync(this.sessionsDir)
-        this._sidebarManager.add(
-            "save",
-            new SessionsPane({ store: this._store, commands: this._oni.commands }),
-        )
+        const enabled = this._oni.configuration.getValue("experimental.sessions.enabled")
+        if (enabled) {
+            this._sidebarManager.add(
+                "save",
+                new SessionsPane({ store: this._store, commands: this._oni.commands }),
+            )
+        }
         this._setupSubscriptions()
     }
 

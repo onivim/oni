@@ -48,7 +48,8 @@ export interface IConfigurationValues {
 
     // Whether or not the learning pane is available
     "experimental.particles.enabled": boolean
-
+    // Whether or not the sessions sidebar pane is enabled
+    "experimental.sessions.enabled": boolean
     // Whether Version control sidebar item is enabled
     "experimental.vcs.sidebar": boolean
     // Whether the color highlight layer is enabled
