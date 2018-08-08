@@ -15,11 +15,9 @@
         ]
     },
     "dependencies": {
-        "simple-git": "^1.96.0"
-    },
-    "peerDependencies": {
         "oni-api": "^0.0.46",
-        "oni-types": "^0.0.8"
+        "oni-types": "^0.0.8",
+        "simple-git": "^1.96.0"
     },
     "devDependencies": {
         "typescript": "^2.9.2",
