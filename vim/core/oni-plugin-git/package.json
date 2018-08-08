@@ -16,10 +16,13 @@
     },
     "dependencies": {
         "oni-api": "^0.0.46",
-        "oni-types": "^0.0.8",
         "simple-git": "^1.96.0"
     },
+    "peerDependencies": {
+        "oni-types": "^0.0.8"
+    },
     "devDependencies": {
-        "typescript": "^2.9.2"
+        "typescript": "^2.9.2",
+        "rimraf": "^2.6.2"
     }
 }
