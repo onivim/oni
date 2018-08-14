@@ -57,7 +57,7 @@ export class SessionManager implements ISessionService {
         private _persistentStore: IPersistentStore<{ [sessionName: string]: ISession }>,
     ) {
         fs.ensureDirSync(this.sessionsDir)
-        const enabled = this._oni.configuration.getValue("experimental.sessions.enabled")
+        const enabled = this._oni.configuration.getValue<boolean>("experimental.sessions.enabled")
         if (enabled) {
             this._sidebarManager.add(
                 "save",

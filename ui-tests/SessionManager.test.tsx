@@ -5,6 +5,7 @@ import {
     SessionManager,
     UpdatedOni,
 } from "./../browser/src/Services/Sessions/SessionManager"
+
 import Oni from "./mocks/Oni"
 import Sidebar from "./mocks/Sidebar"
 
@@ -30,7 +31,7 @@ const mockPersistentStore = {
         })
     },
     delete(key: string) {
-        this._store[key] = undefined
+        delete this._store[key]
         return new Promise(resolve => resolve(this._store))
     },
     has(key) {
@@ -40,8 +41,12 @@ const mockPersistentStore = {
 
 describe("Session Manager Tests", () => {
     const persistentStore = mockPersistentStore
-    const oni = new Oni() as any
-    const manager = new SessionManager(oni, new Sidebar(), persistentStore)
+    const oni = new Oni()
+    const manager = new SessionManager(oni as UpdatedOni, new Sidebar(), persistentStore)
+
+    beforeEach(() => {
+        mockPersistentStore._store = {}
+    })
 
     it("Should return the correct session directory", () => {
         expect(manager.sessionsDir).toMatch(path.join(".config", "oni", "session"))
@@ -51,5 +56,20 @@ describe("Session Manager Tests", () => {
         await manager.persistSession("test-session")
         const session = await persistentStore.get()
         expect(session).toBeTruthy()
+    })
+
+    it("should correctly delete a session", async () => {
+        await manager.persistSession("test-session")
+        const session = await persistentStore.get()
+        expect(session).toBeTruthy()
+        await manager.deleteSession("test-session")
+        expect(session["test-session"]).toBeFalsy()
+    })
+
+    it("should correctly update a session", async () => {
+        await manager.persistSession("test-session")
+        await manager.updateOniSession("test-session", { newValue: 2 })
+        const session = await manager.getSessionFromStore("test-session")
+        expect(session.newValue).toBe(2)
     })
 })
