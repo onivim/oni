@@ -1,14 +1,16 @@
-import * as SessionStore from "./../browser/src/Services/Sessions/SessionsStore"
 import * as fs from "fs-extra"
-jest.mock("fs-extra")
 import { ActionsObservable } from "redux-observable"
+
+import * as SessionStore from "./../browser/src/Services/Sessions/SessionsStore"
 import { SessionManager } from "../browser/src/Services/Sessions"
+
+jest.mock("fs-extra")
 
 describe("Session Store Tests", () => {
     const noop = () => ({})
-    const sessionManager = jest.fn<SessionManager>().mockImplementation(() => ({
+    const sessionManager = {
         _store: {},
-        persistSession(sessionName: string) {
+        async persistSession(sessionName: string) {
             return {
                 name: sessionName,
                 id: sessionName,
@@ -18,9 +20,9 @@ describe("Session Store Tests", () => {
                 workspace: `/test/dir`,
             }
         },
-    }))
+    }
 
-    it("should return the correct actions on persisting", () => {
+    it("should return the correct actions on persist", done => {
         const action$ = ActionsObservable.of({
             type: "PERSIST_SESSION",
             payload: { sessionName: "test-session" },
@@ -42,11 +44,14 @@ describe("Session Store Tests", () => {
 
         SessionStore.persistSessionEpic(action$, null, {
             fs,
-            sessionManager: sessionManager as any,
+            sessionManager,
         })
             .toArray()
             .subscribe(actualActions => {
-                expect(actualActions).toEqual(expected)
+                setTimeout(() => {
+                    expect(actualActions).toEqual(expected)
+                    done()
+                }, 400)
             })
     })
 })
