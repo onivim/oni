@@ -1,0 +1,26 @@
+{
+    "name": "oni-plugin-import-cost",
+    "version": "1.0.0",
+    "description": "An import cost buffer layer for Oni",
+    "main": "lib/index.js",
+    "author": "A. Sowemimo",
+    "license": "MIT",
+    "engines": {
+        "oni": "^0.2.6"
+    },
+    "scripts": {
+        "build": "rimraf lib && tsc",
+        "test": "tsc -p tsconfig.test.json && mocha --recursive ./lib_test/test"
+    },
+    "dependencies": {
+        "import-cost": "^1.5.0",
+        "oni-api": "^0.0.46",
+        "oni-types": "^0.0.8",
+        "react": "^16.4.2",
+        "styled-components": "^3.4.2"
+    },
+    "devDependencies": {
+        "rimraf": "^2.6.2",
+        "typescript": "^2.9.2"
+    }
+}

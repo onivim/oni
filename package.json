@@ -600,6 +600,8 @@
         "build:cli": "cd cli && tsc -p tsconfig.json",
         "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && yarn run build",
         "build:plugin:oni-plugin-git": "cd vim/core/oni-plugin-git && yarn run build",
+        "build:plugin:oni-plugin-import-cost":
+            "cd extensions/oni-plugin-import-cost && yarn run build",
         "build:plugin:oni-plugin-markdown-preview":
             "cd extensions/oni-plugin-markdown-preview && yarn run build",
         "build:plugin:oni-plugin-quickopen": "cd extensions/oni-plugin-quickopen && yarn run build",
@@ -674,12 +676,16 @@
             "webpack-dev-server --config browser/webpack.development.config.js --host localhost --port 8191",
         "watch:plugins": "run-p watch:plugins:*",
         "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
+        "watch:plugins:oni-plugin-import-cost":
+            "cd extensions/oni-plugin-import-cost && tsc --watch",
         "watch:plugins:oni-plugin-markdown-preview":
             "cd extensions/oni-plugin-markdown-preview && tsc --watch",
         "watch:plugins:oni-plugin-git": "cd vim/core/oni-plugin-git && tsc --watch",
         "install:plugins": "run-s install:plugins:*",
         "install:plugins:oni-plugin-markdown-preview":
             "cd extensions/oni-plugin-markdown-preview && yarn install --prod",
+        "install:plugins:oni-plugin-import-cost":
+            "cd extensions/oni-plugin-import-cost && yarn install --prod",
         "install:plugins:oni-plugin-prettier":
             "cd extensions/oni-plugin-prettier && yarn install --prod",
         "install:plugins:oni-plugin-git": "cd vim/core/oni-plugin-git && yarn install --prod",

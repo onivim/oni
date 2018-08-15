@@ -22,6 +22,10 @@ import { commandManager } from "./../../Services/CommandManager"
 import { getInstance as getCompletionProvidersInstance } from "./../../Services/Completion/CompletionProviders"
 import { configuration } from "./../../Services/Configuration"
 import { getInstance as getDiagnosticsInstance } from "./../../Services/Diagnostics"
+import {
+    default as getBufferLayerInstance,
+    BufferLayerManager,
+} from "./../../Editor/NeovimEditor/BufferLayerManager"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
@@ -138,6 +142,10 @@ export class Oni implements OniApi.Plugin.Api {
 
     public get overlays(): OniApi.Overlays.Api {
         return getOverlayInstance()
+    }
+
+    public get bufferLayers(): BufferLayerManager {
+        return getBufferLayerInstance()
     }
 
     public get process(): OniApi.Process {
