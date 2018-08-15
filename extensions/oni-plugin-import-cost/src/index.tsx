@@ -1,7 +1,49 @@
 import * as Oni from "oni-api"
 import * as path from "path"
 import * as React from "react"
+import styled, { ThemedStyledFunction } from "styled-components"
 import { importCost, cleanup, JAVASCRIPT, TYPESCRIPT } from "import-cost"
+
+interface PackageProps {
+    left: number
+    top: number
+    hide: boolean
+}
+
+interface IPackage {
+    name: string
+    size: number
+    gzip: number
+    line: number
+}
+
+export type StyledFunction<T> = ThemedStyledFunction<T, {}>
+
+export function withProps<T, U extends HTMLElement = HTMLElement>(
+    styledFunction: StyledFunction<React.HTMLProps<U>>,
+): StyledFunction<T & React.HTMLProps<U>> {
+    return styledFunction
+}
+
+const Gzip = styled.span`
+    color: green;
+`
+
+const Package = withProps<PackageProps>(styled.div).attrs({
+    style: (props: PackageProps) => ({
+        left: `${props.left}px`,
+        top: `${props.top}px`,
+        visibility: props.hide ? "hidden" : "visible",
+    }),
+})`
+    color: white;
+    padding-left: 5px;
+    position: absolute;
+`
+
+const Packages = styled.div`
+    position: relative;
+`
 
 interface Props {
     buffer: Oni.Buffer
@@ -20,20 +62,21 @@ class ImportCosts extends React.Component<Props, State> {
         packages: [],
     }
 
-    async componentDidMount() {
-        const { filePath } = this.props.buffer
-        const contentsArray = await this.props.buffer.getLines(0)
-        const fileContents = contentsArray.join("\n")
-        const filetype = path.extname(filePath).includes(".ts") ? TYPESCRIPT : JAVASCRIPT
-        this.setupEmitter(filePath, filetype, fileContents)
+    componentDidMount() {
+        this.setupEmitter()
     }
 
     componentWillUnmount() {
         this.emitter.removeAllListeners()
     }
 
-    setupEmitter(filePath: string, filetype: string, fileContents: string) {
-        this.emitter = importCost(filePath, fileContents, filetype)
+    setupEmitter() {
+        const { filePath } = this.props.buffer
+        const { visibleLines } = this.props.context
+        const fileContents = visibleLines.join("\n")
+        const fileType = path.extname(filePath).includes(".ts") ? TYPESCRIPT : JAVASCRIPT
+
+        this.emitter = importCost(filePath, fileContents, fileType)
         this.emitter.on("error", e => this.setState({ status: "error" }))
         this.emitter.on("start", packages => this.setState({ status: "calculating" }))
         this.emitter.on("calculated", pkg =>
@@ -45,29 +88,29 @@ class ImportCosts extends React.Component<Props, State> {
     getPosition = (line: number) => {
         const lineContent = this.props.context.visibleLines[line - 1]
         const character = lineContent.length || 0
-        console.log("line: ", line)
-        console.log("lineContent: ", lineContent)
-        console.log("character: ", character)
-        const pos = this.props.context.bufferToPixel({ character, line: line + 1 })
-        return pos ? pos.pixelX : null
+        const pos = this.props.context.bufferToPixel({ character, line: line - 1 })
+        return pos
+            ? { left: pos.pixelX, top: pos.pixelY, hide: false }
+            : { left: null, top: null, hide: true }
     }
+
+    getSize = (num: number) => Math.round(num / 1000 * 10) / 10
 
     render() {
         const { status, packages } = this.state
         switch (status) {
             case "calculating":
-                return <div>calculating...</div>
+                return <Package {...this.getPosition(1)}>calculating...</Package>
             case "done":
                 return (
-                    <div style={{ position: "relative", top: 0, left: 0, right: 0, bottom: 0 }}>
+                    <Packages>
                         {packages.map(pkg => (
-                            <span
-                                style={{ left: this.getPosition(pkg.line), position: "absolute" }}
-                            >
-                                {pkg.name} {pkg.gzip} {pkg.line}
-                            </span>
+                            <Package key={pkg.line} {...this.getPosition(pkg.line)}>
+                                {this.getSize(pkg.size)}kb{" "}
+                                <Gzip>(gzipped: {this.getSize(pkg.gzip)}kb)</Gzip>
+                            </Package>
                         ))}
-                    </div>
+                    </Packages>
                 )
             default:
                 return null
@@ -87,7 +130,12 @@ export class ImportCostLayer implements Oni.BufferLayer {
 }
 
 export interface OniWithLayers extends Oni.Plugin.Api {
-    bufferLayers: any
+    bufferLayers: {
+        addBufferLayer: (
+            compat: (buf: Oni.Buffer) => boolean,
+            layer: (buf: Oni.Buffer) => Oni.BufferLayer,
+        ) => void
+    }
 }
 
 export const activate = async (oni: OniWithLayers) => {
@@ -95,7 +143,5 @@ export const activate = async (oni: OniWithLayers) => {
         const ext = path.extname(buf.filePath)
         return ext.includes(".ts") || ext.includes(".js")
     }
-    oni.bufferLayers.addBufferLayer(isCompatible, buf => {
-        return new ImportCostLayer(oni, buf)
-    })
+    oni.bufferLayers.addBufferLayer(isCompatible, buf => new ImportCostLayer(oni, buf))
 }
