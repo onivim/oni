@@ -7,6 +7,7 @@ import { importCost, cleanup, JAVASCRIPT, TYPESCRIPT } from "import-cost"
 interface PackageProps {
     left: number
     top: number
+    width: number
     hide: boolean
 }
 
@@ -16,6 +17,8 @@ interface IPackage {
     gzip: number
     line: number
 }
+
+const px = (s: string | number) => `${s}px`
 
 export type StyledFunction<T> = ThemedStyledFunction<T, {}>
 
@@ -31,14 +34,18 @@ const Gzip = styled.span`
 
 const Package = withProps<PackageProps>(styled.div).attrs({
     style: (props: PackageProps) => ({
-        left: `${props.left}px`,
-        top: `${props.top}px`,
+        left: px(props.left),
+        top: px(props.top),
+        width: px(props.width),
         visibility: props.hide ? "hidden" : "visible",
     }),
 })`
     color: white;
     padding-left: 5px;
     position: absolute;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 `
 
 const Packages = styled.div`
@@ -66,6 +73,13 @@ class ImportCosts extends React.Component<Props, State> {
         this.setupEmitter()
     }
 
+    componentDidUpdate({ context: { visibleLines: prevLines } }: Props) {
+        const { context } = this.props
+        if (context.visibleLines !== prevLines) {
+            this.setupEmitter()
+        }
+    }
+
     componentWillUnmount() {
         this.emitter.removeAllListeners()
     }
@@ -86,12 +100,15 @@ class ImportCosts extends React.Component<Props, State> {
     }
 
     getPosition = (line: number) => {
-        const lineContent = this.props.context.visibleLines[line - 1]
+        const { context } = this.props
+        const width = context.dimensions.width * context.fontPixelWidth
+        const lineContent = context.visibleLines[line - 1]
         const character = lineContent.length || 0
         const pos = this.props.context.bufferToPixel({ character, line: line - 1 })
+
         return pos
-            ? { left: pos.pixelX, top: pos.pixelY, hide: false }
-            : { left: null, top: null, hide: true }
+            ? { left: pos.pixelX, top: pos.pixelY, width: width - pos.pixelX, hide: false }
+            : { left: null, top: null, width: null, hide: true }
     }
 
     getSize = (num: number) => Math.round(num / 1000 * 10) / 10
@@ -104,12 +121,15 @@ class ImportCosts extends React.Component<Props, State> {
             case "done":
                 return (
                     <Packages>
-                        {packages.map(pkg => (
-                            <Package key={pkg.line} {...this.getPosition(pkg.line)}>
-                                {this.getSize(pkg.size)}kb{" "}
-                                <Gzip>(gzipped: {this.getSize(pkg.gzip)}kb)</Gzip>
-                            </Package>
-                        ))}
+                        {packages.map(pkg => {
+                            const position = this.getPosition(pkg.line)
+                            return (
+                                <Package key={pkg.line} data-id="import-cost" {...position}>
+                                    {this.getSize(pkg.size)}kb{" "}
+                                    <Gzip>(gzipped: {this.getSize(pkg.gzip)}kb)</Gzip>
+                                </Package>
+                            )
+                        })}
                     </Packages>
                 )
             default:
