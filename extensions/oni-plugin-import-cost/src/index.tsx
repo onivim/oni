@@ -10,6 +10,7 @@ interface PackageProps extends SizeProps {
     width: number
     hide: boolean
     background: string
+    height: number
 }
 
 type Status = "calculating" | "done" | null | "error"
@@ -62,6 +63,7 @@ const Package = withProps<PackageProps>(styled.div).attrs({
     }),
 })`
     color: ${p => getColorForSize(p.size)};
+    height: ${p => px(p.height)};
     background-color: ${p => p.background};
     padding-left: 5px;
     position: absolute;
@@ -160,6 +162,12 @@ class ImportCosts extends React.Component<Props, State> {
     }
 
     getSize = (num: number): { kb: number; size: SizeProps["size"] } => {
+        if (!num) {
+            return {
+                kb: null,
+                size: null,
+            }
+        }
         const sizeInKbs = Math.round(num / 1024 * 10) / 10
         const sizeDescription =
             sizeInKbs >= this.props.largeSize
@@ -175,12 +183,25 @@ class ImportCosts extends React.Component<Props, State> {
 
     render() {
         const { status, packages } = this.state
+        const {
+            context: { fontPixelHeight },
+        } = this.props
         return (
             <Packages>
                 {packages.map(pkg => {
                     switch (pkg.status) {
                         case "calculating":
-                            return <Package {...this.getPosition(pkg.line)}>calculating...</Package>
+                            return (
+                                <Package
+                                    key={pkg.line}
+                                    data-id="import-cost"
+                                    height={fontPixelHeight}
+                                    {...this.getPosition(pkg.line)}
+                                    background={this.props.colors["editor.background"]}
+                                >
+                                    calculating...
+                                </Package>
+                            )
                         case "done":
                             const position = this.getPosition(pkg.line)
                             const gzipSize = this.getSize(pkg.gzip)
@@ -189,6 +210,7 @@ class ImportCosts extends React.Component<Props, State> {
                                 <Package
                                     {...position}
                                     key={pkg.line}
+                                    height={fontPixelHeight}
                                     size={pkgSize.size}
                                     data-id="import-cost"
                                     background={this.props.colors["editor.background"]}
