@@ -9,13 +9,17 @@ interface PackageProps extends SizeProps {
     top: number
     width: number
     hide: boolean
+    background: string
 }
+
+type Status = "calculating" | "done" | null | "error"
 
 interface IPackage {
     name: string
     size: number
     gzip: number
     line: number
+    status: Status
 }
 
 interface SizeProps {
@@ -58,11 +62,13 @@ const Package = withProps<PackageProps>(styled.div).attrs({
     }),
 })`
     color: ${p => getColorForSize(p.size)};
+    background-color: ${p => p.background};
     padding-left: 5px;
     position: absolute;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    z-index: 3;
 `
 
 const Packages = styled.div`
@@ -74,10 +80,13 @@ interface Props {
     largeSize: number
     smallSize: number
     context: Oni.BufferLayerRenderContext
+    colors: {
+        [color: string]: string
+    }
 }
 
 interface State {
-    status: "error" | "calculating" | "done" | null
+    status: Status
     packages: IPackage[]
 }
 
@@ -114,12 +123,20 @@ class ImportCosts extends React.Component<Props, State> {
             console.warn("Oni import-cost error:", error)
             this.setState({ status: "error" })
         })
-        this.emitter.on("start", packages => this.setState({ status: "calculating" }))
-        this.emitter.on("calculated", pkg =>
-            this.setState({ packages: [...this.state.packages, pkg], status: "done" }),
+        this.emitter.on("start", packages =>
+            this.setState({ packages: packages.map(pkg => ({ ...pkg, status: "calculating" })) }),
         )
+        this.emitter.on("calculated", pkg => {
+            const packages = this.state.packages.map(
+                p => (pkg.line === p.line ? { ...pkg, status: "done" } : p),
+            )
+            this.setState({ packages })
+        })
         this.emitter.on("done", packages => {
-            this.setState({ packages, status: "done" })
+            const updated = this.state.packages.map(
+                pkg => (pkg.status !== "done" ? { ...pkg, status: null } : pkg),
+            )
+            this.setState({ packages: updated })
             cleanup()
         })
     }
@@ -130,9 +147,15 @@ class ImportCosts extends React.Component<Props, State> {
         const lineContent = context.visibleLines[line - 1]
         const character = lineContent.length || 0
         const pos = this.props.context.bufferToPixel({ character, line: line - 1 })
+        const PADDING = 5
 
         return pos
-            ? { left: pos.pixelX, top: pos.pixelY, width: width - pos.pixelX, hide: false }
+            ? {
+                  left: pos.pixelX,
+                  top: pos.pixelY,
+                  width: width - pos.pixelX - PADDING,
+                  hide: false,
+              }
             : { left: null, top: null, width: null, hide: true }
     }
 
@@ -152,13 +175,13 @@ class ImportCosts extends React.Component<Props, State> {
 
     render() {
         const { status, packages } = this.state
-        switch (status) {
-            case "calculating":
-                return <Package {...this.getPosition(1)}>calculating...</Package>
-            case "done":
-                return (
-                    <Packages>
-                        {packages.map(pkg => {
+        return (
+            <Packages>
+                {packages.map(pkg => {
+                    switch (pkg.status) {
+                        case "calculating":
+                            return <Package {...this.getPosition(pkg.line)}>calculating...</Package>
+                        case "done":
                             const position = this.getPosition(pkg.line)
                             const gzipSize = this.getSize(pkg.gzip)
                             const pkgSize = this.getSize(pkg.size)
@@ -168,17 +191,18 @@ class ImportCosts extends React.Component<Props, State> {
                                     key={pkg.line}
                                     size={pkgSize.size}
                                     data-id="import-cost"
+                                    background={this.props.colors["editor.background"]}
                                 >
                                     {pkgSize.kb}kb
                                     <Gzip size={gzipSize.size}> (gzipped: {gzipSize.kb}kb)</Gzip>
                                 </Package>
                             ) : null
-                        })}
-                    </Packages>
-                )
-            default:
-                return null
-        }
+                        default:
+                            return null
+                    }
+                })}
+            </Packages>
+        )
     }
 }
 
@@ -193,7 +217,16 @@ export class ImportCostLayer implements Oni.BufferLayer {
     }
 
     render(context: Oni.BufferLayerRenderContext) {
-        return <ImportCosts buffer={this._buffer} context={context} largeSize={50} smallSize={5} />
+        const colors = (this._oni.colors as any).getColors()
+        return (
+            <ImportCosts
+                colors={colors}
+                buffer={this._buffer}
+                context={context}
+                largeSize={50}
+                smallSize={5}
+            />
+        )
     }
 }
 
