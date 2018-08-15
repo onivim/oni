@@ -33,24 +33,24 @@ interface IGenericAction<N, T = undefined> {
 
 export type ISessionStore = Store<ISessionState>
 
-type IUpdateMultipleSessions = IGenericAction<"GET_ALL_SESSIONS", { sessions: ISession[] }>
-type IUpdateSelection = IGenericAction<"UPDATE_SELECTION", { selected: string }>
-type IUpdateSession = IGenericAction<"UPDATE_SESSION", { session: ISession }>
-type IRestoreSession = IGenericAction<"RESTORE_SESSION", { sessionName: string }>
-type IPersistSession = IGenericAction<"PERSIST_SESSION", { sessionName: string }>
-type IPersistSessionSuccess = IGenericAction<"PERSIST_SESSION_SUCCESS">
-type IPersistSessionFailed = IGenericAction<"PERSIST_SESSION_FAILED", { error: Error }>
-type IRestoreSessionError = IGenericAction<"RESTORE_SESSION_ERROR", { error: Error }>
-type IDeleteSession = IGenericAction<"DELETE_SESSION">
-type IDeleteSessionSuccess = IGenericAction<"DELETE_SESSION_SUCCESS">
-type IDeleteSessionFailed = IGenericAction<"DELETE_SESSION_FAILED">
-type IUpdateCurrentSession = IGenericAction<"UPDATE_CURRENT_SESSION">
-type ISetCurrentSession = IGenericAction<"SET_CURRENT_SESSION", { session: ISession }>
-type IPopulateSessions = IGenericAction<"POPULATE_SESSIONS">
-type ICreateSession = IGenericAction<"CREATE_SESSION">
-type ICancelCreateSession = IGenericAction<"CANCEL_NEW_SESSION">
-type IEnter = IGenericAction<"ENTER">
-type ILeave = IGenericAction<"LEAVE">
+export type IUpdateMultipleSessions = IGenericAction<"GET_ALL_SESSIONS", { sessions: ISession[] }>
+export type IUpdateSelection = IGenericAction<"UPDATE_SELECTION", { selected: string }>
+export type IUpdateSession = IGenericAction<"UPDATE_SESSION", { session: ISession }>
+export type IRestoreSession = IGenericAction<"RESTORE_SESSION", { sessionName: string }>
+export type IPersistSession = IGenericAction<"PERSIST_SESSION", { sessionName: string }>
+export type IPersistSessionSuccess = IGenericAction<"PERSIST_SESSION_SUCCESS">
+export type IPersistSessionFailed = IGenericAction<"PERSIST_SESSION_FAILED", { error: Error }>
+export type IRestoreSessionError = IGenericAction<"RESTORE_SESSION_ERROR", { error: Error }>
+export type IDeleteSession = IGenericAction<"DELETE_SESSION">
+export type IDeleteSessionSuccess = IGenericAction<"DELETE_SESSION_SUCCESS">
+export type IDeleteSessionFailed = IGenericAction<"DELETE_SESSION_FAILED">
+export type IUpdateCurrentSession = IGenericAction<"UPDATE_CURRENT_SESSION">
+export type ISetCurrentSession = IGenericAction<"SET_CURRENT_SESSION", { session: ISession }>
+export type IPopulateSessions = IGenericAction<"POPULATE_SESSIONS">
+export type ICreateSession = IGenericAction<"CREATE_SESSION">
+export type ICancelCreateSession = IGenericAction<"CANCEL_NEW_SESSION">
+export type IEnter = IGenericAction<"ENTER">
+export type ILeave = IGenericAction<"LEAVE">
 
 export type ISessionActions =
     | IUpdateMultipleSessions
@@ -121,7 +121,7 @@ export const SessionActions = {
 
 type SessionEpic = Epic<ISessionActions, ISessionState, Dependencies>
 
-const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
+export const persistSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
     action$.pipe(
         ofType("PERSIST_SESSION"),
         auditTime(200),
