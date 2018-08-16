@@ -4,19 +4,22 @@ import * as React from "react"
 import styled, { ThemedStyledFunction } from "styled-components"
 import { importCost, cleanup, JAVASCRIPT, TYPESCRIPT } from "import-cost"
 
-interface PackageProps extends SizeProps {
+enum Status {
+    calculating = "calculating",
+    done = "done",
+    error = "error",
+}
+
+type Size = "small" | "medium" | "large"
+
+interface PackageProps {
     left: number
     top: number
     width: number
     hide: boolean
     background: string
     height: number
-}
-
-enum Status {
-    calculating = "calculating",
-    done = "done",
-    error = "error",
+    packageSize?: Size
 }
 
 interface IPackage {
@@ -28,7 +31,7 @@ interface IPackage {
 }
 
 interface SizeProps {
-    size: "small" | "medium" | "large"
+    size: Size
 }
 
 const px = (s: string | number) => `${s}px`
@@ -41,7 +44,7 @@ export function withProps<T, U extends HTMLElement = HTMLElement>(
     return styledFunction
 }
 
-const getColorForSize = (size: SizeProps["size"]) => {
+const getColorForSize = (size: Size) => {
     switch (size) {
         case "small":
             return "green"
@@ -58,15 +61,18 @@ const Gzip = styled<SizeProps, "span">("span")`
     color: ${p => getColorForSize(p.size)};
 `
 
+const hidden: VisibilityState = "hidden"
+const visible: VisibilityState = "visible"
+
 const Package = withProps<PackageProps>(styled.div).attrs({
     style: (props: PackageProps) => ({
         left: px(props.left),
         top: px(props.top),
         width: px(props.width),
-        visibility: props.hide ? "hidden" : "visible",
+        visibility: props.hide ? hidden : visible,
     }),
 })`
-    color: ${p => getColorForSize(p.size)};
+    color: ${p => getColorForSize(p.packageSize)};
     height: ${p => px(p.height)};
     background-color: ${p => p.background};
     padding-left: 5px;
@@ -167,7 +173,7 @@ class ImportCosts extends React.Component<Props, State> {
             : { left: null, top: null, width: null, hide: true }
     }
 
-    getSize = (num: number): { kb: number; size: SizeProps["size"] } => {
+    getSize = (num: number): { kb: number; size: Size } => {
         if (!num) {
             return {
                 kb: null,
@@ -218,9 +224,9 @@ class ImportCosts extends React.Component<Props, State> {
                                     {...position}
                                     key={pkg.line}
                                     height={height}
-                                    size={pkgSize.size}
-                                    data-id="import-cost"
                                     background={background}
+                                    packageSize={pkgSize.size}
+                                    data-id="import-cost"
                                 >
                                     {pkgSize.kb}kb
                                     <Gzip size={gzipSize.size}> (gzipped: {gzipSize.kb}kb)</Gzip>
