@@ -13,7 +13,11 @@ interface PackageProps extends SizeProps {
     height: number
 }
 
-type Status = "calculating" | "done" | null | "error"
+enum Status {
+    calculating = "calculating",
+    done = "done",
+    error = "error",
+}
 
 interface IPackage {
     name: string
@@ -93,7 +97,7 @@ interface State {
 }
 
 class ImportCosts extends React.Component<Props, State> {
-    emitter: any
+    emitter: NodeJS.EventEmitter
     state: State = {
         status: null,
         packages: [],
@@ -123,23 +127,25 @@ class ImportCosts extends React.Component<Props, State> {
         this.emitter = importCost(filePath, fileContents, fileType)
         this.emitter.on("error", error => {
             console.warn("Oni import-cost error:", error)
-            this.setState({ status: "error" })
+            this.setState({ status: Status.error })
         })
-        this.emitter.on("start", packages =>
-            this.setState({ packages: packages.map(pkg => ({ ...pkg, status: "calculating" })) }),
+        this.emitter.on("start", (packages: IPackage[]) =>
+            this.setState({
+                packages: packages.map(pkg => ({ ...pkg, status: Status.calculating })),
+            }),
         )
-        this.emitter.on("calculated", pkg => {
+        this.emitter.on("calculated", (pkg: IPackage) => {
             const packages = this.state.packages.map(
-                p => (pkg.line === p.line ? { ...pkg, status: "done" } : p),
+                loaded => (pkg.line === loaded.line ? { ...pkg, status: Status.done } : loaded),
             )
             this.setState({ packages })
         })
-        this.emitter.on("done", packages => {
+        this.emitter.on("done", (packages: IPackage[]) => {
             const updated = this.state.packages.map(
-                pkg => (pkg.status !== "done" ? { ...pkg, status: null } : pkg),
+                pkg => (pkg.status !== Status.done ? { ...pkg, status: null } : pkg),
             )
-            this.setState({ packages: updated })
             cleanup()
+            this.setState({ packages: updated })
         })
     }
 
@@ -183,21 +189,22 @@ class ImportCosts extends React.Component<Props, State> {
 
     render() {
         const { status, packages } = this.state
-        const {
-            context: { fontPixelHeight },
-        } = this.props
+        const { colors, context } = this.props
+        const background = colors["editor.background"]
+        const height = context.fontPixelHeight
         return (
             <Packages>
                 {packages.map(pkg => {
                     switch (pkg.status) {
                         case "calculating":
+                            const linePos = this.getPosition(pkg.line)
                             return (
                                 <Package
+                                    {...linePos}
                                     key={pkg.line}
+                                    height={height}
                                     data-id="import-cost"
-                                    height={fontPixelHeight}
-                                    {...this.getPosition(pkg.line)}
-                                    background={this.props.colors["editor.background"]}
+                                    background={background}
                                 >
                                     calculating...
                                 </Package>
@@ -210,10 +217,10 @@ class ImportCosts extends React.Component<Props, State> {
                                 <Package
                                     {...position}
                                     key={pkg.line}
-                                    height={fontPixelHeight}
+                                    height={height}
                                     size={pkgSize.size}
                                     data-id="import-cost"
-                                    background={this.props.colors["editor.background"]}
+                                    background={background}
                                 >
                                     {pkgSize.kb}kb
                                     <Gzip size={gzipSize.size}> (gzipped: {gzipSize.kb}kb)</Gzip>
