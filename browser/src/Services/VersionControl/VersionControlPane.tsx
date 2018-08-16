@@ -167,8 +167,10 @@ export default class VersionControlPane {
                 await this.uncommitFile(selected)
                 break
             case status.staged.includes(selected):
+                this._store.dispatch({ type: "COMMIT_START", payload: { files: [selected] } })
+                break
             case selected === "commit_all" && !!status.staged.length:
-                this._store.dispatch({ type: "COMMIT_START" })
+                this._store.dispatch({ type: "COMMIT_START", payload: { files: status.staged } })
                 break
             default:
                 break
@@ -191,8 +193,7 @@ export default class VersionControlPane {
     }
 
     private _refresh = async () => {
-        await this.getStatus()
-        await this.getLogs()
+        await Promise.all([this.getStatus(), this.getLogs()])
     }
 
     private _getStatusIfVisible = async () => {

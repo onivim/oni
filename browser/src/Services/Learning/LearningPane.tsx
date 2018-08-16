@@ -169,6 +169,7 @@ export class LearningPaneView extends PureComponentWithDisposeTracking<
         const tutorialItems = (selectedId: string) =>
             this.state.tutorialInfo.map(t => (
                 <SidebarItemView
+                    key={t.tutorialInfo.id}
                     indentationLevel={0}
                     isFocused={selectedId === t.tutorialInfo.id}
                     text={<TutorialItemView info={t} />}

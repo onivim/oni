@@ -40,18 +40,21 @@ describe("Version control reducer test", () => {
         const state = vcsStore.getState()
         expect(state.selected).toBe("/test.txt")
     })
+
     it("Should correctly set the commit active on commit start", () => {
-        vcsStore.dispatch({ type: "COMMIT_START" })
+        vcsStore.dispatch({ type: "COMMIT_START", payload: { files: ["/test.txt"] } })
         const state = vcsStore.getState()
         expect(state.commit.active).toBe(true)
     })
+
     it("Should correctly set the commit active to false on commit cancel", () => {
         vcsStore.dispatch({ type: "COMMIT_CANCEL" })
         const state = vcsStore.getState()
         expect(state.commit.active).toBe(false)
     })
+
     it("Should set commit active to false on commit success and add the commit", () => {
-        vcsStore.dispatch({ type: "COMMIT_START" })
+        vcsStore.dispatch({ type: "COMMIT_START", payload: { files: ["/test.txt"] } })
         vcsStore.dispatch({
             type: "UPDATE_COMMIT_MESSAGE",
             payload: { message: ["commit message"] },
