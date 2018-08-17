@@ -21,7 +21,6 @@ interface IPackageProps {
     height: number
     priority: number
     packageSize?: Size
-    sizeColors: ImportSettings["sizeColors"]
 }
 
 interface IPackage {
@@ -32,13 +31,13 @@ interface IPackage {
     status: Status
 }
 
-interface IGzip {
+interface ISizeDetail {
     color: string
 }
 
 const px = (s: string | number) => `${s}px`
 
-const Gzip = styled<IGzip, "span">("span")`
+const SizeDetail = styled<ISizeDetail, "span">("span")`
     color: ${p => p.color};
 `
 
@@ -53,7 +52,6 @@ const Package = styled.div.attrs<IPackageProps>({
         visibility: props.hide ? hidden : visible,
     }),
 })`
-    color: ${p => p.sizeColors[p.packageSize]};
     height: ${p => px(p.height)};
     background-color: ${p => p.background};
     line-height: ${p => px(p.height + 1)};
@@ -133,10 +131,14 @@ class ImportCosts extends React.Component<Props, State> {
             }),
         )
         this.emitter.on("calculated", (pkg: IPackage) => {
-            const packages = this.state.packages.map(
-                loaded => (pkg.line === loaded.line ? { ...pkg, status: Status.done } : loaded),
-            )
-            this.setState({ packages })
+            // Ignore packages with no size values
+            if (pkg.size) {
+                const packages = this.state.packages.map(
+                    loaded => (pkg.name === loaded.name ? { ...pkg, status: Status.done } : loaded),
+                )
+
+                this.setState({ packages })
+            }
         })
         this.emitter.on("done", (packages: IPackage[]) => {
             const updated = this.state.packages.map(pkg => ({
@@ -149,17 +151,20 @@ class ImportCosts extends React.Component<Props, State> {
 
     getPosition = (line: number) => {
         const { context } = this.props
+        const zeroBasedLine = line - 1
         const width = context.dimensions.width * context.fontPixelWidth
-        const lineContent = context.visibleLines[line - 1]
+        const lineContent = context.visibleLines[zeroBasedLine]
         const character = lineContent.length || 0
-        const pos = this.props.context.bufferToPixel({ character, line: line - 1 })
+        // line is the non-zero indexed line, topBufferLine is also non-zero indexed
+        const bufferline = this.props.context.topBufferLine - 1 + zeroBasedLine
+        const position = this.props.context.bufferToPixel({ character, line: bufferline })
         const PADDING = 5
 
         return {
-            left: pos ? pos.pixelX : null,
-            top: pos ? pos.pixelY : null,
-            width: pos ? width - pos.pixelX - PADDING : null,
-            hide: !pos,
+            left: position ? position.pixelX : null,
+            top: position ? position.pixelY : null,
+            width: position ? width - position.pixelX - PADDING : null,
+            hide: !position,
         }
     }
 
@@ -167,7 +172,7 @@ class ImportCosts extends React.Component<Props, State> {
         if (!num) {
             return {
                 kb: null,
-                size: "medium",
+                size: null,
             }
         }
         const sizeInKbs = Math.round(num / 1024 * 10) / 10
@@ -183,12 +188,21 @@ class ImportCosts extends React.Component<Props, State> {
         }
     }
 
-    getSizeText = (gzip: IPkgDetails, pkg: IPkgDetails) => (
-        <>
-            {pkg.kb}kb
-            <Gzip color={this.props.sizeColors[gzip.size]}> (gzipped: {gzip.kb}kb)</Gzip>
-        </>
-    )
+    getCalculation = () => {
+        return this.props.showCalculating ? (
+            <SizeDetail color="white">calculating...</SizeDetail>
+        ) : null
+    }
+
+    getSizeText = (gzip: IPkgDetails, pkg: IPkgDetails) => {
+        const { sizeColors } = this.props
+        return (
+            <>
+                <SizeDetail color={sizeColors[pkg.size]}>{pkg.kb}kb</SizeDetail>
+                <SizeDetail color={sizeColors[gzip.size]}> (gzipped: {gzip.kb}kb)</SizeDetail>
+            </>
+        )
+    }
 
     render() {
         const { packages, error } = this.state
@@ -198,23 +212,22 @@ class ImportCosts extends React.Component<Props, State> {
         return (
             !error && (
                 <Packages>
-                    {packages.map(pkg => {
+                    {packages.map((pkg, idx) => {
                         const position = this.getPosition(pkg.line)
                         const gzipSize = this.getSize(pkg.gzip)
                         const pkgSize = this.getSize(pkg.size)
-                        return pkg.size && pkg.status ? (
+                        return pkg.status ? (
                             <Package
                                 {...position}
-                                key={pkg.line}
+                                data-id="import-cost"
                                 height={height}
                                 priority={priority}
                                 background={background}
                                 packageSize={pkgSize.size}
-                                sizeColors={this.props.sizeColors}
-                                data-id="import-cost"
+                                key={`${pkg.line}-${pkg.name}-${idx}`}
                             >
                                 {pkg.status === Status.calculating
-                                    ? "calculating..."
+                                    ? this.getCalculation()
                                     : this.getSizeText(gzipSize, pkgSize)}
                             </Package>
                         ) : null
@@ -229,19 +242,21 @@ interface ImportSettings {
     enabled: boolean
     largeSize: number
     smallSize: number
+    showCalculating: boolean
     sizeColors: {
         small: string
         large: string
-        regular: string
+        medium: string
     }
 }
 
 export class ImportCostLayer implements Oni.BufferLayer {
     private _config: ImportSettings
-    private defaultConfig = {
+    private defaultConfig: ImportSettings = {
         enabled: false,
         largeSize: 50,
         smallSize: 5,
+        showCalculating: false,
         sizeColors: {
             small: "green",
             large: "red",
@@ -271,7 +286,7 @@ export class ImportCostLayer implements Oni.BufferLayer {
         return "Package sizes buffer layer"
     }
 
-    log = (...args) => {
+    log = (...args: any[]) => {
         this._oni.log.warn(...args)
     }
 
