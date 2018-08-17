@@ -240,6 +240,10 @@ export interface IConfigurationValues {
     "editor.cursorColumn": boolean
     "editor.cursorColumnOpacity": number
 
+    // Use eaw (east asian width) to get the width of the character
+    // instead of wcwidth
+    "editor.useEastAsianWidth": boolean
+
     "keyDisplayer.showInInsertMode": boolean
 
     "learning.enabled": boolean

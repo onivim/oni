@@ -1,9 +1,11 @@
 import { Grid } from "./../Grid"
+import { Configuration } from "./../Services/Configuration"
 import * as Actions from "./actions"
 
 export type Mode = "insert" | "normal" | "visual" | "cmdline_normal"
 
 const wcwidth = require("wcwidth") // tslint:disable-line no-var-requires
+const eaw = require("eaw") // tslint:disable-line no-var-requires
 
 export interface IHighlight {
     bold?: boolean
@@ -92,6 +94,11 @@ const DefaultCell: ICell = {
 }
 
 export class NeovimScreen implements IScreen {
+    /**
+     * A function to get the width of the character
+     */
+    public getCharacterWidth: any
+
     private _backgroundColor: string = "#000000"
     private _currentHighlight: IHighlight = {}
     private _cursorColumn: number = 0
@@ -169,6 +176,12 @@ export class NeovimScreen implements IScreen {
         return this._currentHighlight.backgroundColor || this._backgroundColor
     }
 
+    constructor(private _configuration: Configuration) {
+        this.getCharacterWidth = this._configuration.getValue("editor.useEastAsianWidth")
+            ? eaw.getWidth
+            : wcwidth
+    }
+
     public getCell = (x: number, y: number) => {
         const cell = this._grid.getCell(x, y)
 
@@ -206,7 +219,7 @@ export class NeovimScreen implements IScreen {
                 for (let i = 0; i < characters.length; i++) {
                     const character = characters[i]
 
-                    const characterWidth = Math.max(wcwidth(character), 1)
+                    const characterWidth = Math.max(this.getCharacterWidth(character), 1)
 
                     this._setCell(col + i, row, {
                         foregroundColor,

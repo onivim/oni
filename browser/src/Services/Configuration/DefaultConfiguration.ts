@@ -165,6 +165,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.imageLayerExtensions": [".gif", ".jpg", ".jpeg", ".bmp", ".png"],
 
+    "editor.useEastAsianWidth": false,
+
     "explorer.persistDeletedFiles": true,
     "explorer.maxUndoFileSizeInBytes": 500_000,
 

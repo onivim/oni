@@ -3352,6 +3352,12 @@ duplexify@^3.4.2, duplexify@^3.5.3:
     readable-stream "^2.0.0"
     stream-shift "^1.0.0"
 
+eaw@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/eaw/-/eaw-0.1.5.tgz#401dd2de48b98159f01fd18d81750e8e586f6df8"
+  dependencies:
+    minimist "^1.2.0"
+
 ecc-jsbn@~0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/ecc-jsbn/-/ecc-jsbn-0.1.1.tgz#0fc73a9ed5f0d53c38193398523ef7e543777505"
