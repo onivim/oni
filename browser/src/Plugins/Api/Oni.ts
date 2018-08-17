@@ -16,16 +16,15 @@ import { Ui } from "./Ui"
 
 import { getInstance as getPluginsManagerInstance } from "./../PluginManager"
 
+import getBufferLayerInstance, {
+    BufferLayerManager,
+} from "./../../Editor/NeovimEditor/BufferLayerManager"
 import { automation } from "./../../Services/Automation"
 import { Colors, getInstance as getColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
 import { getInstance as getCompletionProvidersInstance } from "./../../Services/Completion/CompletionProviders"
 import { configuration } from "./../../Services/Configuration"
 import { getInstance as getDiagnosticsInstance } from "./../../Services/Diagnostics"
-import {
-    default as getBufferLayerInstance,
-    BufferLayerManager,
-} from "./../../Editor/NeovimEditor/BufferLayerManager"
 import { editorManager } from "./../../Services/EditorManager"
 import { inputManager } from "./../../Services/InputManager"
 import * as LanguageManager from "./../../Services/Language"
