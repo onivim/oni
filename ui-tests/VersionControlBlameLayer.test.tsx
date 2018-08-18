@@ -1,7 +1,7 @@
 import { mount } from "enzyme"
 import * as React from "react"
 
-import { LayerContextWithCursor } from "./../browser/src/Editor/NeovimEditor/NeovimBufferLayersView"
+import { UpdatedLayerContext } from "./../browser/src/Editor/NeovimEditor/NeovimBufferLayersView"
 import {
     Blame,
     BlameContainer,
@@ -35,7 +35,7 @@ describe("<VersionControlBlameLayer />", () => {
         summary: "the first paragraph",
     }
     const getBlame = jest.fn().mockReturnValue(blame)
-    const context: LayerContextWithCursor = {
+    const context: UpdatedLayerContext = {
         isActive: true,
         windowId: 1,
         fontPixelWidth: 3,

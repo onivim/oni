@@ -157,6 +157,7 @@ export function reducer<K extends keyof IConfigurationValues>(
                 buffers: buffersReducer(s.buffers, a),
                 definition: definitionReducer(s.definition, a),
                 layers: layersReducer(s.layers, a),
+                decorations: decorationsReducer(s.decorations, a),
                 tabState: tabStateReducer(s.tabState, a),
                 errors: errorsReducer(s.errors, a),
                 toolTips: toolTipsReducer(s.toolTips, a),
@@ -188,6 +189,49 @@ export const layersReducer = (s: State.Layers, a: Actions.SimpleAction) => {
         }
         default:
             return s
+    }
+}
+
+const updateLayerDecorations = (
+    decorations: State.IDecoration[],
+    prevDecorations: State.IDecorations,
+    id: string,
+) => {
+    const updatedDecorations = decorations.reduce((newDecorations, { line }) => {
+        const decorationsOnLine = prevDecorations[line]
+        newDecorations[line] =
+            decorationsOnLine && !decorationsOnLine.includes(id)
+                ? (newDecorations[line] = [...decorationsOnLine, id])
+                : (newDecorations[line] = [id])
+        return newDecorations
+    }, {})
+    // console.log("updatedDecorations: ", updatedDecorations)
+    return updatedDecorations
+}
+
+const removeLayerDecorations = (prevDecorations: State.IDecorations, id: string) => {
+    const updatedDecorations = Object.entries(prevDecorations).reduce(
+        (newDecorations, [line, decorations]) => {
+            const replacement = decorations.includes(id)
+                ? decorations.filter((layerId: string) => layerId !== id)
+                : decorations
+            newDecorations[line] = replacement
+            return newDecorations
+        },
+        {},
+    )
+    // console.log("updatedDecorations: ", updatedDecorations)
+    return updatedDecorations
+}
+
+export const decorationsReducer = (state: State.IDecorations, action: Actions.SimpleAction) => {
+    switch (action.type) {
+        case "UPDATE_DECORATIONS":
+            return updateLayerDecorations(action.payload.decorations, state, action.payload.layerId)
+        case "CLEAR_DECORATIONS":
+            return removeLayerDecorations(state, action.payload.layerId)
+        default:
+            return state
     }
 }
 

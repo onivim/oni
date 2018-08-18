@@ -47,6 +47,14 @@ export interface IToolTip {
     element: JSX.Element
 }
 
+export interface IDecoration {
+    line: number
+}
+
+export interface IDecorations {
+    [lineNo: number]: string[]
+}
+
 export interface IState {
     // Editor
     cursorScale: number
@@ -81,6 +89,13 @@ export interface IState {
     buffers: IBufferState
 
     layers: Layers
+
+    /**
+     * A mapping of position of layer ui elements by line
+     * this allows each layer to be aware of where other layers are rendering
+     * elements
+     */
+    decorations: IDecorations
 
     windowState: IWindowState
 
@@ -212,6 +227,8 @@ export const createDefaultState = (): IState => ({
     },
 
     layers: {},
+
+    decorations: {},
 
     tabState: {
         selectedTabId: null,
