@@ -16,9 +16,6 @@ import { Ui } from "./Ui"
 
 import { getInstance as getPluginsManagerInstance } from "./../PluginManager"
 
-import getBufferLayerInstance, {
-    BufferLayerManager,
-} from "./../../Editor/NeovimEditor/BufferLayerManager"
 import { automation } from "./../../Services/Automation"
 import { Colors, getInstance as getColors } from "./../../Services/Colors"
 import { commandManager } from "./../../Services/CommandManager"
@@ -141,10 +138,6 @@ export class Oni implements OniApi.Plugin.Api {
 
     public get overlays(): OniApi.Overlays.Api {
         return getOverlayInstance()
-    }
-
-    public get bufferLayers(): BufferLayerManager {
-        return getBufferLayerInstance()
     }
 
     public get process(): OniApi.Process {

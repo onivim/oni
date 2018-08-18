@@ -48,7 +48,6 @@ const Package = styled.div.attrs<IPackageProps>({
     style: (props: IPackageProps) => ({
         left: px(props.left),
         top: px(props.top),
-        width: px(props.width),
         visibility: props.hide ? hidden : visible,
     }),
 })`
@@ -73,13 +72,11 @@ interface IPkgDetails {
 }
 
 interface Props extends ImportSettings {
-    buffer: Oni.Buffer
     priority: number
+    buffer: Oni.EditorBufferEventArgs
     context: Oni.BufferLayerRenderContext
+    colors: { [color: string]: string }
     log: (...args: any[]) => void
-    colors: {
-        [color: string]: string
-    }
 }
 
 interface State {
@@ -99,7 +96,7 @@ class ImportCosts extends React.Component<Props, State> {
     }
 
     componentDidUpdate({ context: { visibleLines: prevLines } }) {
-        const { context, buffer } = this.props
+        const { context } = this.props
         if (context.visibleLines !== prevLines) {
             this.setupEmitter()
         }
@@ -266,7 +263,7 @@ export class ImportCostLayer implements Oni.BufferLayer {
 
     private readonly PLUGIN_NAME = "oni.plugins.importCost"
 
-    constructor(private _oni: OniWithLayers, private _buffer: Oni.Buffer) {
+    constructor(private _oni: OniWithColor, private _buffer: Oni.EditorBufferEventArgs) {
         this._config = this._getConfig()
 
         this._oni.configuration.onConfigurationChanged.subscribe(configChanges => {
@@ -320,29 +317,27 @@ export class ImportCostLayer implements Oni.BufferLayer {
 }
 
 // TODO: Add to API
-export interface OniWithLayers extends Oni.Plugin.Api {
+export interface OniWithColor extends Oni.Plugin.Api {
     colors: {
         getColor(color: string): string
         getColors(): { [key: string]: string }
     }
-    bufferLayers: {
-        addBufferLayer: (
-            compat: (buf: Oni.Buffer) => boolean,
-            layer: (buf: Oni.Buffer) => Oni.BufferLayer,
-        ) => void
-    }
 }
 
-const isCompatible = (buf: Oni.Buffer | Oni.EditorBufferEventArgs) => {
+const isCompatible = (buf: Oni.EditorBufferEventArgs) => {
     const ext = path.extname(buf.filePath)
     const allowedExtensions = [".js", ".jsx", ".ts", ".tsx"]
-    const isCompat = allowedExtensions.includes(ext)
-    if (!isCompat) {
-        cleanup() // kill worker processes if layer isn't to be rendered
-    }
-    return isCompat
+    return allowedExtensions.includes(ext)
 }
 
-export const activate = (oni: OniWithLayers) => {
-    oni.bufferLayers.addBufferLayer(isCompatible, buf => new ImportCostLayer(oni, buf))
+export const activate = (oni: OniWithColor) => {
+    oni.editors.activeEditor.onBufferEnter.subscribe(buf => {
+        const layer = new ImportCostLayer(oni, buf)
+        if (isCompatible(buf)) {
+            oni.editors.activeEditor.activeBuffer.addLayer(layer)
+        } else {
+            cleanup() // kill worker processes if layer isn't to be rendered
+            oni.editors.activeEditor.activeBuffer.removeLayer(layer)
+        }
+    })
 }
