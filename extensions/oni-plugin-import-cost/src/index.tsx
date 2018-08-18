@@ -266,7 +266,7 @@ export class ImportCostLayer implements Oni.BufferLayer {
 
     private readonly PLUGIN_NAME = "oni.plugins.importCost"
 
-    constructor(private _oni: OniWithLayers, private _buffer) {
+    constructor(private _oni: OniWithLayers, private _buffer: Oni.Buffer) {
         this._config = this._getConfig()
 
         this._oni.configuration.onConfigurationChanged.subscribe(configChanges => {
@@ -333,10 +333,16 @@ export interface OniWithLayers extends Oni.Plugin.Api {
     }
 }
 
-export const activate = async (oni: OniWithLayers) => {
-    const isCompatible = (buf: Oni.Buffer) => {
-        const ext = path.extname(buf.filePath)
-        return ext.includes(".ts") || ext.includes(".js")
+const isCompatible = (buf: Oni.Buffer | Oni.EditorBufferEventArgs) => {
+    const ext = path.extname(buf.filePath)
+    const allowedExtensions = [".js", ".jsx", ".ts", ".tsx"]
+    const isCompat = allowedExtensions.includes(ext)
+    if (!isCompat) {
+        cleanup() // kill worker processes if layer isn't to be rendered
     }
+    return isCompat
+}
+
+export const activate = async (oni: OniWithLayers) => {
     oni.bufferLayers.addBufferLayer(isCompatible, buf => new ImportCostLayer(oni, buf))
 }

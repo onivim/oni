@@ -19,11 +19,11 @@
         "react": "^16.4.2"
     },
     "devDependencies": {
-        "jest": "^23.5.0",
         "rimraf": "^2.6.2",
         "typescript": "^2.9.2"
     },
     "peerDependencies": {
+        "jest": "^23.5.0",
         "styled-components": "^3.2.6"
     }
 }

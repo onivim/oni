@@ -69,13 +69,6 @@ export class BufferLayerManager {
     }
 }
 
-const getInstance = (() => {
-    const instance = new BufferLayerManager()
-    return () => instance
-})()
-
-export default getInstance
-
 export const wrapReactComponentWithLayer = (
     id: string,
     component: JSX.Element,
@@ -85,3 +78,8 @@ export const wrapReactComponentWithLayer = (
         render: (context: Oni.BufferLayerRenderContext) => (context.isActive ? component : null),
     }
 }
+
+const instance = new BufferLayerManager()
+const getInstance = () => instance
+
+export default getInstance
