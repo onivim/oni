@@ -64,7 +64,7 @@ interface IMarkerElement {
     color: string
 }
 
-const MarkerElement = withProps<IMarkerElement>(styled.div).attrs({
+export const MarkerElement = withProps<IMarkerElement>(styled.div).attrs({
     style: ({ height, top }: IMarkerElement) => ({
         top: pixel(top),
         height,
