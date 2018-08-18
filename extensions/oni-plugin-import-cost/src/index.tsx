@@ -343,6 +343,6 @@ const isCompatible = (buf: Oni.Buffer | Oni.EditorBufferEventArgs) => {
     return isCompat
 }
 
-export const activate = async (oni: OniWithLayers) => {
+export const activate = (oni: OniWithLayers) => {
     oni.bufferLayers.addBufferLayer(isCompatible, buf => new ImportCostLayer(oni, buf))
 }
