@@ -12,8 +12,8 @@ import * as Oni from "oni-api"
 
 import { NeovimActiveWindow } from "./NeovimActiveWindow"
 
+import { clearBufferDecorations, updateBufferDecorations } from "./NeovimEditorActions"
 import * as State from "./NeovimEditorStore"
-import { updateBufferDecorations, clearBufferDecorations } from "./NeovimEditorActions"
 
 import styled, { StackLayer } from "../../UI/components/common"
 

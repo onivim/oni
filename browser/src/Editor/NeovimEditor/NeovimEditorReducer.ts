@@ -199,10 +199,13 @@ const updateLayerDecorations = (
 ) => {
     const updatedDecorations = decorations.reduce((newDecorations, { line }) => {
         const decorationsOnLine = prevDecorations[line]
-        newDecorations[line] =
-            decorationsOnLine && !decorationsOnLine.includes(id)
-                ? (newDecorations[line] = [...decorationsOnLine, id])
-                : (newDecorations[line] = [id])
+        if (decorationsOnLine) {
+            if (!decorationsOnLine.includes(id)) {
+                newDecorations[line] = [...decorationsOnLine, id]
+            }
+        } else {
+            newDecorations[line] = [id]
+        }
         return newDecorations
     }, {})
     // console.log("updatedDecorations: ", updatedDecorations)
