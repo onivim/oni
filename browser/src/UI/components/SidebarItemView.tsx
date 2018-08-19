@@ -42,7 +42,7 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
     justify-content: center;
     align-items: center;
     padding-top: 4px;
-    padding-bottom: 4px;
+    padding-bottom: 3px;
     position: relative;
 
     cursor: pointer;
@@ -52,7 +52,7 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
         flex: 0 0 auto;
         width: 20px;
         text-align: center;
-        margin-right: 7px;
+        margin-right: 1px;
     }
 
     .name {
@@ -82,7 +82,7 @@ const SidebarItemBackground = withProps<ISidebarItemViewProps>(styled.div)`
     bottom: 0px;
 `
 
-const INDENT_AMOUNT = 6
+const INDENT_AMOUNT = 12
 
 export class SidebarItemView extends React.PureComponent<ISidebarItemViewProps, {}> {
     public render(): JSX.Element {
