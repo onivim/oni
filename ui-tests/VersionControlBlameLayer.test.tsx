@@ -42,6 +42,9 @@ describe("<VersionControlBlameLayer />", () => {
         fontPixelHeight: 10,
         cursorColumn: 4,
         cursorLine: 30,
+        decorations: {},
+        updateBufferDecorations: jest.fn(),
+        clearBufferDecorations: jest.fn(),
         bufferToScreen: jest.fn(),
         screenToPixel: jest.fn(),
         bufferToPixel: jest.fn().mockReturnValue({
@@ -85,6 +88,7 @@ describe("<VersionControlBlameLayer />", () => {
     const wrapper = mount<IProps, IState>(
         <Blame
             mode="auto"
+            id="test.blame"
             timeout={0}
             {...context}
             getBlame={getBlame}
