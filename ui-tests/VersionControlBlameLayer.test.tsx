@@ -87,10 +87,10 @@ describe("<VersionControlBlameLayer />", () => {
     const cursorScreenLine = cursorBufferLine - context.topBufferLine
     const wrapper = mount<IProps, IState>(
         <Blame
+            {...context}
             mode="auto"
             id="test.blame"
             timeout={0}
-            {...context}
             getBlame={getBlame}
             setupCommand={jest.fn()}
             cursorScreenLine={cursorScreenLine}
@@ -109,45 +109,55 @@ describe("<VersionControlBlameLayer />", () => {
     it("should render without crashing", () => {
         expect(wrapper.length).toBe(1)
     })
+
     it("should render the component if there is a blame present and show blame is true", () => {
         wrapper.setState({ showBlame: true, blame })
         expect(wrapper.find(BlameContainer).length).toBe(1)
     })
+
     it("should render the correct message", () => {
         const text = wrapper.find("span").text()
         expect(text).toMatch(/the first paragraph/)
     })
+
     it("should return a formatted hash in the message", () => {
         const text = wrapper.find("span").text()
         expect(text).toMatch(/#2234/)
     })
+
     it("should correctly return a position if the component is able to fit", () => {
         const position = instance.calculatePosition(true)
         expect(position).toEqual({ hide: false, top: 20, left: 20 })
     })
+
     it("should return a position even if can't fit BUT there is an available empty line", () => {
         const canFit = false
         const position = instance.calculatePosition(canFit)
         expect(position).toEqual({ hide: false, top: 20, left: 20 })
     })
+
     it("Should correctly determine if a line is out of bounds", () => {
         const outOfBounds = instance.isOutOfBounds(50, 10)
         expect(outOfBounds).toBe(true)
     })
+
     it("should return false if no lines passed are out of bounds", () => {
         const outOfBounds = instance.isOutOfBounds(22, 24)
         expect(outOfBounds).toBe(false)
     })
+
     it("should correctly truncate the blame text based on window width prop", () => {
         const expected = "ernest hemmingway, 2 days ago, the first… #2234"
         wrapper.setProps({ dimensions: { width: 60, height: 100, x: 0, y: 0 } })
         const { message, canFit, position } = instance.canFit()
         expect(message).toEqual(expected)
     })
+
     it("should have the correct current line", () => {
         const line = wrapper.prop("currentLine")
         expect(line).toBe("cursor")
     })
+
     it("should correctly identify the last empty line", () => {
         const { lastEmptyLine } = instance.getLastEmptyLine()
         expect(lastEmptyLine).toBe(22) // aka the 3 item in the array

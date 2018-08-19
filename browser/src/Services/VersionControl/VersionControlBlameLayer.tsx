@@ -136,7 +136,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
         currentCursorBufferLine: this.props.cursorBufferLine,
     }
 
-    private _timeout: any
+    private _timeout: any // typing as NodeJS.Timer causes TS error/bug
     private readonly DURATION = 300
     private readonly LEFT_OFFSET = 4
 
@@ -226,7 +226,8 @@ export class Blame extends React.PureComponent<IProps, IState> {
     public updateBlame = async (lineOne: number, lineTwo: number) => {
         const outOfBounds = this.isOutOfBounds(lineOne, lineTwo)
         const blame = !outOfBounds ? await this.props.getBlame(lineOne, lineTwo) : null
-        const { message, position } = this.canFit()
+        // The blame must be passed in here since it is not yet set in state
+        const { message, position } = this.canFit(blame)
         this.setState({ blame, position, message })
     }
 
@@ -270,8 +271,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
         )
     }
 
-    public getBlameText = (numberOfTruncations = 0) => {
-        const { blame } = this.state
+    public getBlameText = (blame: IBlame, numberOfTruncations = 0) => {
         if (!blame) {
             return ""
         }
@@ -294,16 +294,16 @@ export class Blame extends React.PureComponent<IProps, IState> {
     // Recursively calls get blame text if the message will not fit onto the screen up
     // to a limit of 6 times each time removing one word from the blame message
     // if after 6 attempts the message is still not small enougth then we render the popup
-    public canFit = (truncationAmount = 0): ICanFit => {
+    public canFit = (blame: IBlame, truncationAmount = 0): ICanFit => {
         const { visibleLines, dimensions, cursorScreenLine } = this.props
-        const message = this.getBlameText(truncationAmount)
+        const message = this.getBlameText(blame, truncationAmount)
         const currentLine = visibleLines[cursorScreenLine] || ""
         const canFit = dimensions.width > currentLine.length + message.length + this.LEFT_OFFSET
 
         if (!canFit && truncationAmount <= 6) {
-            return this.canFit(truncationAmount + 1)
+            return this.canFit(blame, truncationAmount + 1)
         }
-        const truncatedOrFullMessage = canFit ? message : this.getBlameText()
+        const truncatedOrFullMessage = canFit ? message : this.getBlameText(blame)
         return {
             canFit,
             message: truncatedOrFullMessage,
