@@ -57,6 +57,7 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.welcome.enabled": false,
     "experimental.particles.enabled": false,
     "experimental.sessions.enabled": false,
+    "experimental.sessions.directory": null,
     "experimental.vcs.sidebar": false,
     "experimental.vcs.blame.enabled": false,
     "experimental.vcs.blame.mode": "auto",

@@ -49,7 +49,14 @@ interface UpdatedEditor extends Editor {
  */
 export class SessionManager implements ISessionService {
     private _store = store({ sessionManager: this, fs })
-    private _sessionsDir = path.join(getUserConfigFolderPath(), "sessions")
+    private get _sessionsDir() {
+        const defaultDirectory = path.join(getUserConfigFolderPath(), "sessions")
+        const userDirectory = this._oni.configuration.getValue<string>(
+            "experimental.sessions.directory",
+            defaultDirectory,
+        )
+        return userDirectory
+    }
 
     constructor(
         private _oni: UpdatedOni,
