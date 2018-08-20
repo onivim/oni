@@ -16,8 +16,20 @@ export class Mouse extends EventEmitter {
         this._editorElement.addEventListener("mousedown", (evt: MouseEvent) => {
             const { line, column } = this._convertEventToPosition(evt)
 
-            this.emit("mouse", `<LeftMouse><${line},${column}>`)
-            this._isDragging = true
+            switch (evt.which) {
+                case 1:
+                    this.emit("mouse", `<LeftMouse><${line},${column}>`)
+                    this._isDragging = true
+                    break
+                case 2:
+                    this.emit("mouse", `<MiddleMouse>`)
+                    break
+                case 3:
+                    this.emit("mouse", `<RightMouse><${line},${column}>`)
+                    break
+                default:
+                    break
+            }
         })
 
         this._editorElement.addEventListener("mousemove", (evt: MouseEvent) => {
@@ -29,10 +41,16 @@ export class Mouse extends EventEmitter {
         })
 
         this._editorElement.addEventListener("mouseup", (evt: MouseEvent) => {
-            const { line, column } = this._convertEventToPosition(evt)
+            switch (evt.which) {
+                case 1:
+                    const { line, column } = this._convertEventToPosition(evt)
 
-            this.emit("mouse", `<LeftRelease><${line},${column}>`)
-            this._isDragging = false
+                    this.emit("mouse", `<LeftRelease><${line},${column}>`)
+                    this._isDragging = false
+                    break
+                default:
+                    break
+            }
         })
 
         // The internet told me 'mousewheel' is deprecated and use this.
