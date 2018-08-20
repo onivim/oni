@@ -62,9 +62,6 @@ export class NeovimEditorCommands {
         })
 
         const pasteContents = async (neovimInstance: NeovimInstance) => {
-            // const textToPaste = clipboard.readText()
-            // const sanitizedTextLines = replaceAll(textToPaste, { "'": "''" })
-            // await neovimInstance.command("let @+='" + sanitizedTextLines + "'")
             await neovimInstance.command('normal! "+p')
         }
 
