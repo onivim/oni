@@ -56,7 +56,6 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<m-,>", "oni.config.openConfigJs")
 
         if (config.getValue("editor.clipboard.enabled")) {
-            input.bind("<m-x>", "editor.clipboard.cut", isVisualMode)
             input.bind("<m-c>", "editor.clipboard.yank", isVisualMode)
             input.bind("<m-v>", "editor.clipboard.paste", isInsertOrCommandMode)
         }
@@ -80,7 +79,6 @@ export const applyDefaultKeyBindings = (oni: Oni.Plugin.Api, config: Configurati
         input.bind("<c-,>", "oni.config.openConfigJs")
 
         if (config.getValue("editor.clipboard.enabled")) {
-            input.bind("<c-x>", "editor.clipboard.cut", isVisualMode)
             input.bind("<c-c>", "editor.clipboard.yank", isVisualMode)
             input.bind("<c-v>", "editor.clipboard.paste", isInsertOrCommandMode)
         }
