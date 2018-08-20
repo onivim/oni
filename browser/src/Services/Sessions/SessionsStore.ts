@@ -190,7 +190,7 @@ const restoreSessionEpic: SessionEpic = (action$, store, { sessionManager }) =>
         catchError(error => [SessionActions.restoreSessionError(error)]),
     )
 
-const fetchSessionsEpic: SessionEpic = (action$, store, { fs, sessionManager }) =>
+export const fetchSessionsEpic: SessionEpic = (action$, store, { fs, sessionManager }) =>
     action$.pipe(
         ofType("POPULATE_SESSIONS"),
         flatMap((action: IPopulateSessions) => {
