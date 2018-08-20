@@ -4,16 +4,12 @@
  * Contextual commands for NeovimEditor
  *
  */
-import * as os from "os"
-
-import { clipboard } from "electron"
 import * as Oni from "oni-api"
 
 import { NeovimInstance } from "./../../neovim"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 import { findAllReferences, format, LanguageEditorIntegration } from "./../../Services/Language"
-import { replaceAll } from "./../../Utility"
 
 import { Definition } from "./Definition"
 import { Rename } from "./Rename"
@@ -66,14 +62,10 @@ export class NeovimEditorCommands {
         })
 
         const pasteContents = async (neovimInstance: NeovimInstance) => {
-            const textToPaste = clipboard.readText()
-            const sanitizedText = replaceAll(textToPaste, { "<": "<lt>" })
-                .split(os.EOL)
-                .join("<cr>")
-
-            await neovimInstance.command("set paste")
-            await neovimInstance.input(sanitizedText)
-            await neovimInstance.command("set nopaste")
+            // const textToPaste = clipboard.readText()
+            // const sanitizedTextLines = replaceAll(textToPaste, { "'": "''" })
+            // await neovimInstance.command("let @+='" + sanitizedTextLines + "'")
+            await neovimInstance.command('normal! "+p')
         }
 
         const commands = [
@@ -116,7 +108,13 @@ export class NeovimEditorCommands {
                 "editor.clipboard.yank",
                 "Clipboard: Yank",
                 "Yank contents to clipboard",
-                () => this._neovimInstance.input("y"),
+                () => this._neovimInstance.command('normal! "+y'),
+            ),
+            new CallbackCommand(
+                "editor.clipboard.cut",
+                "Clipboard: Cut",
+                "Cut contents to clipboard",
+                () => this._neovimInstance.command('normal! "+x'),
             ),
             new CallbackCommand("oni.editor.findAllReferences", null, null, () =>
                 findAllReferences(),
