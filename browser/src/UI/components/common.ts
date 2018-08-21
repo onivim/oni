@@ -1,6 +1,6 @@
 import * as Color from "color"
 import * as styledComponents from "styled-components"
-import { ThemedStyledComponentsModule } from "styled-components" // tslint:disable-line no-duplicate-imports
+import { ThemeProps, ThemedStyledComponentsModule } from "styled-components" // tslint:disable-line no-duplicate-imports
 import { IThemeColors } from "../../Services/Themes/ThemeManager"
 
 export const bufferScrollBarSize = "7px"
@@ -147,6 +147,9 @@ const fallBackFonts = `
     monospace,
     sans-serif
 `.trim()
+
+export type OniThemeProps = ThemeProps<IThemeColors>
+export type OniStyledProps<T> = OniThemeProps & T
 
 export {
     css,

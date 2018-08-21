@@ -6,7 +6,7 @@
 
 import * as React from "react"
 
-import { styled, withProps } from "./common"
+import { OniStyledProps, styled, withProps } from "./common"
 
 import Caret from "./../../UI/components/Caret"
 import { Sneakable } from "./../../UI/components/Sneakable"
@@ -27,13 +27,24 @@ export interface ISidebarItemViewProps {
 
 const px = (num: number): string => num.toString() + "px"
 
+type SidebarStyleProps = OniStyledProps<ISidebarItemViewProps>
+
+const getLeftBorder = (props: SidebarStyleProps) => {
+    switch (true) {
+        case props.isFocused:
+            return `4px solid  ${props.theme["highlight.mode.normal.background"]}`
+        case !props.isContainer:
+            return "4px solid transparent"
+        case props.isContainer:
+            return `4px solid rgba(0, 0, 0, 0.2)`
+        default:
+            return ""
+    }
+}
+
 const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
     padding-left: ${props => px(INDENT_AMOUNT * props.indentationLevel)};
-    border-left: ${props =>
-        props.isFocused
-            ? `4px solid  ${props.theme["highlight.mode.normal.background"]}`
-            : "4px solid transparent"};
-
+    border-left: ${getLeftBorder};
     ${p =>
         (p.isOver || p.yanked) &&
         `border: 3px solid ${p.theme["highlight.mode.insert.background"]};`};
@@ -63,18 +74,19 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
     }
 `
 
-const SidebarItemBackground = withProps<ISidebarItemViewProps>(styled.div)`
-    background-color: ${props => {
-        if (props.isFocused && !props.isContainer) {
-            return props.theme["highlight.mode.normal.background"]
-        } else if (props.isContainer) {
-            return "rgb(0, 0, 0)"
-        } else {
-            return "transparent"
-        }
-    }};
-    opacity: ${props => (props.isContainer || props.isFocused ? "0.2" : "0")};
+const getSidebarBackground = (props: SidebarStyleProps) => {
+    if (props.isFocused && !props.isContainer) {
+        return props.theme["highlight.mode.normal.background"]
+    } else if (props.isContainer) {
+        return "rgb(0, 0, 0)"
+    } else {
+        return "transparent"
+    }
+}
 
+const SidebarItemBackground = withProps<ISidebarItemViewProps>(styled.div)`
+    background-color: ${getSidebarBackground};
+    opacity: ${props => (props.isContainer || props.isFocused ? "0.2" : "0")};
     position: absolute;
     top: 0px;
     left: 0px;
@@ -125,9 +137,11 @@ interface IContainerProps {
 const SidebarContainer = withProps<IContainerProps>(styled.div)``
 
 export class SidebarContainerView extends React.PureComponent<ISidebarContainerViewProps, {}> {
-    public render(): JSX.Element {
-        const indentationlevel = this.props.indentationLevel || 0
+    public static defaultProps = {
+        indentationLevel: 0,
+    }
 
+    public render(): JSX.Element {
         return (
             <SidebarContainer
                 updated={this.props.updated}
@@ -139,7 +153,7 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
                     yanked={this.props.yanked}
                     updated={this.props.updated}
                     didDrop={this.props.didDrop}
-                    indentationLevel={indentationlevel}
+                    indentationLevel={this.props.indentationLevel}
                     icon={<Caret active={this.props.isExpanded} />}
                     text={this.props.text}
                     isFocused={this.props.isFocused}
