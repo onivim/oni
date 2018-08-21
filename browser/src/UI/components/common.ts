@@ -1,6 +1,6 @@
 import * as Color from "color"
 import * as styledComponents from "styled-components"
-import { ThemeProps, ThemedStyledComponentsModule } from "styled-components" // tslint:disable-line no-duplicate-imports
+import { ThemedStyledComponentsModule, ThemeProps } from "styled-components" // tslint:disable-line no-duplicate-imports
 import { IThemeColors } from "../../Services/Themes/ThemeManager"
 
 export const bufferScrollBarSize = "7px"
