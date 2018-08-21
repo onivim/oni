@@ -6,7 +6,7 @@
 
 import * as React from "react"
 
-import { OniStyledProps, styled, withProps } from "./common"
+import { OniStyledProps, pixel, styled, withProps } from "./common"
 
 import Caret from "./../../UI/components/Caret"
 import { Sneakable } from "./../../UI/components/Sneakable"
@@ -25,8 +25,6 @@ export interface ISidebarItemViewProps {
     onClick: (e?: React.MouseEvent<HTMLElement>) => void
 }
 
-const px = (num: number): string => num.toString() + "px"
-
 type SidebarStyleProps = OniStyledProps<ISidebarItemViewProps>
 
 const getLeftBorder = (props: SidebarStyleProps) => {
@@ -43,7 +41,7 @@ const getLeftBorder = (props: SidebarStyleProps) => {
 }
 
 const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
-    padding-left: ${props => px(INDENT_AMOUNT * props.indentationLevel)};
+    padding-left: ${props => pixel(INDENT_AMOUNT * props.indentationLevel)};
     border-left: ${getLeftBorder};
     ${p =>
         (p.isOver || p.yanked) &&
@@ -55,7 +53,6 @@ const SidebarItemStyleWrapper = withProps<ISidebarItemViewProps>(styled.div)`
     padding-top: 4px;
     padding-bottom: 3px;
     position: relative;
-
     cursor: pointer;
     pointer-events: all;
 
@@ -141,7 +138,7 @@ export class SidebarContainerView extends React.PureComponent<ISidebarContainerV
         indentationLevel: 0,
     }
 
-    public render(): JSX.Element {
+    public render() {
         return (
             <SidebarContainer
                 updated={this.props.updated}
