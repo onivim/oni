@@ -428,6 +428,19 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps> {
     }
 }
 
+const getIdToSelect = (fileToSelect: string, nodes: ExplorerSelectors.ExplorerNode[]) => {
+    // If parent has told us to select a file, attempt to convert the file path into a node ID.
+    if (fileToSelect) {
+        const [nodeToSelect] = nodes.filter(node => {
+            const nodePath = getPathForNode(node)
+            return nodePath === fileToSelect
+        })
+
+        return nodeToSelect ? nodeToSelect.id : null
+    }
+    return null
+}
+
 const mapStateToProps = (
     state: IExplorerState,
     containerProps: IExplorerViewContainerProps,
@@ -440,25 +453,13 @@ const mapStateToProps = (
 
     const nodes: ExplorerSelectors.ExplorerNode[] = ExplorerSelectors.mapStateToNodeList(state)
 
-    let idToSelect: string = null
-    // If parent has told us to select a file, attempt to convert the file path into a node ID.
-    if (fileToSelect) {
-        const [nodeToSelect] = nodes.filter((node: ExplorerSelectors.ExplorerNode) => {
-            const nodePath: string = getPathForNode(node)
-            return nodePath === fileToSelect
-        })
-        if (nodeToSelect) {
-            idToSelect = nodeToSelect.id
-        }
-    }
-
     return {
         ...containerProps,
         isActive: state.hasFocus,
         nodes,
         updated,
         yanked,
-        idToSelect,
+        idToSelect: getIdToSelect(fileToSelect, nodes),
         isCreating: state.register.create.active,
         isRenaming: rename.active && rename.target,
     }
