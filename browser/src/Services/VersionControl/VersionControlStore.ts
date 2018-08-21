@@ -6,6 +6,7 @@ export interface PrevCommits extends Commits {
 }
 
 interface ICommit {
+    files: string[]
     active: boolean
     message: string[]
     previousCommits: PrevCommits[]
@@ -59,6 +60,7 @@ export const DefaultState: VersionControlState = {
         behind: null,
     },
     commit: {
+        files: [],
         message: [],
         active: false,
         previousCommits: [],
@@ -81,7 +83,7 @@ type ILeaveAction = IGenericAction<"LEAVE">
 type IErrorAction = IGenericAction<"ERROR">
 type IStatusAction = IGenericAction<"STATUS", { status: StatusResult }>
 type ILogAction = IGenericAction<"LOG", { logs: Logs }>
-type ICommitStartAction = IGenericAction<"COMMIT_START">
+type ICommitStartAction = IGenericAction<"COMMIT_START", { files: string[] }>
 type ICommitCancelAction = IGenericAction<"COMMIT_CANCEL">
 type ICommitSuccessAction = IGenericAction<"COMMIT_SUCCESS", { commit: Commits }>
 type ICommitFailAction = IGenericAction<"COMMIT_FAIL">
@@ -106,9 +108,14 @@ type IAction =
 export interface IVersionControlActions {
     cancelCommit: () => ICommitCancelAction
     updateCommitMessage: (message: string[]) => IUpdateCommitMessageAction
+    setLoading: (isLoading: boolean) => ILoadingAction
 }
 
 export const VersionControlActions: IVersionControlActions = {
+    setLoading: (isLoading: boolean, type = "commit") => ({
+        type: "LOADING",
+        payload: { loading: isLoading, type },
+    }),
     cancelCommit: () => ({ type: "COMMIT_CANCEL" }),
     updateCommitMessage: (message: string[]) => ({
         type: "UPDATE_COMMIT_MESSAGE",
@@ -131,16 +138,24 @@ export function reducer(state: VersionControlState, action: IAction) {
         case "SELECT":
             return { ...state, selected: action.payload.selected }
         case "COMMIT_START":
-            return { ...state, commit: { ...state.commit, active: true } }
+            return {
+                ...state,
+                commit: { ...state.commit, files: action.payload.files, active: true },
+            }
         case "COMMIT_CANCEL":
-            return { ...state, commit: { ...state.commit, message: [], active: false } }
+            return { ...state, commit: { ...state.commit, message: [], active: false, files: [] } }
         case "COMMIT_SUCCESS":
             const {
                 message: [message],
             } = state.commit
             return {
                 ...state,
+                loading: {
+                    active: false,
+                    type: null,
+                },
                 commit: {
+                    files: [],
                     message: [] as string[],
                     active: false,
                     previousCommits: [
@@ -152,9 +167,14 @@ export function reducer(state: VersionControlState, action: IAction) {
         case "COMMIT_FAIL":
             return {
                 ...state,
+                loading: {
+                    active: false,
+                    type: null,
+                },
                 commit: {
                     ...state.commit,
-                    message: [] as string[],
+                    files: [],
+                    message: [],
                     active: false,
                 },
             }

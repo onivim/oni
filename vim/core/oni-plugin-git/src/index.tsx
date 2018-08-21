@@ -177,7 +177,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
 
     public commitFiles = async (message: string[], files?: string[]): Promise<VCS.Commits> => {
         try {
-            const commit = this._git(this._projectRoot).commit(message, files)
+            const commit = await this._git(this._projectRoot).commit(message, files)
             const changed = (files || []).map(file => ({
                 path: file,
                 status: VCS.Statuses.committed,
@@ -259,7 +259,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
             .reduce<VCS.Blame>(
                 (acc, [key, value], index) => {
                     const formattedKey = key.replace("-", "_")
-                    if (!index) {
+                    if (!index && value) {
                         acc.hash = formattedKey
                         if (value) {
                             const [originalLine, finalLine, numberOfLines] = value.split(" ")

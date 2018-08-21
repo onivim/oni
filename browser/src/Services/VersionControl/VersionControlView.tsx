@@ -24,6 +24,7 @@ const StatusContainer = styled.div`
 
 interface IStateProps {
     loading: boolean
+    filesToCommit: string[]
     loadingSection: ProviderActions
     status: StatusResult
     hasFocus: boolean
@@ -40,6 +41,7 @@ interface IStateProps {
 interface IDispatchProps {
     cancelCommit: () => void
     updateCommitMessage: (message: string[]) => void
+    setLoading: (loading: boolean) => void
 }
 
 interface IProps {
@@ -150,9 +152,12 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
             showHelp,
             loading,
             committing,
+            filesToCommit,
             loadingSection,
             status: { modified, staged, untracked },
         } = this.props
+
+        const commitInProgress = loading && loadingSection === "commit"
 
         return warning ? (
             <SectionTitle>
@@ -181,10 +186,10 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
                                 icon="plus-circle"
                                 files={staged}
                                 selectedId={selectedId}
-                                committing={committing}
+                                filesToCommit={filesToCommit}
                                 selectedToCommit={this.isSelected}
                                 visible={this.state.staged}
-                                loading={loading && loadingSection === "commit"}
+                                loading={commitInProgress}
                                 handleSelection={this.props.handleSelection}
                                 toggleVisibility={() => this.toggleVisibility(IDs.staged)}
                                 handleCommitOne={this.handleCommitOne}
@@ -227,6 +232,7 @@ const mapStateToProps = (state: VersionControlState): IStateProps => ({
     message: state.commit.message,
     selectedItem: state.selected,
     commits: state.commit.previousCommits,
+    filesToCommit: state.commit.files,
     showHelp: state.help.active,
     loading: state.loading.active,
     loadingSection: state.loading.type,

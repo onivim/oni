@@ -50,6 +50,9 @@ describe("<VersionControlView />", () => {
     const container = shallow(
         <VersionControlView
             {...state}
+            commit={noop}
+            filesToCommit={["/test.txt"]}
+            setLoading={noop}
             IDs={IDs}
             showHelp={true}
             committing={false}
@@ -71,6 +74,9 @@ describe("<VersionControlView />", () => {
         const container = mount(
             <VersionControlView
                 {...state}
+                commit={noop}
+                setLoading={noop}
+                filesToCommit={["/test.txt"]}
                 IDs={IDs}
                 loading={false}
                 loadingSection={null}
@@ -126,6 +132,7 @@ describe("<VersionControlView />", () => {
         const wrapper = mount(
             <Staged
                 files={[]}
+                filesToCommit={["test.txt"]}
                 titleId="staged"
                 visible={false}
                 handleCommitOne={jest.fn()}
@@ -148,6 +155,7 @@ describe("<VersionControlView />", () => {
         const wrapper = mount(
             <Staged
                 files={["test.txt"]}
+                filesToCommit={["test.txt"]}
                 selectedToCommit={() => false}
                 titleId="staged"
                 visible
@@ -164,29 +172,33 @@ describe("<VersionControlView />", () => {
         )
         expect(wrapper.find(LoadingHandler).length).toBe(2)
     })
-    it("should render an in place of the commit all explainer", () => {
+
+    it("should render an Input in place of the commit all explainer", () => {
         const wrapper = mount(
             <Staged
-                files={["test.txt"]}
-                selectedToCommit={() => true}
-                titleId="staged"
                 visible
+                loading
+                icon="cross"
+                titleId="staged"
+                files={["test.txt"]}
+                filesToCommit={[]}
+                selectedToCommit={() => true}
                 handleCommitOne={jest.fn()}
                 handleCommitMessage={jest.fn()}
                 handleCommitCancel={jest.fn()}
                 handleCommitAll={jest.fn()}
                 toggleVisibility={noop}
                 selectedId="commit_all"
-                icon="cross"
-                loading
                 handleSelection={noop}
             />,
         )
         expect(wrapper.find(CommitMessage).length).toBe(1)
     })
+
     it("should render help if show help is true", () => {
         expect(container.find(Help).length).toBe(1)
     })
+
     it("should render help prompt if show help is false", () => {
         container.setProps({ showHelp: false })
         expect(

@@ -21,7 +21,7 @@ interface IProps {
     icon: string
     loading: boolean
     handleSelection: (id: string) => void
-    committing?: boolean
+    filesToCommit: string[]
     toggleVisibility: () => void
     handleCommitMessage: (evt: React.ChangeEvent<HTMLInputElement>) => void
     handleCommitOne: () => void
@@ -81,8 +81,9 @@ const StagedSection: React.SFC<IProps> = props => {
             {props.visible &&
                 props.files.map(file => {
                     const isSelected = file === props.selectedId
+                    const isLoading = props.filesToCommit.includes(file) && props.loading
                     return (
-                        <LoadingHandler loading={isSelected && props.loading} key={file}>
+                        <LoadingHandler loading={isLoading} key={file}>
                             {props.selectedToCommit(file) ? (
                                 <CommitMessage
                                     handleCommitCancel={props.handleCommitCancel}
