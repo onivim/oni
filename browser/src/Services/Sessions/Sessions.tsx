@@ -8,8 +8,8 @@ import { Icon } from "../../UI/Icon"
 import styled, { css, sidebarItemSelected, withProps } from "../../UI/components/common"
 import TextInputView from "../../UI/components/LightweightText"
 import { VimNavigator } from "../../UI/components/VimNavigator"
-import { ISession, ISessionState, SessionActions } from "./"
 import { getTimeSince } from "../../Utility"
+import { ISession, ISessionState, SessionActions } from "./"
 
 interface IStateProps {
     sessions: ISession[]
