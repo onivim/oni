@@ -9,6 +9,7 @@ import styled, { css, sidebarItemSelected, withProps } from "../../UI/components
 import TextInputView from "../../UI/components/LightweightText"
 import { VimNavigator } from "../../UI/components/VimNavigator"
 import { ISession, ISessionState, SessionActions } from "./"
+import { getTimeSince } from "../../Utility"
 
 interface IStateProps {
     sessions: ISession[]
@@ -54,7 +55,7 @@ const SessionItem: React.SFC<ISessionItem> = ({ session, isSelected, onClick }) 
                 </strong>
             </div>
             <div>Workspace: {truncatedWorkspace}</div>
-            {<div>Last updated: {session.updatedAt}</div>}
+            {<div>Last updated: {getTimeSince(new Date(session.updatedAt))} ago</div>}
         </ListItem>
     )
 }
@@ -126,8 +127,7 @@ export class Sessions extends React.PureComponent<IConnectedProps, IState> {
             case isReadonlyField:
                 break
             default:
-                const { selected } = this.props
-                await this.props.restoreSession(selected.name)
+                await this.props.restoreSession(id)
                 break
         }
     }
@@ -167,7 +167,7 @@ export class Sessions extends React.PureComponent<IConnectedProps, IState> {
                 active={active}
                 onSelected={this.handleSelection}
                 onSelectionChanged={this.updateSelection}
-                render={selectedId => (
+                render={(selectedId, updateSelection) => (
                     <List>
                         <SectionTitle
                             active
@@ -200,7 +200,10 @@ export class Sessions extends React.PureComponent<IConnectedProps, IState> {
                                             key={session.id}
                                             session={session}
                                             isSelected={selectedId === session.id}
-                                            onClick={() => this.handleSelection(selectedId)}
+                                            onClick={() => {
+                                                updateSelection(session.id)
+                                                this.handleSelection(session.id)
+                                            }}
                                         />
                                     ))
                                 ) : (

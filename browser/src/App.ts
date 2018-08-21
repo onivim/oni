@@ -319,8 +319,6 @@ export const start = async (args: string[]): Promise<void> => {
     const VCSManager = await vcsManagerPromise
     VCSManager.activate(oniApi, sidebarManager, notifications)
 
-    const Sessions = await sessionManagerPromise
-    Sessions.activate(oniApi, sidebarManager)
     Explorer.activate(oniApi, configuration, Sidebar.getInstance())
     Learning.activate(
         commandManager,
@@ -330,6 +328,10 @@ export const start = async (args: string[]): Promise<void> => {
         Sidebar.getInstance(),
         WindowManager.windowManager,
     )
+
+    const Sessions = await sessionManagerPromise
+    Sessions.activate(oniApi, sidebarManager)
+
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =
