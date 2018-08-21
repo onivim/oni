@@ -9,6 +9,7 @@ import * as Oni from "oni-api"
 import { NeovimInstance } from "./../../neovim"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 import { ContextMenuManager } from "./../../Services/ContextMenu"
+import { editorManager } from "./../../Services/EditorManager"
 import { findAllReferences, format, LanguageEditorIntegration } from "./../../Services/Language"
 
 import { Definition } from "./Definition"
@@ -62,7 +63,11 @@ export class NeovimEditorCommands {
         })
 
         const pasteContents = async (neovimInstance: NeovimInstance) => {
-            await neovimInstance.command('normal! "+p')
+            if (editorManager.activeEditor.mode === "insert") {
+                await neovimInstance.input("<c-r>+")
+            } else {
+                await neovimInstance.command('normal! "+p')
+            }
         }
 
         const commands = [
