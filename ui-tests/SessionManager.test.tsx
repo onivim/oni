@@ -41,7 +41,7 @@ const mockPersistentStore = {
 
 describe("Session Manager Tests", () => {
     const persistentStore = mockPersistentStore
-    const oni = new Oni()
+    const oni = new Oni({})
     const manager = new SessionManager(oni as UpdatedOni, new Sidebar(), persistentStore)
 
     beforeEach(() => {
