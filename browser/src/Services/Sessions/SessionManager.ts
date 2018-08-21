@@ -53,9 +53,9 @@ export class SessionManager implements ISessionService {
         const defaultDirectory = path.join(getUserConfigFolderPath(), "sessions")
         const userDirectory = this._oni.configuration.getValue<string>(
             "experimental.sessions.directory",
-            defaultDirectory,
         )
-        return userDirectory
+        const directory = userDirectory || defaultDirectory
+        return directory
     }
 
     constructor(

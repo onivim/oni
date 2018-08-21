@@ -68,13 +68,15 @@ const inputStyles = css`
 `
 
 const ListItem = withProps<Partial<ISessionItem>>(styled.li)`
+    box-sizing: border-box;
+    padding: 0.5em 1em;
     ${sidebarItemSelected};
-    padding: 0.5em;
 `
 
 const List = styled.ul`
     list-style-type: none;
     padding: 0;
+    margin: 0;
 `
 
 interface IState {
