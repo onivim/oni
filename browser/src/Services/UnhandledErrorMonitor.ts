@@ -95,7 +95,8 @@ export const start = (configuration: Configuration, notifications: Notifications
         const errorText = val ? val.toString() : "Open the debugger for more details."
         showError(
             "Unhandled Exception",
-            errorText + "\nPlease report this error. Callstack: " + val.stack,
+            errorText +
+                `\nPlease report this error. ${val && val.stack ? `Callstack:` + val.stack : ""}`,
         )
     })
 

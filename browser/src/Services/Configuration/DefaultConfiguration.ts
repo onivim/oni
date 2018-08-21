@@ -53,9 +53,13 @@ const BaseConfiguration: IConfigurationValues = {
     "wildmenu.mode": true,
     "commandline.mode": true,
     "commandline.icons": true,
+    "experimental.vcs.sidebar": false,
     "experimental.particles.enabled": false,
     "experimental.preview.enabled": false,
     "experimental.welcome.enabled": false,
+    "experimental.vcs.blame.enabled": false,
+    "experimental.vcs.blame.mode": "auto",
+    "experimental.vcs.blame.timeout": 800,
 
     "experimental.colorHighlight.enabled": false,
     "experimental.colorHighlight.filetypes": [
@@ -76,21 +80,12 @@ const BaseConfiguration: IConfigurationValues = {
     ],
     "experimental.indentLines.enabled": false,
     "experimental.indentLines.color": null,
-    "experimental.indentLines.filetypes": [
-        ".tsx",
-        ".ts",
-        ".jsx",
-        ".js",
-        ".go",
-        ".re",
-        ".py",
-        ".c",
-        ".cc",
-        ".lua",
-        ".java",
-    ],
+    "experimental.indentLines.skipFirst": false,
+    "experimental.indentLines.bannedFiletypes": [],
     "experimental.markdownPreview.enabled": false,
     "experimental.markdownPreview.autoScroll": true,
+    "experimental.markdownPreview.syntaxHighlights": true,
+    "experimental.markdownPreview.syntaxTheme": "atom-one-dark",
 
     "experimental.neovim.transport": "stdio",
     // TODO: Enable pipe transport for Windows
@@ -144,7 +139,7 @@ const BaseConfiguration: IConfigurationValues = {
 
     "editor.linePadding": 2,
 
-    "editor.quickOpen.execCommand": null,
+    "editor.quickOpen.execCommand": undefined,
     "editor.quickOpen.filterStrategy": "vscode",
     "editor.quickOpen.defaultOpenMode": Oni.FileOpenMode.Edit,
     "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode.ExistingTab,

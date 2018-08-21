@@ -141,10 +141,25 @@ export class NeovimEditorCommands {
                 () => this._definition.gotoDefinitionUnderCursor(),
             ),
             new CallbackCommand("language.gotoDefinition.openVertical", null, null, () =>
-                this._definition.gotoDefinitionUnderCursor(1),
+                this._definition.gotoDefinitionUnderCursor({
+                    openMode: Oni.FileOpenMode.VerticalSplit,
+                }),
             ),
             new CallbackCommand("language.gotoDefinition.openHorizontal", null, null, () =>
-                this._definition.gotoDefinitionUnderCursor(2),
+                this._definition.gotoDefinitionUnderCursor({
+                    openMode: Oni.FileOpenMode.HorizontalSplit,
+                }),
+            ),
+            new CallbackCommand("language.gotoDefinition.openNewTab", null, null, () =>
+                this._definition.gotoDefinitionUnderCursor({ openMode: Oni.FileOpenMode.NewTab }),
+            ),
+            new CallbackCommand("language.gotoDefinition.openEdit", null, null, () =>
+                this._definition.gotoDefinitionUnderCursor({ openMode: Oni.FileOpenMode.Edit }),
+            ),
+            new CallbackCommand("language.gotoDefinition.openExistingTab", null, null, () =>
+                this._definition.gotoDefinitionUnderCursor({
+                    openMode: Oni.FileOpenMode.ExistingTab,
+                }),
             ),
 
             new CallbackCommand("editor.rename", "Rename", "Rename an item", () =>

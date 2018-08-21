@@ -3,8 +3,8 @@
  */
 
 import * as assert from "assert"
-import { ScorerCache } from "../../../src/Services/QuickOpen/Scorer/QuickOpenScorer"
-import { processSearchTerm, vsCodeFilter } from "./../../../src/Services/QuickOpen/VSCodeFilter"
+import { ScorerCache } from "../../../src/Services/Search/Scorer/QuickOpenScorer"
+import { filter, processSearchTerm } from "./../../../src/Services/Menu/Filter/VSCodeFilter"
 
 describe("processSearchTerm", () => {
     let cache: ScorerCache
@@ -80,7 +80,7 @@ describe("vsCodeFilter", () => {
             { label: "index.ts", detail: "browser/test" },
         ]
 
-        const result = vsCodeFilter(testList, testString)
+        const result = filter(testList, testString)
 
         // Remove the score since it can change if we updated the
         // module.
@@ -114,7 +114,7 @@ describe("vsCodeFilter", () => {
             { label: "index.ts", detail: "browser/test" },
         ]
 
-        const result = vsCodeFilter(testList, testString)
+        const result = filter(testList, testString)
 
         // Remove the score since it can change if we updated the
         // module.
@@ -147,7 +147,7 @@ describe("vsCodeFilter", () => {
             { label: "index.ts", detail: "browser/test" },
         ]
 
-        const result = vsCodeFilter(testList, testString)
+        const result = filter(testList, testString)
 
         // Remove the score since it can change if we updated the
         // module. As long as its not 0 that is enough here.
@@ -172,7 +172,7 @@ describe("vsCodeFilter", () => {
             { label: "index.ts", detail: "browser/src/services/quickopen" },
         ]
 
-        const result = vsCodeFilter(testList, testString)
+        const result = filter(testList, testString)
 
         // Remove the score since it can change if we updated the
         // module. As long as its not 0 that is enough here.
@@ -196,7 +196,7 @@ describe("vsCodeFilter", () => {
             { label: "index.ts", detail: "browser/src/services/quickopen" },
         ]
 
-        const result = vsCodeFilter(testList, testString)
+        const result = filter(testList, testString)
 
         assert.deepEqual(result, [])
     })
@@ -210,7 +210,7 @@ describe("vsCodeFilter", () => {
 
         // Should return no results, since the first term should restrict the second
         // search to return no results.
-        const result = vsCodeFilter(testList, testString)
+        const result = filter(testList, testString)
 
         assert.deepEqual(result, [])
     })
@@ -223,7 +223,7 @@ describe("vsCodeFilter", () => {
         ]
 
         // All results match, but only the last has an exact match on aBE inside the file name.
-        const result = vsCodeFilter(testList, testString)
+        const result = filter(testList, testString)
 
         const be = result.find(r => r.label === "BufferEditor.ts")
         const bec = result.find(r => r.label === "BufferEditorContainer.ts")
@@ -246,7 +246,7 @@ describe("vsCodeFilter", () => {
             { label: "BufferEditor.ts", detail: "packages/core/test/oni" },
         ]
 
-        const result = vsCodeFilter(testList, testString)
+        const result = filter(testList, testString)
 
         // Should only match the last term
         const best = result.find(r => r.detail === "packages/core/test/oni")
@@ -261,7 +261,7 @@ describe("vsCodeFilter", () => {
             { label: "main.tex", detail: "packages/core/test/oni" },
         ]
 
-        const result = vsCodeFilter(testList, testString)
+        const result = filter(testList, testString)
 
         // Should prefer the short path
         const best = result.find(r => r.detail === "packages/core/src")
@@ -281,7 +281,7 @@ describe("vsCodeFilter", () => {
             { label: "fileC.ts", detail: "packages/core/oni" },
         ]
 
-        const result = vsCodeFilter(testList, testString)
+        const result = filter(testList, testString)
 
         // Should prefer the short path
         const best = result.find(r => r.label === "fileA.ts")

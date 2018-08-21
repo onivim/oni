@@ -1,7 +1,7 @@
 /**
  * OniEditor.ts
  *
- * IEditor implementation for Oni
+ * Editor implementation for Oni
  *
  * Extends the capabilities of the NeovimEditor
  */
@@ -41,8 +41,6 @@ import { ThemeManager } from "./../../Services/Themes"
 import { TokenColors } from "./../../Services/TokenColors"
 import { Workspace } from "./../../Services/Workspace"
 
-import { IEditor } from "./../Editor"
-
 import { BufferScrollBarContainer } from "./containers/BufferScrollBarContainer"
 import { DefinitionContainer } from "./containers/DefinitionContainer"
 import { ErrorsContainer } from "./containers/ErrorsContainer"
@@ -64,7 +62,7 @@ const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.Bu
     }
 }
 
-export class OniEditor extends Utility.Disposable implements IEditor {
+export class OniEditor extends Utility.Disposable implements Oni.Editor {
     private _neovimEditor: NeovimEditor
 
     public get mode(): string {
@@ -174,7 +172,10 @@ export class OniEditor extends Utility.Disposable implements IEditor {
         )
 
         const imageExtensions = this._configuration.getValue("editor.imageLayerExtensions")
-        const indentExtensions = this._configuration.getValue("experimental.indentLines.filetypes")
+        const bannedIndentExtensions = this._configuration.getValue(
+            "experimental.indentLines.bannedFiletypes",
+        )
+
         this._neovimEditor.bufferLayers.addBufferLayer(
             buf => imageExtensions.includes(path.extname(buf.filePath)),
             buf => new ImageBufferLayer(buf),
@@ -182,7 +183,10 @@ export class OniEditor extends Utility.Disposable implements IEditor {
 
         if (this._configuration.getValue("experimental.indentLines.enabled")) {
             this._neovimEditor.bufferLayers.addBufferLayer(
-                buf => indentExtensions.includes(path.extname(buf.filePath)),
+                buf => {
+                    const extension = path.extname(buf.filePath)
+                    return extension && !bannedIndentExtensions.includes(extension)
+                },
                 buffer =>
                     new IndentLineBufferLayer({
                         buffer: buffer as IBuffer,

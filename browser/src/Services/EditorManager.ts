@@ -11,6 +11,8 @@
 import * as Oni from "oni-api"
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import * as types from "vscode-languageserver-types"
+
 import { remote } from "electron"
 
 export class EditorManager implements Oni.EditorManager {
@@ -123,6 +125,14 @@ class AnyEditorProxy implements Oni.Editor {
         return this._activeEditor.activeBuffer
     }
 
+    public init(filesToOpen: string[]): void {
+        if (!this._activeEditor) {
+            return
+        }
+
+        this._activeEditor.init(filesToOpen)
+    }
+
     public get neovim(): Oni.NeovimEditorCapability {
         if (!this._activeEditor) {
             return null
@@ -179,6 +189,22 @@ class AnyEditorProxy implements Oni.Editor {
 
     public setTextOptions(options: Oni.EditorTextOptions): Promise<void> {
         return this._activeEditor.setTextOptions(options)
+    }
+
+    public render(): JSX.Element {
+        if (!this._activeEditor) {
+            return null
+        }
+
+        return this._activeEditor.render()
+    }
+
+    public setSelection(selectionRange: types.Range): Promise<void> {
+        if (!this._activeEditor) {
+            return null
+        }
+
+        return this._activeEditor.setSelection(selectionRange)
     }
 
     /**

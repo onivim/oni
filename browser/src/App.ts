@@ -89,10 +89,10 @@ export const start = async (args: string[]): Promise<void> => {
     const globalCommandsPromise = import("./Services/Commands/GlobalCommands")
     const inputManagerPromise = import("./Services/InputManager")
     const languageManagerPromise = import("./Services/Language")
+    const vcsManagerPromise = import("./Services/VersionControl")
     const notificationsPromise = import("./Services/Notifications")
     const snippetPromise = import("./Services/Snippets")
     const keyDisplayerPromise = import("./Services/KeyDisplayer")
-    const quickOpenPromise = import("./Services/QuickOpen")
     const taksPromise = import("./Services/Tasks")
     const terminalPromise = import("./Services/Terminal")
     const workspacePromise = import("./Services/Workspace")
@@ -182,6 +182,8 @@ export const start = async (args: string[]): Promise<void> => {
     pluginManager.discoverPlugins()
     Performance.endMeasure("Oni.Start.Plugins.Discover")
 
+    const oniApi = pluginManager.getApi()
+
     Performance.startMeasure("Oni.Start.Themes")
     const Themes = await themesPromise
     const IconThemes = await iconThemesPromise
@@ -215,7 +217,6 @@ export const start = async (args: string[]): Promise<void> => {
 
     const StatusBar = await statusBarPromise
     StatusBar.activate(configuration)
-    const statusBar = StatusBar.getInstance()
 
     const Overlay = await overlayPromise
     Overlay.activate()
@@ -230,14 +231,11 @@ export const start = async (args: string[]): Promise<void> => {
     Menu.activate(configuration, overlayManager)
     const menuManager = Menu.getInstance()
 
-    const QuickOpen = await quickOpenPromise
-    QuickOpen.activate(commandManager, menuManager, editorManager, workspace)
-
     const Notifications = await notificationsPromise
     Notifications.activate(configuration, overlayManager)
+    const notifications = Notifications.getInstance()
 
     if (typeof developmentPluginError !== "undefined") {
-        const notifications = Notifications.getInstance()
         const notification = notifications.createItem()
         notification.setContents(developmentPluginError.title, developmentPluginError.errorText)
         notification.setLevel("error")
@@ -248,7 +246,6 @@ export const start = async (args: string[]): Promise<void> => {
     }
 
     configuration.onConfigurationError.subscribe(err => {
-        const notifications = Notifications.getInstance()
         const notification = notifications.createItem()
         notification.setContents("Error Loading Configuration", err.toString())
         notification.setLevel("error")
@@ -265,7 +262,7 @@ export const start = async (args: string[]): Promise<void> => {
     const tasks = Tasks.getInstance()
 
     const LanguageManager = await languageManagerPromise
-    LanguageManager.activate(configuration, editorManager, pluginManager, statusBar, workspace)
+    LanguageManager.activate(oniApi)
     const languageManager = LanguageManager.getInstance()
 
     Performance.startMeasure("Oni.Start.Editors")
@@ -318,14 +315,10 @@ export const start = async (args: string[]): Promise<void> => {
     Sidebar.activate(configuration, workspace)
     const sidebarManager = Sidebar.getInstance()
 
-    Explorer.activate(
-        commandManager,
-        configuration,
-        editorManager,
-        Sidebar.getInstance(),
-        workspace,
-    )
-    Search.activate(commandManager, editorManager, Sidebar.getInstance(), workspace)
+    const VCSManager = await vcsManagerPromise
+    VCSManager.activate(oniApi, sidebarManager, notifications)
+
+    Explorer.activate(oniApi, configuration, Sidebar.getInstance())
     Learning.activate(
         commandManager,
         configuration,
@@ -346,6 +339,7 @@ export const start = async (args: string[]): Promise<void> => {
 
     Performance.startMeasure("Oni.Start.Activate")
     const api = pluginManager.startApi()
+    Search.activate(api)
     configuration.activate(api)
 
     Snippets.activateProviders(

@@ -14,8 +14,7 @@ import { NeovimActiveWindow } from "./NeovimActiveWindow"
 
 import * as State from "./NeovimEditorStore"
 
-import { StackLayer } from "../../UI/components/common"
-import { EmptyArray } from "./../../Utility"
+import styled, { StackLayer } from "../../UI/components/common"
 
 export interface NeovimBufferLayersViewProps {
     activeWindowId: number
@@ -25,23 +24,26 @@ export interface NeovimBufferLayersViewProps {
     fontPixelHeight: number
 }
 
-const InnerLayerStyle: React.CSSProperties = {
-    position: "absolute",
-    top: "0px",
-    left: "0px",
-    right: "0px",
-    bottom: "0px",
-    overflowY: "auto",
-    overflowX: "auto",
+const InnerLayer = styled.div`
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    overflow: hidden;
+`
+
+export interface LayerContextWithCursor extends Oni.BufferLayerRenderContext {
+    cursorLine: number
+    cursorColumn: number
 }
 
 export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLayersViewProps, {}> {
     public render(): JSX.Element {
         const containers = this.props.windows.map(windowState => {
-            const layers =
-                this.props.layers[windowState.bufferId] || (EmptyArray as Oni.BufferLayer[])
+            const layers: Oni.BufferLayer[] = this.props.layers[windowState.bufferId] || []
 
-            const layerContext: Oni.BufferLayerRenderContext = {
+            const layerContext: LayerContextWithCursor = {
                 isActive: windowState.windowId === this.props.activeWindowId,
                 windowId: windowState.windowId,
                 fontPixelWidth: this.props.fontPixelWidth,
@@ -53,22 +55,15 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
                 visibleLines: windowState.visibleLines,
                 topBufferLine: windowState.topBufferLine,
                 bottomBufferLine: windowState.bottomBufferLine,
+                cursorColumn: windowState.column,
+                cursorLine: windowState.line,
             }
 
-            const layerElements = layers.map(l => {
+            const layerElements = layers.map(layer => {
                 return (
-                    <div
-                        key={
-                            l.id +
-                            "." +
-                            windowState.windowId.toString() +
-                            "." +
-                            windowState.bufferId.toString()
-                        }
-                        style={InnerLayerStyle}
-                    >
-                        {l.render(layerContext)}
-                    </div>
+                    <InnerLayer key={`${layer.id}.${windowState.windowId}.${windowState.bufferId}`}>
+                        {layer.render(layerContext)}
+                    </InnerLayer>
                 )
             })
 

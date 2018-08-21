@@ -43,6 +43,7 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
     ls -a lib_test/browser/src_ccov
 
+    npm run ccov:upload:jest
     npm run ccov:test:browser
     npm run ccov:remap:browser:lcov
     npm run ccov:clean

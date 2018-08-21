@@ -26,7 +26,7 @@ import { configuration } from "./../Configuration"
 import { FileIcon } from "./../FileIcon"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
-import { IExplorerState } from "./ExplorerStore"
+import { getPathForNode, IExplorerState } from "./ExplorerStore"
 
 type Node = ExplorerSelectors.ExplorerNode
 
@@ -287,6 +287,7 @@ export interface IExplorerViewProps extends IExplorerViewContainerProps {
     nodes: ExplorerSelectors.ExplorerNode[]
     isActive: boolean
     updated: string[]
+    idToSelect: string
 }
 
 interface ISneakableNode extends IExplorerViewProps {
@@ -375,6 +376,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps> {
                     ids={ids}
                     active={isActive}
                     style={{ height: "100%" }}
+                    idToSelect={this.props.idToSelect}
                     onSelected={id => this.props.onClick(id)}
                     onSelectionChanged={this.props.onSelectionChanged}
                     render={selectedId => {
@@ -433,13 +435,30 @@ const mapStateToProps = (
     const yanked = state.register.yank.map(node => node.id)
     const {
         register: { updated, rename },
+        fileToSelect,
     } = state
+
+    const nodes: ExplorerSelectors.ExplorerNode[] = ExplorerSelectors.mapStateToNodeList(state)
+
+    let idToSelect: string = null
+    // If parent has told us to select a file, attempt to convert the file path into a node ID.
+    if (fileToSelect) {
+        const [nodeToSelect] = nodes.filter((node: ExplorerSelectors.ExplorerNode) => {
+            const nodePath: string = getPathForNode(node)
+            return nodePath === fileToSelect
+        })
+        if (nodeToSelect) {
+            idToSelect = nodeToSelect.id
+        }
+    }
+
     return {
         ...containerProps,
         isActive: state.hasFocus,
-        nodes: ExplorerSelectors.mapStateToNodeList(state),
+        nodes,
         updated,
         yanked,
+        idToSelect,
         isCreating: state.register.create.active,
         isRenaming: rename.active && rename.target,
     }

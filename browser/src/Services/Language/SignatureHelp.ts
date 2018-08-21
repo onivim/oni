@@ -21,15 +21,17 @@ import * as SignatureHelp from "./SignatureHelpView"
 export const initUI = (
     latestCursorAndBufferInfo$: Observable<ILatestCursorAndBufferInfo>,
     modeChanged$: Observable<Oni.Vim.Mode>,
+    onScroll$: Observable<Oni.EditorBufferScrolledEventArgs>,
     toolTips: IToolTipsProvider,
 ) => {
     const signatureHelpToolTipName = "signature-help-tool-tip"
 
+    onScroll$.subscribe(_ => toolTips.hideToolTip(signatureHelpToolTipName))
     // Show signature help as the cursor moves
     latestCursorAndBufferInfo$
-        .flatMap(async val => {
-            return showSignatureHelp(val.language, val.filePath, val.cursorLine, val.cursorColumn)
-        })
+        .flatMap(val =>
+            showSignatureHelp(val.language, val.filePath, val.cursorLine, val.cursorColumn),
+        )
         .subscribe(result => {
             if (result) {
                 toolTips.showToolTip(signatureHelpToolTipName, SignatureHelp.render(result), {

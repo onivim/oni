@@ -19,7 +19,7 @@ export enum OpenType {
 export class Definition {
     constructor(private _editor: Oni.Editor, private _store: Store<State.IState>) {}
 
-    public async gotoDefinitionUnderCursor(openType: OpenType = OpenType.NewTab): Promise<void> {
+    public async gotoDefinitionUnderCursor(openOptions?: Oni.FileOpenOptions): Promise<void> {
         const activeDefinition = this._store.getState().definition
 
         if (!activeDefinition) {
@@ -31,33 +31,21 @@ export class Definition {
         const line = range.start.line
         const column = range.start.character
 
-        await this.gotoPositionInUri(uri, line, column, openType)
+        await this.gotoPositionInUri(uri, line, column, openOptions)
     }
 
     public async gotoPositionInUri(
         uri: string,
         line: number,
         column: number,
-        openType: OpenType = OpenType.NewTab,
+        openOptions?: Oni.FileOpenOptions,
     ): Promise<void> {
         const filePath = Helpers.unwrapFileUriPath(uri)
 
         const activeEditor = this._editor
-        const command = this._getCommandFromOpenType(openType)
 
-        await activeEditor.neovim.command(`${command} ${filePath}`)
+        await this._editor.openFile(filePath, openOptions)
         await activeEditor.neovim.command(`cal cursor(${line + 1}, ${column + 1})`)
         await activeEditor.neovim.command("norm zz")
-    }
-
-    private _getCommandFromOpenType(openType: OpenType) {
-        switch (openType) {
-            case OpenType.SplitVertical:
-                return "vsp"
-            case OpenType.SplitHorizontal:
-                return "sp"
-            default:
-                return "e"
-        }
     }
 }

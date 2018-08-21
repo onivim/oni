@@ -173,6 +173,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
                 render={(selectedId: string) => {
                     const defaultPluginItems = defaultPlugins.map(p => (
                         <SidebarItemView
+                            key={p.id}
                             indentationLevel={0}
                             isFocused={p.id === selectedId}
                             isContainer={false}
@@ -183,6 +184,7 @@ export class PluginsSidebarPaneView extends React.PureComponent<
 
                     const userPluginItems = userPlugins.map(p => (
                         <SidebarItemView
+                            key={p.id}
                             indentationLevel={0}
                             isFocused={p.id === selectedId}
                             isContainer={false}

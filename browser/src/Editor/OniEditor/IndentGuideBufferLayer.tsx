@@ -22,12 +22,22 @@ interface IProps {
     color?: string
 }
 
+interface ConfigOptions {
+    skipFirst: boolean
+    color?: string
+}
+
+interface LinePropsWithLevels extends IndentLinesProps {
+    levelOfIndentation: number
+}
+
 interface IndentLinesProps {
     top: number
     left: number
     height: number
     line: string
     indentBy: number
+    indentSize: number
     characterWidth: number
 }
 
@@ -71,25 +81,57 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         return "Indent Guide Lines"
     }
 
-    private _getIndentLines = (guidePositions: IndentLinesProps[], color?: string) => {
+    private _getIndentLines = (guidePositions: IndentLinesProps[], options: ConfigOptions) => {
         return flatten(
-            guidePositions.map(({ line, height, characterWidth, indentBy, left, top }, lineNo) => {
-                const indentation = characterWidth * this._userSpacing
-                return Array.from({ length: indentBy }, (_, level) => {
-                    const adjustedLeft = left - level * indentation - characterWidth
-                    return (
-                        <IndentLine
-                            top={top}
-                            color={color}
-                            height={height}
-                            left={adjustedLeft}
-                            key={`${line.trim()}-${lineNo}-${indentation}-${level}`}
-                            data-id="indent-line"
-                        />
+            guidePositions.map((props, idx) => {
+                const indents: JSX.Element[] = []
+                // Create a line per indentation
+                for (
+                    let levelOfIndentation = 0;
+                    levelOfIndentation < props.indentBy;
+                    levelOfIndentation++
+                ) {
+                    const lineProps = { ...props, levelOfIndentation }
+                    const adjustedLeft = this._calculateLeftPosition(lineProps)
+                    const shouldSkip = this._determineIfShouldSkip(lineProps, options)
+                    const key = `${props.line.trim()}-${idx}-${levelOfIndentation}`
+                    indents.push(
+                        !shouldSkip && (
+                            <IndentLine
+                                key={key}
+                                top={props.top}
+                                left={adjustedLeft}
+                                color={options.color}
+                                height={props.height}
+                                data-id="indent-line"
+                            />
+                        ),
                     )
-                })
+                }
+                return indents
             }),
         )
+    }
+
+    private _determineIfShouldSkip(props: LinePropsWithLevels, options: ConfigOptions) {
+        const skipFirstIndentLine =
+            options.skipFirst && props.levelOfIndentation === props.indentBy - 1
+
+        return skipFirstIndentLine
+    }
+
+    /**
+     * Remove one indent from left positioning and move lines slightly inwards -
+     * by a third of a character for a better visual appearance
+     */
+    private _calculateLeftPosition(props: LinePropsWithLevels) {
+        const adjustedLeft =
+            props.left -
+            props.indentSize -
+            props.levelOfIndentation * props.indentSize +
+            props.characterWidth / 3
+
+        return adjustedLeft
     }
 
     private _getWrappedLines(context: Oni.BufferLayerRenderContext): IWrappedLine[] {
@@ -133,13 +175,16 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
      * @returns {JSX.Element[]} An array of react elements
      */
     private _renderIndentLines = (bufferLayerContext: Oni.BufferLayerRenderContext) => {
-        // FIXME: Outstanding issues -
-        // 1. If the beginning of the visible lines is wrapping no lines are drawn
-        // 2. If a line wraps but the wrapped line has no content line positions are off by one
-
+        // TODO: If the beginning of the visible lines is wrapping no lines are drawn
         const wrappedScreenLines = this._getWrappedLines(bufferLayerContext)
-        const color = this._configuration.getValue<string>("experimental.indentLines.color")
+
+        const options = {
+            color: this._configuration.getValue<string>("experimental.indentLines.color"),
+            skipFirst: this._configuration.getValue<boolean>("experimental.indentLines.skipFirst"),
+        }
+
         const { visibleLines, fontPixelHeight, fontPixelWidth, topBufferLine } = bufferLayerContext
+        const indentSize = this._userSpacing * fontPixelWidth
 
         const { allIndentations } = visibleLines.reduce(
             (acc, line, currenLineNumber) => {
@@ -188,6 +233,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 const indent = {
                     left,
                     line,
+                    indentSize,
                     top: adjustedTop,
                     height: adjustedHeight,
                     characterWidth: fontPixelWidth,
@@ -201,7 +247,7 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
             { allIndentations: [], wrappedHeightAdjustment: 0 },
         )
 
-        return this._getIndentLines(allIndentations, color)
+        return this._getIndentLines(allIndentations, options)
     }
 }
 

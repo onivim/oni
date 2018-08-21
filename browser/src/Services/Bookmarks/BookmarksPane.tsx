@@ -172,6 +172,7 @@ export class BookmarksPaneView extends React.PureComponent<
 
             const mapToItems = (selectedId: string) => (bm: IBookmark) => (
                 <SidebarItemView
+                    key={bm.id}
                     text={<BookmarkItemView bookmark={bm} />}
                     isFocused={selectedId === bm.id}
                     isContainer={false}

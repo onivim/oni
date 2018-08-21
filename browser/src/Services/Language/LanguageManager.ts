@@ -24,8 +24,6 @@ import { LanguageClientState, LanguageClientStatusBar } from "./LanguageClientSt
 
 import { listenForWorkspaceEdits } from "./Workspace"
 
-import { IWorkspace } from "./../Workspace"
-
 import * as Utility from "./../../Utility"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
@@ -42,18 +40,12 @@ export class LanguageManager {
     private _languageClientStatusBar: LanguageClientStatusBar
     private _currentTrackedFile: string = null
 
-    constructor(
-        private _configuration: Oni.Configuration,
-        private _editorManager: Oni.EditorManager,
-        private _pluginManager: PluginManager,
-        private _statusBar: Oni.StatusBar,
-        private _workspace: IWorkspace,
-    ) {
-        this._languageClientStatusBar = new LanguageClientStatusBar(this._statusBar)
+    constructor(private _oni: Oni.Plugin.Api) {
+        this._languageClientStatusBar = new LanguageClientStatusBar(_oni)
 
-        this._editorManager.anyEditor.onBufferEnter.subscribe(async () => this._onBufferEnter())
+        this._oni.editors.anyEditor.onBufferEnter.subscribe(async () => this._onBufferEnter())
 
-        this._editorManager.anyEditor.onBufferLeave.subscribe(
+        this._oni.editors.anyEditor.onBufferLeave.subscribe(
             (bufferInfo: Oni.EditorBufferEventArgs) => {
                 const { language, filePath } = bufferInfo
 
@@ -70,7 +62,7 @@ export class LanguageManager {
             },
         )
 
-        this._editorManager.anyEditor.onBufferChanged.subscribe(
+        this._oni.editors.anyEditor.onBufferChanged.subscribe(
             async (change: Oni.EditorBufferChangedEventArgs) => {
                 const { language, filePath } = change.buffer
 
@@ -110,7 +102,7 @@ export class LanguageManager {
             },
         )
 
-        this._editorManager.anyEditor.onBufferSaved.subscribe(
+        this._oni.editors.anyEditor.onBufferSaved.subscribe(
             (bufferInfo: Oni.EditorBufferEventArgs) => {
                 const { language, filePath } = bufferInfo
 
@@ -149,7 +141,7 @@ export class LanguageManager {
             return null
         })
 
-        listenForWorkspaceEdits(this, this._workspace)
+        listenForWorkspaceEdits(this, this._oni)
     }
 
     public getCapabilitiesForLanguage(language: string): Promise<IServerCapabilities> {
@@ -163,7 +155,7 @@ export class LanguageManager {
     }
 
     public getTokenRegex(language: string): RegExp {
-        const languageSpecificTokenRegex = this._configuration.getValue(
+        const languageSpecificTokenRegex = this._oni.configuration.getValue(
             `language.${language}.tokenRegex`,
         ) as RegExp
 
@@ -179,7 +171,7 @@ export class LanguageManager {
     }
 
     public getCompletionTriggerCharacters(language: string): string[] {
-        const languageSpecificTriggerChars = this._configuration.getValue(
+        const languageSpecificTriggerChars = this._oni.configuration.getValue(
             `language.${language}.completionTriggerCharacters`,
         ) as string[]
 
@@ -314,24 +306,25 @@ export class LanguageManager {
         // If there is already a buffer open matching this language,
         // we should send a buffer open event
         if (
-            this._editorManager.activeEditor.activeBuffer &&
-            this._editorManager.activeEditor.activeBuffer.language === language
+            this._oni.editors.activeEditor.activeBuffer &&
+            this._oni.editors.activeEditor.activeBuffer.language === language
         ) {
             this._onBufferEnter()
         }
     }
 
     private async _onBufferEnter(): Promise<void> {
-        if (!this._editorManager.activeEditor.activeBuffer) {
+        if (!this._oni.editors.activeEditor.activeBuffer) {
             Log.warn("[LanguageManager] No active buffer on buffer enter")
             return
         }
 
-        const buffer = this._editorManager.activeEditor.activeBuffer
+        const buffer = this._oni.editors.activeEditor.activeBuffer
         const { language, filePath } = buffer
 
         if (!language && filePath) {
-            const languages = this._pluginManager.getAllContributionsOfType<
+            const pluginManager = this._oni.plugins as PluginManager // TODO: Refactor API
+            const languages = pluginManager.getAllContributionsOfType<
                 Capabilities.ILanguageContribution
             >(contributes => contributes.languages)
             const extension = path.extname(filePath)
@@ -358,7 +351,10 @@ export class LanguageManager {
             }
         }
 
-        if (buffer.lineCount > this._configuration.getValue("editor.maxLinesForLanguageServices")) {
+        if (
+            buffer.lineCount >
+            this._oni.configuration.getValue("editor.maxLinesForLanguageServices")
+        ) {
             this._languageClientStatusBar.setStatus(LanguageClientState.NotAvailable)
             Log.info(
                 "[LanguageManager] Not sending 'didOpen' because file line count exceeds limit.",
@@ -372,9 +368,9 @@ export class LanguageManager {
             "textDocument/didOpen",
             async () => {
                 this._currentTrackedFile = filePath
-                const lines = await this._editorManager.activeEditor.activeBuffer.getLines()
+                const lines = await this._oni.editors.activeEditor.activeBuffer.getLines()
                 const text = lines.join(os.EOL)
-                const version = this._editorManager.activeEditor.activeBuffer.version
+                const version = this._oni.editors.activeEditor.activeBuffer.version
                 this._languageClientStatusBar.setStatus(LanguageClientState.Active)
                 return Helpers.pathToTextDocumentItemParams(filePath, language, text, version)
             },
@@ -409,7 +405,7 @@ export class LanguageManager {
     }
 
     private async _simulateFakeLag(): Promise<void> {
-        const delay = this._configuration.getValue("debug.fakeLag.languageServer") as number
+        const delay = this._oni.configuration.getValue("debug.fakeLag.languageServer") as number
         if (!delay) {
             return
         } else {
@@ -432,20 +428,8 @@ const logDebug = (args: any) => {
 
 let _languageManager: LanguageManager = null
 
-export const activate = (
-    configuration: Oni.Configuration,
-    editorManager: Oni.EditorManager,
-    pluginManager: PluginManager,
-    statusBar: Oni.StatusBar,
-    workspace: IWorkspace,
-): void => {
-    _languageManager = new LanguageManager(
-        configuration,
-        editorManager,
-        pluginManager,
-        statusBar,
-        workspace,
-    )
+export const activate = (oni: Oni.Plugin.Api): void => {
+    _languageManager = new LanguageManager(oni)
 }
 
 export const getInstance = (): LanguageManager => {

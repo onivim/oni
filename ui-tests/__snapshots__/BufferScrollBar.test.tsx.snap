@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<BufferScrollBar /> should match last recorded snapshot 1`] = `
+<styled.div
+  height={30}
+  key="1"
+  onMouseDown={[Function]}
+>
+  <styled.div
+    height={25}
+    top={0}
+  />
+  <styled.div
+    color="yellow"
+    height="2px"
+    id="scrollbar-marker-element"
+    key="1_yellow_4"
+    top={4}
+  />
+  <styled.div
+    color="red"
+    height="2px"
+    id="scrollbar-marker-element"
+    key="1_red_10"
+    top={10}
+  />
+</styled.div>
+`;

@@ -1,7 +1,7 @@
-import * as Git from "../../Services/Git"
+import { getInstance, VersionControlManager } from "./../../Services/VersionControl"
 
 export class Services {
-    public get git(): any {
-        return Git
+    public get vcs(): VersionControlManager {
+        return getInstance()
     }
 }

@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Branch /> should match last known snapshot unless we make a change 1`] = `
+<styled.div>
+  <styled.span>
+    <Icon
+      name="code-fork"
+    />
+    <styled.span>
+      test-branch 
+      <Component
+        deletions={8}
+        insertions={2}
+      />
+    </styled.span>
+  </styled.span>
+</styled.div>
+`;
