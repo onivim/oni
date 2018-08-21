@@ -97,7 +97,7 @@ const SidebarItemBackground = withProps<ISidebarItemViewProps>(styled.div)`
 const INDENT_AMOUNT = 12
 
 export class SidebarItemView extends React.PureComponent<ISidebarItemViewProps, {}> {
-    public render(): JSX.Element {
+    public render() {
         const icon = this.props.icon ? <div className="icon">{this.props.icon}</div> : null
         return (
             <Sneakable callback={this.props.onClick}>
