@@ -1,7 +1,7 @@
 import * as React from "react"
 
-import Caret from "./../Caret"
-import { sidebarItemSelected, styled, withProps } from "./../common"
+import Caret from "./Caret"
+import { sidebarItemSelected, styled, withProps } from "./common"
 
 export const Title = styled.h4`
     margin: 0;
@@ -25,7 +25,7 @@ interface IProps {
     testId: string
 }
 
-const VCSSectionTitle: React.SFC<IProps> = props => (
+const SidebarSectionTitle: React.SFC<IProps> = props => (
     <SectionTitle isSelected={props.isSelected} data-test={props.testId} onClick={props.onClick}>
         <Caret active={props.active} />
         <Title>{props.title.toUpperCase()}</Title>
@@ -33,4 +33,4 @@ const VCSSectionTitle: React.SFC<IProps> = props => (
     </SectionTitle>
 )
 
-export default VCSSectionTitle
+export default SidebarSectionTitle

@@ -18,4 +18,13 @@ export class MockPersistentStore<T> implements IPersistentStore<T> {
     public async get(): Promise<T> {
         return this._state
     }
+
+    public async delete(key: string): Promise<T> {
+        this._state[key] = undefined
+        return this._state
+    }
+
+    public has(key: string) {
+        return !!this._state[key]
+    }
 }

@@ -561,6 +561,15 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     }
 
     /**
+     * closeAllBuffers
+     *
+     * silently close all open buffers
+     */
+    public async closeAllBuffers() {
+        await this.command(`silent! %bdelete`)
+    }
+
+    /**
      * getInitVimPath
      * return the init vim path with no check to ensure existence
      */

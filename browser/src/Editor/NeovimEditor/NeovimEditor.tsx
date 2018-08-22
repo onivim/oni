@@ -44,6 +44,7 @@ import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
+import { ISession } from "./../../Services/Sessions"
 import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
 
@@ -98,6 +99,8 @@ import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
 import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
+
+type NeovimError = [number, string]
 
 export class NeovimEditor extends Editor implements Oni.Editor {
     private _bufferManager: BufferManager
@@ -889,6 +892,31 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         )
     }
 
+    // "v:this_session" |this_session-variable| - is a variable nvim sets to the path of
+    // the current session file when one is loaded we use it here to check the current session
+    // if it in oni's session dir then this is updated
+    public async getCurrentSession(): Promise<string | void> {
+        const result = await this._neovimInstance.request<string | NeovimError>("nvim_get_vvar", [
+            "this_session",
+        ])
+
+        if (Array.isArray(result)) {
+            return this._handleNeovimError(result)
+        }
+        return result
+    }
+
+    public async persistSession(session: ISession) {
+        const result = await this._neovimInstance.command(`mksession! ${session.file}`)
+        return this._handleNeovimError(result)
+    }
+
+    public async restoreSession(session: ISession) {
+        await this._neovimInstance.closeAllBuffers()
+        const result = await this._neovimInstance.command(`source ${session.file}`)
+        return this._handleNeovimError(result)
+    }
+
     public async openFile(
         file: string,
         openOptions: Oni.FileOpenOptions = Oni.DefaultFileOpenOptions,
@@ -1293,6 +1321,18 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             } else {
                 this._renderer.draw(this._screenWithPredictions as any)
             }
+        }
+    }
+
+    private _handleNeovimError(result: NeovimError | void): void {
+        if (!result) {
+            return null
+        }
+        // the first value of the error response is a 0
+        if (Array.isArray(result) && !result[0]) {
+            const [, error] = result
+            Log.warn(error)
+            throw new Error(error)
         }
     }
 }

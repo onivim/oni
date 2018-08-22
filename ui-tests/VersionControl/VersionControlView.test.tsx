@@ -2,6 +2,8 @@ import { shallow, mount } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
 
+import { SectionTitle, Title } from "./../../browser/src/UI/components/SectionTitle"
+
 import {
     DefaultState,
     VersionControlState,
@@ -12,7 +14,6 @@ import CommitMessage, {
 } from "./../../browser/src/UI/components/VersionControl/CommitMessage"
 import Commits from "./../../browser/src/UI/components/VersionControl/Commits"
 import Help from "./../../browser/src/UI/components/VersionControl/Help"
-import { SectionTitle, Title } from "./../../browser/src/UI/components/VersionControl/SectionTitle"
 import Staged, { LoadingHandler } from "./../../browser/src/UI/components/VersionControl/Staged"
 import VersionControlStatus from "./../../browser/src/UI/components/VersionControl/Status"
 

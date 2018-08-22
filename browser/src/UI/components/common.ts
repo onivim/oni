@@ -78,8 +78,10 @@ export const StackLayer = styled<{ zIndex?: number | string }, "div">("div")`
 `
 
 export const sidebarItemSelected = css`
-    border: ${(p: any) =>
-        p.isSelected && `1px solid ${p.theme["highlight.mode.normal.background"]}`};
+    border: ${(p: { isSelected?: boolean; theme?: styledComponents.ThemeProps<IThemeColors> }) =>
+        p.isSelected
+            ? `1px solid ${p.theme["highlight.mode.normal.background"]}`
+            : `1px solid transparent`};
 `
 
 export type StyledFunction<T> = styledComponents.ThemedStyledFunction<T, IThemeColors>
