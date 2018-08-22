@@ -309,7 +309,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
 
         // Services
         const onColorsChanged = () => {
-            const updatedColors: any = this._colors.getColors()
+            const updatedColors = this._colors.getColors()
             this._actions.setColors(updatedColors)
         }
 

@@ -211,23 +211,16 @@ export const ButtonIds = [
 ]
 
 export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeViewState> {
-    constructor(props: WelcomeViewProps) {
-        super(props)
-
-        this.state = {
-            version: null,
-        }
+    public state: WelcomeViewState = {
+        version: null,
     }
 
-    public componentDidMount(): void {
-        getMetadata().then(metadata => {
-            this.setState({
-                version: metadata.version,
-            })
-        })
+    public async componentDidMount() {
+        const metadata = await getMetadata()
+        this.setState({ version: metadata.version })
     }
 
-    public render(): JSX.Element {
+    public render() {
         if (!this.state.version) {
             return null
         }
@@ -258,10 +251,10 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                 <Row style={{ width: "100%", marginTop: "64px", opacity: 1 }}>
                     <Column />
                     <VimNavigator
-                        style={{ width: "100%" }}
                         active={true}
+                        style={{ width: "100%" }}
                         ids={ButtonIds}
-                        render={(selectedId: string) => (
+                        render={selectedId => (
                             <WelcomeBufferLayerCommandsView selectedId={selectedId} />
                         )}
                     />

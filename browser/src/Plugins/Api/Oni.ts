@@ -52,8 +52,27 @@ export class Dependencies {
     }
 }
 
-const helpers = {
-    throttle,
+class Helpers {
+    constructor(private _oni: OniApi.Plugin.Api) {}
+    throttle = throttle
+    public getActiveSection() {
+        const isInsertOrCommandMode = () => {
+            return (
+                this._oni.editors.activeEditor.mode === "insert" ||
+                this._oni.editors.activeEditor.mode === "cmdline_normal"
+            )
+        }
+        switch (true) {
+            case this._oni.menu.isMenuOpen():
+                return "menu"
+            case this._oni.sidebar.isFocused:
+                return this._oni.sidebar.activeEntryId
+            case isInsertOrCommandMode():
+                return "commandline"
+            default:
+                return null
+        }
+    }
 }
 
 /**
@@ -184,7 +203,8 @@ export class Oni implements OniApi.Plugin.Api {
         return getWorkspaceInstance()
     }
 
-    public get helpers(): any {
+    public get helpers(): Helpers {
+        const helpers = new Helpers(this)
         return helpers
     }
 
