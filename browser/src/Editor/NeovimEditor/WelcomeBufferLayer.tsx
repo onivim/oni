@@ -40,7 +40,7 @@ const entranceFull = keyframes`
 const WelcomeWrapper = styled.div`
     background-color: ${p => p.theme["editor.background"]};
     color: ${p => p.theme["editor.foreground"]};
-    overflow-y: auto;
+    overflow-y: hidden;
     user-select: none;
     pointer-events: all;
     width: 100%;
@@ -48,8 +48,14 @@ const WelcomeWrapper = styled.div`
     opacity: 0;
     animation: ${entranceFull} 0.25s ease-in 0.1s forwards ${enableMouse};
 `
+interface IColumnProps {
+    alignment?: string
+    flex?: string
+    height?: string
+    overflowY?: string
+}
 
-const Column = styled<{ alignment?: string; flex?: string }, "div">("div")`
+const Column = styled<IColumnProps, "div">("div")`
     background: ${p => p.theme["editor.background"]};
     display: flex;
     justify-content: center;
@@ -57,6 +63,8 @@ const Column = styled<{ alignment?: string; flex?: string }, "div">("div")`
     flex-direction: column;
     width: 100%;
     flex: ${({ flex }) => flex || "1 1 auto"};
+    height: ${({ height }) => height || `auto`};
+    ${({ overflowY }) => overflowY && `overflow-y: ${overflowY}`};
 `
 
 const Row = styled<{ extension?: Css }, "div">("div")`
@@ -187,7 +195,7 @@ export interface OniWithActiveSection extends Oni.Plugin.Api {
     getActiveSection(): string
 }
 
-interface WelcomeInputEvent {
+interface IWelcomInputEvent {
     direction: number
     select: boolean
 }
@@ -200,6 +208,7 @@ interface IWelcomeCommandsDictionary {
     openThemes: string
     openWorkspaceFolder: string
     commandPalette: string
+    commandline: string
 }
 
 export class WelcomeBufferLayer implements Oni.BufferLayer {
@@ -208,17 +217,17 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         return "oni.welcome"
     }
 
-    public inputEvent = new Event<WelcomeInputEvent>()
+    public inputEvent = new Event<IWelcomInputEvent>()
 
-    public welcomeCommands = {
+    public welcomeCommands: IWelcomeCommandsDictionary = {
         openTutor: "oni.tutor.open",
         openDocs: "oni.docs.open",
         openConfig: "oni.config.openUserConfig",
         openThemes: "oni.themes.open",
-        openFile: "oni.configuration.open",
+        openFile: "oni.quickOpen.openFileNewTab",
         openWorkspaceFolder: "workspace.openFolder",
         commandPalette: "quickOpen.show",
-        // command: "editor.openExCommands",
+        commandline: "executeVimCommand",
     }
 
     public get friendlyName(): string {
@@ -268,7 +277,7 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
 export interface WelcomeViewProps {
     active: boolean
     buttonIds: string[]
-    inputEvent: Event<WelcomeInputEvent>
+    inputEvent: Event<IWelcomInputEvent>
     commands: IWelcomeCommandsDictionary
     executeCommand: (cmd: string) => void
 }
@@ -305,10 +314,9 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
         this.props.inputEvent.subscribe(this.handleInput)
     }
 
-    public handleInput = ({ direction, select }: WelcomeInputEvent) => {
+    public handleInput = ({ direction, select }: IWelcomInputEvent) => {
         const { currentIndex } = this.state
         const newIndex = this.getNextIndex(direction, currentIndex)
-        console.log("newIndex: ", newIndex)
         const selectedId = this.props.buttonIds[newIndex]
         this.setState({ currentIndex: newIndex, selectedId })
         if (select) {
@@ -319,9 +327,9 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
     public getNextIndex(direction: number, currentIndex: number) {
         const nextPosition = currentIndex + direction
         switch (true) {
-            case !nextPosition:
-                return this.props.buttonIds.length
-            case nextPosition > this.props.buttonIds.length:
+            case nextPosition < 0:
+                return this.props.buttonIds.length - 1
+            case nextPosition === this.props.buttonIds.length:
                 return 0
             default:
                 return nextPosition
@@ -337,7 +345,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
     public render() {
         const { version } = this.state
         return version ? (
-            <Column innerRef={this._welcomeElement}>
+            <Column innerRef={this._welcomeElement} height="100%">
                 <Row extension={titleRow}>
                     <Column />
                     <Column alignment="flex-end">
@@ -355,7 +363,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                 </Row>
                 <Row extension={buttonsRow}>
                     <Column />
-                    <WelcomeBufferLayerCommandsView
+                    <WelcomeCommandsView
                         commands={this.props.commands}
                         selectedId={this.state.selectedId}
                         executeCommand={this.props.executeCommand}
@@ -367,14 +375,11 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
     }
 }
 
-export interface IWelcomeBufferLayerCommandsViewProps extends Partial<WelcomeViewProps> {
+export interface IWelcomeCommandsViewProps extends Partial<WelcomeViewProps> {
     selectedId: string
 }
 
-export class WelcomeBufferLayerCommandsView extends React.PureComponent<
-    IWelcomeBufferLayerCommandsViewProps,
-    {}
-> {
+export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsViewProps, {}> {
     public render() {
         const { commands, executeCommand } = this.props
         return (
@@ -440,8 +445,8 @@ export class WelcomeBufferLayerCommandsView extends React.PureComponent<
                         title="Vim Ex Commands"
                         description=":"
                         command="editor.openExCommands"
-                        onClick={() => executeCommand("editor.openExCommands")}
-                        selected={this.props.selectedId === "editor.openExCommands"}
+                        onClick={() => executeCommand(commands.commandline)}
+                        selected={this.props.selectedId === commands.commandline}
                     />
                 </AnimatedContainer>
             </Column>
