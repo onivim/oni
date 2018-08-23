@@ -344,15 +344,15 @@ export class Buffer implements IBuffer {
             return false
         }
 
-        const result = layers.reduce<boolean>((prev, curr) => {
-            if (prev) {
+        const result = layers.reduce<boolean>((layerHandlerExists, currentLayer) => {
+            if (layerHandlerExists) {
                 return true
             }
 
-            if (!curr || !curr.handleInput) {
+            if (!currentLayer || !currentLayer.handleInput) {
                 return false
             } else {
-                return curr.handleInput(key)
+                return currentLayer.handleInput(key)
             }
         }, false)
 

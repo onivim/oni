@@ -148,6 +148,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
     private _bufferLayerManager = getLayerManagerInstance()
     private _screenWithPredictions: ScreenWithPredictions
 
+    private _welcomeActive = false
     private _onEmptyBuffer = new Event<void>()
     private _onNeovimQuit: Event<void> = new Event<void>()
 
@@ -840,6 +841,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
     }
 
     public async createWelcomeBuffer() {
+        this._welcomeActive = true
         const buf = await this.openFile("WELCOME")
         await buf.setScratchBuffer()
         return buf
@@ -1110,8 +1112,8 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             <Provider store={this._store}>
                 <NeovimSurface
                     onFileDrop={this._onFilesDropped}
-                    autoFocus={this._autoFocus}
                     renderer={this._renderer}
+                    autoFocus={this._autoFocus && !this._welcomeActive}
                     typingPrediction={this._typingPredictionManager}
                     neovimInstance={this._neovimInstance}
                     screen={this._screen}

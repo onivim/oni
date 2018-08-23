@@ -5,26 +5,12 @@
  */
 
 import * as React from "react"
-
-import styled, { keyframes } from "styled-components"
-
-import { inputManager, InputManager } from "./../../Services/InputManager"
-
 import * as Oni from "oni-api"
+import * as Log from "oni-core-logging"
+import { Event } from "oni-types"
 
-import { withProps } from "./../../UI/components/common"
-import { VimNavigator } from "./../../UI/components/VimNavigator"
-
-const WelcomeWrapper = withProps<{}>(styled.div)`
-    background-color: ${p => p.theme["editor.background"]};
-    color: ${p => p.theme["editor.foreground"]};
-    overflow-y: auto;
-    user-select: none;
-    pointer-events: all;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-`
+import styled, { keyframes, withProps, enableMouse } from "./../../UI/components/common"
+import { getMetadata } from "./../../Services/Metadata"
 
 // const entrance = keyframes`
 //     0% { opacity: 0; transform: translateY(2px); }
@@ -51,8 +37,21 @@ const entranceFull = keyframes`
         transform: translateY(0px);
     }
 `
+const WelcomeWrapper = withProps<{}>(styled.div)`
+    background-color: ${p => p.theme["editor.background"]};
+    color: ${p => p.theme["editor.foreground"]};
+    overflow-y: auto;
+    user-select: none;
+    pointer-events: all;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: ${entranceFull} 0.25s ease-in 0.1s forwards 
+    ${enableMouse};
+`
 
 const Column = styled.div`
+    background: ${p => p.theme["editor.background"]};
     display: flex;
     justify-content: center;
     align-items: center;
@@ -106,7 +105,7 @@ export interface WelcomeButtonWrapperProps {
     selected: boolean
 }
 
-const WelcomeButtonWrapper = withProps<WelcomeButtonWrapperProps>(styled.div)`
+const WelcomeButtonWrapper = withProps<WelcomeButtonWrapperProps>(styled.button)`
     border: 0px solid ${props => props.theme.foreground};
     border-left: ${props =>
         props.selected
@@ -115,19 +114,15 @@ const WelcomeButtonWrapper = withProps<WelcomeButtonWrapperProps>(styled.div)`
     border-right: 4px solid transparent;
     color: ${props => props.theme.foreground};
     background-color: ${props => props.theme.background};
-
     cursor: pointer;
-
     transition: transform 0.25s;
     transform: ${props => (props.selected ? "translateX(-4px)" : "translateX(0px)")};
-
     width: 100%;
     margin: 8px 0px;
     padding: 8px;
 
     display: flex;
     flex-direction: row;
-
     &:hover {
        ${WelcomeButtonHoverStyled}
     }
@@ -155,25 +150,44 @@ export interface WelcomeButtonProps {
     description: string
     command: string
     selected: boolean
+    onClick: () => void
 }
 
-export class WelcomeButton extends React.PureComponent<WelcomeButtonProps, {}> {
-    public render(): JSX.Element {
-        return (
-            <WelcomeButtonWrapper selected={this.props.selected}>
-                <WelcomeButtonTitle>{this.props.title}</WelcomeButtonTitle>
-                <WelcomeButtonDescription>{this.props.description}</WelcomeButtonDescription>
-            </WelcomeButtonWrapper>
-        )
-    }
+export const WelcomeButton: React.SFC<WelcomeButtonProps> = props => {
+    return (
+        <WelcomeButtonWrapper selected={props.selected} onClick={props.onClick}>
+            <WelcomeButtonTitle>{props.title}</WelcomeButtonTitle>
+            <WelcomeButtonDescription>{props.description}</WelcomeButtonDescription>
+        </WelcomeButtonWrapper>
+    )
 }
 
 export interface WelcomeHeaderState {
     version: string
 }
 
+export interface UpdatedCommands extends Oni.Commands.Api {
+    getTasks(): Oni.Commands.ICommand[]
+}
+
 export interface OniWithActiveSection extends Oni.Plugin.Api {
     getActiveSection(): string
+    commands: UpdatedCommands
+}
+
+interface WelcomeInputEvent {
+    direction: number
+    select: boolean
+}
+
+interface IWelcomeCommandsDictionary {
+    openFile: string
+    openTutor: string
+    openDocs: string
+    openConfig: string
+    openThemes: string
+    openWorkspaceFolder: string
+    commandPalette: string
 }
 
 export class WelcomeBufferLayer implements Oni.BufferLayer {
@@ -182,33 +196,57 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         return "oni.welcome"
     }
 
-    private ButtonIds = [
-        "oni.tutor.open",
-        "oni.docs.open",
-        "oni.configuration.open",
-        "oni.themes.open",
-        "workspace.newFile",
-        "workspace.openFolder",
-        "tasks.show",
-        "editor.openExCommands",
-    ]
+    public inputEvent = new Event<WelcomeInputEvent>()
+
+    public welcomeCommands = {
+        openFile: "oni.configuration.open",
+        openTutor: "oni.tutor.open",
+        openDocs: "oni.docs.open",
+        openConfig: "oni.config.openUserConfig",
+        openThemes: "oni.themes.open",
+        openWorkspaceFolder: "workspace.openFolder",
+        commandPalette: "quickOpen.show",
+        // command: "editor.openExCommands",
+    }
 
     public get friendlyName(): string {
         return "Welcome"
     }
 
+    public handleInput(key: string) {
+        Log.info(`ONI WELCOME INPUT KEY: ${key}`)
+        switch (key) {
+            case "j":
+                this.inputEvent.dispatch({ direction: 1, select: false })
+                break
+            case "k":
+                this.inputEvent.dispatch({ direction: -1, select: false })
+                break
+            case "<enter>":
+                this.inputEvent.dispatch({ direction: 0, select: true })
+                break
+            default:
+                this.inputEvent.dispatch({ direction: 0, select: false })
+        }
+    }
+
+    public executeCommand = (cmd: string) => {
+        if (cmd) {
+            this._oni.commands.executeCommand(cmd)
+        }
+    }
+
     public render(context: Oni.BufferLayerRenderContext): JSX.Element {
-        const section = this._oni.getActiveSection()
-        const active = section === "editor"
+        const active = this._oni.getActiveSection() === "editor"
+        const ids = Object.values(this.welcomeCommands)
         return (
-            <WelcomeWrapper
-                className="enable-mouse"
-                style={{ animation: `${entranceFull} 0.25s ease-in 0.1s forwards` }}
-            >
+            <WelcomeWrapper>
                 <WelcomeView
-                    buttonIds={this.ButtonIds}
-                    inputManager={inputManager}
+                    buttonIds={ids}
                     active={active}
+                    inputEvent={this.inputEvent}
+                    commands={this.welcomeCommands}
+                    executeCommand={this.executeCommand}
                 />
             </WelcomeWrapper>
         )
@@ -218,24 +256,38 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
 export interface WelcomeViewProps {
     active: boolean
     buttonIds: string[]
-    inputManager: InputManager
+    inputEvent: Event<WelcomeInputEvent>
+    commands: IWelcomeCommandsDictionary
+    executeCommand: (cmd: string) => void
 }
 
 export interface WelcomeViewState {
     version: string
+    selectedId: string
+    currentIndex: number
 }
-
-import { getMetadata } from "./../../Services/Metadata"
 
 export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeViewState> {
     private _welcomeElement: HTMLDivElement
     public state: WelcomeViewState = {
         version: null,
+        currentIndex: 0,
+        selectedId: this.props.buttonIds[0],
     }
 
     public async componentDidMount() {
         const metadata = await getMetadata()
         this.setState({ version: metadata.version })
+
+        this.props.inputEvent.subscribe(({ direction, select }) => {
+            const { currentIndex } = this.state
+            const newIndex = currentIndex + direction || 0
+            const selectedId = this.props.buttonIds[newIndex]
+            this.setState({ currentIndex: newIndex, selectedId })
+            if (select) {
+                this.props.executeCommand(selectedId)
+            }
+        })
     }
 
     componentDidUpdate() {
@@ -250,11 +302,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
         }
 
         return (
-            <Column
-                innerRef={e => {
-                    this._welcomeElement = e
-                }}
-            >
+            <Column innerRef={e => (this._welcomeElement = e)}>
                 <Row
                     style={{
                         width: "100%",
@@ -278,13 +326,10 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                 </Row>
                 <Row style={{ width: "100%", marginTop: "64px", opacity: 1 }}>
                     <Column />
-                    <VimNavigator
-                        style={{ width: "100%" }}
-                        active={this.props.active}
-                        ids={this.props.buttonIds}
-                        render={selectedId => (
-                            <WelcomeBufferLayerCommandsView selectedId={selectedId} />
-                        )}
+                    <WelcomeBufferLayerCommandsView
+                        commands={this.props.commands}
+                        selectedId={this.state.selectedId}
+                        executeCommand={this.props.executeCommand}
                     />
                     <Column />
                 </Row>
@@ -293,7 +338,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
     }
 }
 
-export interface IWelcomeBufferLayerCommandsViewProps {
+export interface IWelcomeBufferLayerCommandsViewProps extends Partial<WelcomeViewProps> {
     selectedId: string
 }
 
@@ -302,8 +347,9 @@ export class WelcomeBufferLayerCommandsView extends React.PureComponent<
     {}
 > {
     public render() {
+        const { commands, executeCommand } = this.props
         return (
-            <Column style={{ width: "100%" }}>
+            <Column>
                 <div
                     style={{
                         width: "100%",
@@ -313,15 +359,17 @@ export class WelcomeBufferLayerCommandsView extends React.PureComponent<
                     <SectionHeader>Learn</SectionHeader>
                     <WelcomeButton
                         title="Tutor"
+                        onClick={() => executeCommand(commands.openTutor)}
                         description="Learn modal editing with an interactive tutorial."
-                        command="oni.tutor.open"
-                        selected={this.props.selectedId === "oni.tutor.open"}
+                        command={commands.openTutor}
+                        selected={this.props.selectedId === commands.openTutor}
                     />
                     <WelcomeButton
                         title="Documentation"
+                        onClick={() => executeCommand(commands.openDocs)}
                         description="Discover what Oni can do for you."
-                        command="oni.docs.open"
-                        selected={this.props.selectedId === "oni.docs.open"}
+                        command={commands.openDocs}
+                        selected={this.props.selectedId === commands.openDocs}
                     />
                 </div>
                 <div
@@ -333,15 +381,17 @@ export class WelcomeBufferLayerCommandsView extends React.PureComponent<
                     <SectionHeader>Customize</SectionHeader>
                     <WelcomeButton
                         title="Configure"
+                        onClick={() => executeCommand(commands.openConfig)}
                         description="Make Oni work the way you want."
-                        command="oni.configuration.open"
-                        selected={this.props.selectedId === "oni.configuration.open"}
+                        command={commands.openConfig}
+                        selected={this.props.selectedId === commands.openConfig}
                     />
                     <WelcomeButton
                         title="Themes"
+                        onClick={() => executeCommand(commands.openThemes)}
                         description="Choose a theme that works for you."
-                        command="oni.themes.open"
-                        selected={this.props.selectedId === "oni.themes.open"}
+                        command={commands.openThemes}
+                        selected={this.props.selectedId === commands.openThemes}
                     />
                 </div>
                 <div
@@ -353,26 +403,30 @@ export class WelcomeBufferLayerCommandsView extends React.PureComponent<
                     <SectionHeader>Quick Commands</SectionHeader>
                     <WelcomeButton
                         title="New File"
+                        onClick={() => executeCommand(commands.openFile)}
                         description="Control + N"
-                        command="workspace.newFile"
-                        selected={this.props.selectedId === "workspace.newFile"}
+                        command={commands.openFile}
+                        selected={this.props.selectedId === commands.openFile}
                     />
                     <WelcomeButton
                         title="Open File / Folder"
+                        onClick={() => executeCommand(commands.openWorkspaceFolder)}
                         description="Control + O"
-                        command="workspace.openFolder"
-                        selected={this.props.selectedId === "workspace.openFolder"}
+                        command={commands.openWorkspaceFolder}
+                        selected={this.props.selectedId === commands.openWorkspaceFolder}
                     />
                     <WelcomeButton
                         title="Command Palette"
+                        onClick={() => executeCommand(commands.commandPalette)}
                         description="Control + Shift + P"
-                        command="tasks.show"
-                        selected={this.props.selectedId === "tasks.show"}
+                        command={commands.commandPalette}
+                        selected={this.props.selectedId === commands.commandPalette}
                     />
                     <WelcomeButton
                         title="Vim Ex Commands"
                         description=":"
                         command="editor.openExCommands"
+                        onClick={() => executeCommand("editor.openExCommands")}
                         selected={this.props.selectedId === "editor.openExCommands"}
                     />
                 </div>
