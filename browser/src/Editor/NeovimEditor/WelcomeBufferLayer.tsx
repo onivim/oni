@@ -9,7 +9,7 @@ import * as Oni from "oni-api"
 import * as Log from "oni-core-logging"
 import { Event } from "oni-types"
 
-import styled, { keyframes, withProps, enableMouse } from "./../../UI/components/common"
+import styled, { keyframes, enableMouse, Css, css } from "./../../UI/components/common"
 import { getMetadata } from "./../../Services/Metadata"
 
 // const entrance = keyframes`
@@ -37,7 +37,7 @@ const entranceFull = keyframes`
         transform: translateY(0px);
     }
 `
-const WelcomeWrapper = withProps<{}>(styled.div)`
+const WelcomeWrapper = styled.div`
     background-color: ${p => p.theme["editor.background"]};
     color: ${p => p.theme["editor.foreground"]};
     overflow-y: auto;
@@ -46,26 +46,26 @@ const WelcomeWrapper = withProps<{}>(styled.div)`
     width: 100%;
     height: 100%;
     opacity: 0;
-    animation: ${entranceFull} 0.25s ease-in 0.1s forwards 
-    ${enableMouse};
+    animation: ${entranceFull} 0.25s ease-in 0.1s forwards ${enableMouse};
 `
 
-const Column = styled.div`
+const Column = styled<{ alignment?: string; flex?: string }, "div">("div")`
     background: ${p => p.theme["editor.background"]};
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: ${({ alignment }) => alignment || "center"};
     flex-direction: column;
     width: 100%;
-    flex: 1 1 auto;
+    flex: ${({ flex }) => flex || "1 1 auto"};
 `
 
-const Row = styled.div`
+const Row = styled<{ extension?: Css }, "div">("div")`
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: row;
     opacity: 0;
+    ${({ extension }) => extension};
 `
 
 const TitleText = styled.div`
@@ -99,34 +99,38 @@ const WelcomeButtonHoverStyled = `
     box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 `
 
-// box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
-
 export interface WelcomeButtonWrapperProps {
     selected: boolean
 }
 
-const WelcomeButtonWrapper = withProps<WelcomeButtonWrapperProps>(styled.button)`
+const WelcomeButtonWrapper = styled<WelcomeButtonWrapperProps, "button">("button")`
+    box-sizing: content-box;
+    font-size: inherit;
+    font-family: inherit;
     border: 0px solid ${props => props.theme.foreground};
-    border-left: ${props =>
-        props.selected
-            ? "4px solid " + props.theme["highlight.mode.normal.background"]
+    border-left: ${({ selected, theme }) =>
+        selected
+            ? "4px solid " + theme["highlight.mode.normal.background"]
             : "4px solid transparent"};
     border-right: 4px solid transparent;
-    color: ${props => props.theme.foreground};
-    background-color: ${props => props.theme.background};
     cursor: pointer;
+    color: ${({ theme }) => theme.foreground};
+    background-color: ${({ theme }) => theme.background};
+    transform: ${({ selected }) => (selected ? "translateX(-4px)" : "translateX(0px)")};
     transition: transform 0.25s;
-    transform: ${props => (props.selected ? "translateX(-4px)" : "translateX(0px)")};
     width: 100%;
     margin: 8px 0px;
     padding: 8px;
-
     display: flex;
     flex-direction: row;
     &:hover {
-       ${WelcomeButtonHoverStyled}
+        ${WelcomeButtonHoverStyled};
     }
+`
 
+const AnimatedContainer = styled<{ duration: string }, "div">("div")`
+    width: 100%;
+    animation: ${entranceFull} ${p => p.duration} ease-in 1s both;
 `
 
 const WelcomeButtonTitle = styled.span`
@@ -140,7 +144,6 @@ const WelcomeButtonDescription = styled.span`
     font-size: 0.8em;
     opacity: 0.75;
     margin: 4px;
-
     width: 100%;
     text-align: right;
 `
@@ -153,26 +156,35 @@ export interface WelcomeButtonProps {
     onClick: () => void
 }
 
-export const WelcomeButton: React.SFC<WelcomeButtonProps> = props => {
-    return (
-        <WelcomeButtonWrapper selected={props.selected} onClick={props.onClick}>
-            <WelcomeButtonTitle>{props.title}</WelcomeButtonTitle>
-            <WelcomeButtonDescription>{props.description}</WelcomeButtonDescription>
-        </WelcomeButtonWrapper>
-    )
+export class WelcomeButton extends React.PureComponent<WelcomeButtonProps> {
+    private _button = React.createRef<HTMLElement>()
+
+    componentDidUpdate(prevProps: WelcomeButtonProps) {
+        if (!prevProps.selected && this.props.selected) {
+            this._button.current.scrollIntoView()
+        }
+    }
+
+    render() {
+        return (
+            <WelcomeButtonWrapper
+                innerRef={this._button}
+                selected={this.props.selected}
+                onClick={this.props.onClick}
+            >
+                <WelcomeButtonTitle>{this.props.title}</WelcomeButtonTitle>
+                <WelcomeButtonDescription>{this.props.description}</WelcomeButtonDescription>
+            </WelcomeButtonWrapper>
+        )
+    }
 }
 
 export interface WelcomeHeaderState {
     version: string
 }
 
-export interface UpdatedCommands extends Oni.Commands.Api {
-    getTasks(): Oni.Commands.ICommand[]
-}
-
 export interface OniWithActiveSection extends Oni.Plugin.Api {
     getActiveSection(): string
-    commands: UpdatedCommands
 }
 
 interface WelcomeInputEvent {
@@ -199,11 +211,11 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
     public inputEvent = new Event<WelcomeInputEvent>()
 
     public welcomeCommands = {
-        openFile: "oni.configuration.open",
         openTutor: "oni.tutor.open",
         openDocs: "oni.docs.open",
         openConfig: "oni.config.openUserConfig",
         openThemes: "oni.themes.open",
+        openFile: "oni.configuration.open",
         openWorkspaceFolder: "workspace.openFolder",
         commandPalette: "quickOpen.show",
         // command: "editor.openExCommands",
@@ -267,8 +279,20 @@ export interface WelcomeViewState {
     currentIndex: number
 }
 
+const buttonsRow = css`
+    width: 100%;
+    margin-top: 64px;
+    opacity: 1;
+`
+
+const titleRow = css`
+    width: 100%;
+    padding-top: 32px;
+    animation: ${entranceFull} 0.25s ease-in 0.25s forwards};
+`
+
 export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeViewState> {
-    private _welcomeElement: HTMLDivElement
+    private _welcomeElement = React.createRef<HTMLDivElement>()
     public state: WelcomeViewState = {
         version: null,
         currentIndex: 0,
@@ -278,53 +302,58 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
     public async componentDidMount() {
         const metadata = await getMetadata()
         this.setState({ version: metadata.version })
+        this.props.inputEvent.subscribe(this.handleInput)
+    }
 
-        this.props.inputEvent.subscribe(({ direction, select }) => {
-            const { currentIndex } = this.state
-            const newIndex = currentIndex + direction || 0
-            const selectedId = this.props.buttonIds[newIndex]
-            this.setState({ currentIndex: newIndex, selectedId })
-            if (select) {
-                this.props.executeCommand(selectedId)
-            }
-        })
+    public handleInput = ({ direction, select }: WelcomeInputEvent) => {
+        const { currentIndex } = this.state
+        const newIndex = this.getNextIndex(direction, currentIndex)
+        console.log("newIndex: ", newIndex)
+        const selectedId = this.props.buttonIds[newIndex]
+        this.setState({ currentIndex: newIndex, selectedId })
+        if (select) {
+            this.props.executeCommand(selectedId)
+        }
+    }
+
+    public getNextIndex(direction: number, currentIndex: number) {
+        const nextPosition = currentIndex + direction
+        switch (true) {
+            case !nextPosition:
+                return this.props.buttonIds.length
+            case nextPosition > this.props.buttonIds.length:
+                return 0
+            default:
+                return nextPosition
+        }
     }
 
     componentDidUpdate() {
-        if (this.props.active && this._welcomeElement) {
-            this._welcomeElement.focus()
+        if (this.props.active && this._welcomeElement && this._welcomeElement.current) {
+            this._welcomeElement.current.focus()
         }
     }
 
     public render() {
-        if (!this.state.version) {
-            return null
-        }
-
-        return (
-            <Column innerRef={e => (this._welcomeElement = e)}>
-                <Row
-                    style={{
-                        width: "100%",
-                        paddingTop: "32px",
-                        animation: `${entranceFull} 0.25s ease-in 0.25s forwards`,
-                    }}
-                >
+        const { version } = this.state
+        return version ? (
+            <Column innerRef={this._welcomeElement}>
+                <Row extension={titleRow}>
                     <Column />
-                    <Column style={{ alignItems: "flex-end" }}>
+                    <Column alignment="flex-end">
                         <TitleText>Oni</TitleText>
                         <SubtitleText>Modern Modal Editing</SubtitleText>
                     </Column>
-                    <Column style={{ flex: "0 0" }}>
+                    <Column flex="0 0">
                         <HeroImage src="images/oni-icon-no-border.svg" />
                     </Column>
-                    <Column style={{ alignItems: "flex-start" }}>
-                        <SubtitleText>{"v" + this.state.version}</SubtitleText>
+                    <Column alignment="flex-start">
+                        <SubtitleText>{`v${this.state.version}`}</SubtitleText>
                         <div>{"https://onivim.io"}</div>
                     </Column>
                     <Column />
                 </Row>
-                <Row style={{ width: "100%", marginTop: "64px", opacity: 1 }}>
+                <Row extension={buttonsRow}>
                     <Column />
                     <WelcomeBufferLayerCommandsView
                         commands={this.props.commands}
@@ -334,7 +363,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                     <Column />
                 </Row>
             </Column>
-        )
+        ) : null
     }
 }
 
@@ -350,12 +379,7 @@ export class WelcomeBufferLayerCommandsView extends React.PureComponent<
         const { commands, executeCommand } = this.props
         return (
             <Column>
-                <div
-                    style={{
-                        width: "100%",
-                        animation: `${entranceFull} 0.25s ease-in 0.5s both`,
-                    }}
-                >
+                <AnimatedContainer duration="0.25s">
                     <SectionHeader>Learn</SectionHeader>
                     <WelcomeButton
                         title="Tutor"
@@ -371,13 +395,8 @@ export class WelcomeBufferLayerCommandsView extends React.PureComponent<
                         command={commands.openDocs}
                         selected={this.props.selectedId === commands.openDocs}
                     />
-                </div>
-                <div
-                    style={{
-                        width: "100%",
-                        animation: `${entranceFull} 0.25s ease-in 0.75s both`,
-                    }}
-                >
+                </AnimatedContainer>
+                <AnimatedContainer duration="0.25s">
                     <SectionHeader>Customize</SectionHeader>
                     <WelcomeButton
                         title="Configure"
@@ -393,13 +412,8 @@ export class WelcomeBufferLayerCommandsView extends React.PureComponent<
                         command={commands.openThemes}
                         selected={this.props.selectedId === commands.openThemes}
                     />
-                </div>
-                <div
-                    style={{
-                        width: "100%",
-                        animation: `${entranceFull} 0.25s ease-in 1s both`,
-                    }}
-                >
+                </AnimatedContainer>
+                <AnimatedContainer duration="0.25s">
                     <SectionHeader>Quick Commands</SectionHeader>
                     <WelcomeButton
                         title="New File"
@@ -429,7 +443,7 @@ export class WelcomeBufferLayerCommandsView extends React.PureComponent<
                         onClick={() => executeCommand("editor.openExCommands")}
                         selected={this.props.selectedId === "editor.openExCommands"}
                     />
-                </div>
+                </AnimatedContainer>
             </Column>
         )
     }
