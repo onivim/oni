@@ -46,6 +46,11 @@ export interface IConfigurationValues {
     // - textMateHighlighting
     "editor.textMateHighlighting.enabled": boolean
 
+    // A list of oni bufferlayer IDs, the ids order in this array determines their priority,
+    // the first element has the highest priority so if there is
+    // a clash the first buffer layer element will render
+    "layers.priority": string[]
+
     // Whether or not the learning pane is available
     "experimental.particles.enabled": boolean
     // Whether or not the sessions sidebar pane is enabled

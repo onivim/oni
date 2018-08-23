@@ -5,6 +5,7 @@
  */
 
 import { ipcRenderer, remote } from "electron"
+import { EventEmitter } from "events"
 import * as fs from "fs"
 import * as minimist from "minimist"
 import * as path from "path"
@@ -16,6 +17,9 @@ import * as Performance from "./Performance"
 import * as Utility from "./Utility"
 
 import { IConfigurationValues } from "./Services/Configuration/IConfigurationValues"
+
+// Increase default max listeners
+EventEmitter.defaultMaxListeners = 30
 
 const editorManagerPromise = import("./Services/EditorManager")
 const sharedNeovimInstancePromise = import("./neovim/SharedNeovimInstance")

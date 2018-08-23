@@ -63,6 +63,7 @@ const BaseConfiguration: IConfigurationValues = {
     "experimental.vcs.blame.mode": "auto",
     "experimental.vcs.blame.timeout": 800,
 
+    "layers.priority": ["import-costs", "vcs.blame"],
     "experimental.colorHighlight.enabled": false,
     "experimental.colorHighlight.filetypes": [
         ".css",

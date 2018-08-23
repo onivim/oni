@@ -119,12 +119,12 @@ describe("<VersionControlBlameLayer />", () => {
     })
     it("should correctly return a position if the component is able to fit", () => {
         const position = instance.calculatePosition(true)
-        expect(position).toEqual({ hide: false, top: 20, left: 20 })
+        expect(position).toEqual({ hide: false, top: 20, left: 20, leftOffset: 12 })
     })
     it("should return a position even if can't fit BUT there is an available empty line", () => {
         const canFit = false
         const position = instance.calculatePosition(canFit)
-        expect(position).toEqual({ hide: false, top: 20, left: 20 })
+        expect(position).toEqual({ hide: false, top: 20, left: 20, leftOffset: 0 })
     })
     it("Should correctly determine if a line is out of bounds", () => {
         const outOfBounds = instance.isOutOfBounds(50, 10)

@@ -17,6 +17,7 @@ interface IBlamePosition {
     top: number
     left: number
     hide: boolean
+    leftOffset: number
 }
 
 interface ICanFit {
@@ -32,6 +33,7 @@ interface ILineDetails {
 
 export interface IProps extends LayerContextWithCursor {
     getBlame: (lineOne: number, lineTwo: number) => Promise<IBlame>
+    priority: number
     timeout: number
     cursorScreenLine: number
     cursorBufferLine: number
@@ -55,7 +57,9 @@ interface IContainerProps {
     left: number
     fontFamily: string
     hide: boolean
+    priority: number
     timeout: number
+    leftOffset: number
     animationState: TransitionStates
 }
 
@@ -69,9 +73,10 @@ const getOpacity = (state: TransitionStates) => {
 }
 
 export const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
-    style: ({ top, left }: IContainerProps) => ({
+    style: ({ top, left, leftOffset }: IContainerProps) => ({
         top: pixel(top),
         left: pixel(left),
+        paddingLeft: pixel(leftOffset),
     }),
 })`
     ${p => p.hide && `visibility: hidden`};
@@ -86,6 +91,7 @@ export const BlameContainer = withProps<IContainerProps>(styled.div).attrs({
     height: ${p => pixel(p.height)};
     line-height: ${p => pixel(p.height)};
     right: 3em;
+    z-index: ${p => p.priority};
     ${textOverflow}
 `
 
@@ -201,10 +207,10 @@ export class Blame extends React.PureComponent<IProps, IState> {
     public calculatePosition(canFit: boolean) {
         const { cursorLine, cursorScreenLine, visibleLines } = this.props
         const currentLine = visibleLines[cursorScreenLine]
-        const character = currentLine && currentLine.length + this.LEFT_OFFSET
+        const character = currentLine && currentLine.length
 
         if (canFit) {
-            return this.getPosition({ line: cursorLine, character })
+            return this.getPosition({ line: cursorLine, character }, canFit)
         }
 
         const { lastEmptyLine, nextSpacing } = this.getLastEmptyLine()
@@ -228,16 +234,19 @@ export class Blame extends React.PureComponent<IProps, IState> {
         return new Date(parseInt(timestamp, 10) * 1000)
     }
 
-    public getPosition(positionToRender?: Position): IBlamePosition {
+    public getPosition(positionToRender?: Position, canFit: boolean = false): IBlamePosition {
         const emptyPosition: IBlamePosition = {
             hide: true,
             top: null,
             left: null,
+            leftOffset: null,
         }
         if (!positionToRender) {
             return emptyPosition
         }
+
         const position = this.props.bufferToPixel(positionToRender)
+
         if (!position) {
             return emptyPosition
         }
@@ -245,6 +254,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
             hide: false,
             top: position.pixelY,
             left: position.pixelX,
+            leftOffset: canFit ? this.LEFT_OFFSET * this.props.fontPixelWidth : 0,
         }
     }
 
@@ -309,6 +319,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
                         data-id="vcs.blame"
                         timeout={this.DURATION}
                         animationState={state}
+                        priority={this.props.priority}
                         height={this.props.fontPixelHeight}
                         fontFamily={this.props.fontFamily}
                     >
@@ -354,8 +365,11 @@ export default class VersionControlBlameLayer implements BufferLayer {
         const fontFamily = this._configuration.getValue<string>("editor.fontFamily")
         const timeout = this._configuration.getValue<number>("experimental.vcs.blame.timeout")
         const mode = this._configuration.getValue<"auto" | "manual">("experimental.vcs.blame.mode")
+        const priorities = this._configuration.getValue<string[]>("layers.priority", [])
+        const index = priorities.indexOf(this.id)
+        const priority = index >= 0 ? priorities.length - index : 0
 
-        return { timeout, mode, fontFamily }
+        return { timeout, mode, fontFamily, priority }
     }
 
     public render(context: LayerContextWithCursor) {
@@ -368,6 +382,7 @@ export default class VersionControlBlameLayer implements BufferLayer {
                 <Blame
                     {...context}
                     mode={config.mode}
+                    priority={config.priority}
                     timeout={config.timeout}
                     getBlame={this.getBlame}
                     fontFamily={config.fontFamily}
