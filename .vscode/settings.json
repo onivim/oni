@@ -1,0 +1,4 @@
+{
+    "typescriptHero.imports.stringQuoteStyle": "\"",
+    "typescriptHero.imports.multiLineWrapThreshold": 100
+}

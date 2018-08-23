@@ -1,3 +1,5 @@
+import fontkit from "fontkit"
+
 import { ICell } from "../../neovim"
 import { IColorNormalizer } from "./IColorNormalizer"
 import { IWebGLAtlasOptions, WebGLAtlas, WebGLGlyph } from "./WebGLAtlas"
@@ -6,6 +8,8 @@ import {
     createUnitQuadElementIndicesBuffer,
     createUnitQuadVerticesBuffer,
 } from "./WebGLUtilities"
+
+const font = fontkit.openSync("/Users/mane/Library/Fonts/FiraCode-Regular.otf")
 
 const glyphInstanceFieldCount = 13
 const glyphInstanceSizeInBytes = glyphInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT
@@ -87,7 +91,7 @@ const secondPassFragmentShaderSource = `
     }
 `.trim()
 
-const isWhiteSpace = (text: string) => text === null || text === "" || text === " "
+// const isWhiteSpace = (text: string) => text === null || text === "" || text === " "
 
 export class WebGlTextRenderer {
     private _atlas: WebGLAtlas
@@ -287,35 +291,66 @@ export class WebGlTextRenderer {
         let glyphCount = 0
         let y = 0
 
-        // TODO refactor this to not be as reliant on mutations
         for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-            let x = 0
-
+            let currentTextLine = ""
             for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                 const cell = getCell(columnIndex, rowIndex)
-                const char = cell.character
-                if (!isWhiteSpace(char)) {
-                    const variantIndex =
-                        Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
-                    const glyph = this._atlas.getGlyph(char, cell.bold, cell.italic, variantIndex)
-                    const colorToUse = cell.foregroundColor || defaultForegroundColor || "white"
-                    const normalizedTextColor = this._colorNormalizer.normalizeColor(colorToUse)
-
-                    this.updateGlyphInstance(
-                        glyphCount,
-                        Math.round(x - glyph.variantOffset) - pixelRatioAdaptedGlyphOverlap,
-                        y - pixelRatioAdaptedGlyphOverlap,
-                        glyph,
-                        normalizedTextColor,
-                    )
-
-                    glyphCount++
-                }
-                x += pixelRatioAdaptedFontWidth
+                currentTextLine += cell.character || " "
             }
+            const fontGlyphs = font.glyphsForString(currentTextLine)
 
+            let x = 0
+            fontGlyphs.forEach(fontGlyph => {
+                const stringForFontGlyph = String.fromCodePoint(...fontGlyph.codePoints)
+
+                const variantIndex = Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
+                const glyph = this._atlas.getGlyph(stringForFontGlyph, false, false, variantIndex) // TODO reintroduce bold and italic
+                const colorToUse = defaultForegroundColor || "white" // TODO reintroduce color
+                const normalizedTextColor = this._colorNormalizer.normalizeColor(colorToUse)
+
+                this.updateGlyphInstance(
+                    glyphCount,
+                    Math.round(x - glyph.variantOffset) - pixelRatioAdaptedGlyphOverlap,
+                    y - pixelRatioAdaptedGlyphOverlap,
+                    glyph,
+                    normalizedTextColor,
+                )
+
+                glyphCount++
+                x += pixelRatioAdaptedFontWidth
+            })
             y += pixelRatioAdaptedFontHeight
         }
+
+        // TODO refactor this to not be as reliant on mutations
+        // for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+        //     let x = 0
+
+        //     for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+        //         const cell = getCell(columnIndex, rowIndex)
+        //         const char = cell.character
+        //         if (!isWhiteSpace(char)) {
+        //             const variantIndex =
+        //                 Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
+        //             const glyph = this._atlas.getGlyph(char, cell.bold, cell.italic, variantIndex)
+        //             const colorToUse = cell.foregroundColor || defaultForegroundColor || "white"
+        //             const normalizedTextColor = this._colorNormalizer.normalizeColor(colorToUse)
+
+        //             this.updateGlyphInstance(
+        //                 glyphCount,
+        //                 Math.round(x - glyph.variantOffset) - pixelRatioAdaptedGlyphOverlap,
+        //                 y - pixelRatioAdaptedGlyphOverlap,
+        //                 glyph,
+        //                 normalizedTextColor,
+        //             )
+
+        //             glyphCount++
+        //         }
+        //         x += pixelRatioAdaptedFontWidth
+        //     }
+
+        //     y += pixelRatioAdaptedFontHeight
+        // }
         this._atlas.uploadTexture()
 
         return glyphCount
