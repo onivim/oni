@@ -54,7 +54,7 @@ import { IBuffer } from "../BufferManager"
 import ColorHighlightLayer from "./ColorHighlightLayer"
 import { ImageBufferLayer } from "./ImageBufferLayer"
 import IndentLineBufferLayer from "./IndentGuideBufferLayer"
-import { WelcomeBufferLayer, OniWithActiveSection } from "../NeovimEditor/WelcomeBufferLayer"
+import { OniWithActiveSection, WelcomeBufferLayer } from "../NeovimEditor/WelcomeBufferLayer"
 
 // Helper method to wrap a react component into a layer
 const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.BufferLayer => {

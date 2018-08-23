@@ -184,6 +184,20 @@ export class Oni implements OniApi.Plugin.Api {
         return getWorkspaceInstance()
     }
 
+    public get helpers() {
+        return helpers
+    }
+
+    public get search(): OniApi.Search.ISearch {
+        return new Search()
+    }
+
+    constructor() {
+        this._dependencies = new Dependencies()
+        this._ui = new Ui(react)
+        this._services = new Services()
+    }
+
     public getActiveSection() {
         const isInsertOrCommandMode = () => {
             return (
@@ -201,20 +215,6 @@ export class Oni implements OniApi.Plugin.Api {
             default:
                 return "editor"
         }
-    }
-
-    public get helpers() {
-        return helpers
-    }
-
-    public get search(): OniApi.Search.ISearch {
-        return new Search()
-    }
-
-    constructor() {
-        this._dependencies = new Dependencies()
-        this._ui = new Ui(react)
-        this._services = new Services()
     }
 
     public populateQuickFix(entries: OniApi.QuickFixEntry[]): void {

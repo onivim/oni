@@ -9,8 +9,8 @@ import * as Oni from "oni-api"
 import * as Log from "oni-core-logging"
 import { Event } from "oni-types"
 
-import styled, { keyframes, enableMouse, Css, css } from "./../../UI/components/common"
 import { getMetadata } from "./../../Services/Metadata"
+import styled, { css, Css, enableMouse, keyframes } from "./../../UI/components/common"
 
 // const entrance = keyframes`
 //     0% { opacity: 0; transform: translateY(2px); }
@@ -164,16 +164,20 @@ export interface WelcomeButtonProps {
     onClick: () => void
 }
 
-export class WelcomeButton extends React.PureComponent<WelcomeButtonProps> {
-    private _button = React.createRef<HTMLElement>()
+interface IChromeDiv extends HTMLButtonElement {
+    scrollIntoViewIfNeeded: () => void
+}
 
-    componentDidUpdate(prevProps: WelcomeButtonProps) {
+export class WelcomeButton extends React.PureComponent<WelcomeButtonProps> {
+    private _button = React.createRef<IChromeDiv>()
+
+    public componentDidUpdate(prevProps: WelcomeButtonProps) {
         if (!prevProps.selected && this.props.selected) {
-            this._button.current.scrollIntoView()
+            this._button.current.scrollIntoViewIfNeeded()
         }
     }
 
-    render() {
+    public render() {
         return (
             <WelcomeButtonWrapper
                 innerRef={this._button}
@@ -213,9 +217,6 @@ interface IWelcomeCommandsDictionary {
 
 export class WelcomeBufferLayer implements Oni.BufferLayer {
     constructor(private _oni: OniWithActiveSection) {}
-    public get id(): string {
-        return "oni.welcome"
-    }
 
     public inputEvent = new Event<IWelcomInputEvent>()
 
@@ -228,6 +229,10 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         openWorkspaceFolder: "workspace.openFolder",
         commandPalette: "quickOpen.show",
         commandline: "executeVimCommand",
+    }
+
+    public get id(): string {
+        return "oni.welcome"
     }
 
     public get friendlyName(): string {
