@@ -4,13 +4,13 @@
  * IEditor implementation for Neovim
  */
 
-import * as React from "react"
 import * as Oni from "oni-api"
 import * as Log from "oni-core-logging"
 import { Event } from "oni-types"
+import * as React from "react"
 
 import { getMetadata } from "./../../Services/Metadata"
-import styled, { css, Css, enableMouse, keyframes } from "./../../UI/components/common"
+import styled, { Css, css, enableMouse, keyframes } from "./../../UI/components/common"
 
 // const entrance = keyframes`
 //     0% { opacity: 0; transform: translateY(2px); }
@@ -216,8 +216,6 @@ interface IWelcomeCommandsDictionary {
 }
 
 export class WelcomeBufferLayer implements Oni.BufferLayer {
-    constructor(private _oni: OniWithActiveSection) {}
-
     public inputEvent = new Event<IWelcomInputEvent>()
 
     public welcomeCommands: IWelcomeCommandsDictionary = {
@@ -230,6 +228,8 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         commandPalette: "quickOpen.show",
         commandline: "executeVimCommand",
     }
+
+    constructor(private _oni: OniWithActiveSection) {}
 
     public get id(): string {
         return "oni.welcome"
@@ -306,12 +306,13 @@ const titleRow = css`
 `
 
 export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeViewState> {
-    private _welcomeElement = React.createRef<HTMLDivElement>()
     public state: WelcomeViewState = {
         version: null,
         currentIndex: 0,
         selectedId: this.props.buttonIds[0],
     }
+
+    private _welcomeElement = React.createRef<HTMLDivElement>()
 
     public async componentDidMount() {
         const metadata = await getMetadata()
@@ -341,7 +342,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
         }
     }
 
-    componentDidUpdate() {
+    public componentDidUpdate() {
         if (this.props.active && this._welcomeElement && this._welcomeElement.current) {
             this._welcomeElement.current.focus()
         }
