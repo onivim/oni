@@ -94,7 +94,7 @@ import CommandLine from "./../../UI/components/CommandLine"
 import ExternalMenus from "./../../UI/components/ExternalMenus"
 import WildMenu from "./../../UI/components/WildMenu"
 
-import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
+// import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
 import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
 import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
@@ -148,12 +148,17 @@ export class NeovimEditor extends Editor implements Oni.Editor {
     private _bufferLayerManager = getLayerManagerInstance()
     private _screenWithPredictions: ScreenWithPredictions
 
+    private _onEmptyBuffer = new Event<void>()
     private _onNeovimQuit: Event<void> = new Event<void>()
 
     private _autoFocus: boolean = true
 
     public get onNeovimQuit(): IEvent<void> {
         return this._onNeovimQuit
+    }
+
+    public get onEmptyBuffer() {
+        return this._onEmptyBuffer
     }
 
     public get /* override */ activeBuffer(): Oni.Buffer {
@@ -834,6 +839,12 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         this._neovimInstance.autoCommands.executeAutoCommand("FocusLost")
     }
 
+    public async createWelcomeBuffer() {
+        const buf = await this.openFile("WELCOME")
+        await buf.setScratchBuffer()
+        return buf
+    }
+
     public async clearSelection(): Promise<void> {
         await this._neovimInstance.input("<esc>")
         await this._neovimInstance.input("a")
@@ -1034,8 +1045,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             await this.openFiles(filesToOpen, { openMode: Oni.FileOpenMode.Edit })
         } else {
             if (this._configuration.getValue("experimental.welcome.enabled")) {
-                const buf = await this.openFile("WELCOME")
-                buf.addLayer(new WelcomeBufferLayer())
+                this._onEmptyBuffer.dispatch()
             }
         }
 

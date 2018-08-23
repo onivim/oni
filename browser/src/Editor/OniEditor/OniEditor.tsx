@@ -54,6 +54,7 @@ import { IBuffer } from "../BufferManager"
 import ColorHighlightLayer from "./ColorHighlightLayer"
 import { ImageBufferLayer } from "./ImageBufferLayer"
 import IndentLineBufferLayer from "./IndentGuideBufferLayer"
+import { WelcomeBufferLayer, OniWithActiveSection } from "../NeovimEditor/WelcomeBufferLayer"
 
 // Helper method to wrap a react component into a layer
 const wrapReactComponentWithLayer = (id: string, component: JSX.Element): Oni.BufferLayer => {
@@ -208,6 +209,13 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
                 _buf => new ColorHighlightLayer(this._configuration),
             )
         }
+
+        this._neovimEditor.onEmptyBuffer.subscribe(async () => {
+            const oni = this._pluginManager.getApi()
+            const buf = await this._neovimEditor.createWelcomeBuffer()
+            const welcome = new WelcomeBufferLayer(oni as OniWithActiveSection)
+            buf.addLayer(welcome)
+        })
     }
 
     public dispose(): void {

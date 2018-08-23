@@ -18,10 +18,9 @@ import { VimNavigator } from "./../../UI/components/VimNavigator"
 const WelcomeWrapper = withProps<{}>(styled.div)`
     background-color: ${p => p.theme["editor.background"]};
     color: ${p => p.theme["editor.foreground"]};
-
     overflow-y: auto;
-    -webkit-user-select: none;
-
+    user-select: none;
+    pointer-events: all;
     width: 100%;
     height: 100%;
     opacity: 0;
@@ -31,11 +30,6 @@ const WelcomeWrapper = withProps<{}>(styled.div)`
 //     0% { opacity: 0; transform: translateY(2px); }
 //     100% { opacity: 0.5; transform: translateY(0px); }
 // `
-
-const entranceFull = keyframes`
-    0% { opacity: 0; transform: translateY(8px); }
-    100% { opacity: 1; transform: translateY(0px); }
-`
 
 // const enterLeft = keyframes`
 //     0% { opacity: 0; transform: translateX(-4px); }
@@ -47,12 +41,22 @@ const entranceFull = keyframes`
 //     100% { opacity: 1; transform: translateX(0px); }
 // `
 
+const entranceFull = keyframes`
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+`
+
 const Column = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-
     width: 100%;
     flex: 1 1 auto;
 `
@@ -168,28 +172,52 @@ export interface WelcomeHeaderState {
     version: string
 }
 
+export interface OniWithActiveSection extends Oni.Plugin.Api {
+    getActiveSection(): string
+}
+
 export class WelcomeBufferLayer implements Oni.BufferLayer {
+    constructor(private _oni: OniWithActiveSection) {}
     public get id(): string {
         return "oni.welcome"
     }
+
+    private ButtonIds = [
+        "oni.tutor.open",
+        "oni.docs.open",
+        "oni.configuration.open",
+        "oni.themes.open",
+        "workspace.newFile",
+        "workspace.openFolder",
+        "tasks.show",
+        "editor.openExCommands",
+    ]
 
     public get friendlyName(): string {
         return "Welcome"
     }
 
     public render(context: Oni.BufferLayerRenderContext): JSX.Element {
+        const section = this._oni.getActiveSection()
+        const active = section === "editor"
         return (
             <WelcomeWrapper
                 className="enable-mouse"
                 style={{ animation: `${entranceFull} 0.25s ease-in 0.1s forwards` }}
             >
-                <WelcomeView inputManager={inputManager} />
+                <WelcomeView
+                    buttonIds={this.ButtonIds}
+                    inputManager={inputManager}
+                    active={active}
+                />
             </WelcomeWrapper>
         )
     }
 }
 
 export interface WelcomeViewProps {
+    active: boolean
+    buttonIds: string[]
     inputManager: InputManager
 }
 
@@ -199,18 +227,8 @@ export interface WelcomeViewState {
 
 import { getMetadata } from "./../../Services/Metadata"
 
-export const ButtonIds = [
-    "oni.tutor.open",
-    "oni.docs.open",
-    "oni.configuration.open",
-    "oni.themes.open",
-    "workspace.newFile",
-    "workspace.openFolder",
-    "tasks.show",
-    "editor.openExCommands",
-]
-
 export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeViewState> {
+    private _welcomeElement: HTMLDivElement
     public state: WelcomeViewState = {
         version: null,
     }
@@ -220,13 +238,23 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
         this.setState({ version: metadata.version })
     }
 
+    componentDidUpdate() {
+        if (this.props.active && this._welcomeElement) {
+            this._welcomeElement.focus()
+        }
+    }
+
     public render() {
         if (!this.state.version) {
             return null
         }
 
         return (
-            <Column>
+            <Column
+                innerRef={e => {
+                    this._welcomeElement = e
+                }}
+            >
                 <Row
                     style={{
                         width: "100%",
@@ -251,9 +279,9 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                 <Row style={{ width: "100%", marginTop: "64px", opacity: 1 }}>
                     <Column />
                     <VimNavigator
-                        active={true}
                         style={{ width: "100%" }}
-                        ids={ButtonIds}
+                        active={this.props.active}
+                        ids={this.props.buttonIds}
                         render={selectedId => (
                             <WelcomeBufferLayerCommandsView selectedId={selectedId} />
                         )}
@@ -273,7 +301,7 @@ export class WelcomeBufferLayerCommandsView extends React.PureComponent<
     IWelcomeBufferLayerCommandsViewProps,
     {}
 > {
-    public render(): JSX.Element {
+    public render() {
         return (
             <Column style={{ width: "100%" }}>
                 <div

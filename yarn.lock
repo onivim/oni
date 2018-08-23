@@ -7574,9 +7574,9 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@0.0.48:
-  version "0.0.48"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.48.tgz#531bfcbc72eeef48e250ae675cf8e0e0461e906c"
+oni-api@0.0.49:
+  version "0.0.49"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.49.tgz#4d2b7c23d63e6306e873d83de148b5f89856bb56"
 
 oni-core-logging@^1.0.0:
   version "1.0.0"
@@ -9992,15 +9992,14 @@ style-loader@0.18.2:
     loader-utils "^1.0.2"
     schema-utils "^0.3.0"
 
-styled-components@^3.2.6:
-  version "3.2.6"
-  resolved "https://registry.yarnpkg.com/styled-components/-/styled-components-3.2.6.tgz#99e6e75a746bdedd295a17e03dd1493055a1cc3b"
+styled-components@^3.4.4:
+  version "3.4.4"
+  resolved "https://registry.yarnpkg.com/styled-components/-/styled-components-3.4.4.tgz#dbd2ea6338fb050b5b56783e189434fd7f18eda5"
   dependencies:
     buffer "^5.0.3"
     css-to-react-native "^2.0.3"
     fbjs "^0.8.16"
     hoist-non-react-statics "^2.5.0"
-    is-plain-object "^2.0.1"
     prop-types "^15.5.4"
     react-is "^16.3.1"
     stylis "^3.5.0"

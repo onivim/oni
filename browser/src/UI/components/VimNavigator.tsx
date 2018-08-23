@@ -40,17 +40,25 @@ export interface IVimNavigatorProps {
 
 export interface IVimNavigatorState {
     selectedId: string
+    lastSelectedIndex: number
 }
 
 export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNavigatorState> {
     private _activeBinding: IMenuBinding = null
     private _activateEvent = new Event<void>()
 
-    constructor(props: IVimNavigatorProps) {
+    public static defaultProps: Partial<IVimNavigatorProps> = {
+        ids: [],
+    }
+
+    public constructor(props: IVimNavigatorProps) {
         super(props)
 
+        const selectedId = props.ids[0] || null
+        const lastSelectedIndex = props.ids.indexOf(selectedId) || 0
         this.state = {
-            selectedId: props.ids && props.ids.length > 0 ? props.ids[0] : null,
+            selectedId,
+            lastSelectedIndex,
         }
     }
 
@@ -79,9 +87,9 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
                     height={12}
                     onActivate={this._activateEvent}
                     onKeyDown={key => this._onKeyDown(key)}
-                    foregroundColor={"white"}
-                    fontFamily={"Segoe UI"}
-                    fontSize={"12px"}
+                    foregroundColor="white"
+                    fontFamily="Segoe UI"
+                    fontSize="12px"
                     fontCharacterWidthInPixels={12}
                 />
             </div>
@@ -145,14 +153,26 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
             this._releaseBinding()
         }
 
+        const { lastSelectedIndex, selectedId } = this.state
         if (props.idToSelect) {
             this._maybeUpdateSelection(props.idToSelect)
+        } else if (!selectedId) {
+            const newIndex = lastSelectedIndex - 1 || 0
+            if (!selectedId) {
+                this.setState({
+                    lastSelectedIndex: newIndex,
+                    selectedId: this.props.ids[newIndex],
+                })
+            }
         }
     }
 
     private _maybeUpdateSelection(id: string) {
         if (id !== this.state.selectedId) {
-            this.setState({ selectedId: id })
+            this.setState({
+                selectedId: id,
+                lastSelectedIndex: this.props.ids.indexOf(id),
+            })
 
             if (this.props.onSelectionChanged) {
                 this.props.onSelectionChanged(id)
