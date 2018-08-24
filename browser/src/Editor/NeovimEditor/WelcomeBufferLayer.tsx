@@ -199,12 +199,12 @@ export interface OniWithActiveSection extends Oni.Plugin.Api {
     getActiveSection(): string
 }
 
-interface IWelcomInputEvent {
+export interface IWelcomeInputEvent {
     direction: number
     select: boolean
 }
 
-interface IWelcomeCommandsDictionary {
+export interface IWelcomeCommandsDictionary {
     openFile: string
     openTutor: string
     openDocs: string
@@ -216,7 +216,7 @@ interface IWelcomeCommandsDictionary {
 }
 
 export class WelcomeBufferLayer implements Oni.BufferLayer {
-    public inputEvent = new Event<IWelcomInputEvent>()
+    public inputEvent = new Event<IWelcomeInputEvent>()
 
     public welcomeCommands: IWelcomeCommandsDictionary = {
         openTutor: "oni.tutor.open",
@@ -282,7 +282,7 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
 export interface WelcomeViewProps {
     active: boolean
     buttonIds: string[]
-    inputEvent: Event<IWelcomInputEvent>
+    inputEvent: Event<IWelcomeInputEvent>
     commands: IWelcomeCommandsDictionary
     executeCommand: (cmd: string) => void
 }
@@ -320,7 +320,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
         this.props.inputEvent.subscribe(this.handleInput)
     }
 
-    public handleInput = ({ direction, select }: IWelcomInputEvent) => {
+    public handleInput = ({ direction, select }: IWelcomeInputEvent) => {
         const { currentIndex } = this.state
         const newIndex = this.getNextIndex(direction, currentIndex)
         const selectedId = this.props.buttonIds[newIndex]
