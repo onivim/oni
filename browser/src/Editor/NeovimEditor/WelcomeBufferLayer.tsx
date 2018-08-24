@@ -351,7 +351,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
     public render() {
         const { version } = this.state
         return version ? (
-            <Column innerRef={this._welcomeElement} height="100%">
+            <Column innerRef={this._welcomeElement} height="100%" data-id="welcome-screen">
                 <Row extension={titleRow}>
                     <Column />
                     <Column alignment="flex-end">
