@@ -8,9 +8,9 @@ import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
 import getTokens from "./../../Services/SyntaxHighlighting/TokenGenerator"
-import { enableMouse } from "./../../UI/components/common"
+import styled, { enableMouse } from "./../../UI/components/common"
 import { ErrorInfo } from "./../../UI/components/ErrorInfo"
-import { QuickInfoElement, QuickInfoWrapper } from "./../../UI/components/QuickInfo"
+import { QuickInfoElement } from "./../../UI/components/QuickInfo"
 import QuickInfoWithTheme from "./../../UI/components/QuickInfoContainer"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
@@ -22,7 +22,9 @@ import { IToolTipsProvider } from "./ToolTipsProvider"
 
 const HoverToolTipId = "hover-tool-tip"
 
-const HoverRendererContainer = QuickInfoWrapper.extend`
+const HoverRendererContainer = styled.div`
+    user-select: none;
+    cursor: default;
     ${enableMouse};
 `
 
