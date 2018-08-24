@@ -148,7 +148,6 @@ export class NeovimEditor extends Editor implements Oni.Editor {
     private _bufferLayerManager = getLayerManagerInstance()
     private _screenWithPredictions: ScreenWithPredictions
 
-    private _welcomeActive = false
     private _onEmptyBuffer = new Event<void>()
     private _onNeovimQuit: Event<void> = new Event<void>()
 
@@ -841,7 +840,6 @@ export class NeovimEditor extends Editor implements Oni.Editor {
     }
 
     public async createWelcomeBuffer() {
-        this._welcomeActive = true
         const buf = await this.openFile("WELCOME")
         await buf.setScratchBuffer()
         return buf
@@ -1113,7 +1111,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
                 <NeovimSurface
                     onFileDrop={this._onFilesDropped}
                     renderer={this._renderer}
-                    autoFocus={this._autoFocus && !this._welcomeActive}
+                    autoFocus={this._autoFocus}
                     typingPrediction={this._typingPredictionManager}
                     neovimInstance={this._neovimInstance}
                     screen={this._screen}
@@ -1138,10 +1136,10 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         }
 
         // Check if any of the buffer layers can handle the input...
-        const buf: IBuffer = this.activeBuffer as IBuffer
-        const result = buf && buf.handleInput(key)
+        const buf = this.activeBuffer
+        const layerInputHandler = buf && buf.handleInput(key)
 
-        if (result) {
+        if (layerInputHandler) {
             return
         }
 

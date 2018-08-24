@@ -158,12 +158,10 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
             this._maybeUpdateSelection(props.idToSelect)
         } else if (!selectedId) {
             const newIndex = lastSelectedIndex - 1 || 0
-            if (!selectedId) {
-                this.setState({
-                    lastSelectedIndex: newIndex,
-                    selectedId: this.props.ids[newIndex],
-                })
-            }
+            this.setState({
+                lastSelectedIndex: newIndex,
+                selectedId: this.props.ids[newIndex],
+            })
         }
     }
 
