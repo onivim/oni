@@ -4,6 +4,7 @@
  * Contextual commands for NeovimEditor
  *
  */
+import { clipboard } from "electron"
 import * as Oni from "oni-api"
 
 import { NeovimInstance } from "./../../neovim"
@@ -11,6 +12,7 @@ import { CallbackCommand, CommandManager } from "./../../Services/CommandManager
 import { ContextMenuManager } from "./../../Services/ContextMenu"
 import { editorManager } from "./../../Services/EditorManager"
 import { findAllReferences, format, LanguageEditorIntegration } from "./../../Services/Language"
+import { replaceAll } from "./../../Utility"
 
 import { Definition } from "./Definition"
 import { Rename } from "./Rename"
@@ -63,11 +65,21 @@ export class NeovimEditorCommands {
         })
 
         const pasteContents = async (neovimInstance: NeovimInstance) => {
+            const textToPaste = clipboard.readText()
+            const sanitizedTextLines = replaceAll(textToPaste, { "'": "''" })
+            await neovimInstance.command('let b:oniclipboard=@"')
+            await neovimInstance.command(`let @"='${sanitizedTextLines}'`)
+
             if (editorManager.activeEditor.mode === "insert") {
-                await neovimInstance.input("<c-r>+")
+                await neovimInstance.command("set paste")
+                await neovimInstance.input('<c-r>"')
+                await neovimInstance.command("set nopaste")
             } else {
-                await neovimInstance.command('normal! "+p')
+                await neovimInstance.command("normal! p")
             }
+
+            await neovimInstance.command('let @"=b:oniclipboard')
+            await neovimInstance.command("unlet b:oniclipboard")
         }
 
         const commands = [
