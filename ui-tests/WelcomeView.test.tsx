@@ -79,4 +79,9 @@ describe("<WelcomeView />", () => {
         expect(instance.state.currentIndex).toBe(0)
         expect(instance.state.selectedId).toBe("button1")
     })
+
+    it("should trigger a command on enter event", () => {
+        instance.handleInput({ direction: 0, select: true })
+        expect(executeCommand.mock.calls[0][0]).toBe("button1")
+    })
 })
