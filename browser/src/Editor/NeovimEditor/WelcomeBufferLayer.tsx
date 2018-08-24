@@ -10,7 +10,13 @@ import { Event } from "oni-types"
 import * as React from "react"
 
 import { getMetadata } from "./../../Services/Metadata"
-import styled, { Css, css, enableMouse, keyframes } from "./../../UI/components/common"
+import styled, {
+    Css,
+    css,
+    enableMouse,
+    getSelectedBorder,
+    keyframes,
+} from "./../../UI/components/common"
 
 // const entrance = keyframes`
 //     0% { opacity: 0; transform: translateY(2px); }
@@ -108,23 +114,21 @@ const WelcomeButtonHoverStyled = `
 `
 
 export interface WelcomeButtonWrapperProps {
-    selected: boolean
+    isSelected: boolean
+    borderSize: string
 }
 
 const WelcomeButtonWrapper = styled<WelcomeButtonWrapperProps, "button">("button")`
-    box-sizing: content-box;
+    box-sizing: border-box;
     font-size: inherit;
     font-family: inherit;
     border: 0px solid ${props => props.theme.foreground};
-    border-left: ${({ selected, theme }) =>
-        selected
-            ? "4px solid " + theme["highlight.mode.normal.background"]
-            : "4px solid transparent"};
+    border-left: ${getSelectedBorder};
     border-right: 4px solid transparent;
     cursor: pointer;
     color: ${({ theme }) => theme.foreground};
     background-color: ${({ theme }) => theme.background};
-    transform: ${({ selected }) => (selected ? "translateX(-4px)" : "translateX(0px)")};
+    transform: ${({ isSelected }) => (isSelected ? "translateX(-4px)" : "translateX(0px)")};
     transition: transform 0.25s;
     width: 100%;
     margin: 8px 0px;
@@ -180,8 +184,9 @@ export class WelcomeButton extends React.PureComponent<WelcomeButtonProps> {
     public render() {
         return (
             <WelcomeButtonWrapper
+                borderSize="4px"
                 innerRef={this._button}
-                selected={this.props.selected}
+                isSelected={this.props.selected}
                 onClick={this.props.onClick}
             >
                 <WelcomeButtonTitle>{this.props.title}</WelcomeButtonTitle>
@@ -199,34 +204,57 @@ export interface OniWithActiveSection extends Oni.Plugin.Api {
     getActiveSection(): string
 }
 
+type ExecuteCommand = <T>(command: string, args?: T) => void
+
 export interface IWelcomeInputEvent {
     direction: number
     select: boolean
 }
 
+interface ICommandMetadata<T = undefined> {
+    command: string
+    args?: T
+}
+
 export interface IWelcomeCommandsDictionary {
-    openFile: string
-    openTutor: string
-    openDocs: string
-    openConfig: string
-    openThemes: string
-    openWorkspaceFolder: string
-    commandPalette: string
-    commandline: string
+    openFile: ICommandMetadata
+    openTutor: ICommandMetadata
+    openDocs: ICommandMetadata
+    openConfig: ICommandMetadata
+    openThemes: ICommandMetadata
+    openWorkspaceFolder: ICommandMetadata
+    commandPalette: ICommandMetadata
+    commandline: ICommandMetadata
 }
 
 export class WelcomeBufferLayer implements Oni.BufferLayer {
     public inputEvent = new Event<IWelcomeInputEvent>()
 
-    public welcomeCommands: IWelcomeCommandsDictionary = {
-        openTutor: "oni.tutor.open",
-        openDocs: "oni.docs.open",
-        openConfig: "oni.config.openUserConfig",
-        openThemes: "oni.themes.open",
-        openFile: "oni.quickOpen.openFileNewTab",
-        openWorkspaceFolder: "workspace.openFolder",
-        commandPalette: "quickOpen.show",
-        commandline: "executeVimCommand",
+    public readonly welcomeCommands: IWelcomeCommandsDictionary = {
+        openTutor: {
+            command: "oni.tutor.open",
+        },
+        openDocs: {
+            command: "oni.docs.open",
+        },
+        openConfig: {
+            command: "oni.config.openUserConfig",
+        },
+        openThemes: {
+            command: "oni.themes.open",
+        },
+        openFile: {
+            command: "oni.editor.newFile",
+        },
+        openWorkspaceFolder: {
+            command: "workspace.openFolder",
+        },
+        commandPalette: {
+            command: "quickOpen.show",
+        },
+        commandline: {
+            command: "executeVimCommand",
+        },
     }
 
     constructor(private _oni: OniWithActiveSection) {}
@@ -256,15 +284,15 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         }
     }
 
-    public executeCommand = (cmd: string) => {
+    public executeCommand: ExecuteCommand = (cmd, args) => {
         if (cmd) {
-            this._oni.commands.executeCommand(cmd)
+            this._oni.commands.executeCommand(cmd, args)
         }
     }
 
     public render(context: Oni.BufferLayerRenderContext): JSX.Element {
         const active = this._oni.getActiveSection() === "editor"
-        const ids = Object.values(this.welcomeCommands)
+        const ids = Object.values(this.welcomeCommands).map(({ command }) => command)
         return (
             <WelcomeWrapper>
                 <WelcomeView
@@ -284,7 +312,7 @@ export interface WelcomeViewProps {
     buttonIds: string[]
     inputEvent: Event<IWelcomeInputEvent>
     commands: IWelcomeCommandsDictionary
-    executeCommand: (cmd: string) => void
+    executeCommand: ExecuteCommand
 }
 
 export interface WelcomeViewState {
@@ -322,12 +350,21 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
 
     public handleInput = ({ direction, select }: IWelcomeInputEvent) => {
         const { currentIndex } = this.state
+
         const newIndex = this.getNextIndex(direction, currentIndex)
         const selectedId = this.props.buttonIds[newIndex]
         this.setState({ currentIndex: newIndex, selectedId })
+
         if (select) {
-            this.props.executeCommand(selectedId)
+            const currentCommand = this.getCurrentCommand(selectedId)
+            this.props.executeCommand(currentCommand.command, currentCommand.args)
         }
+    }
+
+    public getCurrentCommand(selectedId: string): ICommandMetadata {
+        const { commands } = this.props
+        const currentCommand = Object.values(commands).find(({ command }) => command === selectedId)
+        return currentCommand
     }
 
     public getNextIndex(direction: number, currentIndex: number) {
@@ -394,65 +431,65 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
                     <SectionHeader>Learn</SectionHeader>
                     <WelcomeButton
                         title="Tutor"
-                        onClick={() => executeCommand(commands.openTutor)}
+                        onClick={() => executeCommand(commands.openTutor.command)}
                         description="Learn modal editing with an interactive tutorial."
-                        command={commands.openTutor}
-                        selected={this.props.selectedId === commands.openTutor}
+                        command={commands.openTutor.command}
+                        selected={this.props.selectedId === commands.openTutor.command}
                     />
                     <WelcomeButton
                         title="Documentation"
-                        onClick={() => executeCommand(commands.openDocs)}
+                        onClick={() => executeCommand(commands.openDocs.command)}
                         description="Discover what Oni can do for you."
-                        command={commands.openDocs}
-                        selected={this.props.selectedId === commands.openDocs}
+                        command={commands.openDocs.command}
+                        selected={this.props.selectedId === commands.openDocs.command}
                     />
                 </AnimatedContainer>
                 <AnimatedContainer duration="0.25s">
                     <SectionHeader>Customize</SectionHeader>
                     <WelcomeButton
                         title="Configure"
-                        onClick={() => executeCommand(commands.openConfig)}
+                        onClick={() => executeCommand(commands.openConfig.command)}
                         description="Make Oni work the way you want."
-                        command={commands.openConfig}
-                        selected={this.props.selectedId === commands.openConfig}
+                        command={commands.openConfig.command}
+                        selected={this.props.selectedId === commands.openConfig.command}
                     />
                     <WelcomeButton
                         title="Themes"
-                        onClick={() => executeCommand(commands.openThemes)}
+                        onClick={() => executeCommand(commands.openThemes.command)}
                         description="Choose a theme that works for you."
-                        command={commands.openThemes}
-                        selected={this.props.selectedId === commands.openThemes}
+                        command={commands.openThemes.command}
+                        selected={this.props.selectedId === commands.openThemes.command}
                     />
                 </AnimatedContainer>
                 <AnimatedContainer duration="0.25s">
                     <SectionHeader>Quick Commands</SectionHeader>
                     <WelcomeButton
                         title="New File"
-                        onClick={() => executeCommand(commands.openFile)}
+                        onClick={() => executeCommand(commands.openFile.command)}
                         description="Control + N"
-                        command={commands.openFile}
-                        selected={this.props.selectedId === commands.openFile}
+                        command={commands.openFile.command}
+                        selected={this.props.selectedId === commands.openFile.command}
                     />
                     <WelcomeButton
                         title="Open File / Folder"
-                        onClick={() => executeCommand(commands.openWorkspaceFolder)}
+                        onClick={() => executeCommand(commands.openWorkspaceFolder.command)}
                         description="Control + O"
-                        command={commands.openWorkspaceFolder}
-                        selected={this.props.selectedId === commands.openWorkspaceFolder}
+                        command={commands.openWorkspaceFolder.command}
+                        selected={this.props.selectedId === commands.openWorkspaceFolder.command}
                     />
                     <WelcomeButton
                         title="Command Palette"
-                        onClick={() => executeCommand(commands.commandPalette)}
+                        onClick={() => executeCommand(commands.commandPalette.command)}
                         description="Control + Shift + P"
-                        command={commands.commandPalette}
-                        selected={this.props.selectedId === commands.commandPalette}
+                        command={commands.commandPalette.command}
+                        selected={this.props.selectedId === commands.commandPalette.command}
                     />
                     <WelcomeButton
                         title="Vim Ex Commands"
                         description=":"
                         command="editor.openExCommands"
-                        onClick={() => executeCommand(commands.commandline)}
-                        selected={this.props.selectedId === commands.commandline}
+                        onClick={() => executeCommand(commands.commandline.command)}
+                        selected={this.props.selectedId === commands.commandline.command}
                     />
                 </AnimatedContainer>
             </Column>
