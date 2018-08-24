@@ -69,7 +69,7 @@ import { Workspace } from "./../../Services/Workspace"
 
 import { Editor } from "./../Editor"
 
-import { BufferManager, IBuffer } from "./../BufferManager"
+import { BufferManager } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
