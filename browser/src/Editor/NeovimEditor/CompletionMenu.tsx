@@ -6,13 +6,14 @@
  * It's really just glue between the ContextMenu and Completion store.
  */
 
+import * as React from "react"
+
 import * as types from "vscode-languageserver-types"
 
 import { Event, IEvent } from "oni-types"
 
 import { ContextMenu } from "./../../Services/ContextMenu"
-
-import * as CompletionUtility from "./../../Services/Completion/CompletionUtility"
+import { getInstance } from "./../../Services/TokenColors"
 
 export class CompletionMenu {
     private _onItemFocusedEvent: Event<types.CompletionItem> = new Event<types.CompletionItem>()
@@ -58,9 +59,23 @@ const _convertCompletionForContextMenu = (completion: types.CompletionItem): any
     label: completion.label,
     detail: completion.detail,
     documentation: getCompletionDocumentation(completion),
-    icon: CompletionUtility.convertKindToIconName(completion.kind),
+    icon: (
+        <TokenThemeProvider>
+            <div className="variable-other-constant">hi</div>
+        </TokenThemeProvider>
+    ),
     rawCompletion: completion,
 })
+
+const convertKindToScope = (kind: types.CompletionItemKind): string => {
+    switch (kind) {
+        case types.CompletionItemKind.Method:
+        case types.CompletionItemKind.Function:
+            return "entity.name.function"
+        default:
+            return "entity.other"
+    }
+}
 
 const getCompletionDocumentation = (item: types.CompletionItem): string | null => {
     if (item.documentation) {
