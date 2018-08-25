@@ -1,6 +1,9 @@
 import fontkit from "fontkit"
+import * as fs from "fs"
 
 import { ICell } from "../../neovim"
+import GlyphInfo from "./fontLayout/GlyphInfo"
+import GSUBProcessor from "./fontLayout/GSUBProcessor"
 import { IColorNormalizer } from "./IColorNormalizer"
 import { IWebGLAtlasOptions, WebGLAtlas, WebGLGlyph } from "./WebGLAtlas"
 import {
@@ -9,7 +12,11 @@ import {
     createUnitQuadVerticesBuffer,
 } from "./WebGLUtilities"
 
-const font = fontkit.openSync("/Users/mane/Library/Fonts/FiraCode-Regular.otf")
+const fontFileBuffer = fs.readFileSync("/Users/mane/Library/Fonts/FiraCode-Regular.otf")
+const font = fontkit.create(fontFileBuffer)
+const processor = new GSUBProcessor(font as any, (font as any).GSUB)
+processor.selectScript()
+const features = ["calt"]
 
 const glyphInstanceFieldCount = 13
 const glyphInstanceSizeInBytes = glyphInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT
@@ -289,23 +296,58 @@ export class WebGlTextRenderer {
         const pixelRatioAdaptedGlyphOverlap = this._glyphOverlapInPixels * this._devicePixelRatio
 
         let glyphCount = 0
-        let y = 0
 
         for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+            // TODO separate line into parts based on color, style(, and weight)
             let currentTextLine = ""
             for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                 const cell = getCell(columnIndex, rowIndex)
                 currentTextLine += cell.character || " "
             }
+
+            // Map string(s) to GlyphInfo[](s)
             const fontGlyphs = font.glyphsForString(currentTextLine)
+            const glyphInfos = fontGlyphs.map(
+                glyph => new GlyphInfo(font, glyph.id, [...glyph.codePoints], features),
+            )
+            processor.applyFeatures(features, glyphInfos, null)
 
-            let x = 0
-            fontGlyphs.forEach(fontGlyph => {
-                const stringForFontGlyph = String.fromCodePoint(...fontGlyph.codePoints)
+            // Group GlyphInfo[](s) by contextGroup
+            const contextGroupedGlyphInfos: GlyphInfo[][] = [[]]
+            let currentActiveContextGroup =
+                glyphInfos && glyphInfos.length && glyphInfos[0].contextGroup
+            while (glyphInfos.length) {
+                const glyphInfo = glyphInfos.shift()
+                if (glyphInfo.contextGroup === currentActiveContextGroup) {
+                    contextGroupedGlyphInfos[contextGroupedGlyphInfos.length - 1].push(glyphInfo)
+                } else {
+                    currentActiveContextGroup = glyphInfo.contextGroup
+                    contextGroupedGlyphInfos.push([glyphInfo])
+                }
+            }
 
+            // Map GlyphInfo[][](s) to string[](s)
+            const contextGroupStrings = contextGroupedGlyphInfos.map(glyphsInContextGroup => {
+                let contextGroupString = ""
+                glyphsInContextGroup.forEach(glyphInfo => {
+                    contextGroupString += String.fromCodePoint(...glyphInfo.codePoints)
+                })
+                return contextGroupString
+            })
+
+            let columnIndex = 0
+            contextGroupStrings.forEach(contextGroupString => {
+                const cell = getCell(columnIndex, rowIndex)
+                const x = pixelRatioAdaptedFontWidth * columnIndex
+                const y = pixelRatioAdaptedFontHeight * rowIndex
                 const variantIndex = Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
-                const glyph = this._atlas.getGlyph(stringForFontGlyph, false, false, variantIndex) // TODO reintroduce bold and italic
-                const colorToUse = defaultForegroundColor || "white" // TODO reintroduce color
+                const glyph = this._atlas.getGlyph(
+                    contextGroupString,
+                    cell.bold,
+                    cell.italic,
+                    variantIndex,
+                )
+                const colorToUse = cell.foregroundColor || defaultForegroundColor || "white"
                 const normalizedTextColor = this._colorNormalizer.normalizeColor(colorToUse)
 
                 this.updateGlyphInstance(
@@ -317,9 +359,8 @@ export class WebGlTextRenderer {
                 )
 
                 glyphCount++
-                x += pixelRatioAdaptedFontWidth
+                columnIndex += contextGroupString.length
             })
-            y += pixelRatioAdaptedFontHeight
         }
 
         // TODO refactor this to not be as reliant on mutations

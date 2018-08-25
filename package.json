@@ -954,6 +954,7 @@
         "github-releases": "^0.4.1",
         "html-loader": "^0.5.5",
         "husky": "^0.14.3",
+        "ify-loader": "^1.1.0",
         "innosetup-compiler": "5.5.9",
         "istanbul-api": "^1.2.1",
         "istanbul-lib-coverage": "^1.1.1",

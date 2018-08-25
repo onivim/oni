@@ -51,6 +51,10 @@ module.exports = {
                 use: "ts-loader",
                 exclude: /node_modules/,
             },
+            {
+                test: /node_modules/,
+                loader: "ify-loader",
+            },
         ],
     },
     plugins: [

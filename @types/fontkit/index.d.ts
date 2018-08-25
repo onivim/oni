@@ -5,13 +5,28 @@ interface Glyph {
     // Leaving out the rest for now
 }
 
+interface GlyphRun {
+    glyphs: Glyph[]
+    // Leaving out the rest for now
+}
+
+type Direction = "" | "ltr" | "rtl"
+
 interface Font {
-    glyphsForString(string): Glyph[]
+    glyphsForString(text: string): Glyph[]
+    layout(
+        text: string,
+        features: string[] = [],
+        script?: string,
+        language?: string,
+        direction?: Direction,
+    ): GlyphRun
     // Leaving out the rest for now
 }
 
 interface Fontkit {
     openSync(filename: string, postscriptName = null): Font
+    create(buffer: Buffer): Font
     // Leaving out the rest for now
 }
 
