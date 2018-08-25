@@ -4,6 +4,8 @@
  * Contextual commands for NeovimEditor
  *
  */
+import * as os from "os"
+
 import { clipboard } from "electron"
 import * as Oni from "oni-api"
 
@@ -66,7 +68,9 @@ export class NeovimEditorCommands {
 
         const pasteContents = async (neovimInstance: NeovimInstance) => {
             const textToPaste = clipboard.readText()
-            const sanitizedTextLines = replaceAll(textToPaste, { "'": "''" })
+            const replacements = { "'": "''" }
+            replacements[os.EOL] = "\n"
+            const sanitizedTextLines = replaceAll(textToPaste, replacements)
             await neovimInstance.command('let b:oniclipboard=@"')
             await neovimInstance.command(`let @"='${sanitizedTextLines}'`)
 
