@@ -75,6 +75,7 @@ export const start = async (args: string[]): Promise<void> => {
     const themesPromise = import("./Services/Themes")
     const iconThemesPromise = import("./Services/IconThemes")
 
+    const sessionManagerPromise = import("./Services/Sessions")
     const sidebarPromise = import("./Services/Sidebar")
     const overlayPromise = import("./Services/Overlay")
     const statusBarPromise = import("./Services/StatusBar")
@@ -327,6 +328,10 @@ export const start = async (args: string[]): Promise<void> => {
         Sidebar.getInstance(),
         WindowManager.windowManager,
     )
+
+    const Sessions = await sessionManagerPromise
+    Sessions.activate(oniApi, sidebarManager)
+
     Performance.endMeasure("Oni.Start.Sidebar")
 
     const createLanguageClientsFromConfiguration =

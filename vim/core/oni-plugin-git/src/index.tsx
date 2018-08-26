@@ -249,6 +249,9 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
     }
 
     private _formatRawBlame(rawOutput: string): VCS.Blame {
+        if (!rawOutput) {
+            return null
+        }
         const firstSpace = (str: string) => str.indexOf(" ")
         const blameArray = rawOutput.split("\n")
         const formatted = blameArray
@@ -258,11 +261,13 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
                     const formattedKey = key.replace("-", "_")
                     if (!index && value) {
                         acc.hash = formattedKey
-                        const [originalLine, finalLine, numberOfLines] = value.split(" ")
-                        acc.line = {
-                            originalLine,
-                            finalLine,
-                            numberOfLines,
+                        if (value) {
+                            const [originalLine, finalLine, numberOfLines] = value.split(" ")
+                            acc.line = {
+                                originalLine,
+                                finalLine,
+                                numberOfLines,
+                            }
                         }
                         return acc
                     } else if (!key) {

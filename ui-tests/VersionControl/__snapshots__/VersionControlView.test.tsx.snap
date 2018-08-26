@@ -2,7 +2,7 @@
 
 exports[`<VersionControlView /> should match the last recorded snapshot unless a change was made 1`] = `
 <div>
-  <VCSSectionTitle
+  <SidebarSectionTitle
     active={true}
     count={2}
     isSelected={false}

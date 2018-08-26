@@ -15,6 +15,8 @@ const PersistentSettings = remote.require("electron-settings")
 export interface IPersistentStore<T> {
     get(): Promise<T>
     set(value: T): Promise<void>
+    delete(key: string): Promise<T>
+    has(key: string): boolean
 }
 
 export const getPersistentStore = <T>(
@@ -69,5 +71,13 @@ export class PersistentStore<T> implements IPersistentStore<T> {
         }
 
         PersistentSettings.set(this._storeKey, JSON.stringify(this._currentValue))
+    }
+
+    public has(key: string) {
+        return PersistentSettings.has(key)
+    }
+
+    public async delete(key: string) {
+        return PersistentSettings.delete(`${this._storeKey}.${key}`)
     }
 }
