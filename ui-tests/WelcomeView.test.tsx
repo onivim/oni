@@ -22,14 +22,14 @@ describe("<WelcomeView />", () => {
     ]
 
     const commands = {
-        openFile: "button1",
-        openTutor: "button2",
-        openDocs: "button3",
-        openConfig: "button4",
-        openThemes: "button5",
-        openWorkspaceFolder: "button6",
-        commandPalette: "button7",
-        commandline: "button8",
+        openFile: { command: "button1" },
+        openTutor: { command: "button2" },
+        openDocs: { command: "button3" },
+        openConfig: { command: "button4" },
+        openThemes: { command: "button5" },
+        openWorkspaceFolder: { command: "button6" },
+        commandPalette: { command: "button7" },
+        commandline: { command: "button8" },
     }
 
     const executeCommand = jest.fn()

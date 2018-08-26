@@ -290,7 +290,7 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         }
     }
 
-    public render(context: Oni.BufferLayerRenderContext): JSX.Element {
+    public render(context: Oni.BufferLayerRenderContext) {
         const active = this._oni.getActiveSection() === "editor"
         const ids = Object.values(this.welcomeCommands).map(({ command }) => command)
         return (
