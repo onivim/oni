@@ -974,15 +974,15 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         const tabsMode = this._configuration.getValue("tabs.mode") === "tabs"
         const cmd = new Proxy(
             {
-                [Oni.FileOpenMode.NewTab]: "Texplore!",
-                [Oni.FileOpenMode.HorizontalSplit]: "Vexplore!",
-                [Oni.FileOpenMode.VerticalSplit]: "Hexplore!",
-                [Oni.FileOpenMode.Edit]: tabsMode ? "Texplore!" : "Explore!",
-                [Oni.FileOpenMode.ExistingTab]: "Explore!",
+                [Oni.FileOpenMode.NewTab]: "Texplore",
+                [Oni.FileOpenMode.HorizontalSplit]: "Vexplore",
+                [Oni.FileOpenMode.VerticalSplit]: "Hexplore",
+                [Oni.FileOpenMode.Edit]: tabsMode ? "Texplore" : "Explore",
+                [Oni.FileOpenMode.ExistingTab]: "Explore",
             },
             {
                 get: (target: { [cmd: string]: string }, name: string) =>
-                    name in target ? target[name] : "Explore!",
+                    name in target ? target[name] : "Explore",
             },
         )
 
