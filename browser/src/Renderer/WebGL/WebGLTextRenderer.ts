@@ -1,6 +1,5 @@
 import { ICell } from "../../neovim"
 import { CellGroup } from "./CellGroup"
-import { IColorNormalizer } from "./IColorNormalizer"
 import { LigatureGrouper } from "./LigatureGrouper"
 import { IWebGLAtlasOptions, WebGLAtlas, WebGLGlyph } from "./WebGLAtlas"
 import {
@@ -8,6 +7,7 @@ import {
     createUnitQuadElementIndicesBuffer,
     createUnitQuadVerticesBuffer,
 } from "./WebGLUtilities"
+import { normalizeColor } from "./normalizeColor"
 
 const glyphInstanceFieldCount = 13
 const glyphInstanceSizeInBytes = glyphInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT
@@ -111,7 +111,6 @@ export class WebGlTextRenderer {
 
     constructor(
         private _gl: WebGL2RenderingContext,
-        private _colorNormalizer: IColorNormalizer,
         private _ligatureGrouper: LigatureGrouper,
         atlasOptions: IWebGLAtlasOptions,
     ) {
@@ -342,7 +341,7 @@ export class WebGlTextRenderer {
                         Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
                     const glyph = this._atlas.getGlyph(ligatureGroup, bold, italic, variantIndex)
                     const colorToUse = foregroundColor || defaultForegroundColor || "white"
-                    const normalizedTextColor = this._colorNormalizer.normalizeColor(colorToUse)
+                    const normalizedTextColor = normalizeColor(colorToUse)
 
                     this.updateGlyphInstance(
                         glyphCount,

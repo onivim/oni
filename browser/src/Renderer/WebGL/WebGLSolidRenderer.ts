@@ -1,10 +1,10 @@
 import { ICell } from "../../neovim"
-import { IColorNormalizer } from "./IColorNormalizer"
 import {
     createProgram,
     createUnitQuadElementIndicesBuffer,
     createUnitQuadVerticesBuffer,
 } from "./WebGLUtilities"
+import { normalizeColor } from "./normalizeColor"
 
 const solidInstanceFieldCount = 8
 const solidInstanceSizeInBytes = solidInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT
@@ -57,11 +57,7 @@ export class WebGLSolidRenderer {
     private _solidInstancesBuffer: WebGLBuffer
     private _vertexArrayObject: WebGLVertexArrayObject
 
-    constructor(
-        private _gl: WebGL2RenderingContext,
-        private _colorNormalizer: IColorNormalizer,
-        private _devicePixelRatio: number,
-    ) {
+    constructor(private _gl: WebGL2RenderingContext, private _devicePixelRatio: number) {
         this._program = createProgram(this._gl, vertexShaderSource, fragmentShaderSource)
         this._viewportScaleLocation = this._gl.getUniformLocation(this._program, "viewportScale")
 
@@ -181,9 +177,7 @@ export class WebGLSolidRenderer {
 
                 if (cell.backgroundColor && cell.backgroundColor !== defaultBackgroundColor) {
                     const colorToUse = cell.backgroundColor || defaultBackgroundColor || "black"
-                    const normalizedBackgroundColor = this._colorNormalizer.normalizeColor(
-                        colorToUse,
-                    )
+                    const normalizedBackgroundColor = normalizeColor(colorToUse)
 
                     this.updateSolidInstance(
                         solidCellCount,

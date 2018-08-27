@@ -1,15 +1,13 @@
 import { INeovimRenderer } from ".."
 import { MinimalScreenForRendering } from "../../neovim"
-import { CachedColorNormalizer } from "./CachedColorNormalizer"
-import { IColorNormalizer } from "./IColorNormalizer"
 import { LigatureGrouper } from "./LigatureGrouper"
 import { IWebGLAtlasOptions, WebGLTextureSpaceExceededError } from "./WebGLAtlas"
 import { WebGLSolidRenderer } from "./WebGLSolidRenderer"
 import { WebGlTextRenderer } from "./WebGLTextRenderer"
+import { normalizeColor } from "./normalizeColor"
 
 export class WebGLRenderer implements INeovimRenderer {
     private _editorElement: HTMLElement
-    private _colorNormalizer: IColorNormalizer
     private _ligatureGrouper: LigatureGrouper
     private _previousAtlasOptions: IWebGLAtlasOptions
     private _textureSizeInPixels = 1024
@@ -21,7 +19,6 @@ export class WebGLRenderer implements INeovimRenderer {
 
     public start(editorElement: HTMLElement): void {
         this._editorElement = editorElement
-        this._colorNormalizer = new CachedColorNormalizer()
 
         const canvasElement = document.createElement("canvas")
         this._editorElement.innerHTML = ""
@@ -104,14 +101,9 @@ export class WebGLRenderer implements INeovimRenderer {
                 this._ligatureGrouper = new LigatureGrouper(fontFamily)
             }
 
-            this._solidRenderer = new WebGLSolidRenderer(
-                this._gl,
-                this._colorNormalizer,
-                atlasOptions.devicePixelRatio,
-            )
+            this._solidRenderer = new WebGLSolidRenderer(this._gl, atlasOptions.devicePixelRatio)
             this._textRenderer = new WebGlTextRenderer(
                 this._gl,
-                this._colorNormalizer,
                 this._ligatureGrouper,
                 atlasOptions,
             )
@@ -121,7 +113,7 @@ export class WebGLRenderer implements INeovimRenderer {
 
     private _clear(backgroundColor: string) {
         const backgroundColorToUse = backgroundColor || "black"
-        const normalizedBackgroundColor = this._colorNormalizer.normalizeColor(backgroundColorToUse)
+        const normalizedBackgroundColor = normalizeColor(backgroundColorToUse)
         this._gl.clearColor(
             normalizedBackgroundColor[0],
             normalizedBackgroundColor[1],

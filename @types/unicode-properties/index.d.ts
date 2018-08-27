@@ -4,7 +4,7 @@ interface UnicodeProperties {
 }
 
 declare module "unicode-properties" {
-    const unicodeProperties: UnicodeProperties
+    declare const unicodeProperties: UnicodeProperties
 
     export default unicodeProperties
 }

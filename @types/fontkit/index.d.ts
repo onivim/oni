@@ -10,7 +10,7 @@ interface GlyphRun {
     // Leaving out the rest for now
 }
 
-type Direction = "" | "ltr" | "rtl"
+type TextDirection = "" | "ltr" | "rtl"
 
 interface Font {
     availableFeatures: string[]
@@ -20,7 +20,7 @@ interface Font {
         features: string[] = [],
         script?: string,
         language?: string,
-        direction?: Direction,
+        direction?: TextDirection,
     ): GlyphRun
     // Leaving out the rest for now
 }
@@ -32,7 +32,7 @@ interface Fontkit {
 }
 
 declare module "fontkit" {
-    const fontkit: Fontkit
+    declare const fontkit: Fontkit
 
     export default fontkit
 }
