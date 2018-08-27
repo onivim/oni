@@ -4,16 +4,7 @@ describe("Buffer Manager Tests", () => {
     const neovim = {} as any
     const actions = {} as any
     const store = {
-        getState: jest.fn().mockReturnValue({
-            layers: {
-                "1": [
-                    {
-                        handleInput: (key: string) => true,
-                        isActive: () => true,
-                    },
-                ],
-            },
-        }),
+        getState: jest.fn(),
     } as any
 
     const manager = new BufferManager(neovim, actions, store)
@@ -88,8 +79,35 @@ describe("Buffer Manager Tests", () => {
     })
 
     it("should correctly pass input to a layer that implements a handler", () => {
+        store.getState.mockReturnValue({
+            layers: {
+                "1": [
+                    {
+                        handleInput: (key: string) => true,
+                        isActive: () => true,
+                    },
+                ],
+            },
+        })
+
         const buffer = manager.getBufferById("1")
         const canHandleInput = buffer.handleInput("h")
         expect(canHandleInput).toBeTruthy()
+    })
+
+    it("should not intercept input for a layer that implements a handler but return isActive = false", () => {
+        store.getState.mockReturnValue({
+            layers: {
+                "1": [
+                    {
+                        handleInput: (key: string) => true,
+                        isActive: () => false,
+                    },
+                ],
+            },
+        })
+        const buffer = manager.getBufferById("1")
+        const canHandleInput = buffer.handleInput("h")
+        expect(canHandleInput).toBeFalsy()
     })
 })
