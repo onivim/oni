@@ -125,12 +125,12 @@ class AnyEditorProxy implements Oni.Editor {
         return this._activeEditor.activeBuffer
     }
 
-    public init(filesToOpen: string[]): void {
+    public init(filesToOpen: string[], foldersToOpen: string[]): void {
         if (!this._activeEditor) {
             return
         }
 
-        this._activeEditor.init(filesToOpen)
+        this._activeEditor.init(filesToOpen, foldersToOpen)
     }
 
     public get neovim(): Oni.NeovimEditorCapability {

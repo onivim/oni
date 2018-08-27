@@ -36,7 +36,7 @@ export abstract class Editor extends Disposable implements Oni.Editor {
         return this._onCursorMoved
     }
 
-    public abstract init(filesToOpen: string[]): void
+    public abstract init(filesToOpen: string[], foldersToOpen: string[]): void
 
     // Events
 
