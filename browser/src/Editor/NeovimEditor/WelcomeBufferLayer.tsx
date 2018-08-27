@@ -231,18 +231,6 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
     public inputEvent = new Event<IWelcomeInputEvent>()
 
     public readonly welcomeCommands: IWelcomeCommandsDictionary = {
-        openTutor: {
-            command: "oni.tutor.open",
-        },
-        openDocs: {
-            command: "oni.docs.open",
-        },
-        openConfig: {
-            command: "oni.config.openUserConfig",
-        },
-        openThemes: {
-            command: "oni.themes.open",
-        },
         openFile: {
             command: "oni.editor.newFile",
         },
@@ -254,6 +242,18 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         },
         commandline: {
             command: "executeVimCommand",
+        },
+        openTutor: {
+            command: "oni.tutor.open",
+        },
+        openDocs: {
+            command: "oni.docs.open",
+        },
+        openConfig: {
+            command: "oni.config.openUserConfig",
+        },
+        openThemes: {
+            command: "oni.themes.open",
         },
     }
 

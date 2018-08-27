@@ -7,16 +7,25 @@ import * as os from "os"
 import * as path from "path"
 
 import * as Oni from "oni-api"
-
-const getWelcomeElement = () => document.querySelectorAll("[data-id='welcome-screen']")
+import { getSingleElementBySelector } from "./Common"
 
 export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitForEditors()
-    await oni.automation.sleep(1000)
+    await oni.automation.sleep(2000)
 
-    const element = getWelcomeElement()
+    const element = getSingleElementBySelector("[data-id='welcome-screen']")
 
-    assert.ok(element[0], "Validate the welcome screen is present")
+    assert.ok(!!element, "Validate the welcome screen is present")
+
+    assert.ok(
+        oni.editors.activeEditor.activeBuffer.filePath.includes("WELCOME"),
+        "Validate that the current buffer is the Welcome one",
+    )
+    oni.automation.sendKeys("<enter>")
+    assert.ok(
+        !!oni.editors.activeEditor.activeBuffer.filePath,
+        "Validate it opens empty unnamed new file",
+    )
 }
 
 export const settings = {

@@ -24,6 +24,8 @@ const CiTests = [
     "Configuration.TypeScriptEditor.NewConfigurationTest",
     "Configuration.TypeScriptEditor.CompletionTest",
 
+    "Welcome.BufferLayerTest",
+
     "TabBarSneakTest",
     "initVimPromptNotificationTest",
     "Editor.BuffersCursorTest",
