@@ -1,12 +1,23 @@
-import * as assert from "assert"
-
-import { BufferManager, InactiveBuffer } from "./../../../src/Editor/BufferManager"
+import { BufferManager, InactiveBuffer } from "./../browser/src/Editor/BufferManager"
 
 describe("Buffer Manager Tests", () => {
     const neovim = {} as any
     const actions = {} as any
-    const store = {} as any
+    const store = {
+        getState: jest.fn().mockReturnValue({
+            layers: {
+                "1": [
+                    {
+                        handleInput: (key: string) => true,
+                        isActive: () => true,
+                    },
+                ],
+            },
+        }),
+    } as any
+
     const manager = new BufferManager(neovim, actions, store)
+
     const event = {
         bufferFullPath: "/test/file",
         bufferTotalLines: 2,
@@ -43,38 +54,42 @@ describe("Buffer Manager Tests", () => {
         version: 1,
     }
 
-    it("Should correctly set buffer variables", () => {
+    beforeEach(() => {
         manager.updateBufferFromEvent(event)
+    })
+
+    it("Should correctly set buffer variables", () => {
         const buffer = manager.getBufferById("1")
-        assert(buffer.tabstop === 8, "tabstop is set correctly")
-        assert(buffer.shiftwidth === 2, "shiftwidth is set correctly")
-        assert(buffer.comment.defaults.includes("//"), "comments are set correctly")
-        assert(buffer.comment.end.includes("*/"), "comments are set correctly")
+        expect(buffer.tabstop).toBe(8)
+        expect(buffer.shiftwidth).toBe(2)
+        expect(buffer.comment.defaults.includes("//")).toBe(true)
+        expect(buffer.comment.end.includes("*/")).toBe(true)
     })
 
     it("Should correctly populate the buffer list", () => {
-        manager.updateBufferFromEvent(event)
         manager.populateBufferList({
             current: event,
             existingBuffers: [inactive1],
         })
 
         const buffers = manager.getBuffers()
-        assert(buffers.length === 2, "Two buffers were added")
-        assert(
-            buffers.find(buffer => buffer instanceof InactiveBuffer),
-            "One of the buffers is an inactive buffer",
-        )
+        expect(buffers.length).toBe(2)
+        expect(buffers.find(buffer => buffer instanceof InactiveBuffer)).toBeTruthy()
     })
 
     it("Should correctly format a comment string (based on neovim &comment option)", () => {
-        manager.updateBufferFromEvent(event)
         const buffer = manager.getBufferById("1")
         const comment = "s1:/*,ex:*/,://,b:#,:%"
         const formatted = buffer.formatCommentOption(comment)
-        assert(formatted.start.includes("/*"), "Correctly parses a comment string")
-        assert(formatted.end.includes("*/"), "Correctly parses a comment string")
-        assert(formatted.defaults.includes("//"), "Correctly parses a comment string")
-        assert(formatted.defaults.includes("#"), "Correctly parses a comment string")
+        expect(formatted.start.includes("/*")).toBeTruthy()
+        expect(formatted.end.includes("*/")).toBeTruthy()
+        expect(formatted.defaults.includes("//")).toBeTruthy()
+        expect(formatted.defaults.includes("#")).toBeTruthy()
+    })
+
+    it("should correctly pass input to a layer that implements a handler", () => {
+        const buffer = manager.getBufferById("1")
+        const canHandleInput = buffer.handleInput("h")
+        expect(canHandleInput).toBeTruthy()
     })
 })
