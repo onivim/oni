@@ -1005,13 +1005,13 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         // Respects the users config and uses "Texplore!" for Tab users, and "Explore!"
         // otherwise.
         if (this.activeBuffer.filePath === "") {
-            await this.openFile(folders[0], { openMode: Oni.FileOpenMode.Edit })
+            await this.openFolder(folders[0], { openMode: Oni.FileOpenMode.ExistingTab })
         } else {
-            await this.openFile(folders[0], openOptions)
+            await this.openFolder(folders[0], openOptions)
         }
 
         for (let i = 1; i < folders.length; i++) {
-            await this.openFile(folders[i], openOptions)
+            await this.openFolder(folders[i], openOptions)
         }
 
         return this.activeBuffer
