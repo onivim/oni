@@ -1,44 +1,11 @@
-/**
- * MenuFilter.ts
- *
- * Implements filtering logic for the menu
- */
-
 import * as Fuse from "fuse.js"
 import * as sortBy from "lodash/sortBy"
 
-// import * as Oni from "oni-api"
+import * as utils from "./Utils"
 
-import { configuration } from "./../../Services/Configuration"
+import { IMenuOptionWithHighlights } from "./../Menu"
 
-import { IMenuOptionWithHighlights } from "./Menu"
-
-export const shouldFilterbeCaseSensitive = (searchString: string): boolean => {
-    // TODO: Technically, this makes the reducer 'impure',
-    // which is not ideal - need to refactor eventually.
-    //
-    // One option is to plumb through the configuration setting
-    // from the top-level, but it might be worth extracting
-    // out the filter strategy in general.
-    const caseSensitivitySetting = configuration.getValue("menu.caseSensitive")
-
-    if (caseSensitivitySetting === false) {
-        return false
-    } else if (caseSensitivitySetting === true) {
-        return true
-    } else {
-        // "Smart" casing strategy
-        // If the string is all lower-case, not case sensitive..
-        if (searchString === searchString.toLowerCase()) {
-            return false
-            // Otherwise, it is case sensitive..
-        } else {
-            return true
-        }
-    }
-}
-
-export const fuseFilter = (options: any[], searchString: string): IMenuOptionWithHighlights[] => {
+export function filter(options: any[], searchString: string): IMenuOptionWithHighlights[] {
     if (!searchString) {
         const opt = options.map(o => {
             return {
@@ -68,7 +35,7 @@ export const fuseFilter = (options: any[], searchString: string): IMenuOptionWit
                 weight: 0.4,
             },
         ],
-        caseSensitive: shouldFilterbeCaseSensitive(searchString),
+        caseSensitive: utils.shouldBeCaseSensitive(searchString),
         include: ["matches"],
     }
 
@@ -128,7 +95,7 @@ export const fuseFilter = (options: any[], searchString: string): IMenuOptionWit
     return highlightOptions
 }
 
-const convertArrayOfPairsToIndices = (pairs: number[][]): number[] => {
+function convertArrayOfPairsToIndices(pairs: number[][]): number[] {
     const ret: number[] = []
 
     pairs.forEach(p => {

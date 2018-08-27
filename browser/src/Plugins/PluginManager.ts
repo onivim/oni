@@ -2,6 +2,7 @@ import * as fs from "fs"
 import * as path from "path"
 
 import * as Oni from "oni-api"
+import { Event, IEvent } from "oni-types"
 
 import { Configuration, getUserConfigFolderPath } from "./../Services/Configuration"
 import { IContributions } from "./Api/Capabilities"
@@ -23,6 +24,11 @@ export class PluginManager implements Oni.IPluginManager {
     private _anonymousPlugin: AnonymousPlugin
     private _pluginsActivated: boolean = false
     private _installer: IPluginInstaller = new YarnPluginInstaller()
+    private _pluginsLoaded = new Event<void>()
+
+    public get pluginsAllLoaded(): IEvent<void> {
+        return this._pluginsLoaded
+    }
 
     private _developmentPluginsPath: string[] = []
 
@@ -81,7 +87,12 @@ export class PluginManager implements Oni.IPluginManager {
         })
 
         this._pluginsActivated = true
+        this._pluginsLoaded.dispatch()
 
+        return this.getApi()
+    }
+
+    public getApi(): Oni.Plugin.Api {
         return this._anonymousPlugin.oni
     }
 

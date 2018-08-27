@@ -26,11 +26,12 @@ export interface ILatestCursorAndBufferInfo {
 export const addInsertModeLanguageFunctionality = (
     cursorMoved$: Observable<Oni.Cursor>,
     modeChanged$: Observable<Oni.Vim.Mode>,
+    onScroll$: Observable<Oni.EditorBufferScrolledEventArgs>,
     toolTips: IToolTipsProvider,
 ) => {
     const latestCursorAndBufferInfo$: Observable<
         ILatestCursorAndBufferInfo
-    > = cursorMoved$.auditTime(10).mergeMap(async cursorPos => {
+    > = cursorMoved$.mergeMap(async cursorPos => {
         const editor = editorManager.activeEditor
         const buffer = editor.activeBuffer
 
@@ -45,5 +46,5 @@ export const addInsertModeLanguageFunctionality = (
         }
     })
 
-    SignatureHelp.initUI(latestCursorAndBufferInfo$, modeChanged$, toolTips)
+    SignatureHelp.initUI(latestCursorAndBufferInfo$, modeChanged$, onScroll$, toolTips)
 }

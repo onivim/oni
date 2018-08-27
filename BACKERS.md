@@ -135,6 +135,12 @@ Thanks you to all our backers for making Oni possible!
 *   LinuxLefty
 *   Leon Bogaert
 *   Jorrit Siebelink
+*   Zac Sims
+*   Doug Beney
+*   Aditya Gudimella
+*   Michal Hantl
+*   Lennaert Meijvogel
+*   Jonas Strømsodd
 
 <a href="https://opencollective.com/oni/tiers/backer/0/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/0/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/backer/1/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/1/avatar.png"></a>

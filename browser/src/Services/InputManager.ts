@@ -125,7 +125,7 @@ export class InputManager implements Oni.Input.InputManager {
     }
 
     // Returns an array of keys bound to a command
-    public getBoundKeys(command: string): string[] {
+    public getBoundKeys = (command: string): string[] => {
         return Object.keys(this._boundKeys).reduce(
             (prev: string[], currentValue: string) => {
                 const bindings = this._boundKeys[currentValue]

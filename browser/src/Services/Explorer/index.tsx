@@ -4,20 +4,18 @@
  * Entry point for explorer-related features
  */
 
-import { CommandManager } from "./../CommandManager"
+import * as Oni from "oni-api"
+
+import { CallbackCommand } from "./../CommandManager"
 import { Configuration } from "./../Configuration"
-import { EditorManager } from "./../EditorManager"
 import { SidebarManager } from "./../Sidebar"
-import { Workspace } from "./../Workspace"
 
 import { ExplorerSplit } from "./ExplorerSplit"
 
 export const activate = (
-    commandManager: CommandManager,
+    oni: Oni.Plugin.Api,
     configuration: Configuration,
-    editorManager: EditorManager,
     sidebarManager: SidebarManager,
-    workspace: Workspace,
 ) => {
     configuration.registerSetting("explorer.autoRefresh", {
         description:
@@ -26,20 +24,33 @@ export const activate = (
         defaultValue: false,
     })
 
-    sidebarManager.add(
-        "files-o",
-        new ExplorerSplit(configuration, workspace, commandManager, editorManager),
+    const explorerSplit: ExplorerSplit = new ExplorerSplit(oni)
+    sidebarManager.add("files-o", explorerSplit)
+
+    const explorerId = "oni.sidebar.explorer"
+
+    oni.commands.registerCommand(
+        new CallbackCommand(
+            "explorer.toggle",
+            "Explorer: Toggle Visibility",
+            "Toggles the explorer in the sidebar",
+            () => sidebarManager.toggleVisibilityById(explorerId),
+            () => !!oni.workspace.activeWorkspace,
+        ),
     )
 
-    const toggleExplorer = () => {
-        sidebarManager.toggleVisibilityById("oni.sidebar.explorer")
-    }
-
-    commandManager.registerCommand({
-        command: "explorer.toggle",
-        name: "Explorer: Toggle Visibility",
-        detail: "Toggles the explorer in the sidebar",
-        execute: toggleExplorer,
-        enabled: () => !!workspace.activeWorkspace,
-    })
+    oni.commands.registerCommand(
+        new CallbackCommand(
+            "explorer.locate.buffer",
+            "Explorer: Locate Current Buffer",
+            "Locate current buffer in file tree",
+            () => {
+                if (sidebarManager.activeEntryId !== explorerId || !sidebarManager.isVisible) {
+                    sidebarManager.setActiveEntry(explorerId)
+                }
+                explorerSplit.locateFile(oni.editors.activeEditor.activeBuffer.filePath)
+            },
+            () => !!oni.workspace.activeWorkspace,
+        ),
+    )
 }

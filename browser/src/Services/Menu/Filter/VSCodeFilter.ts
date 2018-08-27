@@ -1,9 +1,3 @@
-/**
- * VSCodeFilter.ts
- *
- * Implements filtering logic for the menu using the scores module from VSCode.
- */
-
 import * as sortBy from "lodash/sortBy"
 
 import * as Oni from "oni-api"
@@ -12,15 +6,17 @@ import {
     compareItemsByScoreOni,
     getHighlightsFromResult,
     scoreItemOni,
-} from "./Scorer/OniQuickOpenScorer"
+} from "./../../Search/Scorer/OniQuickOpenScorer"
+import { ScorerCache } from "./../../Search/Scorer/QuickOpenScorer"
 
-import { IMenuOptionWithHighlights, shouldFilterbeCaseSensitive } from "./../Menu"
-import { ScorerCache } from "./Scorer/QuickOpenScorer"
+import * as utils from "./Utils"
 
-export const vsCodeFilter = (
+import { IMenuOptionWithHighlights } from "./../Menu"
+
+export function filter(
     options: Oni.Menu.MenuOption[],
     searchString: string,
-): IMenuOptionWithHighlights[] => {
+): IMenuOptionWithHighlights[] {
     if (!searchString) {
         const opt = options.map(o => {
             return {
@@ -33,7 +29,7 @@ export const vsCodeFilter = (
         return sortBy(opt, o => (o.pinned ? 0 : 1))
     }
 
-    const isCaseSensitive = shouldFilterbeCaseSensitive(searchString)
+    const isCaseSensitive = utils.shouldBeCaseSensitive(searchString)
 
     if (!isCaseSensitive) {
         searchString = searchString.toLowerCase()
@@ -72,11 +68,11 @@ export const vsCodeFilter = (
     return ret.sort((e1, e2) => compareItemsByScoreOni(e1, e2, vsCodeSearchString, true, cache))
 }
 
-export const processSearchTerm = (
+export function processSearchTerm(
     searchString: string,
     options: Oni.Menu.MenuOption[],
     cache: ScorerCache,
-): Oni.Menu.IMenuOptionWithHighlights[] => {
+): Oni.Menu.IMenuOptionWithHighlights[] {
     const result: Oni.Menu.IMenuOptionWithHighlights[] = options.map(f => {
         const itemScore = scoreItemOni(f, searchString, true, cache)
         const detailHighlights = getHighlightsFromResult(itemScore.descriptionMatch)

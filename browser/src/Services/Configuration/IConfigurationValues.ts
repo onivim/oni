@@ -48,15 +48,35 @@ export interface IConfigurationValues {
 
     // Whether or not the learning pane is available
     "experimental.particles.enabled": boolean
-
+    // Whether or not the sessions sidebar pane is enabled
+    "experimental.sessions.enabled": boolean
+    // A User specified directory for where Oni session files should be saved
+    "experimental.sessions.directory": string
+    // Whether Version control sidebar item is enabled
+    "experimental.vcs.sidebar": boolean
+    // Whether the color highlight layer is enabled
+    "experimental.colorHighlight.enabled": boolean
+    // Whitelist of extension for the color highlight layer
+    "experimental.colorHighlight.filetypes": string[]
     // Whether the indent lines should be shown
     "experimental.indentLines.enabled": boolean
+    // Whether or not to skip the first line of indentation
+    "experimental.indentLines.skipFirst": boolean
     "experimental.indentLines.color": string
-    // Filetypes the indent lines are shown for
-    "experimental.indentLines.filetypes": string[]
+    // Filetypes the indent lines are not shown for
+    "experimental.indentLines.bannedFiletypes": string[]
+    // Whether or not the vcs blame layer is enabled
+    "experimental.vcs.blame.enabled": boolean
+    // Whether or not the blame shows up automatically following a timeout or is manually
+    // triggered
+    "experimental.vcs.blame.mode": "auto" | "manual"
+    // Amount of millisenconds to delay before showing blame per line
+    "experimental.vcs.blame.timeout": number
     // Whether the markdown preview pane should be shown
     "experimental.markdownPreview.enabled": boolean
     "experimental.markdownPreview.autoScroll": boolean
+    "experimental.markdownPreview.syntaxHighlights": boolean
+    "experimental.markdownPreview.syntaxTheme": string
 
     // The transport to use for Neovim
     // Valid values are "stdio" and "pipe"
@@ -313,6 +333,10 @@ export interface IConfigurationValues {
     // Whether or not the file icon
     // should be shown in the tab
     "tabs.showFileIcon": boolean
+
+    // can be anything the a css color property accepts e.g.:
+    // "red", "#112233", "rgb(11,22,33)"
+    "tabs.dirtyMarker.userColor": string
 
     "terminal.shellCommand": string
 

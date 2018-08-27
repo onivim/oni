@@ -16,10 +16,17 @@ const {
     IThemeColors
 >
 
+export type Css = styledComponents.InterpolationValue[] | styledComponents.Styles[]
+
+type FlexDirection = "flex-start" | "flex-end" | "center" | "space-between"
+
 export interface ContainerProps {
     direction: "horizontal" | "vertical"
     fullHeight?: boolean
     fullWidth?: boolean
+    extension?: Css
+    justify?: FlexDirection
+    alignment?: FlexDirection
 }
 
 export const Fixed = styled.div`
@@ -33,9 +40,11 @@ export const Full = styled.div`
 export const Container = withProps<ContainerProps>(styled.div)`
     display: flex;
     flex-direction: ${p => (p.direction === "vertical" ? "column" : "row")};
-
-    ${p => (p.fullHeight ? "height: 100%;" : "")}
-    ${p => (p.fullWidth ? "width: 100%;" : "")}
+    ${p => (p.fullHeight ? "height: 100%" : "")};
+    ${p => (p.fullWidth ? "width: 100%" : "")};
+    ${p => (p.justify ? p.justify : "")};
+    ${p => (p.alignment ? p.alignment : "")}
+    ${p => p.extension};
 `
 
 export const Bold = styled.span`
@@ -48,6 +57,31 @@ export const Center = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+`
+
+export const stack = css`
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+`
+
+export const layer = css`
+    will-change: transform;
+`
+
+export const StackLayer = styled<{ zIndex?: number | string }, "div">("div")`
+    ${stack};
+    ${layer};
+    ${p => p.zIndex && `z-index: ${p.zIndex}`};
+`
+
+export const sidebarItemSelected = css`
+    border: ${(p: { isSelected?: boolean; theme?: styledComponents.ThemeProps<IThemeColors> }) =>
+        p.isSelected
+            ? `1px solid ${p.theme["highlight.mode.normal.background"]}`
+            : `1px solid transparent`};
 `
 
 export type StyledFunction<T> = styledComponents.ThemedStyledFunction<T, IThemeColors>
@@ -96,6 +130,12 @@ const tint = (base: string, mix: string, degree: number = 0.1) =>
         .toString()
 
 const fontSizeSmall = `font-size: 0.9em;`
+
+export const textOverflow = css`
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`
 
 const fallBackFonts = `
     Consolas,

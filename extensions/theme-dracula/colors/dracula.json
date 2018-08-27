@@ -1,0 +1,53 @@
+{
+    "name": "dracula",
+    "baseVimTheme": "dracula",
+    "colors": {
+        "background": "#191A21",
+        "foreground": "#f8f8f2",
+
+        "title.background": "#21222d",
+        "title.foreground": "#f8f8f2",
+
+        "editor.background": "#21222d",
+        "editor.foreground": "#f8f8f2",
+
+        "tabs.background": "#282a36",
+        "tabs.foreground": "#f8f8f2",
+
+        "toolTip.background": "#21222d",
+        "toolTip.foreground": "#f8f8f2",
+        "toolTip.border": "#000000",
+
+        "menu.background": "#21222d",
+        "menu.foreground": "#f8f8f2",
+        "menu.border": "#000000",
+
+        "contextMenu.background": "#21222d",
+        "contextMenu.foreground": "#f8f8f2",
+        "contextMenu.border": "#000000",
+        "contextMenu.highlight": "#44475a",
+
+        "sidebar.background": "#21222d",
+        "sidebar.foreground": "#f8f8f2",
+        "sidebar.active.background": "#21222d",
+        "sidebar.selection.border": "#000000",
+
+        "statusBar.background": "#21222d",
+        "statusBar.foreground": "#f8f8f2",
+
+        "fileExplorer.background": "#21222d",
+        "fileExplorer.foreground": "#f8f8f2",
+
+        "highlight.mode.insert.background": "#8be9fd",
+        "highlight.mode.insert.foreground": "#000000",
+
+        "highlight.mode.normal.background": "#50fa7b",
+        "highlight.mode.normal.foreground": "#000000",
+
+        "highlight.mode.operator.background": "#ff79c6",
+        "highlight.mode.operator.foreground": "#000000",
+
+        "highlight.mode.visual.background": "#ffb86c",
+        "highlight.mode.visual.foreground": "#000000"
+    }
+}

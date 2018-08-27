@@ -3,3 +3,6 @@
 
 # Declare text files that will always have LF line endings on checking
 oni eol=lf
+
+# Ignore the yarn library from Linguist, for the Github Language Stats.
+lib/yarn/* linguist-vendored=true

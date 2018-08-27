@@ -157,7 +157,8 @@ export function createWindow(
     }
 
     const rootPath = path.join(__dirname, "..", "..", "..")
-    const iconPath = path.join(rootPath, "images", "oni.ico")
+    const iconImage = process.platform === "win32" ? "oni.ico" : "256x256.png"
+    const iconPath = path.join(rootPath, "images", iconImage)
 
     const indexFileName = process.env.ONI_WEBPACK_LOAD ? "index.dev.html" : "index.html"
     const indexPath = path.join(rootPath, indexFileName + "?react_perf")
@@ -173,6 +174,26 @@ export function createWindow(
         height: windowState.bounds.height,
         width: windowState.bounds.width,
     })
+
+    // Workaround for cut/copy/paste/close keybindings not working in devtools window on OSX
+    if (process.platform === "darwin") {
+        currentWindow.webContents.on("devtools-opened", () => {
+            currentWindow.webContents.devToolsWebContents.executeJavaScript(`
+                window.addEventListener('keydown', function (e) {
+                    if (e.keyCode === 65 && e.metaKey) {
+                        document.execCommand('Select All');
+                    } else if (e.keyCode === 67 && e.metaKey) {
+                        document.execCommand('copy');
+                    } else if (e.keyCode === 86 && e.metaKey) {
+                        document.execCommand('paste');
+                    } else if (e.keyCode === 87 && e.metaKey) {
+                        window.close();
+                    } else if (e.keyCode === 88 && e.metaKey) {
+                        document.execCommand('cut');
+                    }
+                });`)
+        })
+    }
 
     if (windowState.isMaximized) {
         currentWindow.maximize()
@@ -234,10 +255,12 @@ export function createWindow(
         Log.info("...closed event completed")
     })
 
-    currentWindow.webContents.on("will-navigate", (event, url) => {
-        event.preventDefault()
-        currentWindow.webContents.send("open-oni-browser", url)
-    })
+    if (!isDevelopment) {
+        currentWindow.webContents.on("will-navigate", (event, url) => {
+            event.preventDefault()
+            currentWindow.webContents.send("execute-command", "browser.openUrl", url)
+        })
+    }
 
     windows.push(currentWindow)
 

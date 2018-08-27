@@ -10,6 +10,7 @@ export interface ITextInputViewProps {
     styles?: any
 
     defaultValue?: string
+    InputComponent?: any
 }
 
 export interface IInputProps extends ITextInputViewProps {
@@ -31,6 +32,10 @@ const WordRegex = /[$_a-zA-Z0-9]/i
  * common functionality (like focus management, key handling)
  */
 export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> {
+    public static defaultProps = {
+        InputComponent: Input,
+    }
+
     private _element: HTMLInputElement
 
     public componentDidMount(): void {
@@ -47,10 +52,11 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         }
 
         const defaultValue = this.props.defaultValue || ""
+        const { InputComponent } = this.props
 
         return (
             <div className="input-container enable-mouse">
-                <Input
+                <InputComponent
                     type="text"
                     inputStyles={this.props.styles}
                     style={inputStyle}
@@ -138,3 +144,5 @@ export class TextInputView extends React.PureComponent<ITextInputViewProps, {}> 
         }
     }
 }
+
+export default TextInputView

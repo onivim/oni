@@ -1,6 +1,7 @@
 import { EventCallback, IDisposable, IEvent } from "oni-types"
 
 import * as dompurify from "dompurify"
+import * as hljs from "highlight.js"
 import * as marked from "marked"
 import * as Oni from "oni-api"
 import * as React from "react"
@@ -84,6 +85,9 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
 
     private generateContainerStyle(): string {
         const colors = this.state.colors
+        const syntaxHighlightTheme = this.props.oni.configuration.getValue(
+            "experimental.markdownPreview.syntaxTheme",
+        )
 
         const codeBlockStyle = `
             background: ${colors.codeBackground};
@@ -95,6 +99,8 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
         `
 
         return `
+            <link rel="stylesheet" href="node_modules/highlight.js/styles/${syntaxHighlightTheme}.css">
+
             <style>
             .oniPluginMarkdownPreviewContainerStyle {
                 padding: 1em 1em 1em 1em;
@@ -142,6 +148,38 @@ class MarkdownPreview extends React.PureComponent<IMarkdownPreviewProps, IMarkdo
         }
         markdownLines.splice(0, 0, generateAnchor(i))
         markdownLines.push(generateAnchor(originalLinesCount - 1))
+
+        const markedOptions = {
+            baseUrl: this.props.oni.workspace.activeWorkspace,
+            highlight(code, lang) {
+                return code
+            },
+        }
+
+        const highlightsEnabled = this.props.oni.configuration.getValue(
+            "experimental.markdownPreview.syntaxHighlights",
+        )
+
+        if (highlightsEnabled) {
+            markedOptions.highlight = (code, lang) => {
+                const languageExists = hljs.getLanguage(lang)
+                const languageNotDefinedOrInvalid =
+                    typeof lang === "undefined" ||
+                    (typeof languageExists === "undefined" && lang !== "nohighlight")
+
+                if (languageNotDefinedOrInvalid) {
+                    return hljs.highlightAuto(code).value
+                }
+
+                if (lang === "nohighlight") {
+                    return code
+                }
+
+                return hljs.highlight(lang, code).value
+            }
+        }
+
+        marked.setOptions(markedOptions)
 
         return marked(markdownLines.join("\n"))
     }

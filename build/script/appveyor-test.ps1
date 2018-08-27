@@ -12,26 +12,33 @@ Write-Host "Platform: " $env:PLATFORM
 Write-Host "AppVeyor: " $env:APPVEYOR
 
 # Build
-npm run build ; exitIfFailed
-npm run lint ; exitIfFailed
-npm run test:unit ; exitIfFailed
+yarn run build ; exitIfFailed
+yarn run lint ; exitIfFailed
+yarn run test:unit ; exitIfFailed
 
 # Create setup package
-npm run copy-icons ; exitIfFailed
+yarn run copy-icons ; exitIfFailed
 
 $platform = (Get-Item env:PLATFORM).value
 
 if ($platform -eq "x86") {
-    npm run dist:win:x86
+    yarn run dist:win:x86
 } else {
-    npm run dist:win:x64
+    yarn run dist:win:x64
 }
 
-npm run pack:win ; exitIfFailed
+yarn run pack:win ; exitIfFailed
 
 # Run integration tests
 npm run test:integration ; exitIfFailed
-npm run demo:screenshot ; exitIfFailed
+npm run test:setup ; exitIfFailed
+
+# Build up demo screenshot for commits that aren't PRs.
+$prNumber = (Get-Item env:APPVEYOR_PULL_REQUEST_NUMBER).value
+
+if ($prNumber -eq "") {
+    npm run demo:screenshot ; exitIfFailed
+}
 
 # Upload bits to azure
 npm run upload:dist ; exitIfFailed

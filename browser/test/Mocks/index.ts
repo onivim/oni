@@ -8,7 +8,7 @@
 export * from "./MockBuffer"
 export * from "./neovim/MockNeovimInstance"
 export * from "./MockPersistentStore"
-export * from "./MockPluginManager"
+import { MockPluginManager } from "./MockPluginManager"
 export * from "./MockThemeLoader"
 
 import * as Oni from "oni-api"
@@ -18,11 +18,11 @@ import * as types from "vscode-languageserver-types"
 
 import { Editor } from "./../../src/Editor/Editor"
 
+import { EditorManager } from "./../../src/Services/EditorManager"
 import * as Language from "./../../src/Services/Language"
 import { createCompletablePromise, ICompletablePromise } from "./../../src/Utility"
 
 import { TokenColor } from "./../../src/Services/TokenColors"
-import { IWorkspace } from "./../../src/Services/Workspace"
 
 export class MockWindowSplit {
     public get id(): string {
@@ -50,7 +50,7 @@ export class MockTokenColors {
 
 import { MockBuffer } from "./MockBuffer"
 
-export class MockConfiguration {
+export class MockConfiguration implements Oni.Configuration {
     private _currentConfigurationFiles: string[] = []
     private _onConfigurationChanged = new Event<any>()
 
@@ -72,6 +72,10 @@ export class MockConfiguration {
         this._configurationValues[key] = value
     }
 
+    public setValues(): void {
+        throw Error("Not yet implemented")
+    }
+
     public addConfigurationFile(filePath: string): void {
         this._currentConfigurationFiles = [...this._currentConfigurationFiles, filePath]
     }
@@ -87,7 +91,7 @@ export class MockConfiguration {
     }
 }
 
-export class MockWorkspace implements IWorkspace {
+export class MockWorkspace implements Oni.Workspace.Api {
     private _activeWorkspace: string = null
     private _onDirectoryChangedEvent = new Event<string>()
     private _onFocusGainedEvent = new Event<void>()
@@ -153,6 +157,10 @@ export class MockEditor extends Editor {
     private _activeBuffer: MockBuffer = null
     private _currentSelection: types.Range = null
 
+    public init(filesToOpen: string[]): void {
+        throw new Error("Not implemented")
+    }
+
     public get activeBuffer(): Oni.Buffer {
         return this._activeBuffer as any
     }
@@ -171,6 +179,10 @@ export class MockEditor extends Editor {
     public simulateBufferEnter(buffer: MockBuffer): void {
         this._activeBuffer = buffer
         this.notifyBufferEnter(buffer as any)
+    }
+
+    public render(): JSX.Element {
+        throw new Error("Not implemented")
     }
 
     public async setSelection(range: types.Range): Promise<void> {
@@ -255,5 +267,116 @@ export class MockHoverRequestor extends MockRequestor<Language.IHoverResult>
         column: number,
     ): Promise<Language.IHoverResult> {
         return this.get(language, filePath, line, column)
+    }
+}
+
+export class MockOni implements Oni.Plugin.Api {
+    private _editorManager = new EditorManager()
+    private _pluginManager = new MockPluginManager()
+    private _statusBar = new MockStatusBar()
+    private _workspace = new MockWorkspace()
+
+    constructor(private _configuration: Oni.Configuration = new MockConfiguration()) {
+        this._editorManager.setActiveEditor(new MockEditor())
+    }
+
+    get automation(): Oni.Automation.Api {
+        throw Error("Not yet implemented")
+    }
+
+    get colors(): Oni.IColors {
+        throw Error("Not yet implemented")
+    }
+
+    get commands(): Oni.Commands.Api {
+        throw Error("Not yet implemented")
+    }
+
+    get configuration(): Oni.Configuration {
+        return this._configuration
+    }
+
+    get contextMenu(): any /* TODO */ {
+        throw Error("Not yet implemented")
+    }
+
+    get diagnostics(): Oni.Plugin.Diagnostics.Api {
+        throw Error("Not yet implemented")
+    }
+
+    get editors(): Oni.EditorManager {
+        return this._editorManager
+    }
+
+    get filter(): Oni.Menu.IMenuFilters {
+        throw Error("Not yet implemented")
+    }
+
+    get input(): Oni.Input.InputManager {
+        throw Error("Not yet implemented")
+    }
+
+    get language(): any /* TODO */ {
+        throw Error("Not yet implemented")
+    }
+
+    get log(): any /* TODO */ {
+        throw Error("Not yet implemented")
+    }
+
+    get notifications(): Oni.Notifications.Api {
+        throw Error("Not yet implemented")
+    }
+
+    get overlays(): Oni.Overlays.Api {
+        throw Error("Not yet implemented")
+    }
+
+    get plugins(): Oni.IPluginManager {
+        return this._pluginManager
+    }
+
+    get search(): Oni.Search.ISearch {
+        throw Error("Not yet implemented")
+    }
+
+    get sidebar(): Oni.Sidebar.Api {
+        throw Error("Not yet implemented")
+    }
+
+    get ui(): Oni.Ui.IUi {
+        throw Error("Not yet implemented")
+    }
+
+    get menu(): Oni.Menu.Api {
+        throw Error("Not yet implemented")
+    }
+
+    get process(): Oni.Process {
+        throw Error("Not yet implemented")
+    }
+
+    get recorder(): Oni.Recorder {
+        throw Error("Not yet implemented")
+    }
+
+    get snippets(): Oni.Snippets.SnippetManager {
+        throw Error("Not yet implemented")
+    }
+
+    get statusBar(): Oni.StatusBar {
+        return this._statusBar
+    }
+
+    get windows(): Oni.IWindowManager {
+        throw Error("Not yet implemented")
+    }
+
+    get workspace(): Oni.Workspace.Api {
+        return this._workspace
+    }
+
+    public populateQuickFix(entries: Oni.QuickFixEntry[]): void {
+        throw Error("Not yet implemented")
     }
 }

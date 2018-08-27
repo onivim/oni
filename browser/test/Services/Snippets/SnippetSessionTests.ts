@@ -50,7 +50,7 @@ describe("SnippetSession", () => {
             assert.strictEqual(firstLine, "somefooline")
         })
 
-        it("matches existing whitespace - 2 spaces", async () => {
+        it("matches existing whitespace for first line - 2 spaces", async () => {
             snippetSession = new SnippetSession(mockEditor as any, "\t\tfoo")
 
             const indentationInfo = {
@@ -66,7 +66,7 @@ describe("SnippetSession", () => {
             assert.strictEqual(firstLine, "    foo")
         })
 
-        it("matches existing whitespace - tabs", async () => {
+        it("matches existing whitespace for first line - tabs", async () => {
             snippetSession = new SnippetSession(mockEditor as any, "\t\tfoo")
 
             const indentationInfo = {
@@ -117,6 +117,54 @@ describe("SnippetSession", () => {
 
         assert.strictEqual(firstLine, "somefoo")
         assert.strictEqual(secondLine, "barline")
+    })
+
+    it("matches existing whitespace for whole snippet - 2 spaces", async () => {
+        snippetSession = new SnippetSession(mockEditor as any, "for {\n\tthing\n}")
+
+        const indentationInfo = {
+            type: "space",
+            amount: 2,
+            indent: "  ",
+        }
+
+        mockBuffer.setWhitespace(indentationInfo as any)
+
+        // Add a line, and move cursor to line
+        mockBuffer.setLinesSync(["  "])
+        mockBuffer.setCursorPosition(0, 2)
+
+        await snippetSession.start()
+
+        const [firstLine, secondLine, thirdLine] = await mockBuffer.getLines(0, 3)
+
+        assert.strictEqual(firstLine, "  for {")
+        assert.strictEqual(secondLine, "    thing")
+        assert.strictEqual(thirdLine, "  }")
+    })
+
+    it("matches existing whitespace for whole snippet  - tabs", async () => {
+        snippetSession = new SnippetSession(mockEditor as any, "for {\n\tthing\n}")
+
+        const indentationInfo = {
+            type: "tab",
+            amount: 0,
+            indent: "\t",
+        }
+
+        mockBuffer.setWhitespace(indentationInfo as any)
+
+        // Add a line, and move cursor to line
+        mockBuffer.setLinesSync(["\t"])
+        mockBuffer.setCursorPosition(0, 1)
+
+        await snippetSession.start()
+
+        const [firstLine, secondLine, thirdLine] = await mockBuffer.getLines(0, 3)
+
+        assert.strictEqual(firstLine, "\tfor {")
+        assert.strictEqual(secondLine, "\t\tthing")
+        assert.strictEqual(thirdLine, "\t}")
     })
 
     it("highlights first placeholder", async () => {

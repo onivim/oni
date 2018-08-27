@@ -32,9 +32,10 @@ export interface IVimNavigatorProps {
     onSelectionChanged?: (selectedId: string) => void
     onSelected?: (selectedId: string) => void
 
-    render: (selectedId: string) => JSX.Element
+    render: (selectedId: string, updateSelection: (id: string) => void) => JSX.Element
 
     style?: React.CSSProperties
+    idToSelect?: string
 }
 
 export interface IVimNavigatorState {
@@ -65,6 +66,10 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
         this._releaseBinding()
     }
 
+    public updateSelection = (id: string) => {
+        this.setState({ selectedId: id })
+    }
+
     public render() {
         const inputElement = (
             <div className="input">
@@ -84,7 +89,9 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
 
         return (
             <div style={this.props.style}>
-                <div className="items">{this.props.render(this.state.selectedId)}</div>
+                <div className="items">
+                    {this.props.render(this.state.selectedId, this.updateSelection)}
+                </div>
                 {this.props.active ? inputElement : null}
             </div>
         )
@@ -127,16 +134,7 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
 
             this._activeBinding.onCursorMoved.subscribe(newValue => {
                 Log.info("[VimNavigator::onCursorMoved] - " + newValue)
-
-                if (newValue !== this.state.selectedId) {
-                    this.setState({
-                        selectedId: newValue,
-                    })
-
-                    if (this.props.onSelectionChanged) {
-                        this.props.onSelectionChanged(newValue)
-                    }
-                }
+                this._maybeUpdateSelection(newValue)
             })
 
             await this._activeBinding.setItems(this.props.ids, this.state.selectedId)
@@ -145,6 +143,20 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
             await this._activeBinding.setItems(this.props.ids, this.state.selectedId)
         } else if (!props.active && this._activeBinding) {
             this._releaseBinding()
+        }
+
+        if (props.idToSelect) {
+            this._maybeUpdateSelection(props.idToSelect)
+        }
+    }
+
+    private _maybeUpdateSelection(id: string) {
+        if (id !== this.state.selectedId) {
+            this.setState({ selectedId: id })
+
+            if (this.props.onSelectionChanged) {
+                this.props.onSelectionChanged(id)
+            }
         }
     }
 }

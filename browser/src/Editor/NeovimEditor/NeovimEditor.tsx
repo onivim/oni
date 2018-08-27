@@ -1,7 +1,7 @@
 /**
  * NeovimEditor.ts
  *
- * IEditor implementation for Neovim
+ * Editor implementation for Neovim
  */
 
 import * as os from "os"
@@ -44,6 +44,7 @@ import { Completion, CompletionProviders } from "./../../Services/Completion"
 import { Configuration, IConfigurationValues } from "./../../Services/Configuration"
 import { IDiagnosticsDataSource } from "./../../Services/Diagnostics"
 import { Overlay, OverlayManager } from "./../../Services/Overlay"
+import { ISession } from "./../../Services/Sessions"
 import { SnippetManager } from "./../../Services/Snippets"
 import { TokenColors } from "./../../Services/TokenColors"
 
@@ -66,7 +67,7 @@ import { IThemeMetadata, ThemeManager } from "./../../Services/Themes"
 import { TypingPredictionManager } from "./../../Services/TypingPredictionManager"
 import { Workspace } from "./../../Services/Workspace"
 
-import { Editor, IEditor } from "./../Editor"
+import { Editor } from "./../Editor"
 
 import { BufferManager, IBuffer } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
@@ -80,7 +81,7 @@ import { asObservable, normalizePath, sleep } from "./../../Utility"
 
 import * as VimConfigurationSynchronizer from "./../../Services/VimConfigurationSynchronizer"
 
-import { BufferLayerManager } from "./BufferLayerManager"
+import getLayerManagerInstance from "./BufferLayerManager"
 import { Definition } from "./Definition"
 import * as ActionCreators from "./NeovimEditorActions"
 import { NeovimEditorCommands } from "./NeovimEditorCommands"
@@ -99,7 +100,9 @@ import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
 import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 
-export class NeovimEditor extends Editor implements IEditor {
+type NeovimError = [number, string]
+
+export class NeovimEditor extends Editor implements Oni.Editor {
     private _bufferManager: BufferManager
     private _neovimInstance: NeovimInstance
     private _renderer: INeovimRenderer
@@ -119,6 +122,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _modeChanged$: Observable<Oni.Vim.Mode>
     private _cursorMoved$: Observable<Oni.Cursor>
     private _cursorMovedI$: Observable<Oni.Cursor>
+    private _onScroll$: Observable<Oni.EditorBufferScrolledEventArgs>
 
     private _hasLoaded: boolean = false
 
@@ -141,7 +145,7 @@ export class NeovimEditor extends Editor implements IEditor {
     private _toolTipsProvider: IToolTipsProvider
     private _commands: NeovimEditorCommands
     private _externalMenuOverlay: Overlay
-    private _bufferLayerManager: BufferLayerManager
+    private _bufferLayerManager = getLayerManagerInstance()
     private _screenWithPredictions: ScreenWithPredictions
 
     private _onNeovimQuit: Event<void> = new Event<void>()
@@ -161,7 +165,7 @@ export class NeovimEditor extends Editor implements IEditor {
         return this._neovimInstance
     }
 
-    public get bufferLayers(): BufferLayerManager {
+    public get bufferLayers() {
         return this._bufferLayerManager
     }
 
@@ -199,8 +203,6 @@ export class NeovimEditor extends Editor implements IEditor {
         this._store = createStore()
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
         this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
-
-        this._bufferLayerManager = new BufferLayerManager()
 
         this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
 
@@ -603,6 +605,7 @@ export class NeovimEditor extends Editor implements IEditor {
         })
 
         this._modeChanged$ = asObservable(this._neovimInstance.onModeChanged)
+        this._onScroll$ = asObservable(this._neovimInstance.onScroll)
 
         this.trackDisposable(
             this._neovimInstance.onModeChanged.subscribe(newMode => this._onModeChanged(newMode)),
@@ -643,6 +646,7 @@ export class NeovimEditor extends Editor implements IEditor {
         addInsertModeLanguageFunctionality(
             this._cursorMovedI$,
             this._modeChanged$,
+            this._onScroll$,
             this._toolTipsProvider,
         )
 
@@ -886,6 +890,31 @@ export class NeovimEditor extends Editor implements IEditor {
         await this._neovimInstance.command(
             `set tabstop=${tabSize} shiftwidth=${tabSize} softtabstop=${tabSize}`,
         )
+    }
+
+    // "v:this_session" |this_session-variable| - is a variable nvim sets to the path of
+    // the current session file when one is loaded we use it here to check the current session
+    // if it in oni's session dir then this is updated
+    public async getCurrentSession(): Promise<string | void> {
+        const result = await this._neovimInstance.request<string | NeovimError>("nvim_get_vvar", [
+            "this_session",
+        ])
+
+        if (Array.isArray(result)) {
+            return this._handleNeovimError(result)
+        }
+        return result
+    }
+
+    public async persistSession(session: ISession) {
+        const result = await this._neovimInstance.command(`mksession! ${session.file}`)
+        return this._handleNeovimError(result)
+    }
+
+    public async restoreSession(session: ISession) {
+        await this._neovimInstance.closeAllBuffers()
+        const result = await this._neovimInstance.command(`source ${session.file}`)
+        return this._handleNeovimError(result)
     }
 
     public async openFile(
@@ -1356,6 +1385,18 @@ export class NeovimEditor extends Editor implements IEditor {
             } else {
                 this._renderer.draw(this._screenWithPredictions as any)
             }
+        }
+    }
+
+    private _handleNeovimError(result: NeovimError | void): void {
+        if (!result) {
+            return null
+        }
+        // the first value of the error response is a 0
+        if (Array.isArray(result) && !result[0]) {
+            const [, error] = result
+            Log.warn(error)
+            throw new Error(error)
         }
     }
 }

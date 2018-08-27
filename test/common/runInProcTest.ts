@@ -111,107 +111,107 @@ export const runInProcTest = (
         let testCase: ITestCase
         let oni: Oni
 
-        beforeEach(async () => {
-            logWithTimeStamp("BEFORE EACH: " + testName)
-
-            testCase = loadTest(rootPath, testName)
-            const startOptions = {
-                env: testCase.env,
-            }
-
-            oni = new Oni()
-            logWithTimeStamp("- Calling oni.start")
-            await oni.start(startOptions)
-            logWithTimeStamp("- oni.start complete")
-        })
-
-        afterEach(async () => {
-            logWithTimeStamp("[AFTER EACH]: " + testName)
-            await oni.close()
-            logWithTimeStamp("[AFTER EACH] Completed " + testName)
-        })
-
         it("ci test: " + testName, async () => {
-            logWithTimeStamp("TEST: " + testName)
-            console.log("Waiting for editor element...")
-            await oni.client.waitForExist(".editor", timeout)
+            try {
+                logWithTimeStamp("TEST: " + testName)
+                testCase = loadTest(rootPath, testName)
+                const startOptions = {
+                    env: testCase.env,
+                }
+                oni = new Oni()
 
-            logWithTimeStamp("Found editor element. Getting editor element text: ")
-            const text = await oni.client.getText(".editor")
-            logWithTimeStamp("Editor element text: " + text)
+                logWithTimeStamp("Calling oni.start")
+                await oni.start(startOptions)
+                logWithTimeStamp("Completed oni.start")
 
-            logWithTimeStamp("Test path: " + testCase.testPath) // tslint:disable-line
+                console.log("Waiting for editor element...")
+                await oni.client.waitForExist(".editor", timeout)
 
-            oni.client.execute("Oni.automation.runTest('" + testCase.testPath + "')")
+                logWithTimeStamp("Found editor element. Getting editor element text: ")
+                const text = await oni.client.getText(".editor")
+                logWithTimeStamp("Editor element text: " + text)
 
-            logWithTimeStamp("Waiting for result...") // tslint:disable-line
-            const value = await oni.client.waitForExist(".automated-test-result", 300000)
-            logWithTimeStamp("waitForExist for 'automated-test-result' complete: " + value)
+                logWithTimeStamp("Test path: " + testCase.testPath) // tslint:disable-line
 
-            console.log("Retrieving logs...")
+                oni.client.execute("Oni.automation.runTest('" + testCase.testPath + "')")
 
-            const isLogFailure = (log: any) => log.level === "SEVERE" && !testCase.allowLogFailures
-            const anyLogFailure = (logs: any[]) => logs.filter(isLogFailure).length > 0
+                logWithTimeStamp("Waiting for result...") // tslint:disable-line
+                const value = await oni.client.waitForExist(".automated-test-result", 120000)
+                logWithTimeStamp("waitForExist for 'automated-test-result' complete: " + value)
 
-            const writeLogs = (logs: any[], forceWrite?: boolean): void => {
-                const anyFailures = anyLogFailure(logs)
-                const shouldWrite = !result || !result.passed || anyFailures || forceWrite
+                console.log("Retrieving logs...")
 
-                logs.forEach(log => {
-                    const logMessage = `[${log.level}] ${log.message}`
+                const isLogFailure = (log: any) =>
+                    log.level === "SEVERE" && !testCase.allowLogFailures
+                const anyLogFailure = (logs: any[]) => logs.filter(isLogFailure).length > 0
 
-                    if (shouldWrite) {
-                        console.log(logMessage)
+                const writeLogs = (logs: any[], forceWrite?: boolean): void => {
+                    const anyFailures = anyLogFailure(logs)
+                    const shouldWrite = !result || !result.passed || anyFailures || forceWrite
+
+                    logs.forEach(log => {
+                        const logMessage = `[${log.level}] ${log.message}`
+
+                        if (shouldWrite) {
+                            console.log(logMessage)
+                        }
+
+                        if (isLogFailure(log)) {
+                            assert.ok(false, logMessage)
+                        }
+                    })
+
+                    if (!shouldWrite) {
+                        console.log("Skipping log output since test passed.")
                     }
+                }
 
-                    if (isLogFailure(log)) {
-                        assert.ok(false, logMessage)
-                    }
-                })
+                console.log("Getting result...")
+                const resultText = await oni.client.getText(".automated-test-result")
+                const result = JSON.parse(resultText)
 
-                if (!shouldWrite) {
+                const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
+                console.log("")
+                console.log("---LOGS (Renderer): " + testName)
+                writeLogs(rendererLogs)
+                console.log("--- " + testName + " ---")
+
+                console.log("---LOGS (Main): " + testName)
+                if (!result.passed) {
+                    const mainProcessLogs: any[] = await oni.client.getMainProcessLogs()
+                    mainProcessLogs.forEach(l => {
+                        console.log(l)
+                    })
+                } else {
                     console.log("Skipping log output since test passed.")
                 }
-            }
+                console.log("--- " + testName + " ---")
 
-            console.log("Getting result...")
-            const resultText = await oni.client.getText(".automated-test-result")
-            const result = JSON.parse(resultText)
+                console.log("")
+                logWithTimeStamp("---RESULT: " + testName)
+                console.log(resultText) // tslint:disable-line
+                console.log("--- " + testName + " ---")
+                console.log("")
 
-            const rendererLogs: any[] = await oni.client.getRenderProcessLogs()
-            console.log("")
-            console.log("---LOGS (Renderer): " + testName)
-            writeLogs(rendererLogs)
-            console.log("--- " + testName + " ---")
-
-            console.log("---LOGS (Main): " + testName)
-            if (!result.passed) {
-                const mainProcessLogs: any[] = await oni.client.getMainProcessLogs()
-                mainProcessLogs.forEach(l => {
-                    console.log(l)
-                })
-            } else {
-                console.log("Skipping log output since test passed.")
-            }
-            console.log("--- " + testName + " ---")
-
-            console.log("")
-            logWithTimeStamp("---RESULT: " + testName)
-            console.log(resultText) // tslint:disable-line
-            console.log("--- " + testName + " ---")
-            console.log("")
-
-            if (failures && !result.passed) {
-                const failedTest: IFailedTest = {
-                    test: testName,
-                    path: testCase.testPath,
-                    expected: result.exception.expected,
-                    actual: result.exception.actual,
+                if (failures && !result.passed) {
+                    const failedTest: IFailedTest = {
+                        test: testName,
+                        path: testCase.testPath,
+                        expected: result.exception.expected,
+                        actual: result.exception.actual,
+                    }
+                    failures.push(failedTest)
                 }
-                failures.push(failedTest)
-            }
 
-            assert.ok(result.passed)
+                assert.ok(result.passed)
+            } finally {
+                try {
+                    logWithTimeStamp("Calling oni.close...")
+                    await oni.close()
+                    logWithTimeStamp("Completed oni.close")
+                    // tslint:disable-next-line:no-empty
+                } catch (e) {}
+            }
         })
     })
 }

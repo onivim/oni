@@ -91,3 +91,21 @@ export async function insertText(oni: Oni.Plugin.Api, text: string): Promise<voi
     oni.automation.sendKeys(`${text}<ESC>`)
     await awaitEditorMode(oni, "normal")
 }
+
+/**
+ * Create temporary workspace with a file `src/File.ts` and return workspace directory
+ */
+export async function useTempWorkspace(oni: Oni.Plugin.Api) {
+    // Create our "workspace"
+    const rootPath = getTemporaryFolder()
+    fs.mkdirSync(rootPath)
+    // Create workspace subdir.
+    const directoryPath = path.join(rootPath, "src")
+    fs.mkdirSync(directoryPath)
+    // Create workspace file.
+    const filePath = path.join(directoryPath, "File.ts")
+    fs.writeFileSync(filePath, "")
+    // Switch to workspace.
+    await oni.workspace.changeDirectory(rootPath)
+    return rootPath
+}

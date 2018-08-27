@@ -21,7 +21,7 @@ import { DragAndDrop, Droppeable } from "./../DragAndDrop"
 import { FileIcon } from "./../FileIcon"
 
 import * as ExplorerSelectors from "./ExplorerSelectors"
-import { IExplorerState } from "./ExplorerStore"
+import { getPathForNode, IExplorerState } from "./ExplorerStore"
 
 type Node = ExplorerSelectors.ExplorerNode
 
@@ -267,6 +267,7 @@ export interface IExplorerViewProps extends IExplorerViewContainerProps {
     nodes: ExplorerSelectors.ExplorerNode[]
     isActive: boolean
     updated: string[]
+    idToSelect: string
 }
 
 import { SidebarEmptyPaneView } from "./../../UI/components/SidebarEmptyPaneView"
@@ -293,6 +294,7 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps, {}> {
                 <VimNavigator
                     ids={ids}
                     active={this.props.isActive && !this.props.isRenaming && !this.props.isCreating}
+                    idToSelect={this.props.idToSelect}
                     onSelectionChanged={this.props.onSelectionChanged}
                     onSelected={id => this.props.onClick(id)}
                     render={(selectedId: string) => {
@@ -334,13 +336,30 @@ const mapStateToProps = (
     const yanked = state.register.yank.map(node => node.id)
     const {
         register: { updated, rename },
+        fileToSelect,
     } = state
+
+    const nodes: ExplorerSelectors.ExplorerNode[] = ExplorerSelectors.mapStateToNodeList(state)
+
+    let idToSelect: string = null
+    // If parent has told us to select a file, attempt to convert the file path into a node ID.
+    if (fileToSelect) {
+        const [nodeToSelect] = nodes.filter((node: ExplorerSelectors.ExplorerNode) => {
+            const nodePath: string = getPathForNode(node)
+            return nodePath === fileToSelect
+        })
+        if (nodeToSelect) {
+            idToSelect = nodeToSelect.id
+        }
+    }
+
     return {
         ...containerProps,
         isActive: state.hasFocus,
-        nodes: ExplorerSelectors.mapStateToNodeList(state),
+        nodes,
         updated,
         yanked,
+        idToSelect,
         isCreating: state.register.create.active,
         isRenaming: rename.active && rename.target,
     }

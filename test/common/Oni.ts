@@ -19,7 +19,7 @@ const isCiBuild = () => {
     return ciBuild
 }
 
-const getWindowsExcutablePathOnCiMachine = () => {
+const getWindowsExecutablePathOnCiMachine = () => {
     switch (process.env.PLATFORM) {
         case "x86":
             return path.join(__dirname, "..", "..", "..", "dist", "win-ia32-unpacked", "Oni.exe")
@@ -33,7 +33,7 @@ const getWindowsExcutablePathOnCiMachine = () => {
 const getExecutablePathOnCiMachine = () => {
     switch (process.platform) {
         case "win32":
-            return getWindowsExcutablePathOnCiMachine()
+            return getWindowsExecutablePathOnCiMachine()
         case "darwin":
             return path.join(
                 __dirname,
@@ -117,7 +117,14 @@ export class Oni {
 
     public async close(): Promise<void> {
         log("Closing Oni...")
-        const windowCount = await this.client.getWindowCount()
+        const windowCount = await Promise.race([
+            this.client.getWindowCount(),
+            new Promise(resolve => {
+                setTimeout(() => {
+                    resolve("Timed out waiting for window count")
+                }, 1000)
+            }),
+        ])
         log(`- current window count: ${windowCount}`)
         if (this._app) {
             let attempts = 1
@@ -149,8 +156,10 @@ export class Oni {
                 log("- Race complete. didStop: " + didStop)
 
                 if (!didStop) {
-                    log("- Attemping to force close processes:")
+                    log("- Attempting to force close processes:")
                     await ensureProcessNotRunning("nvim")
+                    await ensureProcessNotRunning("oni")
+                    await ensureProcessNotRunning("chromedriver")
                     log("- Force close complete")
                 }
 

@@ -12,6 +12,7 @@ module.exports = {
         "keyboard-layout": "require('keyboard-layout')",
         gifshot: "require('gifshot')",
         "msgpack-lite": "require('msgpack-lite')",
+        "simple-git/promise": "require('simple-git/promise')",
         "styled-components": "require('styled-components')",
         fsevents: "require('fsevents')",
     },
