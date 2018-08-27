@@ -12,6 +12,7 @@ import * as Oni from "oni-api"
 import { NeovimInstance } from "./../../neovim"
 import { CallbackCommand, CommandManager } from "./../../Services/CommandManager"
 import { ContextMenuManager } from "./../../Services/ContextMenu"
+import { editorManager } from "./../../Services/EditorManager"
 import { findAllReferences, format, LanguageEditorIntegration } from "./../../Services/Language"
 import { replaceAll } from "./../../Utility"
 
@@ -67,13 +68,22 @@ export class NeovimEditorCommands {
 
         const pasteContents = async (neovimInstance: NeovimInstance) => {
             const textToPaste = clipboard.readText()
-            const sanitizedText = replaceAll(textToPaste, { "<": "<lt>" })
-                .split(os.EOL)
-                .join("<cr>")
+            const replacements = { "'": "''" }
+            replacements[os.EOL] = "\n"
+            const sanitizedTextLines = replaceAll(textToPaste, replacements)
+            await neovimInstance.command('let b:oniclipboard=@"')
+            await neovimInstance.command(`let @"='${sanitizedTextLines}'`)
 
-            await neovimInstance.command("set paste")
-            await neovimInstance.input(sanitizedText)
-            await neovimInstance.command("set nopaste")
+            if (editorManager.activeEditor.mode === "insert") {
+                await neovimInstance.command("set paste")
+                await neovimInstance.input('<c-r>"')
+                await neovimInstance.command("set nopaste")
+            } else {
+                await neovimInstance.command("normal! p")
+            }
+
+            await neovimInstance.command('let @"=b:oniclipboard')
+            await neovimInstance.command("unlet b:oniclipboard")
         }
 
         const commands = [
@@ -116,7 +126,13 @@ export class NeovimEditorCommands {
                 "editor.clipboard.yank",
                 "Clipboard: Yank",
                 "Yank contents to clipboard",
-                () => this._neovimInstance.input("y"),
+                () => this._neovimInstance.command('normal! "+y'),
+            ),
+            new CallbackCommand(
+                "editor.clipboard.cut",
+                "Clipboard: Cut",
+                "Cut contents to clipboard",
+                () => this._neovimInstance.command('normal! "+x'),
             ),
             new CallbackCommand("oni.editor.findAllReferences", null, null, () =>
                 findAllReferences(),
