@@ -3,9 +3,9 @@ import unicode from "unicode-properties"
 import OTProcessor from "./OTProcessor"
 
 export default class GlyphInfo {
-    codePoints: any[]
+    codePoints: number[]
     features: {}
-    ligatureID: any
+    ligatureID: number
     ligatureComponent: any
     isLigated: boolean
     cursiveAttachment: any
@@ -23,7 +23,7 @@ export default class GlyphInfo {
     private _id: any
 
     constructor(font: any, id: any, codePoints: any[] = [], features?: any) {
-        this._font = font
+        this._font = font // TODO this could be removed
         this.codePoints = codePoints
         this.id = id
         this.contextGroup = Symbol("contextGroup")

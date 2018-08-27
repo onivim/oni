@@ -1,4 +1,8 @@
 {
     "typescriptHero.imports.stringQuoteStyle": "\"",
-    "typescriptHero.imports.multiLineWrapThreshold": 100
+    "typescriptHero.imports.multiLineWrapThreshold": 100,
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
+    "typescriptHero.imports.organizeOnSave": false
 }

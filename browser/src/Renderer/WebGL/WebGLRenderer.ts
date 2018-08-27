@@ -2,6 +2,7 @@ import { INeovimRenderer } from ".."
 import { MinimalScreenForRendering } from "../../neovim"
 import { CachedColorNormalizer } from "./CachedColorNormalizer"
 import { IColorNormalizer } from "./IColorNormalizer"
+import { LigatureGrouper } from "./LigatureGrouper"
 import { IWebGLAtlasOptions, WebGLTextureSpaceExceededError } from "./WebGLAtlas"
 import { WebGLSolidRenderer } from "./WebGLSolidRenderer"
 import { WebGlTextRenderer } from "./WebGLTextRenderer"
@@ -9,6 +10,7 @@ import { WebGlTextRenderer } from "./WebGLTextRenderer"
 export class WebGLRenderer implements INeovimRenderer {
     private _editorElement: HTMLElement
     private _colorNormalizer: IColorNormalizer
+    private _ligatureGrouper: LigatureGrouper
     private _previousAtlasOptions: IWebGLAtlasOptions
     private _textureSizeInPixels = 1024
     private _textureLayerCount = 2
@@ -95,6 +97,13 @@ export class WebGLRenderer implements INeovimRenderer {
             !this._previousAtlasOptions ||
             !isShallowEqual(this._previousAtlasOptions, atlasOptions)
         ) {
+            if (
+                !this._previousAtlasOptions ||
+                this._previousAtlasOptions.fontFamily !== fontFamily
+            ) {
+                this._ligatureGrouper = new LigatureGrouper(fontFamily)
+            }
+
             this._solidRenderer = new WebGLSolidRenderer(
                 this._gl,
                 this._colorNormalizer,
@@ -103,6 +112,7 @@ export class WebGLRenderer implements INeovimRenderer {
             this._textRenderer = new WebGlTextRenderer(
                 this._gl,
                 this._colorNormalizer,
+                this._ligatureGrouper,
                 atlasOptions,
             )
             this._previousAtlasOptions = atlasOptions

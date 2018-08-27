@@ -373,10 +373,12 @@ export default class OTProcessor {
         this.glyphIterator.move(startOffset)
         const contextGroupToLinkTo = this.glyphIterator.cur.contextGroup
         const contextGroupEndIndex = pos + contextGroupLength
+        this.glyphIterator.next()
 
-        while (this.glyphIterator.index <= contextGroupEndIndex) {
-            const glyphToUpdate = this.glyphIterator.next()
+        while (this.glyphIterator.index < contextGroupEndIndex) {
+            const glyphToUpdate = this.glyphIterator.cur
             glyphToUpdate.contextGroup = contextGroupToLinkTo
+            this.glyphIterator.next()
         }
 
         this.glyphIterator.index = pos

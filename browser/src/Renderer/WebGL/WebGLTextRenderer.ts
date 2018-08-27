@@ -1,22 +1,13 @@
-import fontkit from "fontkit"
-import * as fs from "fs"
-
 import { ICell } from "../../neovim"
-import GlyphInfo from "./fontLayout/GlyphInfo"
-import GSUBProcessor from "./fontLayout/GSUBProcessor"
+import { CellGroup } from "./CellGroup"
 import { IColorNormalizer } from "./IColorNormalizer"
+import { LigatureGrouper } from "./LigatureGrouper"
 import { IWebGLAtlasOptions, WebGLAtlas, WebGLGlyph } from "./WebGLAtlas"
 import {
     createProgram,
     createUnitQuadElementIndicesBuffer,
     createUnitQuadVerticesBuffer,
 } from "./WebGLUtilities"
-
-const fontFileBuffer = fs.readFileSync("/Users/mane/Library/Fonts/FiraCode-Regular.otf")
-const font = fontkit.create(fontFileBuffer)
-const processor = new GSUBProcessor(font as any, (font as any).GSUB)
-processor.selectScript()
-const features = ["calt"]
 
 const glyphInstanceFieldCount = 13
 const glyphInstanceSizeInBytes = glyphInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT
@@ -121,6 +112,7 @@ export class WebGlTextRenderer {
     constructor(
         private _gl: WebGL2RenderingContext,
         private _colorNormalizer: IColorNormalizer,
+        private _ligatureGrouper: LigatureGrouper,
         atlasOptions: IWebGLAtlasOptions,
     ) {
         this._glyphOverlapInPixels = atlasOptions.glyphPaddingInPixels
@@ -296,102 +288,76 @@ export class WebGlTextRenderer {
         const pixelRatioAdaptedGlyphOverlap = this._glyphOverlapInPixels * this._devicePixelRatio
 
         let glyphCount = 0
-
         for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-            // TODO separate line into parts based on color, style(, and weight)
-            let currentTextLine = ""
+            const cellGroups: CellGroup[] = []
             for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                const cell = getCell(columnIndex, rowIndex)
-                currentTextLine += cell.character || " "
-            }
-
-            // Map string(s) to GlyphInfo[](s)
-            const fontGlyphs = font.glyphsForString(currentTextLine)
-            const glyphInfos = fontGlyphs.map(
-                glyph => new GlyphInfo(font, glyph.id, [...glyph.codePoints], features),
-            )
-            processor.applyFeatures(features, glyphInfos, null)
-
-            // Group GlyphInfo[](s) by contextGroup
-            const contextGroupedGlyphInfos: GlyphInfo[][] = [[]]
-            let currentActiveContextGroup =
-                glyphInfos && glyphInfos.length && glyphInfos[0].contextGroup
-            while (glyphInfos.length) {
-                const glyphInfo = glyphInfos.shift()
-                if (glyphInfo.contextGroup === currentActiveContextGroup) {
-                    contextGroupedGlyphInfos[contextGroupedGlyphInfos.length - 1].push(glyphInfo)
+                const currentCell = getCell(columnIndex, rowIndex)
+                const currentCharacter = currentCell.character
+                const currentCellGroup = cellGroups.length && cellGroups[cellGroups.length - 1]
+                if (!currentCharacter || currentCharacter === " ") {
+                    continue
+                } else if (
+                    !currentCellGroup ||
+                    currentCellGroup.foregroundColor !== currentCell.foregroundColor ||
+                    currentCellGroup.backgroundColor !== currentCell.backgroundColor ||
+                    currentCellGroup.bold !== currentCell.bold ||
+                    currentCellGroup.italic !== currentCell.italic ||
+                    currentCellGroup.underline !== currentCell.underline ||
+                    currentCellGroup.startColumnIndex + currentCellGroup.characters.length <
+                        columnIndex // We have been skipping whitespace
+                ) {
+                    const {
+                        character,
+                        foregroundColor,
+                        backgroundColor,
+                        bold,
+                        italic,
+                        underline,
+                    } = currentCell
+                    cellGroups.push({
+                        startColumnIndex: columnIndex,
+                        characters: [character],
+                        foregroundColor,
+                        backgroundColor,
+                        bold,
+                        italic,
+                        underline,
+                    })
                 } else {
-                    currentActiveContextGroup = glyphInfo.contextGroup
-                    contextGroupedGlyphInfos.push([glyphInfo])
+                    currentCellGroup.characters.push(currentCharacter)
                 }
             }
 
-            // Map GlyphInfo[][](s) to string[](s)
-            const contextGroupStrings = contextGroupedGlyphInfos.map(glyphsInContextGroup => {
-                let contextGroupString = ""
-                glyphsInContextGroup.forEach(glyphInfo => {
-                    contextGroupString += String.fromCodePoint(...glyphInfo.codePoints)
+            cellGroups.forEach(cellGroup => {
+                const { startColumnIndex, characters, bold, italic, foregroundColor } = cellGroup
+
+                const ligatureGroups = this._ligatureGrouper.getLigatureGroups(characters)
+
+                let offsetWithinCellGroup = 0
+                ligatureGroups.forEach(ligatureGroup => {
+                    const columnIndex = startColumnIndex + offsetWithinCellGroup
+                    const x = pixelRatioAdaptedFontWidth * columnIndex
+                    const y = pixelRatioAdaptedFontHeight * rowIndex
+                    const variantIndex =
+                        Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
+                    const glyph = this._atlas.getGlyph(ligatureGroup, bold, italic, variantIndex)
+                    const colorToUse = foregroundColor || defaultForegroundColor || "white"
+                    const normalizedTextColor = this._colorNormalizer.normalizeColor(colorToUse)
+
+                    this.updateGlyphInstance(
+                        glyphCount,
+                        Math.round(x - glyph.variantOffset) - pixelRatioAdaptedGlyphOverlap,
+                        y - pixelRatioAdaptedGlyphOverlap,
+                        glyph,
+                        normalizedTextColor,
+                    )
+
+                    offsetWithinCellGroup += ligatureGroup.length
+                    glyphCount++
                 })
-                return contextGroupString
-            })
-
-            let columnIndex = 0
-            contextGroupStrings.forEach(contextGroupString => {
-                const cell = getCell(columnIndex, rowIndex)
-                const x = pixelRatioAdaptedFontWidth * columnIndex
-                const y = pixelRatioAdaptedFontHeight * rowIndex
-                const variantIndex = Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
-                const glyph = this._atlas.getGlyph(
-                    contextGroupString,
-                    cell.bold,
-                    cell.italic,
-                    variantIndex,
-                )
-                const colorToUse = cell.foregroundColor || defaultForegroundColor || "white"
-                const normalizedTextColor = this._colorNormalizer.normalizeColor(colorToUse)
-
-                this.updateGlyphInstance(
-                    glyphCount,
-                    Math.round(x - glyph.variantOffset) - pixelRatioAdaptedGlyphOverlap,
-                    y - pixelRatioAdaptedGlyphOverlap,
-                    glyph,
-                    normalizedTextColor,
-                )
-
-                glyphCount++
-                columnIndex += contextGroupString.length
             })
         }
 
-        // TODO refactor this to not be as reliant on mutations
-        // for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-        //     let x = 0
-
-        //     for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-        //         const cell = getCell(columnIndex, rowIndex)
-        //         const char = cell.character
-        //         if (!isWhiteSpace(char)) {
-        //             const variantIndex =
-        //                 Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
-        //             const glyph = this._atlas.getGlyph(char, cell.bold, cell.italic, variantIndex)
-        //             const colorToUse = cell.foregroundColor || defaultForegroundColor || "white"
-        //             const normalizedTextColor = this._colorNormalizer.normalizeColor(colorToUse)
-
-        //             this.updateGlyphInstance(
-        //                 glyphCount,
-        //                 Math.round(x - glyph.variantOffset) - pixelRatioAdaptedGlyphOverlap,
-        //                 y - pixelRatioAdaptedGlyphOverlap,
-        //                 glyph,
-        //                 normalizedTextColor,
-        //             )
-
-        //             glyphCount++
-        //         }
-        //         x += pixelRatioAdaptedFontWidth
-        //     }
-
-        //     y += pixelRatioAdaptedFontHeight
-        // }
         this._atlas.uploadTexture()
 
         return glyphCount

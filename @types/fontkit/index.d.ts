@@ -13,6 +13,7 @@ interface GlyphRun {
 type Direction = "" | "ltr" | "rtl"
 
 interface Font {
+    availableFeatures: string[]
     glyphsForString(text: string): Glyph[]
     layout(
         text: string,
