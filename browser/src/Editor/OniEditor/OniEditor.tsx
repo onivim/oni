@@ -210,11 +210,11 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
             )
         }
 
-        this._neovimEditor.onEmptyBuffer.subscribe(async () => {
+        this._neovimEditor.onShowWelcomeScreen.subscribe(async () => {
             const oni = this._pluginManager.getApi()
-            const buf = await this._neovimEditor.createWelcomeBuffer()
-            const welcome = new WelcomeBufferLayer(oni as OniWithActiveSection)
-            buf.addLayer(welcome)
+            const welcomeBuffer = await this._neovimEditor.createWelcomeBuffer()
+            const welcomeLayer = new WelcomeBufferLayer(oni as OniWithActiveSection)
+            welcomeBuffer.addLayer(welcomeLayer)
         })
     }
 

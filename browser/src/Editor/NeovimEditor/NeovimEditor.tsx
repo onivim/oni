@@ -146,7 +146,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
     private _bufferLayerManager = getLayerManagerInstance()
     private _screenWithPredictions: ScreenWithPredictions
 
-    private _onEmptyBuffer = new Event<void>()
+    private _onShowWelcomeScreen = new Event<void>()
     private _onNeovimQuit: Event<void> = new Event<void>()
 
     private _autoFocus: boolean = true
@@ -155,8 +155,8 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         return this._onNeovimQuit
     }
 
-    public get onEmptyBuffer() {
-        return this._onEmptyBuffer
+    public get onShowWelcomeScreen() {
+        return this._onShowWelcomeScreen
     }
 
     public get /* override */ activeBuffer(): Oni.Buffer {
@@ -1043,7 +1043,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             await this.openFiles(filesToOpen, { openMode: Oni.FileOpenMode.Edit })
         } else {
             if (this._configuration.getValue("experimental.welcome.enabled")) {
-                this._onEmptyBuffer.dispatch()
+                this._onShowWelcomeScreen.dispatch()
             }
         }
 
