@@ -88,7 +88,7 @@ type GetBorder = (
 export const getSelectedBorder: GetBorder = ({ isSelected, borderSize = "1px", theme }) =>
     isSelected
         ? `${borderSize} solid ${theme["highlight.mode.normal.background"]}`
-        : `1px solid transparent`
+        : `${borderSize} solid transparent`
 
 export const sidebarItemSelected = css`
     border: ${getSelectedBorder};
