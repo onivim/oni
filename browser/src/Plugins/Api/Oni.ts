@@ -39,6 +39,7 @@ import { getInstance as getStatusBarInstance } from "./../../Services/StatusBar"
 import { getInstance as getTokenColorsInstance } from "./../../Services/TokenColors"
 import { windowManager } from "./../../Services/WindowManager"
 import { getInstance as getWorkspaceInstance } from "./../../Services/Workspace"
+import { getInstance as getSessionManagerInstance, SessionManager } from "./../../Services/Sessions"
 
 import { Search } from "./../../Services/Search/SearchProvider"
 
@@ -166,6 +167,10 @@ export class Oni implements OniApi.Plugin.Api {
 
     public get ui(): Ui {
         return this._ui
+    }
+
+    public get sessions(): SessionManager {
+        return getSessionManagerInstance()
     }
 
     public get services(): Services {

@@ -237,6 +237,7 @@ function reducer(state: ISessionState, action: ISessionActions) {
                 sessions: updateSessions(state.sessions, action.payload.session),
             }
         case "GET_ALL_SESSIONS":
+            console.log("action.payload.sessions: ", action.payload.sessions)
             return {
                 ...state,
                 sessions: action.payload.sessions,

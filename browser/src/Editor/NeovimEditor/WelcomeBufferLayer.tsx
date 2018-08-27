@@ -17,6 +17,7 @@ import styled, {
     getSelectedBorder,
     keyframes,
 } from "./../../UI/components/common"
+import { SessionManager, ISession } from "../../Services/Sessions"
 
 // const entrance = keyframes`
 //     0% { opacity: 0; transform: translateY(2px); }
@@ -68,7 +69,7 @@ const Column = styled<IColumnProps, "div">("div")`
     align-items: ${({ alignment }) => alignment || "center"};
     flex-direction: column;
     width: 100%;
-    flex: ${({ flex }) => flex || "1 1 auto"};
+    flex: ${({ flex }) => flex || "1"};
     height: ${({ height }) => height || `auto`};
     ${({ overflowY }) => overflowY && `overflow-y: ${overflowY}`};
 `
@@ -202,6 +203,7 @@ export interface WelcomeHeaderState {
 
 export interface OniWithActiveSection extends Oni.Plugin.Api {
     getActiveSection(): string
+    sessions: SessionManager
 }
 
 type ExecuteCommand = <T>(command: string, args?: T) => void
@@ -298,11 +300,17 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
     public render(context: Oni.BufferLayerRenderContext) {
         const active = this._oni.getActiveSection() === "editor"
         const ids = Object.values(this.welcomeCommands).map(({ command }) => command)
+        const { sessions } = /* this._oni.sessions || */ {
+            sessions: [
+                { name: "test", updatedAt: "28th sept 1984", directory: "test/dire" },
+            ] as ISession[],
+        }
         return (
             <WelcomeWrapper>
                 <WelcomeView
                     buttonIds={ids}
                     active={active}
+                    sessions={sessions}
                     inputEvent={this.inputEvent}
                     commands={this.welcomeCommands}
                     executeCommand={this.executeCommand}
@@ -313,6 +321,7 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
 }
 
 export interface WelcomeViewProps {
+    sessions: ISession[]
     active: boolean
     buttonIds: string[]
     inputEvent: Event<IWelcomeInputEvent>
@@ -327,9 +336,15 @@ export interface WelcomeViewState {
 }
 
 const buttonsRow = css`
-    width: 100%;
+    width: 90%;
+    box-sizing: border-box;
+    padding: 1em;
     margin-top: 64px;
     opacity: 1;
+    border: 1px solid ${p => p.theme["editor.hover.contents.background"]};
+    border-radius: 4px;
+    justify-content: space-between;
+    overflow: hidden;
 `
 
 const titleRow = css`
@@ -409,14 +424,16 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                     </Column>
                     <Column />
                 </Row>
-                <Row extension={buttonsRow}>
-                    <Column />
+                <Row extension={buttonsRow as any}>
                     <WelcomeCommandsView
                         commands={this.props.commands}
                         selectedId={this.state.selectedId}
                         executeCommand={this.props.executeCommand}
                     />
-                    <Column />
+                    <Column height="100%">
+                        <SectionHeader>Sessions</SectionHeader>
+                        {this.props.sessions.map(session => <div>{session.name}</div>)}
+                    </Column>
                 </Row>
             </Column>
         ) : null
@@ -432,7 +449,7 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
         const { commands, executeCommand } = this.props
         const isSelected = (command: string) => command === this.props.selectedId
         return (
-            <Column>
+            <Column height="auto" overflowY="auto">
                 <AnimatedContainer duration="0.25s">
                     <SectionHeader>Quick Commands</SectionHeader>
                     <WelcomeButton

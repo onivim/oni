@@ -75,7 +75,9 @@ export class SessionManager implements ISessionService {
     }
 
     public get sessions() {
-        return this._store.getState().sessions
+        const state = this._store.getState()
+        console.log("state: ", state)
+        return state.sessions
     }
 
     public get sessionsDir() {
