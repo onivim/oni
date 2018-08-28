@@ -318,30 +318,14 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
     public inputEvent = new Event<IWelcomeInputEvent>()
 
     public readonly welcomeCommands: IWelcomeCommandsDictionary = {
-        openFile: {
-            command: "oni.editor.newFile",
-        },
-        openWorkspaceFolder: {
-            command: "workspace.openFolder",
-        },
-        commandPalette: {
-            command: "quickOpen.show",
-        },
-        commandline: {
-            command: "executeVimCommand",
-        },
-        openTutor: {
-            command: "oni.tutor.open",
-        },
-        openDocs: {
-            command: "oni.docs.open",
-        },
-        openConfig: {
-            command: "oni.config.openUserConfig",
-        },
-        openThemes: {
-            command: "oni.themes.open",
-        },
+        openFile: { command: "oni.editor.newFile" },
+        openWorkspaceFolder: { command: "workspace.openFolder" },
+        commandPalette: { command: "quickOpen.show" },
+        commandline: { command: "executeVimCommand" },
+        openTutor: { command: "oni.tutor.open" },
+        openDocs: { command: "oni.docs.open" },
+        openConfig: { command: "oni.config.openUserConfig" },
+        openThemes: { command: "oni.themes.open" },
     }
 
     constructor(private _oni: OniWithActiveSection) {}
@@ -398,11 +382,14 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         const sessions = this._oni.sessions ? this._oni.sessions.sessions : ([] as ISession[])
         const sessionIds = sessions.map(({ id }) => id)
         const ids = [...commandIds, ...sessionIds]
+        const sections = [commandIds.length, sessionIds.length]
+
         return (
             <WelcomeWrapper>
                 <WelcomeView
                     ids={ids}
                     active={active}
+                    sections={sections}
                     sessions={sessions}
                     inputEvent={this.inputEvent}
                     commands={this.welcomeCommands}
@@ -417,6 +404,7 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
 export interface WelcomeViewProps {
     active: boolean
     sessions: ISession[]
+    sections: number[]
     ids: string[]
     inputEvent: Event<IWelcomeInputEvent>
     commands: IWelcomeCommandsDictionary
@@ -447,14 +435,15 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
 
     public handleInput = ({ direction, select, section }: IWelcomeInputEvent) => {
         const { currentIndex } = this.state
+        const { sections, ids, executeCommand, active } = this.props
 
-        const newIndex = this.getNextIndex(direction, currentIndex, section)
-        const selectedId = this.props.ids[newIndex]
+        const newIndex = this.getNextIndex(direction, currentIndex, section, sections)
+        const selectedId = ids[newIndex]
         this.setState({ currentIndex: newIndex, selectedId })
 
-        if (select && this.props.active) {
+        if (select && active) {
             const currentCommand = this.getCurrentCommand(selectedId)
-            this.props.executeCommand(currentCommand.command, currentCommand.args)
+            executeCommand(currentCommand.command, currentCommand.args)
         }
     }
 
@@ -464,12 +453,19 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
         return currentCommand
     }
 
-    public getNextIndex(direction: number, currentIndex: number, section: number) {
+    public getNextIndex(
+        direction: number,
+        currentIndex: number,
+        section: number,
+        sections: number[],
+    ) {
         const nextPosition = currentIndex + direction
         const numberOfItems = this.props.ids.length
+        const total = sections.reduce((sum, size) => sum + size, 0)
+        const lastSection = sections[sections.length - 1]
         switch (true) {
             case section === 1:
-                return numberOfItems - 1
+                return total - lastSection
             case section === -1:
                 return 0
             case nextPosition < 0:
