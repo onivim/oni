@@ -9,6 +9,7 @@ import * as Log from "oni-core-logging"
 import { Event } from "oni-types"
 import * as React from "react"
 
+import { Icon } from "./../../UI/Icon"
 import { getMetadata } from "./../../Services/Metadata"
 import styled, {
     Css,
@@ -78,15 +79,36 @@ const Column = styled<IColumnProps, "div">("div")`
     ${({ extension }) => extension};
 `
 
-const Section = styled.div`
-    padding: 0 0.5rem 0;
+const sectionStyles = css`
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    overflow-y: auto;
     height: 90%;
-    width: 50%;
+    overflow-y: hidden;
+`
+
+const LeftColumn = styled.div`
+    ${sectionStyles};
+    padding: 0;
+    padding-left: 1rem;
+    overflow-y: hidden;
+    width: 60%;
+    direction: rtl;
+
+    &:hover {
+        overflow-y: overlay;
+    }
+
+    & > * {
+        direction: ltr;
+    }
+`
+
+const RightColumn = styled.div`
+    ${sectionStyles};
+    width: 30%;
+    border-left: 1px solid ${({ theme }) => theme["editor.background"]};
 `
 
 const Row = styled<{ extension?: Css }, "div">("div")`
@@ -119,7 +141,7 @@ const SectionHeader = styled.div`
     margin-bottom: 1em;
     font-size: 1.1em;
     font-weight: bold;
-    text-align: center;
+    text-align: left;
     width: 100%;
 `
 
@@ -161,21 +183,22 @@ const AnimatedContainer = styled<{ duration: string }, "div">("div")`
 `
 
 const WelcomeButtonTitle = styled.span`
-    font-size: 1.1em;
+    font-size: 1rem;
     font-weight: bold;
     margin: 0.4rem;
     width: 100%;
+    text-align: left;
 `
 
 const WelcomeButtonDescription = styled.span`
-    font-size: 0.8em;
+    font-size: 0.8rem;
     opacity: 0.75;
     margin: 4px;
     width: 100%;
     text-align: right;
 `
 
-const buttonsRow = css`
+const boxStyling = css`
     width: 70%;
     height: 60%;
     box-sizing: border-box;
@@ -196,14 +219,18 @@ const titleRow = css`
     animation: ${entranceFull} 0.25s ease-in 0.25s forwards};
 `
 
-const SectionItem = styled.li`
+const SectionItem = styled<{ isSelected: boolean }, "li">("li")`
     width: 100%;
+    margin: 0.2rem;
     text-align: left;
     height: auto;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    border-left: ${getSelectedBorder};
+    ${({ isSelected }) => isSelected && `text-decoration: underline`};
+    ${({ theme, isSelected }) =>
+        isSelected && `color: ${theme["highlight.mode.normal.background"]}`};
+
     &:hover {
         text-decoration: underline;
     }
@@ -213,9 +240,9 @@ const SessionsList = styled.ul`
     width: 70%;
     margin: 0;
     list-style-type: none;
-    border: 1px solid ${p => p.theme["editor.hover.contents.codeblock.background"]};
     border-radius: 4px;
     padding: 0 1rem;
+    border: 1px solid ${p => p.theme["editor.hover.contents.codeblock.background"]};
 `
 
 export interface WelcomeButtonProps {
@@ -479,13 +506,13 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                     </Column>
                     <Column />
                 </Row>
-                <Row extension={buttonsRow}>
+                <Row extension={boxStyling}>
                     <WelcomeCommandsView
                         commands={this.props.commands}
                         selectedId={selectedId}
                         executeCommand={this.props.executeCommand}
                     />
-                    <Section>
+                    <RightColumn>
                         <SessionsList>
                             <SectionHeader>Sessions</SectionHeader>
                             {this.props.sessions.map(session => (
@@ -494,11 +521,11 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                                     onClick={() => this.props.restoreSession(session.name)}
                                     key={session.id}
                                 >
-                                    {session.name}
+                                    <Icon name="file" /> {session.name}
                                 </SectionItem>
                             ))}
                         </SessionsList>
-                    </Section>
+                    </RightColumn>
                 </Row>
             </Column>
         ) : null
@@ -514,7 +541,7 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
         const { commands, executeCommand } = this.props
         const isSelected = (command: string) => command === this.props.selectedId
         return (
-            <Section>
+            <LeftColumn>
                 <AnimatedContainer duration="0.25s">
                     <SectionHeader>Quick Commands</SectionHeader>
                     <WelcomeButton
@@ -580,7 +607,7 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
                         selected={isSelected(commands.openThemes.command)}
                     />
                 </AnimatedContainer>
-            </Section>
+            </LeftColumn>
         )
     }
 }
