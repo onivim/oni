@@ -66,6 +66,7 @@ export class SessionManager implements ISessionService {
         fs.ensureDirSync(this.sessionsDir)
         const enabled = this._oni.configuration.getValue<boolean>("experimental.sessions.enabled")
         if (enabled) {
+            this._store.dispatch({ type: "POPULATE_SESSIONS" })
             this._sidebarManager.add(
                 "save",
                 new SessionsPane({ store: this._store, commands: this._oni.commands }),
@@ -76,7 +77,6 @@ export class SessionManager implements ISessionService {
 
     public get sessions() {
         const state = this._store.getState()
-        console.log("state: ", state)
         return state.sessions
     }
 

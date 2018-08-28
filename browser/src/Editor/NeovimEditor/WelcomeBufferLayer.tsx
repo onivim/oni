@@ -16,6 +16,8 @@ import styled, {
     enableMouse,
     getSelectedBorder,
     keyframes,
+    lighten,
+    boxShadowInset,
 } from "./../../UI/components/common"
 import { SessionManager, ISession } from "../../Services/Sessions"
 
@@ -55,23 +57,36 @@ const WelcomeWrapper = styled.div`
     opacity: 0;
     animation: ${entranceFull} 0.25s ease-in 0.1s forwards ${enableMouse};
 `
+
 interface IColumnProps {
     alignment?: string
+    justify?: string
     flex?: string
     height?: string
-    overflowY?: string
+    extension?: Css
 }
 
 const Column = styled<IColumnProps, "div">("div")`
-    background: ${p => p.theme["editor.background"]};
+    background: inherit;
     display: flex;
-    justify-content: center;
+    justify-content: ${({ justify }) => justify || `center`};
     align-items: ${({ alignment }) => alignment || "center"};
     flex-direction: column;
     width: 100%;
     flex: ${({ flex }) => flex || "1"};
     height: ${({ height }) => height || `auto`};
-    ${({ overflowY }) => overflowY && `overflow-y: ${overflowY}`};
+    ${({ extension }) => extension};
+`
+
+const Section = styled.div`
+    padding: 0 0.5rem 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    overflow-y: auto;
+    height: 90%;
+    width: 50%;
 `
 
 const Row = styled<{ extension?: Css }, "div">("div")`
@@ -102,7 +117,6 @@ const HeroImage = styled.img`
 const SectionHeader = styled.div`
     margin-top: 1em;
     margin-bottom: 1em;
-
     font-size: 1.1em;
     font-weight: bold;
     text-align: center;
@@ -128,12 +142,12 @@ const WelcomeButtonWrapper = styled<WelcomeButtonWrapperProps, "button">("button
     border-right: 4px solid transparent;
     cursor: pointer;
     color: ${({ theme }) => theme.foreground};
-    background-color: ${({ theme }) => theme.background};
+    background-color: ${({ theme }) => lighten(theme.background)};
     transform: ${({ isSelected }) => (isSelected ? "translateX(-4px)" : "translateX(0px)")};
     transition: transform 0.25s;
     width: 100%;
-    margin: 8px 0px;
-    padding: 8px;
+    margin: 0.8rem 0;
+    padding: 0.8rem;
     display: flex;
     flex-direction: row;
     &:hover {
@@ -149,7 +163,7 @@ const AnimatedContainer = styled<{ duration: string }, "div">("div")`
 const WelcomeButtonTitle = styled.span`
     font-size: 1.1em;
     font-weight: bold;
-    margin: 4px;
+    margin: 0.4rem;
     width: 100%;
 `
 
@@ -159,6 +173,49 @@ const WelcomeButtonDescription = styled.span`
     margin: 4px;
     width: 100%;
     text-align: right;
+`
+
+const buttonsRow = css`
+    width: 70%;
+    height: 60%;
+    box-sizing: border-box;
+    padding: 0 1rem;
+    margin-top: 64px;
+    opacity: 1;
+    border: 1px solid ${p => p.theme["editor.hover.contents.background"]};
+    border-radius: 4px;
+    justify-content: space-between;
+    overflow: hidden;
+    background-color: ${p => p.theme["editor.hover.contents.codeblock.background"]};
+    ${boxShadowInset};
+`
+
+const titleRow = css`
+    width: 100%;
+    padding-top: 32px;
+    animation: ${entranceFull} 0.25s ease-in 0.25s forwards};
+`
+
+const SectionItem = styled.li`
+    width: 100%;
+    text-align: left;
+    height: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-left: ${getSelectedBorder};
+    &:hover {
+        text-decoration: underline;
+    }
+`
+
+const SessionsList = styled.ul`
+    width: 70%;
+    margin: 0;
+    list-style-type: none;
+    border: 1px solid ${p => p.theme["editor.hover.contents.codeblock.background"]};
+    border-radius: 4px;
+    padding: 0 1rem;
 `
 
 export interface WelcomeButtonProps {
@@ -211,6 +268,7 @@ type ExecuteCommand = <T>(command: string, args?: T) => void
 export interface IWelcomeInputEvent {
     direction: number
     select: boolean
+    section?: number
 }
 
 interface ICommandMetadata<T = undefined> {
@@ -283,6 +341,12 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
             case "k":
                 this.inputEvent.dispatch({ direction: -1, select: false })
                 break
+            case "l":
+                this.inputEvent.dispatch({ direction: 0, select: false, section: 1 })
+                break
+            case "h":
+                this.inputEvent.dispatch({ direction: 0, select: false, section: -1 })
+                break
             case "<enter>":
                 this.inputEvent.dispatch({ direction: 0, select: true })
                 break
@@ -297,22 +361,25 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         }
     }
 
+    public restoreSession = async (name: string) => {
+        await this._oni.sessions.restoreSession(name)
+    }
+
     public render(context: Oni.BufferLayerRenderContext) {
         const active = this._oni.getActiveSection() === "editor"
-        const ids = Object.values(this.welcomeCommands).map(({ command }) => command)
-        const { sessions } = /* this._oni.sessions || */ {
-            sessions: [
-                { name: "test", updatedAt: "28th sept 1984", directory: "test/dire" },
-            ] as ISession[],
-        }
+        const commandIds = Object.values(this.welcomeCommands).map(({ command }) => command)
+        const sessions = this._oni.sessions ? this._oni.sessions.sessions : ([] as ISession[])
+        const sessionIds = sessions.map(({ id }) => id)
+        const ids = [...commandIds, ...sessionIds]
         return (
             <WelcomeWrapper>
                 <WelcomeView
-                    buttonIds={ids}
+                    ids={ids}
                     active={active}
                     sessions={sessions}
                     inputEvent={this.inputEvent}
                     commands={this.welcomeCommands}
+                    restoreSession={this.restoreSession}
                     executeCommand={this.executeCommand}
                 />
             </WelcomeWrapper>
@@ -321,11 +388,12 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
 }
 
 export interface WelcomeViewProps {
-    sessions: ISession[]
     active: boolean
-    buttonIds: string[]
+    sessions: ISession[]
+    ids: string[]
     inputEvent: Event<IWelcomeInputEvent>
     commands: IWelcomeCommandsDictionary
+    restoreSession: (name: string) => Promise<void>
     executeCommand: ExecuteCommand
 }
 
@@ -335,29 +403,11 @@ export interface WelcomeViewState {
     currentIndex: number
 }
 
-const buttonsRow = css`
-    width: 90%;
-    box-sizing: border-box;
-    padding: 1em;
-    margin-top: 64px;
-    opacity: 1;
-    border: 1px solid ${p => p.theme["editor.hover.contents.background"]};
-    border-radius: 4px;
-    justify-content: space-between;
-    overflow: hidden;
-`
-
-const titleRow = css`
-    width: 100%;
-    padding-top: 32px;
-    animation: ${entranceFull} 0.25s ease-in 0.25s forwards};
-`
-
 export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeViewState> {
     public state: WelcomeViewState = {
         version: null,
         currentIndex: 0,
-        selectedId: this.props.buttonIds[0],
+        selectedId: this.props.ids[0],
     }
 
     private _welcomeElement = React.createRef<HTMLDivElement>()
@@ -368,11 +418,11 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
         this.props.inputEvent.subscribe(this.handleInput)
     }
 
-    public handleInput = ({ direction, select }: IWelcomeInputEvent) => {
+    public handleInput = ({ direction, select, section }: IWelcomeInputEvent) => {
         const { currentIndex } = this.state
 
-        const newIndex = this.getNextIndex(direction, currentIndex)
-        const selectedId = this.props.buttonIds[newIndex]
+        const newIndex = this.getNextIndex(direction, currentIndex, section)
+        const selectedId = this.props.ids[newIndex]
         this.setState({ currentIndex: newIndex, selectedId })
 
         if (select && this.props.active) {
@@ -387,12 +437,17 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
         return currentCommand
     }
 
-    public getNextIndex(direction: number, currentIndex: number) {
+    public getNextIndex(direction: number, currentIndex: number, section: number) {
         const nextPosition = currentIndex + direction
+        const numberOfItems = this.props.ids.length
         switch (true) {
+            case section === 1:
+                return numberOfItems - 1
+            case section === -1:
+                return 0
             case nextPosition < 0:
-                return this.props.buttonIds.length - 1
-            case nextPosition === this.props.buttonIds.length:
+                return numberOfItems - 1
+            case nextPosition === numberOfItems:
                 return 0
             default:
                 return nextPosition
@@ -406,7 +461,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
     }
 
     public render() {
-        const { version } = this.state
+        const { version, selectedId } = this.state
         return version ? (
             <Column innerRef={this._welcomeElement} height="100%" data-id="welcome-screen">
                 <Row extension={titleRow}>
@@ -419,21 +474,31 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                         <HeroImage src="images/oni-icon-no-border.svg" />
                     </Column>
                     <Column alignment="flex-start">
-                        <SubtitleText>{`v${this.state.version}`}</SubtitleText>
+                        <SubtitleText>{`v${version}`}</SubtitleText>
                         <div>{"https://onivim.io"}</div>
                     </Column>
                     <Column />
                 </Row>
-                <Row extension={buttonsRow as any}>
+                <Row extension={buttonsRow}>
                     <WelcomeCommandsView
                         commands={this.props.commands}
-                        selectedId={this.state.selectedId}
+                        selectedId={selectedId}
                         executeCommand={this.props.executeCommand}
                     />
-                    <Column height="100%">
-                        <SectionHeader>Sessions</SectionHeader>
-                        {this.props.sessions.map(session => <div>{session.name}</div>)}
-                    </Column>
+                    <Section>
+                        <SessionsList>
+                            <SectionHeader>Sessions</SectionHeader>
+                            {this.props.sessions.map(session => (
+                                <SectionItem
+                                    isSelected={session.id === selectedId}
+                                    onClick={() => this.props.restoreSession(session.name)}
+                                    key={session.id}
+                                >
+                                    {session.name}
+                                </SectionItem>
+                            ))}
+                        </SessionsList>
+                    </Section>
                 </Row>
             </Column>
         ) : null
@@ -449,7 +514,7 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
         const { commands, executeCommand } = this.props
         const isSelected = (command: string) => command === this.props.selectedId
         return (
-            <Column height="auto" overflowY="auto">
+            <Section>
                 <AnimatedContainer duration="0.25s">
                     <SectionHeader>Quick Commands</SectionHeader>
                     <WelcomeButton
@@ -515,7 +580,7 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
                         selected={isSelected(commands.openThemes.command)}
                     />
                 </AnimatedContainer>
-            </Column>
+            </Section>
         )
     }
 }
