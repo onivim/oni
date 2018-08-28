@@ -95,7 +95,23 @@ describe("Buffer Manager Tests", () => {
         expect(canHandleInput).toBeTruthy()
     })
 
-    it("should not intercept input for a layer that implements a handler but return isActive = false", () => {
+    it("should not allow handling of input if isActive does not exist on the layer", () => {
+        store.getState.mockReturnValue({
+            layers: {
+                "1": [
+                    {
+                        handleInput: (key: string) => true,
+                    },
+                ],
+            },
+        })
+
+        const buffer = manager.getBufferById("1")
+        const canHandleInput = buffer.handleInput("h")
+        expect(canHandleInput).toBeFalsy()
+    })
+
+    it("should not intercept input for a layer that implements a handler but returns isActive = false", () => {
         store.getState.mockReturnValue({
             layers: {
                 "1": [
