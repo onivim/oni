@@ -17,8 +17,8 @@ import styled, {
     css,
     enableMouse,
     getSelectedBorder,
-    lighten,
     keyframes,
+    lighten,
 } from "./../../UI/components/common"
 import { Icon } from "./../../UI/Icon"
 
