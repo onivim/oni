@@ -9,12 +9,17 @@ import { remote } from "electron"
 
 import * as Oni from "oni-api"
 
+import {
+    getAllErrorsForFile,
+    getInstance as getDiagnosticsInstance,
+} from "./../../Services/Diagnostics"
 import { EditorManager } from "./../../Services/EditorManager"
 import { MenuManager } from "./../../Services/Menu"
 import { showAboutMessage } from "./../../Services/Metadata"
 import { multiProcess } from "./../../Services/MultiProcess"
 import { Tasks } from "./../../Services/Tasks"
 import { windowManager } from "./../../Services/WindowManager"
+import { isInRange } from "./../../Utility"
 
 // import * as UI from "./../UI/index"
 
@@ -44,6 +49,78 @@ export const activate = (
     const popupMenuNext = popupMenuCommand(() => menuManager.nextMenuItem())
     const popupMenuPrevious = popupMenuCommand(() => menuManager.previousMenuItem())
     const popupMenuSelect = popupMenuCommand(() => menuManager.selectMenuItem())
+
+    const gotoNextError = async () => {
+        const errors = getDiagnosticsInstance().getErrors()
+        const activeBuffer = editorManager.activeEditor.activeBuffer
+        const currentFileErrors = getAllErrorsForFile(activeBuffer.filePath, errors)
+        const currentPosition = activeBuffer.cursor
+
+        if (!currentFileErrors || currentFileErrors.length === 0) {
+            return
+        }
+
+        for (const error of currentFileErrors) {
+            if (isInRange(currentPosition.line, currentPosition.column, error.range)) {
+                continue
+            }
+
+            const currentLine = (await activeBuffer.getLines(currentPosition.line))[0]
+            if (
+                currentPosition.line === error.range.start.line &&
+                currentLine.length <= error.range.start.character
+            ) {
+                continue
+            }
+
+            if (
+                error.range.start.line > currentPosition.line ||
+                (error.range.start.line === currentPosition.line &&
+                    error.range.start.character > currentPosition.column)
+            ) {
+                await activeBuffer.setCursorPosition(
+                    error.range.start.line,
+                    error.range.start.character,
+                )
+                return
+            }
+        }
+
+        activeBuffer.setCursorPosition(
+            currentFileErrors[0].range.start.line,
+            currentFileErrors[0].range.start.character,
+        )
+    }
+
+    const gotoPreviousError = async () => {
+        const errors = getDiagnosticsInstance().getErrors()
+        const activeBuffer = editorManager.activeEditor.activeBuffer
+        const currentFileErrors = getAllErrorsForFile(activeBuffer.filePath, errors)
+        const currentPosition = activeBuffer.cursor
+
+        if (!currentFileErrors || currentFileErrors.length === 0) {
+            return
+        }
+
+        let lastError = currentFileErrors[currentFileErrors.length - 1]
+        for (const error of currentFileErrors) {
+            if (
+                isInRange(currentPosition.line, currentPosition.column, error.range) ||
+                error.range.start.line > currentPosition.line ||
+                (error.range.start.line === currentPosition.line &&
+                    error.range.start.character > currentPosition.column)
+            ) {
+                await activeBuffer.setCursorPosition(
+                    lastError.range.start.line,
+                    lastError.range.start.character,
+                )
+                return
+            }
+            lastError = error
+        }
+
+        activeBuffer.setCursorPosition(lastError.range.start.line, lastError.range.start.character)
+    }
 
     const commands = [
         new CallbackCommand("editor.executeVimCommand", null, null, (message: string) => {
@@ -105,6 +182,20 @@ export const activate = (
         new CallbackCommand("window.moveRight", null, null, () => windowManager.moveRight()),
         new CallbackCommand("window.moveDown", null, null, () => windowManager.moveDown()),
         new CallbackCommand("window.moveUp", null, null, () => windowManager.moveUp()),
+
+        // Error list
+        new CallbackCommand(
+            "oni.editor.nextError",
+            "Jump to next lint/compiler error",
+            "Jump to the next error or warning from the linter or compiler",
+            gotoNextError,
+        ),
+        new CallbackCommand(
+            "oni.editor.previousError",
+            "Jump to previous lint/compiler error",
+            "Jump to the previous error or warning from the linter or compiler",
+            gotoPreviousError,
+        ),
 
         // Add additional commands here
         // ...

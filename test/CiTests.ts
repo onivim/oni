@@ -33,6 +33,7 @@ const CiTests = [
     "Editor.ScrollEventTest",
     "Editor.TabModifiedState",
     "Editor.CloseTabWithTabModesTabsTest",
+    "Editor.NextPreviousErrorTest",
     "Explorer.LocateBufferTest",
     "MarkdownPreviewTest",
     "PrettierPluginTest",
