@@ -861,6 +861,7 @@
         "dompurify": "^1.0.3",
         "electron-settings": "^3.1.4",
         "find-up": "2.1.0",
+        "font-manager": "^0.3.0",
         "fontkit": "^1.7.7",
         "fs-extra": "^5.0.0",
         "highlight.js": "^9.12.0",
