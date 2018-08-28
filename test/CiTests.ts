@@ -45,6 +45,7 @@ const CiTests = [
     "Neovim.CallOniCommands",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
+    "LargePasteTest",
 
     "Snippets.BasicInsertTest",
 

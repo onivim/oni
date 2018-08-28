@@ -17,8 +17,8 @@ import styled, {
     css,
     enableMouse,
     getSelectedBorder,
-    keyframes,
     lighten,
+    keyframes,
 } from "./../../UI/components/common"
 import { Icon } from "./../../UI/Icon"
 
@@ -293,8 +293,8 @@ export interface OniWithActiveSection extends Oni.Plugin.Api {
 type ExecuteCommand = <T>(command: string, args?: T) => void
 
 export interface IWelcomeInputEvent {
-    vertical: number
     select: boolean
+    vertical: number
     horizontal?: number
 }
 
