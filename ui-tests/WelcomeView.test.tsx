@@ -32,21 +32,32 @@ describe("<WelcomeView />", () => {
         commandline: { command: "button8" },
     }
 
+    const sessions = [
+        {
+            name: "test",
+            id: "test-1",
+            file: "/test/dir",
+            directory: "/test/dir",
+            workspace: "/test/dir",
+        },
+    ]
+
+    const restoreSession = jest.fn()
     const executeCommand = jest.fn()
     const inputEvent = new Event<IWelcomeInputEvent>("handleInputTestEvent")
-    let handleInputSpy: jest.SpyInstance<WelcomeView["handleInput"]>
 
     afterEach(() => {
-        if (handleInputSpy) {
-            handleInputSpy.mockClear()
-        }
         instance.setState({ selectedId: "button1", currentIndex: 0 })
     })
 
+    const ids = [...buttons, ...sessions.map(({ id }) => id)]
     const wrapper = mount<WelcomeViewProps, WelcomeViewState>(
         <WelcomeView
             active
-            buttonIds={buttons}
+            restoreSession={restoreSession}
+            ids={ids}
+            sections={[buttons.length, sessions.length]}
+            sessions={sessions}
             inputEvent={inputEvent}
             commands={commands}
             executeCommand={executeCommand}
@@ -63,25 +74,39 @@ describe("<WelcomeView />", () => {
     })
 
     it("should correctly update selection based on input", () => {
-        instance.handleInput({ direction: 1, select: false })
+        instance.handleInput({ vertical: 1, select: false })
         expect(instance.state.selectedId).toBe("button2")
     })
 
-    it("should loop back to button if user navigates upwards at the first button", () => {
-        instance.handleInput({ direction: -1, select: false })
-        expect(instance.state.currentIndex).toBe(7)
-        expect(instance.state.selectedId).toBe("button8")
+    it("should loop back to last button if user navigates upwards at the first button", () => {
+        instance.handleInput({ vertical: -1, select: false })
+        expect(instance.state.currentIndex).toBe(ids.length - 1)
+        expect(instance.state.selectedId).toBe("test-1")
     })
 
-    it("should loop back to button if user navigates downwards at the last button", () => {
-        instance.setState({ currentIndex: 7, selectedId: "button8" })
-        instance.handleInput({ direction: 1, select: false })
+    it("should loop back to first button if user navigates downwards at the last button", () => {
+        instance.setState({ currentIndex: ids.length - 1, selectedId: "test-1" })
+        instance.handleInput({ vertical: 1, select: false })
         expect(instance.state.currentIndex).toBe(0)
         expect(instance.state.selectedId).toBe("button1")
     })
 
     it("should trigger a command on enter event", () => {
-        instance.handleInput({ direction: 0, select: true })
+        instance.handleInput({ vertical: 0, select: true })
         expect(executeCommand.mock.calls[0][0]).toBe("button1")
+    })
+
+    it("should navigate right if horizontal is 1", () => {
+        instance.setState({ currentIndex: 7, selectedId: "button8" })
+        instance.handleInput({ vertical: 0, horizontal: 1, select: false })
+        expect(instance.state.currentIndex).toBe(8)
+        expect(instance.state.selectedId).toBe("test-1")
+    })
+
+    it("should navigate left if horizontal is -1", () => {
+        instance.setState({ currentIndex: ids.length - 1, selectedId: "test-1" })
+        instance.handleInput({ vertical: 0, horizontal: -1, select: false })
+        expect(instance.state.currentIndex).toBe(0)
+        expect(instance.state.selectedId).toBe("button1")
     })
 })
