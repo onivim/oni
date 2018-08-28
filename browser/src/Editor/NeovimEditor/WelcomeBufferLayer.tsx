@@ -219,7 +219,7 @@ const titleRow = css`
     animation: ${entranceFull} 0.25s ease-in 0.25s forwards};
 `
 
-const SectionItem = styled<{ isSelected: boolean }, "li">("li")`
+const SectionItem = styled<{ isSelected?: boolean }, "li">("li")`
     width: 100%;
     margin: 0.2rem;
     text-align: left;
@@ -442,11 +442,14 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
         this.setState({ currentIndex: newIndex, selectedId })
 
         const selectedSession = this.props.sessions.find(session => session.id === selectedId)
-        if (select && selectedSession) {
-            await this.props.restoreSession(selectedSession.name)
-        } else if (select && active) {
-            const currentCommand = this.getCurrentCommand(selectedId)
-            executeCommand(currentCommand.command, currentCommand.args)
+
+        if (select && active) {
+            if (selectedSession) {
+                await this.props.restoreSession(selectedSession.name)
+            } else {
+                const currentCommand = this.getCurrentCommand(selectedId)
+                executeCommand(currentCommand.command, currentCommand.args)
+            }
         }
     }
 
@@ -515,15 +518,19 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                     <RightColumn>
                         <SessionsList>
                             <SectionHeader>Sessions</SectionHeader>
-                            {this.props.sessions.map(session => (
-                                <SectionItem
-                                    isSelected={session.id === selectedId}
-                                    onClick={() => this.props.restoreSession(session.name)}
-                                    key={session.id}
-                                >
-                                    <Icon name="file" /> {session.name}
-                                </SectionItem>
-                            ))}
+                            {this.props.sessions.length ? (
+                                this.props.sessions.map(session => (
+                                    <SectionItem
+                                        isSelected={session.id === selectedId}
+                                        onClick={() => this.props.restoreSession(session.name)}
+                                        key={session.id}
+                                    >
+                                        <Icon name="file" /> {session.name}
+                                    </SectionItem>
+                                ))
+                            ) : (
+                                <SectionItem>No Sessions Available</SectionItem>
+                            )}
                         </SessionsList>
                     </RightColumn>
                 </Row>
