@@ -21,7 +21,7 @@ export interface ISession {
 
 export interface ISessionService {
     sessionsDir: string
-    sessions: ISession[]
+    allSessions: ISession[]
     persistSession(sessionName: string): Promise<ISession>
     restoreSession(sessionName: string): Promise<ISession>
 }
@@ -75,7 +75,7 @@ export class SessionManager implements ISessionService {
         this._setupSubscriptions()
     }
 
-    public get sessions() {
+    public get allSessions() {
         const state = this._store.getState()
         return state.sessions
     }

@@ -9,18 +9,18 @@ import * as Log from "oni-core-logging"
 import { Event } from "oni-types"
 import * as React from "react"
 
-import { Icon } from "./../../UI/Icon"
 import { getMetadata } from "./../../Services/Metadata"
+import { ISession, SessionManager } from "./../../Services/Sessions"
 import styled, {
+    boxShadowInset,
     Css,
     css,
     enableMouse,
     getSelectedBorder,
     keyframes,
     lighten,
-    boxShadowInset,
 } from "./../../UI/components/common"
-import { SessionManager, ISession } from "../../Services/Sessions"
+import { Icon } from "./../../UI/Icon"
 
 // const entrance = keyframes`
 //     0% { opacity: 0; transform: translateY(2px); }
@@ -286,8 +286,8 @@ export interface WelcomeHeaderState {
 }
 
 export interface OniWithActiveSection extends Oni.Plugin.Api {
-    getActiveSection(): string
     sessions: SessionManager
+    getActiveSection(): string
 }
 
 type ExecuteCommand = <T>(command: string, args?: T) => void
@@ -379,7 +379,7 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
     public render(context: Oni.BufferLayerRenderContext) {
         const active = this._oni.getActiveSection() === "editor"
         const commandIds = Object.values(this.welcomeCommands).map(({ command }) => command)
-        const sessions = this._oni.sessions ? this._oni.sessions.sessions : ([] as ISession[])
+        const sessions = this._oni.sessions ? this._oni.sessions.allSessions : ([] as ISession[])
         const sessionIds = sessions.map(({ id }) => id)
         const ids = [...commandIds, ...sessionIds]
         const sections = [commandIds.length, sessionIds.length]
