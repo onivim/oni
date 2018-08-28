@@ -47,7 +47,7 @@ export const activate = (
 
     const commands = [
         new CallbackCommand("editor.executeVimCommand", null, null, (message: string) => {
-            const neovim = editorManager.activeEditor.neovim
+            const { neovim } = editorManager.activeEditor
             if (message.startsWith(":")) {
                 neovim.command('exec "' + message + '"')
             } else {
@@ -60,16 +60,20 @@ export const activate = (
             multiProcess.openNewWindow(),
         ),
 
+        new CallbackCommand("oni.editor.newFile", "Oni: Create new file", "Create a new file", () =>
+            editorManager.activeEditor.neovim.command("enew!"),
+        ),
+
         new CallbackCommand(
             "oni.editor.maximize",
-            "Maximize Window",
+            "Oni: Maximize Window",
             "Maximize the current window",
             () => remote.getCurrentWindow().maximize(),
         ),
 
         new CallbackCommand(
             "oni.editor.minimize",
-            "Minimize Window",
+            "Oni: Minimize Window",
             "Minimize the current window",
             () => remote.getCurrentWindow().minimize(),
         ),
@@ -80,13 +84,13 @@ export const activate = (
 
         new CallbackCommand(
             "oni.process.cycleNext",
-            "Focus Next Oni",
+            "Oni: Focus Next Oni",
             "Switch to the next running instance of Oni",
             () => multiProcess.focusNextInstance(),
         ),
         new CallbackCommand(
             "oni.process.cyclePrevious",
-            "Focus Previous Oni",
+            "Oni: Focus Previous Oni",
             "Switch to the previous running instance of Oni",
             () => multiProcess.focusPreviousInstance(),
         ),
@@ -114,7 +118,7 @@ export const activate = (
     if (Platform.isMac()) {
         const addToPathCommand = new CallbackCommand(
             "oni.editor.removeFromPath",
-            "Remove from PATH",
+            "Oni: Remove from PATH",
             "Disable executing 'oni' from terminal",
             Platform.removeFromPath,
             () => Platform.isAddedToPath(),
@@ -123,7 +127,7 @@ export const activate = (
 
         const removeFromPathCommand = new CallbackCommand(
             "oni.editor.addToPath",
-            "Add to PATH",
+            "Oni: Add to PATH",
             "Enable executing 'oni' from terminal",
             Platform.addToPath,
             () => !Platform.isAddedToPath(),

@@ -69,7 +69,7 @@ import { Workspace } from "./../../Services/Workspace"
 
 import { Editor } from "./../Editor"
 
-import { BufferManager, IBuffer } from "./../BufferManager"
+import { BufferManager } from "./../BufferManager"
 import { CompletionMenu } from "./CompletionMenu"
 import { HoverRenderer } from "./HoverRenderer"
 import { NeovimPopupMenu } from "./NeovimPopupMenu"
@@ -93,8 +93,6 @@ import { IToolTipsProvider, NeovimEditorToolTipsProvider } from "./ToolTipsProvi
 import CommandLine from "./../../UI/components/CommandLine"
 import ExternalMenus from "./../../UI/components/ExternalMenus"
 import WildMenu from "./../../UI/components/WildMenu"
-
-import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
 import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
 import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
@@ -148,12 +146,17 @@ export class NeovimEditor extends Editor implements Oni.Editor {
     private _bufferLayerManager = getLayerManagerInstance()
     private _screenWithPredictions: ScreenWithPredictions
 
+    private _onShowWelcomeScreen = new Event<void>()
     private _onNeovimQuit: Event<void> = new Event<void>()
 
     private _autoFocus: boolean = true
 
     public get onNeovimQuit(): IEvent<void> {
         return this._onNeovimQuit
+    }
+
+    public get onShowWelcomeScreen() {
+        return this._onShowWelcomeScreen
     }
 
     public get /* override */ activeBuffer(): Oni.Buffer {
@@ -309,7 +312,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
 
         // Services
         const onColorsChanged = () => {
-            const updatedColors: any = this._colors.getColors()
+            const updatedColors = this._colors.getColors()
             this._actions.setColors(updatedColors)
         }
 
@@ -834,6 +837,12 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         this._neovimInstance.autoCommands.executeAutoCommand("FocusLost")
     }
 
+    public async createWelcomeBuffer() {
+        const buf = await this.openFile("WELCOME")
+        await buf.setScratchBuffer()
+        return buf
+    }
+
     public async clearSelection(): Promise<void> {
         await this._neovimInstance.input("<esc>")
         await this._neovimInstance.input("a")
@@ -1034,8 +1043,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             await this.openFiles(filesToOpen, { openMode: Oni.FileOpenMode.Edit })
         } else {
             if (this._configuration.getValue("experimental.welcome.enabled")) {
-                const buf = await this.openFile("WELCOME")
-                buf.addLayer(new WelcomeBufferLayer())
+                this._onShowWelcomeScreen.dispatch()
             }
         }
 
@@ -1100,8 +1108,8 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             <Provider store={this._store}>
                 <NeovimSurface
                     onFileDrop={this._onFilesDropped}
-                    autoFocus={this._autoFocus}
                     renderer={this._renderer}
+                    autoFocus={this._autoFocus}
                     typingPrediction={this._typingPredictionManager}
                     neovimInstance={this._neovimInstance}
                     screen={this._screen}
@@ -1126,10 +1134,10 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         }
 
         // Check if any of the buffer layers can handle the input...
-        const buf: IBuffer = this.activeBuffer as IBuffer
-        const result = buf && buf.handleInput(key)
+        const buf = this.activeBuffer
+        const layerInputHandler = buf && buf.handleInput(key)
 
-        if (result) {
+        if (layerInputHandler) {
             return
         }
 

@@ -1,0 +1,83 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Welcome Layer test should match last snapshot on record 1`] = `
+<styled.div>
+  <styled.div
+    duration="0.25s"
+  >
+    <styled.div>
+      Quick Commands
+    </styled.div>
+    <WelcomeButton
+      command="button1"
+      description="Control + N"
+      onClick={[Function]}
+      selected={true}
+      title="New File"
+    />
+    <WelcomeButton
+      command="button6"
+      description="Control + O"
+      onClick={[Function]}
+      selected={false}
+      title="Open File / Folder"
+    />
+    <WelcomeButton
+      command="button7"
+      description="Control + Shift + P"
+      onClick={[Function]}
+      selected={false}
+      title="Command Palette"
+    />
+    <WelcomeButton
+      command="editor.openExCommands"
+      description=":"
+      onClick={[Function]}
+      selected={false}
+      title="Vim Ex Commands"
+    />
+  </styled.div>
+  <styled.div
+    duration="0.25s"
+  >
+    <styled.div>
+      Learn
+    </styled.div>
+    <WelcomeButton
+      command="button2"
+      description="Learn modal editing with an interactive tutorial."
+      onClick={[Function]}
+      selected={false}
+      title="Tutor"
+    />
+    <WelcomeButton
+      command="button3"
+      description="Discover what Oni can do for you."
+      onClick={[Function]}
+      selected={false}
+      title="Documentation"
+    />
+  </styled.div>
+  <styled.div
+    duration="0.25s"
+  >
+    <styled.div>
+      Customize
+    </styled.div>
+    <WelcomeButton
+      command="button4"
+      description="Make Oni work the way you want."
+      onClick={[Function]}
+      selected={false}
+      title="Configure"
+    />
+    <WelcomeButton
+      command="button5"
+      description="Choose a theme that works for you."
+      onClick={[Function]}
+      selected={false}
+      title="Themes"
+    />
+  </styled.div>
+</styled.div>
+`;

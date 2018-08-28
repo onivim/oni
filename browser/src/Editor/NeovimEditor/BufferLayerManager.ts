@@ -11,6 +11,7 @@ export type BufferFilter = (buf: Oni.Buffer) => boolean
 
 export interface IBufferLayer extends Oni.BufferLayer {
     handleInput?: (key: string) => boolean
+    isActive?: () => boolean
 }
 
 export const createBufferFilterFromLanguage = (language: string) => (buf: Oni.Buffer): boolean => {
