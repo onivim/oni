@@ -122,5 +122,5 @@ helloWrld()
     `.trim()
 
     fs.writeFileSync(filePath, content)
-    return filePath
+    return filePath.replace(/\\/g, "/")
 }
