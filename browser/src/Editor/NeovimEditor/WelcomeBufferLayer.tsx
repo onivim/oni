@@ -293,9 +293,9 @@ export interface OniWithActiveSection extends Oni.Plugin.Api {
 type ExecuteCommand = <T>(command: string, args?: T) => void
 
 export interface IWelcomeInputEvent {
-    direction: number
+    vertical: number
     select: boolean
-    section?: number
+    horizontal?: number
 }
 
 interface ICommandMetadata<T = undefined> {
@@ -347,22 +347,22 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         Log.info(`ONI WELCOME INPUT KEY: ${key}`)
         switch (key) {
             case "j":
-                this.inputEvent.dispatch({ direction: 1, select: false })
+                this.inputEvent.dispatch({ vertical: 1, select: false })
                 break
             case "k":
-                this.inputEvent.dispatch({ direction: -1, select: false })
+                this.inputEvent.dispatch({ vertical: -1, select: false })
                 break
             case "l":
-                this.inputEvent.dispatch({ direction: 0, select: false, section: 1 })
+                this.inputEvent.dispatch({ vertical: 0, select: false, horizontal: 1 })
                 break
             case "h":
-                this.inputEvent.dispatch({ direction: 0, select: false, section: -1 })
+                this.inputEvent.dispatch({ vertical: 0, select: false, horizontal: -1 })
                 break
             case "<enter>":
-                this.inputEvent.dispatch({ direction: 0, select: true })
+                this.inputEvent.dispatch({ vertical: 0, select: true })
                 break
             default:
-                this.inputEvent.dispatch({ direction: 0, select: false })
+                this.inputEvent.dispatch({ vertical: 0, select: false })
         }
     }
 
@@ -433,15 +433,18 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
         this.props.inputEvent.subscribe(this.handleInput)
     }
 
-    public handleInput = ({ direction, select, section }: IWelcomeInputEvent) => {
+    public handleInput = async ({ vertical, select, horizontal }: IWelcomeInputEvent) => {
         const { currentIndex } = this.state
         const { sections, ids, executeCommand, active } = this.props
 
-        const newIndex = this.getNextIndex(direction, currentIndex, section, sections)
+        const newIndex = this.getNextIndex(currentIndex, vertical, horizontal, sections)
         const selectedId = ids[newIndex]
         this.setState({ currentIndex: newIndex, selectedId })
 
-        if (select && active) {
+        const selectedSession = this.props.sessions.find(session => session.id === selectedId)
+        if (select && selectedSession) {
+            await this.props.restoreSession(selectedSession.name)
+        } else if (select && active) {
             const currentCommand = this.getCurrentCommand(selectedId)
             executeCommand(currentCommand.command, currentCommand.args)
         }
@@ -454,19 +457,20 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
     }
 
     public getNextIndex(
-        direction: number,
         currentIndex: number,
-        section: number,
+        vertical: number,
+        horizontal: number,
         sections: number[],
     ) {
-        const nextPosition = currentIndex + direction
+        const nextPosition = currentIndex + vertical
         const numberOfItems = this.props.ids.length
-        const total = sections.reduce((sum, size) => sum + size, 0)
-        const lastSection = sections[sections.length - 1]
+
+        // TODO: this currently handles *TWO* sections if more sections are to be added will need
+        // to rethink how to allow navigation across multiple sections
         switch (true) {
-            case section === 1:
-                return total - lastSection
-            case section === -1:
+            case horizontal === 1:
+                return sections[0]
+            case horizontal === -1:
                 return 0
             case nextPosition < 0:
                 return numberOfItems - 1
