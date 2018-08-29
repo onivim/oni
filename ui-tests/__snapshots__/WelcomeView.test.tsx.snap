@@ -54,18 +54,18 @@ exports[`<WelcomeView /> should match its last snapshot 1`] = `
     extension={
       Array [
         "
-    width: 70%;
+    width: 60%;
     height: 60%;
-    box-sizing: border-box;
-    padding: 0 1rem;
-    margin-top: 64px;
+    padding: 0 1em;
     opacity: 1;
+    margin-top: 64px;
+    box-sizing: border-box;
     border: 1px solid ",
         [Function],
         ";
     border-radius: 4px;
-    justify-content: space-between;
     overflow: hidden;
+    justify-content: space-around;
     background-color: ",
         [Function],
         ";
@@ -122,6 +122,11 @@ exports[`<WelcomeView /> should match its last snapshot 1`] = `
         >
           <Icon
             name="file"
+            style={
+              Object {
+                "marginRight": "0.3em",
+              }
+            }
           />
            
           test
