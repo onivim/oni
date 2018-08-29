@@ -9,6 +9,7 @@ import { remote } from "electron"
 
 import * as Oni from "oni-api"
 
+import { gotoNextError, gotoPreviousError } from "./../../Services/Diagnostics/navigateErrors"
 import { EditorManager } from "./../../Services/EditorManager"
 import { MenuManager } from "./../../Services/Menu"
 import { showAboutMessage } from "./../../Services/Metadata"
@@ -109,6 +110,20 @@ export const activate = (
         new CallbackCommand("window.moveRight", null, null, () => windowManager.moveRight()),
         new CallbackCommand("window.moveDown", null, null, () => windowManager.moveDown()),
         new CallbackCommand("window.moveUp", null, null, () => windowManager.moveUp()),
+
+        // Error list
+        new CallbackCommand(
+            "oni.editor.nextError",
+            "Jump to next lint/compiler error",
+            "Jump to the next error or warning from the linter or compiler",
+            gotoNextError,
+        ),
+        new CallbackCommand(
+            "oni.editor.previousError",
+            "Jump to previous lint/compiler error",
+            "Jump to the previous error or warning from the linter or compiler",
+            gotoPreviousError,
+        ),
 
         // Add additional commands here
         // ...
