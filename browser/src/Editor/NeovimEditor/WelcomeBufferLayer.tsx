@@ -137,7 +137,7 @@ const HeroImage = styled.img`
 export const SectionHeader = styled.div`
     margin-top: 1em;
     margin-bottom: 1em;
-    font-size: 1.1em;
+    font-size: 1.2em;
     font-weight: bold;
     text-align: left;
     width: 100%;
@@ -166,8 +166,8 @@ const WelcomeButtonWrapper = styled<WelcomeButtonWrapperProps, "button">("button
     transform: ${({ isSelected }) => (isSelected ? "translateX(-4px)" : "translateX(0px)")};
     transition: transform 0.25s;
     width: 100%;
-    margin: 0.8rem 0;
-    padding: 0.8rem;
+    margin: 0.8em 0;
+    padding: 0.8em;
     display: flex;
     flex-direction: row;
     &:hover {
@@ -181,15 +181,15 @@ const AnimatedContainer = styled<{ duration: string }, "div">("div")`
 `
 
 const WelcomeButtonTitle = styled.span`
-    font-size: 1rem;
+    font-size: 1em;
     font-weight: bold;
-    margin: 0.4rem;
+    margin: 0.4em;
     width: 100%;
     text-align: left;
 `
 
 const WelcomeButtonDescription = styled.span`
-    font-size: 0.8rem;
+    font-size: 0.8em;
     opacity: 0.75;
     margin: 4px;
     width: 100%;
@@ -197,16 +197,16 @@ const WelcomeButtonDescription = styled.span`
 `
 
 const boxStyling = css`
-    width: 70%;
+    width: 60%;
     height: 60%;
-    box-sizing: border-box;
-    padding: 0 1rem;
-    margin-top: 64px;
+    padding: 0 1em;
     opacity: 1;
+    margin-top: 64px;
+    box-sizing: border-box;
     border: 1px solid ${p => p.theme["editor.hover.contents.background"]};
     border-radius: 4px;
-    justify-content: space-between;
     overflow: hidden;
+    justify-content: space-around;
     background-color: ${p => p.theme["editor.hover.contents.codeblock.background"]};
     ${boxShadowInset};
 `
@@ -217,17 +217,22 @@ const titleRow = css`
     animation: ${entranceFull} 0.25s ease-in 0.25s forwards};
 `
 
+const selectedSectionItem = css`
+    ${({ theme }) => `
+        text-decoration: underline;
+        color: ${theme["highlight.mode.normal.background"]};
+    `};
+`
+
 export const SectionItem = styled<{ isSelected?: boolean }, "li">("li")`
     width: 100%;
-    margin: 0.2rem;
+    margin: 0.2em;
     text-align: left;
     height: auto;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    ${({ isSelected }) => isSelected && `text-decoration: underline`};
-    ${({ theme, isSelected }) =>
-        isSelected && `color: ${theme["highlight.mode.normal.background"]}`};
+    ${({ isSelected }) => isSelected && selectedSectionItem};
 
     &:hover {
         text-decoration: underline;
@@ -239,7 +244,7 @@ export const SessionsList = styled.ul`
     margin: 0;
     list-style-type: none;
     border-radius: 4px;
-    padding: 0 1rem;
+    padding: 0 1em;
     border: 1px solid ${p => p.theme["editor.hover.contents.codeblock.background"]};
 `
 
@@ -528,7 +533,8 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                                         onClick={() => this.props.restoreSession(session.name)}
                                         key={session.id}
                                     >
-                                        <Icon name="file" /> {session.name}
+                                        <Icon name="file" style={{ marginRight: "0.3em" }} />{" "}
+                                        {session.name}
                                     </SectionItem>
                                 ))
                             ) : (
