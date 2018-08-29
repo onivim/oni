@@ -78,12 +78,8 @@ describe("<WelcomeView />", () => {
         expect(wrapper.state().version).toBe("1")
     })
 
-    it("should render content if version is present", () => {
-        expect(wrapper.find("[data-id='welcome-screen']")).toBeTruthy()
-    })
-
-    it("should default initial state to the first button id", () => {
-        expect(wrapper.state().selectedId).toBe("button1")
+    it("should have the correct initial state", () => {
+        expect(wrapper.state()).toEqual({ version: "1", currentIndex: 0, selectedId: "button1" })
     })
 
     it("should correctly update selection based on input", () => {
@@ -93,6 +89,7 @@ describe("<WelcomeView />", () => {
     })
 
     it("should loop back to last button if user navigates upwards at the first button", () => {
+        wrapper.setState({ currentIndex: 0, selectedId: "button1" })
         const instance = wrapper.instance() as WelcomeView
         instance.handleInput({ vertical: -1, select: false })
         expect(wrapper.state().currentIndex).toBe(ids.length - 1)
