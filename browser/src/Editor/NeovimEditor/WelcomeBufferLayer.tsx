@@ -86,6 +86,13 @@ const sectionStyles = css`
     align-items: center;
     height: 90%;
     overflow-y: hidden;
+    direction: rtl;
+    &:hover {
+        overflow-y: overlay;
+    }
+    & > * {
+        direction: ltr;
+    }
 `
 
 const LeftColumn = styled.div`
@@ -94,15 +101,6 @@ const LeftColumn = styled.div`
     padding-left: 1rem;
     overflow-y: hidden;
     width: 60%;
-    direction: rtl;
-
-    &:hover {
-        overflow-y: overlay;
-    }
-
-    & > * {
-        direction: ltr;
-    }
 `
 
 const RightColumn = styled.div`
@@ -136,7 +134,7 @@ const HeroImage = styled.img`
     opacity: 0.4;
 `
 
-const SectionHeader = styled.div`
+export const SectionHeader = styled.div`
     margin-top: 1em;
     margin-bottom: 1em;
     font-size: 1.1em;
@@ -219,7 +217,7 @@ const titleRow = css`
     animation: ${entranceFull} 0.25s ease-in 0.25s forwards};
 `
 
-const SectionItem = styled<{ isSelected?: boolean }, "li">("li")`
+export const SectionItem = styled<{ isSelected?: boolean }, "li">("li")`
     width: 100%;
     margin: 0.2rem;
     text-align: left;
@@ -236,7 +234,7 @@ const SectionItem = styled<{ isSelected?: boolean }, "li">("li")`
     }
 `
 
-const SessionsList = styled.ul`
+export const SessionsList = styled.ul`
     width: 70%;
     margin: 0;
     list-style-type: none;
@@ -376,21 +374,24 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         await this._oni.sessions.restoreSession(name)
     }
 
-    public render(context: Oni.BufferLayerRenderContext) {
+    public getProps() {
         const active = this._oni.getActiveSection() === "editor"
         const commandIds = Object.values(this.welcomeCommands).map(({ command }) => command)
         const sessions = this._oni.sessions ? this._oni.sessions.allSessions : ([] as ISession[])
         const sessionIds = sessions.map(({ id }) => id)
         const ids = [...commandIds, ...sessionIds]
-        const sections = [commandIds.length, sessionIds.length]
+        const sections = [commandIds.length, sessionIds.length].filter(Boolean)
 
+        return { active, ids, sections, sessions }
+    }
+
+    public render(context: Oni.BufferLayerRenderContext) {
+        const props = this.getProps()
         return (
             <WelcomeWrapper>
                 <WelcomeView
-                    ids={ids}
-                    active={active}
-                    sections={sections}
-                    sessions={sessions}
+                    {...props}
+                    getMetadata={getMetadata}
                     inputEvent={this.inputEvent}
                     commands={this.welcomeCommands}
                     restoreSession={this.restoreSession}
@@ -408,6 +409,7 @@ export interface WelcomeViewProps {
     ids: string[]
     inputEvent: Event<IWelcomeInputEvent>
     commands: IWelcomeCommandsDictionary
+    getMetadata: () => Promise<{ version: string }>
     restoreSession: (name: string) => Promise<void>
     executeCommand: ExecuteCommand
 }
@@ -428,7 +430,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
     private _welcomeElement = React.createRef<HTMLDivElement>()
 
     public async componentDidMount() {
-        const metadata = await getMetadata()
+        const metadata = await this.props.getMetadata()
         this.setState({ version: metadata.version })
         this.props.inputEvent.subscribe(this.handleInput)
     }
@@ -467,13 +469,14 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
     ) {
         const nextPosition = currentIndex + vertical
         const numberOfItems = this.props.ids.length
+        const multipleSections = sections.length > 1
 
-        // TODO: this currently handles *TWO* sections if more sections are to be added will need
-        // to rethink how to allow navigation across multiple sections
+        // TODO: this currently handles *TWO* sections if more sections
+        // are to be added will need to rethink how to allow navigation across multiple sections
         switch (true) {
-            case horizontal === 1:
+            case multipleSections && horizontal === 1:
                 return sections[0]
-            case horizontal === -1:
+            case multipleSections && horizontal === -1:
                 return 0
             case nextPosition < 0:
                 return numberOfItems - 1
@@ -492,7 +495,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
 
     public render() {
         const { version, selectedId } = this.state
-        return version ? (
+        return (
             <Column innerRef={this._welcomeElement} height="100%" data-id="welcome-screen">
                 <Row extension={titleRow}>
                     <Column />
@@ -504,7 +507,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                         <HeroImage src="images/oni-icon-no-border.svg" />
                     </Column>
                     <Column alignment="flex-start">
-                        <SubtitleText>{`v${version}`}</SubtitleText>
+                        {version && <SubtitleText>{`v${version}`}</SubtitleText>}
                         <div>{"https://onivim.io"}</div>
                     </Column>
                     <Column />
@@ -535,7 +538,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                     </RightColumn>
                 </Row>
             </Column>
-        ) : null
+        )
     }
 }
 
