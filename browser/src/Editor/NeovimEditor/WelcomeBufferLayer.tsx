@@ -10,13 +10,17 @@ import { Event } from "oni-types"
 import * as React from "react"
 
 import { getMetadata } from "./../../Services/Metadata"
+import { ISession, SessionManager } from "./../../Services/Sessions"
 import styled, {
+    boxShadowInset,
     Css,
     css,
     enableMouse,
     getSelectedBorder,
     keyframes,
+    lighten,
 } from "./../../UI/components/common"
+import { Icon } from "./../../UI/Icon"
 
 // const entrance = keyframes`
 //     0% { opacity: 0; transform: translateY(2px); }
@@ -54,23 +58,55 @@ const WelcomeWrapper = styled.div`
     opacity: 0;
     animation: ${entranceFull} 0.25s ease-in 0.1s forwards ${enableMouse};
 `
+
 interface IColumnProps {
     alignment?: string
+    justify?: string
     flex?: string
     height?: string
-    overflowY?: string
+    extension?: Css
 }
 
 const Column = styled<IColumnProps, "div">("div")`
-    background: ${p => p.theme["editor.background"]};
+    background: inherit;
     display: flex;
-    justify-content: center;
+    justify-content: ${({ justify }) => justify || `center`};
     align-items: ${({ alignment }) => alignment || "center"};
     flex-direction: column;
     width: 100%;
-    flex: ${({ flex }) => flex || "1 1 auto"};
+    flex: ${({ flex }) => flex || "1"};
     height: ${({ height }) => height || `auto`};
-    ${({ overflowY }) => overflowY && `overflow-y: ${overflowY}`};
+    ${({ extension }) => extension};
+`
+
+const sectionStyles = css`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 90%;
+    overflow-y: hidden;
+    direction: rtl;
+    &:hover {
+        overflow-y: overlay;
+    }
+    & > * {
+        direction: ltr;
+    }
+`
+
+const LeftColumn = styled.div`
+    ${sectionStyles};
+    padding: 0;
+    padding-left: 1rem;
+    overflow-y: hidden;
+    width: 60%;
+`
+
+const RightColumn = styled.div`
+    ${sectionStyles};
+    width: 30%;
+    border-left: 1px solid ${({ theme }) => theme["editor.background"]};
 `
 
 const Row = styled<{ extension?: Css }, "div">("div")`
@@ -98,13 +134,12 @@ const HeroImage = styled.img`
     opacity: 0.4;
 `
 
-const SectionHeader = styled.div`
+export const SectionHeader = styled.div`
     margin-top: 1em;
     margin-bottom: 1em;
-
-    font-size: 1.1em;
+    font-size: 1.2em;
     font-weight: bold;
-    text-align: center;
+    text-align: left;
     width: 100%;
 `
 
@@ -127,12 +162,12 @@ const WelcomeButtonWrapper = styled<WelcomeButtonWrapperProps, "button">("button
     border-right: 4px solid transparent;
     cursor: pointer;
     color: ${({ theme }) => theme.foreground};
-    background-color: ${({ theme }) => theme.background};
+    background-color: ${({ theme }) => lighten(theme.background)};
     transform: ${({ isSelected }) => (isSelected ? "translateX(-4px)" : "translateX(0px)")};
     transition: transform 0.25s;
     width: 100%;
-    margin: 8px 0px;
-    padding: 8px;
+    margin: 0.8em 0;
+    padding: 0.8em;
     display: flex;
     flex-direction: row;
     &:hover {
@@ -146,10 +181,11 @@ const AnimatedContainer = styled<{ duration: string }, "div">("div")`
 `
 
 const WelcomeButtonTitle = styled.span`
-    font-size: 1.1em;
+    font-size: 1em;
     font-weight: bold;
-    margin: 4px;
+    margin: 0.4em;
     width: 100%;
+    text-align: left;
 `
 
 const WelcomeButtonDescription = styled.span`
@@ -158,6 +194,58 @@ const WelcomeButtonDescription = styled.span`
     margin: 4px;
     width: 100%;
     text-align: right;
+`
+
+const boxStyling = css`
+    width: 60%;
+    height: 60%;
+    padding: 0 1em;
+    opacity: 1;
+    margin-top: 64px;
+    box-sizing: border-box;
+    border: 1px solid ${p => p.theme["editor.hover.contents.background"]};
+    border-radius: 4px;
+    overflow: hidden;
+    justify-content: space-around;
+    background-color: ${p => p.theme["editor.hover.contents.codeblock.background"]};
+    ${boxShadowInset};
+`
+
+const titleRow = css`
+    width: 100%;
+    padding-top: 32px;
+    animation: ${entranceFull} 0.25s ease-in 0.25s forwards};
+`
+
+const selectedSectionItem = css`
+    ${({ theme }) => `
+        text-decoration: underline;
+        color: ${theme["highlight.mode.normal.background"]};
+    `};
+`
+
+export const SectionItem = styled<{ isSelected?: boolean }, "li">("li")`
+    width: 100%;
+    margin: 0.2em;
+    text-align: left;
+    height: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    ${({ isSelected }) => isSelected && selectedSectionItem};
+
+    &:hover {
+        text-decoration: underline;
+    }
+`
+
+export const SessionsList = styled.ul`
+    width: 70%;
+    margin: 0;
+    list-style-type: none;
+    border-radius: 4px;
+    padding: 0 1em;
+    border: 1px solid ${p => p.theme["editor.hover.contents.codeblock.background"]};
 `
 
 export interface WelcomeButtonProps {
@@ -201,14 +289,16 @@ export interface WelcomeHeaderState {
 }
 
 export interface OniWithActiveSection extends Oni.Plugin.Api {
+    sessions: SessionManager
     getActiveSection(): string
 }
 
 type ExecuteCommand = <T>(command: string, args?: T) => void
 
 export interface IWelcomeInputEvent {
-    direction: number
     select: boolean
+    vertical: number
+    horizontal?: number
 }
 
 interface ICommandMetadata<T = undefined> {
@@ -231,30 +321,14 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
     public inputEvent = new Event<IWelcomeInputEvent>()
 
     public readonly welcomeCommands: IWelcomeCommandsDictionary = {
-        openFile: {
-            command: "oni.editor.newFile",
-        },
-        openWorkspaceFolder: {
-            command: "workspace.openFolder",
-        },
-        commandPalette: {
-            command: "quickOpen.show",
-        },
-        commandline: {
-            command: "executeVimCommand",
-        },
-        openTutor: {
-            command: "oni.tutor.open",
-        },
-        openDocs: {
-            command: "oni.docs.open",
-        },
-        openConfig: {
-            command: "oni.config.openUserConfig",
-        },
-        openThemes: {
-            command: "oni.themes.open",
-        },
+        openFile: { command: "oni.editor.newFile" },
+        openWorkspaceFolder: { command: "workspace.openFolder" },
+        commandPalette: { command: "quickOpen.show" },
+        commandline: { command: "executeVimCommand" },
+        openTutor: { command: "oni.tutor.open" },
+        openDocs: { command: "oni.docs.open" },
+        openConfig: { command: "oni.config.openUserConfig" },
+        openThemes: { command: "oni.themes.open" },
     }
 
     constructor(private _oni: OniWithActiveSection) {}
@@ -276,16 +350,22 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         Log.info(`ONI WELCOME INPUT KEY: ${key}`)
         switch (key) {
             case "j":
-                this.inputEvent.dispatch({ direction: 1, select: false })
+                this.inputEvent.dispatch({ vertical: 1, select: false })
                 break
             case "k":
-                this.inputEvent.dispatch({ direction: -1, select: false })
+                this.inputEvent.dispatch({ vertical: -1, select: false })
+                break
+            case "l":
+                this.inputEvent.dispatch({ vertical: 0, select: false, horizontal: 1 })
+                break
+            case "h":
+                this.inputEvent.dispatch({ vertical: 0, select: false, horizontal: -1 })
                 break
             case "<enter>":
-                this.inputEvent.dispatch({ direction: 0, select: true })
+                this.inputEvent.dispatch({ vertical: 0, select: true })
                 break
             default:
-                this.inputEvent.dispatch({ direction: 0, select: false })
+                this.inputEvent.dispatch({ vertical: 0, select: false })
         }
     }
 
@@ -295,16 +375,31 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         }
     }
 
-    public render(context: Oni.BufferLayerRenderContext) {
+    public restoreSession = async (name: string) => {
+        await this._oni.sessions.restoreSession(name)
+    }
+
+    public getProps() {
         const active = this._oni.getActiveSection() === "editor"
-        const ids = Object.values(this.welcomeCommands).map(({ command }) => command)
+        const commandIds = Object.values(this.welcomeCommands).map(({ command }) => command)
+        const sessions = this._oni.sessions ? this._oni.sessions.allSessions : ([] as ISession[])
+        const sessionIds = sessions.map(({ id }) => id)
+        const ids = [...commandIds, ...sessionIds]
+        const sections = [commandIds.length, sessionIds.length].filter(Boolean)
+
+        return { active, ids, sections, sessions }
+    }
+
+    public render(context: Oni.BufferLayerRenderContext) {
+        const props = this.getProps()
         return (
             <WelcomeWrapper>
                 <WelcomeView
-                    buttonIds={ids}
-                    active={active}
+                    {...props}
+                    getMetadata={getMetadata}
                     inputEvent={this.inputEvent}
                     commands={this.welcomeCommands}
+                    restoreSession={this.restoreSession}
                     executeCommand={this.executeCommand}
                 />
             </WelcomeWrapper>
@@ -314,9 +409,13 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
 
 export interface WelcomeViewProps {
     active: boolean
-    buttonIds: string[]
+    sessions: ISession[]
+    sections: number[]
+    ids: string[]
     inputEvent: Event<IWelcomeInputEvent>
     commands: IWelcomeCommandsDictionary
+    getMetadata: () => Promise<{ version: string }>
+    restoreSession: (name: string) => Promise<void>
     executeCommand: ExecuteCommand
 }
 
@@ -326,43 +425,38 @@ export interface WelcomeViewState {
     currentIndex: number
 }
 
-const buttonsRow = css`
-    width: 100%;
-    margin-top: 64px;
-    opacity: 1;
-`
-
-const titleRow = css`
-    width: 100%;
-    padding-top: 32px;
-    animation: ${entranceFull} 0.25s ease-in 0.25s forwards};
-`
-
 export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeViewState> {
     public state: WelcomeViewState = {
         version: null,
         currentIndex: 0,
-        selectedId: this.props.buttonIds[0],
+        selectedId: this.props.ids[0],
     }
 
     private _welcomeElement = React.createRef<HTMLDivElement>()
 
     public async componentDidMount() {
-        const metadata = await getMetadata()
+        const metadata = await this.props.getMetadata()
         this.setState({ version: metadata.version })
         this.props.inputEvent.subscribe(this.handleInput)
     }
 
-    public handleInput = ({ direction, select }: IWelcomeInputEvent) => {
+    public handleInput = async ({ vertical, select, horizontal }: IWelcomeInputEvent) => {
         const { currentIndex } = this.state
+        const { sections, ids, executeCommand, active } = this.props
 
-        const newIndex = this.getNextIndex(direction, currentIndex)
-        const selectedId = this.props.buttonIds[newIndex]
+        const newIndex = this.getNextIndex(currentIndex, vertical, horizontal, sections)
+        const selectedId = ids[newIndex]
         this.setState({ currentIndex: newIndex, selectedId })
 
-        if (select && this.props.active) {
-            const currentCommand = this.getCurrentCommand(selectedId)
-            this.props.executeCommand(currentCommand.command, currentCommand.args)
+        const selectedSession = this.props.sessions.find(session => session.id === selectedId)
+
+        if (select && active) {
+            if (selectedSession) {
+                await this.props.restoreSession(selectedSession.name)
+            } else {
+                const currentCommand = this.getCurrentCommand(selectedId)
+                executeCommand(currentCommand.command, currentCommand.args)
+            }
         }
     }
 
@@ -372,12 +466,26 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
         return currentCommand
     }
 
-    public getNextIndex(direction: number, currentIndex: number) {
-        const nextPosition = currentIndex + direction
+    public getNextIndex(
+        currentIndex: number,
+        vertical: number,
+        horizontal: number,
+        sections: number[],
+    ) {
+        const nextPosition = currentIndex + vertical
+        const numberOfItems = this.props.ids.length
+        const multipleSections = sections.length > 1
+
+        // TODO: this currently handles *TWO* sections if more sections
+        // are to be added will need to rethink how to allow navigation across multiple sections
         switch (true) {
+            case multipleSections && horizontal === 1:
+                return sections[0]
+            case multipleSections && horizontal === -1:
+                return 0
             case nextPosition < 0:
-                return this.props.buttonIds.length - 1
-            case nextPosition === this.props.buttonIds.length:
+                return numberOfItems - 1
+            case nextPosition === numberOfItems:
                 return 0
             default:
                 return nextPosition
@@ -391,8 +499,8 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
     }
 
     public render() {
-        const { version } = this.state
-        return version ? (
+        const { version, selectedId } = this.state
+        return (
             <Column innerRef={this._welcomeElement} height="100%" data-id="welcome-screen">
                 <Row extension={titleRow}>
                     <Column />
@@ -404,22 +512,39 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
                         <HeroImage src="images/oni-icon-no-border.svg" />
                     </Column>
                     <Column alignment="flex-start">
-                        <SubtitleText>{`v${this.state.version}`}</SubtitleText>
+                        {version && <SubtitleText>{`v${version}`}</SubtitleText>}
                         <div>{"https://onivim.io"}</div>
                     </Column>
                     <Column />
                 </Row>
-                <Row extension={buttonsRow}>
-                    <Column />
+                <Row extension={boxStyling}>
                     <WelcomeCommandsView
                         commands={this.props.commands}
-                        selectedId={this.state.selectedId}
+                        selectedId={selectedId}
                         executeCommand={this.props.executeCommand}
                     />
-                    <Column />
+                    <RightColumn>
+                        <SessionsList>
+                            <SectionHeader>Sessions</SectionHeader>
+                            {this.props.sessions.length ? (
+                                this.props.sessions.map(session => (
+                                    <SectionItem
+                                        isSelected={session.id === selectedId}
+                                        onClick={() => this.props.restoreSession(session.name)}
+                                        key={session.id}
+                                    >
+                                        <Icon name="file" style={{ marginRight: "0.3em" }} />{" "}
+                                        {session.name}
+                                    </SectionItem>
+                                ))
+                            ) : (
+                                <SectionItem>No Sessions Available</SectionItem>
+                            )}
+                        </SessionsList>
+                    </RightColumn>
                 </Row>
             </Column>
-        ) : null
+        )
     }
 }
 
@@ -432,7 +557,7 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
         const { commands, executeCommand } = this.props
         const isSelected = (command: string) => command === this.props.selectedId
         return (
-            <Column>
+            <LeftColumn>
                 <AnimatedContainer duration="0.25s">
                     <SectionHeader>Quick Commands</SectionHeader>
                     <WelcomeButton
@@ -498,7 +623,7 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
                         selected={isSelected(commands.openThemes.command)}
                     />
                 </AnimatedContainer>
-            </Column>
+            </LeftColumn>
         )
     }
 }

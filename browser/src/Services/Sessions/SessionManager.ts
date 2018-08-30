@@ -21,7 +21,7 @@ export interface ISession {
 
 export interface ISessionService {
     sessionsDir: string
-    sessions: ISession[]
+    allSessions: ISession[]
     persistSession(sessionName: string): Promise<ISession>
     restoreSession(sessionName: string): Promise<ISession>
 }
@@ -66,6 +66,7 @@ export class SessionManager implements ISessionService {
         fs.ensureDirSync(this.sessionsDir)
         const enabled = this._oni.configuration.getValue<boolean>("experimental.sessions.enabled")
         if (enabled) {
+            this._store.dispatch({ type: "POPULATE_SESSIONS" })
             this._sidebarManager.add(
                 "save",
                 new SessionsPane({ store: this._store, commands: this._oni.commands }),
@@ -74,8 +75,9 @@ export class SessionManager implements ISessionService {
         this._setupSubscriptions()
     }
 
-    public get sessions() {
-        return this._store.getState().sessions
+    public get allSessions() {
+        const state = this._store.getState()
+        return state.sessions
     }
 
     public get sessionsDir() {

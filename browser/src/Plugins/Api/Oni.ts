@@ -32,6 +32,7 @@ import { getInstance as getFiltersInstance } from "./../../Services/Menu/Filter"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
 import { recorder } from "./../../Services/Recorder"
+import { getInstance as getSessionManagerInstance, SessionManager } from "./../../Services/Sessions"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
 import { getInstance as getSneakInstance } from "./../../Services/Sneak"
 import { getInstance as getSnippetsInstance } from "./../../Services/Snippets"
@@ -166,6 +167,10 @@ export class Oni implements OniApi.Plugin.Api {
 
     public get ui(): Ui {
         return this._ui
+    }
+
+    public get sessions(): SessionManager {
+        return getSessionManagerInstance()
     }
 
     public get services(): Services {
