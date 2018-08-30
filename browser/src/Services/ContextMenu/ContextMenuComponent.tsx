@@ -2,7 +2,6 @@
  * ContextMenu.tsx
  */
 
-import * as take from "lodash/take"
 import * as React from "react"
 import * as types from "vscode-languageserver-types"
 
@@ -46,11 +45,19 @@ export class ContextMenuView extends React.PureComponent<IContextMenuProps, {}> 
             return null
         }
 
-        // TODO: sync max display items (10) with value in Reducer.autoCompletionReducer() (Reducer.ts)
-        const firstTenEntries = take(this.props.entries, 10)
+        let entriesToRender: IContextMenuItem[] = []
+        let adjustedIndex = this.props.selectedIndex
 
-        const entries = firstTenEntries.map((s, i) => {
-            const isSelected = i === this.props.selectedIndex
+        // TODO: sync max display items (10) with value in Reducer.autoCompletionReducer() (Reducer.ts)
+        if (adjustedIndex < 10) {
+            entriesToRender = this.props.entries.slice(0, 10)
+        } else {
+            entriesToRender = this.props.entries.slice(adjustedIndex - 9, adjustedIndex + 1)
+            adjustedIndex = entriesToRender.length - 1
+        }
+
+        const entries = entriesToRender.map((s, i) => {
+            const isSelected = i === adjustedIndex
 
             return (
                 <ContextMenuItem
@@ -63,10 +70,7 @@ export class ContextMenuView extends React.PureComponent<IContextMenuProps, {}> 
             )
         })
 
-        const selectedItemDocumentation = getDocumentationFromItems(
-            firstTenEntries,
-            this.props.selectedIndex,
-        )
+        const selectedItemDocumentation = getDocumentationFromItems(entriesToRender, adjustedIndex)
         return (
             <div className="autocompletion enable-mouse">
                 <div className="entries">{entries}</div>

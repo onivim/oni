@@ -64,16 +64,7 @@ export class NeovimPopupMenu {
     }
 
     private _renderCompletionMenu(selectedIndex: number): void {
-        let itemsToRender: IContextMenuItem[] = []
-        let adjustedIndex = selectedIndex
-
-        if (selectedIndex < 10) {
-            itemsToRender = this._lastItems.slice(0, 10)
-        } else {
-            itemsToRender = this._lastItems.slice(selectedIndex - 9, selectedIndex + 1)
-            adjustedIndex = itemsToRender.length - 1
-        }
-
+        const itemsToRender: IContextMenuItem[] = this._lastItems
         const highlightColor = this._colors.getColor("contextMenu.highlight")
 
         const completionElement = (
@@ -81,7 +72,7 @@ export class NeovimPopupMenu {
                 visible={true}
                 base={""}
                 entries={itemsToRender}
-                selectedIndex={adjustedIndex}
+                selectedIndex={selectedIndex}
                 backgroundColor={"black"}
                 borderColor={"black"}
                 highlightColor={highlightColor}
