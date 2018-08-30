@@ -27,7 +27,7 @@ export class SnippetVariableResolver implements VariableResolver {
             TM_FILEPATH: filePath,
             TM_FILENAME_BASE: path.basename(filePath, path.extname(filePath)),
             CURRENT_YEAR: currentDate.getFullYear().toString(),
-            CURRENT_MONTH: currentDate.getMonth().toString(),
+            CURRENT_MONTH: (currentDate.getMonth() + 1).toString(),
             CURRENT_DATE: currentDate.getDate().toString(),
             CURRENT_HOUR: currentDate.getHours().toString(),
             CURRENT_MINUTE: currentDate.getMinutes().toString(),
