@@ -313,7 +313,7 @@ export interface IWelcomeCommandsDictionary {
     openConfig: ICommandMetadata
     openThemes: ICommandMetadata
     openWorkspaceFolder: ICommandMetadata
-    commandPalette: ICommandMetadata
+    showQuickOpen: ICommandMetadata
     commandline: ICommandMetadata
 }
 
@@ -323,12 +323,12 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
     public readonly welcomeCommands: IWelcomeCommandsDictionary = {
         openFile: { command: "oni.editor.newFile" },
         openWorkspaceFolder: { command: "workspace.openFolder" },
-        commandPalette: { command: "quickOpen.show" },
-        commandline: { command: "executeVimCommand" },
+        showQuickOpen: { command: "quickOpen.show" },
+        commandline: { command: "editor.executeVimCommand" },
         openTutor: { command: "oni.tutor.open" },
         openDocs: { command: "oni.docs.open" },
         openConfig: { command: "oni.config.openUserConfig" },
-        openThemes: { command: "oni.themes.open" },
+        openThemes: { command: "oni.themes.choose" },
     }
 
     constructor(private _oni: OniWithActiveSection) {}
@@ -576,10 +576,10 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
                     />
                     <WelcomeButton
                         title="Command Palette"
-                        onClick={() => executeCommand(commands.commandPalette.command)}
+                        onClick={() => executeCommand(commands.showQuickOpen.command)}
                         description="Control + Shift + P"
-                        command={commands.commandPalette.command}
-                        selected={isSelected(commands.commandPalette.command)}
+                        command={commands.showQuickOpen.command}
+                        selected={isSelected(commands.showQuickOpen.command)}
                     />
                     <WelcomeButton
                         title="Vim Ex Commands"
