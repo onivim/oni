@@ -32,7 +32,10 @@ export class Search implements Oni.Search.ISearch {
         const commandParts = [
             RipGrep.getCommand(),
             "--ignore-case",
-            ...RipGrep.getArguments(configuration.getValue("oni.exclude")),
+            ...RipGrep.getArguments(
+                configuration.getValue("oni.exclude"),
+                configuration.getValue("editor.quickOpen.showHidden"),
+            ),
             // "-e",
             ...(opts.fileFilter ? ["-g", opts.fileFilter] : []),
             "--",
@@ -45,7 +48,10 @@ export class Search implements Oni.Search.ISearch {
     public findInPath(opts: Oni.Search.Options): Oni.Search.Query {
         const commandParts = [
             RipGrep.getCommand(),
-            ...RipGrep.getArguments(configuration.getValue("oni.exclude")),
+            ...RipGrep.getArguments(
+                configuration.getValue("oni.exclude"),
+                configuration.getValue("editor.quickOpen.showHidden"),
+            ),
             "--files",
             "--",
             opts.workspace ? opts.workspace : ".",

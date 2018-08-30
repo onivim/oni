@@ -163,6 +163,7 @@ export interface IConfigurationValues {
     "editor.quickInfo.delay": number
     "editor.quickOpen.defaultOpenMode": Oni.FileOpenMode
     "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode
+    "editor.quickOpen.showHidden": boolean
 
     "editor.errors.slideOnFocus": boolean
     "editor.formatting.formatOnSwitchToNormalMode": boolean // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun

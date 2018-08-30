@@ -145,6 +145,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickOpen.filterStrategy": "vscode",
     "editor.quickOpen.defaultOpenMode": Oni.FileOpenMode.Edit,
     "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode.ExistingTab,
+    "editor.quickOpen.showHidden": false,
 
     "editor.split.mode": "native",
 
