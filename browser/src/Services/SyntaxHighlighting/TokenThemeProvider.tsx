@@ -6,7 +6,7 @@ import {
     TokenColor,
     TokenColorStyle,
 } from "./../../Services/TokenColors"
-import { /* Css, */ IThemeColors, Css } from "./../../UI/components/common"
+import { Css, IThemeColors } from "./../../UI/components/common"
 
 /**
  * A object representing a key of default oni tokens and an array of tokens
