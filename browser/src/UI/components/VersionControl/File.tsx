@@ -1,9 +1,9 @@
 import * as path from "path"
 import * as React from "react"
 
-import { Sneakable } from "../Sneakable"
-import Octicon, { Icons } from "./../Octicon"
 import styled, { getSelectedBorder } from "./../common"
+import Octicon, { Icons } from "./../Octicon"
+import { Sneakable } from "./../Sneakable"
 
 interface IProps {
     onClick: (path: string) => void

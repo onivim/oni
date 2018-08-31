@@ -1,8 +1,8 @@
 import * as React from "react"
 
-import VCSSectionTitle from "../SectionTitle"
-import File from "./File"
 import { Icons } from "./../Octicon"
+import VCSSectionTitle from "./../SectionTitle"
+import File from "./File"
 
 interface IModifiedFilesProps {
     files?: string[]

@@ -1,10 +1,10 @@
 import * as React from "react"
 
 import { Logs } from "../../../Services/VersionControl/VersionControlProvider"
-import { styled, getSelectedBorder } from "./../../../UI/components/common"
+import styled, { getSelectedBorder } from "./../../../UI/components/common"
+import Octicon from "./../../../UI/components/Octicon"
 import { formatDate } from "./../../../Utility"
 import VCSSectionTitle from "./../SectionTitle"
-import Octicon from "./../../../UI/components/Octicon"
 
 interface ICommitsSection {
     commits: Logs["all"]

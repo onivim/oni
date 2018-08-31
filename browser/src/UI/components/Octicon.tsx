@@ -1,5 +1,5 @@
-import * as React from "react"
 import Octicon, { getIconByName, iconsByName } from "@githubprimer/octicons-react"
+import * as React from "react"
 
 export type Icons = keyof iconsByName
 
