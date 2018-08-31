@@ -13,7 +13,7 @@ export const gotoNextError = async () => {
     const currentFileErrors = getAllErrorsForFile(activeBuffer.filePath, errors)
     const currentPosition = activeBuffer.cursor
 
-    if (!currentFileErrors) {
+    if (!currentFileErrors || !currentFileErrors.length) {
         return
     }
 
@@ -55,7 +55,7 @@ export const gotoPreviousError = async () => {
     const currentFileErrors = getAllErrorsForFile(activeBuffer.filePath, errors)
     const currentPosition = activeBuffer.cursor
 
-    if (!currentFileErrors) {
+    if (!currentFileErrors || !currentFileErrors.length) {
         return
     }
 
