@@ -1,10 +1,10 @@
 import { ICell } from "../../neovim"
+import { normalizeColor } from "./normalizeColor"
 import {
     createProgram,
     createUnitQuadElementIndicesBuffer,
     createUnitQuadVerticesBuffer,
 } from "./WebGLUtilities"
-import { normalizeColor } from "./normalizeColor"
 
 const solidInstanceFieldCount = 8
 const solidInstanceSizeInBytes = solidInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT

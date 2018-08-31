@@ -1,37 +1,60 @@
-import GlyphIterator from "./GlyphIterator"
 import {
-    Font,
-    GSUBTable,
-    ScriptTable,
-    LangSysTable,
-    TextDirection,
-    ConditionTable,
-    FeatureTable,
-    Lookup,
     ClassDefinitionTable,
+    ConditionTable,
+    CoverageTable,
+    FeatureTable,
+    Font,
     GSUBLookupTable,
     GSUBLookupTableType1,
-    CoverageTable,
     GSUBLookupTableType2,
     GSUBLookupTableType3,
     GSUBLookupTableType4,
     GSUBLookupTableType5,
     GSUBLookupTableType6,
     GSUBLookupTableType7,
+    GSUBTable,
+    LangSysTable,
+    Lookup,
     LookupRecord,
+    ScriptTable,
+    TextDirection,
 } from "fontkit"
 import GlyphInfo from "./GlyphInfo"
+import GlyphIterator from "./GlyphIterator"
 
 const DEFAULT_SCRIPTS = ["DFLT", "dflt", "latn"]
 
 export default class GlyphSubstitutor {
+    public static getClassID(glyphId: number, classDef: ClassDefinitionTable) {
+        switch (classDef.version) {
+            case 1: // Class array
+                const i = glyphId - classDef.startGlyph
+                if (i >= 0 && i < classDef.classValueArray.length) {
+                    return classDef.classValueArray[i]
+                }
+
+                break
+
+            case 2:
+                for (const range of classDef.classRangeRecord) {
+                    if (range.start <= glyphId && glyphId <= range.end) {
+                        return range.class
+                    }
+                }
+
+                break
+        }
+
+        return 0
+    }
+
     private _script: ScriptTable = null
     private _scriptTag: string = null
     private _language: LangSysTable = null
     private _languageTag: string = null
     private _features: { [featureTag: string]: FeatureTable } = {}
     private _variationsIndex = this._font._variationProcessor
-        ? this.findVariationsIndex(this._font._variationProcessor.normalizedCoords)
+        ? this._findVariationsIndex(this._font._variationProcessor.normalizedCoords)
         : -1
     private _glyphs: GlyphInfo[] = []
     private _ligatureID: number = 1
@@ -45,27 +68,7 @@ export default class GlyphSubstitutor {
         this.selectScript()
     }
 
-    private _findScript(script: string | string[]) {
-        if (this._table.scriptList == null) {
-            return null
-        }
-
-        if (!Array.isArray(script)) {
-            script = [script]
-        }
-
-        for (let s of script) {
-            for (let entry of this._table.scriptList) {
-                if (entry.tag === s) {
-                    return entry
-                }
-            }
-        }
-
-        return null
-    }
-
-    selectScript(script?: string, language?: string, direction?: TextDirection) {
+    public selectScript(script?: string, language?: string, direction?: TextDirection) {
         let changed = false
         let entry
         if (!this._script || script !== this._scriptTag) {
@@ -96,7 +99,7 @@ export default class GlyphSubstitutor {
         if (!language || language !== this._languageTag) {
             this._language = null
 
-            for (let lang of this._script.langSysRecords) {
+            for (const lang of this._script.langSysRecords) {
                 if (lang.tag === language) {
                     this._language = lang.langSys
                     this._languageTag = lang.tag
@@ -116,9 +119,9 @@ export default class GlyphSubstitutor {
         if (changed) {
             this._features = {}
             if (this._language) {
-                for (let featureIndex of this._language.featureIndexes) {
-                    let record = this._table.featureList[featureIndex]
-                    let substituteFeature = this.substituteFeatureForVariations(featureIndex)
+                for (const featureIndex of this._language.featureIndexes) {
+                    const record = this._table.featureList[featureIndex]
+                    const substituteFeature = this._substituteFeatureForVariations(featureIndex)
                     this._features[record.tag] = substituteFeature || record.feature
                 }
             }
@@ -127,15 +130,20 @@ export default class GlyphSubstitutor {
         return this._scriptTag
     }
 
-    lookupsForFeatures(userFeatures: string[] = [], exclude?: number[]) {
-        let lookups: Lookup[] = []
-        for (let tag of userFeatures) {
-            let feature = this._features[tag]
+    public applyFeatures(userFeatures: string[], glyphs: GlyphInfo[]) {
+        const lookups = this._lookupsForFeatures(userFeatures)
+        this._applyLookups(lookups, glyphs)
+    }
+
+    private _lookupsForFeatures(userFeatures: string[] = [], exclude?: number[]) {
+        const lookups: Lookup[] = []
+        for (const tag of userFeatures) {
+            const feature = this._features[tag]
             if (!feature) {
                 continue
             }
 
-            for (let lookupIndex of feature.lookupListIndexes) {
+            for (const lookupIndex of feature.lookupListIndexes) {
                 if (exclude && exclude.indexOf(lookupIndex) !== -1) {
                     continue
                 }
@@ -152,14 +160,14 @@ export default class GlyphSubstitutor {
         return lookups
     }
 
-    substituteFeatureForVariations(featureIndex: number) {
+    private _substituteFeatureForVariations(featureIndex: number) {
         if (this._variationsIndex === -1) {
             return null
         }
 
-        let record = this._table.featureVariations.featureVariationRecords[this._variationsIndex]
-        let substitutions = record.featureTableSubstitution.substitutions
-        for (let substitution of substitutions) {
+        const record = this._table.featureVariations.featureVariationRecords[this._variationsIndex]
+        const substitutions = record.featureTableSubstitution.substitutions
+        for (const substitution of substitutions) {
             if (substitution.featureIndex === featureIndex) {
                 return substitution.alternateFeatureTable
             }
@@ -168,16 +176,16 @@ export default class GlyphSubstitutor {
         return null
     }
 
-    findVariationsIndex(coords: number[]) {
-        let variations = this._table.featureVariations
+    private _findVariationsIndex(coords: number[]) {
+        const variations = this._table.featureVariations
         if (!variations) {
             return -1
         }
 
-        let records = variations.featureVariationRecords
+        const records = variations.featureVariationRecords
         for (let i = 0; i < records.length; i++) {
-            let conditions = records[i].conditionSet.conditionTable
-            if (this.variationConditionsMatch(conditions, coords)) {
+            const conditions = records[i].conditionSet.conditionTable
+            if (this._variationConditionsMatch(conditions, coords)) {
                 return i
             }
         }
@@ -185,23 +193,38 @@ export default class GlyphSubstitutor {
         return -1
     }
 
-    variationConditionsMatch(conditions: ConditionTable[], coords: number[]) {
+    private _variationConditionsMatch(conditions: ConditionTable[], coords: number[]) {
         return conditions.every((condition: ConditionTable) => {
-            let coord = condition.axisIndex < coords.length ? coords[condition.axisIndex] : 0
+            const coord = condition.axisIndex < coords.length ? coords[condition.axisIndex] : 0
             return condition.filterRangeMinValue <= coord && coord <= condition.filterRangeMaxValue
         })
     }
 
-    applyFeatures(userFeatures: string[], glyphs: GlyphInfo[]) {
-        let lookups = this.lookupsForFeatures(userFeatures)
-        this.applyLookups(lookups, glyphs)
+    private _findScript(script: string | string[]) {
+        if (this._table.scriptList == null) {
+            return null
+        }
+
+        if (!Array.isArray(script)) {
+            script = [script]
+        }
+
+        for (const s of script) {
+            for (const entry of this._table.scriptList) {
+                if (entry.tag === s) {
+                    return entry
+                }
+            }
+        }
+
+        return null
     }
 
-    applyLookups(lookups: Lookup[], glyphs: GlyphInfo[]) {
+    private _applyLookups(lookups: Lookup[], glyphs: GlyphInfo[]) {
         this._glyphs = glyphs
         this._glyphIterator = new GlyphIterator(glyphs)
 
-        for (let { feature, lookup } of lookups) {
+        for (const { feature, lookup } of lookups) {
             this._currentFeature = feature
             this._glyphIterator.reset(lookup.flags)
 
@@ -211,8 +234,8 @@ export default class GlyphSubstitutor {
                     continue
                 }
 
-                for (let table of lookup.subTables) {
-                    let res = this.applyLookup(lookup.lookupType, table)
+                for (const table of lookup.subTables) {
+                    const res = this._applyLookup(lookup.lookupType, table)
                     if (res) {
                         break
                     }
@@ -223,19 +246,20 @@ export default class GlyphSubstitutor {
         }
     }
 
-    applyLookup(lookupType: number, table: GSUBLookupTable): boolean {
+    private _applyLookup(lookupType: number, table: GSUBLookupTable): boolean {
         switch (lookupType) {
             case 1: {
                 // Single Substitution
                 const type1Table = table as GSUBLookupTableType1
-                let index = this.coverageIndex(type1Table.coverage)
+                const index = this._coverageIndex(type1Table.coverage)
                 if (index === -1) {
                     return false
                 }
 
-                let glyph = this._glyphIterator.cur
+                const glyph = this._glyphIterator.cur
                 switch (type1Table.version) {
                     case 1:
+                        // tslint:disable-next-line:no-bitwise
                         glyph.id = (glyph.id + type1Table.deltaGlyphID) & 0xffff
                         break
 
@@ -250,16 +274,16 @@ export default class GlyphSubstitutor {
             case 2: {
                 // Multiple Substitution
                 const type2Table = table as GSUBLookupTableType2
-                let index = this.coverageIndex(type2Table.coverage)
+                const index = this._coverageIndex(type2Table.coverage)
                 if (index !== -1) {
-                    let sequence = type2Table.sequences.get(index)
+                    const sequence = type2Table.sequences.get(index)
                     this._glyphIterator.cur.id = sequence[0]
                     this._glyphIterator.cur.ligatureComponent = 0
 
-                    let features = this._glyphIterator.cur.features
-                    let curGlyph = this._glyphIterator.cur
-                    let replacement = sequence.slice(1).map((gid: number, i: number) => {
-                        let glyph = new GlyphInfo(this._font, gid, undefined, features)
+                    const features = this._glyphIterator.cur.features
+                    const curGlyph = this._glyphIterator.cur
+                    const replacement = sequence.slice(1).map((gid: number, i: number) => {
+                        const glyph = new GlyphInfo(this._font, gid, undefined, features)
                         glyph.contextGroup = curGlyph.contextGroup
                         glyph.isLigated = curGlyph.isLigated
                         glyph.ligatureComponent = i + 1
@@ -278,9 +302,9 @@ export default class GlyphSubstitutor {
             case 3: {
                 // Alternate Substitution
                 const type3Table = table as GSUBLookupTableType3
-                let index = this.coverageIndex(type3Table.coverage)
+                const index = this._coverageIndex(type3Table.coverage)
                 if (index !== -1) {
-                    let USER_INDEX = 0 // TODO
+                    const USER_INDEX = 0 // TODO
                     this._glyphIterator.cur.id = type3Table.alternateSet.get(index)[USER_INDEX]
                     return true
                 }
@@ -291,27 +315,27 @@ export default class GlyphSubstitutor {
             case 4: {
                 // Ligature Substitution
                 const type4Table = table as GSUBLookupTableType4
-                let index = this.coverageIndex(type4Table.coverage)
+                const index = this._coverageIndex(type4Table.coverage)
                 if (index === -1) {
                     return false
                 }
 
-                for (let ligature of type4Table.ligatureSets.get(index)) {
-                    let matched = this.sequenceMatchIndices(1, ligature.components) as number[]
+                for (const ligature of type4Table.ligatureSets.get(index)) {
+                    const matched = this._sequenceMatchIndices(1, ligature.components) as number[]
                     if (!matched) {
                         continue
                     }
 
-                    let curGlyph = this._glyphIterator.cur
+                    const curGlyph = this._glyphIterator.cur
 
                     // Concatenate all of the characters the new ligature will represent
-                    let characters = curGlyph.codePoints.slice()
-                    for (let index of matched) {
-                        characters.push(...this._glyphs[index].codePoints)
+                    const characters = curGlyph.codePoints.slice()
+                    for (const matchedIndex of matched) {
+                        characters.push(...this._glyphs[matchedIndex].codePoints)
                     }
 
                     // Create the replacement ligature glyph
-                    let ligatureGlyph = new GlyphInfo(
+                    const ligatureGlyph = new GlyphInfo(
                         this._font,
                         ligature.glyph,
                         characters,
@@ -359,13 +383,13 @@ export default class GlyphSubstitutor {
 
                     // Set ligatureID and ligatureComponent on glyphs that were skipped in the matched sequence.
                     // This allows GPOS to attach marks to the correct ligature components.
-                    for (let matchIndex of matched) {
+                    for (const matchIndex of matched) {
                         // Don't assign new ligature components for mark ligatures (see above)
                         if (isMarkLigature) {
                             idx = matchIndex
                         } else {
                             while (idx < matchIndex) {
-                                var ligatureComponent =
+                                const ligatureComponent =
                                     curComps -
                                     lastNumComps +
                                     Math.min(this._glyphs[idx].ligatureComponent || 1, lastNumComps)
@@ -385,7 +409,7 @@ export default class GlyphSubstitutor {
                     if (lastLigID && !isMarkLigature) {
                         for (let i = idx; i < this._glyphs.length; i++) {
                             if (this._glyphs[i].ligatureID === lastLigID) {
-                                var ligatureComponent =
+                                const ligatureComponent =
                                     curComps -
                                     lastNumComps +
                                     Math.min(this._glyphs[i].ligatureComponent || 1, lastNumComps)
@@ -409,35 +433,35 @@ export default class GlyphSubstitutor {
             }
 
             case 5: // Contextual Substitution
-                return this.applyContext(table as GSUBLookupTableType5)
+                return this._applyContext(table as GSUBLookupTableType5)
 
             case 6: // Chaining Contextual Substitution
-                return this.applyChainingContext(table as GSUBLookupTableType6)
+                return this._applyChainingContext(table as GSUBLookupTableType6)
 
             case 7: // Extension Substitution
                 const type7Table = table as GSUBLookupTableType7
-                return this.applyLookup(type7Table.lookupType, type7Table.extension)
+                return this._applyLookup(type7Table.lookupType, type7Table.extension)
 
             default:
                 throw new Error(`GSUB lookupType ${lookupType} is not supported`)
         }
     }
 
-    applyLookupList(lookupRecords: LookupRecord[]) {
-        let glyphIndex = this._glyphIterator.index
+    private _applyLookupList(lookupRecords: LookupRecord[]) {
+        const glyphIndex = this._glyphIterator.index
 
-        for (let lookupRecord of lookupRecords) {
+        for (const lookupRecord of lookupRecords) {
             // Reset flags and find glyph index for this lookup record
             this._glyphIterator.reset(null, glyphIndex)
             this._glyphIterator.increment(lookupRecord.sequenceIndex)
 
             // Get the lookup and setup flags for subtables
-            let lookup = this._table.lookupList.get(lookupRecord.lookupListIndex)
+            const lookup = this._table.lookupList.get(lookupRecord.lookupListIndex)
             this._glyphIterator.reset(lookup.flags, this._glyphIterator.index)
 
             // Apply lookup subtables until one matches
-            for (let table of lookup.subTables) {
-                if (this.applyLookup(lookup.lookupType, table)) {
+            for (const table of lookup.subTables) {
+                if (this._applyLookup(lookup.lookupType, table)) {
                     break
                 }
             }
@@ -447,7 +471,7 @@ export default class GlyphSubstitutor {
         return true
     }
 
-    coverageIndex(coverage: CoverageTable, glyphId?: number) {
+    private _coverageIndex(coverage: CoverageTable, glyphId?: number) {
         if (glyphId == null) {
             glyphId = this._glyphIterator.cur.id
         }
@@ -457,7 +481,7 @@ export default class GlyphSubstitutor {
                 return coverage.glyphs.indexOf(glyphId)
 
             case 2:
-                for (let range of coverage.rangeRecords) {
+                for (const range of coverage.rangeRecords) {
                     if (range.start <= glyphId && glyphId <= range.end) {
                         return range.startCoverageIndex + glyphId - range.start
                     }
@@ -469,13 +493,13 @@ export default class GlyphSubstitutor {
         return -1
     }
 
-    match<T>(
+    private _match<T>(
         sequenceIndex: number,
         sequence: T[],
         fn: (component: T, glyph: GlyphInfo) => boolean,
         matched?: number[],
     ) {
-        let pos = this._glyphIterator.index
+        const pos = this._glyphIterator.index
         let glyph = this._glyphIterator.increment(sequenceIndex)
         let idx = 0
 
@@ -496,12 +520,12 @@ export default class GlyphSubstitutor {
         return matched || true
     }
 
-    sequenceMatches(sequenceIndex: number, sequence: number[]) {
-        return this.match(sequenceIndex, sequence, (component, glyph) => component === glyph.id)
+    private _sequenceMatches(sequenceIndex: number, sequence: number[]) {
+        return this._match(sequenceIndex, sequence, (component, glyph) => component === glyph.id)
     }
 
-    sequenceMatchIndices(sequenceIndex: number, sequence: number[]) {
-        return this.match(
+    private _sequenceMatchIndices(sequenceIndex: number, sequence: number[]) {
+        return this._match(
             sequenceIndex,
             sequence,
             (component, glyph) => {
@@ -516,50 +540,27 @@ export default class GlyphSubstitutor {
         )
     }
 
-    coverageSequenceMatches(sequenceIndex: number, sequence: CoverageTable[]) {
-        return this.match(
+    private _coverageSequenceMatches(sequenceIndex: number, sequence: CoverageTable[]) {
+        return this._match(
             sequenceIndex,
             sequence,
-            (coverage, glyph) => this.coverageIndex(coverage, glyph.id) >= 0,
+            (coverage, glyph) => this._coverageIndex(coverage, glyph.id) >= 0,
         )
     }
 
-    static getClassID(glyphId: number, classDef: ClassDefinitionTable) {
-        switch (classDef.version) {
-            case 1: // Class array
-                let i = glyphId - classDef.startGlyph
-                if (i >= 0 && i < classDef.classValueArray.length) {
-                    return classDef.classValueArray[i]
-                }
-
-                break
-
-            case 2:
-                for (let range of classDef.classRangeRecord) {
-                    if (range.start <= glyphId && glyphId <= range.end) {
-                        return range.class
-                    }
-                }
-
-                break
-        }
-
-        return 0
-    }
-
-    classSequenceMatches(
+    private _classSequenceMatches(
         sequenceIndex: number,
         sequence: number[],
         classDef: ClassDefinitionTable,
     ) {
-        return this.match(
+        return this._match(
             sequenceIndex,
             sequence,
             (classID, glyph) => classID === GlyphSubstitutor.getClassID(glyph.id, classDef),
         )
     }
 
-    updateContextGroupsInSequence(startOffset: number, contextGroupLength: number) {
+    private _updateContextGroupsInSequence(startOffset: number, contextGroupLength: number) {
         const pos = this._glyphIterator.index
 
         this._glyphIterator.move(startOffset)
@@ -576,28 +577,28 @@ export default class GlyphSubstitutor {
         this._glyphIterator.index = pos
     }
 
-    applyContext(table: GSUBLookupTableType5) {
+    private _applyContext(table: GSUBLookupTableType5) {
         switch (table.version) {
             case 1:
-                let index = this.coverageIndex(table.coverage)
+                let index = this._coverageIndex(table.coverage)
                 if (index === -1) {
                     return false
                 }
 
                 const ruleSet = table.ruleSets[index]
-                for (let rule of ruleSet) {
-                    if (this.sequenceMatches(1, rule.input)) {
+                for (const rule of ruleSet) {
+                    if (this._sequenceMatches(1, rule.input)) {
                         // CUSTOM INSERTION
-                        this.updateContextGroupsInSequence(-1, rule.input.length + 1)
+                        this._updateContextGroupsInSequence(-1, rule.input.length + 1)
                         // CUSTOM INSERTION
-                        return this.applyLookupList(rule.lookupRecords)
+                        return this._applyLookupList(rule.lookupRecords)
                     }
                 }
 
                 break
 
             case 2:
-                if (this.coverageIndex(table.coverage) === -1) {
+                if (this._coverageIndex(table.coverage) === -1) {
                     return false
                 }
 
@@ -607,23 +608,23 @@ export default class GlyphSubstitutor {
                 }
 
                 const classSet = table.classSet[index]
-                for (let rule of classSet) {
-                    if (this.classSequenceMatches(1, rule.classes, table.classDef)) {
+                for (const rule of classSet) {
+                    if (this._classSequenceMatches(1, rule.classes, table.classDef)) {
                         // CUSTOM INSERTION
-                        this.updateContextGroupsInSequence(-1, rule.classes.length + 1)
+                        this._updateContextGroupsInSequence(-1, rule.classes.length + 1)
                         // CUSTOM INSERTION
-                        return this.applyLookupList(rule.lookupRecords)
+                        return this._applyLookupList(rule.lookupRecords)
                     }
                 }
 
                 break
 
             case 3:
-                if (this.coverageSequenceMatches(0, table.coverages)) {
+                if (this._coverageSequenceMatches(0, table.coverages)) {
                     // CUSTOM INSERTION
-                    this.updateContextGroupsInSequence(0, table.coverages.length)
+                    this._updateContextGroupsInSequence(0, table.coverages.length)
                     // CUSTOM INSERTION
-                    return this.applyLookupList(table.lookupRecords)
+                    return this._applyLookupList(table.lookupRecords)
                 }
 
                 break
@@ -632,65 +633,65 @@ export default class GlyphSubstitutor {
         return false
     }
 
-    applyChainingContext(table: GSUBLookupTableType6) {
+    private _applyChainingContext(table: GSUBLookupTableType6) {
         switch (table.version) {
             case 1:
-                let index = this.coverageIndex(table.coverage)
+                let index = this._coverageIndex(table.coverage)
                 if (index === -1) {
                     return false
                 }
 
-                let set = table.chainRuleSets[index]
-                for (let rule of set) {
+                const set = table.chainRuleSets[index]
+                for (const rule of set) {
                     if (
-                        this.sequenceMatches(-rule.backtrack.length, rule.backtrack) &&
-                        this.sequenceMatches(1, rule.input) &&
-                        this.sequenceMatches(1 + rule.input.length, rule.lookahead)
+                        this._sequenceMatches(-rule.backtrack.length, rule.backtrack) &&
+                        this._sequenceMatches(1, rule.input) &&
+                        this._sequenceMatches(1 + rule.input.length, rule.lookahead)
                     ) {
                         // CUSTOM INSERTION
-                        this.updateContextGroupsInSequence(
+                        this._updateContextGroupsInSequence(
                             -rule.backtrack.length,
                             rule.input.length + rule.lookahead.length,
                         )
                         // CUSTOM INSERTION
-                        return this.applyLookupList(rule.lookupRecords)
+                        return this._applyLookupList(rule.lookupRecords)
                     }
                 }
 
                 break
 
             case 2:
-                if (this.coverageIndex(table.coverage) === -1) {
+                if (this._coverageIndex(table.coverage) === -1) {
                     return false
                 }
 
                 index = GlyphSubstitutor.getClassID(this._glyphIterator.cur.id, table.inputClassDef)
-                let rules = table.chainClassSet[index]
+                const rules = table.chainClassSet[index]
                 if (!rules) {
                     return false
                 }
 
-                for (let rule of rules) {
+                for (const rule of rules) {
                     if (
-                        this.classSequenceMatches(
+                        this._classSequenceMatches(
                             -rule.backtrack.length,
                             rule.backtrack,
                             table.backtrackClassDef,
                         ) &&
-                        this.classSequenceMatches(1, rule.input, table.inputClassDef) &&
-                        this.classSequenceMatches(
+                        this._classSequenceMatches(1, rule.input, table.inputClassDef) &&
+                        this._classSequenceMatches(
                             1 + rule.input.length,
                             rule.lookahead,
                             table.lookaheadClassDef,
                         )
                     ) {
                         // CUSTOM INSERTION
-                        this.updateContextGroupsInSequence(
+                        this._updateContextGroupsInSequence(
                             -rule.backtrack.length,
                             rule.input.length + rule.lookahead.length,
                         )
                         // CUSTOM INSERTION
-                        return this.applyLookupList(rule.lookupRecords)
+                        return this._applyLookupList(rule.lookupRecords)
                     }
                 }
 
@@ -698,20 +699,20 @@ export default class GlyphSubstitutor {
 
             case 3:
                 if (
-                    this.coverageSequenceMatches(
+                    this._coverageSequenceMatches(
                         -table.backtrackGlyphCount,
                         table.backtrackCoverage,
                     ) &&
-                    this.coverageSequenceMatches(0, table.inputCoverage) &&
-                    this.coverageSequenceMatches(table.inputGlyphCount, table.lookaheadCoverage)
+                    this._coverageSequenceMatches(0, table.inputCoverage) &&
+                    this._coverageSequenceMatches(table.inputGlyphCount, table.lookaheadCoverage)
                 ) {
                     // CUSTOM INSERTION
-                    this.updateContextGroupsInSequence(
+                    this._updateContextGroupsInSequence(
                         -table.backtrackGlyphCount,
                         table.inputGlyphCount + table.lookaheadCoverage.length,
                     )
                     // CUSTOM INSERTION
-                    return this.applyLookupList(table.lookupRecords)
+                    return this._applyLookupList(table.lookupRecords)
                 }
 
                 break

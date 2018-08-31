@@ -63,7 +63,7 @@ export class LigatureGrouper {
 
     constructor(private _fontFamily: string) {}
 
-    getLigatureGroups(characters: string[]) {
+    public getLigatureGroups(characters: string[]) {
         if (!this._fontHasLigatures) {
             return characters
         }

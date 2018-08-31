@@ -1,20 +1,20 @@
 import unicode from "unicode-properties"
 
-import GlyphSubstitutor from "./GlyphSubstitutor"
 import { Font } from "fontkit"
+import GlyphSubstitutor from "./GlyphSubstitutor"
 
 export default class GlyphInfo {
-    features: { [featureTag: string]: boolean } = {}
-    ligatureID: number = null
-    ligatureComponent: number = null
-    isLigated = false
-    substituted = false
-    isMultiplied = false
-    isBase: boolean
-    isLigature: boolean
-    isMark: boolean
-    markAttachmentType: number
-    contextGroup: symbol = Symbol("contextGroup")
+    public features: { [featureTag: string]: boolean } = {}
+    public ligatureID: number = null
+    public ligatureComponent: number = null
+    public isLigated = false
+    public substituted = false
+    public isMultiplied = false
+    public isBase: boolean
+    public isLigature: boolean
+    public isMark: boolean
+    public markAttachmentType: number
+    public contextGroup: symbol = Symbol("contextGroup")
 
     constructor(
         private _font: Font,
@@ -23,8 +23,7 @@ export default class GlyphInfo {
         features?: { [featureKey: string]: boolean } | string[],
     ) {
         if (Array.isArray(features)) {
-            for (let i = 0; i < features.length; i++) {
-                let feature = features[i]
+            for (const feature of features) {
                 this.features[feature] = true
             }
         } else if (typeof features === "object") {
@@ -40,10 +39,10 @@ export default class GlyphInfo {
         this._id = id
         this.substituted = true
 
-        let GDEF = this._font.GDEF
+        const GDEF = this._font.GDEF
         if (GDEF && GDEF.glyphClassDef) {
             // TODO: clean this up
-            let classID = GlyphSubstitutor.getClassID(id, GDEF.glyphClassDef)
+            const classID = GlyphSubstitutor.getClassID(id, GDEF.glyphClassDef)
             this.isBase = classID === 1
             this.isLigature = classID === 2
             this.isMark = classID === 3
@@ -58,7 +57,7 @@ export default class GlyphInfo {
         }
     }
 
-    copy() {
+    public copy() {
         return new GlyphInfo(this._font, this.id, this.codePoints, this.features)
     }
 }

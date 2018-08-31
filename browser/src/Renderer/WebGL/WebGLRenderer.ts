@@ -1,10 +1,10 @@
 import { INeovimRenderer } from ".."
 import { MinimalScreenForRendering } from "../../neovim"
 import { LigatureGrouper } from "./LigatureGrouper"
+import { normalizeColor } from "./normalizeColor"
 import { IWebGLAtlasOptions, WebGLTextureSpaceExceededError } from "./WebGLAtlas"
 import { WebGLSolidRenderer } from "./WebGLSolidRenderer"
 import { WebGlTextRenderer } from "./WebGLTextRenderer"
-import { normalizeColor } from "./normalizeColor"
 
 export class WebGLRenderer implements INeovimRenderer {
     private _editorElement: HTMLElement

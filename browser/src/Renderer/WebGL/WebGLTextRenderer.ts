@@ -1,13 +1,13 @@
 import { ICell } from "../../neovim"
 import { CellGroup } from "./CellGroup"
 import { LigatureGrouper } from "./LigatureGrouper"
+import { normalizeColor } from "./normalizeColor"
 import { IWebGLAtlasOptions, WebGLAtlas, WebGLGlyph } from "./WebGLAtlas"
 import {
     createProgram,
     createUnitQuadElementIndicesBuffer,
     createUnitQuadVerticesBuffer,
 } from "./WebGLUtilities"
-import { normalizeColor } from "./normalizeColor"
 
 const glyphInstanceFieldCount = 13
 const glyphInstanceSizeInBytes = glyphInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT

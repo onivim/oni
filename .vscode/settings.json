@@ -2,8 +2,6 @@
     "typescriptHero.imports.stringQuoteStyle": "\"",
     "typescriptHero.imports.multiLineWrapThreshold": 100,
     "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
-    "editor.formatOnType": true,
     "typescriptHero.imports.organizeOnSave": false,
     "typescript.tsdk": "node_modules/typescript/lib"
 }
