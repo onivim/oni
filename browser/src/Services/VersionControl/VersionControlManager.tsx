@@ -122,8 +122,8 @@ export class VersionControlManager {
     private _activateVCSProvider = async (provider: VersionControlProvider) => {
         this._vcs = provider.name
         this._vcsProvider = provider
-        await this._initialize()
         provider.activate()
+        await this._initialize()
     }
 
     private async _initialize() {
@@ -221,7 +221,6 @@ export class VersionControlManager {
         }
 
         try {
-            // FIXME: there is race condition on deactivation of the provider
             const branch = await this._vcsProvider.getBranch()
             const diff = await this._vcsProvider.getDiff()
 
