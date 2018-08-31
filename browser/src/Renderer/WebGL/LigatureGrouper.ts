@@ -5,7 +5,7 @@ import * as groupBy from "lodash/groupBy"
 import * as Log from "oni-core-logging"
 
 import GlyphInfo from "./fontLayout/GlyphInfo"
-import GSUBProcessor from "./fontLayout/GSUBProcessor"
+import GlyphSubstitutor from "./fontLayout/GlyphSubstitutor"
 
 const ligatureFeatures = ["calt", "rclt", "liga", "dlig", "clig"]
 
@@ -58,7 +58,7 @@ const checkIfFontHasLigatures = (font: Font) => {
 export class LigatureGrouper {
     private readonly _font = loadFont(this._fontFamily)
     private readonly _fontHasLigatures = this._font && checkIfFontHasLigatures(this._font)
-    private readonly _processor = new GSUBProcessor(this._font as any, (this._font as any).GSUB)
+    private readonly _processor = new GlyphSubstitutor(this._font as any, (this._font as any).GSUB)
     private readonly _cache = new Map<string, string[]>()
 
     constructor(private _fontFamily: string) {}
@@ -80,7 +80,7 @@ export class LigatureGrouper {
             glyph => new GlyphInfo(this._font, glyph.id, [...glyph.codePoints], ligatureFeatures),
         )
         // Apply ligatures and store contextGroup metadata in the GlyphInfos wherever they applied
-        this._processor.applyFeatures(ligatureFeatures, glyphInfos, null)
+        this._processor.applyFeatures(ligatureFeatures, glyphInfos)
 
         // Group GlyphInfo[] by contextGroup
         const contextGroupDictionary = groupBy(glyphInfos, glyphInfo => glyphInfo.contextGroup)

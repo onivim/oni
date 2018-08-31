@@ -1,34 +1,27 @@
 import unicode from "unicode-properties"
 
-import OTProcessor from "./OTProcessor"
+import GlyphSubstitutor from "./GlyphSubstitutor"
+import { Font } from "fontkit"
 
 export default class GlyphInfo {
-    codePoints: number[]
-    features: {}
-    ligatureID: number
-    ligatureComponent: any
-    isLigated: boolean
-    cursiveAttachment: any
-    markAttachment: any
-    shaperInfo: any
-    substituted: boolean
-    isMultiplied: boolean
+    features: { [featureTag: string]: boolean } = {}
+    ligatureID: number = null
+    ligatureComponent: number = null
+    isLigated = false
+    substituted = false
+    isMultiplied = false
     isBase: boolean
     isLigature: boolean
     isMark: boolean
-    markAttachmentType: any
-    contextGroup: symbol
+    markAttachmentType: number
+    contextGroup: symbol = Symbol("contextGroup")
 
-    private _font: any
-    private _id: any
-
-    constructor(font: any, id: any, codePoints: any[] = [], features?: any) {
-        this._font = font // TODO this could be removed
-        this.codePoints = codePoints
-        this.id = id
-        this.contextGroup = Symbol("contextGroup")
-
-        this.features = {}
+    constructor(
+        private _font: Font,
+        private _id: number,
+        public codePoints: number[] = [],
+        features?: { [featureKey: string]: boolean } | string[],
+    ) {
         if (Array.isArray(features)) {
             for (let i = 0; i < features.length; i++) {
                 let feature = features[i]
@@ -37,15 +30,6 @@ export default class GlyphInfo {
         } else if (typeof features === "object") {
             Object.assign(this.features, features)
         }
-
-        this.ligatureID = null
-        this.ligatureComponent = null
-        this.isLigated = false
-        this.cursiveAttachment = null
-        this.markAttachment = null
-        this.shaperInfo = null
-        this.substituted = false
-        this.isMultiplied = false
     }
 
     get id() {
@@ -59,12 +43,12 @@ export default class GlyphInfo {
         let GDEF = this._font.GDEF
         if (GDEF && GDEF.glyphClassDef) {
             // TODO: clean this up
-            let classID = OTProcessor.prototype.getClassID(id, GDEF.glyphClassDef)
+            let classID = GlyphSubstitutor.getClassID(id, GDEF.glyphClassDef)
             this.isBase = classID === 1
             this.isLigature = classID === 2
             this.isMark = classID === 3
             this.markAttachmentType = GDEF.markAttachClassDef
-                ? OTProcessor.prototype.getClassID(id, GDEF.markAttachClassDef)
+                ? GlyphSubstitutor.getClassID(id, GDEF.markAttachClassDef)
                 : 0
         } else {
             this.isMark = this.codePoints.length > 0 && this.codePoints.every(unicode.isMark)
