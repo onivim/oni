@@ -87,7 +87,6 @@ export class ExplorerSplit {
                     onClick={id => this._onOpenItem(id)}
                     moveFileOrFolder={this.moveFileOrFolder}
                     onSelectionChanged={id => this._onSelectionChanged(id)}
-                    fontSize={this._oni.configuration.getValue("ui.fontSize")}
                 />
             </Provider>
         )

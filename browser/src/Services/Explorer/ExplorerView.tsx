@@ -268,7 +268,6 @@ export interface IExplorerViewContainerProps {
     isRenaming?: Node
     onCancelCreate?: () => void
     onCompleteCreate?: (path: string) => void
-    fontSize: string
 }
 
 export interface IExplorerViewProps extends IExplorerViewContainerProps {
