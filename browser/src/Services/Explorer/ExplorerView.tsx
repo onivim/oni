@@ -29,7 +29,7 @@ import { getPathForNode, IExplorerState } from "./ExplorerStore"
 type Node = ExplorerSelectors.ExplorerNode
 
 export interface INodeViewProps {
-    measure(): void
+    measure: () => void
     moveFileOrFolder: (source: Node, dest: Node) => void
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
@@ -312,7 +312,7 @@ const ExplorerContainer = styled.div`
 export class ExplorerView extends React.PureComponent<IExplorerViewProps> {
     private _list = React.createRef<List>()
 
-    _cache = new CellMeasurerCache({
+    private _cache = new CellMeasurerCache({
         defaultHeight: 30,
         fixedWidth: true,
     })
