@@ -599,7 +599,7 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
                     <SectionHeader>Quick Commands</SectionHeader>
                     <WelcomeButton
                         title="New File"
-                        onClick={() => this.props.commands.openFile.execute()}
+                        onClick={() => commands.openFile.execute()}
                         description="Control + N"
                         command={commands.openFile.command}
                         selected={this.isSelected(commands.openFile.command)}
@@ -607,13 +607,13 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
                     <WelcomeButton
                         title="Open File / Folder"
                         description="Control + O"
-                        onClick={() => this.props.commands.openWorkspaceFolder.execute()}
+                        onClick={() => commands.openWorkspaceFolder.execute()}
                         command={commands.openWorkspaceFolder.command}
                         selected={this.isSelected(commands.openWorkspaceFolder.command)}
                     />
                     <WelcomeButton
                         title="Command Palette"
-                        onClick={() => this.props.commands.quickOpenShow.execute()}
+                        onClick={() => commands.quickOpenShow.execute()}
                         description="Control + Shift + P"
                         command={commands.quickOpenShow.command}
                         selected={this.isSelected(commands.quickOpenShow.command)}
@@ -622,7 +622,7 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
                         title="Vim Ex Commands"
                         description=":"
                         command="editor.openExCommands"
-                        onClick={() => this.props.commands.commandline.execute()}
+                        onClick={() => commands.commandline.execute()}
                         selected={this.isSelected(commands.commandline.command)}
                     />
                 </AnimatedContainer>
