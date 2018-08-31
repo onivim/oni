@@ -301,9 +301,9 @@ export interface IWelcomeInputEvent {
     horizontal?: number
 }
 
-interface ICommandMetadata<T = undefined> {
+interface ICommandMetadata {
+    execute: <T = undefined>(args?: T) => void
     command: string
-    args?: T
 }
 
 export interface IWelcomeCommandsDictionary {
@@ -313,22 +313,65 @@ export interface IWelcomeCommandsDictionary {
     openConfig: ICommandMetadata
     openThemes: ICommandMetadata
     openWorkspaceFolder: ICommandMetadata
-    showQuickOpen: ICommandMetadata
+    quickOpenShow: ICommandMetadata
     commandline: ICommandMetadata
+    restoreSession: (sessionName: string) => Promise<void>
 }
 
 export class WelcomeBufferLayer implements Oni.BufferLayer {
     public inputEvent = new Event<IWelcomeInputEvent>()
 
+    public showCommandline = async () => {
+        const remapping: string = await this._oni.editors.activeEditor.neovim.callFunction(
+            "mapcheck",
+            [":", "n"],
+        )
+        const mapping = remapping || ":"
+        this._oni.automation.sendKeys(mapping)
+    }
+
+    public executeCommand: ExecuteCommand = (cmd, args) => {
+        this._oni.commands.executeCommand(cmd, args)
+    }
+
+    public restoreSession = async (name: string) => {
+        await this._oni.sessions.restoreSession(name)
+    }
+
     public readonly welcomeCommands: IWelcomeCommandsDictionary = {
-        openFile: { command: "oni.editor.newFile" },
-        openWorkspaceFolder: { command: "workspace.openFolder" },
-        showQuickOpen: { command: "quickOpen.show" },
-        commandline: { command: "editor.executeVimCommand" },
-        openTutor: { command: "oni.tutor.open" },
-        openDocs: { command: "oni.docs.open" },
-        openConfig: { command: "oni.config.openUserConfig" },
-        openThemes: { command: "oni.themes.choose" },
+        openFile: {
+            execute: args => this.executeCommand("oni.editor.newFile", args),
+            command: "oni.editor.newFile",
+        },
+        openWorkspaceFolder: {
+            execute: args => this.executeCommand("workspace.openFolder", args),
+            command: "workspace.openFolder",
+        },
+        quickOpenShow: {
+            execute: args => this.executeCommand("quickOpen.show", args),
+            command: "quickOpen.show",
+        },
+        commandline: {
+            execute: this.showCommandline,
+            command: "editor.executeVimCommand",
+        },
+        openTutor: {
+            execute: args => this.executeCommand("oni.tutor.open", args),
+            command: "oni.tutor.open",
+        },
+        openDocs: {
+            execute: args => this.executeCommand("oni.docs.open", args),
+            command: "oni.docs.open",
+        },
+        openConfig: {
+            execute: args => this.executeCommand("oni.config.openUserConfig", args),
+            command: "oni.config.openUserConfig",
+        },
+        openThemes: {
+            execute: args => this.executeCommand("oni.themes.choose", args),
+            command: "oni.themes.open",
+        },
+        restoreSession: args => this.restoreSession(args),
     }
 
     constructor(private _oni: OniWithActiveSection) {}
@@ -369,19 +412,12 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         }
     }
 
-    public executeCommand: ExecuteCommand = (cmd, args) => {
-        if (cmd) {
-            this._oni.commands.executeCommand(cmd, args)
-        }
-    }
-
-    public restoreSession = async (name: string) => {
-        await this._oni.sessions.restoreSession(name)
-    }
-
     public getProps() {
         const active = this._oni.getActiveSection() === "editor"
-        const commandIds = Object.values(this.welcomeCommands).map(({ command }) => command)
+        const commandIds = Object.values(this.welcomeCommands)
+            .map(({ command }) => command)
+            .filter(Boolean)
+
         const sessions = this._oni.sessions ? this._oni.sessions.allSessions : ([] as ISession[])
         const sessionIds = sessions.map(({ id }) => id)
         const ids = [...commandIds, ...sessionIds]
@@ -442,7 +478,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
 
     public handleInput = async ({ vertical, select, horizontal }: IWelcomeInputEvent) => {
         const { currentIndex } = this.state
-        const { sections, ids, executeCommand, active } = this.props
+        const { sections, ids, active } = this.props
 
         const newIndex = this.getNextIndex(currentIndex, vertical, horizontal, sections)
         const selectedId = ids[newIndex]
@@ -452,10 +488,10 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
 
         if (select && active) {
             if (selectedSession) {
-                await this.props.restoreSession(selectedSession.name)
+                await this.props.commands.restoreSession(selectedSession.name)
             } else {
                 const currentCommand = this.getCurrentCommand(selectedId)
-                executeCommand(currentCommand.command, currentCommand.args)
+                currentCommand.execute()
             }
         }
     }
@@ -553,74 +589,74 @@ export interface IWelcomeCommandsViewProps extends Partial<WelcomeViewProps> {
 }
 
 export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsViewProps, {}> {
+    public isSelected = (command: string) => command === this.props.selectedId
     public render() {
-        const { commands, executeCommand } = this.props
-        const isSelected = (command: string) => command === this.props.selectedId
+        const { commands } = this.props
         return (
             <LeftColumn>
                 <AnimatedContainer duration="0.25s">
                     <SectionHeader>Quick Commands</SectionHeader>
                     <WelcomeButton
                         title="New File"
-                        onClick={() => executeCommand(commands.openFile.command)}
+                        onClick={() => this.props.commands.openFile.execute()}
                         description="Control + N"
                         command={commands.openFile.command}
-                        selected={isSelected(commands.openFile.command)}
+                        selected={this.isSelected(commands.openFile.command)}
                     />
                     <WelcomeButton
                         title="Open File / Folder"
-                        onClick={() => executeCommand(commands.openWorkspaceFolder.command)}
                         description="Control + O"
+                        onClick={() => this.props.commands.openWorkspaceFolder.execute()}
                         command={commands.openWorkspaceFolder.command}
-                        selected={isSelected(commands.openWorkspaceFolder.command)}
+                        selected={this.isSelected(commands.openWorkspaceFolder.command)}
                     />
                     <WelcomeButton
                         title="Command Palette"
-                        onClick={() => executeCommand(commands.showQuickOpen.command)}
+                        onClick={() => this.props.commands.quickOpenShow.execute()}
                         description="Control + Shift + P"
-                        command={commands.showQuickOpen.command}
-                        selected={isSelected(commands.showQuickOpen.command)}
+                        command={commands.quickOpenShow.command}
+                        selected={this.isSelected(commands.quickOpenShow.command)}
                     />
                     <WelcomeButton
                         title="Vim Ex Commands"
                         description=":"
                         command="editor.openExCommands"
-                        onClick={() => executeCommand(commands.commandline.command)}
-                        selected={isSelected(commands.commandline.command)}
+                        onClick={() => this.props.commands.commandline.execute()}
+                        selected={this.isSelected(commands.commandline.command)}
                     />
                 </AnimatedContainer>
                 <AnimatedContainer duration="0.25s">
                     <SectionHeader>Learn</SectionHeader>
                     <WelcomeButton
                         title="Tutor"
-                        onClick={() => executeCommand(commands.openTutor.command)}
+                        onClick={() => commands.openTutor.execute()}
                         description="Learn modal editing with an interactive tutorial."
                         command={commands.openTutor.command}
-                        selected={isSelected(commands.openTutor.command)}
+                        selected={this.isSelected(commands.openTutor.command)}
                     />
                     <WelcomeButton
                         title="Documentation"
-                        onClick={() => executeCommand(commands.openDocs.command)}
+                        onClick={() => commands.openDocs.execute()}
                         description="Discover what Oni can do for you."
                         command={commands.openDocs.command}
-                        selected={isSelected(commands.openDocs.command)}
+                        selected={this.isSelected(commands.openDocs.command)}
                     />
                 </AnimatedContainer>
                 <AnimatedContainer duration="0.25s">
                     <SectionHeader>Customize</SectionHeader>
                     <WelcomeButton
                         title="Configure"
-                        onClick={() => executeCommand(commands.openConfig.command)}
+                        onClick={() => commands.openConfig.execute}
                         description="Make Oni work the way you want."
                         command={commands.openConfig.command}
-                        selected={isSelected(commands.openConfig.command)}
+                        selected={this.isSelected(commands.openConfig.command)}
                     />
                     <WelcomeButton
                         title="Themes"
-                        onClick={() => executeCommand(commands.openThemes.command)}
+                        onClick={() => commands.openThemes.execute()}
                         description="Choose a theme that works for you."
                         command={commands.openThemes.command}
-                        selected={isSelected(commands.openThemes.command)}
+                        selected={this.isSelected(commands.openThemes.command)}
                     />
                 </AnimatedContainer>
             </LeftColumn>

@@ -75,6 +75,13 @@ export interface INeovimCompletionInfo {
 
 export type CommandLineContent = [any, string]
 
+export type MapcheckModes = "n" | "v" | "i"
+
+interface IMapping {
+    key: string
+    mode: MapcheckModes
+}
+
 export interface INeovimCommandLineShowEvent {
     content: CommandLineContent[]
     pos: number
@@ -409,6 +416,16 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public async chdir(directoryPath: string): Promise<void> {
         await this.command(`cd! ${directoryPath}`)
+    }
+
+    public async checkUserMapping({ key, mode = "n" }: IMapping) {
+        const mapping: string = await this.callFunction("mapcheck", [key, mode])
+        return { key, mapping }
+    }
+
+    public async checkUserMappings(keys: IMapping[]) {
+        const mappings = await Promise.all(keys.map(this.checkUserMapping))
+        return mappings
     }
 
     // Make a direct request against the msgpack API

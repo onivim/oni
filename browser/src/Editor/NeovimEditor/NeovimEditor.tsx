@@ -765,6 +765,13 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         return this._neovimInstance.blockInput(inputFunction)
     }
 
+    public async checkMapping(
+        key: string,
+        mode: "n" | "v" | "i",
+    ): Promise<{ key: string; mapping: string }> {
+        return this._neovimInstance.checkUserMapping({ key, mode })
+    }
+
     public dispose(): void {
         super.dispose()
 
