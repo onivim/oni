@@ -2,12 +2,13 @@ import * as React from "react"
 
 import VCSSectionTitle from "../SectionTitle"
 import File from "./File"
+import { Icons } from "./../Octicon"
 
 interface IModifiedFilesProps {
     files?: string[]
     titleId: string
     selectedId: string
-    icon: string
+    icon: Icons
     onClick: (id: string) => void
     toggleVisibility: () => void
     visibility: boolean

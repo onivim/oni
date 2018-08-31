@@ -87,6 +87,13 @@ type GetBorder = (
     },
 ) => string
 
+export const showScrollbarOnHover = css`
+    overflow: hidden;
+    &:hover {
+        overflow: overlay;
+    }
+`
+
 export const getSelectedBorder: GetBorder = ({ isSelected, borderSize = "1px", theme }) =>
     isSelected
         ? `${borderSize} solid ${theme["highlight.mode.normal.background"]}`

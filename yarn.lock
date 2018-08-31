@@ -40,6 +40,12 @@
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
+"@githubprimer/octicons-react@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@githubprimer/octicons-react/-/octicons-react-8.1.0.tgz#731c40b6b231dcee731f0f2d37c67e7ee857bd6a"
+  dependencies:
+    prop-types "^15.6.1"
+
 "@sindresorhus/is@^0.7.0":
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.7.0.tgz#9a06f4f137ee84d7df0460c1fdb1135ffa6c50fd"
