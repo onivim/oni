@@ -16,7 +16,9 @@ const {
     IThemeColors
 >
 
-export type Css = styledComponents.InterpolationValue[] | styledComponents.Styles[]
+export type Css =
+    | styledComponents.InterpolationValue[]
+    | Array<styledComponents.FlattenInterpolation<ThemeProps<IThemeColors>>>
 
 type FlexDirection = "flex-start" | "flex-end" | "center" | "space-between"
 
@@ -77,9 +79,21 @@ export const StackLayer = styled<{ zIndex?: number | string }, "div">("div")`
     ${p => p.zIndex && `z-index: ${p.zIndex}`};
 `
 
+type GetBorder = (
+    args: {
+        isSelected?: boolean
+        borderSize?: string
+        theme?: styledComponents.ThemeProps<IThemeColors>
+    },
+) => string
+
+export const getSelectedBorder: GetBorder = ({ isSelected, borderSize = "1px", theme }) =>
+    isSelected
+        ? `${borderSize} solid ${theme["highlight.mode.normal.background"]}`
+        : `${borderSize} solid transparent`
+
 export const sidebarItemSelected = css`
-    border: ${(p: any) =>
-        p.isSelected && `1px solid ${p.theme["highlight.mode.normal.background"]}`};
+    border: ${getSelectedBorder};
 `
 
 export type StyledFunction<T> = styledComponents.ThemedStyledFunction<T, IThemeColors>

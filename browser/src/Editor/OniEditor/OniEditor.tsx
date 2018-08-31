@@ -49,7 +49,9 @@ import { NeovimEditor } from "./../NeovimEditor"
 
 import { SplitDirection, windowManager } from "./../../Services/WindowManager"
 
+import { ISession } from "../../Services/Sessions"
 import { IBuffer } from "../BufferManager"
+import { OniWithActiveSection, WelcomeBufferLayer } from "../NeovimEditor/WelcomeBufferLayer"
 import ColorHighlightLayer from "./ColorHighlightLayer"
 import { ImageBufferLayer } from "./ImageBufferLayer"
 import IndentLineBufferLayer from "./IndentGuideBufferLayer"
@@ -99,6 +101,10 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
 
     public get /* override */ activeBuffer(): Oni.Buffer {
         return this._neovimEditor.activeBuffer
+    }
+
+    public get onQuit(): IEvent<void> {
+        return this._neovimEditor.onNeovimQuit
     }
 
     // Capabilities
@@ -203,6 +209,13 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
                 _buf => new ColorHighlightLayer(this._configuration),
             )
         }
+
+        this._neovimEditor.onShowWelcomeScreen.subscribe(async () => {
+            const oni = this._pluginManager.getApi()
+            const welcomeBuffer = await this._neovimEditor.createWelcomeBuffer()
+            const welcomeLayer = new WelcomeBufferLayer(oni as OniWithActiveSection)
+            welcomeBuffer.addLayer(welcomeLayer)
+        })
     }
 
     public dispose(): void {
@@ -286,6 +299,18 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
 
     public executeCommand(command: string): void {
         this._neovimEditor.executeCommand(command)
+    }
+
+    public restoreSession(sessionDetails: ISession) {
+        return this._neovimEditor.restoreSession(sessionDetails)
+    }
+
+    public getCurrentSession() {
+        return this._neovimEditor.getCurrentSession()
+    }
+
+    public persistSession(sessionDetails: ISession) {
+        return this._neovimEditor.persistSession(sessionDetails)
     }
 
     public getBuffers(): Array<Oni.Buffer | Oni.InactiveBuffer> {

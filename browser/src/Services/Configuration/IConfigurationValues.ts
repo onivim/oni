@@ -48,7 +48,10 @@ export interface IConfigurationValues {
 
     // Whether or not the learning pane is available
     "experimental.particles.enabled": boolean
-
+    // Whether or not the sessions sidebar pane is enabled
+    "experimental.sessions.enabled": boolean
+    // A User specified directory for where Oni session files should be saved
+    "experimental.sessions.directory": string
     // Whether Version control sidebar item is enabled
     "experimental.vcs.sidebar": boolean
     // Whether the color highlight layer is enabled

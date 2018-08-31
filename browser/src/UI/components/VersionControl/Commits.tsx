@@ -3,7 +3,7 @@ import * as React from "react"
 import { Logs } from "../../../Services/VersionControl/VersionControlProvider"
 import { sidebarItemSelected, styled, withProps } from "./../../../UI/components/common"
 import { formatDate } from "./../../../Utility"
-import VCSSectionTitle from "./SectionTitle"
+import VCSSectionTitle from "./../SectionTitle"
 
 interface ICommitsSection {
     commits: Logs["all"]
