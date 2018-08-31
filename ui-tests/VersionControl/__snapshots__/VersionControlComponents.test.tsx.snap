@@ -3,8 +3,8 @@
 exports[`<Branch /> should match last known snapshot unless we make a change 1`] = `
 <styled.div>
   <styled.span>
-    <Icon
-      name="code-fork"
+    <OcticonByName
+      name="git-branch"
     />
     <styled.span>
       test-branch 
