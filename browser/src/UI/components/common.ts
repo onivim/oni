@@ -9,11 +9,6 @@ import {
 } from "styled-components" // tslint:disable-line no-duplicate-imports
 import { IThemeColors } from "../../Services/Themes/ThemeManager"
 
-export type Css =
-    | InterpolationValue[]
-    | FlattenInterpolation<ThemeProps<any>>
-    | InterpolationFunction<ThemeProps<any>>
-
 export type TypedCss =
     | InterpolationValue[]
     | FlattenInterpolation<ThemeProps<IThemeColors>>
