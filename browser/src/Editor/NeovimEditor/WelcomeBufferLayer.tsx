@@ -321,6 +321,8 @@ export interface IWelcomeCommandsDictionary {
 export class WelcomeBufferLayer implements Oni.BufferLayer {
     public inputEvent = new Event<IWelcomeInputEvent>()
 
+    constructor(private _oni: OniWithActiveSection) {}
+
     public showCommandline = async () => {
         const remapping: string = await this._oni.editors.activeEditor.neovim.callFunction(
             "mapcheck",
@@ -338,6 +340,7 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         await this._oni.sessions.restoreSession(name)
     }
 
+    // tslint:disable-next-line
     public readonly welcomeCommands: IWelcomeCommandsDictionary = {
         openFile: {
             execute: args => this.executeCommand("oni.editor.newFile", args),
@@ -373,8 +376,6 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         },
         restoreSession: args => this.restoreSession(args),
     }
-
-    constructor(private _oni: OniWithActiveSection) {}
 
     public get id() {
         return "oni.welcome"
