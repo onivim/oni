@@ -29,7 +29,6 @@ import { getPathForNode, IExplorerState } from "./ExplorerStore"
 type Node = ExplorerSelectors.ExplorerNode
 
 export interface INodeViewProps {
-    measure: () => void
     moveFileOrFolder: (source: Node, dest: Node) => void
     node: ExplorerSelectors.ExplorerNode
     isSelected: boolean
@@ -123,16 +122,6 @@ export class NodeView extends React.PureComponent<INodeViewProps> {
 
     public isSameNode = ({ drag, drop }: IMoveNode) => {
         return !(drag.node.name === drop.node.name)
-    }
-
-    public propsChanged(keys: Array<keyof INodeViewProps>, prevProps: INodeViewProps) {
-        return keys.some(prop => this.props[prop] !== prevProps[prop])
-    }
-
-    public componentDidUpdate(prevProps: INodeViewProps) {
-        if (this.propsChanged(["isCreating", "isRenaming", "isSelected", "yanked"], prevProps)) {
-            this.props.measure()
-        }
     }
 
     public render() {
@@ -280,7 +269,6 @@ export interface IExplorerViewProps extends IExplorerViewContainerProps {
 interface ISneakableNode extends IExplorerViewProps {
     node: Node
     selectedId: string
-    measure(): void
 }
 
 const SneakableNode = ({ node, selectedId, ...props }: ISneakableNode) => (
@@ -296,7 +284,6 @@ const SneakableNode = ({ node, selectedId, ...props }: ISneakableNode) => (
             onCancelRename={props.onCancelRename}
             updated={props.updated}
             yanked={props.yanked}
-            measure={props.measure}
             moveFileOrFolder={props.moveFileOrFolder}
             onClick={() => props.onClick(node.id)}
         />
@@ -330,6 +317,9 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps> {
 
     public componentDidUpdate(prevProps: IExplorerViewProps) {
         if (this.propsChanged(["isCreating", "isRenaming", "yanked"], prevProps)) {
+            // TODO: if we could determine which nodes actually were involved
+            // in the change this could potentially be optimised
+            this._cache.clearAll()
             this._list.current.recomputeRowHeights()
         }
     }
@@ -379,19 +369,16 @@ export class ExplorerView extends React.PureComponent<IExplorerViewProps> {
                                                     parent={parent}
                                                     rowIndex={index}
                                                 >
-                                                    {({ measure }) => (
-                                                        <div
-                                                            style={style}
-                                                            key={this.props.nodes[index].id}
-                                                        >
-                                                            <SneakableNode
-                                                                {...this.props}
-                                                                selectedId={selectedId}
-                                                                node={this.props.nodes[index]}
-                                                                measure={measure}
-                                                            />
-                                                        </div>
-                                                    )}
+                                                    <div
+                                                        style={style}
+                                                        key={this.props.nodes[index].id}
+                                                    >
+                                                        <SneakableNode
+                                                            {...this.props}
+                                                            selectedId={selectedId}
+                                                            node={this.props.nodes[index]}
+                                                        />
+                                                    </div>
                                                 </CellMeasurer>
                                             )}
                                         />
