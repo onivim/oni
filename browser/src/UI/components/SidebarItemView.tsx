@@ -11,21 +11,31 @@ import { OniStyledProps, pixel, styled, withProps } from "./common"
 import Caret from "./../../UI/components/Caret"
 import { Sneakable } from "./../../UI/components/Sneakable"
 
-export interface ISidebarItemViewProps {
+interface IItemProps {
     yanked?: boolean
     updated?: boolean
     isOver?: boolean
     canDrop?: boolean
     didDrop?: boolean
-    text: string | JSX.Element
     isFocused: boolean
     isContainer?: boolean
-    indentationLevel: number
     icon?: JSX.Element
+    text: string | JSX.Element
     onClick: (e?: React.MouseEvent<HTMLElement>) => void
 }
 
+export interface ISidebarItemViewProps extends IItemProps {
+    indentationLevel: number
+}
+
+export interface ISidebarContainerViewProps extends IItemProps {
+    isExpanded: boolean
+    indentationLevel?: number
+}
+
 type SidebarStyleProps = OniStyledProps<ISidebarItemViewProps>
+
+const INDENT_AMOUNT = 12
 
 const getLeftBorder = (props: SidebarStyleProps) => {
     switch (true) {
@@ -91,74 +101,38 @@ const SidebarItemBackground = withProps<ISidebarItemViewProps>(styled.div)`
     bottom: 0px;
 `
 
-const INDENT_AMOUNT = 12
-
-export class SidebarItemView extends React.PureComponent<ISidebarItemViewProps, {}> {
-    public render() {
-        const icon = this.props.icon ? <div className="icon">{this.props.icon}</div> : null
-        return (
-            <Sneakable callback={this.props.onClick}>
-                <SidebarItemStyleWrapper
-                    {...this.props}
-                    className="item"
-                    onClick={this.props.onClick}
-                >
-                    <SidebarItemBackground {...this.props} />
-                    {icon}
-                    <div className="name">{this.props.text}</div>
-                </SidebarItemStyleWrapper>
-            </Sneakable>
-        )
-    }
+export const SidebarItemView: React.SFC<ISidebarItemViewProps> = props => {
+    const icon = props.icon ? <div className="icon">{props.icon}</div> : null
+    return (
+        <Sneakable callback={props.onClick}>
+            <SidebarItemStyleWrapper {...props} className="item" onClick={props.onClick}>
+                <SidebarItemBackground {...props} />
+                {icon}
+                <div className="name">{props.text}</div>
+            </SidebarItemStyleWrapper>
+        </Sneakable>
+    )
 }
+const SidebarContainer = styled.div``
 
-export interface ISidebarContainerViewProps extends IContainerProps {
-    yanked?: boolean
-    updated?: boolean
-    didDrop?: boolean
-    text: string
-    isExpanded: boolean
-    isFocused: boolean
-    indentationLevel?: number
-    isContainer?: boolean
-    onClick: (e: React.MouseEvent<HTMLElement>) => void
-}
-
-interface IContainerProps {
-    isOver?: boolean
-    canDrop?: boolean
-    yanked?: boolean
-    updated?: boolean
-}
-
-const SidebarContainer = withProps<IContainerProps>(styled.div)``
-
-export class SidebarContainerView extends React.PureComponent<ISidebarContainerViewProps, {}> {
-    public static defaultProps = {
-        indentationLevel: 0,
-    }
-
-    public render() {
-        return (
-            <SidebarContainer
-                updated={this.props.updated}
-                yanked={this.props.yanked}
-                canDrop={this.props.canDrop}
-                isOver={this.props.isOver}
-            >
-                <SidebarItemView
-                    yanked={this.props.yanked}
-                    updated={this.props.updated}
-                    didDrop={this.props.didDrop}
-                    indentationLevel={this.props.indentationLevel}
-                    icon={<Caret active={this.props.isExpanded} />}
-                    text={this.props.text}
-                    isFocused={this.props.isFocused}
-                    isContainer={this.props.isContainer}
-                    onClick={this.props.onClick}
-                />
-                {this.props.isExpanded ? this.props.children : null}
-            </SidebarContainer>
-        )
-    }
+export const SidebarContainerView: React.SFC<ISidebarContainerViewProps> = ({
+    indentationLevel = 0,
+    ...props
+}) => {
+    return (
+        <SidebarContainer>
+            <SidebarItemView
+                yanked={props.yanked}
+                updated={props.updated}
+                didDrop={props.didDrop}
+                indentationLevel={indentationLevel}
+                icon={<Caret active={props.isExpanded} />}
+                text={props.text}
+                isFocused={props.isFocused}
+                isContainer={props.isContainer}
+                onClick={props.onClick}
+            />
+            {props.isExpanded ? props.children : null}
+        </SidebarContainer>
+    )
 }

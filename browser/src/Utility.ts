@@ -7,7 +7,6 @@
 import * as fs from "fs"
 import * as minimatch from "minimatch"
 import * as path from "path"
-import * as units from "units-css"
 
 import * as find from "lodash/find"
 import * as isEqual from "lodash/isEqual"
@@ -258,17 +257,6 @@ export function ignoreWhilePendingPromise<T, U>(
 
 export const parseJson5 = <T>(text: string): T => {
     return JSON5.parse(text) as T
-}
-
-interface FontSizeInPxArgs {
-    fontSize: string
-    parent?: HTMLElement
-}
-
-export const fontSizeInPx = ({ fontSize, parent = document.body }: FontSizeInPxArgs) => {
-    const { unit } = units.parse(fontSize)
-    const isAlternateUnit = unit !== "px"
-    return isAlternateUnit ? units.convert(unit, "16px", parent) : fontSize
 }
 
 export const formatDate = (dateStr: string) => {
