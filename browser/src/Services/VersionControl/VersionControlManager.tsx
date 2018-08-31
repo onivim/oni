@@ -144,6 +144,7 @@ export class VersionControlManager {
                 )
                 this._sidebar.add("code-fork", vcsPane) // TODO: Refactor API
             }
+
             // TODO: this should only be active if this is a file under version control
             this._bufferLayerManager.addBufferLayer(
                 buffer =>
