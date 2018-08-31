@@ -28,7 +28,7 @@ export class UnhandledErrorMonitor {
     }
 
     constructor() {
-        window.addEventListener("unhandledrejection", (evt: any) => {
+        window.addEventListener("unhandledrejection", (evt: PromiseRejectionEvent) => {
             if (!this._started) {
                 this._queuedRejections.push(evt.reason)
             }
