@@ -6,7 +6,7 @@ import {
     TokenColor,
     TokenColorStyle,
 } from "./../../Services/TokenColors"
-import { /* Css, */ IThemeColors } from "./../../UI/components/common"
+import { /* Css, */ IThemeColors, Css } from "./../../UI/components/common"
 
 /**
  * A object representing a key of default oni tokens and an array of tokens
@@ -120,15 +120,20 @@ interface IDefaultMap {
     [defaultTokens: string]: string[]
 }
 
+interface RenderProps {
+    theme: INewTheme
+    styles: Css
+}
+
 interface IProps {
-    render: (s: { theme: INewTheme; styles: any }) => React.ReactElement<any>
+    render: (s: RenderProps) => React.ReactElement<RenderProps>
     theme: INewTheme
     defaultMap?: IDefaultMap
 }
 
 interface IState {
     theme: INewTheme
-    styles: any
+    styles: Css
 }
 
 interface IGenerateTokenArgs {
@@ -169,7 +174,7 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
     public createThemeFromTokens(tokens: TokenColor[]) {
         if (!this.enhancedTokens) {
             this.enhancedTokens = this.generateTokens({ defaultTokens: this.tokenColors })
-            console.log("this.enhancedTokens: ", this.enhancedTokens)
+            // console.log("this.enhancedTokens: ", this.enhancedTokens)
         }
         const tokenColorsMap = this.enhancedTokens.reduce((theme, token) => {
             return {

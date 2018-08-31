@@ -158,6 +158,7 @@ export class QuickInfoTitle extends React.PureComponent<ITextProps> {
             return null
         }
 
+        // console.log("tokenStyles: ", tokenStyles)
         return (
             <Title padding={padding} dangerouslySetInnerHTML={html} tokenStyles={tokenStyles}>
                 {text}
