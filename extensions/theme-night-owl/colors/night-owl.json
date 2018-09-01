@@ -12,7 +12,7 @@
         "editor.background": "#011627",
         "editor.foreground": "#d6deeb",
 
-        "tabs.background": "#0b2942",
+        "tabs.background": "#010e1a",
         "tabs.foreground": "#d2dee7",
 
         "toolTip.background": "#011627",
@@ -20,28 +20,28 @@
         "toolTip.border": "#5f7e97",
 
         "menu.background": "#011627",
-        "menu.foreground": "#ffffffcc",
+        "menu.foreground": "#ffffff",
         "menu.border": "#5f7e97",
 
         "contextMenu.background": "#5f7e97",
-        "contextMenu.foreground": "#ffffffcc",
-        "contextMenu.border": "",
+        "contextMenu.foreground": "#ffffff",
         "contextMenu.highlight": "#4373c2",
+        "contextMenu.border": "",
 
         "statusBar.background": "#011627",
         "statusBar.foreground": "#676E95",
 
         "highlight.mode.insert.background": "#9CCC65",
-        "highlight.mode.insert.foreground": "#ffffffcc",
+        "highlight.mode.insert.foreground": "#ffffff",
 
         "highlight.mode.normal.background": "#4373c2",
-        "highlight.mode.normal.foreground": "#ffffffcc",
+        "highlight.mode.normal.foreground": "#ffffff",
 
         "highlight.mode.operator.background": "#b294bb",
         "highlight.mode.operator.foreground": "#1d1f21",
 
         "highlight.mode.visual.background": "#EF5350",
-        "highlight.mode.visual.foreground": "#ffffffcc"
+        "highlight.mode.visual.foreground": "#ffffff"
     },
     "editor.tokenColors": [
         {
