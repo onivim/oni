@@ -12,13 +12,13 @@ import * as Oni from "oni-api"
 
 import { IMenus } from "./../Menu/MenuState"
 
+import styled, { enableMouse, layer } from "./../../UI/components/common"
 import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
 import { HighlightText } from "./../../UI/components/HighlightText"
 import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
 import { Icon } from "./../../UI/Icon"
 
 import { ContextMenuState } from "./ContextMenu"
-import styled, { enableMouse, layer } from "../../UI/components/common"
 
 export interface IContextMenuItem {
     label: string
