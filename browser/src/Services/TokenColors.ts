@@ -113,9 +113,10 @@ export class TokenColors implements IDisposable {
         defaults: TokenColor[]
         theme: TokenColor[]
     }) {
-        return Object.entries(tokens).reduce(
-            (output, [key, tokenColors]) =>
-                tokenColors.reduce((mergedTokens, currentToken) => {
+        return Object.keys(tokens).reduce(
+            (output, key) => {
+                const tokenColors: TokenColor[] = tokens[key]
+                return tokenColors.reduce((mergedTokens, currentToken) => {
                     const duplicateToken = mergedTokens.find(t => currentToken.scope === t.scope)
                     if (duplicateToken) {
                         return mergedTokens.map(existingToken => {
@@ -129,7 +130,8 @@ export class TokenColors implements IDisposable {
                         })
                     }
                     return [...mergedTokens, { ...currentToken, _source: key }]
-                }, output),
+                }, output)
+            },
             [] as TokenColor[],
         )
     }
