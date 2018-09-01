@@ -12,8 +12,8 @@ import * as Oni from "oni-api"
 
 import { IMenus } from "./../Menu/MenuState"
 
-import styled, { enableMouse, layer } from "./../../UI/components/common"
 import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
+import styled, { enableMouse, layer } from "./../../UI/components/common"
 import { HighlightText } from "./../../UI/components/HighlightText"
 import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
 import { Icon } from "./../../UI/Icon"
