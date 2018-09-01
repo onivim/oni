@@ -1,7 +1,7 @@
 import * as os from "os"
 
 import * as React from "react"
-import styled, { boxShadowInset, Css, css, fontSizeSmall, withProps } from "./common"
+import styled, { boxShadowInset, css, Css, fontSizeSmall, withProps } from "./common"
 
 export const QuickInfoWrapper = styled.div`
     user-select: none;
@@ -143,7 +143,7 @@ export const QuickInfoContainer = withProps<{ hasDocs: boolean }>(styled.div)`
 `
 
 export interface ITextProps {
-    tokenStyles?: any
+    tokenStyles?: Css
     padding?: string
     text?: string
     html?: {
@@ -158,7 +158,6 @@ export class QuickInfoTitle extends React.PureComponent<ITextProps> {
             return null
         }
 
-        // console.log("tokenStyles: ", tokenStyles)
         return (
             <Title padding={padding} dangerouslySetInnerHTML={html} tokenStyles={tokenStyles}>
                 {text}

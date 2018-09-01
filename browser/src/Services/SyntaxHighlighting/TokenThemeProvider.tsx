@@ -160,39 +160,41 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
     public flattenedDefaults = Object.values(defaultsToMap).reduce((acc, a) => [...acc, ...a], [])
 
     private tokenColors = TokenColorsInstance().tokenColors
-    private enhancedTokens: TokenColor[]
 
     public componentDidMount() {
         const themeTokenNames = this.convertTokenNamesToClasses(this.tokenColors)
-        const styles = this.constructStyles(themeTokenNames)
+        const tokensToHightlight = [...themeTokenNames, ...this.flattenedDefaults]
+        const styles = this.constructStyles(tokensToHightlight)
         const editorTokens = this.createThemeFromTokens(this.tokenColors)
 
-        // FIXME: the new tokens aren't highlighting properly
-        this.setState({ theme: { ...this.props.theme, ...editorTokens }, styles })
+        const theme = { ...this.props.theme, ...editorTokens }
+        this.setState({ theme, styles })
     }
 
     public createThemeFromTokens(tokens: TokenColor[]) {
-        if (!this.enhancedTokens) {
-            this.enhancedTokens = this.generateTokens({ defaultTokens: this.tokenColors })
-            // console.log("this.enhancedTokens: ", this.enhancedTokens)
-        }
-        const tokenColorsMap = this.enhancedTokens.reduce((theme, token) => {
-            return {
-                ...theme,
-                [token.scope]: {
-                    ...token.settings,
-                },
-            }
-        }, {})
+        const combinedThemeAndDefaultTokens = this.generateTokens({
+            defaultTokens: this.tokenColors,
+        })
+        const tokenColorsMap = combinedThemeAndDefaultTokens.reduce(
+            (theme, token) => {
+                return {
+                    ...theme,
+                    [token.scope]: {
+                        ...token.settings,
+                    },
+                }
+            },
+            {} as { [key: string]: TokenColorStyle },
+        )
 
         return { "editor.tokenColors.hoverTokens": tokenColorsMap }
     }
 
     public generateTokens({ defaultMap = defaultsToMap, defaultTokens }: IGenerateTokenArgs) {
-        const newTokens = Object.keys(defaultMap).reduce((acc, key) => {
-            const defaultToken = this.tokenColors.find(token => token.scope === key)
+        const newTokens = Object.keys(defaultMap).reduce((acc, defaultTokenName) => {
+            const defaultToken = this.tokenColors.find(token => token.scope === defaultTokenName)
             if (defaultToken) {
-                const tokens = defaultMap[key].map(name =>
+                const tokens = defaultMap[defaultTokenName].map(name =>
                     this.generateSingleToken(name, defaultToken),
                 )
                 return [...acc, ...tokens]
