@@ -74,7 +74,7 @@ export const ContextMenuView: React.SFC<IContextMenuProps> = props => {
 
     const selectedItemDocumentation = getDocumentationFromItems(entriesToRender, adjustedIndex)
     return (
-        <Autocompletion>
+        <Autocompletion data-id="autocompletion">
             {entries}
             <ContextMenuDocumentation documentation={selectedItemDocumentation} />
         </Autocompletion>
