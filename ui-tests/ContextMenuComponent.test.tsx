@@ -12,14 +12,6 @@ import {
 } from "./../browser/src/Services/ContextMenu/ContextMenuComponent"
 
 describe("<ContextMenuView />", () => {
-    it("should match last recorded snapshot", () => {
-        const itemsToRender: IContextMenuItem[] = createItems(8)
-        const wrapper = mount(
-            <ContextMenuView visible={true} base={""} entries={itemsToRender} selectedIndex={5} />,
-        )
-        expect(toJson(wrapper)).toMatchSnapshot()
-    })
-
     it("shows less than 10 items", () => {
         const itemsToRender: IContextMenuItem[] = createItems(8)
 
