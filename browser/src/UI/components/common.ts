@@ -162,6 +162,9 @@ const fallBackFonts = `
     sans-serif
 `.trim()
 
+export type OniThemeProps = ThemeProps<IThemeColors>
+export type OniStyledProps<T> = OniThemeProps & T
+
 export {
     css,
     injectGlobal,
