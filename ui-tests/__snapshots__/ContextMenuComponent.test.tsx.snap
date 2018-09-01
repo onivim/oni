@@ -1,0 +1,933 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<ContextMenuView /> should match last recorded snapshot 1`] = `
+<Component
+  base=""
+  entries={
+    Array [
+      Object {
+        "detail": "detail of item 0",
+        "label": "label_0",
+      },
+      Object {
+        "detail": "detail of item 1",
+        "label": "label_1",
+      },
+      Object {
+        "detail": "detail of item 2",
+        "label": "label_2",
+      },
+      Object {
+        "detail": "detail of item 3",
+        "label": "label_3",
+      },
+      Object {
+        "detail": "detail of item 4",
+        "label": "label_4",
+      },
+      Object {
+        "detail": "detail of item 5",
+        "label": "label_5",
+      },
+      Object {
+        "detail": "detail of item 6",
+        "label": "label_6",
+      },
+      Object {
+        "detail": "detail of item 7",
+        "label": "label_7",
+      },
+    ]
+  }
+  selectedIndex={5}
+  visible={true}
+>
+  <styled.div>
+    <div
+      className="sc-VigVT evfDjj"
+    >
+      <Component
+        base=""
+        detail="detail of item 0"
+        isSelected={false}
+        key="0-detail of item 0"
+        label="label_0"
+      >
+        <styled.div
+          isSelected={false}
+          key="label_0"
+        >
+          <div
+            className="sc-jzJRlG hCZyGm"
+          >
+            <styled.div
+              isSelected={false}
+            >
+              <div
+                className="sc-cSHVUG hbqAML"
+              >
+                <styled.div>
+                  <div
+                    className="sc-kAzzGY dzuPCG"
+                  >
+                    <Icon>
+                      <i
+                        aria-hidden="true"
+                        className="fa fa-undefined "
+                        style={Object {}}
+                      />
+                    </Icon>
+                  </div>
+                </styled.div>
+                <styled.div
+                  direction={3}
+                  isSelected={false}
+                  size={5}
+                >
+                  <div
+                    className="sc-gzVnrw iCjucZ"
+                    direction={3}
+                    size={5}
+                  />
+                </styled.div>
+                <Styled(Component)
+                  highlightComponent={[Function]}
+                  highlightText=""
+                  text="label_0"
+                >
+                  <Component
+                    className="sc-jTzLTM jhsLkU"
+                    highlightComponent={[Function]}
+                    highlightText=""
+                    text="label_0"
+                  >
+                    <span
+                      className="sc-jTzLTM jhsLkU"
+                    >
+                      <span
+                        key="0-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="1-a"
+                      >
+                        a
+                      </span>
+                      <span
+                        key="2-b"
+                      >
+                        b
+                      </span>
+                      <span
+                        key="3-e"
+                      >
+                        e
+                      </span>
+                      <span
+                        key="4-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="5-_"
+                      >
+                        _
+                      </span>
+                      <span
+                        key="6-0"
+                      >
+                        0
+                      </span>
+                    </span>
+                  </Component>
+                </Styled(Component)>
+                <styled.div
+                  isSelected={false}
+                >
+                  <div
+                    className="sc-chPdSV bQWmpG"
+                  >
+                    detail of item 0
+                  </div>
+                </styled.div>
+              </div>
+            </styled.div>
+          </div>
+        </styled.div>
+      </Component>
+      <Component
+        base=""
+        detail="detail of item 1"
+        isSelected={false}
+        key="1-detail of item 1"
+        label="label_1"
+      >
+        <styled.div
+          isSelected={false}
+          key="label_1"
+        >
+          <div
+            className="sc-jzJRlG hCZyGm"
+          >
+            <styled.div
+              isSelected={false}
+            >
+              <div
+                className="sc-cSHVUG hbqAML"
+              >
+                <styled.div>
+                  <div
+                    className="sc-kAzzGY dzuPCG"
+                  >
+                    <Icon>
+                      <i
+                        aria-hidden="true"
+                        className="fa fa-undefined "
+                        style={Object {}}
+                      />
+                    </Icon>
+                  </div>
+                </styled.div>
+                <styled.div
+                  direction={3}
+                  isSelected={false}
+                  size={5}
+                >
+                  <div
+                    className="sc-gzVnrw iCjucZ"
+                    direction={3}
+                    size={5}
+                  />
+                </styled.div>
+                <Styled(Component)
+                  highlightComponent={[Function]}
+                  highlightText=""
+                  text="label_1"
+                >
+                  <Component
+                    className="sc-jTzLTM jhsLkU"
+                    highlightComponent={[Function]}
+                    highlightText=""
+                    text="label_1"
+                  >
+                    <span
+                      className="sc-jTzLTM jhsLkU"
+                    >
+                      <span
+                        key="0-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="1-a"
+                      >
+                        a
+                      </span>
+                      <span
+                        key="2-b"
+                      >
+                        b
+                      </span>
+                      <span
+                        key="3-e"
+                      >
+                        e
+                      </span>
+                      <span
+                        key="4-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="5-_"
+                      >
+                        _
+                      </span>
+                      <span
+                        key="6-1"
+                      >
+                        1
+                      </span>
+                    </span>
+                  </Component>
+                </Styled(Component)>
+                <styled.div
+                  isSelected={false}
+                >
+                  <div
+                    className="sc-chPdSV bQWmpG"
+                  >
+                    detail of item 1
+                  </div>
+                </styled.div>
+              </div>
+            </styled.div>
+          </div>
+        </styled.div>
+      </Component>
+      <Component
+        base=""
+        detail="detail of item 2"
+        isSelected={false}
+        key="2-detail of item 2"
+        label="label_2"
+      >
+        <styled.div
+          isSelected={false}
+          key="label_2"
+        >
+          <div
+            className="sc-jzJRlG hCZyGm"
+          >
+            <styled.div
+              isSelected={false}
+            >
+              <div
+                className="sc-cSHVUG hbqAML"
+              >
+                <styled.div>
+                  <div
+                    className="sc-kAzzGY dzuPCG"
+                  >
+                    <Icon>
+                      <i
+                        aria-hidden="true"
+                        className="fa fa-undefined "
+                        style={Object {}}
+                      />
+                    </Icon>
+                  </div>
+                </styled.div>
+                <styled.div
+                  direction={3}
+                  isSelected={false}
+                  size={5}
+                >
+                  <div
+                    className="sc-gzVnrw iCjucZ"
+                    direction={3}
+                    size={5}
+                  />
+                </styled.div>
+                <Styled(Component)
+                  highlightComponent={[Function]}
+                  highlightText=""
+                  text="label_2"
+                >
+                  <Component
+                    className="sc-jTzLTM jhsLkU"
+                    highlightComponent={[Function]}
+                    highlightText=""
+                    text="label_2"
+                  >
+                    <span
+                      className="sc-jTzLTM jhsLkU"
+                    >
+                      <span
+                        key="0-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="1-a"
+                      >
+                        a
+                      </span>
+                      <span
+                        key="2-b"
+                      >
+                        b
+                      </span>
+                      <span
+                        key="3-e"
+                      >
+                        e
+                      </span>
+                      <span
+                        key="4-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="5-_"
+                      >
+                        _
+                      </span>
+                      <span
+                        key="6-2"
+                      >
+                        2
+                      </span>
+                    </span>
+                  </Component>
+                </Styled(Component)>
+                <styled.div
+                  isSelected={false}
+                >
+                  <div
+                    className="sc-chPdSV bQWmpG"
+                  >
+                    detail of item 2
+                  </div>
+                </styled.div>
+              </div>
+            </styled.div>
+          </div>
+        </styled.div>
+      </Component>
+      <Component
+        base=""
+        detail="detail of item 3"
+        isSelected={false}
+        key="3-detail of item 3"
+        label="label_3"
+      >
+        <styled.div
+          isSelected={false}
+          key="label_3"
+        >
+          <div
+            className="sc-jzJRlG hCZyGm"
+          >
+            <styled.div
+              isSelected={false}
+            >
+              <div
+                className="sc-cSHVUG hbqAML"
+              >
+                <styled.div>
+                  <div
+                    className="sc-kAzzGY dzuPCG"
+                  >
+                    <Icon>
+                      <i
+                        aria-hidden="true"
+                        className="fa fa-undefined "
+                        style={Object {}}
+                      />
+                    </Icon>
+                  </div>
+                </styled.div>
+                <styled.div
+                  direction={3}
+                  isSelected={false}
+                  size={5}
+                >
+                  <div
+                    className="sc-gzVnrw iCjucZ"
+                    direction={3}
+                    size={5}
+                  />
+                </styled.div>
+                <Styled(Component)
+                  highlightComponent={[Function]}
+                  highlightText=""
+                  text="label_3"
+                >
+                  <Component
+                    className="sc-jTzLTM jhsLkU"
+                    highlightComponent={[Function]}
+                    highlightText=""
+                    text="label_3"
+                  >
+                    <span
+                      className="sc-jTzLTM jhsLkU"
+                    >
+                      <span
+                        key="0-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="1-a"
+                      >
+                        a
+                      </span>
+                      <span
+                        key="2-b"
+                      >
+                        b
+                      </span>
+                      <span
+                        key="3-e"
+                      >
+                        e
+                      </span>
+                      <span
+                        key="4-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="5-_"
+                      >
+                        _
+                      </span>
+                      <span
+                        key="6-3"
+                      >
+                        3
+                      </span>
+                    </span>
+                  </Component>
+                </Styled(Component)>
+                <styled.div
+                  isSelected={false}
+                >
+                  <div
+                    className="sc-chPdSV bQWmpG"
+                  >
+                    detail of item 3
+                  </div>
+                </styled.div>
+              </div>
+            </styled.div>
+          </div>
+        </styled.div>
+      </Component>
+      <Component
+        base=""
+        detail="detail of item 4"
+        isSelected={false}
+        key="4-detail of item 4"
+        label="label_4"
+      >
+        <styled.div
+          isSelected={false}
+          key="label_4"
+        >
+          <div
+            className="sc-jzJRlG hCZyGm"
+          >
+            <styled.div
+              isSelected={false}
+            >
+              <div
+                className="sc-cSHVUG hbqAML"
+              >
+                <styled.div>
+                  <div
+                    className="sc-kAzzGY dzuPCG"
+                  >
+                    <Icon>
+                      <i
+                        aria-hidden="true"
+                        className="fa fa-undefined "
+                        style={Object {}}
+                      />
+                    </Icon>
+                  </div>
+                </styled.div>
+                <styled.div
+                  direction={3}
+                  isSelected={false}
+                  size={5}
+                >
+                  <div
+                    className="sc-gzVnrw iCjucZ"
+                    direction={3}
+                    size={5}
+                  />
+                </styled.div>
+                <Styled(Component)
+                  highlightComponent={[Function]}
+                  highlightText=""
+                  text="label_4"
+                >
+                  <Component
+                    className="sc-jTzLTM jhsLkU"
+                    highlightComponent={[Function]}
+                    highlightText=""
+                    text="label_4"
+                  >
+                    <span
+                      className="sc-jTzLTM jhsLkU"
+                    >
+                      <span
+                        key="0-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="1-a"
+                      >
+                        a
+                      </span>
+                      <span
+                        key="2-b"
+                      >
+                        b
+                      </span>
+                      <span
+                        key="3-e"
+                      >
+                        e
+                      </span>
+                      <span
+                        key="4-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="5-_"
+                      >
+                        _
+                      </span>
+                      <span
+                        key="6-4"
+                      >
+                        4
+                      </span>
+                    </span>
+                  </Component>
+                </Styled(Component)>
+                <styled.div
+                  isSelected={false}
+                >
+                  <div
+                    className="sc-chPdSV bQWmpG"
+                  >
+                    detail of item 4
+                  </div>
+                </styled.div>
+              </div>
+            </styled.div>
+          </div>
+        </styled.div>
+      </Component>
+      <Component
+        base=""
+        detail="detail of item 5"
+        isSelected={true}
+        key="5-detail of item 5"
+        label="label_5"
+      >
+        <styled.div
+          isSelected={true}
+          key="label_5"
+        >
+          <div
+            className="sc-jzJRlG jEmxcm"
+          >
+            <styled.div
+              isSelected={true}
+            >
+              <div
+                className="sc-cSHVUG eBDhwc"
+              >
+                <styled.div>
+                  <div
+                    className="sc-kAzzGY dzuPCG"
+                  >
+                    <Icon>
+                      <i
+                        aria-hidden="true"
+                        className="fa fa-undefined "
+                        style={Object {}}
+                      />
+                    </Icon>
+                  </div>
+                </styled.div>
+                <styled.div
+                  direction={3}
+                  isSelected={true}
+                  size={5}
+                >
+                  <div
+                    className="sc-gzVnrw iCjucZ"
+                    direction={3}
+                    size={5}
+                  />
+                </styled.div>
+                <Styled(Component)
+                  highlightComponent={[Function]}
+                  highlightText=""
+                  text="label_5"
+                >
+                  <Component
+                    className="sc-jTzLTM jhsLkU"
+                    highlightComponent={[Function]}
+                    highlightText=""
+                    text="label_5"
+                  >
+                    <span
+                      className="sc-jTzLTM jhsLkU"
+                    >
+                      <span
+                        key="0-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="1-a"
+                      >
+                        a
+                      </span>
+                      <span
+                        key="2-b"
+                      >
+                        b
+                      </span>
+                      <span
+                        key="3-e"
+                      >
+                        e
+                      </span>
+                      <span
+                        key="4-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="5-_"
+                      >
+                        _
+                      </span>
+                      <span
+                        key="6-5"
+                      >
+                        5
+                      </span>
+                    </span>
+                  </Component>
+                </Styled(Component)>
+                <styled.div
+                  isSelected={true}
+                >
+                  <div
+                    className="sc-chPdSV dieshB"
+                  >
+                    detail of item 5
+                  </div>
+                </styled.div>
+              </div>
+            </styled.div>
+          </div>
+        </styled.div>
+      </Component>
+      <Component
+        base=""
+        detail="detail of item 6"
+        isSelected={false}
+        key="6-detail of item 6"
+        label="label_6"
+      >
+        <styled.div
+          isSelected={false}
+          key="label_6"
+        >
+          <div
+            className="sc-jzJRlG hCZyGm"
+          >
+            <styled.div
+              isSelected={false}
+            >
+              <div
+                className="sc-cSHVUG hbqAML"
+              >
+                <styled.div>
+                  <div
+                    className="sc-kAzzGY dzuPCG"
+                  >
+                    <Icon>
+                      <i
+                        aria-hidden="true"
+                        className="fa fa-undefined "
+                        style={Object {}}
+                      />
+                    </Icon>
+                  </div>
+                </styled.div>
+                <styled.div
+                  direction={3}
+                  isSelected={false}
+                  size={5}
+                >
+                  <div
+                    className="sc-gzVnrw iCjucZ"
+                    direction={3}
+                    size={5}
+                  />
+                </styled.div>
+                <Styled(Component)
+                  highlightComponent={[Function]}
+                  highlightText=""
+                  text="label_6"
+                >
+                  <Component
+                    className="sc-jTzLTM jhsLkU"
+                    highlightComponent={[Function]}
+                    highlightText=""
+                    text="label_6"
+                  >
+                    <span
+                      className="sc-jTzLTM jhsLkU"
+                    >
+                      <span
+                        key="0-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="1-a"
+                      >
+                        a
+                      </span>
+                      <span
+                        key="2-b"
+                      >
+                        b
+                      </span>
+                      <span
+                        key="3-e"
+                      >
+                        e
+                      </span>
+                      <span
+                        key="4-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="5-_"
+                      >
+                        _
+                      </span>
+                      <span
+                        key="6-6"
+                      >
+                        6
+                      </span>
+                    </span>
+                  </Component>
+                </Styled(Component)>
+                <styled.div
+                  isSelected={false}
+                >
+                  <div
+                    className="sc-chPdSV bQWmpG"
+                  >
+                    detail of item 6
+                  </div>
+                </styled.div>
+              </div>
+            </styled.div>
+          </div>
+        </styled.div>
+      </Component>
+      <Component
+        base=""
+        detail="detail of item 7"
+        isSelected={false}
+        key="7-detail of item 7"
+        label="label_7"
+      >
+        <styled.div
+          isSelected={false}
+          key="label_7"
+        >
+          <div
+            className="sc-jzJRlG hCZyGm"
+          >
+            <styled.div
+              isSelected={false}
+            >
+              <div
+                className="sc-cSHVUG hbqAML"
+              >
+                <styled.div>
+                  <div
+                    className="sc-kAzzGY dzuPCG"
+                  >
+                    <Icon>
+                      <i
+                        aria-hidden="true"
+                        className="fa fa-undefined "
+                        style={Object {}}
+                      />
+                    </Icon>
+                  </div>
+                </styled.div>
+                <styled.div
+                  direction={3}
+                  isSelected={false}
+                  size={5}
+                >
+                  <div
+                    className="sc-gzVnrw iCjucZ"
+                    direction={3}
+                    size={5}
+                  />
+                </styled.div>
+                <Styled(Component)
+                  highlightComponent={[Function]}
+                  highlightText=""
+                  text="label_7"
+                >
+                  <Component
+                    className="sc-jTzLTM jhsLkU"
+                    highlightComponent={[Function]}
+                    highlightText=""
+                    text="label_7"
+                  >
+                    <span
+                      className="sc-jTzLTM jhsLkU"
+                    >
+                      <span
+                        key="0-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="1-a"
+                      >
+                        a
+                      </span>
+                      <span
+                        key="2-b"
+                      >
+                        b
+                      </span>
+                      <span
+                        key="3-e"
+                      >
+                        e
+                      </span>
+                      <span
+                        key="4-l"
+                      >
+                        l
+                      </span>
+                      <span
+                        key="5-_"
+                      >
+                        _
+                      </span>
+                      <span
+                        key="6-7"
+                      >
+                        7
+                      </span>
+                    </span>
+                  </Component>
+                </Styled(Component)>
+                <styled.div
+                  isSelected={false}
+                >
+                  <div
+                    className="sc-chPdSV bQWmpG"
+                  >
+                    detail of item 7
+                  </div>
+                </styled.div>
+              </div>
+            </styled.div>
+          </div>
+        </styled.div>
+      </Component>
+      <Component />
+    </div>
+  </styled.div>
+</Component>
+`;

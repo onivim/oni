@@ -18,7 +18,7 @@ import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
 import { Icon } from "./../../UI/Icon"
 
 import { ContextMenuState } from "./ContextMenu"
-import styled, { layer, enableMouse } from "../../UI/components/common"
+import styled, { enableMouse, layer } from "../../UI/components/common"
 
 export interface IContextMenuItem {
     label: string

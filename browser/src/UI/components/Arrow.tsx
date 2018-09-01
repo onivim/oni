@@ -6,7 +6,7 @@
 import * as React from "react"
 
 import styled from "styled-components"
-import { withProps, css } from "./common"
+import { css } from "./common"
 
 export enum ArrowDirection {
     Up = 0,
@@ -79,9 +79,9 @@ const getDirectionStyles = (props: IArrowProps): string => {
             return `${color};`
     }
 }
-export const Arrow = withProps<IArrowProps>(styled.div)`
+export const Arrow = styled<IArrowProps, "div">("div")`
     ${getDirectionStyles};
-    `
+`
 
 export const preview = () => {
     return <Arrow size={100} color="yellow" direction={ArrowDirection.Left} />

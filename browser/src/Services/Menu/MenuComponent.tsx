@@ -6,7 +6,7 @@ import { AutoSizer, List } from "react-virtualized"
 
 import * as Oni from "oni-api"
 
-import { styled, getSelectedBorder, fontSizeSmall } from "../../UI/components/common"
+import styled, { getSelectedBorder, fontSizeSmall } from "../../UI/components/common"
 import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
 import { Icon, IconSize } from "./../../UI/Icon"
 
