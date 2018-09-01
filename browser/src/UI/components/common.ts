@@ -69,6 +69,8 @@ export const stack = css`
     bottom: 0px;
 `
 
+// Layer is used to force webkit to promote the element to an individual layer.
+// This is used to tweak and control rendering performance, and not for layout
 export const layer = css`
     will-change: transform;
 `
@@ -127,12 +129,6 @@ const boxShadowInset = css`
 
 const enableMouse = css`
     pointer-events: auto;
-`
-
-// Layer is used to force webkit to promote the element to an individual layer.
-// This is used to tweak and control rendering performance, and not for layout
-export const layer = css`
-    will-change: transform;
 `
 
 export const OverlayWrapper = styled.div`
