@@ -858,7 +858,6 @@
     "dependencies": {
         "chokidar": "^2.0.3",
         "color-normalize": "^1.0.3",
-        "deepmerge": "^2.1.1",
         "dompurify": "^1.0.3",
         "electron-settings": "^3.1.4",
         "find-up": "2.1.0",
@@ -894,7 +893,6 @@
     "devDependencies": {
         "@types/chokidar": "^1.7.5",
         "@types/color": "2.0.0",
-        "@types/deepmerge": "^2.1.0",
         "@types/detect-indent": "^5.0.0",
         "@types/dompurify": "^0.0.31",
         "@types/electron-settings": "^3.1.1",

@@ -8,12 +8,11 @@
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
-// @ts-ignore - this package is typed incorrectly i.e. no default export
-import deepmerge from "deepmerge"
-
 export interface TokenColor {
     scope: string
     settings: TokenColorStyle
+    // private field for determining where a token came from
+    _source?: string
 }
 
 export interface ThemeToken {
@@ -96,14 +95,68 @@ export class TokenColors implements IDisposable {
         this._tokenColors = this._mergeTokenColors({
             user: userColors,
             theme: themeTokens,
-            defaultTokens: this._defaultTokenColors,
+            defaults: this._defaultTokenColors,
         })
 
         this._onTokenColorsChangedEvent.dispatch()
     }
 
-    private _mergeTokenColors({ user, defaultTokens, theme }: { [key: string]: TokenColor[] }) {
-        return deepmerge.all([defaultTokens, theme, user])
+    /**
+     * Merge different token source whilst unifying settings
+     * each source is passed by name so that later the priority
+     * for merging can be used e.g. if user source has a
+     * a higher priority then conflicting settings can prefer the
+     * user source
+     */
+    private _mergeTokenColors(tokens: {
+        user: TokenColor[]
+        defaults: TokenColor[]
+        theme: TokenColor[]
+    }) {
+        return Object.entries(tokens).reduce(
+            (output, [key, tokenColors]) =>
+                tokenColors.reduce((mergedTokens, currentToken) => {
+                    const duplicateToken = mergedTokens.find(t => currentToken.scope === t.scope)
+                    if (duplicateToken) {
+                        return mergedTokens.map(existingToken => {
+                            if (existingToken.scope === duplicateToken.scope) {
+                                return this._mergeSettings(existingToken, {
+                                    ...currentToken,
+                                    _source: key,
+                                })
+                            }
+                            return existingToken
+                        })
+                    }
+                    return [...mergedTokens, { ...currentToken, _source: key }]
+                }, output),
+            [] as TokenColor[],
+        )
+    }
+
+    _mergeSettings(prev: TokenColor, next: TokenColor) {
+        const priority = {
+            user: 2,
+            theme: 1,
+            defaults: 0,
+        }
+
+        if (priority[next._source] > priority[prev._source]) {
+            return {
+                ...next,
+                settings: {
+                    ...prev.settings,
+                    ...next.settings,
+                },
+            }
+        }
+        return {
+            ...prev,
+            settings: {
+                ...next.settings,
+                ...prev.settings,
+            },
+        }
     }
 }
 
