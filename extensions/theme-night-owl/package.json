@@ -1,0 +1,21 @@
+{
+    "name": "onivim-theme-night-owl",
+    "version": "0.0.1",
+    "description": "Night Owl theme, ported to Oni (Original by Sarah Drasner)",
+    "engines": {
+        "oni": "0.3.7"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "contributes": {
+        "themes": [
+            {
+                "name": "night-owl",
+                "path": "colors/night-owl.json"
+            }
+        ]
+    },
+    "author": "Akin Sowemimo",
+    "license": "MIT"
+}
