@@ -134,7 +134,7 @@ export class TokenColors implements IDisposable {
         )
     }
 
-    _mergeSettings(prev: TokenColor, next: TokenColor) {
+    private _mergeSettings(prev: TokenColor, next: TokenColor) {
         const priority = {
             user: 2,
             theme: 1,
