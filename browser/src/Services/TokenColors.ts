@@ -8,7 +8,8 @@
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
-const deepmerge = require("deepmerge").default // tslint:disable-line
+// @ts-ignore - this package is typed incorrectly i.e. no default export
+import deepmerge from "deepmerge"
 
 export interface TokenColor {
     scope: string
@@ -72,15 +73,15 @@ export class TokenColors implements IDisposable {
     }
 
     private _flattenThemeTokens = (themeTokens: ThemeToken[] = []) => {
-        const multidimensionalTokens = themeTokens.map(
-            token =>
-                Array.isArray(token.scope)
-                    ? token.scope.map(s => ({
-                          scope: s,
-                          settings: token.settings,
-                      }))
-                    : token,
-        )
+        const multidimensionalTokens = themeTokens.map(token => {
+            if (Array.isArray(token.scope)) {
+                return token.scope.map(s => ({
+                    scope: s,
+                    settings: token.settings,
+                }))
+            }
+            return token
+        })
         return [].concat(...multidimensionalTokens).filter(t => !!t.scope)
     }
 
@@ -102,8 +103,7 @@ export class TokenColors implements IDisposable {
     }
 
     private _mergeTokenColors({ user, defaultTokens, theme }: { [key: string]: TokenColor[] }) {
-        const merged = deepmerge.all([defaultTokens, theme, user])
-        return merged
+        return deepmerge.all([defaultTokens, theme, user])
     }
 }
 
