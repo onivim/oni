@@ -6,7 +6,7 @@
 import * as React from "react"
 
 import styled from "styled-components"
-import { withProps } from "./common"
+import { withProps, css } from "./common"
 
 export enum ArrowDirection {
     Up = 0,
@@ -17,54 +17,70 @@ export enum ArrowDirection {
 
 export interface IArrowProps {
     size: number
-    color: string
     direction: ArrowDirection
+    color?: string
+    isSelected?: boolean
 }
 
 const transparentBorder = (props: IArrowProps) => `${props.size * 0.8}px solid transparent`
 const solidBorder = (props: IArrowProps) => `${props.size}px solid ${props.color}`
 
-function arrowCSS(props: IArrowProps): string {
+const getArrowColor = (props: { isSelected: boolean; color: string; theme: any }) => {
+    return props.isSelected
+        ? props.theme["contextMenu.highlight"]
+        : props.color
+            ? props.color
+            : "transparent"
+}
+
+const getDirectionStyles = (props: IArrowProps): string => {
+    const color = css`
+        color: ${getArrowColor};
+    `
+
     switch (props.direction) {
         case ArrowDirection.Up:
             return `
-        width: 0px;
-        height: 0px;
-        border-left: ${transparentBorder(props)};
-        border-right: ${transparentBorder(props)};
-        border-bottom: ${solidBorder(props)};
-        `
+                ${color};
+                width: 0px;
+                height: 0px;
+                border-left: ${transparentBorder(props)};
+                border-right: ${transparentBorder(props)};
+                border-bottom: ${solidBorder(props)};
+            `
         case ArrowDirection.Down:
             return `
-        width: 0px;
-        height: 0px;
-        border-left: ${transparentBorder(props)};
-        border-right: ${transparentBorder(props)};
-        border-top: ${solidBorder(props)};
-        `
+                ${color};
+                width: 0px;
+                height: 0px;
+                border-left: ${transparentBorder(props)};
+                border-right: ${transparentBorder(props)};
+                border-top: ${solidBorder(props)};
+            `
         case ArrowDirection.Left:
             return `
-        width: 0px;
-        height: 0px;
-        border-top: ${transparentBorder(props)};
-        border-right: ${solidBorder(props)};
-        border-bottom: ${transparentBorder(props)};
-        `
+                ${color};
+                width: 0px;
+                height: 0px;
+                border-top: ${transparentBorder(props)};
+                border-right: ${solidBorder(props)};
+                border-bottom: ${transparentBorder(props)};
+            `
         case ArrowDirection.Right:
             return `
-        width: 0px;
-        height: 0px;
-        border-top: ${transparentBorder(props)};
-        border-left: ${solidBorder(props)};
-        border-bottom: ${transparentBorder(props)};
-        `
+                ${color};
+                width: 0px;
+                height: 0px;
+                border-top: ${transparentBorder(props)};
+                border-left: ${solidBorder(props)};
+                border-bottom: ${transparentBorder(props)};
+            `
         default:
-            return ``
+            return `${color};`
     }
 }
-
 export const Arrow = withProps<IArrowProps>(styled.div)`
-    ${props => arrowCSS(props)}
+    ${getDirectionStyles};
     `
 
 export const preview = () => {

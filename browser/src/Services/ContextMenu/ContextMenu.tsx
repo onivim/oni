@@ -15,7 +15,6 @@ import { Event, IEvent } from "oni-types"
 
 import { IToolTipsProvider } from "./../../Editor/NeovimEditor/ToolTipsProvider"
 import { createStore } from "./../../Redux"
-import { IColors } from "./../../Services/Colors"
 
 import * as ActionCreators from "./../Menu/MenuActionCreators"
 import { createReducer } from "./../Menu/MenuReducer"
@@ -38,20 +37,14 @@ export class ContextMenuManager {
     private _store: Store<ContextMenuState>
     private _actions: typeof ActionCreators
 
-    constructor(private _toolTips: IToolTipsProvider, private _colors: IColors) {
+    constructor(private _toolTips: IToolTipsProvider) {
         this._store = createStore("CONTEXT-MENU", reducer, State.createDefaultState(), [thunk])
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
     }
 
     public create(): ContextMenu {
         this._id++
-        return new ContextMenu(
-            this._id.toString(),
-            this._store,
-            this._actions,
-            this._toolTips,
-            this._colors,
-        )
+        return new ContextMenu(this._id.toString(), this._store, this._actions, this._toolTips)
     }
 
     public isMenuOpen(): boolean {
@@ -112,7 +105,6 @@ export class ContextMenu {
         private _store: Store<State.IMenus<types.CompletionItem, types.CompletionItem>>,
         private _actions: typeof ActionCreators,
         private _toolTips: IToolTipsProvider,
-        private _colors: IColors,
     ) {}
 
     public isOpen(): boolean {
@@ -143,22 +135,9 @@ export class ContextMenu {
     }
 
     public show(items?: any[], filter?: string): void {
-        const backgroundColor = this._colors.getColor("contextMenu.background")
-        const foregroundColor = this._colors.getColor("contextMenu.foreground")
-        const borderColor = this._colors.getColor("contextMenu.border") || foregroundColor
-        const highlightColor = this._colors.getColor("contextMenu.highlight") || backgroundColor
-
-        const colors = {
-            backgroundColor,
-            foregroundColor,
-            borderColor,
-            highlightColor,
-        }
-
         this._actions.showPopupMenu(
             this._id,
             {
-                ...colors,
                 filterFunction: noopFilter,
                 onSelectedItemChanged: (item: any) => this._onSelectedItemChanged.dispatch(item),
                 onSelectItem: (idx: number) => this._onItemSelectedHandler(idx),
