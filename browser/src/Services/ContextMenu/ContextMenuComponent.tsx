@@ -93,7 +93,7 @@ const getDocumentationFromItems = (items: any[], selectedIndex: number): string 
     return items[selectedIndex].documentation
 }
 
-const Label = styled(HighlightText)`
+export const Label = styled(HighlightText)`
     flex: 1 0 auto;
     min-width: 100px;
     margin-left: 8px;
@@ -134,7 +134,7 @@ const IconWrapper = styled.div`
     }
 `
 
-const Detail = styled<ISelectedProps, "div">("div")`
+export const Detail = styled<ISelectedProps, "div">("div")`
     flex: 0 1 auto;
     min-width: 50px;
     text-align: right;
