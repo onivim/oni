@@ -6,7 +6,7 @@ import { AutoSizer, List } from "react-virtualized"
 
 import * as Oni from "oni-api"
 
-import styled, { fontSizeSmall, getSelectedBorder } from "../../UI/components/common"
+import styled, { getSelectedBorder } from "../../UI/components/common"
 import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
 import { Icon, IconSize } from "./../../UI/Icon"
 
@@ -269,11 +269,7 @@ const LabelHighlight = styled.span`
     color: ${props => props.theme["highlight.mode.normal.background"]};
 `
 
-const DetailHighlight = styled(HighlightTextByIndex)`
-    ${fontSizeSmall};
-    color: #646464;
-    flex: 1 1 auto;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 8px;
+const DetailHighlight = styled.span`
+    font-weight: bold;
+    color: #757575;
 `
