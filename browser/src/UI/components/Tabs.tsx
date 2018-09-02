@@ -199,15 +199,11 @@ const active = css`
     ${highlight};
     ${boxShadowUp};
     opacity: 1;
-    background-color: ${props => props.theme["tabs.activeTabBackground"]};
-    color: ${props => props.theme["tabs.activeTabForeground"]};
 `
 
 const inactive = css`
     ${boxShadowUpInset};
     opacity: 0.6;
-    background-color: ${props => props.theme["tabs.inactiveTabBackground"]};
-    color: ${props => props.theme["tabs.inactiveTabForeground"]};
 
     &:hover {
         opacity: 0.9;
