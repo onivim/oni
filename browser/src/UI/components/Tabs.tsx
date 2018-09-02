@@ -312,35 +312,58 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
         this._checkIfShouldScroll()
     }
 
+    // reports current state of the tab -> for testing
+    public getStatus(selected: boolean, dirty: boolean) {
+        const selectedState = selected ? "selected" : "not-selected"
+        const dirtyState = dirty ? "dirty" : "not-dirty"
+        return `${selectedState} ${dirtyState}`
+    }
+
     public render() {
+        const {
+            description,
+            height,
+            maxWidth,
+            mode,
+            isDirty,
+            isSelected,
+            iconFileName,
+            userColor,
+            onClickClose,
+            onClickName,
+            shouldShowHighlight,
+        } = this.props
+
+        const tabStatus = this.getStatus(isSelected, isDirty)
         return (
-            <Sneakable callback={this.props.onClickName} tag={this.props.name}>
+            <Sneakable callback={onClickName} tag={name}>
                 <TabWrapper
+                    mode={mode}
                     innerRef={this._tab}
-                    title={this.props.description}
-                    height={this.props.height}
-                    maxWidth={this.props.maxWidth}
-                    mode={this.props.mode}
-                    shouldShowHighlight={this.props.shouldShowHighlight}
-                    isSelected={this.props.isSelected}
-                    isDirty={this.props.isDirty}
+                    className={tabStatus}
+                    title={description}
+                    height={height}
+                    maxWidth={maxWidth}
+                    isDirty={isDirty}
+                    isSelected={isSelected}
+                    shouldShowHighlight={shouldShowHighlight}
                 >
                     <Corner onMouseDown={this.handleTitleClick}>
                         <FileIcon
-                            fileName={this.props.iconFileName}
+                            fileName={iconFileName}
                             isLarge={true}
                             playAppearAnimation={true}
                         />
                     </Corner>
                     <Name onMouseDown={this.handleTitleClick}>
-                        <InnerName>{this.props.name}</InnerName>
+                        <InnerName>{name}</InnerName>
                     </Name>
-                    <Corner isHoverEnabled onClick={this.props.onClickClose}>
+                    <Corner isHoverEnabled onClick={onClickClose}>
                         <IconContainer isVisibleByDefault={false} isVisibleOnTabHover>
                             <Icon name="times" />
                         </IconContainer>
-                        <IconContainer isVisibleByDefault={this.props.isDirty}>
-                            <DirtyMarker userColor={this.props.userColor} />
+                        <IconContainer isVisibleByDefault={isDirty}>
+                            <DirtyMarker userColor={userColor} />
                         </IconContainer>
                     </Corner>
                 </TabWrapper>
