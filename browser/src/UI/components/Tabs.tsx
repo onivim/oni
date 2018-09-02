@@ -3,6 +3,7 @@
  */
 
 import * as path from "path"
+import { createSelector } from "reselect"
 
 import * as React from "react"
 import { connect } from "react-redux"
@@ -54,19 +55,15 @@ interface ITabsWrapperProps {
 const TabsWrapper = styled<ITabsWrapperProps, "div">("div")`
     ${enableMouse};
     ${layer};
-
     display: flex;
     flex-direction: row;
-    ${props => props.shouldWrap && "flex-wrap: wrap;"};
+    ${props => props.shouldWrap && "flex-wrap: wrap"};
     align-items: flex-end;
-
     width: 100%;
     overflow-x: hidden;
-
     border-bottom: 4px solid ${props => props.theme["tabs.background"]};
     font-family: ${props => props.fontFamily};
     font-size: ${props => props.fontSize};
-
     transform: translateY(-3px);
     transition: transform 0.25s ease;
 
@@ -113,14 +110,15 @@ export const Tabs: React.SFC<ITabsProps> = props => {
         return null
     }
 
-    const tabs = props.tabs.map(t => (
+    const tabs = props.tabs.map(tab => (
         <Tab
-            key={t.id}
-            {...t}
-            onClickName={() => props.onTabSelect(t.id)}
-            onClickClose={() => props.onTabClose(t.id)}
+            {...tab}
+            key={tab.id}
+            onClickName={() => props.onTabSelect(tab.id)}
+            onClickClose={() => props.onTabClose(tab.id)}
             height={props.height}
             maxWidth={props.maxWidth}
+            userColor={props.userColor}
             mode={props.mode}
             shouldShowHighlight={props.shouldShowHighlight}
         />
@@ -161,11 +159,9 @@ export const Corner = styled<{ isHoverEnabled?: boolean }, "div">("div")`
 
     ${({ isHoverEnabled }) =>
         isHoverEnabled &&
-        `
-                &:hover {
-                    background-color: rgba(100, 100, 100, 0.1);
-                }
-            `};
+        ` &:hover {
+            background-color: rgba(100, 100, 100, 0.1);
+          }`};
 `
 
 const DirtyMarker = styled<{ userColor?: string }, "div">("div")`
@@ -176,12 +172,12 @@ const DirtyMarker = styled<{ userColor?: string }, "div">("div")`
 `
 
 const tabEntranceKeyFrames = keyframes`
-0% {
-    transform: translateY(-3px) rotateX(-20deg);
-}
-100% {
-    transform: translateY(0px) rotateX(0deg);
-}
+    0% {
+        transform: translateY(-3px) rotateX(-20deg);
+    }
+    100% {
+        transform: translateY(0px) rotateX(0deg);
+    }
 `
 
 interface ITabWrapperProps {
@@ -193,16 +189,25 @@ interface ITabWrapperProps {
     shouldShowHighlight: boolean
 }
 
+type TabStyledProps = ITabWrapperProps & { theme: IThemeColors }
+
+const highlight = (props: TabStyledProps) =>
+    props.shouldShowHighlight &&
+    `border-top: 2px solid ${getHighlightColor(props.theme, props.mode)}`
+
 const active = css`
-    ${(p: ITabWrapperProps & { theme: IThemeColors }) =>
-        p.shouldShowHighlight && `border-top: 2px solid ${getHighlightColor(p.theme, p.mode)}`};
+    ${highlight};
     ${boxShadowUp};
     opacity: 1;
+    background-color: ${props => props.theme["tabs.activeTabBackground"]};
+    color: ${props => props.theme["tabs.activeTabForeground"]};
 `
 
 const inactive = css`
     ${boxShadowUpInset};
     opacity: 0.6;
+    background-color: ${props => props.theme["tabs.inactiveTabBackground"]};
+    color: ${props => props.theme["tabs.inactiveTabForeground"]};
 
     &:hover {
         opacity: 0.9;
@@ -312,7 +317,6 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
     }
 
     public render() {
-        console.log("this.props: ", this.props)
         return (
             <Sneakable callback={this.props.onClickName} tag={this.props.name}>
                 <TabWrapper
@@ -335,8 +339,8 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
                     <Name onMouseDown={this.handleTitleClick}>
                         <InnerName>{this.props.name}</InnerName>
                     </Name>
-                    <Corner isHoverEnabled={true} onClick={this.props.onClickClose}>
-                        <IconContainer isVisibleByDefault={false} isVisibleOnTabHover={true}>
+                    <Corner isHoverEnabled onClick={this.props.onClickClose}>
+                        <IconContainer isVisibleByDefault={false} isVisibleOnTabHover>
                             <Icon name="times" />
                         </IconContainer>
                         <IconContainer isVisibleByDefault={this.props.isDirty}>
@@ -394,8 +398,6 @@ export const getTabName = (name: string, isDuplicate?: boolean): string => {
     return filename
 }
 
-import { createSelector } from "reselect"
-
 const getTabState = (state: State.IState) => state.tabState
 
 const sanitizedModeForColors = (mode: string): string => {
@@ -411,8 +413,7 @@ const sanitizedModeForColors = (mode: string): string => {
 
 export const getHighlightColor = (theme: IThemeColors, mode: string) => {
     const sanitizedMode = sanitizedModeForColors(mode)
-    // console.log("sanitizedMode: ", sanitizedMode)
-    return theme[`highlight.mode${sanitizedMode}.background`]
+    return theme[`highlight.mode.${sanitizedMode}.background`]
 }
 
 export const showTabId = (state: State.IState) => {
@@ -486,7 +487,7 @@ const getTabsFromVimTabs = createSelector(
         showFileIcon: boolean,
         allBuffers: State.IBuffer[],
     ) => {
-        return tabState.tabs.map((t: State.ITab, idx: number) => ({
+        return tabState.tabs.map((t, idx) => ({
             id: idx + 1,
             name: getIdPrefix((idx + 1).toString(), shouldShowId) + getTabName(t.name),
             iconFileName: showFileIcon ? getTabName(t.name) : "",

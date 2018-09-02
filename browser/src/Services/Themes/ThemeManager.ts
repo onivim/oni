@@ -186,6 +186,8 @@ export const getColorsFromBackgroundAndForeground = (background: string, foregro
 
         "tabs.background": background,
         "tabs.foreground": foreground,
+        "tabs.inactiveTabForeground": foreground,
+        "tabs.inactiveTabBackground": foreground,
 
         "title.background": shellBackground,
         "title.foreground": foreground,
