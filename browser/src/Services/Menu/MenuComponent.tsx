@@ -199,6 +199,7 @@ export interface IMenuItemProps {
 
 export interface IMenuItemWrapperProps {
     isSelected: boolean
+    borderSize?: string
 }
 
 const MenuItemWrapper = withProps<IMenuItemWrapperProps>(styled.div)`
@@ -229,6 +230,7 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
 
         return (
             <MenuItemWrapper
+                borderSize="4px"
                 isSelected={this.props.isSelected}
                 className={className}
                 onClick={() => this.props.onClick()}
