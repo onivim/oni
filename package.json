@@ -932,7 +932,6 @@
         "babel-minify-webpack-plugin": "^0.3.1",
         "babel-plugin-dynamic-import-node": "^1.2.0",
         "bs-platform": "2.1.0",
-        "classnames": "JedWatson/classnames",
         "codecov": "^3.0.0",
         "color": "2.0.0",
         "concurrently": "3.1.0",
