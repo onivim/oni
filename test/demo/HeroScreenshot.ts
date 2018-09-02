@@ -12,7 +12,14 @@ import { getDistPath, getRootPath } from "./DemoCommon"
 
 // tslint:disable:no-console
 
-const getCompletionElement = () => document.getElementsByClassName(`autocompletion`)
+const getCompletionElement = () => {
+    const elements = document.body.getElementsByClassName("autocompletion")
+    if (!elements || !elements.length) {
+        return null
+    } else {
+        return elements[0]
+    }
+}
 
 const getNotificationText = () => {
     const elements = document.body.getElementsByClassName("notification-description")
