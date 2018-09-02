@@ -321,6 +321,7 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
 
     public render() {
         const {
+            name,
             description,
             height,
             maxWidth,
