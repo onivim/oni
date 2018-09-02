@@ -152,39 +152,32 @@ export interface ITextProps {
     }
 }
 
-export class QuickInfoTitle extends React.PureComponent<ITextProps> {
-    public render(): JSX.Element {
-        const { html, text, padding, tokenStyles } = this.props
-        if (!html && !text) {
-            return null
-        }
-
-        return (
-            <Title padding={padding} dangerouslySetInnerHTML={html} tokenStyles={tokenStyles}>
-                {text}
-            </Title>
-        )
+export const QuickInfoTitle: React.SFC<ITextProps> = props => {
+    const { html, text, padding, tokenStyles } = props
+    if (!html && !text) {
+        return null
     }
+
+    return (
+        <Title padding={padding} dangerouslySetInnerHTML={html} tokenStyles={tokenStyles}>
+            {text}
+        </Title>
+    )
 }
 
-export class QuickInfoDocumentation extends React.PureComponent<ITextProps> {
-    public render(): JSX.Element {
-        const { text, html, tokenStyles } = this.props
-        switch (true) {
-            case Boolean(text):
-                const lines = this.props.text.split(os.EOL)
-                const divs = lines.map((l, i) => <div key={`${l}-${i}`}>{l}</div>)
+export const QuickInfoDocumentation: React.SFC<ITextProps> = props => {
+    const { text = "", html, tokenStyles } = props
+    console.log("text: ", text)
+    if (text && text.length) {
+        const lines = props.text.split(os.EOL)
+        const divs = lines.map((l, i) => <div key={`${l}-${i}`}>{l}</div>)
 
-                return <Documentation>{divs}</Documentation>
-            case Boolean(html && html.__html.length):
-                return (
-                    <Documentation
-                        dangerouslySetInnerHTML={this.props.html}
-                        tokenStyles={tokenStyles}
-                    />
-                )
-            default:
-                return null
-        }
+        return <Documentation>{divs}</Documentation>
     }
+
+    if (html && html.__html.length) {
+        return <Documentation dangerouslySetInnerHTML={props.html} tokenStyles={tokenStyles} />
+    }
+
+    return null
 }
