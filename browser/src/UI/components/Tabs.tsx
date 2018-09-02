@@ -316,7 +316,7 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
     public getStatus(selected: boolean, dirty: boolean) {
         const selectedState = selected ? "selected" : "not-selected"
         const dirtyState = dirty ? "dirty" : "not-dirty"
-        return `${selectedState} ${dirtyState}`
+        return `tab ${selectedState} ${dirtyState}`
     }
 
     public render() {
