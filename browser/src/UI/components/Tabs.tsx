@@ -22,7 +22,6 @@ import styled, {
     IThemeColors,
     keyframes,
     layer,
-    withProps,
 } from "./../components/common"
 
 import { FileIcon } from "./../../Services/FileIcon"
@@ -52,13 +51,13 @@ interface ITabsWrapperProps {
     shouldWrap: boolean
 }
 
-const TabsWrapper = withProps<ITabsWrapperProps>(styled.div)`
+const TabsWrapper = styled<ITabsWrapperProps, "div">("div")`
     ${enableMouse};
     ${layer};
 
     display: flex;
     flex-direction: row;
-    ${props => (props.shouldWrap ? "flex-wrap: wrap;" : "")}
+    ${props => props.shouldWrap && "flex-wrap: wrap;"};
     align-items: flex-end;
 
     width: 100%;
@@ -85,12 +84,13 @@ const TabsWrapper = withProps<ITabsWrapperProps>(styled.div)`
 `
 
 export interface ITabsProps {
-    onSelect?: (id: number) => void
-    onClose?: (id: number) => void
+    onTabSelect?: (id: number) => void
+    onTabClose?: (id: number) => void
 
     visible: boolean
     tabs: ITabProps[]
 
+    userColor?: string
     shouldWrap: boolean
     maxWidth: string
     height: string
@@ -117,8 +117,8 @@ export const Tabs: React.SFC<ITabsProps> = props => {
         <Tab
             key={t.id}
             {...t}
-            onClickName={() => props.onSelect(t.id)}
-            onClickClose={() => props.onClose(t.id)}
+            onClickName={() => props.onTabSelect(t.id)}
+            onClickClose={() => props.onTabClose(t.id)}
             height={props.height}
             maxWidth={props.maxWidth}
             mode={props.mode}
@@ -137,7 +137,7 @@ export const Tabs: React.SFC<ITabsProps> = props => {
     )
 }
 
-const Name = styled.div`
+export const Name = styled.div`
     flex: 1 1 auto;
     text-align: center;
     height: 100%;
@@ -148,7 +148,7 @@ const Name = styled.div`
     margin: 0px 4px;
 `
 
-const Corner = withProps<{ isHoverEnabled?: boolean }>(styled.div)`
+export const Corner = styled<{ isHoverEnabled?: boolean }, "div">("div")`
     flex: 0 0 auto;
     width: 32px;
     height: 100%;
@@ -165,7 +165,7 @@ const Corner = withProps<{ isHoverEnabled?: boolean }>(styled.div)`
                 &:hover {
                     background-color: rgba(100, 100, 100, 0.1);
                 }
-            `}
+            `};
 `
 
 const DirtyMarker = styled<{ userColor?: string }, "div">("div")`
@@ -193,7 +193,23 @@ interface ITabWrapperProps {
     shouldShowHighlight: boolean
 }
 
-const TabWrapper = withProps<ITabWrapperProps>(styled.div)`
+const active = css`
+    ${(p: ITabWrapperProps & { theme: IThemeColors }) =>
+        p.shouldShowHighlight && `border-top: 2px solid ${getHighlightColor(p.theme, p.mode)}`};
+    ${boxShadowUp};
+    opacity: 1;
+`
+
+const inactive = css`
+    ${boxShadowUpInset};
+    opacity: 0.6;
+
+    &:hover {
+        opacity: 0.9;
+    }
+`
+
+const TabWrapper = styled<ITabWrapperProps, "div">("div")`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -201,38 +217,18 @@ const TabWrapper = withProps<ITabWrapperProps>(styled.div)`
     cursor: pointer;
 
     flex: 0 0 auto;
-    max-width: ${props => props.maxWidth};
-    height: ${props => props.height};
-
     ${props => `
+        max-width: ${props.maxWidth};
+        height: ${props.height};
         background-color: ${props.theme["tabs.background"]};
         color: ${props.theme["tabs.foreground"]};
-    `}
-    transition: opacity 0.25s;
+    `};
 
+    transition: opacity 0.25s;
     overflow: hidden;
     user-select: none;
     animation: ${tabEntranceKeyFrames} 0.1s ease-in forwards;
-
-    ${props =>
-        props.isSelected
-            ? `
-                ${
-                    props.shouldShowHighlight
-                        ? `border-top: 2px solid ${getHighlightColor(props.theme, props.mode)};`
-                        : ""
-                }
-                ${boxShadowUp};
-                opacity: 1;
-            `
-            : `
-                ${boxShadowUpInset};
-                opacity: 0.6;
-
-                &:hover {
-                    opacity: 0.9;
-                }
-            `}
+    ${props => (props.isSelected ? active : inactive)};
 `
 
 const tabIconAppearKeyframes = keyframes`
@@ -255,12 +251,18 @@ const tabIconAppearAnimation = css`
     opacity: 1;
 `
 
+const tabHover = css`
+    ${TabWrapper}:hover & {
+        ${tabIconAppearAnimation};
+    }
+`
+
 interface IIconContainerProps {
     isVisibleByDefault: boolean
     isVisibleOnTabHover?: boolean
 }
 
-const IconContainer = withProps<IIconContainerProps>(styled.div)`
+const IconContainer = styled<IIconContainerProps, "div">("div")`
     position: absolute;
     top: 0px;
     left: 0px;
@@ -274,16 +276,8 @@ const IconContainer = withProps<IIconContainerProps>(styled.div)`
     opacity: 0;
     transition: opacity 0.25s ease-out;
 
-    ${props => (props.isVisibleByDefault ? tabIconAppearAnimation : "")}
-
-    ${props =>
-        props.isVisibleOnTabHover
-            ? css`
-                  ${TabWrapper}:hover & {
-                      ${tabIconAppearAnimation};
-                  }
-              `
-            : ""}
+    ${props => (props.isVisibleByDefault ? tabIconAppearAnimation : "")} ${props =>
+        props.isVisibleOnTabHover && tabHover};
 `
 
 export interface ITabPropsWithClick extends ITabProps {
@@ -296,8 +290,14 @@ export interface ITabPropsWithClick extends ITabProps {
     shouldShowHighlight: boolean
 }
 
+interface IScrollIntoView {
+    behavior: string
+    block: string
+    inline: string
+}
+
 interface IChromeDivElement extends HTMLDivElement {
-    scrollIntoViewIfNeeded: (args: { behavior: string; block: string; inline: string }) => void
+    scrollIntoViewIfNeeded: (args: IScrollIntoView) => void
 }
 
 export class Tab extends React.PureComponent<ITabPropsWithClick> {
@@ -307,11 +307,12 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
         this._checkIfShouldScroll()
     }
 
-    public componentDidMount(): void {
+    public componentDidMount() {
         this._checkIfShouldScroll()
     }
 
     public render() {
+        console.log("this.props: ", this.props)
         return (
             <Sneakable callback={this.props.onClickName} tag={this.props.name}>
                 <TabWrapper
@@ -349,7 +350,7 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
 
     private _checkIfShouldScroll(): void {
         if (this.props.isSelected && this._tab) {
-            if (this._tab.current.scrollIntoViewIfNeeded) {
+            if (this._tab && this._tab.current && this._tab.current.scrollIntoViewIfNeeded) {
                 this._tab.current.scrollIntoViewIfNeeded({
                     behavior: "smooth",
                     block: "center",
@@ -410,6 +411,7 @@ const sanitizedModeForColors = (mode: string): string => {
 
 export const getHighlightColor = (theme: IThemeColors, mode: string) => {
     const sanitizedMode = sanitizedModeForColors(mode)
+    // console.log("sanitizedMode: ", sanitizedMode)
     return theme[`highlight.mode${sanitizedMode}.background`]
 }
 
@@ -423,6 +425,10 @@ export const getIdPrefix = (id: string, shouldShow: boolean): string => {
 
 export const shouldShowFileIcon = (state: State.IState): boolean => {
     return state.configuration["tabs.showFileIcon"]
+}
+
+export const checkShouldShowHighlight = (state: State.IState): boolean => {
+    return state.configuration["tabs.highlight"] && state.hasFocus
 }
 
 export const checkTabBuffers = (buffersInTabs: number[], buffers: State.IBuffer[]): boolean => {
@@ -441,18 +447,28 @@ const getTabsFromBuffers = createSelector(
         BufferSelectors.getActiveBufferId,
         showTabId,
         shouldShowFileIcon,
+        checkShouldShowHighlight,
     ],
-    (allBuffers: any, activeBufferId: number, shouldShowId: boolean, showFileIcon: boolean) => {
+    (
+        allBuffers: State.IBuffer[],
+        activeBufferId: number,
+        shouldShowId: boolean,
+        showFileIcon: boolean,
+        showHighlight: boolean,
+    ) => {
         const bufferCount = allBuffers.length
-        const names = allBuffers.map((b: any) => b.file)
-        const tabs = allBuffers.map((buf: any, idx: number, buffers: any): ITabProps => {
+        const names = allBuffers.map(buffer => buffer.file)
+        const tabs = allBuffers.map((buf, idx, buffers) => {
             const isDuplicate = checkDuplicate(buf.file, names)
             const isActive =
                 (activeBufferId !== null && buf.id === activeBufferId) || bufferCount === 1
+            const name =
+                getIdPrefix(buf.id.toString(), shouldShowId) + getTabName(buf.file, isDuplicate)
             return {
                 id: buf.id,
-                name: getIdPrefix(buf.id, shouldShowId) + getTabName(buf.file, isDuplicate),
+                name,
                 iconFileName: showFileIcon ? getTabName(buf.file) : "",
+                shouldShowHighlight: showHighlight,
                 isSelected: isActive,
                 isDirty: buf.modified,
                 description: buf.file,
@@ -489,11 +505,12 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
 
     const visible = oniTabMode !== "native" && oniTabMode !== "hidden"
 
+    const { mode } = state
     const height = state.configuration["tabs.height"]
     const maxWidth = state.configuration["tabs.maxWidth"]
     const shouldWrap = state.configuration["tabs.wrap"]
-    const { mode } = state
-    const shouldShowHighlight = state.configuration["tabs.highlight"] && state.hasFocus
+    const userColor = state.configuration["tabs.dirtyMarker.userColor"]
+    const shouldShowHighlight = checkShouldShowHighlight(state)
 
     const selectFunc = shouldUseVimTabs ? ownProps.onTabSelect : ownProps.onBufferSelect
     const closeFunc = shouldUseVimTabs ? ownProps.onTabClose : ownProps.onBufferClose
@@ -501,8 +518,9 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
     return {
         fontFamily: state.configuration["ui.fontFamily"],
         fontSize: addDefaultUnitIfNeeded(state.configuration["ui.fontSize"]),
-        onSelect: selectFunc,
-        onClose: closeFunc,
+        onTabSelect: selectFunc,
+        onTabClose: closeFunc,
+        userColor,
         height,
         maxWidth,
         shouldWrap,
