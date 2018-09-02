@@ -85,6 +85,7 @@ describe("Welcome Layer tests", () => {
     })
 
     it("should correctly return a component", () => {
+        // this test can return the actual jsx but its difficult to test the exact return value
         expect(layer.render(context)).toBeTruthy()
     })
 
