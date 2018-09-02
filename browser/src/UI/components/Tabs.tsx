@@ -42,8 +42,8 @@ export interface ITabContainerProps {
     onBufferSelect?: (bufferId: number) => void
     onBufferClose?: (bufferId: number) => void
 
-    onSelect?: (tabId: number) => void
-    onClose?: (tabId: number) => void
+    onTabSelect?: (tabId: number) => void
+    onTabClose?: (tabId: number) => void
 }
 
 interface ITabsWrapperProps {
@@ -495,8 +495,8 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
     const { mode } = state
     const shouldShowHighlight = state.configuration["tabs.highlight"] && state.hasFocus
 
-    const selectFunc = shouldUseVimTabs ? ownProps.onSelect : ownProps.onBufferSelect
-    const closeFunc = shouldUseVimTabs ? ownProps.onClose : ownProps.onBufferClose
+    const selectFunc = shouldUseVimTabs ? ownProps.onTabSelect : ownProps.onBufferSelect
+    const closeFunc = shouldUseVimTabs ? ownProps.onTabClose : ownProps.onBufferClose
 
     return {
         fontFamily: state.configuration["ui.fontFamily"],
