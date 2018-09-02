@@ -69,6 +69,8 @@ export const stack = css`
     bottom: 0px;
 `
 
+// Layer is used to force webkit to promote the element to an individual layer.
+// This is used to tweak and control rendering performance, and not for layout
 export const layer = css`
     will-change: transform;
 `

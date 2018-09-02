@@ -6,7 +6,7 @@ import { AutoSizer, List } from "react-virtualized"
 
 import * as Oni from "oni-api"
 
-import { styled } from "../../UI/components/common"
+import styled, { fontSizeSmall, getSelectedBorder } from "../../UI/components/common"
 import { HighlightTextByIndex } from "./../../UI/components/HighlightText"
 import { Icon, IconSize } from "./../../UI/Icon"
 
@@ -208,10 +208,7 @@ const MenuItemWrapper = withProps<IMenuItemWrapperProps>(styled.div)`
     right: 4px;
     bottom: 4px;
 
-    border-left: ${props =>
-        props.isSelected
-            ? "4px solid " + props.theme["highlight.mode.normal.background"]
-            : "4px solid transparent"};
+    border-left: ${getSelectedBorder};
 
     display: flex;
     flex-direction: row;
@@ -256,7 +253,7 @@ export class MenuItem extends React.PureComponent<IMenuItemProps, {}> {
         )
     }
 
-    private getIcon(): any {
+    private getIcon() {
         if (!this.props.icon) {
             return <Icon name={"default"} />
         }
@@ -272,7 +269,11 @@ const LabelHighlight = styled.span`
     color: ${props => props.theme["highlight.mode.normal.background"]};
 `
 
-const DetailHighlight = styled.span`
-    font-weight: bold;
-    color: #757575;
+const DetailHighlight = styled(HighlightTextByIndex)`
+    ${fontSizeSmall};
+    color: #646464;
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 8px;
 `
