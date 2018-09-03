@@ -2,6 +2,7 @@
 
 exports[`<Tabs /> Tests should match last known snapshot unless we make a change 1`] = `
 <styled.div
+  data-id="tabs"
   fontFamily="inherit"
   fontSize="1.2em"
   shouldWrap={false}
