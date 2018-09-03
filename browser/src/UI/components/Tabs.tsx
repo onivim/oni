@@ -216,28 +216,18 @@ const TabWrapper = styled<ITabWrapperProps, "div">("div")`
     align-items: center;
     justify-content: center;
     cursor: pointer;
-
     flex: 0 0 auto;
-    ${props => `
-        max-width: ${props.maxWidth};
-        height: ${props.height};
-        background-color: ${
-            props.isSelected
-                ? props.theme["tabs.activeTabBackground"]
-                : props.theme["tabs.background"]
-        };
-        color: ${
-            props.isSelected
-                ? props.theme["tabs.activeTabForeground"]
-                : props.theme["tabs.foreground"]
-        };
-    `};
-
+    max-width: ${props => props.maxWidth};
+    height: ${props => props.height};
     transition: opacity 0.25s;
     overflow: hidden;
     user-select: none;
     animation: ${tabEntranceKeyFrames} 0.1s ease-in forwards;
     ${props => (props.isSelected ? active : inactive)};
+    background-color: ${props =>
+        props.isSelected ? props.theme["tabs.activeBackground"] : props.theme["tabs.background"]}
+    color: ${props =>
+        props.isSelected ? props.theme["tabs.activeForeground"] : props.theme["tabs.foreground"]};
 `
 
 const tabIconAppearKeyframes = keyframes`
