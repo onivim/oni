@@ -96,8 +96,7 @@ import WildMenu from "./../../UI/components/WildMenu"
 
 import { WelcomeBufferLayer } from "./WelcomeBufferLayer"
 
-import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
-import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
+import { CanvasRenderer, WebGLRenderer } from "../../Renderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 
 type NeovimError = [number, string]

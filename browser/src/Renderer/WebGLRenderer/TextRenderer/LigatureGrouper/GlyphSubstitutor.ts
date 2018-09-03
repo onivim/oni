@@ -12,19 +12,24 @@ import {
     GSUBLookupTableType5,
     GSUBLookupTableType6,
     GSUBLookupTableType7,
-    GSUBTable,
     LangSysTable,
     Lookup,
     LookupRecord,
     ScriptTable,
     TextDirection,
 } from "fontkit"
-import GlyphInfo from "./GlyphInfo"
-import GlyphIterator from "./GlyphIterator"
+import { GlyphInfo } from "./GlyphInfo"
+import { GlyphIterator } from "./GlyphIterator"
+
+/* This is an adapted version of the OTProcessor and the GSUBProcessor of fontkit:
+ * https://github.com/foliojs/fontkit/blob/master/src/opentype/GSUBProcessor.js
+ * It was modified to carry information on the context, i.e. the surrounding glyphs,
+ * of context-based substitutions in every glyph using its new `contextGroup` property
+ */
 
 const DEFAULT_SCRIPTS = ["DFLT", "dflt", "latn"]
 
-export default class GlyphSubstitutor {
+export class GlyphSubstitutor {
     public static getClassID(glyphId: number, classDef: ClassDefinitionTable) {
         switch (classDef.version) {
             case 1: // Class array
@@ -48,6 +53,8 @@ export default class GlyphSubstitutor {
         return 0
     }
 
+    private readonly _table = this._font.GSUB
+
     private _script: ScriptTable = null
     private _scriptTag: string = null
     private _language: LangSysTable = null
@@ -62,7 +69,7 @@ export default class GlyphSubstitutor {
     private _direction: TextDirection
     private _glyphIterator: GlyphIterator
 
-    constructor(private _font: Font, private _table: GSUBTable) {
+    constructor(private readonly _font: Font) {
         // Setup variation substitutions
         // initialize to default script + language
         this.selectScript()
@@ -452,7 +459,7 @@ export default class GlyphSubstitutor {
 
         for (const lookupRecord of lookupRecords) {
             // Reset flags and find glyph index for this lookup record
-            this._glyphIterator.reset(null, glyphIndex)
+            this._glyphIterator.reset(undefined, glyphIndex)
             this._glyphIterator.increment(lookupRecord.sequenceIndex)
 
             // Get the lookup and setup flags for subtables
@@ -467,7 +474,7 @@ export default class GlyphSubstitutor {
             }
         }
 
-        this._glyphIterator.reset(null, glyphIndex)
+        this._glyphIterator.reset(undefined, glyphIndex)
         return true
     }
 
@@ -588,9 +595,7 @@ export default class GlyphSubstitutor {
                 const ruleSet = table.ruleSets[index]
                 for (const rule of ruleSet) {
                     if (this._sequenceMatches(1, rule.input)) {
-                        // CUSTOM INSERTION
                         this._updateContextGroupsInSequence(-1, rule.input.length + 1)
-                        // CUSTOM INSERTION
                         return this._applyLookupList(rule.lookupRecords)
                     }
                 }
@@ -610,9 +615,7 @@ export default class GlyphSubstitutor {
                 const classSet = table.classSet[index]
                 for (const rule of classSet) {
                     if (this._classSequenceMatches(1, rule.classes, table.classDef)) {
-                        // CUSTOM INSERTION
                         this._updateContextGroupsInSequence(-1, rule.classes.length + 1)
-                        // CUSTOM INSERTION
                         return this._applyLookupList(rule.lookupRecords)
                     }
                 }
@@ -621,9 +624,7 @@ export default class GlyphSubstitutor {
 
             case 3:
                 if (this._coverageSequenceMatches(0, table.coverages)) {
-                    // CUSTOM INSERTION
                     this._updateContextGroupsInSequence(0, table.coverages.length)
-                    // CUSTOM INSERTION
                     return this._applyLookupList(table.lookupRecords)
                 }
 
@@ -648,12 +649,10 @@ export default class GlyphSubstitutor {
                         this._sequenceMatches(1, rule.input) &&
                         this._sequenceMatches(1 + rule.input.length, rule.lookahead)
                     ) {
-                        // CUSTOM INSERTION
                         this._updateContextGroupsInSequence(
                             -rule.backtrack.length,
                             rule.input.length + rule.lookahead.length,
                         )
-                        // CUSTOM INSERTION
                         return this._applyLookupList(rule.lookupRecords)
                     }
                 }
@@ -685,12 +684,10 @@ export default class GlyphSubstitutor {
                             table.lookaheadClassDef,
                         )
                     ) {
-                        // CUSTOM INSERTION
                         this._updateContextGroupsInSequence(
                             -rule.backtrack.length,
                             rule.input.length + rule.lookahead.length,
                         )
-                        // CUSTOM INSERTION
                         return this._applyLookupList(rule.lookupRecords)
                     }
                 }
@@ -706,12 +703,10 @@ export default class GlyphSubstitutor {
                     this._coverageSequenceMatches(0, table.inputCoverage) &&
                     this._coverageSequenceMatches(table.inputGlyphCount, table.lookaheadCoverage)
                 ) {
-                    // CUSTOM INSERTION
                     this._updateContextGroupsInSequence(
                         -table.backtrackGlyphCount,
                         table.inputGlyphCount + table.lookaheadCoverage.length,
                     )
-                    // CUSTOM INSERTION
                     return this._applyLookupList(table.lookupRecords)
                 }
 

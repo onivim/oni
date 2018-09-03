@@ -1,21 +1,21 @@
 import { INeovimRenderer } from ".."
 import { MinimalScreenForRendering } from "../../neovim"
-import { LigatureGrouper } from "./LigatureGrouper"
 import { normalizeColor } from "./normalizeColor"
-import { IWebGLAtlasOptions, WebGLTextureSpaceExceededError } from "./WebGLAtlas"
-import { WebGLSolidRenderer } from "./WebGLSolidRenderer"
-import { WebGlTextRenderer } from "./WebGLTextRenderer"
+import { SolidRenderer } from "./SolidRenderer"
+import { TextRenderer } from "./TextRenderer"
+import { IGlyphAtlasOptions, WebGLTextureSpaceExceededError } from "./TextRenderer/GlyphAtlas"
+import { LigatureGrouper } from "./TextRenderer/LigatureGrouper"
 
 export class WebGLRenderer implements INeovimRenderer {
     private _editorElement: HTMLElement
     private _ligatureGrouper: LigatureGrouper
-    private _previousAtlasOptions: IWebGLAtlasOptions
+    private _previousAtlasOptions: IGlyphAtlasOptions
     private _textureSizeInPixels = 1024
     private _textureLayerCount = 2
 
     private _gl: WebGL2RenderingContext
-    private _solidRenderer: WebGLSolidRenderer
-    private _textRenderer: WebGlTextRenderer
+    private _solidRenderer: SolidRenderer
+    private _textRenderer: TextRenderer
 
     public start(editorElement: HTMLElement): void {
         this._editorElement = editorElement
@@ -86,7 +86,7 @@ export class WebGLRenderer implements INeovimRenderer {
             offsetGlyphVariantCount,
             textureSizeInPixels: this._textureSizeInPixels,
             textureLayerCount: this._textureLayerCount,
-        } as IWebGLAtlasOptions
+        } as IGlyphAtlasOptions
 
         if (
             !this._solidRenderer ||
@@ -101,12 +101,8 @@ export class WebGLRenderer implements INeovimRenderer {
                 this._ligatureGrouper = new LigatureGrouper(fontFamily)
             }
 
-            this._solidRenderer = new WebGLSolidRenderer(this._gl, atlasOptions.devicePixelRatio)
-            this._textRenderer = new WebGlTextRenderer(
-                this._gl,
-                this._ligatureGrouper,
-                atlasOptions,
-            )
+            this._solidRenderer = new SolidRenderer(this._gl, atlasOptions.devicePixelRatio)
+            this._textRenderer = new TextRenderer(this._gl, this._ligatureGrouper, atlasOptions)
             this._previousAtlasOptions = atlasOptions
         }
     }

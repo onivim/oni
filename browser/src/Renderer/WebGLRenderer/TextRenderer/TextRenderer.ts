@@ -1,13 +1,13 @@
-import { ICell } from "../../neovim"
-import { CellGroup } from "./CellGroup"
-import { LigatureGrouper } from "./LigatureGrouper"
-import { normalizeColor } from "./normalizeColor"
-import { IWebGLAtlasOptions, WebGLAtlas, WebGLGlyph } from "./WebGLAtlas"
+import { ICell } from "../../../neovim"
+import { normalizeColor } from "../normalizeColor"
 import {
     createProgram,
     createUnitQuadElementIndicesBuffer,
     createUnitQuadVerticesBuffer,
-} from "./WebGLUtilities"
+} from "../WebGLUtilities"
+import { GlyphAtlas, IGlyphAtlasOptions, IRasterizedGlyph } from "./GlyphAtlas"
+import { groupCells } from "./groupCells"
+import { LigatureGrouper } from "./LigatureGrouper"
 
 const glyphInstanceFieldCount = 13
 const glyphInstanceSizeInBytes = glyphInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT
@@ -89,10 +89,8 @@ const secondPassFragmentShaderSource = `
     }
 `.trim()
 
-// const isWhiteSpace = (text: string) => text === null || text === "" || text === " "
-
-export class WebGlTextRenderer {
-    private _atlas: WebGLAtlas
+export class TextRenderer {
+    private _atlas: GlyphAtlas
     private _glyphOverlapInPixels: number
     private _subpixelDivisor: number
     private _devicePixelRatio: number
@@ -112,12 +110,12 @@ export class WebGlTextRenderer {
     constructor(
         private _gl: WebGL2RenderingContext,
         private _ligatureGrouper: LigatureGrouper,
-        atlasOptions: IWebGLAtlasOptions,
+        atlasOptions: IGlyphAtlasOptions,
     ) {
         this._glyphOverlapInPixels = atlasOptions.glyphPaddingInPixels
         this._subpixelDivisor = atlasOptions.offsetGlyphVariantCount
         this._devicePixelRatio = atlasOptions.devicePixelRatio
-        this._atlas = new WebGLAtlas(this._gl, atlasOptions)
+        this._atlas = new GlyphAtlas(this._gl, atlasOptions)
 
         this._firstPassProgram = createProgram(
             this._gl,
@@ -148,8 +146,8 @@ export class WebGlTextRenderer {
             "atlasTextures",
         )
 
-        this.createBuffers()
-        this.createVertexArrayObject()
+        this._createBuffers()
+        this._createVertexArrayObject()
     }
 
     public draw(
@@ -163,8 +161,8 @@ export class WebGlTextRenderer {
         viewportScaleY: number,
     ) {
         const cellCount = columnCount * rowCount
-        this.recreateGlyphInstancesArrayIfRequired(cellCount)
-        const glyphInstanceCount = this.populateGlyphInstances(
+        this._recreateGlyphInstancesArrayIfRequired(cellCount)
+        const glyphInstanceCount = this._populateGlyphInstances(
             columnCount,
             rowCount,
             getCell,
@@ -172,16 +170,16 @@ export class WebGlTextRenderer {
             fontHeightInPixels,
             defaultForegroundColor,
         )
-        this.drawGlyphInstances(glyphInstanceCount, viewportScaleX, viewportScaleY)
+        this._drawGlyphInstances(glyphInstanceCount, viewportScaleX, viewportScaleY)
     }
 
-    private createBuffers() {
+    private _createBuffers() {
         this._unitQuadVerticesBuffer = createUnitQuadVerticesBuffer(this._gl)
         this._unitQuadElementIndicesBuffer = createUnitQuadElementIndicesBuffer(this._gl)
         this._glyphInstancesBuffer = this._gl.createBuffer()
     }
 
-    private createVertexArrayObject() {
+    private _createVertexArrayObject() {
         this._vertexArrayObject = this._gl.createVertexArray()
         this._gl.bindVertexArray(this._vertexArrayObject)
 
@@ -267,14 +265,14 @@ export class WebGlTextRenderer {
         this._gl.vertexAttribDivisor(vertexShaderAttributes.atlasSize, 1)
     }
 
-    private recreateGlyphInstancesArrayIfRequired(cellCount: number) {
+    private _recreateGlyphInstancesArrayIfRequired(cellCount: number) {
         const requiredArrayLength = cellCount * glyphInstanceFieldCount
         if (!this._glyphInstances || this._glyphInstances.length < requiredArrayLength) {
             this._glyphInstances = new Float32Array(requiredArrayLength)
         }
     }
 
-    private populateGlyphInstances(
+    private _populateGlyphInstances(
         columnCount: number,
         rowCount: number,
         getCell: (columnIndex: number, rowIndex: number) => ICell,
@@ -288,44 +286,7 @@ export class WebGlTextRenderer {
 
         let glyphCount = 0
         for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-            const cellGroups: CellGroup[] = []
-            for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                const currentCell = getCell(columnIndex, rowIndex)
-                const currentCharacter = currentCell.character
-                const currentCellGroup = cellGroups.length && cellGroups[cellGroups.length - 1]
-                if (!currentCharacter || currentCharacter === " ") {
-                    continue
-                } else if (
-                    !currentCellGroup ||
-                    currentCellGroup.foregroundColor !== currentCell.foregroundColor ||
-                    currentCellGroup.backgroundColor !== currentCell.backgroundColor ||
-                    currentCellGroup.bold !== currentCell.bold ||
-                    currentCellGroup.italic !== currentCell.italic ||
-                    currentCellGroup.underline !== currentCell.underline ||
-                    currentCellGroup.startColumnIndex + currentCellGroup.characters.length <
-                        columnIndex // We have been skipping whitespace
-                ) {
-                    const {
-                        character,
-                        foregroundColor,
-                        backgroundColor,
-                        bold,
-                        italic,
-                        underline,
-                    } = currentCell
-                    cellGroups.push({
-                        startColumnIndex: columnIndex,
-                        characters: [character],
-                        foregroundColor,
-                        backgroundColor,
-                        bold,
-                        italic,
-                        underline,
-                    })
-                } else {
-                    currentCellGroup.characters.push(currentCharacter)
-                }
-            }
+            const cellGroups = groupCells(columnCount, rowIndex, getCell)
 
             cellGroups.forEach(cellGroup => {
                 const { startColumnIndex, characters, bold, italic, foregroundColor } = cellGroup
@@ -343,7 +304,7 @@ export class WebGlTextRenderer {
                     const colorToUse = foregroundColor || defaultForegroundColor || "white"
                     const normalizedTextColor = normalizeColor(colorToUse)
 
-                    this.updateGlyphInstance(
+                    this._updateGlyphInstance(
                         glyphCount,
                         Math.round(x - glyph.variantOffset) - pixelRatioAdaptedGlyphOverlap,
                         y - pixelRatioAdaptedGlyphOverlap,
@@ -362,7 +323,11 @@ export class WebGlTextRenderer {
         return glyphCount
     }
 
-    private drawGlyphInstances(glyphCount: number, viewportScaleX: number, viewportScaleY: number) {
+    private _drawGlyphInstances(
+        glyphCount: number,
+        viewportScaleX: number,
+        viewportScaleY: number,
+    ) {
         this._gl.bindVertexArray(this._vertexArrayObject)
         this._gl.enable(this._gl.BLEND)
 
@@ -397,11 +362,11 @@ export class WebGlTextRenderer {
         this._gl.drawElementsInstanced(this._gl.TRIANGLES, 6, this._gl.UNSIGNED_BYTE, 0, glyphCount)
     }
 
-    private updateGlyphInstance(
+    private _updateGlyphInstance(
         index: number,
         x: number,
         y: number,
-        glyph: WebGLGlyph,
+        glyph: IRasterizedGlyph,
         color: Float32Array,
     ) {
         const startOffset = glyphInstanceFieldCount * index

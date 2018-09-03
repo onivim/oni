@@ -1,27 +1,27 @@
-import GlyphInfo from "./GlyphInfo"
+import { GlyphInfo } from "./GlyphInfo"
 
-export interface GlyphIteratorOptions {
-    flags?: GlyphIteratorFlags
+export interface IGlyphIteratorOptions {
+    flags?: IGlyphIteratorFlags
     markAttachmentType?: number
 }
 
-export interface GlyphIteratorFlags {
+export interface IGlyphIteratorFlags {
     ignoreMarks?: boolean
     ignoreBaseGlyphs?: boolean
     ignoreLigatures?: boolean
 }
 
-export default class GlyphIterator {
+export class GlyphIterator {
     public index = 0
 
     private _markAttachmentType = 0
-    private _flags: GlyphIteratorFlags = {}
+    private _flags: IGlyphIteratorFlags = {}
 
     constructor(private _glyphs: GlyphInfo[]) {
         this.reset()
     }
 
-    public reset(options: GlyphIteratorOptions = {}, index = 0) {
+    public reset(options: IGlyphIteratorOptions = {}, index = 0) {
         this._flags = options.flags || {}
         this._markAttachmentType = options.markAttachmentType || 0
         this.index = index

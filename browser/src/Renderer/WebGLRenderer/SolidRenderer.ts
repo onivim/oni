@@ -48,7 +48,7 @@ const fragmentShaderSource = `
     }
 `.trim()
 
-export class WebGLSolidRenderer {
+export class SolidRenderer {
     private _program: WebGLProgram
     private _viewportScaleLocation: WebGLUniformLocation
     private _unitQuadVerticesBuffer: WebGLBuffer
@@ -61,8 +61,8 @@ export class WebGLSolidRenderer {
         this._program = createProgram(this._gl, vertexShaderSource, fragmentShaderSource)
         this._viewportScaleLocation = this._gl.getUniformLocation(this._program, "viewportScale")
 
-        this.createBuffers()
-        this.createVertexArrayObject()
+        this._createBuffers()
+        this._createVertexArrayObject()
     }
 
     public draw(
@@ -76,8 +76,8 @@ export class WebGLSolidRenderer {
         viewportScaleY: number,
     ) {
         const cellCount = columnCount * rowCount
-        this.recreateSolidInstancesArrayIfRequired(cellCount)
-        const solidInstanceCount = this.populateSolidInstances(
+        this._recreateSolidInstancesArrayIfRequired(cellCount)
+        const solidInstanceCount = this._populateSolidInstances(
             columnCount,
             rowCount,
             getCell,
@@ -85,16 +85,16 @@ export class WebGLSolidRenderer {
             fontHeightInPixels,
             defaultBackgroundColor,
         )
-        this.drawSolidInstances(solidInstanceCount, viewportScaleX, viewportScaleY)
+        this._drawSolidInstances(solidInstanceCount, viewportScaleX, viewportScaleY)
     }
 
-    private createBuffers() {
+    private _createBuffers() {
         this._unitQuadVerticesBuffer = createUnitQuadVerticesBuffer(this._gl)
         this._unitQuadElementIndicesBuffer = createUnitQuadElementIndicesBuffer(this._gl)
         this._solidInstancesBuffer = this._gl.createBuffer()
     }
 
-    private createVertexArrayObject() {
+    private _createVertexArrayObject() {
         this._vertexArrayObject = this._gl.createVertexArray()
         this._gl.bindVertexArray(this._vertexArrayObject)
 
@@ -147,14 +147,14 @@ export class WebGLSolidRenderer {
         this._gl.vertexAttribDivisor(vertexShaderAttributes.colorRGBA, 1)
     }
 
-    private recreateSolidInstancesArrayIfRequired(cellCount: number) {
+    private _recreateSolidInstancesArrayIfRequired(cellCount: number) {
         const requiredArrayLength = cellCount * solidInstanceFieldCount
         if (!this._solidInstances || this._solidInstances.length < requiredArrayLength) {
             this._solidInstances = new Float32Array(requiredArrayLength)
         }
     }
 
-    private populateSolidInstances(
+    private _populateSolidInstances(
         columnCount: number,
         rowCount: number,
         getCell: (columnIndex: number, rowIndex: number) => ICell,
@@ -168,7 +168,6 @@ export class WebGLSolidRenderer {
         let solidCellCount = 0
         let y = 0
 
-        // TODO refactor this to not be as reliant on mutations
         for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             let x = 0
 
@@ -179,7 +178,7 @@ export class WebGLSolidRenderer {
                     const colorToUse = cell.backgroundColor || defaultBackgroundColor || "black"
                     const normalizedBackgroundColor = normalizeColor(colorToUse)
 
-                    this.updateSolidInstance(
+                    this._updateSolidInstance(
                         solidCellCount,
                         x,
                         y,
@@ -199,7 +198,11 @@ export class WebGLSolidRenderer {
         return solidCellCount
     }
 
-    private drawSolidInstances(solidCount: number, viewportScaleX: number, viewportScaleY: number) {
+    private _drawSolidInstances(
+        solidCount: number,
+        viewportScaleX: number,
+        viewportScaleY: number,
+    ) {
         this._gl.bindVertexArray(this._vertexArrayObject)
         this._gl.disable(this._gl.BLEND)
         this._gl.useProgram(this._program)
@@ -209,7 +212,7 @@ export class WebGLSolidRenderer {
         this._gl.drawElementsInstanced(this._gl.TRIANGLES, 6, this._gl.UNSIGNED_BYTE, 0, solidCount)
     }
 
-    private updateSolidInstance(
+    private _updateSolidInstance(
         index: number,
         x: number,
         y: number,

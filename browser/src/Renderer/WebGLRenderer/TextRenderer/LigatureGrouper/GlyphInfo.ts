@@ -1,9 +1,9 @@
 import unicode from "unicode-properties"
 
 import { Font } from "fontkit"
-import GlyphSubstitutor from "./GlyphSubstitutor"
+import { GlyphSubstitutor } from "./GlyphSubstitutor"
 
-export default class GlyphInfo {
+export class GlyphInfo {
     public features: { [featureTag: string]: boolean } = {}
     public ligatureID: number = null
     public ligatureComponent: number = null
@@ -55,9 +55,5 @@ export default class GlyphInfo {
             this.isLigature = this.codePoints.length > 1
             this.markAttachmentType = 0
         }
-    }
-
-    public copy() {
-        return new GlyphInfo(this._font, this.id, this.codePoints, this.features)
     }
 }
