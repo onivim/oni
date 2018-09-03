@@ -198,9 +198,6 @@ const highlight = (props: TabStyledProps) =>
 const active = css`
     ${highlight};
     ${boxShadowUp};
-    background-color: ${props =>
-        props.theme["tabs.activeTabBackground"] || props.theme["tabs.background"]};
-    color: ${props => props.theme["tabs.activeTabForeground"] || props.theme["tabs.foreground"]};
     opacity: 1;
 `
 
@@ -224,8 +221,16 @@ const TabWrapper = styled<ITabWrapperProps, "div">("div")`
     ${props => `
         max-width: ${props.maxWidth};
         height: ${props.height};
-        background-color: ${props.theme["tabs.background"]};
-        color: ${props.theme["tabs.foreground"]};
+        background-color: ${
+            props.isSelected
+                ? props.theme["tabs.activeTabBackground"]
+                : props.theme["tabs.background"]
+        };
+        color: ${
+            props.isSelected
+                ? props.theme["tabs.activeTabForeground"]
+                : props.theme["tabs.foreground"]
+        };
     `};
 
     transition: opacity 0.25s;
