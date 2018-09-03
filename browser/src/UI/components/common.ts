@@ -214,14 +214,14 @@ export function propInTheme<T>(themeObject: T, ...paths: string[]): string {
 }
 
 /**
- * **themeGet**
+ *  **themeGet**
  *
  * helper method to pull a prop out of the theme and specify a fallback
  * the fallback can be a key in the theme object or a css style like "red" for color
  * the third argument is a key in the props object of the component which should represent
  * a boolean determining whether or no the default should be used
  * CREDIT: Styled-System
- **/
+ */
 export const themeGet = <T>(
     paths: keyof IThemeColors,
     fallback?: string,
