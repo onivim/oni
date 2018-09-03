@@ -198,6 +198,9 @@ const highlight = (props: TabStyledProps) =>
 const active = css`
     ${highlight};
     ${boxShadowUp};
+    background-color: ${props =>
+        props.theme["tabs.activeTabBackground"] || props.theme["tabs.background"]};
+    color: ${props => props.theme["tabs.activeTabForeground"] || props.theme["tabs.foreground"]};
     opacity: 1;
 `
 
