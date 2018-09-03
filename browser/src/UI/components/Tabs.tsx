@@ -315,8 +315,8 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
     // reports current state of the tab -> for testing
     public getStatus(selected: boolean, dirty: boolean) {
         const selectedState = selected ? "selected" : "not-selected"
-        const dirtyState = dirty ? "dirty" : "not-dirty"
-        return `tab ${selectedState} ${dirtyState}`
+        const dirtyState = dirty ? "is-dirty" : "not-dirty"
+        return `tab-${selectedState}-${dirtyState}`
     }
 
     public render() {
@@ -341,7 +341,7 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
                 <TabWrapper
                     mode={mode}
                     innerRef={this._tab}
-                    className={tabStatus}
+                    data-id={tabStatus}
                     title={description}
                     height={height}
                     maxWidth={maxWidth}

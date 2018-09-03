@@ -12,6 +12,20 @@ export const getCompletionElement = () => {
     return getElementByClassName("autocompletion")
 }
 
+interface IGetTab {
+    dirty: boolean
+}
+
+export const getSelectedTabElement = ({ dirty = false }: IGetTab) => {
+    const isDirty = dirty ? "is-dirty" : "not-dirty"
+    return getSingleElementBySelector(`[data-id='tab-selected-${isDirty}']`)
+}
+
+export const getAllUnselectedTabs = ({ dirty = false }: IGetTab) => {
+    const isDirty = dirty ? "is-dirty" : "not-dirty"
+    return getElementsBySelector(`[data-id='tab-not-selected-${isDirty}']`)
+}
+
 export const getCollateralPath = () => {
     return path.join(__dirname, "..", "..", "..", "test", "collateral")
 }
