@@ -126,6 +126,7 @@ export const Tabs: React.SFC<ITabsProps> = props => {
 
     return (
         <TabsWrapper
+            data-id="tabs"
             fontFamily={props.fontFamily}
             fontSize={props.fontSize}
             shouldWrap={props.shouldWrap}
@@ -339,7 +340,8 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
                 <TabWrapper
                     mode={mode}
                     innerRef={this._tab}
-                    data-id={tabStatus}
+                    data-status={tabStatus}
+                    data-id="tab"
                     title={description}
                     height={height}
                     maxWidth={maxWidth}
@@ -347,7 +349,7 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
                     isSelected={isSelected}
                     shouldShowHighlight={shouldShowHighlight}
                 >
-                    <Corner onMouseDown={this.handleTitleClick}>
+                    <Corner data-id="tab-icon-corner" onMouseDown={this.handleTitleClick}>
                         <FileIcon
                             fileName={iconFileName}
                             isLarge={true}
@@ -357,7 +359,7 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
                     <Name onMouseDown={this.handleTitleClick}>
                         <InnerName>{name}</InnerName>
                     </Name>
-                    <Corner isHoverEnabled onClick={onClickClose}>
+                    <Corner data-id="tab-close-button" isHoverEnabled onClick={onClickClose}>
                         <IconContainer isVisibleByDefault={false} isVisibleOnTabHover>
                             <Icon name="times" />
                         </IconContainer>
