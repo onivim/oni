@@ -38,6 +38,10 @@ export interface IThemeColors {
     "tabs.active.foreground": string
     "tabs.active.background": string
 
+    "scrollbar.track": string
+    "scrollbar.thumb": string
+    "scrollbar.thumb.hover": string
+
     // Tool tip is used for some contextual information,
     // like hover, as well as for rename.
     "toolTip.background": string
@@ -194,6 +198,10 @@ export const getColorsFromBackgroundAndForeground = (
         "tabs.active.background": null,
         "tabs.active.foreground": null,
 
+        "scrollbar.track": null,
+        "scrollbar.thumb": null,
+        "scrollbar.thumb.hover": null,
+
         "title.background": shellBackground,
         "title.foreground": foreground,
 
@@ -282,6 +290,10 @@ export const DefaultThemeColors: IThemeColors = {
     "tabs.foreground": ColorWhite,
     "tabs.active.background": null,
     "tabs.active.foreground": null,
+
+    "scrollbar.track": null,
+    "scrollbar.thumb": null,
+    "scrollbar.thumb.hover": null,
 
     "fileExplorer.background": StatusBarBackground,
     "fileExplorer.foreground": StatusBarForeground,

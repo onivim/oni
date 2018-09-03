@@ -23,6 +23,8 @@ import styled, {
     IThemeColors,
     keyframes,
     layer,
+    scrollbarStyles,
+    themeGet,
 } from "./../components/common"
 
 import { FileIcon } from "./../../Services/FileIcon"
@@ -61,7 +63,7 @@ const TabsWrapper = styled<ITabsWrapperProps, "div">("div")`
     align-items: flex-end;
     width: 100%;
     overflow-x: hidden;
-    border-bottom: 4px solid ${props => props.theme["tabs.background"]};
+    border-bottom: 4px solid ${themeGet("tabs.background")};
     font-family: ${props => props.fontFamily};
     font-size: ${props => props.fontSize};
     transform: translateY(-3px);
@@ -78,6 +80,7 @@ const TabsWrapper = styled<ITabsWrapperProps, "div">("div")`
     &::-webkit-scrollbar {
         height: 3px;
     }
+    ${scrollbarStyles};
 `
 
 export interface ITabsProps {
@@ -226,15 +229,8 @@ const TabWrapper = styled<ITabWrapperProps, "div">("div")`
     animation: ${tabEntranceKeyFrames} 0.1s ease-in forwards;
     ${props => (props.isSelected ? active : inactive)};
 
-    background-color: ${({ theme, isSelected }) =>
-        isSelected && theme["tabs.active.background"]
-            ? theme["tabs.active.background"]
-            : theme["tabs.background"]};
-
-    color: ${({ theme, isSelected }) =>
-        isSelected && theme["tabs.active.foreground"]
-            ? theme["tabs.active.foreground"]
-            : theme["tabs.foreground"]};
+    background-color: ${themeGet("tabs.active.background", "tabs.background", "isSelected")};
+    color: ${themeGet("tabs.active.foreground", "tabs.foreground", "isSelected")};
 `
 
 const tabIconAppearKeyframes = keyframes`
@@ -274,16 +270,13 @@ const IconContainer = styled<IIconContainerProps, "div">("div")`
     left: 0px;
     right: 0px;
     bottom: 0px;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     opacity: 0;
     transition: opacity 0.25s ease-out;
-
-    ${props => (props.isVisibleByDefault ? tabIconAppearAnimation : "")} ${props =>
-        props.isVisibleOnTabHover && tabHover};
+    ${props => (props.isVisibleByDefault ? tabIconAppearAnimation : "")};
+    ${props => props.isVisibleOnTabHover && tabHover};
 `
 
 export interface ITabPropsWithClick extends ITabProps {

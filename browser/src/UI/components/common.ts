@@ -49,6 +49,24 @@ export const Container = withProps<ContainerProps>(styled.div)`
     ${p => p.extension};
 `
 
+export const scrollbarStyles = css`
+    ${props =>
+        props.theme["scrollbar.track"] &&
+        `&::-webkit-scrollbar-track {
+                background: ${props.theme["scrollbar.track"]};
+        }`}
+    ${props =>
+        props.theme["scrollbar.thumb"] &&
+        `&::-webkit-scrollbar-thumb {
+                background: ${props.theme["scrollbar.thumb"]};
+        }`}
+    ${props =>
+        props.theme["scrollbar.thumb.hover"] &&
+        `&::-webkit-scrollbar-thumb:hover {
+                background: ${props.theme["scrollbar.thumb.hover"]};
+        }`};
+    `
+
 export const Bold = styled.span`
     font-weight: bold;
 `
@@ -178,6 +196,42 @@ const fallBackFonts = `
     monospace,
     sans-serif
 `.trim()
+
+/**
+ * Get a prop from the Oni theme
+ *
+ * @name propsInTheme
+ * @function
+ * @param {T} generic(theme object)
+ * @param {string} ...paths the dot notation string path
+ * @returns {string} the accessed prop or null
+ */
+export function propInTheme<T>(themeObject: T, ...paths: string[]): string {
+    return paths.reduce(
+        (targetObject, key) => (targetObject && targetObject[key] ? targetObject[key] : null),
+        themeObject,
+    )
+}
+
+/**
+ * **themeGet**
+ *
+ * helper method to pull a prop out of the theme and specify a fallback
+ * the fallback can be a key in the theme object or a css style like "red" for color
+ * the third argument is a key in the props object of the component which should represent
+ * a boolean determining whether or no the default should be used
+ * CREDIT: Styled-System
+ **/
+export const themeGet = <T>(
+    paths: keyof IThemeColors,
+    fallback?: string,
+    shouldDefault?: keyof T,
+) => (props: OniStyledProps<T>) => {
+    if (shouldDefault && shouldDefault in props && !props[shouldDefault]) {
+        return propInTheme(props.theme, fallback)
+    }
+    return propInTheme(props.theme, paths) || propInTheme(props.theme, fallback) || fallback
+}
 
 export type OniThemeProps = ThemeProps<IThemeColors>
 export type OniStyledProps<T> = OniThemeProps & T
