@@ -35,8 +35,8 @@ export interface IThemeColors {
 
     "tabs.background": string
     "tabs.foreground": string
-    "tabs.activeForeground": string
-    "tabs.activeBackground": string
+    "tabs.active.foreground": string
+    "tabs.active.background": string
 
     // Tool tip is used for some contextual information,
     // like hover, as well as for rename.
@@ -161,7 +161,10 @@ export const getColorsFromConfig = ({
     return hoverColors
 }
 
-export const getColorsFromBackgroundAndForeground = (background: string, foreground: string) => {
+export const getColorsFromBackgroundAndForeground = (
+    background: string,
+    foreground: string,
+): IThemeColors => {
     const shellBackground = getBackgroundColor(background)
     const borderColor = getBorderColor(background, foreground)
     return {
@@ -188,8 +191,8 @@ export const getColorsFromBackgroundAndForeground = (background: string, foregro
 
         "tabs.background": background,
         "tabs.foreground": foreground,
-        "tabs.activeForeground": foreground,
-        "tabs.activeBackground": background,
+        "tabs.active.background": null,
+        "tabs.active.foreground": null,
 
         "title.background": shellBackground,
         "title.foreground": foreground,
@@ -277,8 +280,8 @@ export const DefaultThemeColors: IThemeColors = {
 
     "tabs.background": ColorBlack,
     "tabs.foreground": ColorWhite,
-    "tabs.activeForeground": ColorWhite,
-    "tabs.activeBackground": ColorBlack,
+    "tabs.active.background": null,
+    "tabs.active.foreground": null,
 
     "fileExplorer.background": StatusBarBackground,
     "fileExplorer.foreground": StatusBarForeground,

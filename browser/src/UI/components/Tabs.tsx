@@ -225,10 +225,16 @@ const TabWrapper = styled<ITabWrapperProps, "div">("div")`
     user-select: none;
     animation: ${tabEntranceKeyFrames} 0.1s ease-in forwards;
     ${props => (props.isSelected ? active : inactive)};
-    background-color: ${props =>
-        props.isSelected ? props.theme["tabs.activeBackground"] : props.theme["tabs.background"]}
-    color: ${props =>
-        props.isSelected ? props.theme["tabs.activeForeground"] : props.theme["tabs.foreground"]};
+
+    background-color: ${({ theme, isSelected }) =>
+        isSelected && theme["tabs.active.background"]
+            ? theme["tabs.active.background"]
+            : theme["tabs.background"]};
+
+    color: ${({ theme, isSelected }) =>
+        isSelected && theme["tabs.active.foreground"]
+            ? theme["tabs.active.foreground"]
+            : theme["tabs.foreground"]};
 `
 
 const tabIconAppearKeyframes = keyframes`
