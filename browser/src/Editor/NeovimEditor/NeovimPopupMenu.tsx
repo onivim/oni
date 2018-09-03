@@ -10,7 +10,6 @@ import * as Oni from "oni-api"
 import { IEvent } from "oni-types"
 
 import { INeovimCompletionInfo, INeovimCompletionItem } from "./../../neovim"
-import { IColors } from "./../../Services/Colors"
 import { ContextMenuView, IContextMenuItem } from "./../../Services/ContextMenu"
 
 import { IToolTipsProvider } from "./ToolTipsProvider"
@@ -34,7 +33,6 @@ export class NeovimPopupMenu {
         private _popupMenuHideEvent: IEvent<void>,
         private _popupMenuSelectEvent: IEvent<number>,
         private _onBufferEnterEvent: IEvent<Oni.EditorBufferEventArgs>,
-        private _colors: IColors,
         private _toolTipsProvider: IToolTipsProvider,
     ) {
         this._popupMenuShowEvent.subscribe(completionInfo => {
@@ -65,7 +63,6 @@ export class NeovimPopupMenu {
 
     private _renderCompletionMenu(selectedIndex: number): void {
         const itemsToRender: IContextMenuItem[] = this._lastItems
-        const highlightColor = this._colors.getColor("contextMenu.highlight")
 
         const completionElement = (
             <ContextMenuView
@@ -73,10 +70,6 @@ export class NeovimPopupMenu {
                 base={""}
                 entries={itemsToRender}
                 selectedIndex={selectedIndex}
-                backgroundColor={"black"}
-                borderColor={"black"}
-                highlightColor={highlightColor}
-                foregroundColor={"white"}
             />
         )
 

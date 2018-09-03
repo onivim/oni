@@ -12,8 +12,8 @@ import * as Oni from "oni-api"
 
 import { IMenus } from "./../Menu/MenuState"
 
-import { styled } from "../../UI/components/common"
 import { Arrow, ArrowDirection } from "./../../UI/components/Arrow"
+import styled, { enableMouse, layer } from "./../../UI/components/common"
 import { HighlightText } from "./../../UI/components/HighlightText"
 import { QuickInfoDocumentation } from "./../../UI/components/QuickInfo"
 import { Icon } from "./../../UI/Icon"
@@ -27,57 +27,58 @@ export interface IContextMenuItem {
     icon?: string
 }
 
+const Autocompletion = styled.div`
+    ${layer};
+    ${enableMouse};
+    width: 600px;
+    overflow: hidden;
+    animation-name: appear;
+    animation-duration: 0.1s;
+`
+
 export interface IContextMenuProps {
     visible: boolean
     base: string
     entries: IContextMenuItem[]
     selectedIndex: number
-
-    backgroundColor: string
-    foregroundColor: string
-    borderColor: string
-    highlightColor: string
 }
 
-export class ContextMenuView extends React.PureComponent<IContextMenuProps, {}> {
-    public render(): null | JSX.Element {
-        if (!this.props.visible) {
-            return null
-        }
-
-        let entriesToRender: IContextMenuItem[] = []
-        let adjustedIndex = this.props.selectedIndex
-
-        // TODO: sync max display items (10) with value in Reducer.autoCompletionReducer() (Reducer.ts)
-        if (adjustedIndex < 10) {
-            entriesToRender = this.props.entries.slice(0, 10)
-        } else {
-            entriesToRender = this.props.entries.slice(adjustedIndex - 9, adjustedIndex + 1)
-            adjustedIndex = entriesToRender.length - 1
-        }
-
-        const entries = entriesToRender.map((s, i) => {
-            const isSelected = i === adjustedIndex
-
-            return (
-                <ContextMenuItem
-                    key={`${i}-${s.detail}`}
-                    {...s}
-                    isSelected={isSelected}
-                    base={this.props.base}
-                    highlightColor={this.props.highlightColor}
-                />
-            )
-        })
-
-        const selectedItemDocumentation = getDocumentationFromItems(entriesToRender, adjustedIndex)
-        return (
-            <div className="autocompletion enable-mouse">
-                <div className="entries">{entries}</div>
-                <ContextMenuDocumentation documentation={selectedItemDocumentation} />
-            </div>
-        )
+export const ContextMenuView: React.SFC<IContextMenuProps> = props => {
+    if (!props.visible) {
+        return null
     }
+
+    let entriesToRender: IContextMenuItem[] = []
+    let { selectedIndex: adjustedIndex } = props
+
+    // TODO: sync max display items (10) with value in Reducer.autoCompletionReducer() (Reducer.ts)
+    if (adjustedIndex < 10) {
+        entriesToRender = props.entries.slice(0, 10)
+    } else {
+        entriesToRender = props.entries.slice(adjustedIndex - 9, adjustedIndex + 1)
+        adjustedIndex = entriesToRender.length - 1
+    }
+
+    const entries = entriesToRender.map((entry, index) => {
+        const isSelected = index === adjustedIndex
+
+        return (
+            <ContextMenuItem
+                {...entry}
+                key={`${index}-${entry.detail}`}
+                isSelected={isSelected}
+                base={props.base}
+            />
+        )
+    })
+
+    const selectedItemDocumentation = getDocumentationFromItems(entriesToRender, adjustedIndex)
+    return (
+        <Autocompletion data-id="autocompletion">
+            {entries}
+            <ContextMenuDocumentation documentation={selectedItemDocumentation} />
+        </Autocompletion>
+    )
 }
 
 const getDocumentationFromItems = (items: any[], selectedIndex: number): string => {
@@ -92,94 +93,106 @@ const getDocumentationFromItems = (items: any[], selectedIndex: number): string 
     return items[selectedIndex].documentation
 }
 
-export interface IContextMenuItemProps extends Oni.Menu.MenuOption {
-    base: string
-    isSelected: boolean
-    highlightColor?: string
-}
-
-export class ContextMenuItem extends React.PureComponent<IContextMenuItemProps, {}> {
-    public render(): JSX.Element {
-        let className = "entry"
-        if (this.props.isSelected) {
-            className += " selected"
-        }
-
-        const highlightColor = this.props.highlightColor
-
-        const iconContainerStyle = {
-            backgroundColor: highlightColor,
-        }
-
-        const arrowColor = this.props.isSelected ? highlightColor : "transparent"
-
-        return (
-            <div className={className} key={this.props.label}>
-                <div className="main">
-                    <span className="icon" style={iconContainerStyle}>
-                        <Icon name={this.props.icon} />
-                    </span>
-                    <Arrow direction={ArrowDirection.Right} size={5} color={arrowColor} />
-                    <HighlightText
-                        className="label"
-                        highlightComponent={Highlight}
-                        highlightText={this.props.base}
-                        text={this.props.label}
-                    />
-                    <span className="detail">{this.props.detail}</span>
-                </div>
-            </div>
-        )
-    }
-}
+export const Label = styled(HighlightText)`
+    flex: 1 0 auto;
+    min-width: 100px;
+    margin-left: 8px;
+`
 
 const Highlight = styled.span`
     text-decoration: underline;
 `
 
+interface ISelectedProps {
+    isSelected: boolean
+}
+
+const Entry = styled<ISelectedProps, "div">("div")`
+    ${({ isSelected }) =>
+        isSelected &&
+        `transform: translateY(0.1px);
+         box-shadow: 0 1px 8px 1px rgba(0, 0, 0, 0.2), 0 1px 20px 0 rgba(0, 0, 0, 0.19);
+    `};
+`
+
+const Main = styled<ISelectedProps, "div">("div")`
+    transition: opacity 1s;
+    opacity: ${props => (props.isSelected ? "1" : "0.8")};
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`
+
+const IconWrapper = styled.div`
+    padding: 4px;
+    width: 1.2em;
+    flex: 0 0 auto;
+    text-align: center;
+    background-color: ${({ theme }) => theme["contextMenu.highlight"]};
+    i {
+        font-size: 0.9em;
+    }
+`
+
+export const Detail = styled<ISelectedProps, "div">("div")`
+    flex: 0 1 auto;
+    min-width: 50px;
+    text-align: right;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 0 5px 0 16px;
+    font-size: 0.8em;
+    opacity: 0.8;
+    visibility: hidden;
+    ${props => (props.isSelected ? "visibility:visible;" : "")};
+`
+
+export interface IContextMenuItemProps extends Oni.Menu.MenuOption, ISelectedProps {
+    base: string
+}
+
+export const ContextMenuItem: React.SFC<IContextMenuItemProps> = props => {
+    const { isSelected, label, icon, base, detail } = props
+
+    return (
+        <Entry isSelected={isSelected} key={label}>
+            <Main isSelected={isSelected}>
+                <IconWrapper>
+                    <Icon name={icon} />
+                </IconWrapper>
+                <Arrow direction={ArrowDirection.Right} size={5} isSelected={isSelected} />
+                <Label highlightComponent={Highlight} highlightText={base} text={label} />
+                <Detail isSelected={isSelected}>{detail}</Detail>
+            </Main>
+        </Entry>
+    )
+}
+
 export interface IContextMenuDocumentationProps {
     documentation: string
 }
 
-export const ContextMenuDocumentation = (props: IContextMenuDocumentationProps) => {
-    const { documentation } = props
-
-    if (!documentation) {
-        return null
-    }
-
-    return <QuickInfoDocumentation text={documentation} />
+export const ContextMenuDocumentation = ({ documentation }: IContextMenuDocumentationProps) => {
+    return documentation ? <QuickInfoDocumentation text={documentation} /> : null
 }
 
-const EmptyArray: any[] = []
+type IState = IMenus<types.CompletionItem, types.CompletionItem>
 
-const EmptyProps = {
-    visible: false,
-    base: "",
-    entries: EmptyArray,
-    selectedIndex: 0,
-    backgroundColor: "",
-    foregroundColor: "",
-    borderColor: "",
-    highlightColor: "",
-}
-
-const mapStateToProps = (state: IMenus<types.CompletionItem, types.CompletionItem>) => {
-    const contextMenu = state.menu
+const mapStateToProps = ({ menu: contextMenu }: IState): IContextMenuProps => {
     if (!contextMenu) {
-        return EmptyProps
-    } else {
-        const ret: IContextMenuProps = {
-            visible: true,
-            base: contextMenu.filter,
-            entries: contextMenu.filteredOptions,
-            selectedIndex: contextMenu.selectedIndex,
-            foregroundColor: contextMenu.foregroundColor,
-            backgroundColor: contextMenu.backgroundColor,
-            borderColor: contextMenu.borderColor,
-            highlightColor: contextMenu.highlightColor,
-        }
-        return ret
+        return {
+            visible: false,
+            base: "",
+            entries: [] as IContextMenuItem[],
+            selectedIndex: 0,
+        } as IContextMenuProps
+    }
+    return {
+        visible: true,
+        base: contextMenu.filter,
+        entries: contextMenu.filteredOptions,
+        selectedIndex: contextMenu.selectedIndex,
     }
 }
 

@@ -1,7 +1,8 @@
 import * as React from "react"
 
 import { Logs } from "../../../Services/VersionControl/VersionControlProvider"
-import { sidebarItemSelected, styled, withProps } from "./../../../UI/components/common"
+import styled, { getSelectedBorder } from "./../../../UI/components/common"
+import Octicon from "./../../../UI/components/Octicon"
 import { formatDate } from "./../../../Utility"
 import VCSSectionTitle from "./../SectionTitle"
 
@@ -22,8 +23,8 @@ const List = styled.ul`
     overflow-x: hidden;
     max-height: 30em;
 `
-export const ListItem = withProps<{ isSelected?: boolean }>(styled.li)`
-    ${({ isSelected }) => isSelected && sidebarItemSelected};
+export const ListItem = styled<{ isSelected?: boolean }, "li">("li")`
+    border: ${getSelectedBorder};
     padding: 0.4rem;
 `
 
@@ -57,6 +58,7 @@ const CommitsSection: React.SFC<ICommitsSection> = ({ commits, ...props }) => {
                             isSelected={props.selectedId === prevCommit.hash}
                         >
                             <Detail>
+                                <Octicon name="git-commit" />
                                 <strong> {prevCommit.message}</strong>
                             </Detail>
                             <Detail>{prevCommit.hash.slice(0, 6)}</Detail>

@@ -207,7 +207,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         this._actions = bindActionCreators(ActionCreators as any, this._store.dispatch)
         this._toolTipsProvider = new NeovimEditorToolTipsProvider(this._actions)
 
-        this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider, this._colors)
+        this._contextMenuManager = new ContextMenuManager(this._toolTipsProvider)
 
         this._neovimInstance = new NeovimInstance(100, 100, this._configuration)
         this._bufferManager = new BufferManager(this._neovimInstance, this._actions, this._store)
@@ -245,7 +245,6 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             this._neovimInstance.onHidePopupMenu,
             this._neovimInstance.onSelectPopupMenu,
             this.onBufferEnter,
-            this._colors,
             this._toolTipsProvider,
         )
 

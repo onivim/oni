@@ -1,10 +1,14 @@
 import { mount, ReactWrapper } from "enzyme"
+import toJson from "enzyme-to-json"
 import * as React from "react"
+
 import {
     ContextMenuItem,
     ContextMenuView,
+    Detail,
     IContextMenuItem,
     IContextMenuItemProps,
+    Label,
 } from "./../browser/src/Services/ContextMenu/ContextMenuComponent"
 
 describe("<ContextMenuView />", () => {
@@ -12,16 +16,7 @@ describe("<ContextMenuView />", () => {
         const itemsToRender: IContextMenuItem[] = createItems(8)
 
         const wrapper = mount(
-            <ContextMenuView
-                visible={true}
-                base={""}
-                entries={itemsToRender}
-                selectedIndex={5}
-                backgroundColor={"black"}
-                borderColor={"black"}
-                highlightColor={"grey"}
-                foregroundColor={"white"}
-            />,
+            <ContextMenuView visible={true} base={""} entries={itemsToRender} selectedIndex={5} />,
         )
 
         // expect(wrapper.html()).toEqual("")
@@ -42,16 +37,7 @@ describe("<ContextMenuView />", () => {
         const itemsToRender: IContextMenuItem[] = createItems(18)
 
         const wrapper = mount(
-            <ContextMenuView
-                visible={true}
-                base={""}
-                entries={itemsToRender}
-                selectedIndex={14}
-                backgroundColor={"black"}
-                borderColor={"black"}
-                highlightColor={"grey"}
-                foregroundColor={"white"}
-            />,
+            <ContextMenuView visible={true} base={""} entries={itemsToRender} selectedIndex={14} />,
         )
 
         const renderedItems = wrapper.find(ContextMenuItem)
@@ -92,13 +78,13 @@ function expectRenderedItem(
     expect(item.prop("isSelected")).toBe(selected)
     expect(
         item
-            .find(".label")
+            .find(Label)
             .first()
             .text(),
     ).toEqual(label)
     expect(
         item
-            .find(".detail")
+            .find(Detail)
             .first()
             .text(),
     ).toEqual(detail)

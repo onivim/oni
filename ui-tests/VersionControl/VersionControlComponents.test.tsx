@@ -2,6 +2,8 @@ import { mount, shallow } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
 
+import Octicon from "./../../browser/src/UI/components/Octicon"
+
 import {
     Branch,
     BranchNameContainer,
@@ -46,25 +48,25 @@ describe("<Branch />", () => {
 
     it("should render the correct icon for additions", () => {
         const wrapper = mount(<Branch branch="test-branch" diff={diff} />)
-        const icon = wrapper.find("i.fa-plus-circle")
-        expect(icon.length).toBe(1)
+        const hasAdded = wrapper.contains(<Octicon name="diff-added" />)
+        expect(hasAdded).toBe(true)
     })
 
     it("should render the correct icon for deletions", () => {
         const wrapper = mount(<Branch branch="test-branch" diff={diff} />)
-        const icon = wrapper.find("i.fa-minus-circle")
-        expect(icon.length).toBe(1)
+        const hasDeleted = wrapper.contains(<Octicon name="diff-removed" />)
+        expect(hasDeleted).toBe(true)
     })
 
     it("Should not render an icon if there were no insertions", () => {
         const wrapper = mount(<Branch branch="test-branch" diff={{ ...diff, insertions: 0 }} />)
-        const icon = wrapper.find("i.fa-plus-circle")
-        expect(icon.length).toBe(0)
+        const icon = wrapper.contains(<Octicon name="diff-added" />)
+        expect(icon).toBe(false)
     })
 
     it("Should not render an icon if there were no deletions", () => {
         const wrapper = mount(<Branch branch="test-branch" diff={{ ...diff, deletions: 0 }} />)
-        const icon = wrapper.find("i.fa-minus-circle")
-        expect(icon.length).toBe(0)
+        const icon = wrapper.contains(<Octicon name="diff-removed" />)
+        expect(icon).toBe(false)
     })
 })

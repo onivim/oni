@@ -69,6 +69,8 @@ export const stack = css`
     bottom: 0px;
 `
 
+// Layer is used to force webkit to promote the element to an individual layer.
+// This is used to tweak and control rendering performance, and not for layout
 export const layer = css`
     will-change: transform;
 `
@@ -86,6 +88,13 @@ type GetBorder = (
         theme?: styledComponents.ThemeProps<IThemeColors>
     },
 ) => string
+
+export const showScrollbarOnHover = css`
+    overflow: hidden;
+    &:hover {
+        overflow: overlay;
+    }
+`
 
 export const getSelectedBorder: GetBorder = ({ isSelected, borderSize = "1px", theme }) =>
     isSelected
@@ -169,6 +178,9 @@ const fallBackFonts = `
     monospace,
     sans-serif
 `.trim()
+
+export type OniThemeProps = ThemeProps<IThemeColors>
+export type OniStyledProps<T> = OniThemeProps & T
 
 export {
     css,

@@ -9,7 +9,7 @@ import * as os from "os"
 import * as path from "path"
 
 export const getCompletionElement = () => {
-    return getElementByClassName("autocompletion")
+    return getSingleElementBySelector("[data-id='autocompletion']")
 }
 
 interface IGetTab {
