@@ -1,7 +1,7 @@
 import * as assert from "assert"
 import * as Oni from "oni-api"
 
-import { getElementsBySelector, getAllTabs, getTabCloseButtonByIndex } from "./Common"
+import { getAllTabs, getElementsBySelector, getTabCloseButtonByIndex } from "./Common"
 
 export const test = async (oni: Oni.Plugin.Api) => {
     const getTabsCount = () => getAllTabs().length
