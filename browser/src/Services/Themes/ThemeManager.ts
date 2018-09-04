@@ -35,6 +35,12 @@ export interface IThemeColors {
 
     "tabs.background": string
     "tabs.foreground": string
+    "tabs.active.foreground": string
+    "tabs.active.background": string
+
+    "scrollbar.track": string
+    "scrollbar.thumb": string
+    "scrollbar.thumb.hover": string
 
     // Tool tip is used for some contextual information,
     // like hover, as well as for rename.
@@ -159,7 +165,10 @@ export const getColorsFromConfig = ({
     return hoverColors
 }
 
-export const getColorsFromBackgroundAndForeground = (background: string, foreground: string) => {
+export const getColorsFromBackgroundAndForeground = (
+    background: string,
+    foreground: string,
+): IThemeColors => {
     const shellBackground = getBackgroundColor(background)
     const borderColor = getBorderColor(background, foreground)
     return {
@@ -186,6 +195,12 @@ export const getColorsFromBackgroundAndForeground = (background: string, foregro
 
         "tabs.background": background,
         "tabs.foreground": foreground,
+        "tabs.active.background": null,
+        "tabs.active.foreground": null,
+
+        "scrollbar.track": null,
+        "scrollbar.thumb": null,
+        "scrollbar.thumb.hover": null,
 
         "title.background": shellBackground,
         "title.foreground": foreground,
@@ -273,6 +288,12 @@ export const DefaultThemeColors: IThemeColors = {
 
     "tabs.background": ColorBlack,
     "tabs.foreground": ColorWhite,
+    "tabs.active.background": null,
+    "tabs.active.foreground": null,
+
+    "scrollbar.track": null,
+    "scrollbar.thumb": null,
+    "scrollbar.thumb.hover": null,
 
     "fileExplorer.background": StatusBarBackground,
     "fileExplorer.foreground": StatusBarForeground,

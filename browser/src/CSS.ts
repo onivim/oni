@@ -9,7 +9,5 @@ export const activate = () => {
     require("./overlay.less") // tslint:disable-line
 
     require("./Services/Menu/Menu.less")
-
     require("./UI/components/InstallHelp.less")
-    require("./UI/components/Tabs.less")
 }
