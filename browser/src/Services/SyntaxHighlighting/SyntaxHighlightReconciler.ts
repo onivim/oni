@@ -64,26 +64,26 @@ export class SyntaxHighlightReconciler {
                 return this._previousState[line] !== latestLine
             })
 
-            const tokens = filteredLines.map(li => {
-                const lineNumber = parseInt(li, 10)
+            const tokens = filteredLines.map(currentLine => {
+                const lineNumber = parseInt(currentLine, 10)
                 const line = Selectors.getLineFromBuffer(currentHighlightState, lineNumber)
 
                 const highlights = this._mapTokensToHighlights(line.tokens)
                 return {
-                    line: parseInt(li, 10),
+                    line: parseInt(currentLine, 10),
                     highlights,
                 }
             })
 
-            filteredLines.forEach(li => {
-                const lineNumber = parseInt(li, 10)
-                this._previousState[li] = Selectors.getLineFromBuffer(
+            filteredLines.forEach(line => {
+                const lineNumber = parseInt(line, 10)
+                this._previousState[line] = Selectors.getLineFromBuffer(
                     currentHighlightState,
                     lineNumber,
                 )
             })
 
-            if (tokens.length > 0) {
+            if (tokens.length) {
                 Log.verbose(
                     "[SyntaxHighlightReconciler] Applying changes to " + tokens.length + " lines.",
                 )
@@ -91,8 +91,7 @@ export class SyntaxHighlightReconciler {
                     this._tokenColors.tokenColors,
                     (highlightUpdater: any) => {
                         tokens.forEach(token => {
-                            const line = token.line
-                            const highlights = token.highlights
+                            const { line, highlights } = token
 
                             if (Log.isDebugLoggingEnabled()) {
                                 Log.debug(
@@ -124,7 +123,7 @@ export class SyntaxHighlightReconciler {
         const configurationColors = this._tokenColors.tokenColors
 
         for (const scope of scopes) {
-            const matchingRule = configurationColors.find((c: any) => scope.indexOf(c.scope) === 0)
+            const matchingRule = configurationColors.find(color => color.scope === scope)
 
             if (matchingRule) {
                 // TODO: Convert to highlight group id

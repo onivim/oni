@@ -86,8 +86,10 @@ export class TokenColors implements IDisposable {
 
     private _updateTokenColors(): void {
         const {
-            "editor.tokenColors": tokenColorsFromTheme = [],
-        } = this._themeManager.activeTheme.colors
+            activeTheme: {
+                colors: { "editor.tokenColors": tokenColorsFromTheme = [] },
+            },
+        } = this._themeManager
 
         const themeTokens = this._flattenThemeTokens(tokenColorsFromTheme)
         const userColors = this._configuration.getValue("editor.tokenColors")

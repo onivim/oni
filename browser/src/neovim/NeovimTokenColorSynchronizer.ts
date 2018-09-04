@@ -56,7 +56,7 @@ export class NeovimTokenColorSynchronizer {
             return ["nvim_command", [hlCommand]]
         })
 
-        if (atomicCalls.length === 0) {
+        if (!atomicCalls) {
             return
         }
 
@@ -108,8 +108,13 @@ export class NeovimTokenColorSynchronizer {
     }
 
     private _getKeyFromTokenColor(tokenColor: TokenColor): string {
-        return `${tokenColor.scope}_${tokenColor.settings.background}_${
-            tokenColor.settings.foreground
-        }_${tokenColor.settings.fontStyle === "bold"}_${tokenColor.settings.fontStyle === "italic"}`
+        const {
+            settings: { background, foreground, fontStyle },
+        } = tokenColor
+        const bg = `background-${background}`
+        const fg = `foreground-${foreground}`
+        const bold = `bold-${fontStyle && fontStyle.includes("bold")}`
+        const italic = `italic-${fontStyle && fontStyle.includes("italic")}`
+        return `${tokenColor.scope}_${bg}_${fg}_${bold}_${italic}`
     }
 }
