@@ -20,6 +20,47 @@ export class TokenScorer {
         support: 1,
     }
 
+    /**
+     *  If more than one scope selector matches the current scope then they are ranked
+     *  according to how “good” a match they each are. The winner is the scope selector
+     *  which (in order of precedence):
+     *  1. Match the element deepest down in the scope e.g.
+     *    string wins over source.php when the scope is source.php string.quoted.
+     *  2. Match most of the deepest element e.g. string.quoted wins over string.
+     *  3. Rules 1 and 2 applied again to the scope selector when removing the deepest element
+     *    (in the case of a tie), e.g. text source string wins over source string.
+     *
+     * Reference: https://macromates.com/manual/en/scope_selectors
+     */
+    public rankTokenScopes(scopes: string[], themeColors: TokenColor[]): TokenColor {
+        const initialRanking: TokenRanking = { highestRankedToken: null, depth: null }
+        const { highestRankedToken } = scopes.reduce((highestSoFar, scope) => {
+            if (this._isBannedScope(scope)) {
+                return highestSoFar
+            }
+
+            const matchingToken = this._getMatchingToken(scope, themeColors)
+
+            if (!matchingToken) {
+                return highestSoFar
+            }
+
+            const depth = scope.split(".").length
+            if (depth === highestSoFar.depth) {
+                const highestPrecedence = this._determinePrecedence(
+                    matchingToken,
+                    highestSoFar.highestRankedToken,
+                )
+                return { highestRankedToken: highestPrecedence, depth }
+            }
+            if (depth > highestSoFar.depth) {
+                return { highestRankedToken: matchingToken, depth }
+            }
+            return highestSoFar
+        }, initialRanking)
+        return highestRankedToken || null
+    }
+
     private _isBannedScope = (scope: string) => {
         return this._BANNED_TOKENS.some(token => scope.includes(token))
     }
@@ -37,7 +78,7 @@ export class TokenScorer {
 
     // Assign each token a priority based on `SCOPE_PRIORITIES` and then sort by priority
     // take the first aka the highest priority one
-    private _determinePrecence(...tokens: TokenColor[]): TokenColor {
+    private _determinePrecedence(...tokens: TokenColor[]): TokenColor {
         const [{ token }] = tokens
             .map(this._getPriority)
             .sort((prev, next) => next.priority - prev.priority)
@@ -58,45 +99,5 @@ export class TokenScorer {
         }
         const currentScope = parts.slice(0, parts.length - 1).join(".")
         return this._getMatchingToken(currentScope, theme)
-    }
-
-    /** If more than one scope selector matches the current scope then they are ranked
-     * according to how “good” a match they each are. The winner is the scope selector
-     * which (in order of precedence):
-     * 1. Match the element deepest down in the scope e.g.
-     *    string wins over source.php when the scope is source.php string.quoted.
-     * 2. Match most of the deepest element e.g. string.quoted wins over string.
-     * 3. Rules 1 and 2 applied again to the scope selector when removing the deepest element
-     *    (in the case of a tie), e.g. text source string wins over source string.
-     *
-     * Reference: https://macromates.com/manual/en/scope_selectors
-     */
-    public rankTokenScopes(scopes: string[], themeColors: TokenColor[]): TokenColor {
-        const initialRanking: TokenRanking = { highestRankedToken: null, depth: null }
-        const { highestRankedToken } = scopes.reduce((highestSoFar, scope) => {
-            if (this._isBannedScope(scope)) {
-                return highestSoFar
-            }
-
-            const matchingToken = this._getMatchingToken(scope, themeColors)
-
-            if (!matchingToken) {
-                return highestSoFar
-            }
-
-            const depth = scope.split(".").length
-            if (depth === highestSoFar.depth) {
-                const highestPrecedence = this._determinePrecence(
-                    matchingToken,
-                    highestSoFar.highestRankedToken,
-                )
-                return { highestRankedToken: highestPrecedence, depth }
-            }
-            if (depth > highestSoFar.depth) {
-                return { highestRankedToken: matchingToken, depth }
-            }
-            return highestSoFar
-        }, initialRanking)
-        return highestRankedToken || null
     }
 }
