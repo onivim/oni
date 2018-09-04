@@ -49,6 +49,9 @@ export class TokenScorer {
     // and search the theme colors for a match
     private _getMatchingToken(scope: string, theme: TokenColor[]): TokenColor {
         const parts = scope.split(".")
+        if (parts.length < 2) {
+            return null
+        }
         const matchingToken = theme.find(color => color.scope === scope)
         if (matchingToken) {
             return matchingToken
