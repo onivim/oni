@@ -2,7 +2,7 @@ import { EventEmitter } from "events"
 
 import { IScreen } from "./../neovim"
 
-const SCROLL_THRESHOLD_IN_PIXELS = 100
+const SCROLL_THRESHOLD_IN_PIXELS = 10
 
 // TODO
 // Handle modifier keys
