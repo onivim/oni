@@ -52,11 +52,9 @@ export class NeovimTokenColorSynchronizer {
 
         const filteredHighlights = highlightsToAdd.filter(hl => !!hl)
 
-        const atomicCalls = filteredHighlights.map(hlCommand => {
-            return ["nvim_command", [hlCommand]]
-        })
+        const atomicCalls = filteredHighlights.map(hlCommand => ["nvim_command", [hlCommand]])
 
-        if (!atomicCalls) {
+        if (!atomicCalls.length) {
             return
         }
 
