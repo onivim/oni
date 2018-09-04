@@ -26,6 +26,9 @@ import * as Selectors from "./SyntaxHighlightSelectors"
 // window and viewport
 export class SyntaxHighlightReconciler {
     private _previousState: { [line: number]: ISyntaxHighlightLineInfo } = {}
+    // meta tokens are not intended for syntax highlighting but for other types of plugins
+    // see: https://www.sublimetext.com/docs/3/scope_naming.html
+    private _BANNED_TOKEN = "meta"
 
     constructor(private _editor: NeovimEditor, private _tokenColors: TokenColors) {}
 
@@ -110,6 +113,10 @@ export class SyntaxHighlightReconciler {
         }
     }
 
+    private _isBannedToken = (token: TokenColor) => {
+        return !token.scope.includes(this._BANNED_TOKEN)
+    }
+
     private _mapTokensToHighlights(tokens: ISyntaxHighlightTokenInfo[]): HighlightInfo[] {
         const mapTokenToHighlight = (token: ISyntaxHighlightTokenInfo) => ({
             tokenColor: this._getHighlightGroupFromScope(token.scopes),
@@ -125,7 +132,7 @@ export class SyntaxHighlightReconciler {
         for (const scope of scopes) {
             const matchingRule = configurationColors.find(color => color.scope === scope)
 
-            if (matchingRule) {
+            if (matchingRule && this._isBannedToken(matchingRule)) {
                 // TODO: Convert to highlight group id
                 return matchingRule
             }
