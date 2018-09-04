@@ -47,18 +47,14 @@ export class TokenScorer {
     // if the lowest scope level doesn't match then we go up one level
     // i.e. constant.numeric.special -> constant.numeric
     // and search the theme colors for a match
-    private _getMatchingToken(scope: string, themeColors: TokenColor[]) {
+    private _getMatchingToken(scope: string, theme: TokenColor[]): TokenColor {
         const parts = scope.split(".")
-        let currentScope = scope
-        let matchingToken = null
-        for (const _ in parts) {
-            matchingToken = themeColors.find(color => color.scope === currentScope)
-            if (matchingToken) {
-                break
-            }
-            currentScope = parts.slice(0, parts.length - 1).join(".")
+        const matchingToken = theme.find(color => color.scope === scope)
+        if (matchingToken) {
+            return matchingToken
         }
-        return matchingToken
+        const currentScope = parts.slice(0, parts.length - 1).join(".")
+        return this._getMatchingToken(currentScope, theme)
     }
 
     /** If more than one scope selector matches the current scope then they are ranked
