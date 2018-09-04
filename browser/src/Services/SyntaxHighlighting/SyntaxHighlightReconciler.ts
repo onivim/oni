@@ -16,13 +16,9 @@ import {
     ISyntaxHighlightState,
     ISyntaxHighlightTokenInfo,
 } from "./SyntaxHighlightingStore"
+import { TokenScorer } from "./TokenScorer"
 
 import * as Selectors from "./SyntaxHighlightSelectors"
-
-interface TokenRanking {
-    depth: number
-    highestRankedToken: TokenColor
-}
 
 // SyntaxHighlightReconciler
 //
@@ -31,12 +27,7 @@ interface TokenRanking {
 // window and viewport
 export class SyntaxHighlightReconciler {
     private _previousState: { [line: number]: ISyntaxHighlightLineInfo } = {}
-    // meta tokens are not intended for syntax highlighting but for other types of plugins
-    // see: https://www.sublimetext.com/docs/3/scope_naming.html
-    private _BANNED_TOKEN = "meta"
-    private readonly _SCOPE_PRIORITIES = {
-        support: 1,
-    }
+    private _tokenScorer = new TokenScorer()
 
     constructor(private _editor: NeovimEditor, private _tokenColors: TokenColors) {}
 
@@ -120,10 +111,6 @@ export class SyntaxHighlightReconciler {
         }
     }
 
-    private _isBannedScope = (scope: string) => {
-        return scope.includes(this._BANNED_TOKEN)
-    }
-
     private _mapTokensToHighlights(tokens: ISyntaxHighlightTokenInfo[]): HighlightInfo[] {
         const mapTokenToHighlight = (token: ISyntaxHighlightTokenInfo) => ({
             tokenColor: this._getHighlightGroupFromScope(token.scopes),
@@ -133,69 +120,9 @@ export class SyntaxHighlightReconciler {
         return tokens.map(mapTokenToHighlight).filter(t => !!t.tokenColor)
     }
 
-    private _getPriority = (token: TokenColor) => {
-        const priorities = Object.keys(this._SCOPE_PRIORITIES)
-        return priorities.reduce(
-            (acc, priority) =>
-                token.scope.includes(priority) && this._SCOPE_PRIORITIES[priority] < acc.priority
-                    ? { priority: this._SCOPE_PRIORITIES[priority], token }
-                    : acc,
-            { priority: 0, token },
-        )
-    }
-
-    // Assign each token a priority based on `SCOPE_PRIORITIES` and then sort by priority
-    // take the first aka the highest priority one
-    private _determinePrecence(...tokens: TokenColor[]): TokenColor {
-        const [{ token }] = tokens
-            .map(this._getPriority)
-            .sort((prev, next) => next.priority - prev.priority)
-        return token
-    }
-
-    /** If more than one scope selector matches the current scope then they are ranked
-     * according to how “good” a match they each are. The winner is the scope selector
-     * which (in order of precedence):
-     * 1. Match the element deepest down in the scope e.g.
-     *    string wins over source.php when the scope is source.php string.quoted.
-     * 2. Match most of the deepest element e.g. string.quoted wins over string.
-     * 3. Rules 1 and 2 applied again to the scope selector when removing the deepest element
-     *    (in the case of a tie), e.g. text source string wins over source string.
-     *
-     * Reference: https://macromates.com/manual/en/scope_selectors
-     */
-    private _rankTokenScopes(scopes: string[], themeColors: TokenColor[]): TokenColor {
-        const { highestRankedToken } = scopes.reduce(
-            (highestSoFar, scope) => {
-                // TODO: if the lowest scope level doesn't match then we should
-                // go up one level aka constant.numeric.special -> constant.numeric
-                // and search the theme colors for a match
-                const matchingToken = themeColors.find(color => color.scope === scope)
-                if (this._isBannedScope(scope) || !matchingToken) {
-                    return highestSoFar
-                }
-
-                const depth = scope.split(".").length
-                if (depth === highestSoFar.depth) {
-                    const highestPrecedence = this._determinePrecence(
-                        matchingToken,
-                        highestSoFar.highestRankedToken,
-                    )
-                    return { highestRankedToken: highestPrecedence, depth }
-                }
-                if (depth > highestSoFar.depth) {
-                    return { highestRankedToken: matchingToken, depth }
-                }
-                return highestSoFar
-            },
-            { highestRankedToken: null, depth: null } as TokenRanking,
-        )
-        return highestRankedToken || null
-    }
-
     private _getHighlightGroupFromScope(scopes: string[]): TokenColor {
         const configurationColors = this._tokenColors.tokenColors
-        const highestRanked = this._rankTokenScopes(scopes, configurationColors)
+        const highestRanked = this._tokenScorer.rankTokenScopes(scopes, configurationColors)
         return highestRanked
     }
 }
