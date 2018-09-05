@@ -957,6 +957,7 @@
         "istanbul-api": "^1.2.1",
         "istanbul-lib-coverage": "^1.1.1",
         "jest": "^23.2.0",
+        "jest-styled-components": "^6.1.1",
         "jsdom": "11.0.0",
         "less": "2.7.1",
         "less-loader": "^4.1.0",

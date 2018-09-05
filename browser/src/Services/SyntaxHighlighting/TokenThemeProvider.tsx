@@ -237,13 +237,22 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
         const notPunctuation = !token.includes("punctuation")
         const tokenAsClass = token.replace(/[.]/g, "-")
         const tokenStyle = this.cssToken(theme, token)
-        const cssClass = `
-        .${tokenAsClass} {
-            color: ${tokenStyle("foreground")};
-            ${tokenStyle("italic") ? "font-style: italic" : ""};
-            ${tokenStyle("bold") && notPunctuation ? "font-weight: bold" : ""};
+        const foreground = tokenStyle("foreground")
+        const italics = tokenStyle("italic")
+        const bold = tokenStyle("bold")
+        const hasContent = foreground || italics || bold
+
+        if (!hasContent) {
+            return ""
         }
-    `
+
+        const cssClass = `
+            .${tokenAsClass} {
+                ${foreground ? `color: ${foreground}` : ""};
+                ${italics ? "font-style: italic" : ""};
+                ${bold && notPunctuation ? "font-weight: bold" : ""};
+            }
+        `
         return cssClass
     }
 

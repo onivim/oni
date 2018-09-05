@@ -1,13 +1,14 @@
 import * as React from "react"
 import { mount } from "enzyme"
+import "jest-styled-components"
 
 import TokenThemeProvider from "./../browser/src/Services/SyntaxHighlighting/TokenThemeProvider"
 import { TokenColor } from "./../browser/src/Services/TokenColors"
-import styled from "./../browser/src/UI/components/common"
+import styled, { css } from "./../browser/src/UI/components/common"
 
 const tokenColors: TokenColor[] = [
     {
-        scope: "string-quoted",
+        scope: "string.quoted",
         settings: {
             foreground: "green",
             background: "blue",
@@ -16,7 +17,7 @@ const tokenColors: TokenColor[] = [
     },
 ]
 
-const TestStyledComponent = styled<{ tokenStyles: any }, "div">("div")`
+const TestComponent = styled<{ tokenStyles: any }, "div">("div")`
     ${p => p.tokenStyles};
 `
 
@@ -24,6 +25,8 @@ describe("<TokenThemeProvider />", () => {
     const theme = {
         "editor.background": "black",
         "editor.foreground": "white",
+        "menu.background": "green",
+        "menu.foreground": "grey",
     }
 
     const component = (
@@ -31,9 +34,9 @@ describe("<TokenThemeProvider />", () => {
             theme={theme}
             tokenColors={tokenColors}
             render={props => (
-                <TestStyledComponent tokenStyles={props.styles}>
-                    {JSON.stringify(props.styles, null, 2)}
-                </TestStyledComponent>
+                <TestComponent tokenStyles={props.styles}>
+                    <span className="string-quoted">test text</span>
+                </TestComponent>
             )}
         />
     )
@@ -43,14 +46,10 @@ describe("<TokenThemeProvider />", () => {
         expect(wrapper.length).toBe(1)
     })
 
-    it("should get the correct token styles", () => {
+    it("should have the style rule of color green for the calls string-quoted", () => {
         const wrapper = mount(component)
-        expect(wrapper.find(TestStyledComponent).prop("tokenStyles")).toBeTruthy()
+        expect(wrapper.find(TestComponent)).toHaveStyleRule("color", "green", {
+            modifier: `.string-quoted`,
+        })
     })
-
-    // it("should have the correct classname for styling", () => {
-    //     const wrapper = mount(component)
-    //     console.log("wrapper.props(): ", wrapper.find(TestStyledComponent).props())
-    //     expect(wrapper.find(TestStyledComponent).hasClass("string-quoted")).toEqual(true)
-    // })
 })

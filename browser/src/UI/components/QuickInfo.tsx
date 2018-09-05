@@ -109,6 +109,7 @@ interface TitleProps {
     padding?: string
     tokenStyles?: Css
 }
+
 export const Title = withProps<TitleProps>(styled.div)`
     padding: ${p => p.padding || "0.7rem"};
     overflow: hidden;
