@@ -6,9 +6,10 @@ interface TokenRanking {
 }
 
 /**
- * Determines which syntax highlighting token should render for a given item
+ * Determines the correct token to render for a particular item
+ * in a line based on textmate highlighting rules
  * @name TokenScorer
- * @function
+ * @class
  */
 export class TokenScorer {
     /**
