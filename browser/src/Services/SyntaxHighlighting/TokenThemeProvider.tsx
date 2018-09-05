@@ -138,6 +138,8 @@ interface IGenerateTokenArgs {
     defaultTokens: TokenColor[]
 }
 
+type Style = "bold" | "italic" | "foreground" | "background"
+
 /**
  * **TokenThemeProvider** is a Render Prop
  * It is designed to be used to give UI components access to a
@@ -214,21 +216,27 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
      * if not it returns nothing or in the case of the foregroundColor it returns a default
      * @returns {string | undefined}
      */
-    public cssToken = (theme: INewTheme, token: string) => (property: string) => {
-        try {
-            const details = theme["editor.tokenColors.hoverTokens"][token]
-            if (property === "bold" || property === "italic") {
-                return details.fontStyle === property
-            }
-            return details[property]
-        } catch (e) {
-            if (property === "foreground") {
-                return theme["toolTip.foreground"]
-            }
+    public getCssRule = (
+        hoverTokens: INewTheme["editor.tokenColors.hoverTokens"],
+        token: string,
+        style: Style,
+    ): boolean | string | void => {
+        const details = hoverTokens[token]
+        if (!details) {
+            return
+        }
+
+        switch (style) {
+            case "italic":
+            case "bold":
+                return details.fontStyle === style
+            case "foreground":
+            default:
+                return details[style]
         }
     }
     /**
-     * Construct Class name is a function which takes a token
+     * Construct Class is a function which takes a token
      * and returns another function which takes the theme as an argument
      * with which it creates a css class based on the token name and returns this as a string
      * @returns {fn(theme) => string}
@@ -236,10 +244,16 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
     public constructClassName = (token: string) => (theme: INewTheme) => {
         const notPunctuation = !token.includes("punctuation")
         const tokenAsClass = token.replace(/[.]/g, "-")
-        const tokenStyle = this.cssToken(theme, token)
-        const foreground = tokenStyle("foreground")
-        const italics = tokenStyle("italic")
-        const bold = tokenStyle("bold")
+
+        const hoverTokens = theme["editor.tokenColors.hoverTokens"]
+
+        if (!hoverTokens || !(token in hoverTokens)) {
+            return ""
+        }
+
+        const foreground = this.getCssRule(hoverTokens, token, "foreground")
+        const italics = this.getCssRule(hoverTokens, token, "italic")
+        const bold = this.getCssRule(hoverTokens, token, "bold")
         const hasContent = foreground || italics || bold
 
         if (!hasContent) {

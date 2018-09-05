@@ -12,6 +12,14 @@ const tokenColors: TokenColor[] = [
         settings: {
             foreground: "green",
             background: "blue",
+            fontStyle: "bold italic",
+        },
+    },
+    {
+        scope: "entity.name.struct",
+        settings: {
+            foreground: "rebeccapurple",
+            background: "orange",
             fontStyle: "italic",
         },
     },
@@ -46,10 +54,21 @@ describe("<TokenThemeProvider />", () => {
         expect(wrapper.length).toBe(1)
     })
 
-    it("should have the style rule of color green for the calls string-quoted", () => {
-        const wrapper = mount(component)
-        expect(wrapper.find(TestComponent)).toHaveStyleRule("color", "green", {
-            modifier: `.string-quoted`,
-        })
-    })
+    test.each`
+      className                | cssRule         | result
+      ${".string-quoted"}      | ${"color"}      | ${"green"}
+      ${".string-quoted"}      | ${"font-style"} | ${"italic"}
+      ${".string-quoted"}      | ${"font-weight"}| ${"bold"}
+      ${".entity-name-struct"} | ${"color"}      | ${"rebeccapurple"}
+      ${".entity-name-struct"} | ${"font-style"} | ${"italic"}
+      ${".entity-name-struct"} | ${"font-weight"}| ${undefined}
+    `(
+        "returns $result when the style is $cssRule for $className",
+        ({ cssRule, result, className }) => {
+            const wrapper = mount(component)
+            expect(wrapper.find(TestComponent)).toHaveStyleRule(cssRule, result, {
+                modifier: className,
+            })
+        },
+    )
 })
