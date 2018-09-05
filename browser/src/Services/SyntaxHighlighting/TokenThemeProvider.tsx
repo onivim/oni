@@ -226,13 +226,16 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
             return
         }
 
+        const italicOrBold = details.fontStyle && details.fontStyle.includes(style)
+
         switch (style) {
             case "italic":
+                return italicOrBold ? "font-style: italic" : ""
             case "bold":
-                return details.fontStyle.includes(style)
+                return italicOrBold ? "font-weight: bold" : ""
             case "foreground":
             default:
-                return details[style]
+                return details[style] ? `color: ${details[style]}` : ""
         }
     }
     /**
@@ -242,7 +245,6 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
      * @returns {fn(theme) => string}
      */
     public constructClassName = (token: string) => (theme: INewTheme) => {
-        const notPunctuation = !token.includes("punctuation")
         const tokenAsClass = token.replace(/[.]/g, "-")
 
         const hoverTokens = theme["editor.tokenColors.hoverTokens"]
@@ -262,9 +264,9 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
 
         const cssClass = `
             .${tokenAsClass} {
-                ${foreground ? `color: ${foreground}` : ""};
-                ${italics ? "font-style: italic" : ""};
-                ${bold && notPunctuation ? "font-weight: bold" : ""};
+                ${bold};
+                ${italics};
+                ${foreground};
             }
         `
         return cssClass
