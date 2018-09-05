@@ -11,16 +11,20 @@ interface TokenRanking {
  * @function
  */
 export class TokenScorer {
-    // meta tokens are not intended for syntax highlighting but for other types of plugins
-    // source is a token that All tokens are given effectively giving it no value from the
-    // point of view of syntax highlighting as it distinguishes nothing
-    // see: https://www.sublimetext.com/docs/3/scope_naming.html
+    /**
+     * meta tokens are not intended for syntax highlighting but for other types of plugins
+     * source is a token that All items are given effectively giving it no value from the
+     * point of view of syntax highlighting as it distinguishes nothing
+     *
+     * see: https://www.sublimetext.com/docs/3/scope_naming.html
+     */
     private _BANNED_TOKENS = ["meta", "source"]
     private readonly _SCOPE_PRIORITIES = {
         support: 1,
     }
 
     /**
+     * rankTokenScopes
      *  If more than one scope selector matches the current scope then they are ranked
      *  according to how “good” a match they each are. The winner is the scope selector
      *  which (in order of precedence):
@@ -31,6 +35,12 @@ export class TokenScorer {
      *    (in the case of a tie), e.g. text source string wins over source string.
      *
      * Reference: https://macromates.com/manual/en/scope_selectors
+     *
+     * @name rankTokenScopes
+     * @function
+     * @param {string[]} scopes
+     * @param {TokenColor[]} themeColors
+     * @returns {TokenColor}
      */
     public rankTokenScopes(scopes: string[], themeColors: TokenColor[]): TokenColor {
         const initialRanking: TokenRanking = { highestRankedToken: null, depth: null }
@@ -76,8 +86,15 @@ export class TokenScorer {
         )
     }
 
-    // Assign each token a priority based on `SCOPE_PRIORITIES` and then sort by priority
-    // take the first aka the highest priority one
+    /**
+     * Assign each token a priority based on `SCOPE_PRIORITIES` and then
+     * sort by priority take the first aka the highest priority one
+     *
+     * @name _determinePrecedence
+     * @function
+     * @param {TokenColor[]} ...tokens
+     * @returns {TokenColor}
+     */
     private _determinePrecedence(...tokens: TokenColor[]): TokenColor {
         const [{ token }] = tokens
             .map(this._getPriority)
@@ -85,9 +102,17 @@ export class TokenScorer {
         return token
     }
 
-    // if the lowest scope level doesn't match then we go up one level
-    // i.e. constant.numeric.special -> constant.numeric
-    // and search the theme colors for a match
+    /**
+     * if the lowest scope level doesn't match then we go up one level
+     * i.e. constant.numeric.special -> constant.numeric
+     * and search the theme colors for a match
+     *
+     * @name _getMatchingToken
+     * @function
+     * @param {string} scope
+     * @param {TokenColor[]} theme
+     * @returns {TokenColor}
+     */
     private _getMatchingToken(scope: string, theme: TokenColor[]): TokenColor {
         const parts = scope.split(".")
         if (parts.length < 2) {

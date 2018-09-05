@@ -20,7 +20,7 @@ const setFontStyle = (highlight: IVimHighlight) => {
         case highlight.bold && !highlight.italic:
             return "bold"
         case !highlight.bold && highlight.italic:
-            return "bold"
+            return "italic"
         case highlight.bold && highlight.italic:
             return "bold italic"
         case !highlight.bold && !highlight.italic:
