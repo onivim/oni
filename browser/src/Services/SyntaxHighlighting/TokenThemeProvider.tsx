@@ -214,16 +214,17 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
     /**
      * Provides a check that a token exists and has valid values
      * if not it returns nothing or in the case of the foregroundColor it returns a default
-     * @returns {string | undefined}
+     * @returns {string}
      */
     public getCssRule = (
         hoverTokens: INewTheme["editor.tokenColors.hoverTokens"],
         token: string,
         style: Style,
-    ): boolean | string | void => {
+    ) => {
         const details = hoverTokens[token]
+
         if (!details) {
-            return
+            return ""
         }
 
         const italicOrBold = details.fontStyle && details.fontStyle.includes(style)
