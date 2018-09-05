@@ -3,27 +3,24 @@ import { mount } from "enzyme"
 
 import TokenThemeProvider from "./../browser/src/Services/SyntaxHighlighting/TokenThemeProvider"
 import { TokenColor } from "./../browser/src/Services/TokenColors"
+import styled from "./../browser/src/UI/components/common"
 
-jest.mock("./../browser/src/Services/TokenColors", () => ({
-    getInstance: () => ({
-        tokenColors: [
-            {
-                scope: "string",
-                settings: {
-                    foreground: "green",
-                    background: "blue",
-                    fontStyle: "italic",
-                },
-            },
-        ],
-    }),
-}))
+const tokenColors: TokenColor[] = [
+    {
+        scope: "string-quoted",
+        settings: {
+            foreground: "green",
+            background: "blue",
+            fontStyle: "italic",
+        },
+    },
+]
+
+const TestStyledComponent = styled<{ tokenStyles: any }, "div">("div")`
+    ${p => p.tokenStyles};
+`
 
 describe("<TokenThemeProvider />", () => {
-    const TestElement: React.SFC<{ tokenStyles: any }> = props => (
-        <div>{JSON.stringify(props.tokenStyles, null, 2)}</div>
-    )
-
     const theme = {
         "editor.background": "black",
         "editor.foreground": "white",
@@ -32,7 +29,12 @@ describe("<TokenThemeProvider />", () => {
     const component = (
         <TokenThemeProvider
             theme={theme}
-            render={({ styles }) => <TestElement tokenStyles={styles}>"text"</TestElement>}
+            tokenColors={tokenColors}
+            render={props => (
+                <TestStyledComponent tokenStyles={props.styles}>
+                    {JSON.stringify(props.styles, null, 2)}
+                </TestStyledComponent>
+            )}
         />
     )
 
@@ -40,4 +42,15 @@ describe("<TokenThemeProvider />", () => {
         const wrapper = mount(component)
         expect(wrapper.length).toBe(1)
     })
+
+    it("should get the correct token styles", () => {
+        const wrapper = mount(component)
+        expect(wrapper.find(TestStyledComponent).prop("tokenStyles")).toBeTruthy()
+    })
+
+    // it("should have the correct classname for styling", () => {
+    //     const wrapper = mount(component)
+    //     console.log("wrapper.props(): ", wrapper.find(TestStyledComponent).props())
+    //     expect(wrapper.find(TestStyledComponent).hasClass("string-quoted")).toEqual(true)
+    // })
 })

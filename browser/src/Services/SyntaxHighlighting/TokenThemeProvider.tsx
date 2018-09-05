@@ -1,11 +1,7 @@
 import * as React from "react"
 import { css, ThemeProvider, withTheme } from "styled-components"
 
-import {
-    getInstance as TokenColorsInstance,
-    TokenColor,
-    TokenColorStyle,
-} from "./../../Services/TokenColors"
+import { TokenColor, TokenColorStyle } from "./../../Services/TokenColors"
 import { Css, IThemeColors } from "./../../UI/components/common"
 
 /**
@@ -154,10 +150,6 @@ interface IGenerateTokenArgs {
  * of defaults as props
  */
 class TokenThemeProvider extends React.Component<IProps, IState> {
-    public static defaultProps: Partial<IProps> = {
-        tokenColors: TokenColorsInstance().tokenColors,
-    }
-
     public state: IState = {
         styles: null,
         theme: this.props.theme,

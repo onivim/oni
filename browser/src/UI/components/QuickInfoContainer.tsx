@@ -3,6 +3,7 @@ import * as React from "react"
 import { QuickInfoContainer, QuickInfoDocumentation, QuickInfoTitle } from "./QuickInfo"
 
 import TokenThemeProvider from "./../../Services/SyntaxHighlighting/TokenThemeProvider"
+import { getInstance as TokenColorsInstance } from "./../../Services/TokenColors"
 
 interface IQuickInfoProps {
     titleAndContents: ITitleAndContents
@@ -20,6 +21,7 @@ interface ITitleAndContents {
 
 class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
     public render() {
+        const { tokenColors } = TokenColorsInstance()
         const { titleAndContents, isVisible } = this.props
         const hasTitle = !!(titleAndContents && titleAndContents.title.__html)
         const hasDocs =
@@ -33,6 +35,7 @@ class QuickInfoHoverContainer extends React.Component<IQuickInfoProps> {
         return (
             isVisible && (
                 <TokenThemeProvider
+                    tokenColors={tokenColors}
                     render={({ styles }) => (
                         <QuickInfoContainer hasDocs={hasDocs}>
                             <QuickInfoTitle
