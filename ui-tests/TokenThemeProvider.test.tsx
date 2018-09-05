@@ -63,7 +63,7 @@ describe("<TokenThemeProvider />", () => {
       ${".entity-name-struct"} | ${"font-style"} | ${"italic"}
       ${".entity-name-struct"} | ${"font-weight"}| ${undefined}
     `(
-        "returns $result when the style is $cssRule for $className",
+        "the TokenThemeProvider returns a nested class rule with a style of $cssRule with a value of $result for $className",
         ({ cssRule, result, className }) => {
             const wrapper = mount(component)
             expect(wrapper.find(TestComponent)).toHaveStyleRule(cssRule, result, {
