@@ -229,7 +229,7 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
         switch (style) {
             case "italic":
             case "bold":
-                return details.fontStyle === style
+                return details.fontStyle.includes(style)
             case "foreground":
             default:
                 return details[style]
