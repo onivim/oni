@@ -126,9 +126,10 @@ interface RenderProps {
 }
 
 interface IProps {
-    render: (s: RenderProps) => React.ReactElement<RenderProps>
+    render: (s: RenderProps) => React.ReactElement<RenderProps> | React.ReactNode
     theme: INewTheme
     defaultMap?: IDefaultMap
+    tokenColors?: TokenColor[]
 }
 
 interface IState {
@@ -153,19 +154,22 @@ interface IGenerateTokenArgs {
  * of defaults as props
  */
 class TokenThemeProvider extends React.Component<IProps, IState> {
+    public static defaultProps: Partial<IProps> = {
+        tokenColors: TokenColorsInstance().tokenColors,
+    }
+
     public state: IState = {
         styles: null,
         theme: this.props.theme,
     }
+
     public flattenedDefaults = Object.values(defaultsToMap).reduce((acc, a) => [...acc, ...a], [])
 
-    private tokenColors = TokenColorsInstance().tokenColors
-
     public componentDidMount() {
-        const themeTokenNames = this.convertTokenNamesToClasses(this.tokenColors)
+        const themeTokenNames = this.convertTokenNamesToClasses(this.props.tokenColors)
         const tokensToHightlight = [...themeTokenNames, ...this.flattenedDefaults]
         const styles = this.constructStyles(tokensToHightlight)
-        const editorTokens = this.createThemeFromTokens(this.tokenColors)
+        const editorTokens = this.createThemeFromTokens(this.props.tokenColors)
 
         const theme = { ...this.props.theme, ...editorTokens }
         this.setState({ theme, styles })
@@ -173,7 +177,7 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
 
     public createThemeFromTokens(tokens: TokenColor[]) {
         const combinedThemeAndDefaultTokens = this.generateTokens({
-            defaultTokens: this.tokenColors,
+            defaultTokens: this.props.tokenColors,
         })
         const tokenColorsMap = combinedThemeAndDefaultTokens.reduce(
             (theme, token) => {
@@ -192,7 +196,9 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
 
     public generateTokens({ defaultMap = defaultsToMap, defaultTokens }: IGenerateTokenArgs) {
         const newTokens = Object.keys(defaultMap).reduce((acc, defaultTokenName) => {
-            const defaultToken = this.tokenColors.find(token => token.scope === defaultTokenName)
+            const defaultToken = this.props.tokenColors.find(
+                token => token.scope === defaultTokenName,
+            )
             if (defaultToken) {
                 const tokens = defaultMap[defaultTokenName].map(name =>
                     this.generateSingleToken(name, defaultToken),
@@ -201,7 +207,7 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
             }
             return acc
         }, [])
-        return [...newTokens, ...this.tokenColors]
+        return [...newTokens, ...this.props.tokenColors]
     }
 
     public generateSingleToken(name: string, { settings }: TokenColor) {
