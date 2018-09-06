@@ -46,7 +46,7 @@ export class CommandManager implements ITaskProvider {
         this._commandDictionary = {}
     }
 
-    //NOTE: Arrow function here preserves the "this" binding of this method
+    // NOTE: Arrow function here preserves the "this" binding of this method
     public registerCommand = (command: Oni.Commands.ICommand): void => {
         if (this._commandDictionary[command.command]) {
             Log.verbose(`Overwriting existing command: ${command.command}`)
