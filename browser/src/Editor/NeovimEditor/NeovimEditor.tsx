@@ -97,6 +97,9 @@ import WildMenu from "./../../UI/components/WildMenu"
 import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
 import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
+import NeovimCompletionsRequestor, {
+    INeovimWithCompletions,
+} from "../../Services/Completion/NeovimCompletionsRequestor"
 
 type NeovimError = [number, string]
 
@@ -727,6 +730,13 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             this._languageIntegration.onHideDefinition.subscribe(definition => {
                 this._actions.hideDefinition()
             }),
+        )
+
+        const neovimCompletion = new NeovimCompletionsRequestor(this
+            .neovim as INeovimWithCompletions)
+        this._completionProviders.registerCompletionProvider(
+            "oni.completions.neovim",
+            neovimCompletion,
         )
 
         this._commands = new NeovimEditorCommands(
