@@ -18,6 +18,10 @@ describe("<Tabs /> Tests", () => {
         render: () => props.children,
     }))
 
+    const testTheme: any = {
+        "highlight.mode.normal.background": "green",
+    }
+
     const tabCloseFunction = jest.fn()
     const tabSelectFunction = jest.fn()
 
@@ -221,7 +225,7 @@ describe("<Tabs /> Tests", () => {
 
     it("should have a transparent border if not selected", () => {
         const highlight = getHighlightColor({
-            theme: { "highlight.mode.normal.background": "green" } as any,
+            theme: testTheme,
             isSelected: false,
             shouldShowHighlight: true,
             mode: "normal",
@@ -231,7 +235,7 @@ describe("<Tabs /> Tests", () => {
 
     it("should highlight the active tab with the mode color", () => {
         const highlight = getHighlightColor({
-            theme: { "highlight.mode.normal.background": "green" } as any,
+            theme: testTheme,
             isSelected: true,
             shouldShowHighlight: true,
             mode: "normal",
@@ -241,7 +245,7 @@ describe("<Tabs /> Tests", () => {
 
     it("should highlight the active tab with the normal mode color if the mode is a commandline mode", () => {
         const highlight = getHighlightColor({
-            theme: { "highlight.mode.normal.background": "green" } as any,
+            theme: testTheme,
             isSelected: true,
             shouldShowHighlight: true,
             mode: "cmdline_normal",
