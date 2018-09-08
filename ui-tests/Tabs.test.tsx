@@ -20,6 +20,7 @@ describe("<Tabs /> Tests", () => {
 
     const testTheme: any = {
         "highlight.mode.normal.background": "green",
+        "highlight.mode.insert.background": "blue",
     }
 
     const tabCloseFunction = jest.fn()
@@ -250,6 +251,18 @@ describe("<Tabs /> Tests", () => {
             shouldShowHighlight: true,
             mode: "cmdline_normal",
         })
+
         expect(highlight).toBe("green")
+    })
+
+    it("should highlight the active tab with the normal mode color if the mode is in showmatch mode", () => {
+        const highlight = getHighlightColor({
+            theme: testTheme,
+            isSelected: true,
+            shouldShowHighlight: true,
+            mode: "showmatch",
+        })
+
+        expect(highlight).toBe("blue")
     })
 })
