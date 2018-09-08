@@ -600,8 +600,6 @@
         "build:cli": "cd cli && tsc -p tsconfig.json",
         "build:plugin:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && yarn run build",
         "build:plugin:oni-plugin-git": "cd vim/core/oni-plugin-git && yarn run build",
-        "build:plugin:oni-plugin-bookmarks-menu":
-            "cd extensions/oni-plugin-bookmarks-menu && yarn run build",
         "build:plugin:oni-plugin-markdown-preview":
             "cd extensions/oni-plugin-markdown-preview && yarn run build",
         "build:plugin:oni-plugin-quickopen": "cd extensions/oni-plugin-quickopen && yarn run build",
@@ -675,8 +673,7 @@
         "watch:browser":
             "webpack-dev-server --config browser/webpack.development.config.js --host localhost --port 8191",
         "watch:plugins": "run-p --race watch:plugins:*",
-        "watch:plugins:oni-plugin-bookmarks-menu":
-            "cd extensions/oni-plugin-bookmarks-menu && tsc --watch",
+        "watch:plugins:oni-plugin-quickopen": "cd extensions/oni-plugin-quickopen && tsc --watch",
         "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
         "watch:plugins:oni-plugin-markdown-preview":
             "cd extensions/oni-plugin-markdown-preview && tsc --watch",
@@ -687,6 +684,8 @@
         "install:plugins:oni-plugin-prettier":
             "cd extensions/oni-plugin-prettier && yarn install --prod",
         "install:plugins:oni-plugin-git": "cd vim/core/oni-plugin-git && yarn install --prod",
+        "install:plugins:oni-plugin-quickopen":
+            "cd extensions/oni-plugin-quickopen && yarn install --prod",
         "postinstall": "yarn run install:plugins && electron-rebuild && opencollective postinstall",
         "profile:webpack":
             "webpack --config browser/webpack.production.config.js --profile --json > stats.json && webpack-bundle-analyzer browser/stats.json"
@@ -780,7 +779,7 @@
         "cross-env": "3.1.3",
         "css-loader": "0.28.4",
         "detect-indent": "^5.0.0",
-        "electron": "2.0.2",
+        "electron": "2.0.8",
         "electron-builder": "^20.5.1",
         "electron-devtools-installer": "^2.2.3",
         "electron-mocha": "5.0.0",

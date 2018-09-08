@@ -39,8 +39,9 @@ class BookmarkSearch implements IAsyncSearch {
     private _onSearchResults = new Event<QuickOpenResult>()
     private _bookmarkItems: QuickOpenItem[]
 
-    constructor(oni: Oni.Plugin.Api) {
-        const bookmarks = oni.configuration.getValue<string[]>("oni.bookmarks", [])
+    constructor(private _oni: Oni.Plugin.Api) {
+        console.log("_oni: ", _oni)
+        const bookmarks = this._oni.configuration.getValue<string[]>("oni.bookmarks", [])
 
         // TODO: Consider adding folders as well (recursive async with ignores/excludes)
 
@@ -220,7 +221,7 @@ export class QuickOpen {
             this._searcher.cancel()
         })
 
-        this._menu.onFilterTextChanged.subscribe((newFilter: any) => {
+        this._menu.onFilterTextChanged.subscribe(newFilter => {
             if (this._menu.isOpen()) {
                 const timeout = window.setTimeout(() => {
                     this._menu.setLoading(true)
@@ -234,7 +235,7 @@ export class QuickOpen {
             }
         })
 
-        this._menu.onItemSelected.subscribe((selectedItem: any) => {
+        this._menu.onItemSelected.subscribe(() => {
             this.open(this.getDefaultOpenMode())
         })
     }
@@ -315,25 +316,25 @@ export class QuickOpen {
         this._menu.hide()
     }
 
-    public async setToQuickFix() {
+    public setToQuickFix = async () => {
         this._oni.populateQuickFix(this._itemsFound.map(item => item.toQuickFixItem()))
         this._menu.hide()
     }
 
-    public openFileWithAltAction(): void {
+    public openFileWithAltAction = () => {
         const mode: Oni.FileOpenMode = this._oni.configuration.getValue(
             "editor.quickOpen.alternativeOpenMode",
         )
         this.open(mode)
     }
 
-    public async searchFileByContent() {
+    public searchFileByContent = async () => {
         const filterName = "none" // TODO: Use a filter like `regex` (needs a few adjustments)
         const searcher = new FileContentSearch(this._oni)
         await this.search(searcher, filterName)
     }
 
-    public async searchFileByPath() {
+    public searchFileByPath = async () => {
         const filterName = this._oni.configuration.getValue<string>(
             "editor.quickOpen.filterStrategy",
             "vscode",
@@ -344,12 +345,16 @@ export class QuickOpen {
         await this.search(searchEngine, filterName)
     }
 
-    public async showBufferLines() {
+    public showBufferLines = async () => {
         const lines = await this._oni.editors.activeEditor.activeBuffer.getLines()
         await this.search(new BufferLinesSearch(this._oni, lines), "fuse")
     }
 
-    private async search(searcher: IAsyncSearch, filterName: string) {
+    public showBookmarks = async () => {
+        await this.search(new BookmarkSearch(this._oni), "vscode")
+    }
+
+    private search = async (searcher: IAsyncSearch, filterName: string) => {
         this._searcher.cancel()
         const filterFunction = this._oni.filter.getByName(filterName)
         this._menu.setFilterFunction(filterFunction)
