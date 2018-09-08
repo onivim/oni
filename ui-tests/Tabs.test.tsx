@@ -7,7 +7,7 @@ import { FileIcon } from "../browser/src/Services/FileIcon"
 jest.mock("../browser/src/UI/components/Sneakable")
 import { Sneakable } from "../browser/src/UI/components/Sneakable"
 
-import { Corner, Name, Tab, Tabs } from "../browser/src/UI/components/Tabs"
+import { Corner, getHighlightColor, Name, Tab, Tabs } from "../browser/src/UI/components/Tabs"
 
 const MockFileIcon = FileIcon as jest.Mock<{}>
 const MockSneakable = Sneakable as jest.Mock<Sneakable>
@@ -77,6 +77,20 @@ describe("<Tabs /> Tests", () => {
         <Tabs
             fontSize="1.2em"
             shouldShowHighlight
+            mode="normal"
+            maxWidth="20em"
+            height="2em"
+            fontFamily="inherit"
+            shouldWrap={false}
+            visible={false}
+            tabs={[tab1]}
+        />
+    )
+
+    const unfocusedTab = (
+        <Tabs
+            fontSize="1.2em"
+            shouldShowHighlight={false}
             mode="normal"
             maxWidth="20em"
             height="2em"
@@ -203,5 +217,35 @@ describe("<Tabs /> Tests", () => {
         expect(fileIcon.props().fileName).toEqual(tab.props().iconFileName)
 
         wrapper.unmount()
+    })
+
+    it("should have a transparent border if not selected", () => {
+        const highlight = getHighlightColor({
+            theme: { "highlight.mode.normal.background": "green" } as any,
+            isSelected: false,
+            shouldShowHighlight: true,
+            mode: "normal",
+        })
+        expect(highlight).toBe("transparent")
+    })
+
+    it("should highlight the active tab with the mode color", () => {
+        const highlight = getHighlightColor({
+            theme: { "highlight.mode.normal.background": "green" } as any,
+            isSelected: true,
+            shouldShowHighlight: true,
+            mode: "normal",
+        })
+        expect(highlight).toBe("green")
+    })
+
+    it("should highlight the active tab with the normal mode color if the mode is a commandline mode", () => {
+        const highlight = getHighlightColor({
+            theme: { "highlight.mode.normal.background": "green" } as any,
+            isSelected: true,
+            shouldShowHighlight: true,
+            mode: "cmdline_normal",
+        })
+        expect(highlight).toBe("green")
     })
 })
