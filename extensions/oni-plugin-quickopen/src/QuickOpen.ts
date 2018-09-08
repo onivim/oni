@@ -4,16 +4,17 @@ import * as path from "path"
 import * as Oni from "oni-api"
 import { Event, IEvent } from "oni-types"
 
+import BookmarkSearch from "./BookmarksSearch"
 import { getTypeFromMenuItem, QuickOpenItem, QuickOpenType } from "./QuickOpenItem"
 
 type CreateQuery = (text: string) => Oni.Search.Query
 
-interface QuickOpenResult {
+export interface QuickOpenResult {
     items: QuickOpenItem[]
     isComplete: boolean
 }
 
-interface IAsyncSearch {
+export interface IAsyncSearch {
     cancel(): void
     changeQueryText(newText): void
     onSearchResults: IEvent<QuickOpenResult>
@@ -28,41 +29,6 @@ class NullSearch implements IAsyncSearch {
 
     public changeQueryText(newText): void {
         return undefined
-    }
-
-    public get onSearchResults(): IEvent<QuickOpenResult> {
-        return this._onSearchResults
-    }
-}
-
-class BookmarkSearch implements IAsyncSearch {
-    private _onSearchResults = new Event<QuickOpenResult>()
-    private _bookmarkItems: QuickOpenItem[]
-
-    constructor(private _oni: Oni.Plugin.Api) {
-        console.log("_oni: ", _oni)
-        const bookmarks = this._oni.configuration.getValue<string[]>("oni.bookmarks", [])
-
-        // TODO: Consider adding folders as well (recursive async with ignores/excludes)
-
-        this._bookmarkItems = [
-            new QuickOpenItem("Open Folder", "", QuickOpenType.folderHelp),
-            ...bookmarks.map(f => new QuickOpenItem(f, "", QuickOpenType.bookmark)),
-            new QuickOpenItem(
-                "Open configuration",
-                "For adding a bookmark",
-                QuickOpenType.bookmarkHelp,
-            ),
-        ]
-    }
-
-    public cancel(): void {}
-
-    public changeQueryText(newText): void {
-        this._onSearchResults.dispatch({
-            items: this._bookmarkItems,
-            isComplete: true,
-        })
     }
 
     public get onSearchResults(): IEvent<QuickOpenResult> {
@@ -137,14 +103,14 @@ class FilePathSearch implements IAsyncSearch {
         return this._onSearchResults
     }
 
-    private static toQuickOpenItem(i: Oni.Search.ResultItem): QuickOpenItem {
+    private static toQuickOpenItem(item: Oni.Search.ResultItem): QuickOpenItem {
         return new QuickOpenItem(
-            path.basename(i.fileName),
-            path.dirname(i.fileName),
+            path.basename(item.fileName),
+            path.dirname(item.fileName),
             QuickOpenType.file,
-            i.fileName,
-            i.line,
-            i.column,
+            item.fileName,
+            item.line,
+            item.column,
         )
     }
 }
@@ -192,14 +158,14 @@ class FileContentSearch implements IAsyncSearch {
         return this._onSearchResults
     }
 
-    private static toQuickOpenItem(i: Oni.Search.ResultItem): QuickOpenItem {
+    private static toQuickOpenItem(item: Oni.Search.ResultItem): QuickOpenItem {
         return new QuickOpenItem(
-            i.text,
-            path.basename(i.fileName),
+            item.text,
+            path.basename(item.fileName),
             QuickOpenType.file,
-            i.fileName,
-            i.line,
-            i.column,
+            item.fileName,
+            item.line,
+            item.column,
         )
     }
 }
@@ -213,6 +179,7 @@ export class QuickOpen {
     private _searcher: IAsyncSearch = new NullSearch()
     private _seenItems: Set<string> = new Set()
     private _itemsFound: QuickOpenItem[] = []
+    private _bookmarksSearch: BookmarkSearch
 
     constructor(private _oni: Oni.Plugin.Api) {
         this._menu = _oni.menu.create()
@@ -220,6 +187,8 @@ export class QuickOpen {
         this._menu.onHide.subscribe(() => {
             this._searcher.cancel()
         })
+
+        this._bookmarksSearch = new BookmarkSearch(this._oni)
 
         this._menu.onFilterTextChanged.subscribe(newFilter => {
             if (this._menu.isOpen()) {
@@ -285,10 +254,10 @@ export class QuickOpen {
             }
 
             case QuickOpenType.bookmark: {
-                // For a file, open it's dirname
-                // For a directory, open it
-                const dirPath = lstatSync(fullPath).isDirectory() ? fullPath : selectedItem.detail
-                this._oni.workspace.changeDirectory(dirPath)
+                await this._bookmarksSearch.handleBookmark(selectedItem)
+                await this.searchFileByPath()
+
+                break
                 // Fall-through
             }
 
@@ -340,7 +309,7 @@ export class QuickOpen {
             "vscode",
         )
         const searchEngine = this.isInstallDirectoryOrHome()
-            ? new BookmarkSearch(this._oni)
+            ? this._bookmarksSearch
             : new FilePathSearch(this._oni)
         await this.search(searchEngine, filterName)
     }
@@ -351,7 +320,7 @@ export class QuickOpen {
     }
 
     public showBookmarks = async () => {
-        await this.search(new BookmarkSearch(this._oni), "vscode")
+        await this.search(this._bookmarksSearch, "vscode")
     }
 
     private search = async (searcher: IAsyncSearch, filterName: string) => {
@@ -359,7 +328,7 @@ export class QuickOpen {
         const filterFunction = this._oni.filter.getByName(filterName)
         this._menu.setFilterFunction(filterFunction)
         this._searcher = searcher
-        searcher.onSearchResults.subscribe((result: QuickOpenResult) => {
+        searcher.onSearchResults.subscribe(result => {
             this._itemsFound = result.items
             if (result.isComplete) {
                 this._menu.setLoading(false)

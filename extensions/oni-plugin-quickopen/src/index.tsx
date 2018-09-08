@@ -43,6 +43,8 @@ function registerCommands(oni: Oni.Plugin.Api) {
         enabled: shouldShowMenu,
     })
 
+    oni.input.bind("<c-s>", "quickOpen.searchFileByPath", shouldShowMenu)
+
     oni.commands.registerCommand({
         command: "quickOpen.showBufferLines",
         name: null,
