@@ -243,13 +243,13 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             </Provider>,
         )
 
-        this._popupMenu = new NeovimPopupMenu(
-            this._neovimInstance.onShowPopupMenu,
-            this._neovimInstance.onHidePopupMenu,
-            this._neovimInstance.onSelectPopupMenu,
-            this.onBufferEnter,
-            this._toolTipsProvider,
-        )
+        // this._popupMenu = new NeovimPopupMenu(
+        //     this._neovimInstance.onShowPopupMenu,
+        //     this._neovimInstance.onHidePopupMenu,
+        //     this._neovimInstance.onSelectPopupMenu,
+        //     this.onBufferEnter,
+        //     this._toolTipsProvider,
+        // )
 
         const notificationManager = getNotificationsInstance()
         this._neovimInstance.onMessage.subscribe(messageInfo => {

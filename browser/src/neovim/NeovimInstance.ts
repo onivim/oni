@@ -839,7 +839,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                     break
                 case "popupmenu_show":
                     const [items, selected, row, col] = a[0]
-                    // console.log("ITEMS!!!!!: ", items)
+                    console.log("ITEMS!!!!!: ", items)
 
                     const mappedItems = items.map((item: string[]) => {
                         const [word, kind, menu, info] = item

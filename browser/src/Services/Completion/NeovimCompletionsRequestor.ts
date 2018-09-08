@@ -20,13 +20,8 @@ export default class NeovimCompletionsRequestor implements ICompletionsRequestor
 
     private _setupSubscriptions() {
         this._subscriptions = [
-            this._neovim.onShowPopupMenu.subscribe(completionInfo => {
-                console.log("completionsInfo: ", completionInfo)
-                this._addNeovimCompletion(completionInfo)
-            }),
-            this._neovim.onHidePopupMenu.subscribe(() => {
-                this._clearNeovimCompletions()
-            }),
+            this._neovim.onShowPopupMenu.subscribe(this._addNeovimCompletion),
+            this._neovim.onHidePopupMenu.subscribe(this._clearNeovimCompletions),
         ]
     }
 
