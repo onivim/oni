@@ -110,19 +110,16 @@ export class WebGLRenderer implements INeovimRenderer {
 
             this._solidRenderer = new SolidRenderer(this._gl, atlasOptions.devicePixelRatio)
             this._textRenderer = new TextRenderer(this._gl, this._ligatureGrouper, atlasOptions)
-            this._prefillAtlasWithCommonGlyphs()
-            this._previousAtlasOptions = atlasOptions
-        }
-    }
-
-    private _prefillAtlasWithCommonGlyphs() {
-        try {
-            this._textRenderer.prefillAtlasWithCommonGlyphs()
-        } catch (error) {
-            if (error instanceof WebGLTextureSpaceExceededError) {
-                this._textureLayerCount *= 2
-                this._prefillAtlasWithCommonGlyphs()
+            try {
+                this._textRenderer.prefillAtlasWithCommonGlyphs()
+            } catch (error) {
+                if (error instanceof WebGLTextureSpaceExceededError) {
+                    this._textureLayerCount *= 2
+                    this._createNewRendererIfRequired(screenInfo)
+                }
             }
+
+            this._previousAtlasOptions = atlasOptions
         }
     }
 
