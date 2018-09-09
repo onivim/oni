@@ -59,7 +59,12 @@ export class OpenTypeLigatureGrouper implements ILigatureGrouper {
 
 const loadFont = (fontFamily: string) => {
     try {
-        const fontDescriptor = fontManager.findFontSync({ family: fontFamily })
+        const fontDescriptor = fontManager.findFontSync({
+            // We use fontFamily in both family and postscriptName to raise the chance of successfully finding the right font.
+            // font-manager does not require both to be matched at the same time, so this makes it more robust.
+            family: fontFamily,
+            postscriptName: fontFamily,
+        })
 
         if (!fontDescriptor) {
             Log.warn(
