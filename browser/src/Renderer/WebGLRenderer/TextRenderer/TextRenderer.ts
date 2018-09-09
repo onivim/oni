@@ -150,6 +150,19 @@ export class TextRenderer {
         this._createVertexArrayObject()
     }
 
+    public prefillAtlasWithCommonGlyphs() {
+        for (let asciiCode = 33; asciiCode <= 126; asciiCode++) {
+            const character = String.fromCharCode(asciiCode)
+
+            for (let variantIndex = 0; variantIndex < this._subpixelDivisor; variantIndex++) {
+                this._atlas.getRasterizedGlyph(character, false, false, variantIndex)
+                this._atlas.getRasterizedGlyph(character, true, false, variantIndex)
+                this._atlas.getRasterizedGlyph(character, false, true, variantIndex)
+                this._atlas.getRasterizedGlyph(character, true, true, variantIndex)
+            }
+        }
+    }
+
     public draw(
         columnCount: number,
         rowCount: number,

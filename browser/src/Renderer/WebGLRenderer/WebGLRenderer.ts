@@ -71,16 +71,14 @@ export class WebGLRenderer implements INeovimRenderer {
         canvas.style.height = `${canvas.height / devicePixelRatio}px`
     }
 
-    private _createNewRendererIfRequired({
-        width: columnCount,
-        height: rowCount,
-        fontWidthInPixels,
-        fontHeightInPixels,
-        linePaddingInPixels,
-        fontFamily,
-        fontSize,
-        fontWeight,
-    }: MinimalScreenForRendering) {
+    private _createNewRendererIfRequired(screenInfo: MinimalScreenForRendering) {
+        const {
+            fontHeightInPixels,
+            linePaddingInPixels,
+            fontFamily,
+            fontSize,
+            fontWeight,
+        } = screenInfo
         const devicePixelRatio = window.devicePixelRatio
         const offsetGlyphVariantCount = Math.max(Math.ceil(4 / devicePixelRatio), 1)
         const atlasOptions = {
@@ -112,7 +110,19 @@ export class WebGLRenderer implements INeovimRenderer {
 
             this._solidRenderer = new SolidRenderer(this._gl, atlasOptions.devicePixelRatio)
             this._textRenderer = new TextRenderer(this._gl, this._ligatureGrouper, atlasOptions)
+            this._prefillAtlasWithCommonGlyphs()
             this._previousAtlasOptions = atlasOptions
+        }
+    }
+
+    private _prefillAtlasWithCommonGlyphs() {
+        try {
+            this._textRenderer.prefillAtlasWithCommonGlyphs()
+        } catch (error) {
+            if (error instanceof WebGLTextureSpaceExceededError) {
+                this._textureLayerCount *= 2
+                this._prefillAtlasWithCommonGlyphs()
+            }
         }
     }
 

@@ -74,8 +74,6 @@ export class GlyphAtlas {
             this._gl.UNSIGNED_BYTE,
             null,
         )
-
-        this._prefillWithVisibleAsciiCharacters()
     }
 
     public getRasterizedGlyph(
@@ -208,23 +206,6 @@ export class GlyphAtlas {
         this._nextX = 0
         this._nextY = 0
         this._currentTextureLayerChangedSinceLastUpload = true
-    }
-
-    private _prefillWithVisibleAsciiCharacters() {
-        for (let asciiCode = 33; asciiCode <= 126; asciiCode++) {
-            const character = String.fromCharCode(asciiCode)
-
-            for (
-                let variantIndex = 0;
-                variantIndex < this._options.offsetGlyphVariantCount;
-                variantIndex++
-            ) {
-                this.getRasterizedGlyph(character, false, false, variantIndex)
-                this.getRasterizedGlyph(character, true, false, variantIndex)
-                this.getRasterizedGlyph(character, false, true, variantIndex)
-                this.getRasterizedGlyph(character, true, true, variantIndex)
-            }
-        }
     }
 }
 
