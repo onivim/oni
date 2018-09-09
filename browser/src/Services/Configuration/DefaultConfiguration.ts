@@ -390,6 +390,13 @@ const BaseConfiguration: IConfigurationValues = {
         ".java": path.join(__dirname, "extensions", "java", "syntaxes", "Java.tmLanguage.json"),
         ".jar": path.join(__dirname, "extensions", "java", "syntaxes", "Java.tmLanguage.json"),
     },
+    "language.cs.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "csharp",
+        "syntaxes",
+        "csharp.tmLanguage.json",
+    ),
     "language.javascript.completionTriggerCharacters": [".", "/", "\\"],
     "language.javascript.textMateGrammar": {
         ".js": path.join(

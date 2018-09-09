@@ -1,8 +1,9 @@
 import * as React from "react"
 
-import styled, { Center, sidebarItemSelected, withProps } from "../common"
+import styled, { Center, getSelectedBorder, withProps } from "../common"
 import SectionTitle from "../SectionTitle"
 import { LoadingSpinner } from "./../../../UI/components/LoadingSpinner"
+import { Icons } from "./../../../UI/components/Octicon"
 import CommitMessage from "./CommitMessage"
 import File from "./File"
 
@@ -18,7 +19,7 @@ interface IProps {
     files?: string[]
     titleId: string
     selectedId: string
-    icon: string
+    icon: Icons
     loading: boolean
     handleSelection: (id: string) => void
     filesToCommit: string[]
@@ -32,7 +33,7 @@ interface IProps {
 }
 
 const OptionsBar = withProps<{ isSelected: boolean }>(styled.span)`
-    ${p => p.isSelected && sidebarItemSelected};
+    border: ${getSelectedBorder};
     display: block;
     width: 100%;
 `

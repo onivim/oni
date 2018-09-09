@@ -300,3 +300,14 @@ export const getTimeSince = (date: Date) => {
     }
     return Math.floor(seconds) + " seconds"
 }
+
+/*
+ * get
+ * allows for safe deeply nested object access
+ */
+export function get<T>(obj: T, ...paths: string[]): string {
+    return paths
+        .join(".")
+        .split(".")
+        .reduce((a, b) => (a && a[b] ? a[b] : null), obj)
+}

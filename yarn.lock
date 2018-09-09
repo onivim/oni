@@ -40,6 +40,12 @@
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
+"@githubprimer/octicons-react@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@githubprimer/octicons-react/-/octicons-react-8.1.0.tgz#731c40b6b231dcee731f0f2d37c67e7ee857bd6a"
+  dependencies:
+    prop-types "^15.6.1"
+
 "@sindresorhus/is@^0.7.0":
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.7.0.tgz#9a06f4f137ee84d7df0460c1fdb1135ffa6c50fd"
@@ -220,9 +226,9 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-virtualized@^9.7.10":
-  version "9.7.10"
-  resolved "https://registry.yarnpkg.com/@types/react-virtualized/-/react-virtualized-9.7.10.tgz#f55ee6138cef17a4adf2893494d32b8407f0103b"
+"@types/react-virtualized@^9.18.3":
+  version "9.18.3"
+  resolved "https://registry.yarnpkg.com/@types/react-virtualized/-/react-virtualized-9.18.3.tgz#777b3c28bd2b972d0a402f2f9d11bacef550be1c"
   dependencies:
     "@types/prop-types" "*"
     "@types/react" "*"
@@ -2256,7 +2262,7 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@JedWatson/classnames, classnames@^2.2.3, classnames@^2.2.5:
+classnames@^2.2.3, classnames@^2.2.5:
   version "2.2.5"
   resolved "https://codeload.github.com/JedWatson/classnames/tar.gz/34a05a53d31d35879ec7088949ae5a1b2224043a"
 
@@ -3545,9 +3551,9 @@ electron-window@^0.8.0:
   dependencies:
     is-electron-renderer "^2.0.0"
 
-electron@2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-2.0.2.tgz#b77e05f83419cc5ec921a2d21f35b55e4bfc3d68"
+electron@2.0.8:
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-2.0.8.tgz#6ec7113b356e09cc9899797e0d41ebff8163e962"
   dependencies:
     "@types/node" "^8.0.24"
     electron-download "^3.0.1"
@@ -8607,6 +8613,10 @@ react-lifecycles-compat@^2.0.0:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-2.0.2.tgz#00a23160eec17a43b94dd74f95d44a1a2c3c5ec1"
 
+react-lifecycles-compat@^3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
+
 react-motion@0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/react-motion/-/react-motion-0.5.2.tgz#0dd3a69e411316567927917c6626551ba0607316"
@@ -8654,15 +8664,16 @@ react-transition-group@2.2.1:
     prop-types "^15.5.8"
     warning "^3.0.0"
 
-react-virtualized@^9.18.0:
-  version "9.18.0"
-  resolved "https://registry.yarnpkg.com/react-virtualized/-/react-virtualized-9.18.0.tgz#d95ccdcfe82c7791da661be3ebc59f4bbc224f07"
+react-virtualized@^9.19.1:
+  version "9.19.1"
+  resolved "https://registry.yarnpkg.com/react-virtualized/-/react-virtualized-9.19.1.tgz#84b53253df2d9df61c85ce037141edccc70a73fd"
   dependencies:
     babel-runtime "^6.26.0"
     classnames "^2.2.3"
     dom-helpers "^2.4.0 || ^3.0.0"
     loose-envify "^1.3.0"
-    prop-types "^15.5.4"
+    prop-types "^15.6.0"
+    react-lifecycles-compat "^3.0.4"
 
 react@^16.3.2:
   version "16.3.2"
@@ -10328,6 +10339,10 @@ tryer@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/tryer/-/tryer-1.0.0.tgz#027b69fa823225e551cace3ef03b11f6ab37c1d7"
 
+ts-is-kind@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/ts-is-kind/-/ts-is-kind-1.0.0.tgz#f9ca9c1af07ddb82d7a06744d8928952d4bd2426"
+
 ts-jest@^23.0.0:
   version "23.0.0"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-23.0.0.tgz#3216310fb51e40789c6e4aa20bfe80198d250e9b"
@@ -10415,6 +10430,12 @@ type-is@~1.6.16:
 typedarray@^0.0.6, typedarray@~0.0.5:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
+
+typescript-plugin-styled-components@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/typescript-plugin-styled-components/-/typescript-plugin-styled-components-0.0.6.tgz#e8489b72436aa1780e859243b519230b2c6b53d1"
+  dependencies:
+    ts-is-kind "^1.0.0"
 
 typescript@^2.8.1:
   version "2.8.1"

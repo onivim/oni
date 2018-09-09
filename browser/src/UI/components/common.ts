@@ -49,6 +49,24 @@ export const Container = withProps<ContainerProps>(styled.div)`
     ${p => p.extension};
 `
 
+export const scrollbarStyles = css`
+    ${props =>
+        props.theme["scrollbar.track"] &&
+        `&::-webkit-scrollbar-track {
+                background: ${props.theme["scrollbar.track"]};
+        }`}
+    ${props =>
+        props.theme["scrollbar.thumb"] &&
+        `&::-webkit-scrollbar-thumb {
+                background: ${props.theme["scrollbar.thumb"]};
+        }`}
+    ${props =>
+        props.theme["scrollbar.thumb.hover"] &&
+        `&::-webkit-scrollbar-thumb:hover {
+                background: ${props.theme["scrollbar.thumb.hover"]};
+        }`};
+    `
+
 export const Bold = styled.span`
     font-weight: bold;
 `
@@ -69,6 +87,8 @@ export const stack = css`
     bottom: 0px;
 `
 
+// Layer is used to force webkit to promote the element to an individual layer.
+// This is used to tweak and control rendering performance, and not for layout
 export const layer = css`
     will-change: transform;
 `
@@ -86,6 +106,13 @@ type GetBorder = (
         theme?: styledComponents.ThemeProps<IThemeColors>
     },
 ) => string
+
+export const showScrollbarOnHover = css`
+    overflow: hidden;
+    &:hover {
+        overflow: overlay;
+    }
+`
 
 export const getSelectedBorder: GetBorder = ({ isSelected, borderSize = "1px", theme }) =>
     isSelected
@@ -121,8 +148,16 @@ const boxShadow = css`
     box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 `
 
+const boxShadowUp = css`
+    box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
+`
+
 const boxShadowInset = css`
     box-shadow: inset 0 4px 8px 2px rgba(0, 0, 0, 0.2);
+`
+
+const boxShadowUpInset = css`
+    box-shadow: 0px -4px 20px 0px rgba(0, 0, 0, 0.2) inset;
 `
 
 const enableMouse = css`
@@ -162,6 +197,45 @@ const fallBackFonts = `
     sans-serif
 `.trim()
 
+/**
+ * Get a prop from the Oni theme
+ *
+ * @name propsInTheme
+ * @function
+ * @param {T} generic(theme object)
+ * @param {string} ...paths the dot notation string path
+ * @returns {string} the accessed prop or null
+ */
+export function propInTheme<T>(themeObject: T, ...paths: string[]): string {
+    return paths.reduce(
+        (targetObject, key) => (targetObject && targetObject[key] ? targetObject[key] : null),
+        themeObject,
+    )
+}
+
+/**
+ *  **themeGet**
+ *
+ * helper method to pull a prop out of the theme and specify a fallback
+ * the fallback can be a key in the theme object or a css style like "red" for color
+ * the third argument is a key in the props object of the component which should represent
+ * a boolean determining whether or no the default should be used
+ * CREDIT: Styled-System
+ */
+export const themeGet = <T>(
+    paths: keyof IThemeColors,
+    fallback?: string,
+    shouldDefault?: keyof T,
+) => (props: OniStyledProps<T>) => {
+    if (shouldDefault && shouldDefault in props && !props[shouldDefault]) {
+        return propInTheme(props.theme, fallback)
+    }
+    return propInTheme(props.theme, paths) || propInTheme(props.theme, fallback) || fallback
+}
+
+export type OniThemeProps = ThemeProps<IThemeColors>
+export type OniStyledProps<T> = OniThemeProps & T
+
 export {
     css,
     injectGlobal,
@@ -171,7 +245,9 @@ export {
     withTheme,
     tint,
     boxShadow,
+    boxShadowUp,
     boxShadowInset,
+    boxShadowUpInset,
     enableMouse,
     fontSizeSmall,
     fallBackFonts,

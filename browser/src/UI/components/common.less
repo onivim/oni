@@ -92,12 +92,6 @@
     pointer-events: auto;
 }
 
-/* Layer is used to force webkit to promote the element to an individual layer.
-    This is used to tweak and control rendering performance, and not for layout */
-.layer {
-    will-change: transform;
-}
-
 .container {
     position: relative;
 
@@ -137,10 +131,6 @@
 
 .box-shadow-up {
     box-shadow: 0 -8px 20px 0 rgba(0, 0, 0, 0.2);
-}
-
-.box-shadow-inset {
-    box-shadow: inset 0 4px 8px 2px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes rotate {

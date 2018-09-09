@@ -1,8 +1,8 @@
 import * as React from "react"
 
 import { Diff } from "./../../../Services/VersionControl"
-import styled, { IThemeColors, withProps } from "./../../../UI/components/common"
-import { Icon } from "./../../../UI/Icon"
+import styled from "./../../../UI/components/common"
+import Octicon, { Icons } from "./../../../UI/components/Octicon"
 
 type ChangeTypes = "change" | "addition" | "deletion"
 
@@ -31,20 +31,9 @@ export const BranchNameContainer = styled.span`
     margin-left: 4px;
 `
 
-const selectColorByType = (type: ChangeTypes, theme: IThemeColors) => {
-    switch (type) {
-        case "addition":
-        case "deletion":
-        case "change":
-        default:
-            return ""
-    }
-}
-
-const ChangeSpanContainer = withProps<{ type: ChangeTypes }>(styled.span)`
+const ChangeSpanContainer = styled.span`
     font-size: 0.7rem;
     padding: 0 0.15rem;
-    color: ${({ type, theme }) => selectColorByType(type, theme)};
 `
 
 const ChangeSpan = styled.span`
@@ -61,7 +50,7 @@ export const Branch: React.SFC<BranchProps> = ({ diff, branch, children }) =>
     branch && (
         <BranchContainer>
             <BranchText>
-                <Icon name="code-fork" />
+                <Octicon name="git-branch" />
                 <BranchNameContainer>
                     {`${branch} `}
                     {diff && (
@@ -76,15 +65,16 @@ export const Branch: React.SFC<BranchProps> = ({ diff, branch, children }) =>
         </BranchContainer>
     )
 
-const getClassNameForType = (type: ChangeTypes) => {
+const getClassNameForType = (type: ChangeTypes): Icons => {
     switch (type) {
         case "addition":
-            return "plus-circle"
+            return "diff-added"
         case "deletion":
-            return "minus-circle"
+            return "diff-removed"
         case "change":
+            return "diff-modified"
         default:
-            return "question-circle"
+            return "diff-ignored"
     }
 }
 
@@ -104,8 +94,8 @@ export const DeletionsAndInsertions: React.SFC<ChangesProps> = ({ deletions, ins
 export const VCSIcon: React.SFC<ICreateIconArgs> = ({ type, num }) =>
     !!num && (
         <span>
-            <ChangeSpanContainer type={type}>
-                <Icon name={getClassNameForType(type)} />
+            <ChangeSpanContainer>
+                <Octicon name={getClassNameForType(type)} />
             </ChangeSpanContainer>
             <ChangeSpan data-test={`${type}-${num}`}>{num}</ChangeSpan>
         </span>

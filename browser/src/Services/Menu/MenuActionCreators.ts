@@ -2,7 +2,6 @@
  * MenuActionCreators.ts
  */
 
-import * as Shell from "./../../UI/Shell"
 import * as MenuActions from "./MenuActions"
 
 // Selector
@@ -40,31 +39,13 @@ export const showPopupMenu = (
     items?: any,
     filter?: string,
 ) => {
-    const state: any = Shell.store.getState()
-    const backgroundColor = state.colors["menu.background"]
-    const foregroundColor = state.colors["menu.foreground"]
-    const borderColor = state.colors["menu.border"] || backgroundColor
-    const highlightColor = state.colors["menu.highlight"] || backgroundColor
-
-    const defaultOptions = {
-        backgroundColor,
-        foregroundColor,
-        borderColor,
-        highlightColor,
-    }
-
-    const options = {
-        ...defaultOptions,
-        ...opts,
-    }
-
     return {
         type: "SHOW_MENU",
         payload: {
             id,
-            options,
             items,
             filter,
+            options: opts,
         },
     }
 }

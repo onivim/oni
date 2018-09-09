@@ -1,6 +1,6 @@
 module.exports = {
     bail: true,
-    verbose: true,
+    verbose: false,
     collectCoverage: true,
     coverageDirectory: "<rootDir>/coverage/jest/",
     setupFiles: ["<rootDir>/ui-tests/jestsetup.ts"],
