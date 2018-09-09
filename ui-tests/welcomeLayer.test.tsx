@@ -28,29 +28,7 @@ describe("Welcome Layer tests", () => {
             x: 0,
             y: 0,
         },
-        visibleLines: [
-            // Absolute line numbers
-            "test string1", // line 20
-            "test string2",
-            "",
-            "test string4",
-            "test string5",
-            "test string6",
-            "test string7",
-            "test string8",
-            "test string9",
-            "test string10",
-            "test string11",
-            "cursor", // line 22
-            "test string13",
-            "test string14",
-            "test string15",
-            "test string16",
-            "test string17",
-            "test string18",
-            "test string19",
-            "test string20", // line 40
-        ],
+        visibleLines: [],
         topBufferLine: 20,
         bottomBufferLine: 40,
     }
@@ -123,7 +101,7 @@ describe("Welcome Layer tests", () => {
         const existingCommands = [
             "oni.editor.newFile",
             "workspace.openFolder",
-            "quickOpen.show",
+            "commands.show",
             "editor.executeVimCommand",
             "oni.tutor.open",
             "oni.docs.open",

@@ -589,78 +589,76 @@ export interface IWelcomeCommandsViewProps extends Partial<WelcomeViewProps> {
     selectedId: string
 }
 
-export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsViewProps, {}> {
-    public isSelected = (command: string) => command === this.props.selectedId
-    public render() {
-        const { commands } = this.props
-        return (
-            <LeftColumn>
-                <AnimatedContainer duration="0.25s">
-                    <SectionHeader>Quick Commands</SectionHeader>
-                    <WelcomeButton
-                        title="New File"
-                        onClick={() => commands.openFile.execute()}
-                        description="Control + N"
-                        command={commands.openFile.command}
-                        selected={this.isSelected(commands.openFile.command)}
-                    />
-                    <WelcomeButton
-                        title="Open File / Folder"
-                        description="Control + O"
-                        onClick={() => commands.openWorkspaceFolder.execute()}
-                        command={commands.openWorkspaceFolder.command}
-                        selected={this.isSelected(commands.openWorkspaceFolder.command)}
-                    />
-                    <WelcomeButton
-                        title="Command Palette"
-                        onClick={() => commands.commandPalette.execute()}
-                        description="Control + Shift + P"
-                        command={commands.commandPalette.command}
-                        selected={this.isSelected(commands.commandPalette.command)}
-                    />
-                    <WelcomeButton
-                        title="Vim Ex Commands"
-                        description=":"
-                        command="editor.openExCommands"
-                        onClick={() => commands.commandline.execute()}
-                        selected={this.isSelected(commands.commandline.command)}
-                    />
-                </AnimatedContainer>
-                <AnimatedContainer duration="0.25s">
-                    <SectionHeader>Learn</SectionHeader>
-                    <WelcomeButton
-                        title="Tutor"
-                        onClick={() => commands.openTutor.execute()}
-                        description="Learn modal editing with an interactive tutorial."
-                        command={commands.openTutor.command}
-                        selected={this.isSelected(commands.openTutor.command)}
-                    />
-                    <WelcomeButton
-                        title="Documentation"
-                        onClick={() => commands.openDocs.execute()}
-                        description="Discover what Oni can do for you."
-                        command={commands.openDocs.command}
-                        selected={this.isSelected(commands.openDocs.command)}
-                    />
-                </AnimatedContainer>
-                <AnimatedContainer duration="0.25s">
-                    <SectionHeader>Customize</SectionHeader>
-                    <WelcomeButton
-                        title="Configure"
-                        onClick={() => commands.openConfig.execute()}
-                        description="Make Oni work the way you want."
-                        command={commands.openConfig.command}
-                        selected={this.isSelected(commands.openConfig.command)}
-                    />
-                    <WelcomeButton
-                        title="Themes"
-                        onClick={() => commands.openThemes.execute()}
-                        description="Choose a theme that works for you."
-                        command={commands.openThemes.command}
-                        selected={this.isSelected(commands.openThemes.command)}
-                    />
-                </AnimatedContainer>
-            </LeftColumn>
-        )
-    }
+export const WelcomeCommandsView: React.SFC<IWelcomeCommandsViewProps> = props => {
+    const isSelected = (command: string) => command === props.selectedId
+    const { commands } = props
+    return (
+        <LeftColumn>
+            <AnimatedContainer duration="0.25s">
+                <SectionHeader>Quick Commands</SectionHeader>
+                <WelcomeButton
+                    title="New File"
+                    onClick={() => commands.openFile.execute()}
+                    description="Control + N"
+                    command={commands.openFile.command}
+                    selected={isSelected(commands.openFile.command)}
+                />
+                <WelcomeButton
+                    title="Open File / Folder"
+                    description="Control + O"
+                    onClick={() => commands.openWorkspaceFolder.execute()}
+                    command={commands.openWorkspaceFolder.command}
+                    selected={isSelected(commands.openWorkspaceFolder.command)}
+                />
+                <WelcomeButton
+                    title="Command Palette"
+                    onClick={() => commands.commandPalette.execute()}
+                    description="Control + Shift + P"
+                    command={commands.commandPalette.command}
+                    selected={isSelected(commands.commandPalette.command)}
+                />
+                <WelcomeButton
+                    title="Vim Ex Commands"
+                    description=":"
+                    command="editor.openExCommands"
+                    onClick={() => commands.commandline.execute()}
+                    selected={isSelected(commands.commandline.command)}
+                />
+            </AnimatedContainer>
+            <AnimatedContainer duration="0.25s">
+                <SectionHeader>Learn</SectionHeader>
+                <WelcomeButton
+                    title="Tutor"
+                    onClick={() => commands.openTutor.execute()}
+                    description="Learn modal editing with an interactive tutorial."
+                    command={commands.openTutor.command}
+                    selected={isSelected(commands.openTutor.command)}
+                />
+                <WelcomeButton
+                    title="Documentation"
+                    onClick={() => commands.openDocs.execute()}
+                    description="Discover what Oni can do for you."
+                    command={commands.openDocs.command}
+                    selected={isSelected(commands.openDocs.command)}
+                />
+            </AnimatedContainer>
+            <AnimatedContainer duration="0.25s">
+                <SectionHeader>Customize</SectionHeader>
+                <WelcomeButton
+                    title="Configure"
+                    onClick={() => commands.openConfig.execute()}
+                    description="Make Oni work the way you want."
+                    command={commands.openConfig.command}
+                    selected={isSelected(commands.openConfig.command)}
+                />
+                <WelcomeButton
+                    title="Themes"
+                    onClick={() => commands.openThemes.execute()}
+                    description="Choose a theme that works for you."
+                    command={commands.openThemes.command}
+                    selected={isSelected(commands.openThemes.command)}
+                />
+            </AnimatedContainer>
+        </LeftColumn>
+    )
 }
