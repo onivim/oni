@@ -1,14 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<NodeView /> Should match the snapshot 1`] = `
-<styled.div
-  innerRef={[Function]}
-  style={
-    Object {
-      "cursor": "pointer",
-    }
-  }
->
+<styled.div>
   <div>
     <DropTarget(DragSource(DragAndDrop))
       accepts={

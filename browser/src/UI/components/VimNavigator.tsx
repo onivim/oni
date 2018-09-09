@@ -18,6 +18,8 @@ import { Event } from "oni-types"
 import { KeyboardInputView } from "./../../Input/KeyboardInput"
 import { getInstance, IMenuBinding } from "./../../neovim/SharedNeovimInstance"
 
+import styled from "./../../UI/components/common"
+
 import { CallbackCommand, commandManager } from "./../../Services/CommandManager"
 
 export interface IVimNavigatorProps {
@@ -41,6 +43,10 @@ export interface IVimNavigatorProps {
 export interface IVimNavigatorState {
     selectedId: string
 }
+
+const NavigatorContainer = styled.div`
+    height: 100%;
+`
 
 export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNavigatorState> {
     private _activeBinding: IMenuBinding = null
@@ -89,9 +95,9 @@ export class VimNavigator extends React.PureComponent<IVimNavigatorProps, IVimNa
 
         return (
             <div style={this.props.style}>
-                <div className="items">
+                <NavigatorContainer>
                     {this.props.render(this.state.selectedId, this.updateSelection)}
-                </div>
+                </NavigatorContainer>
                 {this.props.active ? inputElement : null}
             </div>
         )

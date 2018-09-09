@@ -7,7 +7,6 @@
 export interface IMenus<T, FilteredT> {
     // TOOD: In the future, could handle multiple menus here...
     menu: IMenu<T, FilteredT>
-
     configuration: IMenuConfigurationSettings
 }
 

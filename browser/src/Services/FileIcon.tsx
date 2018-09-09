@@ -33,7 +33,7 @@ const Icon = withProps<{ playAppearAnimation: boolean }>(styled.i)`
     ${props => (props.playAppearAnimation ? appearAnimation : "")}
 `
 
-interface IFileIconProps {
+export interface IFileIconProps {
     fileName: string
     language?: string
 
@@ -54,7 +54,7 @@ export const FileIcon = (props: IFileIconProps) => {
 
     return (
         <Icon
-            playAppearAnimation={props.playAppearAnimation}
+            playAppearAnimation={!!props.playAppearAnimation}
             className={className}
             aria-hidden={true}
         />

@@ -14,7 +14,6 @@ import { getDistPath, getRootPath } from "./DemoCommon"
 
 const getCompletionElement = () => {
     const elements = document.body.getElementsByClassName("autocompletion")
-
     if (!elements || !elements.length) {
         return null
     } else {

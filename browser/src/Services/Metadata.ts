@@ -4,7 +4,8 @@
  * Provides information about Oni's pkg
  */
 
-import * as fs from "fs"
+import { readFile } from "fs-extra"
+import * as Log from "oni-core-logging"
 import * as os from "os"
 import * as path from "path"
 
@@ -15,24 +16,15 @@ export interface IMetadata {
 
 export const getMetadata = async (): Promise<IMetadata> => {
     const packageMetadata = path.join(__dirname, "package.json")
-
-    return new Promise<IMetadata>((resolve, reject) => {
-        fs.readFile(packageMetadata, "utf8", (err: NodeJS.ErrnoException, data: string) => {
-            if (err) {
-                reject(err)
-                return
-            }
-
-            const pkg = JSON.parse(data)
-
-            const metadata = {
-                name: pkg.name,
-                version: pkg.version,
-            }
-
-            resolve(metadata)
-        })
-    })
+    try {
+        const data = await readFile(packageMetadata, "utf8")
+        const pkg = JSON.parse(data)
+        const metadata = { name: pkg.name, version: pkg.version }
+        return metadata
+    } catch (e) {
+        Log.warn(`Oni Error: failed to fetch Oni package metadata because ${e.message}`)
+        return { name: null, version: null }
+    }
 }
 
 export const showAboutMessage = async () => {

@@ -24,6 +24,8 @@ const CiTests = [
     "Configuration.TypeScriptEditor.NewConfigurationTest",
     "Configuration.TypeScriptEditor.CompletionTest",
 
+    "Welcome.BufferLayerTest",
+
     "TabBarSneakTest",
     "initVimPromptNotificationTest",
     "Editor.BuffersCursorTest",
@@ -33,6 +35,7 @@ const CiTests = [
     "Editor.ScrollEventTest",
     "Editor.TabModifiedState",
     "Editor.CloseTabWithTabModesTabsTest",
+    "Editor.NextPreviousErrorTest",
     "Explorer.LocateBufferTest",
     "MarkdownPreviewTest",
     "PrettierPluginTest",
@@ -43,6 +46,7 @@ const CiTests = [
     "Neovim.CallOniCommands",
     "NoInstalledNeovim",
     "Sidebar.ToggleSplitTest",
+    "LargePasteTest",
 
     "Snippets.BasicInsertTest",
 

@@ -183,7 +183,7 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
                             />
                             <StagedSection
                                 titleId={IDs.staged}
-                                icon="plus-circle"
+                                icon="diff-added"
                                 files={staged}
                                 selectedId={selectedId}
                                 filesToCommit={filesToCommit}
@@ -198,7 +198,7 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
                                 handleCommitCancel={this.handleCommitCancel}
                             />
                             <VersionControlStatus
-                                icon="minus-circle"
+                                icon="diff-modified"
                                 files={modified}
                                 titleId={IDs.modified}
                                 selectedId={selectedId}
@@ -208,7 +208,7 @@ export class VersionControlView extends React.Component<ConnectedProps, State> {
                             />
                             <VersionControlStatus
                                 files={untracked}
-                                icon="question-circle"
+                                icon="diff-ignored"
                                 titleId={IDs.untracked}
                                 selectedId={selectedId}
                                 visibility={this.state.untracked}

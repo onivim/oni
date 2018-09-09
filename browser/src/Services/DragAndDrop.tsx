@@ -79,7 +79,7 @@ const DragCollect = (connect: DND.DragSourceConnector, monitor: DND.DragSourceMo
  *
  * @name props
  * @function
- * @param {String | String[]} >props.target The target Type that responds to the drop
+ * @param {String | String[]} props.target The target Type that responds to the drop
  * @param {Object} DragSource Object with a beginDrag which return the dragged props
  * @param {React.Component} A component which is dragged onto another
  * @returns {React.Component<P>} A react class component

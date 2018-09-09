@@ -288,19 +288,19 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 label: "Copy",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, '\\"+y')
+                    executeOniCommand(focusedWindow, "editor.clipboard.yank")
                 },
             },
             {
                 label: "Cut",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, '\\"+x')
+                    executeOniCommand(focusedWindow, "editor.clipboard.cut")
                 },
             },
             {
                 label: "Paste",
                 click(item, focusedWindow) {
-                    executeVimCommand(focusedWindow, '\\"+gP')
+                    executeOniCommand(focusedWindow, "editor.clipboard.paste")
                 },
             },
             {

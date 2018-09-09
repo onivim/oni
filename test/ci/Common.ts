@@ -9,7 +9,30 @@ import * as os from "os"
 import * as path from "path"
 
 export const getCompletionElement = () => {
-    return getElementByClassName("autocompletion")
+    return getSingleElementBySelector("[data-id='autocompletion']")
+}
+
+interface IGetTab {
+    dirty: boolean
+}
+
+export const getSelectedTabElement = ({ dirty = false }: IGetTab) => {
+    const isDirty = dirty ? "is-dirty" : "not-dirty"
+    return getSingleElementBySelector(`[data-status='tab-selected-${isDirty}']`)
+}
+
+export const getAllTabs = () => {
+    return getElementsBySelector(`[data-id='tab']`)
+}
+
+export const getTabCloseButtonByIndex = (index: number) => {
+    const tabs = getAllTabs()
+    const tab = tabs[index]
+    return tab ? tab.querySelector("[data-id='tab-close-button']") : null
+}
+
+export const getTabsContainer = () => {
+    return getSingleElementBySelector(`[data-id='tabs']`)
 }
 
 export const getCollateralPath = () => {

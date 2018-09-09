@@ -338,25 +338,29 @@ export class Buffer implements IBuffer {
     public handleInput(key: string): boolean {
         const state = this._store.getState()
 
-        const layers: IBufferLayer[] = state.layers[this._id]
+        const bufferLayers: IBufferLayer[] = state.layers[this._id]
 
-        if (!layers || !layers.length) {
+        if (!bufferLayers || !bufferLayers.length) {
             return false
         }
 
-        const result = layers.reduce<boolean>((prev, curr) => {
-            if (prev) {
-                return true
-            }
+        const layerShouldHandleInput = bufferLayers.reduce<boolean>(
+            (layerHandlerExists, currentLayer) => {
+                if (layerHandlerExists) {
+                    return true
+                }
 
-            if (!curr || !curr.handleInput) {
+                if (!currentLayer || !currentLayer.handleInput) {
+                    return false
+                } else if (currentLayer.isActive && currentLayer.isActive()) {
+                    return currentLayer.handleInput(key)
+                }
                 return false
-            } else {
-                return curr.handleInput(key)
-            }
-        }, false)
+            },
+            false,
+        )
 
-        return result
+        return layerShouldHandleInput
     }
     public async updateHighlights(
         tokenColors: TokenColor[],

@@ -173,6 +173,13 @@ export const activate = (
         detail: null,
     })
 
+    commandManager.registerCommand({
+        command: "oni.docs.open",
+        execute: () => openUrl("https://onivim.github.io/oni-docs/#/"),
+        name: "Browser: Open Documentation",
+        detail: "Open Oni's Documentation website",
+    })
+
     const getLayerForBuffer = (buffer: Oni.Buffer): BrowserLayer => {
         return (buffer as IBuffer).getLayerById<BrowserLayer>("oni.browser")
     }

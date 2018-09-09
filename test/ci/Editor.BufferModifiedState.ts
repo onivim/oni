@@ -5,7 +5,7 @@
 import * as assert from "assert"
 import * as Oni from "oni-api"
 
-import { createNewFile, getElementByClassName } from "./Common"
+import { createNewFile, getElementByClassName, getSelectedTabElement } from "./Common"
 
 export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitForEditors()
@@ -13,9 +13,10 @@ export const test = async (oni: Oni.Plugin.Api) => {
     await createNewFile("js", oni)
 
     // Check the buffer did not have a modified state by default
-    let tabState = getElementByClassName("tab selected not-dirty")
+    // let tabState = getElementByClassName("tab selected not-dirty")
+    const tabState1 = getSelectedTabElement({ dirty: false })
 
-    assert.ok(tabState, "Check buffer has no modified icon")
+    assert.ok(tabState1, "Check buffer has no modified icon")
 
     // Next, edit the buffer and check that shows up
     oni.automation.sendKeys("i")
@@ -26,9 +27,10 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     await oni.automation.waitFor(() => oni.editors.activeEditor.mode === "normal")
 
-    tabState = getElementByClassName("tab selected is-dirty")
+    // tabState = getElementByClassName("tab selected is-dirty")
+    const tabState2 = getSelectedTabElement({ dirty: true })
 
-    assert.ok(tabState, "Check buffer now has a modified icon")
+    assert.ok(tabState2, "Check buffer now has a modified icon")
 
     // Finally, swap buffer and swap back to ensure the modified status remains.
     oni.automation.sendKeys(":")
@@ -43,9 +45,10 @@ export const test = async (oni: Oni.Plugin.Api) => {
 
     await oni.automation.waitFor(() => oni.editors.activeEditor.activeBuffer.id === "1")
 
-    tabState = getElementByClassName("tab selected is-dirty")
+    // tabState = getElementByClassName("tab selected is-dirty")
+    const tabState3 = getSelectedTabElement({ dirty: true })
 
-    assert.ok(tabState, "Check buffer still has modified icon after swapping")
+    assert.ok(tabState3, "Check buffer still has modified icon after swapping")
 }
 
 // Bring in custom config.
