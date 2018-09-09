@@ -8,8 +8,8 @@ import * as path from "path"
 
 import { remote } from "electron"
 
-import { getDistPath, getRootPath } from "./DemoCommon"
 import { getCompletionElement } from "../ci/Common"
+import { getDistPath, getRootPath } from "./DemoCommon"
 
 // tslint:disable:no-console
 const getNotificationText = () => {
