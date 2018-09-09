@@ -6,10 +6,11 @@ import * as Log from "oni-core-logging"
 
 import { GlyphInfo } from "./GlyphInfo"
 import { GlyphSubstitutor } from "./GlyphSubstitutor"
+import { ILigatureGrouper } from "./ILigatureGrouper"
 
 const ligatureFeatures = ["calt", "rclt", "liga", "dlig", "clig"]
 
-export class LigatureGrouper {
+export class OpenTypeLigatureGrouper implements ILigatureGrouper {
     private readonly _font = loadFont(this._fontFamily)
     private readonly _fontHasLigatures = this._font && checkIfFontHasLigatures(this._font)
     private readonly _glyphSubstitutor = new GlyphSubstitutor(this._font)
@@ -60,7 +61,7 @@ const loadFont = (fontFamily: string) => {
 
         if (!fontDescriptor) {
             Log.warn(
-                `[LigatureGrouper] Could not find installed font for font family '${fontFamily}'. Ligatures won't be available.`,
+                `[OpenTypeLigatureGrouper] Could not find installed font for font family '${fontFamily}'. Ligatures won't be available.`,
             )
             return null
         }
@@ -68,14 +69,14 @@ const loadFont = (fontFamily: string) => {
         const fontFileBuffer = fs.readFileSync(fontDescriptor.path)
         const font = fontkit.create(fontFileBuffer)
         Log.verbose(
-            `[LigatureGrouper] Using font ${fontDescriptor.postscriptName} located at ${
+            `[OpenTypeLigatureGrouper] Using font ${fontDescriptor.postscriptName} located at ${
                 fontDescriptor.path
             } for finding ligatures in '${fontFamily}'`,
         )
         return font
     } catch (error) {
         Log.warn(
-            `[LigatureGrouper] Error loading font file for font family '${fontFamily}': ${error} Ligatures won't be available.`,
+            `[OpenTypeLigatureGrouper] Error loading font file for font family '${fontFamily}': ${error} Ligatures won't be available.`,
         )
         return null
     }
@@ -87,14 +88,14 @@ const checkIfFontHasLigatures = (font: Font) => {
     )
     if (fontHasLigatures) {
         Log.verbose(
-            `[LigatureGrouper] Found ligatures in '${
+            `[OpenTypeLigatureGrouper] Found ligatures in '${
                 font.postscriptName
             }'. Ligatures will be available.`,
         )
         return true
     } else {
         Log.verbose(
-            `[LigatureGrouper] Could not find ligatures in '${
+            `[OpenTypeLigatureGrouper] Could not find ligatures in '${
                 font.postscriptName
             }'. Ligatures won't be available.`,
         )

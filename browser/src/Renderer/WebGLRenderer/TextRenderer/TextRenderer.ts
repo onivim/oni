@@ -7,7 +7,7 @@ import {
 } from "../WebGLUtilities"
 import { GlyphAtlas, IGlyphAtlasOptions, IRasterizedGlyph } from "./GlyphAtlas"
 import { groupCells } from "./groupCells"
-import { LigatureGrouper } from "./LigatureGrouper"
+import { ILigatureGrouper } from "./LigatureGrouper"
 
 const glyphInstanceFieldCount = 13
 const glyphInstanceSizeInBytes = glyphInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT
@@ -109,7 +109,7 @@ export class TextRenderer {
 
     constructor(
         private _gl: WebGL2RenderingContext,
-        private _ligatureGrouper: LigatureGrouper,
+        private _ligatureGrouper: ILigatureGrouper,
         atlasOptions: IGlyphAtlasOptions,
     ) {
         this._glyphOverlapInPixels = atlasOptions.glyphPaddingInPixels

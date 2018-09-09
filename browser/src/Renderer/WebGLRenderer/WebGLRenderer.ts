@@ -4,11 +4,15 @@ import { normalizeColor } from "./normalizeColor"
 import { SolidRenderer } from "./SolidRenderer"
 import { TextRenderer } from "./TextRenderer"
 import { IGlyphAtlasOptions, WebGLTextureSpaceExceededError } from "./TextRenderer/GlyphAtlas"
-import { LigatureGrouper } from "./TextRenderer/LigatureGrouper"
+import {
+    ILigatureGrouper,
+    NoopLigatureGrouper,
+    OpenTypeLigatureGrouper,
+} from "./TextRenderer/LigatureGrouper"
 
 export class WebGLRenderer implements INeovimRenderer {
     private _editorElement: HTMLElement
-    private _ligatureGrouper: LigatureGrouper
+    private _ligatureGrouper: ILigatureGrouper = new NoopLigatureGrouper()
     private _previousAtlasOptions: IGlyphAtlasOptions
     private _textureSizeInPixels = 1024
     private _textureLayerCount = 2
@@ -16,6 +20,8 @@ export class WebGLRenderer implements INeovimRenderer {
     private _gl: WebGL2RenderingContext
     private _solidRenderer: SolidRenderer
     private _textRenderer: TextRenderer
+
+    public constructor(private _ligaturesEnabled: boolean) {}
 
     public start(editorElement: HTMLElement): void {
         this._editorElement = editorElement
@@ -95,10 +101,11 @@ export class WebGLRenderer implements INeovimRenderer {
             !isShallowEqual(this._previousAtlasOptions, atlasOptions)
         ) {
             if (
-                !this._previousAtlasOptions ||
-                this._previousAtlasOptions.fontFamily !== fontFamily
+                (!this._previousAtlasOptions ||
+                    this._previousAtlasOptions.fontFamily !== fontFamily) &&
+                this._ligaturesEnabled
             ) {
-                this._ligatureGrouper = new LigatureGrouper(fontFamily)
+                this._ligatureGrouper = new OpenTypeLigatureGrouper(fontFamily)
             }
 
             this._solidRenderer = new SolidRenderer(this._gl, atlasOptions.devicePixelRatio)

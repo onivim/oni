@@ -294,9 +294,10 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             initVimNotification.show()
         }
 
+        const ligaturesEnabled = this._configuration.getValue("editor.fontLigatures")
         this._renderer =
             this._configuration.getValue("editor.renderer") === "webgl"
-                ? new WebGLRenderer()
+                ? new WebGLRenderer(ligaturesEnabled)
                 : new CanvasRenderer()
 
         this._rename = new Rename(
