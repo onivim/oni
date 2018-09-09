@@ -79,12 +79,14 @@ export class WebGLRenderer implements INeovimRenderer {
         linePaddingInPixels,
         fontFamily,
         fontSize,
+        fontWeight,
     }: MinimalScreenForRendering) {
         const devicePixelRatio = window.devicePixelRatio
         const offsetGlyphVariantCount = Math.max(Math.ceil(4 / devicePixelRatio), 1)
         const atlasOptions = {
             fontFamily,
             fontSize,
+            fontWeight,
             lineHeightInPixels: fontHeightInPixels,
             linePaddingInPixels,
             glyphPaddingInPixels: Math.ceil(fontHeightInPixels / 4),

@@ -6,6 +6,7 @@ const foregroundColor = "white"
 export interface IGlyphAtlasOptions {
     fontFamily: string
     fontSize: string
+    fontWeight: number | string
     lineHeightInPixels: number
     linePaddingInPixels: number
     glyphPaddingInPixels: number
@@ -81,7 +82,7 @@ export class GlyphAtlas {
         // while this._glyphs.get("a")[3][1] is the bold italic "a" with 1/offsetGlyphVariantCount px offset
         let glyphStyleVariants = this._rasterizedGlyphs.get(text)
         if (!glyphStyleVariants) {
-            glyphStyleVariants = new Array<IRasterizedGlyph[]>(glyphStyles.length)
+            glyphStyleVariants = new Array<IRasterizedGlyph[]>(glyphStyleCount)
             this._rasterizedGlyphs.set(text, glyphStyleVariants)
         }
         const glyphStyleIndex = getGlyphStyleIndex(isBold, isItalic)
@@ -129,13 +130,14 @@ export class GlyphAtlas {
         this._currentTextureLayerChangedSinceLastUpload = true
 
         const {
+            fontWeight,
             devicePixelRatio,
             lineHeightInPixels,
             linePaddingInPixels,
             glyphPaddingInPixels,
             offsetGlyphVariantCount,
         } = this._options
-        const style = getGlyphStyleString(isBold, isItalic)
+        const style = getGlyphStyleString(fontWeight, isBold, isItalic)
         this._rasterizingContext.font = `${style} ${this._options.fontSize} ${
             this._options.fontFamily
         }`
@@ -202,14 +204,44 @@ export class GlyphAtlas {
     }
 }
 
+const defaultFontWeight = 400
+
+const getGlyphStyleString = (
+    baseFontWeight: number | string = defaultFontWeight,
+    isBold: boolean,
+    isItalic: boolean,
+) => {
+    const fontWeight = isBold
+        ? getIncreasedFontWeightForBoldText(baseFontWeight)
+        : baseFontWeight || defaultFontWeight
+    return fontWeight + (isItalic ? " italic" : "")
+}
+
+const addedFontWeightForBoldText = 300
+const maxFontWeight = 900
+
+const getIncreasedFontWeightForBoldText = (baseFontWeight: number | string) => {
+    const numericBaseFontWeight = getNumericFontWeight(baseFontWeight)
+    return Math.min(numericBaseFontWeight + addedFontWeightForBoldText, maxFontWeight)
+}
+
+const getNumericFontWeight = (fontWeight: number | string) => {
+    if (typeof fontWeight === "number") {
+        return fontWeight
+    } else {
+        return numericFontWeightMap[fontWeight] || defaultFontWeight
+    }
+}
+
+const numericFontWeightMap = {
+    normal: 400,
+    bold: 700,
+    // The following two should in fact be dynamic based on the weight of other elements
+    // but this is too complex and not relevant enough to warrant respecting this logic
+    bolder: 700,
+    lighter: 300,
+}
+
+const glyphStyleCount = 4
 const getGlyphStyleIndex = (isBold: boolean, isItalic: boolean) =>
     isBold ? (isItalic ? 3 : 1) : isItalic ? 2 : 0
-
-const glyphStyles = [
-    "", // regular, 0
-    "bold", // 1
-    "italic", // 2
-    "bold italic", // 3
-]
-const getGlyphStyleString = (isBold: boolean, isItalic: boolean) =>
-    glyphStyles[getGlyphStyleIndex(isBold, isItalic)]

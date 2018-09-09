@@ -1,12 +1,12 @@
 import { ICell } from "../../../neovim"
-import { CellGroup } from "./CellGroup"
+import { ICellGroup } from "./ICellGroup"
 
 export const groupCells = (
     columnCount: number,
     rowIndex: number,
     getCell: (columnIndex: number, rowIndex: number) => ICell,
 ) => {
-    const cellGroups: CellGroup[] = []
+    const cellGroups: ICellGroup[] = []
     for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
         const currentCell = getCell(columnIndex, rowIndex)
         const currentCharacter = currentCell.character
@@ -28,14 +28,14 @@ export const groupCells = (
     return cellGroups
 }
 
-const cellStyleMatchesCellGroup = (cell: ICell, cellGroup: CellGroup) =>
+const cellStyleMatchesCellGroup = (cell: ICell, cellGroup: ICellGroup) =>
     cellGroup.foregroundColor === cell.foregroundColor &&
     cellGroup.backgroundColor === cell.backgroundColor && // Maybe this isn't necessary; should we still group different backgrounds?
     cellGroup.bold === cell.bold &&
     cellGroup.italic === cell.italic &&
     cellGroup.underline === cell.underline
 
-const columnComesDirectlyAfterCellGroup = (columnIndex: number, cellGroup: CellGroup) =>
+const columnComesDirectlyAfterCellGroup = (columnIndex: number, cellGroup: ICellGroup) =>
     columnIndex === cellGroup.startColumnIndex + cellGroup.characters.length
 
 const createNewCellGroup = (startColumnIndex: number, startingCell: ICell) => {

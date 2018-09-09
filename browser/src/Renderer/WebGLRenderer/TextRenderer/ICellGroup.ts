@@ -1,4 +1,4 @@
-export interface CellGroup {
+export interface ICellGroup {
     startColumnIndex: number
     characters: string[]
     foregroundColor?: string
