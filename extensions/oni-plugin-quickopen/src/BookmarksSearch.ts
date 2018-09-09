@@ -44,7 +44,7 @@ export default class BookmarkSearch implements IAsyncSearch {
         await this._handleItem(bookmarkPath)
     }
 
-    // deliberately through error as a means of clarifying if a path exists
+    // deliberately throw errors as a means of clarifying if a path exists
     // i.e. if isDir => true, else => false, if does not exist => new Error(err)
     public isDir = async (path: string) => {
         const stats = await stat(path)
