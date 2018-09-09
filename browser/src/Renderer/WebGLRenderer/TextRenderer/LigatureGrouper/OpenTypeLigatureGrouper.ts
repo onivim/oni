@@ -13,7 +13,9 @@ const ligatureFeatures = ["calt", "rclt", "liga", "dlig", "clig"]
 export class OpenTypeLigatureGrouper implements ILigatureGrouper {
     private readonly _font = loadFont(this._fontFamily)
     private readonly _fontHasLigatures = this._font && checkIfFontHasLigatures(this._font)
-    private readonly _glyphSubstitutor = new GlyphSubstitutor(this._font)
+    private readonly _glyphSubstitutor = this._fontHasLigatures
+        ? new GlyphSubstitutor(this._font)
+        : null
     private readonly _cache = new Map<string, string[]>()
 
     constructor(private _fontFamily: string) {}
@@ -83,8 +85,9 @@ const loadFont = (fontFamily: string) => {
 }
 
 const checkIfFontHasLigatures = (font: Font) => {
-    const fontHasLigatures = ligatureFeatures.some(ligatureFeature =>
-        font.availableFeatures.includes(ligatureFeature),
+    const fontHasLigatures = ligatureFeatures.some(
+        ligatureFeature =>
+            font && font.availableFeatures && font.availableFeatures.includes(ligatureFeature),
     )
     if (fontHasLigatures) {
         Log.verbose(

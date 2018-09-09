@@ -300,7 +300,12 @@ export class TextRenderer {
                     const y = pixelRatioAdaptedFontHeight * rowIndex
                     const variantIndex =
                         Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
-                    const glyph = this._atlas.getGlyph(ligatureGroup, bold, italic, variantIndex)
+                    const glyph = this._atlas.getRasterizedGlyph(
+                        ligatureGroup,
+                        bold,
+                        italic,
+                        variantIndex,
+                    )
                     const colorToUse = foregroundColor || defaultForegroundColor || "white"
                     const normalizedTextColor = normalizeColor(colorToUse)
 
