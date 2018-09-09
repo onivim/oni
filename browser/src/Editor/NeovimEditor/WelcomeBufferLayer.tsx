@@ -647,7 +647,7 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
                     <SectionHeader>Customize</SectionHeader>
                     <WelcomeButton
                         title="Configure"
-                        onClick={() => commands.openConfig.execute}
+                        onClick={() => commands.openConfig.execute()}
                         description="Make Oni work the way you want."
                         command={commands.openConfig.command}
                         selected={this.isSelected(commands.openConfig.command)}
