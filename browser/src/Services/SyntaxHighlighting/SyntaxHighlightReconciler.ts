@@ -16,6 +16,7 @@ import {
     ISyntaxHighlightState,
     ISyntaxHighlightTokenInfo,
 } from "./SyntaxHighlightingStore"
+import { TokenScorer } from "./TokenScorer"
 
 import * as Selectors from "./SyntaxHighlightSelectors"
 
@@ -26,6 +27,7 @@ import * as Selectors from "./SyntaxHighlightSelectors"
 // window and viewport
 export class SyntaxHighlightReconciler {
     private _previousState: { [line: number]: ISyntaxHighlightLineInfo } = {}
+    private _tokenScorer = new TokenScorer()
 
     constructor(private _editor: NeovimEditor, private _tokenColors: TokenColors) {}
 
@@ -64,26 +66,26 @@ export class SyntaxHighlightReconciler {
                 return this._previousState[line] !== latestLine
             })
 
-            const tokens = filteredLines.map(li => {
-                const lineNumber = parseInt(li, 10)
+            const tokens = filteredLines.map(currentLine => {
+                const lineNumber = parseInt(currentLine, 10)
                 const line = Selectors.getLineFromBuffer(currentHighlightState, lineNumber)
 
                 const highlights = this._mapTokensToHighlights(line.tokens)
                 return {
-                    line: parseInt(li, 10),
+                    line: parseInt(currentLine, 10),
                     highlights,
                 }
             })
 
-            filteredLines.forEach(li => {
-                const lineNumber = parseInt(li, 10)
-                this._previousState[li] = Selectors.getLineFromBuffer(
+            filteredLines.forEach(line => {
+                const lineNumber = parseInt(line, 10)
+                this._previousState[line] = Selectors.getLineFromBuffer(
                     currentHighlightState,
                     lineNumber,
                 )
             })
 
-            if (tokens.length > 0) {
+            if (tokens.length) {
                 Log.verbose(
                     "[SyntaxHighlightReconciler] Applying changes to " + tokens.length + " lines.",
                 )
@@ -91,9 +93,7 @@ export class SyntaxHighlightReconciler {
                     this._tokenColors.tokenColors,
                     (highlightUpdater: any) => {
                         tokens.forEach(token => {
-                            const line = token.line
-                            const highlights = token.highlights
-
+                            const { line, highlights } = token
                             if (Log.isDebugLoggingEnabled()) {
                                 Log.debug(
                                     "[SyntaxHighlightingReconciler] Updating tokens for line: " +
@@ -122,16 +122,7 @@ export class SyntaxHighlightReconciler {
 
     private _getHighlightGroupFromScope(scopes: string[]): TokenColor {
         const configurationColors = this._tokenColors.tokenColors
-
-        for (const scope of scopes) {
-            const matchingRule = configurationColors.find((c: any) => scope.indexOf(c.scope) === 0)
-
-            if (matchingRule) {
-                // TODO: Convert to highlight group id
-                return matchingRule
-            }
-        }
-
-        return null
+        const highestRanked = this._tokenScorer.rankTokenScopes(scopes, configurationColors)
+        return highestRanked
     }
 }

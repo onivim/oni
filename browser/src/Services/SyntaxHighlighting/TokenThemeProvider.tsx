@@ -1,44 +1,8 @@
 import * as React from "react"
 import { css, ThemeProvider, withTheme } from "styled-components"
 
-import { getInstance as TokenColorsInstance, TokenColor } from "./../../Services/TokenColors"
-import { IThemeColors } from "./../../UI/components/common"
-
-/**
- * Provides a check that a token exists and has valid values
- * if not it returns nothing or in the case of the foregroundColor it returns a default
- * @returns {string | undefined}
- */
-const cssToken = (theme: INewTheme, token: string) => (property: string) => {
-    try {
-        const details = theme["editor.tokenColors.hoverTokens"][token]
-        return details[property]
-    } catch (e) {
-        if (property === "foregroundColor") {
-            return theme["toolTip.foreground"]
-        }
-    }
-}
-/**
- * Construct Class name is a function which takes a token
- * and returns another function which takes the theme as an argument
- * with which it creates a css class based on the token name and returns this as
- * a string
- * @returns {fn(theme) => string}
- */
-const constructClassName = (token: string) => (theme: INewTheme) => {
-    const notPunctuation = !token.includes("punctuation")
-    const tokenAsClass = token.replace(/[.]/g, "-")
-    const tokenStyle = cssToken(theme, token)
-    const cssClass = `
-        .${tokenAsClass} {
-            color: ${tokenStyle("foregroundColor") || ""};
-            ${tokenStyle("bold") && notPunctuation ? "font-weight: bold" : ""};
-            ${tokenStyle("italic") ? "font-style: italic" : ""};
-        }
-    `
-    return cssClass
-}
+import { TokenColor, TokenColorStyle } from "./../../Services/TokenColors"
+import { Css, IThemeColors } from "./../../UI/components/common"
 
 /**
  * A object representing a key of default oni tokens and an array of tokens
@@ -46,6 +10,7 @@ const constructClassName = (token: string) => (theme: INewTheme) => {
  */
 const defaultsToMap = {
     "variable.parameter": [
+        "support",
         "support.variable",
         "support.variable.property.dom",
         "support.variable.dom",
@@ -56,24 +21,36 @@ const defaultsToMap = {
         "support.variable.property",
         "variable.language",
         "variable.language.this",
+        "variable.function",
         "variable.parameter",
         "variable.object",
+        "variable",
         "meta.object.type",
         "meta.object",
         "variable.other.readwrite",
         "variable.other.readwrite.alias",
+        "constant.numeric",
+        "constant.language",
         "constant.numeric.integer",
+        "constant.character.escape",
     ],
     "support.function": [
+        "invalid",
+        "function",
         "support.function",
         "entity.name",
+        "entity.name.section",
         "entity.name.type",
+        "entity.name.tag",
         "entity.name.type.alias",
         "entity.name.type.class",
         "entity.name.function",
         "entity.name.type.enum",
         "entity.name.type.interface",
         "entity.name.type.module",
+        "entity.other.attribute.name",
+        "entity.other.inherited-class",
+        "entity.other.attribute.name",
         "punctuation.accessor",
         "punctuation.separator.continuation",
         "punctuation.separator.comma",
@@ -81,9 +58,11 @@ const defaultsToMap = {
         "punctuation.terminator",
     ],
     "variable.other.constant": [
+        "constant",
         "constant.language",
         "variable.other",
         "entity.other",
+        "keyword",
         "keyword.package",
         "keyword.var",
         "keyword.const",
@@ -95,6 +74,7 @@ const defaultsToMap = {
         "keyword.operator.expression.void",
         "keyword.control.import",
         "storage.type",
+        "storage.modifier",
         "storage.type.type",
         "storage.type.class",
         "storage.type.enum",
@@ -119,28 +99,16 @@ const defaultsToMap = {
         "string.quoted.double",
         "string.quoted.single",
         "string.quoted.triple",
+        "string",
+        "string.other",
     ],
 }
 
-const symbols = Object.values(defaultsToMap)
-    .reduce((acc, a) => [...acc, ...a], [])
-    .map(constructClassName)
-
 type TokenFunc = (theme: INewTheme) => string
-const flattenedSymbols = (theme: INewTheme, fns: TokenFunc[]) => fns.map(fn => fn(theme)).join("\n")
-
-const styles = css`
-    ${p => flattenedSymbols(p.theme, symbols)};
-`
 
 export interface INewTheme extends IThemeColors {
     "editor.tokenColors.hoverTokens": {
-        [token: string]: {
-            foregroundColor: string
-            backgroundColor: string
-            italic: string
-            bold: string
-        }
+        [token: string]: TokenColorStyle
     }
 }
 
@@ -148,21 +116,29 @@ interface IDefaultMap {
     [defaultTokens: string]: string[]
 }
 
+interface RenderProps {
+    theme: INewTheme
+    styles: Css
+}
+
 interface IProps {
-    render: (s: { theme: INewTheme; styles: any }) => React.ReactElement<any>
+    render: (s: RenderProps) => React.ReactElement<RenderProps> | React.ReactNode
     theme: INewTheme
     defaultMap?: IDefaultMap
+    tokenColors?: TokenColor[]
 }
 
 interface IState {
     theme: INewTheme
-    styles: string
+    styles: Css
 }
 
 interface IGenerateTokenArgs {
     defaultMap?: IDefaultMap
     defaultTokens: TokenColor[]
 }
+
+type Style = "bold" | "italic" | "foreground" | "background"
 
 /**
  * **TokenThemeProvider** is a Render Prop
@@ -178,45 +154,54 @@ interface IGenerateTokenArgs {
 class TokenThemeProvider extends React.Component<IProps, IState> {
     public state: IState = {
         styles: null,
-        theme: null,
+        theme: this.props.theme,
     }
 
-    private tokenColors = TokenColorsInstance().tokenColors
-    private enhancedTokens: TokenColor[]
+    public flattenedDefaults = Object.values(defaultsToMap).reduce((acc, a) => [...acc, ...a], [])
 
     public componentDidMount() {
-        const editorTokens = this.createThemeFromTokens()
-        this.setState({ theme: { ...this.props.theme, ...editorTokens } })
+        const themeTokenNames = this.convertTokenNamesToClasses(this.props.tokenColors)
+        const tokensToHightlight = [...themeTokenNames, ...this.flattenedDefaults]
+        const styles = this.constructStyles(tokensToHightlight)
+        const editorTokens = this.createThemeFromTokens(this.props.tokenColors)
+
+        const theme = { ...this.props.theme, ...editorTokens }
+        this.setState({ theme, styles })
     }
 
-    public createThemeFromTokens() {
-        if (!this.enhancedTokens) {
-            this.enhancedTokens = this.generateTokens({ defaultTokens: this.tokenColors })
-        }
-        const tokenColorsMap = this.enhancedTokens.reduce((theme, token) => {
-            return {
-                ...theme,
-                [token.scope]: {
-                    ...token.settings,
-                },
-            }
-        }, {})
+    public createThemeFromTokens(tokens: TokenColor[]) {
+        const combinedThemeAndDefaultTokens = this.generateTokens({
+            defaultTokens: this.props.tokenColors,
+        })
+        const tokenColorsMap = combinedThemeAndDefaultTokens.reduce(
+            (theme, token) => {
+                return {
+                    ...theme,
+                    [token.scope]: {
+                        ...token.settings,
+                    },
+                }
+            },
+            {} as { [key: string]: TokenColorStyle },
+        )
 
         return { "editor.tokenColors.hoverTokens": tokenColorsMap }
     }
 
     public generateTokens({ defaultMap = defaultsToMap, defaultTokens }: IGenerateTokenArgs) {
-        const newTokens = Object.keys(defaultMap).reduce((acc, key) => {
-            const defaultToken = this.tokenColors.find(token => token.scope === key)
+        const newTokens = Object.keys(defaultMap).reduce((acc, defaultTokenName) => {
+            const defaultToken = this.props.tokenColors.find(
+                token => token.scope === defaultTokenName,
+            )
             if (defaultToken) {
-                const tokens = defaultMap[key].map(name =>
+                const tokens = defaultMap[defaultTokenName].map(name =>
                     this.generateSingleToken(name, defaultToken),
                 )
                 return [...acc, ...tokens]
             }
             return acc
         }, [])
-        return [...newTokens, ...this.tokenColors]
+        return [...newTokens, ...this.props.tokenColors]
     }
 
     public generateSingleToken(name: string, { settings }: TokenColor) {
@@ -226,8 +211,88 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
         }
     }
 
+    /**
+     * Provides a check that a token exists and has valid values
+     * if not it returns nothing or in the case of the foregroundColor it returns a default
+     * @returns {string}
+     */
+    public getCssRule = (
+        hoverTokens: INewTheme["editor.tokenColors.hoverTokens"],
+        token: string,
+        style: Style,
+    ) => {
+        const details = hoverTokens[token]
+
+        if (!details) {
+            return ""
+        }
+
+        const italicOrBold = details.fontStyle && details.fontStyle.includes(style)
+
+        switch (style) {
+            case "italic":
+                return italicOrBold ? "font-style: italic" : ""
+            case "bold":
+                return italicOrBold ? "font-weight: bold" : ""
+            case "foreground":
+            default:
+                return details[style] ? `color: ${details[style]}` : ""
+        }
+    }
+    /**
+     * Construct Class is a function which takes a token
+     * and returns another function which takes the theme as an argument
+     * with which it creates a css class based on the token name and returns this as a string
+     * @returns {fn(theme) => string}
+     */
+    public constructClassName = (token: string) => (theme: INewTheme) => {
+        const tokenAsClass = token.replace(/[.]/g, "-")
+
+        const hoverTokens = theme["editor.tokenColors.hoverTokens"]
+
+        if (!hoverTokens || !(token in hoverTokens)) {
+            return ""
+        }
+
+        const foreground = this.getCssRule(hoverTokens, token, "foreground")
+        const italics = this.getCssRule(hoverTokens, token, "italic")
+        const bold = this.getCssRule(hoverTokens, token, "bold")
+        const hasContent = foreground || italics || bold
+
+        if (!hasContent) {
+            return ""
+        }
+
+        const cssClass = `
+            .${tokenAsClass} {
+                ${bold};
+                ${italics};
+                ${foreground};
+            }
+        `
+        return cssClass
+    }
+
+    public convertTokenNamesToClasses = (tokenArray: TokenColor[]) => {
+        const arrayOfArrays = tokenArray.map(token => token.scope)
+        const names = [].concat(...arrayOfArrays)
+        return names
+    }
+
+    public constructStyles = (tokensToMap: string[] = this.flattenedDefaults) => {
+        const symbols = tokensToMap.map(this.constructClassName)
+
+        const flattenSymbols = (theme: INewTheme, fns: TokenFunc[]) =>
+            fns.map(fn => fn(theme)).join("\n")
+
+        const styles = css`
+            ${p => flattenSymbols(p.theme, symbols)};
+        `
+        return styles
+    }
+
     public render() {
-        const { theme } = this.state
+        const { theme, styles } = this.state
         return (
             theme && (
                 <ThemeProvider theme={theme}>{this.props.render({ theme, styles })}</ThemeProvider>

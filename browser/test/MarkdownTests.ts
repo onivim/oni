@@ -9,6 +9,11 @@ describe("Markdown Conversion Functions", () => {
         assert.ok(className === "token-scope")
     })
 
+    it("Scopes to string fn should correctly convert single words to a className", () => {
+        const className = markdown.scopesToString(["source"])
+        assert.ok(className === "source")
+    })
+
     it("Scopes to string Should return null if passed an falsy", () => {
         const nullArg = markdown.scopesToString(null)
         assert.ok(!nullArg)

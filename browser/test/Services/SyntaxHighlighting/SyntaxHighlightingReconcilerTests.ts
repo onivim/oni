@@ -27,10 +27,9 @@ describe("SyntaxHighlightReconciler", () => {
             {
                 scope: "scope.test",
                 settings: {
-                    backgroundColor: COLOR_BLACK,
-                    foregroundColor: COLOR_WHITE,
-                    bold: true,
-                    italic: true,
+                    background: COLOR_BLACK,
+                    foreground: COLOR_WHITE,
+                    fontStyle: "bold italic",
                 },
             },
         ])
@@ -93,10 +92,9 @@ describe("SyntaxHighlightReconciler", () => {
                 tokenColor: {
                     scope: "scope.test",
                     settings: {
-                        backgroundColor: COLOR_BLACK,
-                        foregroundColor: COLOR_WHITE,
-                        italic: true,
-                        bold: true,
+                        background: COLOR_BLACK,
+                        foreground: COLOR_WHITE,
+                        fontStyle: "bold italic",
                     },
                 },
             },
@@ -155,10 +153,9 @@ describe("SyntaxHighlightReconciler", () => {
                 tokenColor: {
                     scope: "scope.test",
                     settings: {
-                        backgroundColor: COLOR_BLACK,
-                        foregroundColor: COLOR_WHITE,
-                        italic: true,
-                        bold: true,
+                        background: COLOR_BLACK,
+                        foreground: COLOR_WHITE,
+                        fontStyle: "bold italic",
                     },
                 },
             },
