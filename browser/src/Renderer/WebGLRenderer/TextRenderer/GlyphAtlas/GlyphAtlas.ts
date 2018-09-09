@@ -74,9 +74,16 @@ export class GlyphAtlas {
             this._gl.UNSIGNED_BYTE,
             null,
         )
+
+        this._prefillWithVisibleAsciiCharacters()
     }
 
-    public getGlyph(text: string, isBold: boolean, isItalic: boolean, variantIndex: number) {
+    public getRasterizedGlyph(
+        text: string,
+        isBold: boolean,
+        isItalic: boolean,
+        variantIndex: number,
+    ) {
         // The mapping goes from character to styles (bold etc.) to subpixel-offset variant,
         // e.g. this._glyphs.get("a")[0][0] is the regular "a" with 0 offset,
         // while this._glyphs.get("a")[3][1] is the bold italic "a" with 1/offsetGlyphVariantCount px offset
@@ -92,13 +99,13 @@ export class GlyphAtlas {
             glyphStyleVariants[glyphStyleIndex] = glyphOffsetVariants
         }
 
-        let glyph = glyphOffsetVariants[variantIndex]
-        if (!glyph) {
-            glyph = this._rasterizeGlyph(text, isBold, isItalic, variantIndex)
-            glyphOffsetVariants[variantIndex] = glyph
+        let rasterizedGlyph = glyphOffsetVariants[variantIndex]
+        if (!rasterizedGlyph) {
+            rasterizedGlyph = this._rasterizeGlyph(text, isBold, isItalic, variantIndex)
+            glyphOffsetVariants[variantIndex] = rasterizedGlyph
         }
 
-        return glyph
+        return rasterizedGlyph
     }
 
     public uploadTexture() {
@@ -201,6 +208,23 @@ export class GlyphAtlas {
         this._nextX = 0
         this._nextY = 0
         this._currentTextureLayerChangedSinceLastUpload = true
+    }
+
+    private _prefillWithVisibleAsciiCharacters() {
+        for (let asciiCode = 33; asciiCode <= 126; asciiCode++) {
+            const character = String.fromCharCode(asciiCode)
+
+            for (
+                let variantIndex = 0;
+                variantIndex < this._options.offsetGlyphVariantCount;
+                variantIndex++
+            ) {
+                this.getRasterizedGlyph(character, false, false, variantIndex)
+                this.getRasterizedGlyph(character, true, false, variantIndex)
+                this.getRasterizedGlyph(character, false, true, variantIndex)
+                this.getRasterizedGlyph(character, true, true, variantIndex)
+            }
+        }
     }
 }
 
