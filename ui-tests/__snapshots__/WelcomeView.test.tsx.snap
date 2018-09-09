@@ -78,7 +78,7 @@ exports[`<WelcomeView /> should match its last snapshot 1`] = `
       ]
     }
   >
-    <WelcomeCommandsView
+    <Component
       commands={
         Object {
           "commandline": Object {
