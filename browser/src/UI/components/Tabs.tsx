@@ -193,14 +193,31 @@ interface ITabWrapperProps {
     shouldShowHighlight: boolean
 }
 
-type TabStyledProps = ITabWrapperProps & { theme: IThemeColors }
+const sanitizedModeForColors = (mode: string): string => {
+    switch (mode) {
+        case "showmatch":
+            return "insert"
+        case "cmdline_normal":
+            return "normal"
+        default:
+            return mode
+    }
+}
 
-const highlight = (props: TabStyledProps) =>
-    props.shouldShowHighlight &&
-    `border-top: 2px solid ${getHighlightColor(props.theme, props.mode)}`
+export const getHighlightColor = (props: {
+    isSelected: boolean
+    shouldShowHighlight: boolean
+    theme: IThemeColors
+    mode: string
+}) => {
+    if (!props.shouldShowHighlight || !props.isSelected) {
+        return "transparent"
+    }
+    const sanitizedMode = sanitizedModeForColors(props.mode)
+    return props.theme[`highlight.mode.${sanitizedMode}.background`]
+}
 
 const active = css`
-    ${highlight};
     ${boxShadowUp};
     opacity: 1;
 `
@@ -229,6 +246,7 @@ const TabWrapper = styled<ITabWrapperProps, "div">("div")`
     animation: ${tabEntranceKeyFrames} 0.1s ease-in forwards;
     ${props => (props.isSelected ? active : inactive)};
 
+    border-top: 2px solid ${getHighlightColor};
     background-color: ${themeGet("tabs.active.background", "tabs.background", "isSelected")};
     color: ${themeGet("tabs.active.foreground", "tabs.foreground", "isSelected")};
 `
@@ -418,22 +436,6 @@ export const getTabName = (name: string, isDuplicate?: boolean): string => {
 }
 
 const getTabState = (state: State.IState) => state.tabState
-
-const sanitizedModeForColors = (mode: string): string => {
-    switch (mode) {
-        case "showmatch":
-            return "insert"
-        case "cmdline_normal":
-            return "normal"
-        default:
-            return mode
-    }
-}
-
-export const getHighlightColor = (theme: IThemeColors, mode: string) => {
-    const sanitizedMode = sanitizedModeForColors(mode)
-    return theme[`highlight.mode.${sanitizedMode}.background`]
-}
 
 export const showTabId = (state: State.IState) => {
     return state.configuration["tabs.showIndex"]
