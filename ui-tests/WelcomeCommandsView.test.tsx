@@ -48,7 +48,7 @@ describe("Welcome Layer test", () => {
             execute: jest.fn(),
             command: "button6",
         },
-        quickOpenShow: {
+        commandPalette: {
             execute: jest.fn(),
             command: "button7",
         },
