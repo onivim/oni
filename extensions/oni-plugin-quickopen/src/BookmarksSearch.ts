@@ -44,7 +44,7 @@ export default class BookmarkSearch implements IAsyncSearch {
         await this._handleItem(bookmarkPath)
     }
 
-    isDir = async (path: string) => {
+    public isDir = async (path: string) => {
         try {
             const stats = await stat(path)
             return stats.isDirectory()
