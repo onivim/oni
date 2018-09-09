@@ -9,18 +9,9 @@ import * as path from "path"
 import { remote } from "electron"
 
 import { getDistPath, getRootPath } from "./DemoCommon"
+import { getCompletionElement } from "../ci/Common"
 
 // tslint:disable:no-console
-
-const getCompletionElement = () => {
-    const elements = document.body.getElementsByClassName("autocompletion")
-    if (!elements || !elements.length) {
-        return null
-    } else {
-        return elements[0]
-    }
-}
-
 const getNotificationText = () => {
     const elements = document.body.getElementsByClassName("notification-description")
 
