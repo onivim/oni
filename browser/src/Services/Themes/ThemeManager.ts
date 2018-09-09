@@ -12,7 +12,7 @@ import { PluginManager } from "./../../Plugins/PluginManager"
 import { Configuration, configuration, GenericConfigurationValues } from "./../Configuration"
 
 import * as PersistentSettings from "./../Configuration/PersistentSettings"
-import { TokenColor } from "./../TokenColors"
+import { ThemeToken, TokenColor } from "./../TokenColors"
 import { IThemeLoader, PluginThemeLoader } from "./ThemeLoader"
 
 export interface IThemeColors {
@@ -87,7 +87,7 @@ export interface IThemeColors {
     "fileExplorer.cursor.background": string
     "fileExplorer.cursor.foreground": string
 
-    "editor.tokenColors": TokenColor[]
+    "editor.tokenColors": ThemeToken[]
 
     // LATER:
     //  - Notifications?

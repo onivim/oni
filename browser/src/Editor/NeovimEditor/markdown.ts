@@ -22,9 +22,12 @@ export const scopesToString = (scope: string[]) => {
     if (scope) {
         return scope
             .map(s => {
-                const lastStop = s.lastIndexOf(".")
-                const remainder = s.substring(0, lastStop)
-                return remainder.replace(/\./g, "-")
+                if (s.includes(".")) {
+                    const lastStop = s.lastIndexOf(".")
+                    const remainder = s.substring(0, lastStop)
+                    return remainder.replace(/\./g, "-")
+                }
+                return s
             })
             .filter(value => !!value)
             .join(" ")

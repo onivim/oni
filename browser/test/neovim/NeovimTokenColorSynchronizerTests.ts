@@ -12,10 +12,9 @@ import { MockNeovimInstance } from "./../Mocks/neovim"
 const createTokenColor = (scope: string): TokenColor => ({
     scope,
     settings: {
-        foregroundColor: "#FFFFFF",
-        backgroundColor: "#FF0000",
-        bold: false,
-        italic: false,
+        foreground: "#FFFFFF",
+        background: "#FF0000",
+        fontStyle: null,
     },
 })
 

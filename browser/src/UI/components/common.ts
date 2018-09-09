@@ -1,6 +1,11 @@
 import * as Color from "color"
 import * as styledComponents from "styled-components"
-import { ThemedStyledComponentsModule, ThemeProps } from "styled-components" // tslint:disable-line no-duplicate-imports
+import {
+    FlattenInterpolation,
+    InterpolationValue,
+    ThemedStyledComponentsModule,
+    ThemeProps,
+} from "styled-components" // tslint:disable-line no-duplicate-imports
 import { IThemeColors } from "../../Services/Themes/ThemeManager"
 
 export const bufferScrollBarSize = "7px"
@@ -16,9 +21,7 @@ const {
     IThemeColors
 >
 
-export type Css =
-    | styledComponents.InterpolationValue[]
-    | Array<styledComponents.FlattenInterpolation<ThemeProps<IThemeColors>>>
+export type Css = InterpolationValue[] | Array<FlattenInterpolation<ThemeProps<IThemeColors>>>
 
 type FlexDirection = "flex-start" | "flex-end" | "center" | "space-between"
 

@@ -45,7 +45,7 @@ export const settings = {
             {
                 scope: "variable.other",
                 settings: {
-                    foregroundColor: "#00FF00",
+                    foreground: "#00FF00",
                 },
             },
         ],
