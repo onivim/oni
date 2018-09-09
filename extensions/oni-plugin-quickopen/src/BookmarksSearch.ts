@@ -1,5 +1,5 @@
 import { Plugin, Menu, Buffer } from "oni-api"
-import { readdir, stat } from "fs-extra"
+import { readdir, stat, pathExists } from "fs-extra"
 import { homedir } from "os"
 import { Event, IEvent } from "oni-types"
 import * as path from "path"
@@ -44,20 +44,26 @@ export default class BookmarkSearch implements IAsyncSearch {
         await this._handleItem(bookmarkPath)
     }
 
+    // deliberately through error as a means of clarifying if a path exists
+    // i.e. if isDir => true, else => false, if does not exist => new Error(err)
     public isDir = async (path: string) => {
-        try {
-            const stats = await stat(path)
-            return stats.isDirectory()
-        } catch (error) {
-            console.warn(error)
-            return false
-        }
+        const stats = await stat(path)
+        return stats.isDirectory()
     }
 
-    private _handleItem = (bookmarkPath: string) => {
-        return this.isDir(bookmarkPath)
-            ? this._oni.workspace.changeDirectory(bookmarkPath)
-            : this._oni.editors.openFile(bookmarkPath)
+    private _handleItem = async (bookmarkPath: string) => {
+        try {
+            const isDirectory = await this.isDir(bookmarkPath)
+            return isDirectory
+                ? this._oni.workspace.changeDirectory(bookmarkPath)
+                : this._oni.editors.openFile(bookmarkPath)
+        } catch (error) {
+            this._oni.log.warn(
+                `[Oni Bookmarks Menu Error]: The Bookmark path ${bookmarkPath} does not exist: \n ${
+                    error.message
+                }`,
+            )
+        }
     }
 
     public cancel(): void {}

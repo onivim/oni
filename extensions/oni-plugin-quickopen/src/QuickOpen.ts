@@ -254,11 +254,11 @@ export class QuickOpen {
             }
 
             case QuickOpenType.bookmark: {
+                // TODO: add an option to automatically open the quick open menu
+                // Also look at https://github.com/isaacs/node-glob, as a means
+                // of allowing users to specify globs for their bookmarks
                 await this._bookmarksSearch.handleBookmark(selectedItem)
-                await this.searchFileByPath()
-
                 break
-                // Fall-through
             }
 
             case QuickOpenType.file: {
