@@ -313,7 +313,7 @@ export interface IWelcomeCommandsDictionary {
     openConfig: ICommandMetadata
     openThemes: ICommandMetadata
     openWorkspaceFolder: ICommandMetadata
-    quickOpenShow: ICommandMetadata
+    commandPalette: ICommandMetadata
     commandline: ICommandMetadata
     restoreSession: (sessionName: string) => Promise<void>
 }
@@ -350,9 +350,9 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
             execute: args => this.executeCommand("workspace.openFolder", args),
             command: "workspace.openFolder",
         },
-        quickOpenShow: {
-            execute: args => this.executeCommand("quickOpen.show", args),
-            command: "quickOpen.show",
+        commandPalette: {
+            execute: args => this.executeCommand("commands.show", args),
+            command: "commands.show",
         },
         commandline: {
             execute: this.showCommandline,
@@ -613,10 +613,10 @@ export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsVie
                     />
                     <WelcomeButton
                         title="Command Palette"
-                        onClick={() => commands.quickOpenShow.execute()}
+                        onClick={() => commands.commandPalette.execute()}
                         description="Control + Shift + P"
-                        command={commands.quickOpenShow.command}
-                        selected={this.isSelected(commands.quickOpenShow.command)}
+                        command={commands.commandPalette.command}
+                        selected={this.isSelected(commands.commandPalette.command)}
                     />
                     <WelcomeButton
                         title="Vim Ex Commands"
