@@ -816,6 +816,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             !!highlightInfo.undercurl,
                             highlightInfo.foreground,
                             highlightInfo.background,
+                            highlightInfo.special,
                         ),
                     )
                     break
