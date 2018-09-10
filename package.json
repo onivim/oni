@@ -843,6 +843,7 @@
         "watch:plugins:oni-plugin-typescript": "cd vim/core/oni-plugin-typescript && tsc --watch",
         "watch:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && tsc --watch",
         "watch:plugins:oni-plugin-git": "cd vim/core/oni-plugin-git && tsc --watch",
+        "watch:plugins:oni-plugin-quickopen": "cd extensions/oni-plugin-quickopen && tsc --watch",
         "install:plugins": "run-s install:plugins:*",
         "install:plugins:oni-plugin-markdown-preview": "cd extensions/oni-plugin-markdown-preview && yarn install --prod",
         "install:plugins:oni-plugin-prettier": "cd extensions/oni-plugin-prettier && yarn install --prod",
