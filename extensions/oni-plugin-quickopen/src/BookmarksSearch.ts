@@ -34,6 +34,9 @@ export default class BookmarkSearch implements IAsyncSearch {
     }
 
     private _getBookmarkPath = (bookmark: string) => {
+        if (path.isAbsolute(bookmark)) {
+            return bookmark
+        }
         const userBaseDir = this._oni.configuration.getValue<string>("oni.bookmarks.baseDirectory")
         const baseDir = userBaseDir || homedir()
         return path.join(baseDir, bookmark)
