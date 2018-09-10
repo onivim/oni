@@ -25,15 +25,43 @@ describe("<WelcomeView />", () => {
         "button8",
     ]
 
+    const restoreSession = jest.fn()
+    const executeCommand = jest.fn()
+
     const commands = {
-        openFile: { command: "button1" },
-        openTutor: { command: "button2" },
-        openDocs: { command: "button3" },
-        openConfig: { command: "button4" },
-        openThemes: { command: "button5" },
-        openWorkspaceFolder: { command: "button6" },
-        commandPalette: { command: "button7" },
-        commandline: { command: "button8" },
+        openFile: {
+            execute: jest.fn(),
+            command: "button1",
+        },
+        openTutor: {
+            execute: jest.fn(),
+            command: "button2",
+        },
+        openDocs: {
+            execute: jest.fn(),
+            command: "button3",
+        },
+        openConfig: {
+            execute: jest.fn(),
+            command: "button4",
+        },
+        openThemes: {
+            execute: jest.fn(),
+            command: "button5",
+        },
+        openWorkspaceFolder: {
+            execute: jest.fn(),
+            command: "button6",
+        },
+        quickOpenShow: {
+            execute: jest.fn(),
+            command: "button7",
+        },
+        commandline: {
+            execute: jest.fn(),
+            command: "button8",
+        },
+        restoreSession,
     }
 
     const sessions = [
@@ -46,8 +74,6 @@ describe("<WelcomeView />", () => {
         },
     ]
 
-    const restoreSession = jest.fn()
-    const executeCommand = jest.fn()
     const inputEvent = new Event<IWelcomeInputEvent>("handleInputTestEvent")
     const getMetadata = async () => ({ version: "1" })
 
@@ -107,7 +133,7 @@ describe("<WelcomeView />", () => {
     it("should trigger a command on enter event", () => {
         const instance = wrapper.instance() as WelcomeView
         instance.handleInput({ vertical: 0, select: true })
-        expect(executeCommand.mock.calls[0][0]).toBe("button1")
+        expect(commands.openFile.execute).toHaveBeenCalled()
     })
 
     it("should navigate right if horizontal is 1", () => {

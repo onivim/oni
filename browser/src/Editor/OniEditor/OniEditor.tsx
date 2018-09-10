@@ -210,12 +210,7 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
             )
         }
 
-        this._neovimEditor.onShowWelcomeScreen.subscribe(async () => {
-            const oni = this._pluginManager.getApi()
-            const welcomeBuffer = await this._neovimEditor.createWelcomeBuffer()
-            const welcomeLayer = new WelcomeBufferLayer(oni as OniWithActiveSection)
-            welcomeBuffer.addLayer(welcomeLayer)
-        })
+        this._neovimEditor.onShowWelcomeScreen.subscribe(this.openWelcomeScreen)
     }
 
     public dispose(): void {
@@ -232,6 +227,14 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
         editorManager.setActiveEditor(this)
 
         this._neovimEditor.enter()
+
+        commandManager.registerCommand({
+            name: "Oni: Show Welcome",
+            detail: "Open the welcome screen",
+            command: "oni.welcome.open",
+            execute: this.openWelcomeScreen,
+            enabled: () => this._configuration.getValue("experimental.welcome.enabled"),
+        })
 
         commandManager.registerCommand({
             command: "editor.split.horizontal",
@@ -253,6 +256,13 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
     public leave(): void {
         Log.info("[OniEditor::leave]")
         this._neovimEditor.leave()
+    }
+
+    public openWelcomeScreen = async () => {
+        const oni = this._pluginManager.getApi()
+        const welcomeBuffer = await this._neovimEditor.createWelcomeBuffer()
+        const welcomeLayer = new WelcomeBufferLayer(oni as OniWithActiveSection)
+        welcomeBuffer.addLayer(welcomeLayer)
     }
 
     public async openFile(

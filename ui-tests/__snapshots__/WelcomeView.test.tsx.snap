@@ -78,33 +78,42 @@ exports[`<WelcomeView /> should match its last snapshot 1`] = `
       ]
     }
   >
-    <WelcomeCommandsView
+    <Component
       commands={
         Object {
-          "commandPalette": Object {
-            "command": "button7",
-          },
           "commandline": Object {
             "command": "button8",
+            "execute": [MockFunction],
           },
           "openConfig": Object {
             "command": "button4",
+            "execute": [MockFunction],
           },
           "openDocs": Object {
             "command": "button3",
+            "execute": [MockFunction],
           },
           "openFile": Object {
             "command": "button1",
+            "execute": [MockFunction],
           },
           "openThemes": Object {
             "command": "button5",
+            "execute": [MockFunction],
           },
           "openTutor": Object {
             "command": "button2",
+            "execute": [MockFunction],
           },
           "openWorkspaceFolder": Object {
             "command": "button6",
+            "execute": [MockFunction],
           },
+          "quickOpenShow": Object {
+            "command": "button7",
+            "execute": [MockFunction],
+          },
+          "restoreSession": [MockFunction],
         }
       }
       executeCommand={[MockFunction]}

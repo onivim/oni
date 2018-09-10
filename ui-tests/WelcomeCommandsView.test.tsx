@@ -20,24 +20,52 @@ describe("Welcome Layer test", () => {
         "button8",
     ]
 
+    const restoreSession = jest.fn()
+    const executeCommand = jest.fn()
+
     const commands = {
-        openFile: { command: "button1" },
-        openTutor: { command: "button2" },
-        openDocs: { command: "button3" },
-        openConfig: { command: "button4" },
-        openThemes: { command: "button5" },
-        openWorkspaceFolder: { command: "button6" },
-        commandPalette: { command: "button7" },
-        commandline: { command: "button8" },
+        openFile: {
+            execute: jest.fn(),
+            command: "button1",
+        },
+        openTutor: {
+            execute: jest.fn(),
+            command: "button2",
+        },
+        openDocs: {
+            execute: jest.fn(),
+            command: "button3",
+        },
+        openConfig: {
+            execute: jest.fn(),
+            command: "button4",
+        },
+        openThemes: {
+            execute: jest.fn(),
+            command: "button5",
+        },
+        openWorkspaceFolder: {
+            execute: jest.fn(),
+            command: "button6",
+        },
+        commandPalette: {
+            execute: jest.fn(),
+            command: "button7",
+        },
+        commandline: {
+            execute: jest.fn(),
+            command: "button8",
+        },
+        restoreSession,
     }
-    const executeMock = jest.fn()
+
     it("should render without crashing", () => {
         const wrapper = shallow(
             <WelcomeCommandsView
                 selectedId="button1"
                 active
                 commands={commands}
-                executeCommand={executeMock}
+                executeCommand={executeCommand}
             />,
         )
         expect(wrapper.length).toBe(1)
@@ -49,7 +77,7 @@ describe("Welcome Layer test", () => {
                 selectedId="button1"
                 active
                 commands={commands}
-                executeCommand={executeMock}
+                executeCommand={executeCommand}
             />,
         )
         expect(toJson(wrapper)).toMatchSnapshot()
@@ -60,9 +88,9 @@ describe("Welcome Layer test", () => {
                 selectedId="button1"
                 active
                 commands={commands}
-                executeCommand={executeMock}
+                executeCommand={executeCommand}
             />,
         )
-        expect(wrapper.dive().find(WelcomeButton).length).toBe(Object.values(commands).length)
+        expect(wrapper.dive().find(WelcomeButton).length).toBe(8)
     })
 })

@@ -301,9 +301,9 @@ export interface IWelcomeInputEvent {
     horizontal?: number
 }
 
-interface ICommandMetadata<T = undefined> {
+interface ICommandMetadata {
+    execute: <T = undefined>(args?: T) => void
     command: string
-    args?: T
 }
 
 export interface IWelcomeCommandsDictionary {
@@ -315,23 +315,67 @@ export interface IWelcomeCommandsDictionary {
     openWorkspaceFolder: ICommandMetadata
     commandPalette: ICommandMetadata
     commandline: ICommandMetadata
+    restoreSession: (sessionName: string) => Promise<void>
 }
 
 export class WelcomeBufferLayer implements Oni.BufferLayer {
     public inputEvent = new Event<IWelcomeInputEvent>()
 
-    public readonly welcomeCommands: IWelcomeCommandsDictionary = {
-        openFile: { command: "oni.editor.newFile" },
-        openWorkspaceFolder: { command: "workspace.openFolder" },
-        commandPalette: { command: "quickOpen.show" },
-        commandline: { command: "executeVimCommand" },
-        openTutor: { command: "oni.tutor.open" },
-        openDocs: { command: "oni.docs.open" },
-        openConfig: { command: "oni.config.openUserConfig" },
-        openThemes: { command: "oni.themes.open" },
+    constructor(private _oni: OniWithActiveSection) {}
+
+    public showCommandline = async () => {
+        const remapping: string = await this._oni.editors.activeEditor.neovim.callFunction(
+            "mapcheck",
+            [":", "n"],
+        )
+        const mapping = remapping || ":"
+        this._oni.automation.sendKeys(mapping)
     }
 
-    constructor(private _oni: OniWithActiveSection) {}
+    public executeCommand: ExecuteCommand = (cmd, args) => {
+        this._oni.commands.executeCommand(cmd, args)
+    }
+
+    public restoreSession = async (name: string) => {
+        await this._oni.sessions.restoreSession(name)
+    }
+
+    // tslint:disable-next-line
+    public readonly welcomeCommands: IWelcomeCommandsDictionary = {
+        openFile: {
+            execute: args => this.executeCommand("oni.editor.newFile", args),
+            command: "oni.editor.newFile",
+        },
+        openWorkspaceFolder: {
+            execute: args => this.executeCommand("workspace.openFolder", args),
+            command: "workspace.openFolder",
+        },
+        commandPalette: {
+            execute: args => this.executeCommand("commands.show", args),
+            command: "commands.show",
+        },
+        commandline: {
+            execute: this.showCommandline,
+            command: "editor.executeVimCommand",
+        },
+        openTutor: {
+            execute: args => this.executeCommand("oni.tutor.open", args),
+            command: "oni.tutor.open",
+        },
+        openDocs: {
+            execute: args => this.executeCommand("oni.docs.open", args),
+            command: "oni.docs.open",
+        },
+        openConfig: {
+            execute: args => this.executeCommand("oni.config.openUserConfig", args),
+            command: "oni.config.openUserConfig",
+        },
+        openThemes: {
+            execute: args => this.executeCommand("oni.themes.choose", args),
+            command: "oni.themes.open",
+        },
+        restoreSession: args => this.restoreSession(args),
+    }
 
     public get id() {
         return "oni.welcome"
@@ -369,19 +413,12 @@ export class WelcomeBufferLayer implements Oni.BufferLayer {
         }
     }
 
-    public executeCommand: ExecuteCommand = (cmd, args) => {
-        if (cmd) {
-            this._oni.commands.executeCommand(cmd, args)
-        }
-    }
-
-    public restoreSession = async (name: string) => {
-        await this._oni.sessions.restoreSession(name)
-    }
-
     public getProps() {
         const active = this._oni.getActiveSection() === "editor"
-        const commandIds = Object.values(this.welcomeCommands).map(({ command }) => command)
+        const commandIds = Object.values(this.welcomeCommands)
+            .map(({ command }) => command)
+            .filter(Boolean)
+
         const sessions = this._oni.sessions ? this._oni.sessions.allSessions : ([] as ISession[])
         const sessionIds = sessions.map(({ id }) => id)
         const ids = [...commandIds, ...sessionIds]
@@ -442,7 +479,7 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
 
     public handleInput = async ({ vertical, select, horizontal }: IWelcomeInputEvent) => {
         const { currentIndex } = this.state
-        const { sections, ids, executeCommand, active } = this.props
+        const { sections, ids, active } = this.props
 
         const newIndex = this.getNextIndex(currentIndex, vertical, horizontal, sections)
         const selectedId = ids[newIndex]
@@ -452,10 +489,10 @@ export class WelcomeView extends React.PureComponent<WelcomeViewProps, WelcomeVi
 
         if (select && active) {
             if (selectedSession) {
-                await this.props.restoreSession(selectedSession.name)
+                await this.props.commands.restoreSession(selectedSession.name)
             } else {
                 const currentCommand = this.getCurrentCommand(selectedId)
-                executeCommand(currentCommand.command, currentCommand.args)
+                currentCommand.execute()
             }
         }
     }
@@ -552,78 +589,76 @@ export interface IWelcomeCommandsViewProps extends Partial<WelcomeViewProps> {
     selectedId: string
 }
 
-export class WelcomeCommandsView extends React.PureComponent<IWelcomeCommandsViewProps, {}> {
-    public render() {
-        const { commands, executeCommand } = this.props
-        const isSelected = (command: string) => command === this.props.selectedId
-        return (
-            <LeftColumn>
-                <AnimatedContainer duration="0.25s">
-                    <SectionHeader>Quick Commands</SectionHeader>
-                    <WelcomeButton
-                        title="New File"
-                        onClick={() => executeCommand(commands.openFile.command)}
-                        description="Control + N"
-                        command={commands.openFile.command}
-                        selected={isSelected(commands.openFile.command)}
-                    />
-                    <WelcomeButton
-                        title="Open File / Folder"
-                        onClick={() => executeCommand(commands.openWorkspaceFolder.command)}
-                        description="Control + O"
-                        command={commands.openWorkspaceFolder.command}
-                        selected={isSelected(commands.openWorkspaceFolder.command)}
-                    />
-                    <WelcomeButton
-                        title="Command Palette"
-                        onClick={() => executeCommand(commands.commandPalette.command)}
-                        description="Control + Shift + P"
-                        command={commands.commandPalette.command}
-                        selected={isSelected(commands.commandPalette.command)}
-                    />
-                    <WelcomeButton
-                        title="Vim Ex Commands"
-                        description=":"
-                        command="editor.openExCommands"
-                        onClick={() => executeCommand(commands.commandline.command)}
-                        selected={isSelected(commands.commandline.command)}
-                    />
-                </AnimatedContainer>
-                <AnimatedContainer duration="0.25s">
-                    <SectionHeader>Learn</SectionHeader>
-                    <WelcomeButton
-                        title="Tutor"
-                        onClick={() => executeCommand(commands.openTutor.command)}
-                        description="Learn modal editing with an interactive tutorial."
-                        command={commands.openTutor.command}
-                        selected={isSelected(commands.openTutor.command)}
-                    />
-                    <WelcomeButton
-                        title="Documentation"
-                        onClick={() => executeCommand(commands.openDocs.command)}
-                        description="Discover what Oni can do for you."
-                        command={commands.openDocs.command}
-                        selected={isSelected(commands.openDocs.command)}
-                    />
-                </AnimatedContainer>
-                <AnimatedContainer duration="0.25s">
-                    <SectionHeader>Customize</SectionHeader>
-                    <WelcomeButton
-                        title="Configure"
-                        onClick={() => executeCommand(commands.openConfig.command)}
-                        description="Make Oni work the way you want."
-                        command={commands.openConfig.command}
-                        selected={isSelected(commands.openConfig.command)}
-                    />
-                    <WelcomeButton
-                        title="Themes"
-                        onClick={() => executeCommand(commands.openThemes.command)}
-                        description="Choose a theme that works for you."
-                        command={commands.openThemes.command}
-                        selected={isSelected(commands.openThemes.command)}
-                    />
-                </AnimatedContainer>
-            </LeftColumn>
-        )
-    }
+export const WelcomeCommandsView: React.SFC<IWelcomeCommandsViewProps> = props => {
+    const isSelected = (command: string) => command === props.selectedId
+    const { commands } = props
+    return (
+        <LeftColumn>
+            <AnimatedContainer duration="0.25s">
+                <SectionHeader>Quick Commands</SectionHeader>
+                <WelcomeButton
+                    title="New File"
+                    onClick={() => commands.openFile.execute()}
+                    description="Control + N"
+                    command={commands.openFile.command}
+                    selected={isSelected(commands.openFile.command)}
+                />
+                <WelcomeButton
+                    title="Open File / Folder"
+                    description="Control + O"
+                    onClick={() => commands.openWorkspaceFolder.execute()}
+                    command={commands.openWorkspaceFolder.command}
+                    selected={isSelected(commands.openWorkspaceFolder.command)}
+                />
+                <WelcomeButton
+                    title="Command Palette"
+                    onClick={() => commands.commandPalette.execute()}
+                    description="Control + Shift + P"
+                    command={commands.commandPalette.command}
+                    selected={isSelected(commands.commandPalette.command)}
+                />
+                <WelcomeButton
+                    title="Vim Ex Commands"
+                    description=":"
+                    command="editor.openExCommands"
+                    onClick={() => commands.commandline.execute()}
+                    selected={isSelected(commands.commandline.command)}
+                />
+            </AnimatedContainer>
+            <AnimatedContainer duration="0.25s">
+                <SectionHeader>Learn</SectionHeader>
+                <WelcomeButton
+                    title="Tutor"
+                    onClick={() => commands.openTutor.execute()}
+                    description="Learn modal editing with an interactive tutorial."
+                    command={commands.openTutor.command}
+                    selected={isSelected(commands.openTutor.command)}
+                />
+                <WelcomeButton
+                    title="Documentation"
+                    onClick={() => commands.openDocs.execute()}
+                    description="Discover what Oni can do for you."
+                    command={commands.openDocs.command}
+                    selected={isSelected(commands.openDocs.command)}
+                />
+            </AnimatedContainer>
+            <AnimatedContainer duration="0.25s">
+                <SectionHeader>Customize</SectionHeader>
+                <WelcomeButton
+                    title="Configure"
+                    onClick={() => commands.openConfig.execute()}
+                    description="Make Oni work the way you want."
+                    command={commands.openConfig.command}
+                    selected={isSelected(commands.openConfig.command)}
+                />
+                <WelcomeButton
+                    title="Themes"
+                    onClick={() => commands.openThemes.execute()}
+                    description="Choose a theme that works for you."
+                    command={commands.openThemes.command}
+                    selected={isSelected(commands.openThemes.command)}
+                />
+            </AnimatedContainer>
+        </LeftColumn>
+    )
 }
