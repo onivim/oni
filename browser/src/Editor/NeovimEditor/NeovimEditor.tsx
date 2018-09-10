@@ -1292,6 +1292,8 @@ export class NeovimEditor extends Editor implements Oni.Editor {
 
     private async _onColorsChanged(): Promise<void> {
         const newColorScheme = await this._neovimInstance.eval<string>("g:colors_name")
+        const { bufferNumber } = await this._neovimInstance.getContext()
+        this._syntaxHighlighter.notifyColorschemeRedraw(`${bufferNumber}`)
 
         // In error cases, the neovim API layer returns an array
         if (typeof newColorScheme !== "string") {

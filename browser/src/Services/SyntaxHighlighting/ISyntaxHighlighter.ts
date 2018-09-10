@@ -12,6 +12,7 @@ import { ISyntaxHighlightTokenInfo } from "./SyntaxHighlightingStore"
 export interface ISyntaxHighlighter extends IDisposable {
     notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void>
     notifyViewportChanged(bufferId: string, topLineInView: number, bottomLineInView: number): void
+    notifyColorschemeRedraw(id: string): void
 
     getHighlightTokenAt(bufferId: string, position: types.Position): ISyntaxHighlightTokenInfo
 }

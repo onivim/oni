@@ -74,6 +74,10 @@ export const DefaultSyntaxHighlightState: ISyntaxHighlightState = {
 
 export type ISyntaxHighlightAction =
     | {
+          type: "SYNTAX_RESET_BUFFER"
+          bufferId: string
+      }
+    | {
           type: "SYNTAX_UPDATE_BUFFER"
           language: string
           extension: string
@@ -180,7 +184,11 @@ const updateBufferLineMiddleware = (store: any) => (next: any) => (action: any) 
 const updateTokenMiddleware = (store: any) => (next: any) => (action: any) => {
     const result: ISyntaxHighlightAction = next(action)
 
-    if (action.type === "SYNTAX_UPDATE_BUFFER" || action.type === "SYNTAX_UPDATE_BUFFER_VIEWPORT") {
+    if (
+        action.type === "SYNTAX_UPDATE_BUFFER" ||
+        action.type === "SYNTAX_UPDATE_BUFFER_VIEWPORT" ||
+        action.type === "SYNTAX_RESET_BUFFER"
+    ) {
         const state: ISyntaxHighlightState = store.getState()
         const bufferId = action.bufferId
 
@@ -212,7 +220,7 @@ const updateTokenMiddleware = (store: any) => (next: any) => (action: any) => {
 
             syntaxHighlightingJobs.startJob(
                 new SyntaxHighlightingPeriodicJob(
-                    store as any,
+                    store,
                     action.bufferId,
                     grammar,
                     relevantRange.top,

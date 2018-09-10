@@ -32,38 +32,40 @@ export class NeovimTokenColorSynchronizer {
     private _tokenScopeSelectorToHighlightName: { [key: string]: string } = {}
     private _highlightNameToHighlightValue: { [key: string]: string } = {}
 
-    constructor(private _neovimInstance: NeovimInstance) {}
+    constructor(private _neovimInstance: NeovimInstance) {
+        this._neovimInstance.onColorsChanged.subscribe(() => {
+            // NOTE: Not sure if this should have responsibility over resetting the highlight cache
+            this._highlightNameToHighlightValue = {}
+        })
+    }
 
     // This method creates highlight groups for any token colors that haven't been set yet
-    public async synchronizeTokenColors(tokenColors: TokenColor[]): Promise<void> {
-        const highlightsToAdd = tokenColors.map(tokenColor => {
+    public async synchronizeTokenColors(tokenColors: TokenColor[]) {
+        const highlightsToAdd = tokenColors.reduce((newHighlights, tokenColor) => {
             const highlightName = this._getOrCreateHighlightGroup(tokenColor)
             const highlightFromScope = this._convertTokenStyleToHighlightInfo(tokenColor)
 
             const currentHighlight = this._highlightNameToHighlightValue[highlightName]
 
             if (currentHighlight === highlightFromScope) {
-                return null
-            } else {
-                this._highlightNameToHighlightValue[highlightName] = highlightFromScope
-                return highlightFromScope
+                return newHighlights
             }
-        })
+            this._highlightNameToHighlightValue[highlightName] = highlightFromScope
+            return [...newHighlights, highlightFromScope]
+        }, [])
 
-        const filteredHighlights = highlightsToAdd.filter(hl => !!hl)
-
-        const atomicCalls = filteredHighlights.map(hlCommand => ["nvim_command", [hlCommand]])
+        const atomicCalls = highlightsToAdd.map(hlCommand => ["nvim_command", [hlCommand]])
 
         if (!atomicCalls.length) {
             return
         }
 
         Log.info(
-            "[NeovimTokenColorSynchronizer::synchronizeTokenColors] Setting " +
-                atomicCalls.length +
-                " highlights",
+            `[NeovimTokenColorSynchronizer::synchronizeTokenColors] Setting ${
+                atomicCalls.length
+            }  highlights`,
         )
-        await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
+        this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
         Log.info(
             "[NeovimTokenColorSynchronizer::synchronizeTokenColors] Highlights set successfully",
         )
