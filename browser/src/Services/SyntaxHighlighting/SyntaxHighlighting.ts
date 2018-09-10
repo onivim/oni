@@ -29,8 +29,8 @@ import {
 
 import { ISyntaxHighlighter } from "./ISyntaxHighlighter"
 import {
-    SyntaxHighlightReconciler,
     IEditorWithSyntaxHighlighter,
+    SyntaxHighlightReconciler,
 } from "./SyntaxHighlightReconciler"
 import { getLineFromBuffer } from "./SyntaxHighlightSelectors"
 
@@ -69,9 +69,9 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     ): void {
         Log.verbose(
             `[SyntaxHighlighting.notifyViewportChanged] -
-              bufferId: ${bufferId} 
-              topLineInView: ${topLineInView}
-              bottomLineInView:  ${bottomLineInView}`,
+             bufferId: ${bufferId} 
+             topLineInView: ${topLineInView}
+             bottomLineInView:  ${bottomLineInView}`,
         )
 
         const state = this._store.getState()

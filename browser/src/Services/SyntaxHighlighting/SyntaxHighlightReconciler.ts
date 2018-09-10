@@ -4,6 +4,7 @@
  * Handles enhanced syntax highlighting
  */
 
+import { Buffer, Editor } from "oni-api"
 import * as Log from "oni-core-logging"
 
 import { TokenColor, TokenColors } from "./../TokenColors"
@@ -16,9 +17,8 @@ import {
 } from "./SyntaxHighlightingStore"
 import { TokenScorer } from "./TokenScorer"
 
-import * as Selectors from "./SyntaxHighlightSelectors"
-import { Buffer, Editor } from "oni-api"
 import { IBufferHighlightsUpdater } from "../../Editor/BufferHighlights"
+import * as Selectors from "./SyntaxHighlightSelectors"
 
 interface IBufferWithSyntaxHighlighter extends Buffer {
     updateHighlights?: (

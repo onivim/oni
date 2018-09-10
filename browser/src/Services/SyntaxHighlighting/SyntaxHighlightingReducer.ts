@@ -131,17 +131,19 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
             return newState
         }
         case "SYNTAX_RESET_BUFFER":
-            const newState: SyntaxHighlightLines = {}
+            const resetState: SyntaxHighlightLines = {}
             for (const lineNumber in state) {
-                const currentLine = state[lineNumber]
-                newState[lineNumber] = {
-                    tokens: [],
-                    ruleStack: null,
-                    ...currentLine,
-                    dirty: true,
+                if (state.hasOwnProperty(lineNumber)) {
+                    const currentLine = state[lineNumber]
+                    resetState[lineNumber] = {
+                        tokens: [],
+                        ruleStack: null,
+                        ...currentLine,
+                        dirty: true,
+                    }
                 }
             }
-            return newState
+            return resetState
 
         case "SYNTAX_UPDATE_BUFFER":
             const updatedBufferState: SyntaxHighlightLines = {
