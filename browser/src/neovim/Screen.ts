@@ -204,8 +204,11 @@ export class NeovimScreen implements IScreen {
                     this._currentHighlight.foregroundColor || this._foregroundColor
                 let backgroundColor =
                     this._currentHighlight.backgroundColor || this._backgroundColor
-                let specialColor = this._currentHighlight.specialColor || this._specialColor
+                const specialColor = this._currentHighlight.specialColor || this._specialColor
 
+                // `:help ui-event-highlight_set` specifies that the background and foreground colours
+                // are swapped if reversed is set. The special colour is not mentioned, which is why it
+                // is omitted here.
                 if (this._currentHighlight.reverse) {
                     const temp = foregroundColor
                     foregroundColor = backgroundColor
