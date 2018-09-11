@@ -41,7 +41,7 @@ export class NeovimTokenColorSynchronizer {
 
     // This method creates highlight groups for any token colors that haven't been set yet
     public async synchronizeTokenColors(tokenColors: TokenColor[]) {
-        const highlightsToAdd = tokenColors.reduce((newHighlights, tokenColor) => {
+        const highlightsToAdd = tokenColors.reduce<string[]>((newHighlights, tokenColor) => {
             const highlightName = this._getOrCreateHighlightGroup(tokenColor)
             const highlightFromScope = this._convertTokenStyleToHighlightInfo(tokenColor)
 
