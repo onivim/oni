@@ -60,12 +60,6 @@ module.exports = {
                 },
                 exclude: /node_modules/,
             },
-            {
-                test: /(fontkit|unicode-properties)[\/\\]index.js$/,
-                use: {
-                    loader: "ify-loader",
-                },
-            },
         ],
     },
     plugins: [

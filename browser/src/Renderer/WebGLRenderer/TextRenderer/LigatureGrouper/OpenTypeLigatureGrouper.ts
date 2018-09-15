@@ -1,11 +1,8 @@
 import fontManager from "font-manager"
-import fontkit, { Font } from "fontkit"
 import * as fs from "fs"
-import * as groupBy from "lodash/groupBy"
 import * as Log from "oni-core-logging"
+import oniFontkit, { Font } from "oni-fontkit"
 
-import { GlyphInfo } from "./GlyphInfo"
-import { GlyphSubstitutor } from "./GlyphSubstitutor"
 import { ILigatureGrouper } from "./ILigatureGrouper"
 
 const ligatureFeatures = ["calt", "rclt", "liga", "dlig", "clig"]
@@ -13,9 +10,6 @@ const ligatureFeatures = ["calt", "rclt", "liga", "dlig", "clig"]
 export class OpenTypeLigatureGrouper implements ILigatureGrouper {
     private readonly _font = loadFont(this._fontFamily)
     private readonly _fontHasLigatures = this._font && checkIfFontHasLigatures(this._font)
-    private readonly _glyphSubstitutor = this._fontHasLigatures
-        ? new GlyphSubstitutor(this._font)
-        : null
     private readonly _cache = new Map<string, string[]>()
 
     constructor(private _fontFamily: string) {}
@@ -33,24 +27,17 @@ export class OpenTypeLigatureGrouper implements ILigatureGrouper {
         }
 
         const fontGlyphs = this._font.glyphsForString(concatenatedCharacters)
-        const glyphInfos = fontGlyphs.map(
-            glyph => new GlyphInfo(this._font, glyph.id, [...glyph.codePoints], ligatureFeatures),
-        )
-        // Apply ligatures and store contextGroup metadata in the GlyphInfos wherever they applied
-        this._glyphSubstitutor.applyFeatures(ligatureFeatures, glyphInfos)
-
-        // Group GlyphInfo[] by contextGroup
-        const contextGroupDictionary = groupBy(glyphInfos, glyphInfo => glyphInfo.contextGroup)
-        const contextGroupSymbols = Object.getOwnPropertySymbols(contextGroupDictionary)
-        // TODO remove the "as any" once we upgraded to TS 3
-        const contextGroups = contextGroupSymbols.map(
-            contextGroupSymbol => contextGroupDictionary[contextGroupSymbol as any],
-        )
-
-        // Map GlyphInfo[][] to string[]
-        const ligatureGroups = contextGroups.map(glyphsInContextGroup =>
-            glyphsInContextGroup.map(glyph => String.fromCodePoint(...glyph.codePoints)).join(""),
-        )
+        // Apply ligatures and get the contextGroup metadata in the Glyphs where context-based replacements happened
+        const contextGroupArray = this._font.applySubstitutionFeatures(fontGlyphs, ligatureFeatures)
+        const ligatureGroups: string[] = []
+        let currentContextGroupId: number = null
+        contextGroupArray.forEach((contextGroupId, index) => {
+            if (contextGroupId !== currentContextGroupId) {
+                currentContextGroupId = contextGroupId
+                ligatureGroups.push("")
+            }
+            ligatureGroups[ligatureGroups.length - 1] += concatenatedCharacters[index]
+        })
 
         this._cache.set(concatenatedCharacters, ligatureGroups)
         return [...ligatureGroups]
@@ -74,7 +61,7 @@ const loadFont = (fontFamily: string) => {
         }
 
         const fontFileBuffer = fs.readFileSync(fontDescriptor.path)
-        const font = fontkit.create(fontFileBuffer)
+        const font = oniFontkit.create(fontFileBuffer)
         Log.verbose(
             `[OpenTypeLigatureGrouper] Using font ${fontDescriptor.postscriptName} located at ${
                 fontDescriptor.path
