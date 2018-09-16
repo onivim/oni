@@ -115,7 +115,8 @@ export class SyntaxHighlightReconciler {
                     `[SyntaxHighlightReconciler] Applying changes to ${tokens.length} lines.`,
                 )
                 activeBuffer.updateHighlights(visibleTokens, highlightUpdater => {
-                    tokens.forEach(({ line, highlights }) => {
+                    tokens.forEach(token => {
+                        const { line, highlights } = token
                         if (Log.isDebugLoggingEnabled()) {
                             Log.debug(
                                 `[SyntaxHighlightingReconciler] Updating tokens for line: ${line} | ${prettyPrint(
