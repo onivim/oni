@@ -8,6 +8,7 @@ import { Buffer, Editor } from "oni-api"
 import * as Log from "oni-core-logging"
 
 import { TokenColor, TokenColors } from "./../TokenColors"
+import { prettyPrint } from "./../../Utility"
 
 import { HighlightInfo } from "./Definitions"
 import {
@@ -92,6 +93,15 @@ export class SyntaxHighlightReconciler {
                 }
             })
 
+            // Get only the token colors that apply to the visible section of the buffer
+            const visibleTokens = tokens.reduce((accumulator, { highlights }) => {
+                if (highlights) {
+                    const tokenColors = highlights.map(({ tokenColor }) => tokenColor)
+                    accumulator.push(...tokenColors)
+                }
+                return accumulator
+            }, [])
+
             filteredLines.forEach(line => {
                 const lineNumber = parseInt(line, 10)
                 this._previousState[line] = Selectors.getLineFromBuffer(
@@ -104,14 +114,12 @@ export class SyntaxHighlightReconciler {
                 Log.verbose(
                     `[SyntaxHighlightReconciler] Applying changes to ${tokens.length} lines.`,
                 )
-                activeBuffer.updateHighlights(this._tokenColors.tokenColors, highlightUpdater => {
+                activeBuffer.updateHighlights(visibleTokens, highlightUpdater => {
                     tokens.forEach(({ line, highlights }) => {
                         if (Log.isDebugLoggingEnabled()) {
                             Log.debug(
-                                `[SyntaxHighlightingReconciler] Updating tokens for line: ${line} | ${JSON.stringify(
+                                `[SyntaxHighlightingReconciler] Updating tokens for line: ${line} | ${prettyPrint(
                                     highlights,
-                                    null,
-                                    2,
                                 )}`,
                             )
                         }

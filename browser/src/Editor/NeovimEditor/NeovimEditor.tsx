@@ -315,20 +315,18 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             this._actions.setColors(updatedColors)
         }
 
-        this._colors.onColorsChanged.subscribe(() => onColorsChanged())
+        this._colors.onColorsChanged.subscribe(onColorsChanged)
         onColorsChanged()
 
         const onTokenColorschanged = () => {
             if (this._neovimInstance.isInitialized) {
-                this._neovimInstance.tokenColorSynchronizer.synchronizeTokenColors(
-                    this._tokenColors.tokenColors,
-                )
+                // this._neovimInstance.tokenColorSynchronizer.synchronizeTokenColors(
+                //     this._tokenColors.tokenColors,
+                // )
             }
         }
 
-        this.trackDisposable(
-            this._tokenColors.onTokenColorsChanged.subscribe(() => onTokenColorschanged()),
-        )
+        this.trackDisposable(this._tokenColors.onTokenColorsChanged.subscribe(onTokenColorschanged))
 
         // Overlays
         // TODO: Replace `OverlayManagement` concept and associated window management code with
