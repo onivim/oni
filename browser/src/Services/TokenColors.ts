@@ -8,6 +8,9 @@
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { Configuration, IConfigurationValues } from "./Configuration"
+import { ThemeManager } from "./Themes"
+
 export interface TokenColor {
     scope: string[]
     settings: TokenColorStyle
