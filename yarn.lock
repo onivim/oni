@@ -6654,6 +6654,10 @@ lodash.flattendeep@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/lodash.flattendeep/-/lodash.flattendeep-4.4.0.tgz#fb030917f86a3134e5bc9bec0d69e0013ddfedb2"
 
+lodash.get@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
+
 lodash.isarguments@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/lodash.isarguments/-/lodash.isarguments-3.1.0.tgz#2f573d85c6a24289ff00663b491c1d338ff3458a"
@@ -6677,6 +6681,10 @@ lodash.keys@^3.0.0:
 lodash.memoize@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
+
+lodash.set@^4.3.2:
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/lodash.set/-/lodash.set-4.3.2.tgz#d8757b1da807dde24816b0d6a84bea1a76230b23"
 
 lodash.some@^4.6.0:
   version "4.6.0"
@@ -7650,15 +7658,15 @@ oni-core-logging@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/oni-core-logging/-/oni-core-logging-1.0.0.tgz#7ad6c0ad8b06c23255202f97e229c2b0947dcf0b"
 
-oni-fontkit@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/oni-fontkit/-/oni-fontkit-0.0.1.tgz#6f47b31de1611273432659cba894ca19b2a139dc"
+oni-fontkit@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/oni-fontkit/-/oni-fontkit-0.0.4.tgz#4bc91a2c9802c0910fcd93b409ba56e45fc202cf"
   dependencies:
     babel-runtime "^6.11.6"
     brotli "^1.2.0"
     clone "^1.0.1"
     deep-equal "^1.0.0"
-    restructure "^0.5.3"
+    oni-restructure "^0.0.1"
     tiny-inflate "^1.0.2"
 
 oni-neovim-binaries@0.1.3:
@@ -7674,6 +7682,14 @@ oni-release-downloader@^0.0.10:
     github-releases "^0.4.1"
     mkdirp "^0.5.1"
     rimraf "^2.6.2"
+
+oni-restructure@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/oni-restructure/-/oni-restructure-0.0.1.tgz#9938eedafc8afdada554fe9f1771a7eb80eeee05"
+  dependencies:
+    browserify-optional "^1.0.0"
+    lodash.get "^4.4.2"
+    lodash.set "^4.3.2"
 
 oni-ripgrep@0.0.4:
   version "0.0.4"
@@ -9261,12 +9277,6 @@ restore-cursor@^2.0.0:
     onetime "^2.0.0"
     signal-exit "^3.0.2"
 
-restructure@^0.5.3:
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/restructure/-/restructure-0.5.4.tgz#f54e7dd563590fb34fd6bf55876109aeccb28de8"
-  dependencies:
-    browserify-optional "^1.0.0"
-
 ret@~0.1.10:
   version "0.1.15"
   resolved "https://registry.yarnpkg.com/ret/-/ret-0.1.15.tgz#b8a4825d5bdb1fc3f6f53c2bc33f81388681c7bc"
@@ -10399,12 +10409,6 @@ tr46@^1.0.0:
 tr46@~0.0.3:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/tr46/-/tr46-0.0.3.tgz#8184fd347dac9cdc185992f3a6622e14b9d9ab6a"
-
-transform-loader@^0.2.4:
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/transform-loader/-/transform-loader-0.2.4.tgz#e5c87877ba96d51d3f225368587b46e226d1cec9"
-  dependencies:
-    loader-utils "^1.0.2"
 
 tree-kill@^1.1.0:
   version "1.2.0"
