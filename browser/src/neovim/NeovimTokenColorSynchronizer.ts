@@ -27,14 +27,14 @@ const getGuiStringFromTokenColor = ({ settings: { fontStyle } }: TokenColor): st
     }
 }
 
-type StringMap = {
+interface IStringMap {
     [key: string]: string
 }
 
 export class NeovimTokenColorSynchronizer {
     private _currentIndex = 0
-    private _tokenScopeSelectorToHighlightName: StringMap = {}
-    private _highlightNameToHighlightValue: StringMap = {}
+    private _tokenScopeSelectorToHighlightName: IStringMap = {}
+    private _highlightNameToHighlightValue: IStringMap = {}
 
     constructor(private _neovimInstance: NeovimInstance) {
         this._neovimInstance.onColorsChanged.subscribe(() => {

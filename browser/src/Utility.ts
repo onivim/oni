@@ -313,5 +313,6 @@ export function get<T>(obj: T, ...paths: string[]): string {
 }
 
 export function prettyPrint<T extends object>(item: T, spacing = 2) {
+    // tslint:disable-next-line
     console.log(JSON.stringify(item, null, spacing))
 }
