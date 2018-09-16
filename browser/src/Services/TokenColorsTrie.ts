@@ -9,9 +9,10 @@ class TrieNode {
 
 export default class TokenColorTrie {
     private root: TrieNode
+    private readonly ROOT_NAME = "__root"
 
     constructor() {
-        this.root = new TrieNode("__root", null)
+        this.root = new TrieNode(this.ROOT_NAME, null)
     }
 
     public add(token: string, settings: Settings) {
@@ -25,12 +26,50 @@ export default class TokenColorTrie {
         return this._findToken(this.root, token)
     }
 
-    public remove(tokenName: string) {
-        //
+    public setTokens(tokens: TokenColor[]) {
+        for (const token of tokens) {
+            for (const scope of token.scope) {
+                this.add(scope, token.settings)
+            }
+        }
+    }
+
+    public getAll() {
+        const token = ""
+        const tokens: TrieNode[] = []
+        this._getAll(this.root, tokens, token)
+        return tokens
+    }
+
+    public remove(token: string) {
+        if (!this.root) {
+            return
+        }
+        this._removeToken(this.root, token)
     }
 
     public contains(token: string) {
         return !!this.find(token)
+    }
+
+    private _getAll(node: TrieNode, tokens: TrieNode[], token: string) {
+        for (const child in node.children) {
+            if (node.children.hasOwnProperty(child)) {
+                token = [token, child].join(".")
+                tokens.push(node.children[child])
+            }
+            this._getAll(node.children[child], tokens, token)
+            const parts = token.split(".")
+            token = parts[parts.length - 1]
+        }
+    }
+
+    private _removeToken(node: TrieNode, token: string) {
+        const [scope] = token.split(".")
+        const child = node.children[scope]
+        if (child) {
+            delete node.children[scope]
+        }
     }
 
     private _addNode(node: TrieNode, token: string, settings: Settings): void {
@@ -42,7 +81,8 @@ export default class TokenColorTrie {
         let childNode = node.children[scope]
 
         if (!childNode) {
-            const newNode = new TrieNode(scope, settings)
+            const childScope = this._getScopeName(node.scope, scope)
+            const newNode = new TrieNode(childScope, settings)
             node.children[scope] = newNode
             childNode = newNode
         }
@@ -55,11 +95,16 @@ export default class TokenColorTrie {
         if (child) {
             if (!parts.length) {
                 return child
-            } else {
-                return this._findToken(child, parts.join("."))
             }
-        } else {
-            return null
+            return this._findToken(child, parts.join("."))
         }
+        return null
+    }
+
+    private _getScopeName(parent: string, child: string) {
+        if (parent === this.ROOT_NAME) {
+            return child
+        }
+        return `${parent}.${child}`
     }
 }
