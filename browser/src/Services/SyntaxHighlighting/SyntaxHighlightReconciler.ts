@@ -9,6 +9,7 @@ import * as Log from "oni-core-logging"
 
 import { prettyPrint } from "./../../Utility"
 import { TokenColor, TokenColors } from "./../TokenColors"
+import { prettyPrint } from "./../../Utility"
 
 import { HighlightInfo } from "./Definitions"
 import {
