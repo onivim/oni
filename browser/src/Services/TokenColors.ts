@@ -11,6 +11,8 @@ import { Event, IDisposable, IEvent } from "oni-types"
 import { Configuration, IConfigurationValues } from "./Configuration"
 import { ThemeManager } from "./Themes"
 
+import TokenColorTrie from "./TokenColorsTrie"
+
 export interface TokenColor {
     scope: string[]
     settings: TokenColorStyle
@@ -88,6 +90,15 @@ export class TokenColors implements IDisposable {
         })
 
         this._tokenColors = this._convertThemeTokenScopes(combinedColors)
+
+        const tree = new TokenColorTrie()
+        console.group("TREE!!!!!")
+        console.log(tree)
+        tree.add("test", { fontStyle: "italic", background: null, foreground: null })
+        tree.add("test.name", { fontStyle: "bold", background: "blue", foreground: null })
+        tree.add("test.name.extra", { fontStyle: null, background: "green", foreground: null })
+        console.log(tree.find("test.name.extra"))
+        console.groupEnd()
 
         this._onTokenColorsChangedEvent.dispatch()
     }
