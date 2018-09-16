@@ -27,14 +27,17 @@ const getGuiStringFromTokenColor = ({ settings: { fontStyle } }: TokenColor): st
     }
 }
 
+type StringMap = {
+    [key: string]: string
+}
+
 export class NeovimTokenColorSynchronizer {
-    private _currentIndex: number = 0
-    private _tokenScopeSelectorToHighlightName: { [key: string]: string } = {}
-    private _highlightNameToHighlightValue: { [key: string]: string } = {}
+    private _currentIndex = 0
+    private _tokenScopeSelectorToHighlightName: StringMap = {}
+    private _highlightNameToHighlightValue: StringMap = {}
 
     constructor(private _neovimInstance: NeovimInstance) {
         this._neovimInstance.onColorsChanged.subscribe(() => {
-            // NOTE: Not sure if this should have responsibility over resetting the highlight cache
             this._highlightNameToHighlightValue = {}
         })
     }
@@ -63,7 +66,7 @@ export class NeovimTokenColorSynchronizer {
         Log.info(
             `[NeovimTokenColorSynchronizer::synchronizeTokenColors] Setting ${
                 atomicCalls.length
-            }  highlights`,
+            } highlights`,
         )
         this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
         Log.info(
@@ -108,13 +111,12 @@ export class NeovimTokenColorSynchronizer {
     }
 
     private _getKeyFromTokenColor(tokenColor: TokenColor): string {
-        const {
-            settings: { background, foreground, fontStyle },
-        } = tokenColor
+        const { background = "none", foreground = "none", fontStyle = "none" } = tokenColor.settings
+        const separator = `__`
         const bg = `background-${background}`
         const fg = `foreground-${foreground}`
-        const bold = `bold-${fontStyle && fontStyle.includes("bold")}`
-        const italic = `italic-${fontStyle && fontStyle.includes("italic")}`
-        return `${tokenColor.scope}_${bg}_${fg}_${bold}_${italic}`
+        const bold = `bold-${fontStyle ? fontStyle.includes("bold") : false}`
+        const italic = `italic-${fontStyle ? fontStyle.includes("italic") : false}`
+        return [tokenColor.scope, bg, fg, bold, italic].join(separator)
     }
 }

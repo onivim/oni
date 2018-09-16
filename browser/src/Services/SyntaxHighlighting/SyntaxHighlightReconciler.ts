@@ -133,8 +133,10 @@ export class SyntaxHighlightReconciler {
     }
 
     private _getHighlightGroupFromScope(scopes: string[]): TokenColor {
-        const configurationColors = this._tokenColors.tokenColors
-        const highestRanked = this._tokenScorer.rankTokenScopes(scopes, configurationColors)
+        const highestRanked = this._tokenScorer.rankTokenScopes(
+            scopes,
+            this._tokenColors.tokenColors,
+        )
         return highestRanked
     }
 }

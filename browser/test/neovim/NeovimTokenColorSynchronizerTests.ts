@@ -9,7 +9,7 @@ import { TokenColor } from "./../../src/Services/TokenColors"
 
 import { MockNeovimInstance } from "./../Mocks/neovim"
 
-const createTokenColor = (scope: string): TokenColor => ({
+const createTokenColor = (...scope: string[]): TokenColor => ({
     scope,
     settings: {
         foreground: "#FFFFFF",
