@@ -7,8 +7,8 @@
 import { Buffer, Editor } from "oni-api"
 import * as Log from "oni-core-logging"
 
-import { TokenColor, TokenColors } from "./../TokenColors"
 import { prettyPrint } from "./../../Utility"
+import { TokenColor, TokenColors } from "./../TokenColors"
 
 import { HighlightInfo } from "./Definitions"
 import {
