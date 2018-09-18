@@ -317,6 +317,8 @@ export class Buffer implements IBuffer {
                         [parseInt(this._id, 10), lineStart, lineStart + 1, false, lines],
                     ])
                 } else if (characterEnd === 0 && characterStart === 0) {
+                    // trim right eol
+                    te.newText = te.newText.replace(/\n$/, "")
                     const lines = te.newText.split(os.EOL)
                     calls.push([
                         "nvim_buf_set_lines",

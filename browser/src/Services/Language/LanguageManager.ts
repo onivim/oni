@@ -78,6 +78,10 @@ export class LanguageManager {
 
                     // If the service supports incremental capabilities, just pass it directly
                     if (capabilities.textDocumentSync === 2) {
+                        for (const ch of change.contentChanges) {
+                            ch.text = keepEOL(ch.text)
+                        }
+
                         return {
                             textDocument,
                             contentChanges: change.contentChanges,
@@ -88,11 +92,10 @@ export class LanguageManager {
 
                         return {
                             textDocument,
-                            contentChanges: [{ text: allBufferLines.join(os.EOL) }],
+                            contentChanges: [{ text: keepEOL(allBufferLines.join(os.EOL)) }],
                         }
                     }
                 }
-
                 this.sendLanguageServerNotification(
                     language,
                     filePath,
@@ -369,7 +372,7 @@ export class LanguageManager {
             async () => {
                 this._currentTrackedFile = filePath
                 const lines = await this._oni.editors.activeEditor.activeBuffer.getLines()
-                const text = lines.join(os.EOL)
+                const text = keepEOL(lines.join(os.EOL))
                 const version = this._oni.editors.activeEditor.activeBuffer.version
                 this._languageClientStatusBar.setStatus(LanguageClientState.Active)
                 return Helpers.pathToTextDocumentItemParams(filePath, language, text, version)
@@ -434,4 +437,12 @@ export const activate = (oni: Oni.Plugin.Api): void => {
 
 export const getInstance = (): LanguageManager => {
     return _languageManager
+}
+
+export const keepEOL = (text: string): string => {
+    if (text.endsWith(os.EOL)) {
+        return text
+    } else {
+        return text + os.EOL
+    }
 }
