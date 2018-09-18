@@ -985,7 +985,7 @@
         "react-test-renderer": "^16.2.0",
         "react-transition-group": "2.2.1",
         "react-virtualized": "^9.19.1",
-        "redux": "3.7.2",
+        "redux": "^4.0.0",
         "redux-mock-store": "^1.5.3",
         "redux-observable": "0.17.0",
         "redux-thunk": "2.2.0",

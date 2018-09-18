@@ -154,14 +154,14 @@ const updateBufferLineMiddleware = (store: any) => (next: any) => (action: any) 
                 action.lineNumber === 0 ? null : buffer.lines[action.lineNumber - 1].ruleStack
             const tokenizeResult = grammar.tokenizeLine(action.line, previousRuleStack)
 
-            const tokens = tokenizeResult.tokens.map((t: any) => ({
+            const tokens = tokenizeResult.tokens.map(token => ({
                 range: types.Range.create(
                     action.lineNumber,
-                    t.startIndex,
+                    token.startIndex,
                     action.lineNumber,
-                    t.endIndex,
+                    token.endIndex,
                 ),
-                scopes: t.scopes,
+                scopes: token.scopes,
             }))
 
             const updateInsertLineAction: ISyntaxHighlightAction = {
