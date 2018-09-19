@@ -18,7 +18,7 @@ export interface KeyBindingMap {
 }
 
 const MAX_DELAY_BETWEEN_KEY_CHORD = 250 /* milliseconds */
-const MAX_CHORD_SIZE = 4
+const MAX_CHORD_SIZE = 6
 
 import { KeyboardResolver } from "./../Input/Keyboard/KeyboardResolver"
 
