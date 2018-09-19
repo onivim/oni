@@ -37,13 +37,20 @@ export class NeovimTokenColorSynchronizer {
     private _highlightNameToHighlightValue: IStringMap = {}
 
     constructor(private _neovimInstance: NeovimInstance) {
-        this._neovimInstance.onColorsChanged.subscribe(() => {
-            this._highlightNameToHighlightValue = {}
-        })
+        this._neovimInstance.onColorsChanged.subscribe(this._resetHighlightCache)
+    }
+
+    private _resetHighlightCache() {
+        this._highlightNameToHighlightValue = {}
+    }
+
+    private _getTokenSubset(tokens: TokenColor[]) {
+        //
     }
 
     // This method creates highlight groups for any token colors that haven't been set yet
     public async synchronizeTokenColors(tokenColors: TokenColor[]) {
+        this._getTokenSubset(tokenColors)
         const highlightsToAdd = tokenColors.reduce<string[]>((newHighlights, tokenColor) => {
             const highlightName = this._getOrCreateHighlightGroup(tokenColor)
             const highlightFromScope = this._convertTokenStyleToHighlightInfo(tokenColor)
