@@ -20,7 +20,7 @@ export class WebGLTextureSpaceExceededError extends Error {}
 
 export class GlyphAtlas {
     private _rasterizingContext: CanvasRenderingContext2D
-    private _rasterizedGlyphs = new Map<string, IRasterizedGlyph[][]>()
+    private _rasterizedGlyphs = new Map<string, IRasterizedGlyph>()
     private _texture: WebGLTexture
     private _currentTextureLayerIndex = 0
     private _currentTextureLayerChangedSinceLastUpload = false
@@ -82,27 +82,12 @@ export class GlyphAtlas {
         isItalic: boolean,
         variantIndex: number,
     ) {
-        // The mapping goes from character to styles (bold etc.) to subpixel-offset variant,
-        // e.g. this._glyphs.get("a")[0][0] is the regular "a" with 0 offset,
-        // while this._glyphs.get("a")[3][1] is the bold italic "a" with 1/offsetGlyphVariantCount px offset
-        let glyphStyleVariants = this._rasterizedGlyphs.get(text)
-        if (!glyphStyleVariants) {
-            glyphStyleVariants = new Array<IRasterizedGlyph[]>(glyphStyleCount)
-            this._rasterizedGlyphs.set(text, glyphStyleVariants)
-        }
-        const glyphStyleIndex = getGlyphStyleIndex(isBold, isItalic)
-        let glyphOffsetVariants = glyphStyleVariants[glyphStyleIndex]
-        if (!glyphOffsetVariants) {
-            glyphOffsetVariants = new Array<IRasterizedGlyph>(this._options.offsetGlyphVariantCount)
-            glyphStyleVariants[glyphStyleIndex] = glyphOffsetVariants
-        }
-
-        let rasterizedGlyph = glyphOffsetVariants[variantIndex]
+        const glyphKey = `${text} ${isBold ? "b" : ""}${isItalic ? "i" : ""}${variantIndex}`
+        let rasterizedGlyph = this._rasterizedGlyphs.get(glyphKey)
         if (!rasterizedGlyph) {
             rasterizedGlyph = this._rasterizeGlyph(text, isBold, isItalic, variantIndex)
-            glyphOffsetVariants[variantIndex] = rasterizedGlyph
+            this._rasterizedGlyphs.set(glyphKey, rasterizedGlyph)
         }
-
         return rasterizedGlyph
     }
 
@@ -218,8 +203,8 @@ const getGlyphStyleString = (
 ) => {
     const fontWeight = isBold
         ? getIncreasedFontWeightForBoldText(baseFontWeight)
-        : baseFontWeight || defaultFontWeight
-    return fontWeight + (isItalic ? " italic" : "")
+        : getNumericFontWeight(baseFontWeight) || defaultFontWeight
+    return "" + fontWeight + (isItalic ? " italic" : "")
 }
 
 const addedFontWeightForBoldText = 300
@@ -246,7 +231,3 @@ const numericFontWeightMap = {
     bolder: 700,
     lighter: 300,
 }
-
-const glyphStyleCount = 4
-const getGlyphStyleIndex = (isBold: boolean, isItalic: boolean) =>
-    isBold ? (isItalic ? 3 : 1) : isItalic ? 2 : 0
