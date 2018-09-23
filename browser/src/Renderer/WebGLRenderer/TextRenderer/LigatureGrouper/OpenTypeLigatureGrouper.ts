@@ -46,13 +46,7 @@ export class OpenTypeLigatureGrouper implements ILigatureGrouper {
 
 const loadFont = (fontFamily: string) => {
     try {
-        const fontDescriptor = fontManager.findFontSync({
-            // We use fontFamily in both family and postscriptName to raise the chance of successfully finding the right font.
-            // font-manager does not require both to be matched at the same time, so this makes it more robust.
-            family: fontFamily,
-            postscriptName: fontFamily,
-        })
-
+        const fontDescriptor = findMatchingFont(fontFamily)
         if (!fontDescriptor) {
             Log.warn(
                 `[OpenTypeLigatureGrouper] Could not find installed font for font family '${fontFamily}'. Ligatures won't be available.`,
@@ -73,6 +67,24 @@ const loadFont = (fontFamily: string) => {
             `[OpenTypeLigatureGrouper] Error loading font file for font family '${fontFamily}': ${error} Ligatures won't be available.`,
         )
         return null
+    }
+}
+
+// This is a platform-independent reimplementation of the matching logic within font-manager's
+// findFont* methods.
+// We reimplemented it here because we encountered inconsistencies with matching on Windows.
+const findMatchingFont = (fontFamily: string) => {
+    const availableFonts = fontManager.getAvailableFontsSync()
+    const fontWithMatchingFamily = availableFonts.find(font => font.family === fontFamily)
+    if (fontWithMatchingFamily) {
+        return fontWithMatchingFamily
+    } else {
+        // Chromium allows to use the postscript name of the font as well, so we do the same
+        // for compatibility
+        const fontWithMatchingPostscriptName = availableFonts.find(
+            font => font.postscriptName === fontFamily,
+        )
+        return fontWithMatchingPostscriptName
     }
 }
 
