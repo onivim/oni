@@ -85,6 +85,7 @@ export interface ISetHighlightAction extends IAction {
 
     foregroundColor?: string
     backgroundColor?: string
+    specialColor?: string
 }
 
 export function scroll(scrollValue: number): IScrollAction {
@@ -117,6 +118,7 @@ export function setHighlight(
     undercurl: boolean,
     foregroundColor?: number,
     backgroundColor?: number,
+    specialColor?: number,
 ): ISetHighlightAction {
     const action: ISetHighlightAction = {
         type: SET_HIGHLIGHT,
@@ -127,6 +129,7 @@ export function setHighlight(
         undercurl,
         foregroundColor: undefined,
         backgroundColor: undefined,
+        specialColor: undefined,
     }
 
     if (foregroundColor && foregroundColor !== -1) {
@@ -135,6 +138,10 @@ export function setHighlight(
 
     if (backgroundColor && backgroundColor !== -1) {
         action.backgroundColor = colorToString(backgroundColor, "#000000")
+    }
+
+    if (specialColor && specialColor !== -1) {
+        action.specialColor = colorToString(specialColor, "#000000")
     }
 
     return action
