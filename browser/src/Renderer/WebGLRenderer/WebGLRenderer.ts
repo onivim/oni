@@ -1,25 +1,30 @@
 import { INeovimRenderer } from ".."
 import { MinimalScreenForRendering } from "../../neovim"
-import { CachedColorNormalizer } from "./CachedColorNormalizer"
-import { IColorNormalizer } from "./IColorNormalizer"
-import { IWebGLAtlasOptions, WebGLTextureSpaceExceededError } from "./WebGLAtlas"
-import { WebGLSolidRenderer } from "./WebGLSolidRenderer"
-import { WebGlTextRenderer } from "./WebGLTextRenderer"
+import { normalizeColor } from "./normalizeColor"
+import { SolidRenderer } from "./SolidRenderer"
+import { TextRenderer } from "./TextRenderer"
+import { IGlyphAtlasOptions, WebGLTextureSpaceExceededError } from "./TextRenderer/GlyphAtlas"
+import {
+    ILigatureGrouper,
+    NoopLigatureGrouper,
+    OpenTypeLigatureGrouper,
+} from "./TextRenderer/LigatureGrouper"
 
 export class WebGLRenderer implements INeovimRenderer {
     private _editorElement: HTMLElement
-    private _colorNormalizer: IColorNormalizer
-    private _previousAtlasOptions: IWebGLAtlasOptions
+    private _ligatureGrouper: ILigatureGrouper = new NoopLigatureGrouper()
+    private _previousAtlasOptions: IGlyphAtlasOptions
     private _textureSizeInPixels = 1024
     private _textureLayerCount = 2
 
     private _gl: WebGL2RenderingContext
-    private _solidRenderer: WebGLSolidRenderer
-    private _textRenderer: WebGlTextRenderer
+    private _solidRenderer: SolidRenderer
+    private _textRenderer: TextRenderer
+
+    public constructor(private _ligaturesEnabled: boolean) {}
 
     public start(editorElement: HTMLElement): void {
         this._editorElement = editorElement
-        this._colorNormalizer = new CachedColorNormalizer()
 
         const canvasElement = document.createElement("canvas")
         this._editorElement.innerHTML = ""
@@ -66,20 +71,20 @@ export class WebGLRenderer implements INeovimRenderer {
         canvas.style.height = `${canvas.height / devicePixelRatio}px`
     }
 
-    private _createNewRendererIfRequired({
-        width: columnCount,
-        height: rowCount,
-        fontWidthInPixels,
-        fontHeightInPixels,
-        linePaddingInPixels,
-        fontFamily,
-        fontSize,
-    }: MinimalScreenForRendering) {
+    private _createNewRendererIfRequired(screenInfo: MinimalScreenForRendering) {
+        const {
+            fontHeightInPixels,
+            linePaddingInPixels,
+            fontFamily,
+            fontSize,
+            fontWeight,
+        } = screenInfo
         const devicePixelRatio = window.devicePixelRatio
         const offsetGlyphVariantCount = Math.max(Math.ceil(4 / devicePixelRatio), 1)
         const atlasOptions = {
             fontFamily,
             fontSize,
+            fontWeight,
             lineHeightInPixels: fontHeightInPixels,
             linePaddingInPixels,
             glyphPaddingInPixels: Math.ceil(fontHeightInPixels / 4),
@@ -87,7 +92,7 @@ export class WebGLRenderer implements INeovimRenderer {
             offsetGlyphVariantCount,
             textureSizeInPixels: this._textureSizeInPixels,
             textureLayerCount: this._textureLayerCount,
-        } as IWebGLAtlasOptions
+        } as IGlyphAtlasOptions
 
         if (
             !this._solidRenderer ||
@@ -95,23 +100,32 @@ export class WebGLRenderer implements INeovimRenderer {
             !this._previousAtlasOptions ||
             !isShallowEqual(this._previousAtlasOptions, atlasOptions)
         ) {
-            this._solidRenderer = new WebGLSolidRenderer(
-                this._gl,
-                this._colorNormalizer,
-                atlasOptions.devicePixelRatio,
-            )
-            this._textRenderer = new WebGlTextRenderer(
-                this._gl,
-                this._colorNormalizer,
-                atlasOptions,
-            )
+            if (
+                (!this._previousAtlasOptions ||
+                    this._previousAtlasOptions.fontFamily !== fontFamily) &&
+                this._ligaturesEnabled
+            ) {
+                this._ligatureGrouper = new OpenTypeLigatureGrouper(fontFamily)
+            }
+
+            this._solidRenderer = new SolidRenderer(this._gl, atlasOptions.devicePixelRatio)
+            this._textRenderer = new TextRenderer(this._gl, this._ligatureGrouper, atlasOptions)
+            try {
+                this._textRenderer.prefillAtlasWithCommonGlyphs()
+            } catch (error) {
+                if (error instanceof WebGLTextureSpaceExceededError) {
+                    this._textureLayerCount *= 2
+                    this._createNewRendererIfRequired(screenInfo)
+                }
+            }
+
             this._previousAtlasOptions = atlasOptions
         }
     }
 
     private _clear(backgroundColor: string) {
         const backgroundColorToUse = backgroundColor || "black"
-        const normalizedBackgroundColor = this._colorNormalizer.normalizeColor(backgroundColorToUse)
+        const normalizedBackgroundColor = normalizeColor(backgroundColorToUse)
         this._gl.clearColor(
             normalizedBackgroundColor[0],
             normalizedBackgroundColor[1],

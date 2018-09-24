@@ -18,6 +18,7 @@ module.exports = {
         "simple-git/promise": "require('simple-git/promise')",
         "styled-components": "require('styled-components')",
         fsevents: "require('fsevents')",
+        "font-manager": "require('font-manager')",
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".less"],

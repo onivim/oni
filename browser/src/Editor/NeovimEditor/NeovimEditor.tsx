@@ -94,8 +94,7 @@ import CommandLine from "./../../UI/components/CommandLine"
 import ExternalMenus from "./../../UI/components/ExternalMenus"
 import WildMenu from "./../../UI/components/WildMenu"
 
-import { CanvasRenderer } from "../../Renderer/CanvasRenderer"
-import { WebGLRenderer } from "../../Renderer/WebGL/WebGLRenderer"
+import { CanvasRenderer, WebGLRenderer } from "../../Renderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 
 type NeovimError = [number, string]
@@ -297,9 +296,10 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             initVimNotification.show()
         }
 
+        const ligaturesEnabled = this._configuration.getValue("editor.fontLigatures")
         this._renderer =
             this._configuration.getValue("editor.renderer") === "webgl"
-                ? new WebGLRenderer()
+                ? new WebGLRenderer(ligaturesEnabled)
                 : new CanvasRenderer()
 
         this._rename = new Rename(

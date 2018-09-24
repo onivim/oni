@@ -1,11 +1,13 @@
-import { ICell } from "../../neovim"
-import { IColorNormalizer } from "./IColorNormalizer"
-import { IWebGLAtlasOptions, WebGLAtlas, WebGLGlyph } from "./WebGLAtlas"
+import { ICell } from "../../../neovim"
+import { normalizeColor } from "../normalizeColor"
 import {
     createProgram,
     createUnitQuadElementIndicesBuffer,
     createUnitQuadVerticesBuffer,
-} from "./WebGLUtilities"
+} from "../WebGLUtilities"
+import { GlyphAtlas, IGlyphAtlasOptions, IRasterizedGlyph } from "./GlyphAtlas"
+import { groupCells } from "./groupCells"
+import { ILigatureGrouper } from "./LigatureGrouper"
 
 const glyphInstanceFieldCount = 13
 const glyphInstanceSizeInBytes = glyphInstanceFieldCount * Float32Array.BYTES_PER_ELEMENT
@@ -87,10 +89,8 @@ const secondPassFragmentShaderSource = `
     }
 `.trim()
 
-const isWhiteSpace = (text: string) => text === null || text === "" || text === " "
-
-export class WebGlTextRenderer {
-    private _atlas: WebGLAtlas
+export class TextRenderer {
+    private _atlas: GlyphAtlas
     private _glyphOverlapInPixels: number
     private _subpixelDivisor: number
     private _devicePixelRatio: number
@@ -109,13 +109,13 @@ export class WebGlTextRenderer {
 
     constructor(
         private _gl: WebGL2RenderingContext,
-        private _colorNormalizer: IColorNormalizer,
-        atlasOptions: IWebGLAtlasOptions,
+        private _ligatureGrouper: ILigatureGrouper,
+        atlasOptions: IGlyphAtlasOptions,
     ) {
         this._glyphOverlapInPixels = atlasOptions.glyphPaddingInPixels
         this._subpixelDivisor = atlasOptions.offsetGlyphVariantCount
         this._devicePixelRatio = atlasOptions.devicePixelRatio
-        this._atlas = new WebGLAtlas(this._gl, atlasOptions)
+        this._atlas = new GlyphAtlas(this._gl, atlasOptions)
 
         this._firstPassProgram = createProgram(
             this._gl,
@@ -146,8 +146,21 @@ export class WebGlTextRenderer {
             "atlasTextures",
         )
 
-        this.createBuffers()
-        this.createVertexArrayObject()
+        this._createBuffers()
+        this._createVertexArrayObject()
+    }
+
+    public prefillAtlasWithCommonGlyphs() {
+        for (let asciiCode = 33; asciiCode <= 126; asciiCode++) {
+            const character = String.fromCharCode(asciiCode)
+
+            for (let variantIndex = 0; variantIndex < this._subpixelDivisor; variantIndex++) {
+                this._atlas.getRasterizedGlyph(character, false, false, variantIndex)
+                this._atlas.getRasterizedGlyph(character, true, false, variantIndex)
+                this._atlas.getRasterizedGlyph(character, false, true, variantIndex)
+                this._atlas.getRasterizedGlyph(character, true, true, variantIndex)
+            }
+        }
     }
 
     public draw(
@@ -161,8 +174,8 @@ export class WebGlTextRenderer {
         viewportScaleY: number,
     ) {
         const cellCount = columnCount * rowCount
-        this.recreateGlyphInstancesArrayIfRequired(cellCount)
-        const glyphInstanceCount = this.populateGlyphInstances(
+        this._recreateGlyphInstancesArrayIfRequired(cellCount)
+        const glyphInstanceCount = this._populateGlyphInstances(
             columnCount,
             rowCount,
             getCell,
@@ -170,16 +183,16 @@ export class WebGlTextRenderer {
             fontHeightInPixels,
             defaultForegroundColor,
         )
-        this.drawGlyphInstances(glyphInstanceCount, viewportScaleX, viewportScaleY)
+        this._drawGlyphInstances(glyphInstanceCount, viewportScaleX, viewportScaleY)
     }
 
-    private createBuffers() {
+    private _createBuffers() {
         this._unitQuadVerticesBuffer = createUnitQuadVerticesBuffer(this._gl)
         this._unitQuadElementIndicesBuffer = createUnitQuadElementIndicesBuffer(this._gl)
         this._glyphInstancesBuffer = this._gl.createBuffer()
     }
 
-    private createVertexArrayObject() {
+    private _createVertexArrayObject() {
         this._vertexArrayObject = this._gl.createVertexArray()
         this._gl.bindVertexArray(this._vertexArrayObject)
 
@@ -265,14 +278,14 @@ export class WebGlTextRenderer {
         this._gl.vertexAttribDivisor(vertexShaderAttributes.atlasSize, 1)
     }
 
-    private recreateGlyphInstancesArrayIfRequired(cellCount: number) {
+    private _recreateGlyphInstancesArrayIfRequired(cellCount: number) {
         const requiredArrayLength = cellCount * glyphInstanceFieldCount
         if (!this._glyphInstances || this._glyphInstances.length < requiredArrayLength) {
             this._glyphInstances = new Float32Array(requiredArrayLength)
         }
     }
 
-    private populateGlyphInstances(
+    private _populateGlyphInstances(
         columnCount: number,
         rowCount: number,
         getCell: (columnIndex: number, rowIndex: number) => ICell,
@@ -285,23 +298,31 @@ export class WebGlTextRenderer {
         const pixelRatioAdaptedGlyphOverlap = this._glyphOverlapInPixels * this._devicePixelRatio
 
         let glyphCount = 0
-        let y = 0
-
-        // TODO refactor this to not be as reliant on mutations
         for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-            let x = 0
+            const cellGroups = groupCells(columnCount, rowIndex, getCell)
 
-            for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                const cell = getCell(columnIndex, rowIndex)
-                const char = cell.character
-                if (!isWhiteSpace(char)) {
+            cellGroups.forEach(cellGroup => {
+                const { startColumnIndex, characters, bold, italic, foregroundColor } = cellGroup
+
+                const ligatureGroups = this._ligatureGrouper.getLigatureGroups(characters)
+
+                let offsetWithinCellGroup = 0
+                ligatureGroups.forEach(ligatureGroup => {
+                    const columnIndex = startColumnIndex + offsetWithinCellGroup
+                    const x = pixelRatioAdaptedFontWidth * columnIndex
+                    const y = pixelRatioAdaptedFontHeight * rowIndex
                     const variantIndex =
                         Math.round(x * this._subpixelDivisor) % this._subpixelDivisor
-                    const glyph = this._atlas.getGlyph(char, cell.bold, cell.italic, variantIndex)
-                    const colorToUse = cell.foregroundColor || defaultForegroundColor || "white"
-                    const normalizedTextColor = this._colorNormalizer.normalizeColor(colorToUse)
+                    const glyph = this._atlas.getRasterizedGlyph(
+                        ligatureGroup,
+                        bold,
+                        italic,
+                        variantIndex,
+                    )
+                    const colorToUse = foregroundColor || defaultForegroundColor || "white"
+                    const normalizedTextColor = normalizeColor(colorToUse)
 
-                    this.updateGlyphInstance(
+                    this._updateGlyphInstance(
                         glyphCount,
                         Math.round(x - glyph.variantOffset) - pixelRatioAdaptedGlyphOverlap,
                         y - pixelRatioAdaptedGlyphOverlap,
@@ -309,19 +330,22 @@ export class WebGlTextRenderer {
                         normalizedTextColor,
                     )
 
+                    offsetWithinCellGroup += ligatureGroup.length
                     glyphCount++
-                }
-                x += pixelRatioAdaptedFontWidth
-            }
-
-            y += pixelRatioAdaptedFontHeight
+                })
+            })
         }
+
         this._atlas.uploadTexture()
 
         return glyphCount
     }
 
-    private drawGlyphInstances(glyphCount: number, viewportScaleX: number, viewportScaleY: number) {
+    private _drawGlyphInstances(
+        glyphCount: number,
+        viewportScaleX: number,
+        viewportScaleY: number,
+    ) {
         this._gl.bindVertexArray(this._vertexArrayObject)
         this._gl.enable(this._gl.BLEND)
 
@@ -356,11 +380,11 @@ export class WebGlTextRenderer {
         this._gl.drawElementsInstanced(this._gl.TRIANGLES, 6, this._gl.UNSIGNED_BYTE, 0, glyphCount)
     }
 
-    private updateGlyphInstance(
+    private _updateGlyphInstance(
         index: number,
         x: number,
         y: number,
-        glyph: WebGLGlyph,
+        glyph: IRasterizedGlyph,
         color: Float32Array,
     ) {
         const startOffset = glyphInstanceFieldCount * index
