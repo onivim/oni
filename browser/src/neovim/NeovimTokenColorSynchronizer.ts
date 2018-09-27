@@ -110,9 +110,7 @@ export class NeovimTokenColorSynchronizer {
                 "[NeovimTokenColorSynchronizer::_getOrCreateHighlightGroup] Creating new highlight group - " +
                     newHighlightGroupName,
             )
-            this._tokenScopeSelectorToHighlightName[
-                this._getKeyFromTokenColor(tokenColor)
-            ] = newHighlightGroupName
+            this._tokenScopeSelectorToHighlightName[tokenKey] = newHighlightGroupName
             return newHighlightGroupName
         }
     }
