@@ -22,6 +22,7 @@ module.exports = {
     modulePathIgnorePatterns: ["<rootDir>/dist/"],
     globals: {
         "ts-jest": {
+            diagnostics: { warnOnly: true },
             babelConfig: {
                 env: {
                     test: {
@@ -29,7 +30,7 @@ module.exports = {
                     },
                 },
             },
-            tsConfigFile: "./ui-tests/tsconfig.react.json",
+            tsConfig: "./ui-tests/tsconfig.react.json",
         },
     },
 }
