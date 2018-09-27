@@ -49,7 +49,7 @@ before_install:
 
 
 install:
-- npm install -g yarn
+- npm install -g yarn@1.9.4
 - yarn install
 
 script:
