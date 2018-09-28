@@ -96,6 +96,7 @@ Thanks you to all our backers for making Oni possible!
 *   Amadeus Folego
 *   Kiyoshi Murata
 *   @Himura2la
+*   Frederick Gnodtke
 
 ## Backers via Patreon
 
