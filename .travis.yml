@@ -52,6 +52,7 @@ install:
 - npm install -g yarn@1.9.4
 - yarn --version
 - which yarn
+- yarn install
 
 script:
 - npm run check-cached-binaries
