@@ -49,7 +49,11 @@ before_install:
 
 
 install:
-- npm install -g yarn
+- npm install -g yarn@1.9.4
+# Remove problematic version of yarn
+- rm -rf ~/.yarn/bin
+- yarn --version
+- which yarn
 - yarn install
 
 script:
