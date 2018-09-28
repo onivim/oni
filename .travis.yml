@@ -37,6 +37,11 @@ addons:
     - bsdtar
 
 before_install:
+# Repo for Yarn
+- sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
+- echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+- sudo apt-get update -qq
+- sudo apt-get install -y -qq yarn=1.9.4
 - |
     # Get the files modified in this commit, and check there is
     # actual code changes made. If there isn't, stop the build.
@@ -49,8 +54,7 @@ before_install:
 
 
 install:
-- npm install -g yarn
-- yarn install
+- yarn --version
 
 script:
 - npm run check-cached-binaries
