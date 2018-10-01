@@ -1,6 +1,9 @@
 var path = require("path")
 var webpack = require("webpack")
 
+const createStyledComponentsTransformer = require("typescript-plugin-styled-components").default
+const styledComponentsTransformer = createStyledComponentsTransformer()
+
 module.exports = {
     mode: "development",
     entry: [path.join(__dirname, "src/index.tsx")],
@@ -15,6 +18,7 @@ module.exports = {
         "simple-git/promise": "require('simple-git/promise')",
         "styled-components": "require('styled-components')",
         fsevents: "require('fsevents')",
+        "font-manager": "require('font-manager')",
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js", ".less"],
@@ -48,7 +52,12 @@ module.exports = {
             },
             {
                 test: /\.tsx?$/,
-                use: "ts-loader",
+                use: {
+                    loader: "ts-loader",
+                    options: {
+                        getCustomTransformers: () => ({ before: [styledComponentsTransformer] }),
+                    },
+                },
                 exclude: /node_modules/,
             },
         ],

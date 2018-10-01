@@ -147,6 +147,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickOpen.filterStrategy": "vscode",
     "editor.quickOpen.defaultOpenMode": Oni.FileOpenMode.Edit,
     "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode.ExistingTab,
+    "editor.quickOpen.showHidden": true,
 
     "editor.split.mode": "native",
 
@@ -392,6 +393,13 @@ const BaseConfiguration: IConfigurationValues = {
         ".java": path.join(__dirname, "extensions", "java", "syntaxes", "Java.tmLanguage.json"),
         ".jar": path.join(__dirname, "extensions", "java", "syntaxes", "Java.tmLanguage.json"),
     },
+    "language.cs.textMateGrammar": path.join(
+        __dirname,
+        "extensions",
+        "csharp",
+        "syntaxes",
+        "csharp.tmLanguage.json",
+    ),
     "language.javascript.completionTriggerCharacters": [".", "/", "\\"],
     "language.javascript.textMateGrammar": {
         ".js": path.join(

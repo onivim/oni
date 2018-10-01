@@ -64,7 +64,8 @@ export class NeovimRenderer extends React.PureComponent<INeovimRendererProps, {}
         const width = this._element.offsetWidth
         const height = this._element.offsetHeight
 
-        this.props.neovimInstance.resize(width, height)
-        this.props.renderer.redrawAll(this.props.screen)
+        this.props.neovimInstance
+            .resize(width, height)
+            .then(() => this.props.renderer.redrawAll(this.props.screen))
     }
 }

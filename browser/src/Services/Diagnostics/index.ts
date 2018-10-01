@@ -1,5 +1,5 @@
 /**
- * Diagnostics.ts
+ * Diagnostics/index.ts
  *
  * Integrates the `textDocument/publishDiagnostics` protocol with Oni's UI
  */
@@ -9,11 +9,11 @@ import * as types from "vscode-languageserver-types"
 
 import { Event, IEvent } from "oni-types"
 
-import { ILanguageServerNotificationResponse, LanguageManager } from "./Language"
+import { ILanguageServerNotificationResponse, LanguageManager } from "../Language"
 
-import * as Helpers from "./../Plugins/Api/LanguageClient/LanguageClientHelpers"
+import * as Helpers from "../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import * as Utility from "./../Utility"
+import * as Utility from "../../Utility"
 
 interface IPublishDiagnosticsParams {
     uri: string

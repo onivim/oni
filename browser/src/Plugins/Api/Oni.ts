@@ -32,6 +32,7 @@ import { getInstance as getFiltersInstance } from "./../../Services/Menu/Filter"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
 import { getInstance as getOverlayInstance } from "./../../Services/Overlay"
 import { recorder } from "./../../Services/Recorder"
+import { getInstance as getSessionManagerInstance, SessionManager } from "./../../Services/Sessions"
 import { getInstance as getSidebarInstance } from "./../../Services/Sidebar"
 import { getInstance as getSneakInstance } from "./../../Services/Sneak"
 import { getInstance as getSnippetsInstance } from "./../../Services/Snippets"
@@ -168,6 +169,10 @@ export class Oni implements OniApi.Plugin.Api {
         return this._ui
     }
 
+    public get sessions(): SessionManager {
+        return getSessionManagerInstance()
+    }
+
     public get services(): Services {
         return this._services
     }
@@ -184,7 +189,7 @@ export class Oni implements OniApi.Plugin.Api {
         return getWorkspaceInstance()
     }
 
-    public get helpers(): any {
+    public get helpers() {
         return helpers
     }
 
@@ -196,6 +201,25 @@ export class Oni implements OniApi.Plugin.Api {
         this._dependencies = new Dependencies()
         this._ui = new Ui(react)
         this._services = new Services()
+    }
+
+    public getActiveSection() {
+        const isInsertOrCommandMode = () => {
+            return (
+                this.editors.activeEditor.mode === "insert" ||
+                this.editors.activeEditor.mode === "cmdline_normal"
+            )
+        }
+        switch (true) {
+            case this.menu.isMenuOpen():
+                return "menu"
+            case this.sidebar && this.sidebar.isFocused:
+                return this.sidebar.activeEntryId
+            case isInsertOrCommandMode():
+                return "commandline"
+            default:
+                return "editor"
+        }
     }
 
     public populateQuickFix(entries: OniApi.QuickFixEntry[]): void {

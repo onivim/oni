@@ -75,6 +75,13 @@ export interface INeovimCompletionInfo {
 
 export type CommandLineContent = [any, string]
 
+export type MapcheckModes = "n" | "v" | "i"
+
+interface IMapping {
+    key: string
+    mode: MapcheckModes
+}
+
 export interface INeovimCommandLineShowEvent {
     content: CommandLineContent[]
     pos: number
@@ -411,6 +418,16 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         await this.command(`cd! ${directoryPath}`)
     }
 
+    public async checkUserMapping({ key, mode = "n" }: IMapping) {
+        const mapping: string = await this.callFunction("mapcheck", [key, mode])
+        return { key, mapping }
+    }
+
+    public async checkUserMappings(keys: IMapping[]) {
+        const mappings = await Promise.all(keys.map(this.checkUserMapping))
+        return mappings
+    }
+
     // Make a direct request against the msgpack API
     public async request<T>(request: string, args: any[]): Promise<T> {
         if (!this._neovim || this._neovim.isDisposed) {
@@ -666,13 +683,13 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         })
     }
 
-    public resize(widthInPixels: number, heightInPixels: number): void {
+    public resize(widthInPixels: number, heightInPixels: number): Promise<{}> {
         this._lastWidthInPixels = widthInPixels
         this._lastHeightInPixels = heightInPixels
 
         const size = this._getSize()
 
-        this._resizeInternal(size.rows, size.cols)
+        return this._resizeInternal(size.rows, size.cols)
     }
 
     public async getApiVersion(): Promise<INeovimApiVersion> {
@@ -725,7 +742,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         })
     }
 
-    private _resizeInternal(rows: number, columns: number): void {
+    private _resizeInternal(rows: number, columns: number): Promise<{}> {
         if (this._configuration.hasValue("debug.fixedSize")) {
             const fixedSize = this._configuration.getValue("debug.fixedSize")
             rows = fixedSize.rows
@@ -734,7 +751,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         }
 
         if (rows === this._rows && columns === this._cols) {
-            return
+            return Promise.resolve({})
         }
 
         this._rows = rows
@@ -743,10 +760,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         // If _initPromise isn't initialized, it means the UI hasn't attached to NeoVim
         // yet. In that case, we don't need to call uiTryResize
         if (!this._initPromise) {
-            return
+            return Promise.resolve({})
         }
 
-        this._initPromise.then(() => {
+        return this._initPromise.then(() => {
             return this._neovim.request("nvim_ui_try_resize", [columns, rows])
         })
     }
@@ -799,6 +816,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                             !!highlightInfo.undercurl,
                             highlightInfo.foreground,
                             highlightInfo.background,
+                            highlightInfo.special,
                         ),
                     )
                     break

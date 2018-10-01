@@ -7,7 +7,7 @@ import { FileIcon } from "../browser/src/Services/FileIcon"
 jest.mock("../browser/src/UI/components/Sneakable")
 import { Sneakable } from "../browser/src/UI/components/Sneakable"
 
-import { Tab, Tabs } from "../browser/src/UI/components/Tabs"
+import { Corner, getHighlightColor, Name, Tab, Tabs } from "../browser/src/UI/components/Tabs"
 
 const MockFileIcon = FileIcon as jest.Mock<{}>
 const MockSneakable = Sneakable as jest.Mock<Sneakable>
@@ -17,6 +17,11 @@ describe("<Tabs /> Tests", () => {
     MockSneakable.mockImplementation(props => ({
         render: () => props.children,
     }))
+
+    const testTheme: any = {
+        "highlight.mode.normal.background": "green",
+        "highlight.mode.insert.background": "blue",
+    }
 
     const tabCloseFunction = jest.fn()
     const tabSelectFunction = jest.fn()
@@ -44,11 +49,11 @@ describe("<Tabs /> Tests", () => {
     const TabsContainingSingleTab = (
         <Tabs
             fontSize="1.2em"
+            shouldShowHighlight
+            mode="normal"
             maxWidth="20em"
             height="2em"
             fontFamily="inherit"
-            backgroundColor="#fff"
-            foregroundColor="#000"
             shouldWrap={false}
             visible={true}
             onTabClose={tabCloseFunction}
@@ -60,11 +65,11 @@ describe("<Tabs /> Tests", () => {
     const TabsContainingTwoTabs = (
         <Tabs
             fontSize="1.2em"
+            shouldShowHighlight
+            mode="normal"
             maxWidth="20em"
             height="2em"
             fontFamily="inherit"
-            backgroundColor="#fff"
-            foregroundColor="#000"
             shouldWrap={false}
             visible={true}
             onTabClose={tabCloseFunction}
@@ -76,11 +81,25 @@ describe("<Tabs /> Tests", () => {
     const TabsNotVisible = (
         <Tabs
             fontSize="1.2em"
+            shouldShowHighlight
+            mode="normal"
             maxWidth="20em"
             height="2em"
             fontFamily="inherit"
-            backgroundColor="#fff"
-            foregroundColor="#000"
+            shouldWrap={false}
+            visible={false}
+            tabs={[tab1]}
+        />
+    )
+
+    const unfocusedTab = (
+        <Tabs
+            fontSize="1.2em"
+            shouldShowHighlight={false}
+            mode="normal"
+            maxWidth="20em"
+            height="2em"
+            fontFamily="inherit"
             shouldWrap={false}
             visible={false}
             tabs={[tab1]}
@@ -117,7 +136,7 @@ describe("<Tabs /> Tests", () => {
         const clickedTab = wrapper.find(Tab)
 
         wrapper
-            .find(".corner")
+            .find(Corner)
             .last()
             .simulate("click")
 
@@ -130,7 +149,7 @@ describe("<Tabs /> Tests", () => {
         const wrapper = mount(TabsContainingTwoTabs)
         const clickedTab = wrapper.find(Tab).last()
 
-        clickedTab.find(".name").simulate("mouseDown", { button: 0 })
+        clickedTab.find(Name).simulate("mouseDown", { button: 0 })
         expect(tabSelectFunction).toHaveBeenCalledWith(clickedTab.props().id)
 
         wrapper.unmount()
@@ -140,7 +159,7 @@ describe("<Tabs /> Tests", () => {
         const wrapper = mount(TabsContainingTwoTabs)
         const clickedTab = wrapper.find(Tab).first()
 
-        clickedTab.find(".name").simulate("mouseDown", { button: 1 })
+        clickedTab.find(Name).simulate("mouseDown", { button: 1 })
         expect(tabCloseFunction).toHaveBeenCalledWith(clickedTab.props().id)
 
         wrapper.unmount()
@@ -151,7 +170,7 @@ describe("<Tabs /> Tests", () => {
         const clickedTab = wrapper.find(Tab).last()
 
         clickedTab
-            .find(".corner")
+            .find(Corner)
             .first()
             .simulate("mouseDown", { button: 0 })
         expect(tabSelectFunction).toHaveBeenCalledWith(clickedTab.props().id)
@@ -164,7 +183,7 @@ describe("<Tabs /> Tests", () => {
         const clickedTab = wrapper.find(Tab).first()
 
         clickedTab
-            .find(".corner")
+            .find(Corner)
             .first()
             .simulate("mouseDown", { button: 1 })
         expect(tabCloseFunction).toHaveBeenCalledWith(clickedTab.props().id)
@@ -203,5 +222,47 @@ describe("<Tabs /> Tests", () => {
         expect(fileIcon.props().fileName).toEqual(tab.props().iconFileName)
 
         wrapper.unmount()
+    })
+
+    it("should have a transparent border if not selected", () => {
+        const highlight = getHighlightColor({
+            theme: testTheme,
+            isSelected: false,
+            shouldShowHighlight: true,
+            mode: "normal",
+        })
+        expect(highlight).toBe("transparent")
+    })
+
+    it("should highlight the active tab with the mode color", () => {
+        const highlight = getHighlightColor({
+            theme: testTheme,
+            isSelected: true,
+            shouldShowHighlight: true,
+            mode: "normal",
+        })
+        expect(highlight).toBe("green")
+    })
+
+    it("should highlight the active tab with the normal mode color if the mode is a commandline mode", () => {
+        const highlight = getHighlightColor({
+            theme: testTheme,
+            isSelected: true,
+            shouldShowHighlight: true,
+            mode: "cmdline_normal",
+        })
+
+        expect(highlight).toBe("green")
+    })
+
+    it("should highlight the active tab with the normal mode color if the mode is in showmatch mode", () => {
+        const highlight = getHighlightColor({
+            theme: testTheme,
+            isSelected: true,
+            shouldShowHighlight: true,
+            mode: "showmatch",
+        })
+
+        expect(highlight).toBe("blue")
     })
 })

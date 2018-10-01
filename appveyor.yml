@@ -50,7 +50,7 @@ deploy:
     - provider: GitHub
       repository: onivim/oni
       auth_token:
-          secure: 7+dYCBtYLMoaH4xvTno1mAw8mb4CPFYAcosPI8kRTmcqYKehzmhpChU825uGdaB6
+          secure: IUThGC/uAhOIpZ+B/yS/tMBPBETwL1qttaaTbZYmbSP468Lmd0buoleDLSxrrLpH
       draft: false
       prerelease: false
       force_update: true

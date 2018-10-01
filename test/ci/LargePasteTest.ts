@@ -5,8 +5,12 @@
  */
 import * as assert from "assert"
 import * as Oni from "oni-api"
-
-import { createNewFile, getTemporaryFilePath, navigateToFile } from "./Common"
+import {
+    createNewFile,
+    getElementByClassName,
+    getTemporaryFilePath,
+    navigateToFile,
+} from "./Common"
 
 export const test = async (oni: Oni.Plugin.Api) => {
     const filePath = createLargeTestFile()
@@ -49,6 +53,14 @@ export const test = async (oni: Oni.Plugin.Api) => {
         firstLine,
         "thithiss is a line of 'text' that will be repeated a bunch of times to make for a large wall of 'text' to paste",
     )
+
+    // type ':' and paste the text into the command line
+    oni.automation.sendKeys(":")
+    await oni.automation.waitFor(() => oni.editors.activeEditor.mode === "cmdline_normal")
+    await paste(oni, () => {
+        const commandLine = getElementByClassName("command-line")
+        return commandLine && commandLine.textContent === ":this"
+    })
 }
 
 import * as fs from "fs"

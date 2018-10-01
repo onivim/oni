@@ -16,7 +16,9 @@ describe("TokenColors", () => {
     let themeManager: ThemeManager
 
     beforeEach(() => {
-        mockConfiguration = new MockConfiguration()
+        mockConfiguration = new MockConfiguration({
+            "editor.tokenColors": [{ scope: "comment", fontStyle: "bold" }],
+        })
         themeLoader = new MockThemeLoader()
         themeManager = new ThemeManager(themeLoader)
         themeLoader.addTheme("testTheme", DefaultTheme)

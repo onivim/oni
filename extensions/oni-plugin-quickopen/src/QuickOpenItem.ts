@@ -23,9 +23,9 @@ export class QuickOpenItem {
         private _label: string,
         private _detail: string,
         private _type: QuickOpenType,
-        private _path: string = "N/A",
-        private _line: number = 0,
-        private _column: number = 0,
+        private _path = "",
+        private _line = 0,
+        private _column = 0,
     ) {
         this._label = _label.trim()
         this._detail = _detail.trim()

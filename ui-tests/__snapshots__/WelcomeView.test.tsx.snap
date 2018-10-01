@@ -1,0 +1,147 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<WelcomeView /> should match its last snapshot 1`] = `
+<styled.div
+  data-id="welcome-screen"
+  height="100%"
+  innerRef={
+    Object {
+      "current": null,
+    }
+  }
+>
+  <styled.div
+    extension={
+      Array [
+        "
+    width: 100%;
+    padding-top: 32px;
+    animation: ",
+        "ckrRMN",
+        " 0.25s ease-in 0.25s forwards};
+",
+      ]
+    }
+  >
+    <styled.div />
+    <styled.div
+      alignment="flex-end"
+    >
+      <styled.div>
+        Oni
+      </styled.div>
+      <styled.div>
+        Modern Modal Editing
+      </styled.div>
+    </styled.div>
+    <styled.div
+      flex="0 0"
+    >
+      <styled.img
+        src="images/oni-icon-no-border.svg"
+      />
+    </styled.div>
+    <styled.div
+      alignment="flex-start"
+    >
+      <div>
+        https://onivim.io
+      </div>
+    </styled.div>
+    <styled.div />
+  </styled.div>
+  <styled.div
+    extension={
+      Array [
+        "
+    width: 60%;
+    height: 60%;
+    padding: 0 1em;
+    opacity: 1;
+    margin-top: 64px;
+    box-sizing: border-box;
+    border: 1px solid ",
+        [Function],
+        ";
+    border-radius: 4px;
+    overflow: hidden;
+    justify-content: space-around;
+    background-color: ",
+        [Function],
+        ";
+    ",
+        "
+    box-shadow: inset 0 4px 8px 2px rgba(0, 0, 0, 0.2);
+",
+        ";
+",
+      ]
+    }
+  >
+    <Component
+      commands={
+        Object {
+          "commandline": Object {
+            "command": "button8",
+            "execute": [MockFunction],
+          },
+          "openConfig": Object {
+            "command": "button4",
+            "execute": [MockFunction],
+          },
+          "openDocs": Object {
+            "command": "button3",
+            "execute": [MockFunction],
+          },
+          "openFile": Object {
+            "command": "button1",
+            "execute": [MockFunction],
+          },
+          "openThemes": Object {
+            "command": "button5",
+            "execute": [MockFunction],
+          },
+          "openTutor": Object {
+            "command": "button2",
+            "execute": [MockFunction],
+          },
+          "openWorkspaceFolder": Object {
+            "command": "button6",
+            "execute": [MockFunction],
+          },
+          "quickOpenShow": Object {
+            "command": "button7",
+            "execute": [MockFunction],
+          },
+          "restoreSession": [MockFunction],
+        }
+      }
+      executeCommand={[MockFunction]}
+      selectedId="button1"
+    />
+    <styled.div>
+      <styled.ul>
+        <styled.div>
+          Sessions
+        </styled.div>
+        <styled.li
+          isSelected={false}
+          key="test-1"
+          onClick={[Function]}
+        >
+          <Icon
+            name="file"
+            style={
+              Object {
+                "marginRight": "0.3em",
+              }
+            }
+          />
+           
+          test
+        </styled.li>
+      </styled.ul>
+    </styled.div>
+  </styled.div>
+</styled.div>
+`;

@@ -1,22 +1,21 @@
 import * as path from "path"
 import * as React from "react"
 
-import { Sneakable } from "../Sneakable"
-import { Icon } from "./../../Icon"
-import styled, { sidebarItemSelected, withProps } from "./../common"
+import styled, { getSelectedBorder } from "./../common"
+import Octicon, { Icons } from "./../Octicon"
+import { Sneakable } from "./../Sneakable"
 
 interface IProps {
     onClick: (path: string) => void
     file: string
-    icon: string
+    icon: Icons
     isSelected: boolean
 }
 
 const Row = styled.div`
+    border: ${getSelectedBorder};
     display: flex;
-    span > {
-        margin-right: 0.2em;
-    }
+    padding: 0.3em;
 `
 
 const truncate = (str: string) =>
@@ -25,30 +24,22 @@ const truncate = (str: string) =>
         .slice(-2)
         .join(path.sep)
 
-interface SelectionProps {
-    isSelected?: boolean
-}
-
-const Column = withProps<SelectionProps>(styled.div)`
-    ${sidebarItemSelected};
-    display: flex;
-    flex-direction: column;
-    padding: 0.3em;
+const Name = styled.span`
+    word-wrap: break-word;
 `
 
-const Name = styled.span`
-    margin-left: 0.5em;
-    word-wrap: break-word;
+const IconContainer = styled.div`
+    margin-right: 0.5rem;
 `
 
 const File: React.SFC<IProps> = ({ file, icon, onClick, isSelected }) => (
     <Sneakable callback={() => onClick(file)} key={file}>
-        <Column onClick={() => onClick(file)} isSelected={isSelected}>
-            <Row>
-                <Icon name={icon} />
-                <Name>{truncate(file)}</Name>
-            </Row>
-        </Column>
+        <Row onClick={() => onClick(file)} isSelected={isSelected}>
+            <IconContainer>
+                <Octicon name={icon} />
+            </IconContainer>
+            <Name>{truncate(file)}</Name>
+        </Row>
     </Sneakable>
 )
 

@@ -15,12 +15,25 @@ export interface IVimHighlight {
     italic: boolean
 }
 
+const setFontStyle = (highlight: IVimHighlight) => {
+    switch (true) {
+        case highlight.bold && !highlight.italic:
+            return "bold"
+        case !highlight.bold && highlight.italic:
+            return "italic"
+        case highlight.bold && highlight.italic:
+            return "bold italic"
+        case !highlight.bold && !highlight.italic:
+        default:
+            return null
+    }
+}
+
 export const vimHighlightToTokenColorStyle = (highlight: IVimHighlight): TokenColorStyle => {
     return {
-        foregroundColor: Color(highlight.foreground).hex(),
-        backgroundColor: Color(highlight.background).hex(),
-        bold: highlight.bold,
-        italic: highlight.italic,
+        foreground: Color(highlight.foreground).hex(),
+        background: Color(highlight.background).hex(),
+        fontStyle: setFontStyle(highlight),
     }
 }
 

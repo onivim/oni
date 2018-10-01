@@ -3,12 +3,10 @@
  */
 
 import * as path from "path"
+import { createSelector } from "reselect"
 
 import * as React from "react"
 import { connect } from "react-redux"
-
-import classNames from "classnames"
-import { keyframes } from "styled-components"
 
 import * as BufferSelectors from "./../../Editor/NeovimEditor/NeovimEditorSelectors"
 import * as State from "./../../Editor/NeovimEditor/NeovimEditorStore"
@@ -17,11 +15,19 @@ import { addDefaultUnitIfNeeded } from "./../../Font"
 
 import { Sneakable } from "./../../UI/components/Sneakable"
 import { Icon } from "./../../UI/Icon"
-import { styled } from "./../components/common"
+import styled, {
+    boxShadowUp,
+    boxShadowUpInset,
+    css,
+    enableMouse,
+    IThemeColors,
+    keyframes,
+    layer,
+    scrollbarStyles,
+    themeGet,
+} from "./../components/common"
 
 import { FileIcon } from "./../../Services/FileIcon"
-
-import { configuration } from "./../../Services/Configuration"
 
 export interface ITabProps {
     id: number
@@ -30,7 +36,8 @@ export interface ITabProps {
     isSelected: boolean
     isDirty: boolean
     iconFileName?: string
-    highlightColor?: string
+    userColor?: string
+    shouldWrap?: boolean
 }
 
 export interface ITabContainerProps {
@@ -41,6 +48,41 @@ export interface ITabContainerProps {
     onTabClose?: (tabId: number) => void
 }
 
+interface ITabsWrapperProps {
+    fontFamily: string
+    fontSize: string
+    shouldWrap: boolean
+}
+
+const TabsWrapper = styled<ITabsWrapperProps, "div">("div")`
+    ${enableMouse};
+    ${layer};
+    display: flex;
+    flex-direction: row;
+    ${props => props.shouldWrap && "flex-wrap: wrap"};
+    align-items: flex-end;
+    width: 100%;
+    overflow-x: hidden;
+    border-bottom: 4px solid ${themeGet("tabs.background")};
+    font-family: ${props => props.fontFamily};
+    font-size: ${props => props.fontSize};
+    transform: translateY(-3px);
+    transition: transform 0.25s ease;
+
+    .loaded & {
+        transform: translateY(0px);
+    }
+
+    &:hover {
+        overflow-x: overlay;
+    }
+
+    &::-webkit-scrollbar {
+        height: 3px;
+    }
+    ${scrollbarStyles};
+`
+
 export interface ITabsProps {
     onTabSelect?: (id: number) => void
     onTabClose?: (id: number) => void
@@ -48,12 +90,12 @@ export interface ITabsProps {
     visible: boolean
     tabs: ITabProps[]
 
-    backgroundColor: string
-    foregroundColor: string
-
+    userColor?: string
     shouldWrap: boolean
     maxWidth: string
     height: string
+    mode: string
+    shouldShowHighlight: boolean
 
     fontFamily: string
     fontSize: string
@@ -66,136 +108,282 @@ const InnerName = styled.span`
     overflow: hidden;
 `
 
-export class Tabs extends React.PureComponent<ITabsProps, {}> {
-    public render(): JSX.Element {
-        if (!this.props.visible) {
-            return null
-        }
+export const Tabs: React.SFC<ITabsProps> = props => {
+    if (!props.visible) {
+        return null
+    }
 
-        const wrapStyle: React.CSSProperties = {
-            flexWrap: "wrap",
-        }
+    const tabs = props.tabs.map(tab => (
+        <Tab
+            {...tab}
+            key={tab.id}
+            onClickName={() => props.onTabSelect(tab.id)}
+            onClickClose={() => props.onTabClose(tab.id)}
+            height={props.height}
+            maxWidth={props.maxWidth}
+            userColor={props.userColor}
+            mode={props.mode}
+            shouldShowHighlight={props.shouldShowHighlight}
+        />
+    ))
 
-        const overflowStyle = this.props.shouldWrap ? wrapStyle : {}
+    return (
+        <TabsWrapper
+            data-id="tabs"
+            fontFamily={props.fontFamily}
+            fontSize={props.fontSize}
+            shouldWrap={props.shouldWrap}
+        >
+            {tabs}
+        </TabsWrapper>
+    )
+}
 
-        const tabBorderStyle: React.CSSProperties = {
-            ...overflowStyle,
-            borderBottom: `4px solid ${this.props.backgroundColor}`,
-            fontFamily: this.props.fontFamily,
-            fontSize: this.props.fontSize,
-        }
+export const Name = styled.div`
+    flex: 1 1 auto;
+    text-align: center;
+    height: 100%;
 
-        const tabs = this.props.tabs.map(t => {
-            return (
-                <Tab
-                    key={t.id}
-                    {...t}
-                    onSelect={this.props.onTabSelect}
-                    onClose={this.props.onTabClose}
-                    backgroundColor={this.props.backgroundColor}
-                    foregroundColor={this.props.foregroundColor}
-                    height={this.props.height}
-                    maxWidth={this.props.maxWidth}
-                />
-            )
-        })
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0px 4px;
+`
 
-        return (
-            <div className="tabs horizontal enable-mouse layer" style={tabBorderStyle}>
-                {tabs}
-            </div>
-        )
+export const Corner = styled<{ isHoverEnabled?: boolean }, "div">("div")`
+    flex: 0 0 auto;
+    width: 32px;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+
+    ${({ isHoverEnabled }) =>
+        isHoverEnabled &&
+        ` &:hover {
+            background-color: rgba(100, 100, 100, 0.1);
+          }`};
+`
+
+const DirtyMarker = styled<{ userColor?: string }, "div">("div")`
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: ${props => props.userColor || props.theme.foreground};
+`
+
+const tabEntranceKeyFrames = keyframes`
+    0% {
+        transform: translateY(-3px) rotateX(-20deg);
+    }
+    100% {
+        transform: translateY(0px) rotateX(0deg);
+    }
+`
+
+interface ITabWrapperProps {
+    isSelected: boolean
+    isDirty: boolean
+    height: string
+    maxWidth: string
+    mode: string
+    shouldShowHighlight: boolean
+}
+
+const sanitizedModeForColors = (mode: string): string => {
+    switch (mode) {
+        case "showmatch":
+            return "insert"
+        case "cmdline_normal":
+            return "normal"
+        default:
+            return mode
     }
 }
 
-export interface ITabPropsWithClick extends ITabProps {
-    onSelect: (id: number) => void
-    onClose: (id: number) => void
+export const getHighlightColor = (props: {
+    isSelected: boolean
+    shouldShowHighlight: boolean
+    theme: IThemeColors
+    mode: string
+}) => {
+    if (!props.shouldShowHighlight || !props.isSelected) {
+        return "transparent"
+    }
+    const sanitizedMode = sanitizedModeForColors(props.mode)
+    return props.theme[`highlight.mode.${sanitizedMode}.background`]
+}
 
-    backgroundColor: string
-    foregroundColor: string
+const active = css`
+    ${boxShadowUp};
+    opacity: 1;
+`
+
+const inactive = css`
+    ${boxShadowUpInset};
+    opacity: 0.6;
+
+    &:hover {
+        opacity: 0.9;
+    }
+`
+
+const TabWrapper = styled<ITabWrapperProps, "div">("div")`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex: 0 0 auto;
+    max-width: ${props => props.maxWidth};
+    height: ${props => props.height};
+    transition: opacity 0.25s;
+    overflow: hidden;
+    user-select: none;
+    animation: ${tabEntranceKeyFrames} 0.1s ease-in forwards;
+    ${props => (props.isSelected ? active : inactive)};
+
+    border-top: 2px solid ${getHighlightColor};
+    background-color: ${themeGet("tabs.active.background", "tabs.background", "isSelected")};
+    color: ${themeGet("tabs.active.foreground", "tabs.foreground", "isSelected")};
+`
+
+const tabIconAppearKeyframes = keyframes`
+    0% {
+        transform: scale(0.5);
+    }
+    50% {
+        transform: scale(1.25);
+    }
+    100% {
+        transform: scale(1);
+    }
+`
+
+const tabIconAppearAnimation = css`
+    animation-name: ${tabIconAppearKeyframes};
+    animation-duration: 0.6s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+    opacity: 1;
+`
+
+const tabHover = css`
+    ${TabWrapper}:hover & {
+        ${tabIconAppearAnimation};
+    }
+`
+
+interface IIconContainerProps {
+    isVisibleByDefault: boolean
+    isVisibleOnTabHover?: boolean
+}
+
+const IconContainer = styled<IIconContainerProps, "div">("div")`
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.25s ease-out;
+    ${props => (props.isVisibleByDefault ? tabIconAppearAnimation : "")};
+    ${props => props.isVisibleOnTabHover && tabHover};
+`
+
+export interface ITabPropsWithClick extends ITabProps {
+    onClickName: () => void
+    onClickClose: () => void
 
     height: string
     maxWidth: string
+    mode: string
+    shouldShowHighlight: boolean
 }
 
-const TabEntranceKeyFrames = keyframes`
-    0% { transform: translateY(-3px) rotateX(-20deg); }
-    100% { transform: translateY(0px) rotateX(0deg); }
-`
-
-const TabWrapper = styled.div`
-    animation: ${TabEntranceKeyFrames} 0.1s ease-in forwards;
-`
+interface IScrollIntoView {
+    behavior: string
+    block: string
+    inline: string
+}
 
 interface IChromeDivElement extends HTMLDivElement {
-    scrollIntoViewIfNeeded: (args: { behavior: string; block: string; inline: string }) => void
+    scrollIntoViewIfNeeded: (args: IScrollIntoView) => void
 }
 
 export class Tab extends React.PureComponent<ITabPropsWithClick> {
-    private _tab: IChromeDivElement
+    private _tab = React.createRef<IChromeDivElement>()
 
     public componentDidUpdate() {
         this._checkIfShouldScroll()
     }
 
-    public componentDidMount(): void {
+    public componentDidMount() {
         this._checkIfShouldScroll()
     }
 
+    // reports current state of the tab -> for testing
+    public getStatus(selected: boolean, dirty: boolean) {
+        const selectedState = selected ? "selected" : "not-selected"
+        const dirtyState = dirty ? "is-dirty" : "not-dirty"
+        return `tab-${selectedState}-${dirtyState}`
+    }
+
     public render() {
-        const cssClasses = classNames("tab", {
-            selected: this.props.isSelected,
-            "not-selected": !this.props.isSelected,
-            "is-dirty": this.props.isDirty,
-            "not-dirty": !this.props.isDirty,
-        })
+        const {
+            name,
+            description,
+            height,
+            maxWidth,
+            mode,
+            isDirty,
+            isSelected,
+            iconFileName,
+            userColor,
+            onClickClose,
+            onClickName,
+            shouldShowHighlight,
+        } = this.props
 
-        const style: React.CSSProperties = {
-            backgroundColor: this.props.backgroundColor,
-            color: this.props.foregroundColor,
-            maxWidth: this.props.maxWidth,
-            height: this.props.height,
-            borderTop: "2px solid " + this.props.highlightColor,
-        }
-
-        const handleTitleClick = this._handleTitleClick.bind(this)
-        const handleCloseButtonClick = this._handleCloseButtonClick.bind(this)
-
-        const userColor = configuration.getValue("tabs.dirtyMarker.userColor")
-        const DirtyMarker = styled<{ userColor?: string }, "div">("div")`
-            width: 8px;
-            height: 8px;
-            border-radius: 4px;
-            background-color: ${props => props.userColor || props.theme.foreground};
-        `
-
+        const tabStatus = this.getStatus(isSelected, isDirty)
         return (
-            <Sneakable callback={() => this.props.onSelect(this.props.id)} tag={this.props.name}>
+            <Sneakable callback={onClickName} tag={name}>
                 <TabWrapper
-                    innerRef={(e: IChromeDivElement) => (this._tab = e)}
-                    className={cssClasses}
-                    title={this.props.description}
-                    style={style}
+                    mode={mode}
+                    innerRef={this._tab}
+                    data-status={tabStatus}
+                    data-id="tab"
+                    title={description}
+                    height={height}
+                    maxWidth={maxWidth}
+                    isDirty={isDirty}
+                    isSelected={isSelected}
+                    shouldShowHighlight={shouldShowHighlight}
                 >
-                    <div className="corner" onMouseDown={handleTitleClick}>
+                    <Corner data-id="tab-icon-corner" onMouseDown={this.handleTitleClick}>
                         <FileIcon
-                            fileName={this.props.iconFileName}
+                            fileName={iconFileName}
                             isLarge={true}
                             playAppearAnimation={true}
                         />
-                    </div>
-                    <div className="name" onMouseDown={handleTitleClick}>
-                        <InnerName>{this.props.name}</InnerName>
-                    </div>
-                    <div className="corner enable-hover" onClick={handleCloseButtonClick}>
-                        <div className="icon-container x-icon-container">
+                    </Corner>
+                    <Name onMouseDown={this.handleTitleClick}>
+                        <InnerName>{name}</InnerName>
+                    </Name>
+                    <Corner data-id="tab-close-button" isHoverEnabled onClick={onClickClose}>
+                        <IconContainer isVisibleByDefault={false} isVisibleOnTabHover>
                             <Icon name="times" />
-                        </div>
-                        <div className="icon-container circle-icon-container">
+                        </IconContainer>
+                        <IconContainer isVisibleByDefault={isDirty}>
                             <DirtyMarker userColor={userColor} />
-                        </div>
-                    </div>
+                        </IconContainer>
+                    </Corner>
                 </TabWrapper>
             </Sneakable>
         )
@@ -203,8 +391,8 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
 
     private _checkIfShouldScroll(): void {
         if (this.props.isSelected && this._tab) {
-            if (this._tab.scrollIntoViewIfNeeded) {
-                this._tab.scrollIntoViewIfNeeded({
+            if (this._tab && this._tab.current && this._tab.current.scrollIntoViewIfNeeded) {
+                this._tab.current.scrollIntoViewIfNeeded({
                     behavior: "smooth",
                     block: "center",
                     inline: "center",
@@ -213,16 +401,12 @@ export class Tab extends React.PureComponent<ITabPropsWithClick> {
         }
     }
 
-    private _handleTitleClick(event: React.MouseEvent<HTMLElement>): void {
+    private handleTitleClick = (event: React.MouseEvent<HTMLElement>): void => {
         if (this._isLeftClick(event)) {
-            this.props.onSelect(this.props.id)
+            this.props.onClickName()
         } else if (this._isMiddleClick(event)) {
-            this.props.onClose(this.props.id)
+            this.props.onClickClose()
         }
-    }
-
-    private _handleCloseButtonClick(): void {
-        this.props.onClose(this.props.id)
     }
 
     private _isMiddleClick(event: React.MouseEvent<HTMLElement>): boolean {
@@ -251,31 +435,7 @@ export const getTabName = (name: string, isDuplicate?: boolean): string => {
     return filename
 }
 
-import { createSelector } from "reselect"
-
 const getTabState = (state: State.IState) => state.tabState
-
-const sanitizedModeForColors = (mode: string): string => {
-    switch (mode) {
-        case "showmatch":
-            return "insert"
-        case "cmdline_normal":
-            return "normal"
-        default:
-            return mode
-    }
-}
-
-export const getHighlightColor = (state: State.IState) => {
-    if (!state.configuration["tabs.highlight"] || !state.hasFocus) {
-        return "transparent"
-    }
-
-    const sanitizedMode = sanitizedModeForColors(state.mode)
-    const colorForMode = "highlight.mode." + sanitizedMode + ".background"
-    const color = state.colors[colorForMode]
-    return color || "transparent"
-}
 
 export const showTabId = (state: State.IState) => {
     return state.configuration["tabs.showIndex"]
@@ -289,41 +449,48 @@ export const shouldShowFileIcon = (state: State.IState): boolean => {
     return state.configuration["tabs.showFileIcon"]
 }
 
+export const checkShouldShowHighlight = (state: State.IState): boolean => {
+    return state.configuration["tabs.highlight"] && state.hasFocus
+}
+
 export const checkTabBuffers = (buffersInTabs: number[], buffers: State.IBuffer[]): boolean => {
     const tabBufs = buffers.filter(buf => buffersInTabs.find(tabBuf => tabBuf === buf.id))
 
     return tabBufs.some(buf => buf.modified)
 }
 
-export const checkDuplicate = (current: string, names: string[]) =>
-    names.filter((name: string) => path.basename(name) === path.basename(current)).length > 1
+export const checkDuplicate = (current: string, names: string[]) => {
+    return names.filter((name: string) => path.basename(name) === path.basename(current)).length > 1
+}
 
 const getTabsFromBuffers = createSelector(
     [
         BufferSelectors.getBufferMetadata,
         BufferSelectors.getActiveBufferId,
-        getHighlightColor,
         showTabId,
         shouldShowFileIcon,
+        checkShouldShowHighlight,
     ],
     (
-        allBuffers: any,
-        activeBufferId: any,
-        color: string,
+        allBuffers: State.IBuffer[],
+        activeBufferId: number,
         shouldShowId: boolean,
         showFileIcon: boolean,
+        showHighlight: boolean,
     ) => {
         const bufferCount = allBuffers.length
-        const names = allBuffers.map((b: any) => b.file)
-        const tabs = allBuffers.map((buf: any, idx: number, buffers: any): ITabProps => {
+        const names = allBuffers.map(buffer => buffer.file)
+        const tabs = allBuffers.map((buf, idx, buffers) => {
             const isDuplicate = checkDuplicate(buf.file, names)
             const isActive =
                 (activeBufferId !== null && buf.id === activeBufferId) || bufferCount === 1
+            const name =
+                getIdPrefix(buf.id.toString(), shouldShowId) + getTabName(buf.file, isDuplicate)
             return {
                 id: buf.id,
-                name: getIdPrefix(buf.id, shouldShowId) + getTabName(buf.file, isDuplicate),
+                name,
                 iconFileName: showFileIcon ? getTabName(buf.file) : "",
-                highlightColor: isActive ? color : "transparent",
+                shouldShowHighlight: showHighlight,
                 isSelected: isActive,
                 isDirty: buf.modified,
                 description: buf.file,
@@ -334,24 +501,16 @@ const getTabsFromBuffers = createSelector(
 )
 
 const getTabsFromVimTabs = createSelector(
-    [
-        getTabState,
-        getHighlightColor,
-        showTabId,
-        shouldShowFileIcon,
-        BufferSelectors.getBufferMetadata,
-    ],
+    [getTabState, showTabId, shouldShowFileIcon, BufferSelectors.getBufferMetadata],
     (
         tabState: State.ITabState,
-        color: any,
         shouldShowId: boolean,
         showFileIcon: boolean,
         allBuffers: State.IBuffer[],
     ) => {
-        return tabState.tabs.map((t: State.ITab, idx: number) => ({
+        return tabState.tabs.map((t, idx) => ({
             id: idx + 1,
             name: getIdPrefix((idx + 1).toString(), shouldShowId) + getTabName(t.name),
-            highlightColor: t.id === tabState.selectedTabId ? color : "transparent",
             iconFileName: showFileIcon ? getTabName(t.name) : "",
             isSelected: t.id === tabState.selectedTabId,
             isDirty: checkTabBuffers(t.buffersInTab, allBuffers),
@@ -368,9 +527,12 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
 
     const visible = oniTabMode !== "native" && oniTabMode !== "hidden"
 
+    const { mode } = state
     const height = state.configuration["tabs.height"]
     const maxWidth = state.configuration["tabs.maxWidth"]
     const shouldWrap = state.configuration["tabs.wrap"]
+    const userColor = state.configuration["tabs.dirtyMarker.userColor"]
+    const shouldShowHighlight = checkShouldShowHighlight(state)
 
     const selectFunc = shouldUseVimTabs ? ownProps.onTabSelect : ownProps.onBufferSelect
     const closeFunc = shouldUseVimTabs ? ownProps.onTabClose : ownProps.onBufferClose
@@ -378,13 +540,14 @@ const mapStateToProps = (state: State.IState, ownProps: ITabContainerProps): ITa
     return {
         fontFamily: state.configuration["ui.fontFamily"],
         fontSize: addDefaultUnitIfNeeded(state.configuration["ui.fontSize"]),
-        backgroundColor: state.colors["tabs.background"],
-        foregroundColor: state.colors["tabs.foreground"],
         onTabSelect: selectFunc,
         onTabClose: closeFunc,
+        userColor,
         height,
         maxWidth,
         shouldWrap,
+        mode,
+        shouldShowHighlight,
         visible,
         tabs,
     }

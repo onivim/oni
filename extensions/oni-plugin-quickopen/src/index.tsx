@@ -4,7 +4,7 @@ import { QuickOpen } from "./QuickOpen"
 
 let _instance: QuickOpen = null
 
-function registerCommands(oni: Oni.Plugin.Api): void {
+function registerCommands(oni: Oni.Plugin.Api) {
     const shouldShowMenu = () => {
         return !oni.menu.isMenuOpen()
     }
@@ -15,7 +15,7 @@ function registerCommands(oni: Oni.Plugin.Api): void {
         command: "quickOpen.searchFileByContent",
         name: null,
         detail: null,
-        execute: () => _instance.searchFileByContent(),
+        execute: _instance.searchFileByContent,
         enabled: shouldShowMenu,
     })
 
@@ -23,7 +23,7 @@ function registerCommands(oni: Oni.Plugin.Api): void {
         command: "quickOpen.searchFileByPath",
         name: null,
         detail: null,
-        execute: () => _instance.searchFileByPath(),
+        execute: _instance.searchFileByPath,
         enabled: shouldShowMenu,
     })
 
@@ -31,7 +31,15 @@ function registerCommands(oni: Oni.Plugin.Api): void {
         command: "quickOpen.show",
         name: null,
         detail: null,
-        execute: () => _instance.searchFileByPath(),
+        execute: _instance.searchFileByPath,
+        enabled: shouldShowMenu,
+    })
+
+    oni.commands.registerCommand({
+        command: "quickOpen.showBookmarks",
+        name: null,
+        detail: null,
+        execute: _instance.showBookmarks,
         enabled: shouldShowMenu,
     })
 
@@ -39,7 +47,7 @@ function registerCommands(oni: Oni.Plugin.Api): void {
         command: "quickOpen.showBufferLines",
         name: null,
         detail: null,
-        execute: () => _instance.showBufferLines(),
+        execute: _instance.showBufferLines,
         enabled: shouldShowMenu,
     })
 
@@ -55,7 +63,7 @@ function registerCommands(oni: Oni.Plugin.Api): void {
         command: "quickOpen.openFileAlternative",
         name: null,
         detail: null,
-        execute: () => _instance.openFileWithAltAction(),
+        execute: _instance.openFileWithAltAction,
         enabled: isOpen,
     })
 
@@ -79,12 +87,12 @@ function registerCommands(oni: Oni.Plugin.Api): void {
         command: "quickOpen.setToQuickFix",
         name: null,
         detail: null,
-        execute: () => _instance.setToQuickFix(),
+        execute: _instance.setToQuickFix,
         enabled: isOpen,
     })
 }
 
-export function activate(oni: any): any {
+export function activate(oni: Oni.Plugin.Api) {
     if (!_instance) {
         _instance = new QuickOpen(oni)
         registerCommands(oni)

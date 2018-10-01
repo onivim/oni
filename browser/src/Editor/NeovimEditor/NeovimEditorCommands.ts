@@ -74,7 +74,10 @@ export class NeovimEditorCommands {
             await neovimInstance.command('let b:oniclipboard=@"')
             await neovimInstance.command(`let @"='${sanitizedTextLines}'`)
 
-            if (editorManager.activeEditor.mode === "insert") {
+            if (
+                editorManager.activeEditor.mode === "insert" ||
+                editorManager.activeEditor.mode === "cmdline_normal"
+            ) {
                 await neovimInstance.command("set paste")
                 await neovimInstance.input('<c-r>"')
                 await neovimInstance.command("set nopaste")

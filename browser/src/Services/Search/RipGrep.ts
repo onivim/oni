@@ -16,11 +16,12 @@ export function getCommand(): string {
     return '"' + path.join(rootPath, executableName) + '"'
 }
 
-export function getArguments(excludePaths: string[]): string[] {
+export function getArguments(excludePaths: string[], shouldShowHidden: boolean): string[] {
     const ignoreArguments = excludePaths.reduce((prev, cur) => {
         return prev.concat(["-g", "!" + cur])
     }, [])
 
-    // TODO: Add option to enable "--hidden"
-    return ["--vimgrep"].concat(ignoreArguments)
+    const showHidden = shouldShowHidden ? ["--hidden"] : []
+
+    return ["--vimgrep"].concat(showHidden, ignoreArguments)
 }
