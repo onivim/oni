@@ -7717,9 +7717,9 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-oni-api@0.0.49:
-  version "0.0.49"
-  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.49.tgz#4d2b7c23d63e6306e873d83de148b5f89856bb56"
+oni-api@0.0.50:
+  version "0.0.50"
+  resolved "https://registry.yarnpkg.com/oni-api/-/oni-api-0.0.50.tgz#81e040244b73a6b17542ba476528ae7367b549fa"
 
 oni-core-logging@^1.0.0:
   version "1.0.0"
