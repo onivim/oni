@@ -2,95 +2,89 @@ sudo: required
 dist: trusty
 language: node_js
 
-branches:
-  only:
-  - master
-  - /^release.*/
-
 cache:
-  directories:
-  - .oni_build_cache
+    directories:
+        - .oni_build_cache
 
 matrix:
-  include:
-  - os: linux
-    sudo: required
-    dist: trusty
-    node_js: 8
-  - os: osx # OSX 10.12
-    node_js: 8
-  - os: osx # OSX 10.11
-    node_js: 8
-    osx_image: xcode8
-  allow_failures:
-    - osx_image: xcode8
+    include:
+        - os: linux
+          sudo: required
+          dist: trusty
+          node_js: 8
+        - os: osx # OSX 10.12
+          node_js: 8
+        - os: osx # OSX 10.11
+          node_js: 8
+          osx_image: xcode8
+    allow_failures:
+        - osx_image: xcode8
 
 addons:
-  apt:
-    packages:
-    - libxkbfile-dev
-    - libgnome-keyring-dev
-    - icnsutils
-    - graphicsmagick
-    - xz-utils
-    - rpm
-    - bsdtar
+    apt:
+        packages:
+            - libxkbfile-dev
+            - libgnome-keyring-dev
+            - icnsutils
+            - graphicsmagick
+            - xz-utils
+            - rpm
+            - bsdtar
 
 before_install:
-- |
-    # Get the files modified in this commit, and check there is
-    # actual code changes made. If there isn't, stop the build.
-    MODIFIED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
+    - |
+        # Get the files modified in this commit, and check there is
+        # actual code changes made. If there isn't, stop the build.
+        MODIFIED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
 
-    if ! echo ${MODIFIED_FILES} | grep -qvE '(\.md$)/'; then
-      echo "Only documents were updated, stopping..."
-      exit
-    fi
-
+        if ! echo ${MODIFIED_FILES} | grep -qvE '(\.md$)/'; then
+          echo "Only documents were updated, stopping..."
+          exit
+        fi
 
 install:
-- npm install -g yarn@1.9.4
-# Remove problematic version of yarn
-- rm -rf ~/.yarn/bin
-- yarn --version
-- which yarn
-- yarn install
+    - npm install -g yarn@1.9.4
+    # Remove problematic version of yarn
+    - rm -rf ~/.yarn/bin
+    - yarn --version
+    - which yarn
+    - yarn install
 
 script:
-- npm run check-cached-binaries
-- ./build/script/install-reason.sh
-- ./build/script/travis-build.sh
-- travis_wait ./build/script/travis-pack.sh
-- ./build/script/travis-test.sh
+    - npm run check-cached-binaries
+    - ./build/script/install-reason.sh
+    - ./build/script/travis-build.sh
+    - travis_wait ./build/script/travis-pack.sh
+    - ./build/script/travis-test.sh
 
 deploy:
     - provider: s3
       access_key_id: AKIAIYMATI2CEFTHPBOQ
       secret_access_key:
-        secure: S4f/aczEABGAMKk2tmVSkoGx+T2TLPmz5z6x6RKaM+eDmAaVSAELlIj1eAz6Tu2lv3jz+cpyAIISZNC/phORsJWwzbSZHVycLrMG0N3fDTqKFxu1fl6L3b3exRe9SiKXug73ZvHfktzd/XfRcgZKop4qgrwGiM57m0ZuZb/j1LkgjytTuvNAUxXbA84I8LZs/NhY17XuXq+KPlGElIHy3UFoGqQ8pBnTypkIU5rQTsoeAxXLBE8JAFfz+nBGZ7dx6OMbQcKX5jKh/gR3vk+4aTgV8gNE2Zp24ErjSqF2zly/gP9nE2DpfR7jqpZVHnb/v+OEjRDS80tLhPo8Dbibzwt2ZZNADpYBjSGtphwAmq4DCvJ7ORExOB5+O3wmXKQGdItyBTS7sW44n6BTyv87WxWuCaSDQ9QaO9PrbJdN5YGEYeRxSTM7Mn0t72IILkfFCUeSg6fl6tFs9iWIj5zltbxH1GQsRpA8j1Idg4O+894KnQABtw/YKh6rrdeYS9y/100qAjtV6qYyiP2IdPqMWGuasOiz87q3CQ8Ejd7uhiTjAaINVqos+0k04Yf5+rT4MqkeXnYFzjXuXcqDlpq6yJIZv3aD+PMSlZi2WmTYnPJXQFndHo/x9FhEh90UF9WdO5S27ySRSo8XQT4DyL3ToPkqz8y0slNmaNqiqMouQAU=
+          secure: S4f/aczEABGAMKk2tmVSkoGx+T2TLPmz5z6x6RKaM+eDmAaVSAELlIj1eAz6Tu2lv3jz+cpyAIISZNC/phORsJWwzbSZHVycLrMG0N3fDTqKFxu1fl6L3b3exRe9SiKXug73ZvHfktzd/XfRcgZKop4qgrwGiM57m0ZuZb/j1LkgjytTuvNAUxXbA84I8LZs/NhY17XuXq+KPlGElIHy3UFoGqQ8pBnTypkIU5rQTsoeAxXLBE8JAFfz+nBGZ7dx6OMbQcKX5jKh/gR3vk+4aTgV8gNE2Zp24ErjSqF2zly/gP9nE2DpfR7jqpZVHnb/v+OEjRDS80tLhPo8Dbibzwt2ZZNADpYBjSGtphwAmq4DCvJ7ORExOB5+O3wmXKQGdItyBTS7sW44n6BTyv87WxWuCaSDQ9QaO9PrbJdN5YGEYeRxSTM7Mn0t72IILkfFCUeSg6fl6tFs9iWIj5zltbxH1GQsRpA8j1Idg4O+894KnQABtw/YKh6rrdeYS9y/100qAjtV6qYyiP2IdPqMWGuasOiz87q3CQ8Ejd7uhiTjAaINVqos+0k04Yf5+rT4MqkeXnYFzjXuXcqDlpq6yJIZv3aD+PMSlZi2WmTYnPJXQFndHo/x9FhEh90UF9WdO5S27ySRSo8XQT4DyL3ToPkqz8y0slNmaNqiqMouQAU=
       bucket: oni-media
       local-dir: dist/media
       acl: public_read
       region: us-west-2
       skip_cleanup: true
       on:
-        condition: $TRAVIS_OS_NAME = osx
-        repo: onivim/oni
+          condition: $TRAVIS_OS_NAME = osx
+          repo: onivim/oni
     - provider: releases
       api_key:
-        secure: qB2KX7c9gRf9HDNetUVJOSa1Lo81QJiukOChOEzGUkYzD/et/2uNgzl0AQX0jB6aOYNwtZAxTd/ON3TTbEWh90o+R1PmQUgQCZ8xIFjOwnQmuHFp4hHoOWNI/ahmQ3W5UD+gmkV5YTRDMfuNnRjraDcQ5R6744Gii4zHGBwnJQsKVh65rxChHfkAJ1WEoX0lUbEM9Veyof4W+xLEgf45eDNvG3fz2y11D2qcvJNckVdvaYIWFwVrefcmofnQvLoWhs8gs6tLBKxaieZ4DcKH+Q5ux+t2VT8LYOR6gkCzuBgUbGUB+AlfCrNR2T7H3LLONIbUMB8/3sF0+oojj9tXPoagHzmwL2gnE7esLxIXc90LbAMpzLwMDvOgA8YEIsgKKtM92BqMK3Pv2clDv+Wmu8Al/QOU8v4Zj5dF09pqa8VM95xPx8t5Harrz+AN6HhZtzoqceooCBtJaGDb5jRdIjWtg4LkJN82mMuNAcbTLUotWp9UxJyqiS+WLrF4cIjPBoq9AAay8XnqLJHpjLGq2Mfp8i9qRFJPr7m2a1WozUUL5/s8Fb7oVOm6rYodXP3ZrdF+0OFMMKoaMfxOg2IhKRIk+S6XYp64i8J4lOFJ0W0dg0ap+f3PsWTYaA7YQ+/SMSv0zsZdrprT80i/Mx5F5HjiljX6GDmanZCdEG1b2a8=
+          secure: qB2KX7c9gRf9HDNetUVJOSa1Lo81QJiukOChOEzGUkYzD/et/2uNgzl0AQX0jB6aOYNwtZAxTd/ON3TTbEWh90o+R1PmQUgQCZ8xIFjOwnQmuHFp4hHoOWNI/ahmQ3W5UD+gmkV5YTRDMfuNnRjraDcQ5R6744Gii4zHGBwnJQsKVh65rxChHfkAJ1WEoX0lUbEM9Veyof4W+xLEgf45eDNvG3fz2y11D2qcvJNckVdvaYIWFwVrefcmofnQvLoWhs8gs6tLBKxaieZ4DcKH+Q5ux+t2VT8LYOR6gkCzuBgUbGUB+AlfCrNR2T7H3LLONIbUMB8/3sF0+oojj9tXPoagHzmwL2gnE7esLxIXc90LbAMpzLwMDvOgA8YEIsgKKtM92BqMK3Pv2clDv+Wmu8Al/QOU8v4Zj5dF09pqa8VM95xPx8t5Harrz+AN6HhZtzoqceooCBtJaGDb5jRdIjWtg4LkJN82mMuNAcbTLUotWp9UxJyqiS+WLrF4cIjPBoq9AAay8XnqLJHpjLGq2Mfp8i9qRFJPr7m2a1WozUUL5/s8Fb7oVOm6rYodXP3ZrdF+0OFMMKoaMfxOg2IhKRIk+S6XYp64i8J4lOFJ0W0dg0ap+f3PsWTYaA7YQ+/SMSv0zsZdrprT80i/Mx5F5HjiljX6GDmanZCdEG1b2a8=
       file_glob: true
       file:
-        - dist/*.dmg
-        - dist/*.zip
+          - dist/*.dmg
+          - dist/*.zip
       skip_cleanup: true
       on:
-        condition: $TRAVIS_OS_NAME = osx
-        tags: true
-        repo: onivim/oni
+          condition: $TRAVIS_OS_NAME = osx
+          tags: true
+          repo: onivim/oni
     - provider: releases
       api_key:
-        secure: qB2KX7c9gRf9HDNetUVJOSa1Lo81QJiukOChOEzGUkYzD/et/2uNgzl0AQX0jB6aOYNwtZAxTd/ON3TTbEWh90o+R1PmQUgQCZ8xIFjOwnQmuHFp4hHoOWNI/ahmQ3W5UD+gmkV5YTRDMfuNnRjraDcQ5R6744Gii4zHGBwnJQsKVh65rxChHfkAJ1WEoX0lUbEM9Veyof4W+xLEgf45eDNvG3fz2y11D2qcvJNckVdvaYIWFwVrefcmofnQvLoWhs8gs6tLBKxaieZ4DcKH+Q5ux+t2VT8LYOR6gkCzuBgUbGUB+AlfCrNR2T7H3LLONIbUMB8/3sF0+oojj9tXPoagHzmwL2gnE7esLxIXc90LbAMpzLwMDvOgA8YEIsgKKtM92BqMK3Pv2clDv+Wmu8Al/QOU8v4Zj5dF09pqa8VM95xPx8t5Harrz+AN6HhZtzoqceooCBtJaGDb5jRdIjWtg4LkJN82mMuNAcbTLUotWp9UxJyqiS+WLrF4cIjPBoq9AAay8XnqLJHpjLGq2Mfp8i9qRFJPr7m2a1WozUUL5/s8Fb7oVOm6rYodXP3ZrdF+0OFMMKoaMfxOg2IhKRIk+S6XYp64i8J4lOFJ0W0dg0ap+f3PsWTYaA7YQ+/SMSv0zsZdrprT80i/Mx5F5HjiljX6GDmanZCdEG1b2a8=
+          secure: qB2KX7c9gRf9HDNetUVJOSa1Lo81QJiukOChOEzGUkYzD/et/2uNgzl0AQX0jB6aOYNwtZAxTd/ON3TTbEWh90o+R1PmQUgQCZ8xIFjOwnQmuHFp4hHoOWNI/ahmQ3W5UD+gmkV5YTRDMfuNnRjraDcQ5R6744Gii4zHGBwnJQsKVh65rxChHfkAJ1WEoX0lUbEM9Veyof4W+xLEgf45eDNvG3fz2y11D2qcvJNckVdvaYIWFwVrefcmofnQvLoWhs8gs6tLBKxaieZ4DcKH+Q5ux+t2VT8LYOR6gkCzuBgUbGUB+AlfCrNR2T7H3LLONIbUMB8/3sF0+oojj9tXPoagHzmwL2gnE7esLxIXc90LbAMpzLwMDvOgA8YEIsgKKtM92BqMK3Pv2clDv+Wmu8Al/QOU8v4Zj5dF09pqa8VM95xPx8t5Harrz+AN6HhZtzoqceooCBtJaGDb5jRdIjWtg4LkJN82mMuNAcbTLUotWp9UxJyqiS+WLrF4cIjPBoq9AAay8XnqLJHpjLGq2Mfp8i9qRFJPr7m2a1WozUUL5/s8Fb7oVOm6rYodXP3ZrdF+0OFMMKoaMfxOg2IhKRIk+S6XYp64i8J4lOFJ0W0dg0ap+f3PsWTYaA7YQ+/SMSv0zsZdrprT80i/Mx5F5HjiljX6GDmanZCdEG1b2a8=
       file_glob: true
       file:
           - dist/*.deb
@@ -98,6 +92,6 @@ deploy:
           - dist/*.tar.gz
       skip_cleanup: true
       on:
-        condition: $TRAVIS_OS_NAME = linux
-        tags: true
-        repo: onivim/oni
+          condition: $TRAVIS_OS_NAME = linux
+          tags: true
+          repo: onivim/oni
