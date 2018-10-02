@@ -16,14 +16,17 @@ export const sortTextEdits = (edits: types.TextEdit[]): types.TextEdit[] => {
     return sortedEdits
 }
 
-export const convertTextDocumentEditsToFileMap = (
-    edits: types.TextDocumentEdit[],
+export const convertTextDocumentChangesToFileMap = (
+    edits: Array<types.TextDocumentEdit | types.CreateFile | types.RenameFile | types.DeleteFile>,
 ): { [fileUri: string]: types.TextEdit[] } => {
     if (!edits) {
         return {}
     }
 
     return edits.reduce((prev, curr) => {
+        if (!("textDocument" in curr)) {
+            return prev
+        }
         return {
             ...prev,
             [curr.textDocument.uri]: edits,

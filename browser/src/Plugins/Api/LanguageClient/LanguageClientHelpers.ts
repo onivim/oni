@@ -42,13 +42,13 @@ export const wrapPathInFileUri = (path: string) => getFilePrefix() + Utility.nor
 export const unwrapFileUriPath = (uri: string) => decodeURIComponent(uri.split(getFilePrefix())[1])
 
 export const getTextFromContents = (
-    contents: types.MarkedString | types.MarkedString[],
+    contents: types.MarkedString | types.MarkupContent | types.MarkedString[],
 ): IMarkedStringResult[] => {
     if (contents instanceof Array) {
         return contents.map(markedString => getTextFromMarkedString(markedString))
-    } else {
-        return [getTextFromMarkedString(contents)]
     }
+    const text = isMarkupContent(contents) ? getDocumentationText(contents) : contents
+    return [getTextFromMarkedString(text)]
 }
 
 export const pathToTextDocumentIdentifierParms = (path: string) => ({
@@ -150,4 +150,16 @@ const getFilePrefix = () => {
     } else {
         return "file://"
     }
+}
+
+export function isMarkupContent(input: any): input is types.MarkupContent {
+    return typeof input === "object" && input !== null && "value" in input && "kind" in input
+}
+
+export const getDocumentationText = (documentation: string | types.MarkupContent) => {
+    // Documentation can be a string or an object specifying the documentations type as well as the value.
+    if (typeof documentation === "string") {
+        return documentation
+    }
+    return documentation.value
 }

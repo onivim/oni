@@ -10,6 +10,8 @@ import * as types from "vscode-languageserver-types"
 
 import { Event, IEvent } from "oni-types"
 
+import { getDocumentationText } from "../../Plugins/Api/LanguageClient/LanguageClientHelpers"
+
 import { ContextMenu } from "./../../Services/ContextMenu"
 
 import * as CompletionUtility from "./../../Services/Completion/CompletionUtility"
@@ -64,7 +66,7 @@ const _convertCompletionForContextMenu = (completion: types.CompletionItem): any
 
 const getCompletionDocumentation = (item: types.CompletionItem): string | null => {
     if (item.documentation) {
-        return item.documentation
+        return getDocumentationText(item.documentation)
     } else if (item.data && item.data.documentation) {
         return item.data.documentation
     } else {

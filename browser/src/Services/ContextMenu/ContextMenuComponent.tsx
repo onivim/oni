@@ -23,7 +23,7 @@ import { ContextMenuState } from "./ContextMenu"
 export interface IContextMenuItem {
     label: string
     detail?: string
-    documentation?: string
+    documentation?: string | types.MarkupContent
     icon?: string
 }
 
