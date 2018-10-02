@@ -12,7 +12,6 @@ import {
 import { Configuration } from "../browser/src/Services/Configuration"
 
 const mockEvent = new Event<void>()
-const dispatch = () => mockEvent.dispatch()
 
 const MockWebviewElement = (spy: (args?: any) => void) =>
     ({

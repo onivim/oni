@@ -13,7 +13,7 @@ describe("<Branch />", () => {
     const diff = {
         insertions: 2,
         deletions: 8,
-        files: null,
+        files: null as any,
     }
 
     it("Should render without crashing", () => {

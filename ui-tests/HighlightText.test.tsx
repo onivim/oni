@@ -1,8 +1,5 @@
 import { mount, shallow } from "enzyme"
-import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
-
-import * as os from "os"
 
 import { HighlightTextByIndex } from "./../browser/src/UI/components/HighlightText"
 
@@ -38,7 +35,7 @@ describe("<HighlightTextByIndex />", () => {
     it("renders the correct text with no highlights", () => {
         const testState = {
             highlightComponent,
-            highlightIndices: [],
+            highlightIndices: [] as number[],
             text: "no highlight text",
             className: "test-class",
         }

@@ -2,7 +2,6 @@ import * as Oni from "oni-api"
 
 import MockCommands from "./CommandManager"
 import MockEditorManager from "./EditorManager"
-import MockMenu from "./MenuManager"
 import MockSidebar from "./../mocks/Sidebar"
 import MockStatusbar from "./Statusbar"
 import MockWorkspace from "./Workspace"

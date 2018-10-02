@@ -1,9 +1,13 @@
-import { mount, shallow } from "enzyme"
+import { CommonWrapper, mount, shallow } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
 import { Provider } from "react-redux"
 import configureStore, { MockStore, MockStoreCreator } from "redux-mock-store"
-import ConnectCommand, { CommandLine } from "../browser/src/UI/components/CommandLine"
+import ConnectCommand, {
+    CommandLine,
+    ICommandLineRendererProps,
+    ICommandLineRendererState,
+} from "../browser/src/UI/components/CommandLine"
 
 const mockStore: MockStoreCreator<IState> = configureStore()
 
@@ -65,7 +69,10 @@ describe("<Commandline />", () => {
     })
 
     it("should initially not have a focused state when rendered", () => {
-        const wrapper = shallow(CommandLineComponent)
+        const wrapper: CommonWrapper<
+            ICommandLineRendererProps,
+            ICommandLineRendererState
+        > = shallow(CommandLineComponent)
         expect(wrapper.state().focused).toBe(false)
     })
 

@@ -2,7 +2,7 @@ import * as React from "react"
 import { shallow } from "enzyme"
 import { Diagnostic } from "vscode-languageserver-types"
 
-import { ErrorInfo, DiagnosticMessage } from "../browser/src/UI/components/ErrorInfo"
+import { ErrorInfo } from "../browser/src/UI/components/ErrorInfo"
 
 describe("<ErrorInfo />", () => {
     const errors: Diagnostic[] = [

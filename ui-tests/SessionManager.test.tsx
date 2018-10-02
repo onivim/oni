@@ -24,17 +24,17 @@ const mockPersistentStore = {
             resolve(this._store || {})
         })
     },
-    set(obj: { [key: string]: any }) {
+    set(obj: { [key: string]: any }): Promise<void> {
         return new Promise(resolve => {
             this._store = { ...this._store, ...obj }
-            resolve(null)
+            resolve()
         })
     },
-    delete(key: string) {
+    delete(key: string): Promise<any> {
         delete this._store[key]
         return new Promise(resolve => resolve(this._store))
     },
-    has(key) {
+    has(key: string) {
         return !!this._store[key]
     },
 }
@@ -68,8 +68,8 @@ describe("Session Manager Tests", () => {
 
     it("should correctly update a session", async () => {
         await manager.persistSession("test-session")
-        await manager.updateOniSession("test-session", { newValue: 2 })
-        const session = await manager.getSessionFromStore("test-session")
+        await manager.updateOniSession("test-session", { newValue: 2 } as any)
+        const session: any = await manager.getSessionFromStore("test-session")
         expect(session.newValue).toBe(2)
     })
 })

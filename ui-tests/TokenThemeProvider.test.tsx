@@ -4,7 +4,7 @@ import "jest-styled-components"
 
 import TokenThemeProvider from "./../browser/src/Services/SyntaxHighlighting/TokenThemeProvider"
 import { TokenColor } from "./../browser/src/Services/TokenColors"
-import styled, { css } from "./../browser/src/UI/components/common"
+import styled from "./../browser/src/UI/components/common"
 
 const tokenColors: TokenColor[] = [
     {
@@ -55,13 +55,13 @@ describe("<TokenThemeProvider />", () => {
     })
 
     test.each`
-      className                | cssRule         | result
-      ${".string-quoted"}      | ${"color"}      | ${"green"}
-      ${".string-quoted"}      | ${"font-style"} | ${"italic"}
-      ${".string-quoted"}      | ${"font-weight"}| ${"bold"}
-      ${".entity-name-struct"} | ${"color"}      | ${"rebeccapurple"}
-      ${".entity-name-struct"} | ${"font-style"} | ${"italic"}
-      ${".entity-name-struct"} | ${"font-weight"}| ${undefined}
+        className                | cssRule          | result
+        ${".string-quoted"}      | ${"color"}       | ${"green"}
+        ${".string-quoted"}      | ${"font-style"}  | ${"italic"}
+        ${".string-quoted"}      | ${"font-weight"} | ${"bold"}
+        ${".entity-name-struct"} | ${"color"}       | ${"rebeccapurple"}
+        ${".entity-name-struct"} | ${"font-style"}  | ${"italic"}
+        ${".entity-name-struct"} | ${"font-weight"} | ${undefined}
     `(
         "the TokenThemeProvider returns a nested class rule with a style of $cssRule with a value of $result for $className",
         ({ cssRule, result, className }) => {

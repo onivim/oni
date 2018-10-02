@@ -9,17 +9,6 @@ import {
 } from "./../browser/src/Editor/NeovimEditor/WelcomeBufferLayer"
 
 describe("Welcome Layer test", () => {
-    const buttons = [
-        "button1",
-        "button2",
-        "button3",
-        "button4",
-        "button5",
-        "button6",
-        "button7",
-        "button8",
-    ]
-
     const restoreSession = jest.fn()
     const executeCommand = jest.fn()
 

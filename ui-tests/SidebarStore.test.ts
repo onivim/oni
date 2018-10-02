@@ -1,8 +1,4 @@
-import {
-    decreaseWidth,
-    increaseWidth,
-    sidebarReducer,
-} from "./../browser/src/Services/Sidebar/SidebarStore"
+import { decreaseWidth, increaseWidth } from "./../browser/src/Services/Sidebar/SidebarStore"
 
 describe("Change size function", () => {
     it("Should correctly return an increased size", () => {

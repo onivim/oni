@@ -92,20 +92,6 @@ describe("<Tabs /> Tests", () => {
         />
     )
 
-    const unfocusedTab = (
-        <Tabs
-            fontSize="1.2em"
-            shouldShowHighlight={false}
-            mode="normal"
-            maxWidth="20em"
-            height="2em"
-            fontFamily="inherit"
-            shouldWrap={false}
-            visible={false}
-            tabs={[tab1]}
-        />
-    )
-
     afterEach(() => {
         tabCloseFunction.mockReset()
         tabSelectFunction.mockReset()

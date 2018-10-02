@@ -8,12 +8,11 @@ import {
     WelcomeViewProps,
     WelcomeViewState,
     IWelcomeInputEvent,
-    SessionsList,
     SectionItem,
     SectionHeader,
 } from "./../browser/src/Editor/NeovimEditor/WelcomeBufferLayer"
 
-describe("<WelcomeView />", () => {
+describe("<WelcomeView />", async () => {
     const buttons = [
         "button1",
         "button2",
@@ -83,7 +82,7 @@ describe("<WelcomeView />", () => {
             active
             ids={ids}
             sessions={sessions}
-            commands={commands}
+            commands={commands as any}
             inputEvent={inputEvent}
             getMetadata={getMetadata}
             restoreSession={restoreSession}

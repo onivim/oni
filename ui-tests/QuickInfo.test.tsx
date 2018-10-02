@@ -4,11 +4,7 @@ import * as React from "react"
 
 import * as os from "os"
 
-import {
-    QuickInfoDocumentation,
-    QuickInfoTitle,
-    Title,
-} from "./../browser/src/UI/components/QuickInfo"
+import { QuickInfoDocumentation, QuickInfoTitle } from "./../browser/src/UI/components/QuickInfo"
 
 describe("<QuickInfo />", () => {
     it("renders a shallow instance of the component", () => {

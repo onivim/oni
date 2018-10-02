@@ -129,7 +129,7 @@ export class MenuView extends React.PureComponent<IMenuProps, {}> {
      */
     private handleHide = (event: any) => {
         const node = ReactDOM.findDOMNode(this._popupBody)
-        if (!node.contains(event.target as Node)) {
+        if (typeof node !== "string" && !node.contains(event.target as Node)) {
             this.props.onHide()
         }
     }
@@ -173,7 +173,10 @@ const mapDispatchToProps = {
     onHide: ActionCreators.hidePopupMenu,
 }
 
-export const ConnectedMenu: any = connect(mapStateToProps, mapDispatchToProps)(MenuView)
+export const ConnectedMenu: any = connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(MenuView)
 
 export const MenuContainer = () => {
     return (

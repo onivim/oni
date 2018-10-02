@@ -44,6 +44,9 @@ exports[`<WelcomeView /> should match its last snapshot 1`] = `
     <styled.div
       alignment="flex-start"
     >
+      <styled.div>
+        v1
+      </styled.div>
       <div>
         https://onivim.io
       </div>

@@ -20,7 +20,6 @@ describe("<NodeView />", () => {
     const Node = (
         <NodeView
             yanked={[] as string[]}
-            measure={() => null}
             isCreating={false}
             isRenaming={testNode}
             moveFileOrFolder={() => ({})}
@@ -40,7 +39,6 @@ describe("<NodeView />", () => {
         const wrapper = shallow(
             <NodeView
                 yanked={[] as string[]}
-                measure={() => null}
                 isCreating={false}
                 isRenaming={testNode}
                 moveFileOrFolder={() => ({})}

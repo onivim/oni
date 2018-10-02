@@ -12,14 +12,14 @@ exports[`<VersionControlView /> should match the last recorded snapshot unless a
   />
   <File
     file="test1"
-    icon="M"
+    icon="code"
     isSelected={false}
     key="test1"
     onClick={[MockFunction]}
   />
   <File
     file="test2"
-    icon="M"
+    icon="code"
     isSelected={false}
     key="test2"
     onClick={[MockFunction]}
