@@ -3,8 +3,8 @@ jest.mock("../browser/src/Services/WindowManager/WindowManager")
 jest.mock("../browser/src/Services/Explorer/ExplorerView")
 jest.mock("../browser/src/Services/Explorer/ExplorerStore")
 
-import * as React from "react"
-import { shallow } from "enzyme"
+import "react"
+import { Store } from "redux"
 
 import MockOni from "./mocks/Oni"
 
@@ -47,7 +47,7 @@ describe("ExplorerSplit", () => {
         })
 
         it("dispatches SELECT_FILE_SUCCESS if fileToSelect matches selected item", () => {
-            store.getState.mockReturnValue({ fileToSelect: "/path/to/file.cpp" })
+            ;(store.getState as any).mockReturnValue({ fileToSelect: "/path/to/file.cpp" })
             _getSelectedItem.mockReturnValue({
                 type: "file",
                 filePath: "/path/to/file.cpp",
@@ -59,7 +59,7 @@ describe("ExplorerSplit", () => {
         })
 
         it("does not dispatch SELECT_FILE_SUCCESS if fileToSelect isn't selected", () => {
-            store.getState.mockReturnValue({ fileToSelect: "/path/to/file.cpp" })
+            ;(store.getState as any).mockReturnValue({ fileToSelect: "/path/to/file.cpp" })
             _getSelectedItem.mockReturnValue({
                 type: "file",
                 filePath: "/something/else.cpp",
@@ -71,7 +71,7 @@ describe("ExplorerSplit", () => {
         })
 
         it("does not dispatch SELECT_FILE_SUCCESS if there is no fileToSelect", () => {
-            store.getState.mockReturnValue({ fileToSelect: null })
+            ;(store.getState as any).mockReturnValue({ fileToSelect: null })
 
             explorerSplit["_onSelectionChanged"]("a")
 

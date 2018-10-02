@@ -1,8 +1,7 @@
-import { mount, shallow, configure } from "enzyme"
+import { shallow } from "enzyme"
 import { shallowToJson } from "enzyme-to-json"
 import * as React from "react"
 
-import styled from "styled-components"
 import {
     Button,
     NotificationContents,

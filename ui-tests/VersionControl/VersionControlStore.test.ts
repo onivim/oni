@@ -1,5 +1,3 @@
-import { Store } from "redux"
-
 import vcsStore from "./../../browser/src/Services/VersionControl/VersionControlStore"
 
 describe("Version control reducer test", () => {
@@ -7,14 +5,14 @@ describe("Version control reducer test", () => {
         const status = {
             currentBranch: "master",
             staged: ["/test.txt"],
-            conflicted: [],
-            created: [],
-            modified: [],
+            conflicted: [] as any,
+            created: [] as any,
+            modified: [] as any,
             remoteTrackingBranch: "origin/master",
-            deleted: [],
-            untracked: [],
-            ahead: null,
-            behind: null,
+            deleted: [] as any,
+            untracked: [] as any,
+            ahead: null as any,
+            behind: null as any,
         }
 
         vcsStore.dispatch({ type: "STATUS", payload: { status } })

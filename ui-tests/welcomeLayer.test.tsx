@@ -1,8 +1,6 @@
-import * as React from "react"
-import { Event } from "oni-types"
+import "react"
 
 import {
-    IWelcomeInputEvent,
     OniWithActiveSection,
     WelcomeBufferLayer,
 } from "./../browser/src/Editor/NeovimEditor/WelcomeBufferLayer"
@@ -28,7 +26,7 @@ describe("Welcome Layer tests", () => {
             x: 0,
             y: 0,
         },
-        visibleLines: [],
+        visibleLines: [] as any[],
         topBufferLine: 20,
         bottomBufferLine: 40,
     }

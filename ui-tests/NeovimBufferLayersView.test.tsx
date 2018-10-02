@@ -1,5 +1,4 @@
 import { shallow } from "enzyme"
-import { BufferLayer, BufferLayerRenderContext } from "oni-api"
 import * as React from "react"
 
 import { IBufferLayer } from "./../browser/src/Editor/NeovimEditor/BufferLayerManager"
@@ -62,7 +61,7 @@ describe("<NeovimBufferLayersView/>", () => {
         expect(wrapper.find("#test-layer").length).toBe(1)
     })
     it("should call the layers render function with the correct args", () => {
-        const wrapper = shallow(
+        shallow(
             <NeovimBufferLayersView
                 fontPixelHeight={10}
                 fontPixelWidth={3}

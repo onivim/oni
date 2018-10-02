@@ -58,7 +58,7 @@ export interface ICommandLineRendererProps {
     prompt: string
 }
 
-interface State {
+export interface ICommandLineRendererState {
     focused: boolean
 }
 
@@ -74,7 +74,10 @@ export const CommandLineIcon = (props: { iconName: string; arrow?: boolean }) =>
     </span>
 )
 
-export class CommandLine extends React.PureComponent<ICommandLineRendererProps, State> {
+export class CommandLine extends React.PureComponent<
+    ICommandLineRendererProps,
+    ICommandLineRendererState
+> {
     public state = {
         focused: false,
     }

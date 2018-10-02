@@ -24,7 +24,7 @@ describe("<Sessions />", () => {
             id: "test-1",
             file: "/sessions/test.vim",
             directory: "/sessions",
-            updatedAt: null,
+            updatedAt: null as any,
             workspace: "/workspace",
         },
         {
@@ -32,12 +32,12 @@ describe("<Sessions />", () => {
             id: "testing-2",
             file: "/sessions/testing.vim",
             directory: "/sessions",
-            updatedAt: null,
+            updatedAt: null as any,
             workspace: "/workspace",
         },
     ]
     it("should render without crashing", () => {
-        const wrapper = shallow(
+        shallow(
             <Sessions
                 active
                 cancelCreating={noop}

@@ -1,12 +1,8 @@
-import * as Oni from "oni-api"
 import { Event } from "oni-types"
 
 import { VersionControlProvider } from "./../../browser/src/Services/VersionControl"
 import VersionControlPane from "./../../browser/src/Services/VersionControl/VersionControlPane"
-import store, {
-    DefaultState,
-    VersionControlState,
-} from "./../../browser/src/Services/VersionControl/VersionControlStore"
+import store from "./../../browser/src/Services/VersionControl/VersionControlStore"
 
 import MockOni from "./../mocks/Oni"
 import MockSidebar from "./../mocks/Sidebar"
@@ -41,11 +37,15 @@ const provider: VersionControlProvider = {
         }),
     getRoot: () => makePromise("/test/dir"),
     getBranch: () => makePromise("local"),
+    getBlame: () => makePromise(null),
+    getLogs: () => makePromise(null),
+    unstage: () => makePromise(),
+    uncommit: () => makePromise(),
+    commitFiles: () => makePromise(),
 }
 
 describe("Version Control pane tests", () => {
     const mockSidebar = new MockSidebar()
-    const vcsStore = store
     const vcsPane = new VersionControlPane(
         new MockOni(),
         provider,

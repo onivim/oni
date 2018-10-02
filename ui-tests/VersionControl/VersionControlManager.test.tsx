@@ -1,4 +1,3 @@
-import * as Oni from "oni-api"
 import { Event } from "oni-types"
 import * as React from "react"
 
@@ -36,6 +35,11 @@ const provider: VersionControlProvider = {
     getStatus: () => makePromise({}),
     getRoot: () => makePromise("/test/dir"),
     getBranch: () => makePromise("local"),
+    getBlame: () => makePromise(null),
+    getLogs: () => makePromise(null),
+    unstage: () => makePromise(),
+    uncommit: () => makePromise(),
+    commitFiles: () => makePromise(),
 }
 
 describe("Version Control Manager tests", () => {

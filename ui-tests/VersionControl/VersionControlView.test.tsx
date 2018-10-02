@@ -4,14 +4,9 @@ import * as React from "react"
 
 import { SectionTitle, Title } from "./../../browser/src/UI/components/SectionTitle"
 
-import {
-    DefaultState,
-    VersionControlState,
-} from "./../../browser/src/Services/VersionControl/VersionControlStore"
+import { DefaultState } from "./../../browser/src/Services/VersionControl/VersionControlStore"
 import { VersionControlView } from "./../../browser/src/Services/VersionControl/VersionControlView"
-import CommitMessage, {
-    Explainer,
-} from "./../../browser/src/UI/components/VersionControl/CommitMessage"
+import CommitMessage from "./../../browser/src/UI/components/VersionControl/CommitMessage"
 import Commits from "./../../browser/src/UI/components/VersionControl/Commits"
 import Help from "./../../browser/src/UI/components/VersionControl/Help"
 import Staged, { LoadingHandler } from "./../../browser/src/UI/components/VersionControl/Staged"
@@ -106,7 +101,7 @@ describe("<VersionControlView />", () => {
                 visibility={true}
                 titleId="modified"
                 selectedId="file1"
-                icon="M"
+                icon="code"
                 files={null}
             />,
         )
@@ -121,7 +116,7 @@ describe("<VersionControlView />", () => {
                 toggleVisibility={noop}
                 onClick={noop}
                 selectedId="file1"
-                icon="M"
+                icon="code"
                 files={["test1", "test2"]}
             />,
         )
@@ -141,7 +136,7 @@ describe("<VersionControlView />", () => {
                 handleCommitAll={jest.fn()}
                 toggleVisibility={noop}
                 selectedId="commit_all"
-                icon="cross"
+                icon="code"
                 loading={false}
                 handleSelection={noop}
             />,
@@ -165,7 +160,7 @@ describe("<VersionControlView />", () => {
                 handleCommitAll={jest.fn()}
                 toggleVisibility={noop}
                 selectedId="commit_all"
-                icon="cross"
+                icon="code"
                 loading
                 handleSelection={noop}
             />,
@@ -178,7 +173,7 @@ describe("<VersionControlView />", () => {
             <Staged
                 visible
                 loading
-                icon="cross"
+                icon="code"
                 titleId="staged"
                 files={["test.txt"]}
                 filesToCommit={[]}
