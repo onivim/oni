@@ -2,11 +2,6 @@ sudo: required
 dist: trusty
 language: node_js
 
-branches:
-  only:
-  - master
-  - /^release.*/
-
 cache:
   directories:
   - .oni_build_cache
