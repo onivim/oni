@@ -19,11 +19,13 @@
         "react": "^16.4.2"
     },
     "devDependencies": {
+        "@types/papaparse": "^4.5.4",
         "rimraf": "^2.6.2",
         "typescript": "^2.9.2"
     },
     "peerDependencies": {
         "jest": "^23.5.0",
-        "styled-components": "^3.2.6"
+        "styled-components": "^3.2.6",
+        "react-virtualized": "^9.19.1"
     }
 }
