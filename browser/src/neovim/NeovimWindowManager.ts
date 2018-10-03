@@ -50,6 +50,11 @@ export interface NeovimActiveWindowState {
     dimensions: Oni.Shapes.Rectangle
 }
 
+type Lines = string[]
+type Height = number
+type Width = number
+type WindowPosition = [number, number]
+
 export interface NeovimInactiveWindowState {
     windowNumber: number
     dimensions: Oni.Shapes.Rectangle
@@ -181,7 +186,7 @@ export class NeovimWindowManager extends Utility.Disposable {
         ]
 
         const response = await this._neovimInstance.request<
-            Array<[[number, number], number, number, string[]]>
+            Array<[WindowPosition, Width, Height, Lines]>
         >("nvim_call_atomic", [atomicCalls])
 
         if (!response) {
