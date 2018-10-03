@@ -1,22 +1,22 @@
 # Test against the latest version of this Node.js version
 environment:
-  nodejs_version: "8"
+    nodejs_version: "8"
 
 os: unstable
 
 branches:
     only:
-    - master
-    - /^release.*/
+        - master
+        - /^release.*/
 
 # Skip CI build if the changes match these rules exactly.
 # Ie, if the BACKERS.md file is changed, we don't need to build.
 skip_commits:
-  files:
-    - '**/*.md'
+    files:
+        - "**/*.md"
 
 cache:
-    - .oni_build_cache -> package.json 
+    - .oni_build_cache -> package.json
 
 platform:
     - x86
@@ -24,42 +24,21 @@ platform:
 
 # Install scripts. (runs after repo cloning)
 install:
-  # Ensure the Git Submoduldes have been pulled down too
-  - git submodule update --init --recursive
-  # Get the latest stable version of Node.js or io.js
-  - ps: Install-Product node $env:nodejs_version
-  # Workaround https://github.com/npm/npm/issues/18380
-  - npm install -g yarn
-  - node --version
-  - npm --version
-  # install modules
-  - yarn install
-  - yarn run check-cached-binaries
-
-artifacts:
-    - path: dist/*.exe
-      name: SetupExe
-
-    - path: dist/*.zip
-      name: ProductZip
-
-    - path: dist/media/screenshot-win32.png
-      name: DemoScreenshot
-
-deploy:
-    - provider: GitHub
-      repository: onivim/oni
-      auth_token:
-          secure: IUThGC/uAhOIpZ+B/yS/tMBPBETwL1qttaaTbZYmbSP468Lmd0buoleDLSxrrLpH
-      draft: false
-      prerelease: false
-      force_update: true
-      on:
-          appveyor_repo_tag: true
+    # Ensure the Git Submoduldes have been pulled down too
+    - git submodule update --init --recursive
+    # Get the latest stable version of Node.js or io.js
+    - ps: Install-Product node $env:nodejs_version
+    # Workaround https://github.com/npm/npm/issues/18380
+    - npm install -g yarn
+    - node --version
+    - npm --version
+    # install modules
+    - yarn install
+    - yarn run check-cached-binaries
 
 # Post-install test scripts.
 test_script:
-  - powershell build/script/appveyor-test.ps1
+    - powershell build/script/appveyor-test.ps1
 
 # Don't actually build.
 build: off

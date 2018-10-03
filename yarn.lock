@@ -10989,15 +10989,33 @@ vscode-languageserver-protocol@3.5.0, vscode-languageserver-protocol@^3.5.0:
     vscode-jsonrpc "^3.5.0"
     vscode-languageserver-types "^3.5.0"
 
-vscode-languageserver-types@3.5.0, vscode-languageserver-types@^3.5.0:
+vscode-languageserver-protocol@3.5.1:
+  version "3.5.1"
+  resolved "http://registry.npmjs.org/vscode-languageserver-protocol/-/vscode-languageserver-protocol-3.5.1.tgz#5144a3a9eeccbd83fe2745bd4ed75fad6cc45f0d"
+  dependencies:
+    vscode-jsonrpc "3.5.0"
+    vscode-languageserver-types "3.5.0"
+
+vscode-languageserver-types@3.13.0, vscode-languageserver-types@^3.5.0:
+  version "3.13.0"
+  resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.13.0.tgz#b704b024cef059f7b326611c99b9c8753c0a18b4"
+
+vscode-languageserver-types@3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.5.0.tgz#e48d79962f0b8e02de955e3f524908e2b19c0374"
 
-vscode-languageserver@3.5.0, vscode-languageserver@^3.5.0:
+vscode-languageserver@3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/vscode-languageserver/-/vscode-languageserver-3.5.0.tgz#d28099bc6ddda8c1dd16b707e454e1b1ddae0dba"
   dependencies:
     vscode-languageserver-protocol "^3.5.0"
+    vscode-uri "^1.0.1"
+
+vscode-languageserver@^3.5.0:
+  version "3.5.1"
+  resolved "http://registry.npmjs.org/vscode-languageserver/-/vscode-languageserver-3.5.1.tgz#e0044b7df4d2447ce12632dfc98f1ab0afacbdff"
+  dependencies:
+    vscode-languageserver-protocol "3.5.1"
     vscode-uri "^1.0.1"
 
 vscode-nls@^2.0.1, vscode-nls@^2.0.2:
