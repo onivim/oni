@@ -107,6 +107,12 @@ However, going from thought to _code_ has some different challenges than going f
 
 The goal of this project is to give an editor that gives the best of both worlds - the power, speed, and flexibility of using Vim for manipulating text, as well as the rich tooling that comes with an IDE. We want to make coding as efficient, fast, and fun as we can!
 
+## Available Plugins
+
+*   [Oni Touchbar Plugin](https://github.com/jordan-arenstein/oni-plugin-touchbar) - by [jordan-arenstein](https://github.com/jordan-arenstein?tab=overview&from=2018-07-01&to=2018-07-31)
+    *   Themes
+        *   [Night Owl](https://github.com/Akin909/oni-theme-night-owl)
+
 ## Documentation
 
 *   Check out the [Wiki](https://github.com/onivim/oni/wiki) for documentation on how to use and modify Oni.
