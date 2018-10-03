@@ -180,9 +180,9 @@ export class NeovimWindowManager extends Utility.Disposable {
             ["nvim_buf_get_lines", [context.bufferNumber, topLine - 1, bottomLine, false]],
         ]
 
-        const response = await this._neovimInstance.request<any[][]>("nvim_call_atomic", [
-            atomicCalls,
-        ])
+        const response = await this._neovimInstance.request<
+            Array<[[number, number], number, number, string[]]>
+        >("nvim_call_atomic", [atomicCalls])
 
         if (!response) {
             return null
