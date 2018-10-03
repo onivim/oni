@@ -1,0 +1,29 @@
+{
+    "name": "oni-plugin-csv-reader",
+    "version": "1.0.0",
+    "description": "A CSV Reader plugin for Oni",
+    "main": "lib/index.js",
+    "author": "A. Sowemimo",
+    "license": "MIT",
+    "engines": {
+        "oni": "^0.2.6"
+    },
+    "scripts": {
+        "build": "rimraf lib && tsc",
+        "test": "jest"
+    },
+    "dependencies": {
+        "oni-api": "^0.0.46",
+        "oni-types": "^0.0.8",
+        "papaparse": "^4.6.0",
+        "react": "^16.4.2"
+    },
+    "devDependencies": {
+        "rimraf": "^2.6.2",
+        "typescript": "^2.9.2"
+    },
+    "peerDependencies": {
+        "jest": "^23.5.0",
+        "styled-components": "^3.2.6"
+    }
+}
