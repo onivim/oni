@@ -75,6 +75,12 @@ export class NeovimWindowManager extends Utility.Disposable {
         this._scrollObservable = new Subject<EventContext>()
 
         const updateScroll = (evt: EventContext) => this._scrollObservable.next(evt)
+
+        const handleCommandLineEvent = async () => {
+            const ctx = await this._neovimInstance.getContext()
+            updateScroll(ctx)
+        }
+
         // First element of the BufEnter event is the current buffer
         this.trackDisposable(
             this._neovimInstance.autoCommands.onBufEnter.subscribe(bufs =>
@@ -94,10 +100,10 @@ export class NeovimWindowManager extends Utility.Disposable {
             this._neovimInstance.autoCommands.onCursorMoved.subscribe(updateScroll),
         )
         this.trackDisposable(
-            this._neovimInstance.onCommandLineShow.subscribe(async () => {
-                const context = await this._neovimInstance.getContext()
-                updateScroll(context)
-            }),
+            this._neovimInstance.onCommandLineShow.subscribe(handleCommandLineEvent),
+        )
+        this.trackDisposable(
+            this._neovimInstance.onCommandLineHide.subscribe(handleCommandLineEvent),
         )
         this.trackDisposable(this._neovimInstance.autoCommands.onVimResized.subscribe(updateScroll))
         this.trackDisposable(this._neovimInstance.onScroll.subscribe(updateScroll))
