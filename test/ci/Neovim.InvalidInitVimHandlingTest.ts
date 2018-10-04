@@ -44,7 +44,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     assert.strictEqual(notificationElements.length, 1, "Validate there is a single notification")
 
     const notificationText = notificationElements[0].textContent
-    const containsInitVim = notificationText.indexOf("init.vim") >= 0
+    const containsInitVim = notificationText.indexOf("Nvim startup warning") >= 0
 
     assert.ok(containsInitVim, "Validate error notification contains the text 'init.vim'")
 
