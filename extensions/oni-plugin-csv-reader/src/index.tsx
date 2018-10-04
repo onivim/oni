@@ -12,7 +12,7 @@ const isCompatible = (buf: Oni.EditorBufferEventArgs) => {
 }
 
 interface IPreviewConfig {
-    maxRowsToRender: number
+    rowsPerPage: number
     previewBackgroundColor: string
     hasHeader: boolean
 }
@@ -27,6 +27,7 @@ interface IProps {
 
 interface IState {
     rows: ParseResult["data"]
+    error: string
     isShowing: boolean
     currentPage: number
     pageSize: number
@@ -44,7 +45,14 @@ const Table = styled.table`
     width: 90%;
 `
 
-const TableBody = styled.tbody``
+const TableBody = styled.tbody`
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    &:hover {
+        overflow: overlay;
+    }
+`
 
 const TableHeader = styled.thead`
     background-color: rgba(100, 100, 100, 0.5);
@@ -65,13 +73,8 @@ const Container = styled<{ previewBackgroundColor?: string }, "div">("div")`
     justify-content: center;
     position: relative;
     z-index: 3;
-    overflow: hidden;
-    background-color: ${p => p.previewBackgroundColor || "black"};
+    background-color: ${p => p.previewBackgroundColor};
     pointer-events: all;
-
-    &:hover {
-        overflow: overlay;
-    }
 `
 
 interface IIndicator {
@@ -87,7 +90,7 @@ const IndicatorCircle = styled<{}, "div">("div")`
     position: absolute;
     bottom: 2rem;
     right: 2rem;
-    box-shadow: -1px 0 3px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -102,18 +105,24 @@ const PageIndicator: React.SFC<IIndicator> = ({ changePage, page }) => {
 }
 
 class CSVReader extends React.Component<IProps, IState> {
-    state = {
+    state: IState = {
         rows: [],
+        error: null,
         currentSection: [],
         currentPage: 1,
-        pageSize: 30,
         isShowing: true,
+        pageSize: this.props.config.rowsPerPage,
     }
 
     async componentDidMount() {
         this._setupCommands()
-        const rows = await this.convertLines()
-        this.setState({ rows }, this.changePage)
+        await this._loadCsv()
+    }
+
+    async componentDidUpdate(prevProps: IProps) {
+        if (prevProps.context.visibleLines !== this.props.context.visibleLines) {
+            await this._loadCsv()
+        }
     }
 
     public togglePreview = () => this.setState({ isShowing: !this.state.isShowing })
@@ -135,10 +144,16 @@ class CSVReader extends React.Component<IProps, IState> {
             const { data, errors } = await parseCsvString(lines)
             this.props.log("[Oni Plugin CSV Reader - Result]", data)
             return data
-        } catch (e) {
-            this.props.log("[Oni Plugin CSV Reader - Errror]", e)
+        } catch (error) {
+            this.props.log("[Oni Plugin CSV Reader - Error]", error)
+            this.setState({ error: error.message })
             return []
         }
+    }
+
+    _loadCsv = async () => {
+        const rows = await this.convertLines()
+        this.setState({ rows }, this.changePage)
     }
 
     _setupCommands = () => {
@@ -168,17 +183,22 @@ class CSVReader extends React.Component<IProps, IState> {
         return el ? comp : null
     }
 
-    _renderHeader = () => {
-        const [firstObj] = this.state.rows
-        if (firstObj) {
-            const keys = Object.keys(firstObj)
+    _renderHeader = (hasHeader: boolean) => {
+        const [firstItem] = this.state.currentSection
+        if (!hasHeader || !firstItem) {
+            return null
+        }
+        if (firstItem) {
             return (
                 <TableHeader>
-                    <tr>{keys.map((key, idx) => this._orNull(key, <th key={idx}>{key}</th>))}</tr>
+                    <tr>
+                        {Object.keys(firstItem).map((key, idx) =>
+                            this._orNull(key, <th key={idx}>{key}</th>),
+                        )}
+                    </tr>
                 </TableHeader>
             )
         }
-        return null
     }
 
     _renderBody = () => {
@@ -199,16 +219,29 @@ class CSVReader extends React.Component<IProps, IState> {
     }
 
     render() {
-        const { isShowing, currentPage } = this.state
+        const { config } = this.props
+        const { isShowing, currentPage, error } = this.state
         return (
             isShowing && (
-                <Container id="oni-csv-reader">
-                    <Title>{this.props.title}</Title>
-                    <Table>
-                        {this._renderHeader()}
-                        {this._renderBody()}
-                    </Table>
-                    <PageIndicator page={currentPage} changePage={() => this.changePage(1)} />
+                <Container
+                    id="oni-csv-reader"
+                    previewBackgroundColor={config.previewBackgroundColor}
+                >
+                    {!error ? (
+                        <>
+                            <Title>{this.props.title}</Title>
+                            <Table>
+                                {this._renderHeader(config.hasHeader)}
+                                {this._renderBody()}
+                            </Table>
+                            <PageIndicator
+                                page={currentPage}
+                                changePage={() => this.changePage(1)}
+                            />
+                        </>
+                    ) : (
+                        <Title>{error}</Title>
+                    )}
                 </Container>
             )
         )
@@ -219,8 +252,8 @@ class CSVReaderLayer implements Oni.BufferLayer {
     constructor(private _oni: Oni.Plugin.Api, private _title: string) {}
 
     private _defaultConfig: IPreviewConfig = {
-        maxRowsToRender: 100,
-        previewBackgroundColor: "black",
+        rowsPerPage: 30,
+        previewBackgroundColor: "rgba(0, 0, 0, 0.8)",
         hasHeader: true,
     }
 
