@@ -739,7 +739,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
             this._onMessage.dispatch({
                 severity: "error",
-                title: "Problem loading `init.vim`:",
+                title: "Nvim startup warning:",
                 details: output,
             })
         } else {
