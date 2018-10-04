@@ -28,9 +28,14 @@ interface IProps {
 interface IState {
     rows: ParseResult["data"]
     isShowing: boolean
+    currentPage: number
+    pageSize: number
+    currentSection: ParseResult["data"]
 }
 
 const Title = styled<{ titleColor?: string }, "h4">("h4")`
+    width: 100%;
+    text-align: center;
     color: ${p => p.titleColor || "white"};
 `
 
@@ -60,21 +65,27 @@ const Container = styled<{ previewBackgroundColor?: string }, "div">("div")`
     justify-content: center;
     position: relative;
     z-index: 3;
+    overflow: hidden;
     background-color: ${p => p.previewBackgroundColor || "black"};
+    pointer-events: all;
+
+    &:hover {
+        overflow: overlay;
+    }
 `
 
 interface IIndicator {
-    isShowing: boolean
-    togglePreview: () => void
+    changePage: (evt: any) => void
+    page: number
 }
 
-const IndicatorCircle = styled<Partial<IIndicator>, "div">("div")`
+const IndicatorCircle = styled<{}, "div">("div")`
     width: 3rem;
     height: 3rem;
     border-radius: 50%;
     background-color: whitesmoke;
     position: absolute;
-    top: 2rem;
+    bottom: 2rem;
     right: 2rem;
     box-shadow: -1px 0 3px rgba(0, 0, 0, 0.5);
     display: flex;
@@ -82,34 +93,41 @@ const IndicatorCircle = styled<Partial<IIndicator>, "div">("div")`
     align-items: center;
 `
 
-const PreviewIndicator: React.SFC<IIndicator> = ({ togglePreview, isShowing }) => {
+const PageIndicator: React.SFC<IIndicator> = ({ changePage, page }) => {
     return (
-        isShowing && (
-            <IndicatorCircle onClick={togglePreview}>
-                <span>hide</span>
-            </IndicatorCircle>
-        )
+        <IndicatorCircle onClick={changePage}>
+            <span>{page}</span>
+        </IndicatorCircle>
     )
 }
 
 class CSVReader extends React.Component<IProps, IState> {
     state = {
         rows: [],
+        currentSection: [],
+        currentPage: 1,
+        pageSize: 30,
         isShowing: true,
     }
 
     async componentDidMount() {
-        this.props.setupCommand({
-            name: "",
-            detail: "",
-            command: "oni.csv.preview.toggle",
-            execute: this.togglePreview,
-        })
+        this._setupCommands()
         const rows = await this.convertLines()
-        this.setState({ rows })
+        this.setState({ rows }, this.changePage)
     }
 
     public togglePreview = () => this.setState({ isShowing: !this.state.isShowing })
+
+    public changePage = (step: number = 0) => {
+        const { currentPage, rows, pageSize } = this.state
+        const noOfPages = Math.ceil(rows.length / pageSize)
+        const nextPage = currentPage + step
+        const pageToUse = nextPage > noOfPages ? 1 : nextPage
+        const indexOfLastItem = pageToUse * pageSize
+        const indexOfFirstItem = indexOfLastItem - pageSize
+        const nextSection = this.state.rows.slice(indexOfFirstItem, indexOfLastItem)
+        this.setState({ currentSection: nextSection, currentPage: pageToUse })
+    }
 
     public convertLines = async () => {
         const lines = this.props.context.visibleLines.join("\n")
@@ -121,6 +139,29 @@ class CSVReader extends React.Component<IProps, IState> {
             this.props.log("[Oni Plugin CSV Reader - Errror]", e)
             return []
         }
+    }
+
+    _setupCommands = () => {
+        this.props.setupCommand({
+            name: "",
+            detail: "",
+            command: "oni.csv.preview.toggle",
+            execute: this.togglePreview,
+        })
+
+        this.props.setupCommand({
+            name: "",
+            detail: "",
+            command: "oni.csv.preview.next",
+            execute: () => this.changePage(1),
+        })
+
+        this.props.setupCommand({
+            name: "",
+            detail: "",
+            command: "oni.csv.preview.previous",
+            execute: () => this.changePage(-1),
+        })
     }
 
     _orNull<T, S>(el: T, comp: S) {
@@ -141,10 +182,9 @@ class CSVReader extends React.Component<IProps, IState> {
     }
 
     _renderBody = () => {
-        const section = this.state.rows.slice(0, this.props.config.maxRowsToRender)
         return (
             <TableBody>
-                {section.map((row, rowIdx) => (
+                {this.state.currentSection.map((row, rowIdx) => (
                     <TableRow key={`row-${rowIdx}`}>
                         {Object.values(row).map((item, idx) =>
                             this._orNull(
@@ -159,17 +199,16 @@ class CSVReader extends React.Component<IProps, IState> {
     }
 
     render() {
-        const { isShowing } = this.state
+        const { isShowing, currentPage } = this.state
         return (
             isShowing && (
-                <Container>
-                    <PreviewIndicator togglePreview={this.togglePreview} isShowing={isShowing} />
+                <Container id="oni-csv-reader">
                     <Title>{this.props.title}</Title>
-                    <Table id="oni-csv-reader">
+                    <Table>
                         {this._renderHeader()}
                         {this._renderBody()}
                     </Table>
-                    )}
+                    <PageIndicator page={currentPage} changePage={() => this.changePage(1)} />
                 </Container>
             )
         )
@@ -185,7 +224,7 @@ class CSVReaderLayer implements Oni.BufferLayer {
         hasHeader: true,
     }
 
-    public log = (...args) => {
+    public log = (...args: any[]) => {
         this._oni.log.info(...args)
     }
 
