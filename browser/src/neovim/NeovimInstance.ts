@@ -497,33 +497,29 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             // Workaround for bug in neovim/node-client
             // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
             Performance.startMeasure("NeovimInstance.Start.Attach")
-            return this._attachUI(version, size.cols, size.rows)
-                .then(async () => {
-                    if (startUpErrorsChecked === false) {
-                        this._checkAndFixIfBlocked()
-                    }
-                })
-                .then(
-                    async () => {
-                        Log.info("Attach success")
-                        Performance.endMeasure("NeovimInstance.Start.Attach")
+            try {
+                await this._attachUI(version, size.cols, size.rows)
 
-                        // TODO: #702 - Batch these calls via `nvim_call_atomic`
-                        // Override completeopt so Oni works correctly with external popupmenu
-                        // await this.command("set completeopt=longest,menu")
+                Log.info("Attach success")
+                Performance.endMeasure("NeovimInstance.Start.Attach")
 
-                        // set title after attaching listeners so we can get the initial title
-                        await this.command("set title")
+                if (startUpErrorsChecked === false) {
+                    await this._checkAndFixIfBlocked()
+                }
 
-                        Performance.endMeasure("NeovimInstance.Start")
+                // TODO: #702 - Batch these calls via `nvim_call_atomic`
+                // Override completeopt so Oni works correctly with external popupmenu
+                // await this.command("set completeopt=longest,menu")
 
-                        this._initComplete = true
-                    },
-                    (err: any) => {
-                        this._onError(err)
-                        this._initComplete = true
-                    },
-                )
+                // Set title after attaching listeners so we can get the initial title.
+                await this.command("set title")
+
+                Performance.endMeasure("NeovimInstance.Start")
+                this._initComplete = true
+            } catch (err) {
+                this._onError(err)
+                this._initComplete = true
+            }
         })
 
         return this._initPromise
