@@ -473,7 +473,17 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 }
             })
 
-            await this._checkAndFixIfBlocked()
+            const version = await this.getApiVersion()
+
+            if (
+                version.major > 0 ||
+                version.minor > 3 ||
+                (version.minor === 3 && version.patch >= 2)
+            ) {
+                // Let nvim deal with messages instead.
+            } else {
+                await this._checkAndFixIfBlocked()
+            }
 
             const size = this._getSize()
             this._rows = size.rows
@@ -482,7 +492,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             // Workaround for bug in neovim/node-client
             // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
             Performance.startMeasure("NeovimInstance.Start.Attach")
-            return this._attachUI(size.cols, size.rows).then(
+            return this._attachUI(version, size.cols, size.rows).then(
                 async () => {
                     Log.info("Attach success")
                     Performance.endMeasure("NeovimInstance.Start.Attach")
@@ -1015,9 +1025,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._onDirectoryChanged.dispatch(this._currentVimDirectory)
     }
 
-    private async _attachUI(columns: number, rows: number): Promise<void> {
-        const version = await this.getApiVersion()
-
+    private async _attachUI(version: any, columns: number, rows: number): Promise<void> {
         const useNativeTabs = this._configuration.getValue("tabs.mode") === "native"
         const useNativePopupWindows =
             this._configuration.getValue("editor.completions.mode") === "native"
