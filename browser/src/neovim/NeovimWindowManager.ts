@@ -50,6 +50,11 @@ export interface NeovimActiveWindowState {
     dimensions: Oni.Shapes.Rectangle
 }
 
+type Lines = string[]
+type Height = number
+type Width = number
+type WindowPosition = [number, number]
+
 export interface NeovimInactiveWindowState {
     windowNumber: number
     dimensions: Oni.Shapes.Rectangle
@@ -167,31 +172,33 @@ export class NeovimWindowManager extends Utility.Disposable {
         currentWinId: number,
         context: EventContext,
     ): Promise<NeovimActiveWindowState> {
+        // We query the top and bottom line positions again despite these being on the context
+        // as the values from the `BufferUpdate` event can be incorrect
+        const [topLine, bottomLine] = await Promise.all([
+            this._neovimInstance.callFunction("line", ["w0"]),
+            this._neovimInstance.callFunction("line", ["w$"]),
+        ])
         const atomicCalls = [
             ["nvim_win_get_position", [currentWinId]],
             ["nvim_win_get_width", [currentWinId]],
             ["nvim_win_get_height", [currentWinId]],
-            [
-                "nvim_buf_get_lines",
-                [context.bufferNumber, context.windowTopLine - 1, context.windowBottomLine, false],
-            ],
+            ["nvim_buf_get_lines", [context.bufferNumber, topLine - 1, bottomLine, false]],
         ]
 
-        const response = await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
+        const response = await this._neovimInstance.request<
+            Array<[WindowPosition, Width, Height, Lines]>
+        >("nvim_call_atomic", [atomicCalls])
 
         if (!response) {
             return null
         }
 
-        const values = response[0]
+        const [values] = response
 
         if (values.length === 4) {
             // Grab the results of the `nvim_atomic_call`, as they are returned in an array
-            const position = values[0]
+            const [position, width, height, lines] = values
             const [row, col] = position
-            const width = values[1]
-            const height = values[2]
-            const lines = values[3]
 
             // The 'gutterOffset' (difference between `wincol` and `column`) is the size of the gutter
             // (for example, line numbers). The buffer isn't in that space, so we need to account
@@ -270,10 +277,8 @@ export class NeovimWindowManager extends Utility.Disposable {
 
         if (values.length === 3) {
             // Grab the results of the `nvim_atomic_call`, as they are returned in an array
-            const position = values[0]
+            const [position, width, height] = values
             const [row, col] = position
-            const width = values[1]
-            const height = values[2]
 
             const dimensions = {
                 x: col,
