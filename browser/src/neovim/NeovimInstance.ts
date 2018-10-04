@@ -474,15 +474,20 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             })
 
             const version = await this.getApiVersion()
+            let startUpErrorsChecked = false
 
             if (
                 version.major > 0 ||
                 version.minor > 3 ||
                 (version.minor === 3 && version.patch >= 2)
             ) {
-                // Let nvim deal with messages instead.
+                // We can't call _checkAndFixIfBlocked here, since the buffers etc are not
+                // setup yet. Instead, defer the call until after we have attached the UI.
+                // We also want to look at removing the call entirely for 0.3.2, once we have
+                // externalised messages, to stop the hacky implementation we have here.
             } else {
                 await this._checkAndFixIfBlocked()
+                startUpErrorsChecked = true
             }
 
             const size = this._getSize()
@@ -492,27 +497,33 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             // Workaround for bug in neovim/node-client
             // The 'uiAttach' method overrides the new 'nvim_ui_attach' method
             Performance.startMeasure("NeovimInstance.Start.Attach")
-            return this._attachUI(version, size.cols, size.rows).then(
-                async () => {
-                    Log.info("Attach success")
-                    Performance.endMeasure("NeovimInstance.Start.Attach")
+            return this._attachUI(version, size.cols, size.rows)
+                .then(async () => {
+                    if (startUpErrorsChecked === false) {
+                        this._checkAndFixIfBlocked()
+                    }
+                })
+                .then(
+                    async () => {
+                        Log.info("Attach success")
+                        Performance.endMeasure("NeovimInstance.Start.Attach")
 
-                    // TODO: #702 - Batch these calls via `nvim_call_atomic`
-                    // Override completeopt so Oni works correctly with external popupmenu
-                    // await this.command("set completeopt=longest,menu")
+                        // TODO: #702 - Batch these calls via `nvim_call_atomic`
+                        // Override completeopt so Oni works correctly with external popupmenu
+                        // await this.command("set completeopt=longest,menu")
 
-                    // set title after attaching listeners so we can get the initial title
-                    await this.command("set title")
+                        // set title after attaching listeners so we can get the initial title
+                        await this.command("set title")
 
-                    Performance.endMeasure("NeovimInstance.Start")
+                        Performance.endMeasure("NeovimInstance.Start")
 
-                    this._initComplete = true
-                },
-                (err: any) => {
-                    this._onError(err)
-                    this._initComplete = true
-                },
-            )
+                        this._initComplete = true
+                    },
+                    (err: any) => {
+                        this._onError(err)
+                        this._initComplete = true
+                    },
+                )
         })
 
         return this._initPromise
