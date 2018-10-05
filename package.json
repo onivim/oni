@@ -686,6 +686,8 @@
             "cd extensions/oni-plugin-markdown-preview && yarn install --prod",
         "install:plugins:oni-plugin-prettier":
             "cd extensions/oni-plugin-prettier && yarn install --prod",
+        "install:plugins:oni-plugin-csv-reader":
+            "cd extensions/oni-plugin-csv-reader && yarn install --prod",
         "install:plugins:oni-plugin-git": "cd vim/core/oni-plugin-git && yarn install --prod",
         "postinstall": "yarn run install:plugins && electron-rebuild && opencollective postinstall",
         "profile:webpack":
