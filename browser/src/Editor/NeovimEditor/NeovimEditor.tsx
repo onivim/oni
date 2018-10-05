@@ -1097,18 +1097,20 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             await this.setColorSchemeFromTheme(this._themeManager.activeTheme)
         }
 
-        let openWelcome = true
+        // If there is files to open, or folders (and the relevant config option for that),
+        // then we don't want to open the Welcome screen.
+        const shouldOpenFiles = filesToOpen && filesToOpen.length > 0
+        const shouldOpenFolders =
+            this._configuration.getValue("oni.openNETRWOnLaunch") &&
+            (foldersToOpen && foldersToOpen.length > 0)
+        const openWelcome = !shouldOpenFiles && !shouldOpenFolders
 
-        if (filesToOpen && filesToOpen.length > 0) {
+        if (shouldOpenFiles) {
             await this.openFiles(filesToOpen, { openMode: Oni.FileOpenMode.Edit })
-            openWelcome = false
         }
 
-        if (foldersToOpen && foldersToOpen.length > 0) {
-            if (this._configuration.getValue("oni.openNETRWOnLaunch")) {
-                await this.openFolders(foldersToOpen, { openMode: Oni.FileOpenMode.Edit })
-                openWelcome = false
-            }
+        if (shouldOpenFolders) {
+            await this.openFolders(foldersToOpen, { openMode: Oni.FileOpenMode.Edit })
         }
 
         if (openWelcome) {
