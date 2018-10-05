@@ -1,12 +1,34 @@
-![alt text](./assets/oni-header.png)
+<p align="center">
+	<img src="./assets/oni-header.png" alt="Logo">
+    <h3 align="center">Modern Modal Editing</h3>
+</p>
 
-### Modern Modal Editing
+<p align="center">
+	<a href="https://travis-ci.org/onivim/oni">
+		<img src="https://travis-ci.org/onivim/oni.svg?branch=master" alt="Build Status">
+	</a>
+	<a href="https://ci.appveyor.com/project/oni/oni">
+		<img src="https://ci.appveyor.com/api/projects/status/s13bs7ail9ihkpnm?svg=true" alt="Build Status">
+	</a>
+	<a href="https://codecov.io/gh/onivim/oni">
+		<img src="https://codecov.io/gh/onivim/oni/branch/master/graph/badge.svg" alt="codecov">
+	</a>
+</p>
 
-[![Build Status](https://travis-ci.org/onivim/oni.svg?branch=master)](https://travis-ci.org/onivim/oni) [![Build status](https://ci.appveyor.com/api/projects/status/s13bs7ail9ihkpnm?svg=true)](https://ci.appveyor.com/project/oni/oni) [![codecov](https://codecov.io/gh/onivim/oni/branch/master/graph/badge.svg)](https://codecov.io/gh/onivim/oni)
-
-[![Join the chat on discord!](https://img.shields.io/discord/417774914645262338.svg)](https://discord.gg/7maEAxV)
-[![Backers on Open Collective](https://opencollective.com/oni/backers/badge.svg)](https://opencollective.com/oni#backer) [![BountySource Active Bounties](https://api.bountysource.com/badge/tracker?tracker_id=48462304)](https://www.bountysource.com/teams/oni)
-[![Total Downloads](https://img.shields.io/github/downloads/onivim/oni/total.svg)](https://github.com/onivim/oni/releases)
+<p align="center">
+	<a href="https://discord.gg/7maEAxV">
+		<img src="https://img.shields.io/discord/417774914645262338.svg" alt="Join the chat on discord!">
+	</a>
+	<a href="https://opencollective.com/oni#backer">
+		<img src="https://opencollective.com/oni/backers/badge.svg" alt="Backers on Open Collective">
+	</a>
+	<a href="https://www.bountysource.com/teams/oni">
+		<img src="https://api.bountysource.com/badge/tracker?tracker_id=48462304" alt="BountySource Active Bounties">
+	</a>
+	<a href="https://github.com/onivim/oni/releases">
+		<img src="https://img.shields.io/github/downloads/onivim/oni/total.svg" alt="Total Downloads">
+	</a>
+</p>
 
 <h2 align="center">Supporting Oni</h2>
 
