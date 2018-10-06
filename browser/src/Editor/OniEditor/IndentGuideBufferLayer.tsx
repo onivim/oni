@@ -56,6 +56,25 @@ const IndentLine = withProps<IProps>(styled.span).attrs({
     position: absolute;
 `
 
+const determineIfShouldSkip = (props: LinePropsWithLevels, options: ConfigOptions) => {
+    const skipFirstIndentLine = options.skipFirst && props.levelOfIndentation === props.indentBy - 1
+    return skipFirstIndentLine
+}
+
+/**
+ * Remove one indent from left positioning and move lines slightly inwards -
+ * by a third of a character for a better visual appearance
+ */
+const calculateLeftPosition = (props: LinePropsWithLevels) => {
+    const adjustedLeft =
+        props.left -
+        props.indentSize -
+        props.levelOfIndentation * props.indentSize +
+        props.characterWidth / 3
+
+    return adjustedLeft
+}
+
 interface IIndentsPerLine {
     guidePositions: IndentLinesProps[]
     options: ConfigOptions
@@ -166,25 +185,6 @@ const IndentGuideLines: React.SFC<IGuideLines> = ({ context, ...props }) => {
     )
 
     return <MemoizedIndentsPerLine guidePositions={allIndentations} options={props.configuration} />
-}
-
-const determineIfShouldSkip = (props: LinePropsWithLevels, options: ConfigOptions) => {
-    const skipFirstIndentLine = options.skipFirst && props.levelOfIndentation === props.indentBy - 1
-    return skipFirstIndentLine
-}
-
-/**
- * Remove one indent from left positioning and move lines slightly inwards -
- * by a third of a character for a better visual appearance
- */
-const calculateLeftPosition = (props: LinePropsWithLevels) => {
-    const adjustedLeft =
-        props.left -
-        props.indentSize -
-        props.levelOfIndentation * props.indentSize +
-        props.characterWidth / 3
-
-    return adjustedLeft
 }
 
 const getWrappedLines = (ctx: Partial<IContext>): IWrappedLine[] => {
