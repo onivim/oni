@@ -19,8 +19,8 @@ type Callback<T> = (args?: T) => void
 export function workerize<T, R>(work: Callback<T>, args?: T) {
     const handleResult = ({ data }: IArgs<T>) => {
         const result = work(data)
-        const worker: Worker = self as any
-        return worker.postMessage(result)
+        const webWorker: Worker = self as any
+        return webWorker.postMessage(result)
     }
 
     // courtesy of this gem -
