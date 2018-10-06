@@ -3,8 +3,8 @@ import * as React from "react"
 import * as detectIndent from "detect-indent"
 import * as flatten from "lodash/flatten"
 import * as last from "lodash/last"
-import * as Oni from "oni-api"
 import moize from "moize"
+import * as Oni from "oni-api"
 
 import { IBuffer } from "../BufferManager"
 import styled, { pixel, withProps } from "./../../UI/components/common"
@@ -225,6 +225,27 @@ interface IndentLayerArgs {
 }
 
 class IndentGuideBufferLayer implements Oni.BufferLayer {
+    private _buffer: IBuffer
+    private _userSpacing: number
+    private _configuration: ConfigOptions
+
+    get id() {
+        return "indent-guides"
+    }
+
+    get friendlyName() {
+        return "Indent Guide Lines"
+    }
+
+    constructor({ buffer, configuration }: IndentLayerArgs) {
+        this._buffer = buffer
+        this._configuration = {
+            color: configuration.getValue<string>("experimental.indentLines.color"),
+            skipFirst: configuration.getValue<boolean>("experimental.indentLines.skipFirst"),
+        }
+        this._userSpacing = this._buffer.shiftwidth || this._buffer.tabstop
+    }
+
     public render = (bufferLayerContext: IContext) => {
         return (
             <Container id={this.id}>
@@ -235,26 +256,6 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
                 />
             </Container>
         )
-    }
-
-    private _buffer: IBuffer
-    private _userSpacing: number
-    private _configuration: ConfigOptions
-
-    constructor({ buffer, configuration }: IndentLayerArgs) {
-        this._buffer = buffer
-        this._configuration = {
-            color: configuration.getValue<string>("experimental.indentLines.color"),
-            skipFirst: configuration.getValue<boolean>("experimental.indentLines.skipFirst"),
-        }
-        this._userSpacing = this._buffer.shiftwidth || this._buffer.tabstop
-    }
-    get id() {
-        return "indent-guides"
-    }
-
-    get friendlyName() {
-        return "Indent Guide Lines"
     }
 }
 
