@@ -870,6 +870,7 @@
         "keyboard-layout": "^2.0.13",
         "marked": "^0.4.0",
         "minimist": "1.2.0",
+        "moize": "^5.4.1",
         "msgpack-lite": "0.1.26",
         "ocaml-language-server": "^1.0.27",
         "oni-api": "0.0.49",
