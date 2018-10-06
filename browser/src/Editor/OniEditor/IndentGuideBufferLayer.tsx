@@ -105,7 +105,7 @@ const IndentsPerLine: React.SFC<IIndentsPerLine> = ({ guidePositions, options })
     return <>{flatten(indents)}</>
 }
 
-const MemoizedIndentsPerLine = moize.react(IndentsPerLine, {
+const MemoizedIndentsPerLine = moize.reactSimple(IndentsPerLine, {
     isDeepEqual: true,
 })
 
