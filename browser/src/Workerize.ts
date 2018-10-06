@@ -2,7 +2,7 @@ interface IArgs<T> {
     data: T
 }
 
-type Callback<T> = (args?: T) => void
+type Callback<T> = (args?: T) => any
 
 /**
  * Takes a CPU intensive function
