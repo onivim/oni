@@ -46,7 +46,6 @@ export class TokenColors implements IDisposable {
     }
 
     public get tokenTree() {
-        this._tokenTree.setTokens(this._tokenColors)
         return this._tokenTree
     }
 
@@ -96,6 +95,8 @@ export class TokenColors implements IDisposable {
         })
 
         this._tokenColors = this._convertThemeTokenScopes(combinedColors)
+        this._tokenTree.removeAll()
+        this._tokenTree.setTokens(this._tokenColors)
 
         this._onTokenColorsChangedEvent.dispatch()
     }

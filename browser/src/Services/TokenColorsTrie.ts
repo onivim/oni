@@ -4,8 +4,10 @@ type Settings = TokenColor["settings"]
 
 class TrieNode {
     public children = new Map<string, TrieNode>()
+
     constructor(public scope: string, public settings: Settings) {}
-    asTokenColor(): TokenColor {
+
+    public asTokenColor(): TokenColor {
         return {
             scope: [this.scope],
             settings: this.settings,
