@@ -16,22 +16,22 @@ class TrieNode {
 }
 
 export default class TokenColorTrie {
-    private root: TrieNode
+    private _root: TrieNode
     private readonly ROOT_NAME = "__root"
 
     constructor() {
-        this.root = new TrieNode(this.ROOT_NAME, null)
+        this._root = new TrieNode(this.ROOT_NAME, null)
     }
 
     public add(token: string, settings: Settings) {
-        this._addNode(this.root, token, settings)
+        this._addNode(this._root, token, settings)
     }
 
     public find(token: string) {
-        if (!this.root) {
+        if (!this._root) {
             return null
         }
-        return this._findToken(this.root, token)
+        return this._findToken(this._root, token)
     }
 
     public setTokens(tokens: TokenColor[]) {
@@ -45,19 +45,19 @@ export default class TokenColorTrie {
     public getAll() {
         const token = ""
         const tokens: TrieNode[] = []
-        this._getAll(this.root, tokens, token)
+        this._getAll(this._root, tokens, token)
         return tokens
     }
 
     public remove(token: string) {
-        if (!this.root) {
+        if (!this._root) {
             return
         }
-        this._removeToken(this.root, token)
+        this._removeToken(this._root, token)
     }
 
     public removeAll() {
-        this.root.children.clear()
+        this._root.children.clear()
     }
 
     public contains(token: string) {
