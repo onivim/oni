@@ -16,6 +16,12 @@ export class MockNeovimInstance {
     private _requests: NeovimRequest[] = []
     private _pendingPromises: Array<Utility.ICompletablePromise<any>> = []
 
+    public get onColorsChanged() {
+        return {
+            subscribe: (fn: (args?: any) => any) => fn(),
+        }
+    }
+
     public request(requestName: string, args: any[]) {
         this._requests.push({ requestName, args })
         const promise = Utility.createCompletablePromise()
