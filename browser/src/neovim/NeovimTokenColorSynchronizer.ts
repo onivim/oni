@@ -27,21 +27,13 @@ const getGuiStringFromTokenColor = ({ settings: { fontStyle } }: TokenColor): st
     }
 }
 
-interface IStringMap {
-    [key: string]: string
-}
-
 export class NeovimTokenColorSynchronizer {
     private _currentIndex = 0
-    private _tokenScopeSelectorToHighlightName: IStringMap = {}
+    private _tokenScopeSelectorToHighlightName: { [key: string]: string } = {}
     private _highlightNameToHighlightValue = new Map<string, string>()
 
     constructor(private _neovimInstance: NeovimInstance) {
         this._neovimInstance.onColorsChanged.subscribe(this._resetHighlightCache)
-    }
-
-    private _resetHighlightCache = () => {
-        this._highlightNameToHighlightValue.clear()
     }
 
     // This method creates highlight groups for any token colors that haven't been set yet
@@ -82,6 +74,10 @@ export class NeovimTokenColorSynchronizer {
      */
     public getHighlightGroupForTokenColor(tokenColor: TokenColor): string {
         return this._getOrCreateHighlightGroup(tokenColor)
+    }
+
+    private _resetHighlightCache = () => {
+        this._highlightNameToHighlightValue.clear()
     }
 
     private _convertTokenStyleToHighlightInfo(tokenColor: TokenColor): string {
