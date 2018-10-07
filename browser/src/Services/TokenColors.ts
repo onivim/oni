@@ -102,13 +102,15 @@ export class TokenColors implements IDisposable {
      * @returns {TokenColor[]}
      */
     private _convertThemeTokenScopes(tokens: ThemeToken[]) {
-        // TODO: figure out how space separated token scopes should be
+        // TODO: figure out how space separated token scopes should be handled
+        // token.scope.split(" ") -> convert "meta.var string.quoted" -> ["meta.var", "string.quoted"]
+        // this however breaks prioritisation of tokens
         return tokens.map(token => {
             const scope = !token.scope
                 ? []
                 : Array.isArray(token.scope)
                     ? token.scope
-                    : [token.scope] // ? token.scope.split(" ") -> convert "meta.var string.quoted" -> ["meta.var", "string.quoted"]
+                    : [token.scope]
             return { ...token, scope }
         })
     }
