@@ -1,4 +1,5 @@
 import { TokenColor } from "./../TokenColors"
+import TokenColorsTrie from "./../TokenColorsTrie"
 
 interface TokenRanking {
     depth: number
@@ -43,7 +44,7 @@ export class TokenScorer {
      * @param {TokenColor[]} themeColors
      * @returns {TokenColor}
      */
-    public rankTokenScopes(scopes: string[], themeColors: TokenColor[]): TokenColor {
+    public rankTokenScopes(scopes: string[], themeColors: TokenColorsTrie): TokenColor {
         const initialRanking: TokenRanking = { highestRankedToken: null, depth: null }
         const { highestRankedToken } = scopes.reduce((highestSoFar, scope) => {
             if (this._isBannedScope(scope)) {
@@ -114,16 +115,16 @@ export class TokenScorer {
      * @param {TokenColor[]} theme
      * @returns {TokenColor}
      */
-    private _getMatchingToken(scope: string, theme: TokenColor[]): TokenColor {
+    private _getMatchingToken(scope: string, tokenTree: TokenColorsTrie): TokenColor {
         const parts = scope.split(".")
         if (parts.length < 2) {
             return null
         }
-        const matchingToken = theme.find(color => color.scope.includes(scope))
-        if (matchingToken) {
-            return matchingToken
+        const match = tokenTree.find(scope)
+        if (match) {
+            return match.asTokenColor()
         }
         const currentScope = parts.slice(0, parts.length - 1).join(".")
-        return this._getMatchingToken(currentScope, theme)
+        return this._getMatchingToken(currentScope, tokenTree)
     }
 }

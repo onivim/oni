@@ -36,6 +36,7 @@ export interface TokenColorStyle {
 export class TokenColors implements IDisposable {
     private _subscriptions: IDisposable[] = []
     private _tokenColors: TokenColor[] = []
+    private _tokenTree = new TokenColorTrie()
     private _onTokenColorsChangedEvent: Event<void> = new Event<void>()
 
     private _defaultTokenColors: TokenColor[] = []
@@ -45,9 +46,8 @@ export class TokenColors implements IDisposable {
     }
 
     public get tokenTree() {
-        const tree = new TokenColorTrie()
-        tree.setTokens(this._tokenColors)
-        return tree
+        this._tokenTree.setTokens(this._tokenColors)
+        return this._tokenTree
     }
 
     public get onTokenColorsChanged(): IEvent<void> {

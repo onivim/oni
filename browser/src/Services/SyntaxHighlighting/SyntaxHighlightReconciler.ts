@@ -7,7 +7,6 @@
 import { Buffer, Editor } from "oni-api"
 import * as Log from "oni-core-logging"
 
-import { prettyPrint } from "./../../Utility"
 import { TokenColor, TokenColors } from "./../TokenColors"
 import { prettyPrint } from "./../../Utility"
 
@@ -143,10 +142,7 @@ export class SyntaxHighlightReconciler {
     }
 
     private _getHighlightGroupFromScope(scopes: string[]): TokenColor {
-        const highestRanked = this._tokenScorer.rankTokenScopes(
-            scopes,
-            this._tokenColors.tokenColors,
-        )
+        const highestRanked = this._tokenScorer.rankTokenScopes(scopes, this._tokenColors.tokenTree)
         return highestRanked
     }
 }
