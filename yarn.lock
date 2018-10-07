@@ -10614,9 +10614,9 @@ typescript-plugin-styled-components@^0.0.6:
   dependencies:
     ts-is-kind "^1.0.0"
 
-typescript@^2.8.1:
-  version "2.8.1"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.8.1.tgz#6160e4f8f195d5ba81d4876f9c0cc1fbc0820624"
+typescript@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.1.1.tgz#3362ba9dd1e482ebb2355b02dfe8bcd19a2c7c96"
 
 ua-parser-js@^0.7.9:
   version "0.7.17"
