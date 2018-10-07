@@ -7725,9 +7725,9 @@ oni-core-logging@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/oni-core-logging/-/oni-core-logging-1.0.0.tgz#7ad6c0ad8b06c23255202f97e229c2b0947dcf0b"
 
-oni-fontkit@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/oni-fontkit/-/oni-fontkit-0.0.4.tgz#4bc91a2c9802c0910fcd93b409ba56e45fc202cf"
+oni-fontkit@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/oni-fontkit/-/oni-fontkit-0.0.5.tgz#06b9400d549de3395bb7d88266b4703c09ba407f"
   dependencies:
     babel-runtime "^6.11.6"
     brotli "^1.2.0"
