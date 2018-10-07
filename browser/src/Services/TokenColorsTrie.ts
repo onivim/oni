@@ -17,10 +17,10 @@ class TrieNode {
 
 export default class TokenColorTrie {
     private _root: TrieNode
-    private readonly ROOT_NAME = "__root"
+    private readonly _ROOT_NAME = "__root"
 
     constructor() {
-        this._root = new TrieNode(this.ROOT_NAME, null)
+        this._root = new TrieNode(this._ROOT_NAME, null)
     }
 
     public add(token: string, settings: Settings) {
@@ -54,6 +54,10 @@ export default class TokenColorTrie {
             return
         }
         this._removeToken(this._root, token)
+    }
+
+    public match(token: string) {
+        return this._match(token)
     }
 
     public removeAll() {
@@ -96,7 +100,27 @@ export default class TokenColorTrie {
             node.children.set(scope, newNode)
             childNode = newNode
         }
-        this._addNode(childNode, parts.join("."), settings)
+        const inheritedSettings = { ...childNode.settings, ...settings }
+        this._addNode(childNode, parts.join("."), inheritedSettings)
+    }
+
+    /**
+     * if the lowest scope level doesn't match then we go up one level
+     * i.e. constant.numeric.special -> constant.numeric
+     * and search the theme colors for a match
+     *
+     */
+    private _match(scope: string): TrieNode {
+        const parts = scope.split(".")
+        if (parts.length < 2) {
+            return null
+        }
+        const match = this.find(scope)
+        if (match) {
+            return match
+        }
+        const currentScope = parts.slice(0, parts.length - 1).join(".")
+        return this._match(currentScope)
     }
 
     private _findToken(node: TrieNode, token: string): TrieNode {
@@ -112,7 +136,7 @@ export default class TokenColorTrie {
     }
 
     private _getScopeName(parent: string, child: string) {
-        if (parent === this.ROOT_NAME) {
+        if (parent === this._ROOT_NAME) {
             return child
         }
         return `${parent}.${child}`

@@ -41,17 +41,18 @@ export class TokenScorer {
      * @name rankTokenScopes
      * @function
      * @param {string[]} scopes
-     * @param {TokenColor[]} themeColors
+     * @param {TokenColorsTrie} tokenTree
      * @returns {TokenColor}
      */
-    public rankTokenScopes(scopes: string[], themeColors: TokenColorsTrie): TokenColor {
+    public rankTokenScopes(scopes: string[], tokenTree: TokenColorsTrie): TokenColor {
         const initialRanking: TokenRanking = { highestRankedToken: null, depth: null }
         const { highestRankedToken } = scopes.reduce((highestSoFar, scope) => {
             if (this._isBannedScope(scope)) {
                 return highestSoFar
             }
 
-            const matchingToken = this._getMatchingToken(scope, themeColors)
+            const node = tokenTree.match(scope)
+            const matchingToken = node ? node.asTokenColor() : null
 
             if (!matchingToken) {
                 return highestSoFar
@@ -102,29 +103,5 @@ export class TokenScorer {
             .map(this._getPriority)
             .sort((prev, next) => next.priority - prev.priority)
         return token
-    }
-
-    /**
-     * if the lowest scope level doesn't match then we go up one level
-     * i.e. constant.numeric.special -> constant.numeric
-     * and search the theme colors for a match
-     *
-     * @name _getMatchingToken
-     * @function
-     * @param {string} scope
-     * @param {TokenColor[]} theme
-     * @returns {TokenColor}
-     */
-    private _getMatchingToken(scope: string, tokenTree: TokenColorsTrie): TokenColor {
-        const parts = scope.split(".")
-        if (parts.length < 2) {
-            return null
-        }
-        const match = tokenTree.find(scope)
-        if (match) {
-            return match.asTokenColor()
-        }
-        const currentScope = parts.slice(0, parts.length - 1).join(".")
-        return this._getMatchingToken(currentScope, tokenTree)
     }
 }

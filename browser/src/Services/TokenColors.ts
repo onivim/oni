@@ -54,9 +54,7 @@ export class TokenColors implements IDisposable {
     }
 
     constructor(private _configuration: Configuration, private _themeManager: ThemeManager) {
-        const sub1 = this._themeManager.onThemeChanged.subscribe(() => {
-            this._updateTokenColors()
-        })
+        const sub1 = this._themeManager.onThemeChanged.subscribe(this._updateTokenColors)
 
         const sub2 = this._configuration.onConfigurationChanged.subscribe(
             (newValues: Partial<IConfigurationValues>) => {
@@ -79,7 +77,7 @@ export class TokenColors implements IDisposable {
         this._subscriptions = []
     }
 
-    private _updateTokenColors(): void {
+    private _updateTokenColors = (): void => {
         const {
             activeTheme: {
                 colors: { "editor.tokenColors": themeTokens = [] },
