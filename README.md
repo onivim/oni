@@ -135,6 +135,15 @@ The goal of this project is to give an editor that gives the best of both worlds
 *   [FAQ](https://github.com/onivim/oni/wiki/FAQ)
 *   [Roadmap](https://github.com/onivim/oni/wiki/Roadmap)
 
+## Available Plugins
+
+Some available plugins created by Oni users are listed below (if you'd like to add your
+plugin to this list please create a PR updating this **README** with the details).
+
+*   [Oni Touchbar Plugin](https://github.com/jordan-arenstein/oni-plugin-touchbar) - by [jordan-arenstein](https://github.com/jordan-arenstein?tab=overview&from=2018-07-01&to=2018-07-31)
+    *   Themes
+        *   [Night Owl](https://github.com/Akin909/oni-theme-night-owl)
+
 ## Contributing
 
 There many ways to get involved & contribute to Oni:
