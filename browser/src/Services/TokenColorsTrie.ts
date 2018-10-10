@@ -5,7 +5,7 @@ type Settings = TokenColor["settings"]
 class TrieNode {
     public children = new Map<string, TrieNode>()
 
-    constructor(public scope: string, public settings: Settings) {}
+    constructor(public scope: string, public parentScopes?: string[], public settings?: Settings) {}
 
     public asTokenColor(): TokenColor {
         return {
@@ -20,18 +20,19 @@ export default class TokenColorTrie {
     private readonly _ROOT_NAME = "__root"
 
     constructor() {
-        this._root = new TrieNode(this._ROOT_NAME, null)
+        this._root = new TrieNode(this._ROOT_NAME)
     }
 
     public add(token: string, settings: Settings) {
-        this._addNode(this._root, token, settings)
+        const { childScope, parentScopes } = this.separateParentAndChildScopes(token)
+        this._addNode(this._root, childScope, parentScopes, settings)
     }
 
-    public find(token: string) {
+    public find(token: string, parentScopes?: string[]) {
         if (!this._root) {
             return null
         }
-        return this._findToken(this._root, token)
+        return this._findToken(this._root, token, parentScopes)
     }
 
     public setTokens(tokens: TokenColor[]) {
@@ -56,8 +57,8 @@ export default class TokenColorTrie {
         this._removeToken(this._root, token)
     }
 
-    public match(token: string) {
-        return this._match(token)
+    public match(token: string, parentScopes?: string[]) {
+        return this._match(token, parentScopes)
     }
 
     public removeAll() {
@@ -66,6 +67,14 @@ export default class TokenColorTrie {
 
     public contains(token: string) {
         return !!this.find(token)
+    }
+
+    public separateParentAndChildScopes(token: string) {
+        const parts = token.split(/ /)
+        const parentScopes = parts.length > 1 ? parts.slice(0, parts.length - 1) : []
+        const childScope = parts[parts.length - 1]
+
+        return { childScope, parentScopes }
     }
 
     private _getAll(node: TrieNode, tokens: TrieNode[], token: string) {
@@ -86,22 +95,49 @@ export default class TokenColorTrie {
         }
     }
 
-    private _addNode(node: TrieNode, token: string, settings: Settings): void {
+    private _addNode(
+        node: TrieNode,
+        token: string,
+        parentScopes: string[],
+        settings: Settings,
+    ): void {
         if (!token || !settings) {
             return null
         }
 
-        const [scope, ...parts] = token.split(".")
+        const [scope, ...rest] = token.split(".")
         let childNode = node.children.get(scope)
 
         if (!childNode) {
             const childScope = this._getScopeName(node.scope, scope)
-            const newNode = new TrieNode(childScope, settings)
+            const newNode = new TrieNode(childScope, parentScopes, settings)
             node.children.set(scope, newNode)
             childNode = newNode
         }
+
         const inheritedSettings = { ...childNode.settings, ...settings }
-        this._addNode(childNode, parts.join("."), inheritedSettings)
+        const nextScope = rest.join(".")
+        this._addNode(childNode, nextScope, parentScopes, inheritedSettings)
+    }
+
+    private _getParentScopeSettings(parentScopes: string[]) {
+        if (!parentScopes.length) {
+            return {}
+        }
+        const parentSettings = parentScopes.reduce(
+            (acc, parent) => {
+                const token = this.find(parent)
+                if (!token || !token.settings) {
+                    return acc
+                }
+                return {
+                    ...acc,
+                    ...token.settings,
+                }
+            },
+            {} as Settings,
+        )
+        return parentSettings
     }
 
     /**
@@ -110,12 +146,12 @@ export default class TokenColorTrie {
      * and search the theme colors for a match
      *
      */
-    private _match(scope: string): TrieNode {
+    private _match(scope: string, parentScopes: string[] = []): TrieNode {
         const parts = scope.split(".")
         if (parts.length < 2) {
             return null
         }
-        const match = this.find(scope)
+        const match = this.find(scope, parentScopes)
         if (match) {
             return match
         }
@@ -123,14 +159,16 @@ export default class TokenColorTrie {
         return this._match(currentScope)
     }
 
-    private _findToken(node: TrieNode, token: string): TrieNode {
+    private _findToken(node: TrieNode, token: string, parentScopes: string[] = []): TrieNode {
         const [scope, ...parts] = token.split(".")
         const child = node.children.get(scope)
         if (child) {
             if (!parts.length) {
+                const parentSettings = this._getParentScopeSettings(parentScopes)
+                child.settings = { ...parentSettings, ...child.settings }
                 return child
             }
-            return this._findToken(child, parts.join("."))
+            return this._findToken(child, parts.join("."), parentScopes)
         }
         return null
     }
