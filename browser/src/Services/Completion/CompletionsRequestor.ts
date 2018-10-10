@@ -87,8 +87,9 @@ export class LanguageServiceCompletionsRequestor implements ICompletionsRequesto
         filePath: string,
         completionItem: types.CompletionItem,
     ): Promise<types.CompletionItem> {
-        const caps: IServerCapabilities =
-            await this._languageManager.getCapabilitiesForLanguage(language)
+        const caps: IServerCapabilities = await this._languageManager.getCapabilitiesForLanguage(
+            language,
+        )
         if (!caps.completionProvider.resolveProvider) {
             return completionItem
         }
