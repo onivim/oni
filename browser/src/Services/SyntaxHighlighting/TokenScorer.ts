@@ -4,6 +4,8 @@ import TokenColorsTrie from "./../TokenColorsTrie"
 interface TokenRanking {
     depth: number
     highestRankedToken: TokenColor
+    parentScopes: string
+    numberOfParents: number
 }
 
 /**
@@ -15,14 +17,17 @@ interface TokenRanking {
 export class TokenScorer {
     /**
      * meta tokens are not intended for syntax highlighting but for other types of plugins
+     * however vscode seems to accept styles for these so for the purposes of interop we
+     * also allow meta token styling
      * source is a token that All items are given effectively giving it no value from the
      * point of view of syntax highlighting as it distinguishes nothing
      *
      * see: https://www.sublimetext.com/docs/3/scope_naming.html
      */
-    private _BANNED_TOKENS = ["meta", "source"]
+    private _BANNED_TOKENS = ["source"]
     private readonly _SCOPE_PRIORITIES = {
         support: 1,
+        meta: -1,
     }
 
     /**
@@ -44,34 +49,65 @@ export class TokenScorer {
      * @param {TokenColorsTrie} tokenTree
      * @returns {TokenColor}
      */
-    public rankTokenScopes(scopes: string[], tokenTree: TokenColorsTrie): TokenColor {
-        const initialRanking: TokenRanking = { highestRankedToken: null, depth: null }
+    public rankTokenScopes(
+        scopes: string[],
+        tokenTree: TokenColorsTrie,
+        fileExtension: string,
+    ): TokenColor {
+        const initialRanking: TokenRanking = {
+            depth: null,
+            parentScopes: null,
+            numberOfParents: 0,
+            highestRankedToken: null,
+        }
+
         const { highestRankedToken } = scopes.reduce((highestSoFar, scope) => {
             if (this._isBannedScope(scope)) {
                 return highestSoFar
             }
 
-            const node = tokenTree.match(scope)
-            const matchingToken = node ? node.asTokenColor() : null
+            // themes can specify a parent scope which would not be present in the tokenization
+            // css var.indentifier -> the css is parent scope and the var.identifier is the child scope
+            const { childScope, parentScopes } = tokenTree.separateParentAndChildScopes(scope)
+            const count = parentScopes.length
+            const node = tokenTree.match(childScope, parentScopes)
+            const matchingToken = node && node.asTokenColor()
 
             if (!matchingToken) {
                 return highestSoFar
             }
 
-            const depth = scope.split(".").length
+            const depth = childScope.split(".").length
+
             if (depth === highestSoFar.depth) {
+                // if there is a parent scope e.g. css var.indentifier.scss versus var.template.other
+                // as they have the same degree of specificity but the former has the parent scope
+                // of css, so the token with the parent selector should win out
+                // if a scope has more parents it also increases its specificty
+                if (
+                    parentScopes &&
+                    (!highestSoFar.parentScopes || highestSoFar.numberOfParents < count)
+                ) {
+                    return {
+                        highestRankedToken: matchingToken,
+                        depth,
+                        parentScopes,
+                        numberOfParents: count,
+                    }
+                }
                 const highestPrecedence = this._determinePrecedence(
                     matchingToken,
                     highestSoFar.highestRankedToken,
                 )
-                return { highestRankedToken: highestPrecedence, depth }
+                return { ...highestSoFar, highestRankedToken: highestPrecedence, depth }
             }
             if (depth > highestSoFar.depth) {
-                return { highestRankedToken: matchingToken, depth }
+                return { ...highestSoFar, highestRankedToken: matchingToken, depth }
             }
             return highestSoFar
         }, initialRanking)
-        return highestRankedToken || null
+
+        return highestRankedToken
     }
 
     private _isBannedScope = (scope: string) => {
