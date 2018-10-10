@@ -6,7 +6,10 @@ import { LanguageManager } from "./../../../src/Services/Language"
 
 describe("LanguageServiceCompletionsRequestor", () => {
     describe("getCompletionDetails", () => {
-        let completionItem: any, completionDetails: any, languageManager: any, requestor: any
+        let completionItem: any
+        let completionDetails: any
+        let languageManager: any
+        let requestor: any
 
         beforeEach(() => {
             completionItem = sinon.stub()
