@@ -159,7 +159,7 @@ export default class TokenColorTrie {
      */
     private _match(scope: string, parentScopes: string[] = []): TrieNode {
         const parts = scope.split(".")
-        if (parts.length < 2) {
+        if (!parts.length) {
             return null
         }
         const match = this.find(scope, parentScopes)
