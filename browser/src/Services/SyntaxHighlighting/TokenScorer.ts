@@ -49,11 +49,7 @@ export class TokenScorer {
      * @param {TokenColorsTrie} tokenTree
      * @returns {TokenColor}
      */
-    public rankTokenScopes(
-        scopes: string[],
-        tokenTree: TokenColorsTrie,
-        fileExtension: string,
-    ): TokenColor {
+    public rankTokenScopes(scopes: string[], tokenTree: TokenColorsTrie): TokenColor {
         const initialRanking: TokenRanking = {
             depth: null,
             parentScopes: null,
