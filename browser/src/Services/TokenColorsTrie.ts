@@ -24,7 +24,7 @@ export default class TokenColorTrie {
     }
 
     public add(token: string, settings: Settings) {
-        const { childScope, parentScopes } = this.separateParentAndChildScopes(token)
+        const { childScope, parentScopes } = this._separateParentAndChildScopes(token)
         this._addNode(this._root, childScope, parentScopes, settings)
     }
 
@@ -57,8 +57,9 @@ export default class TokenColorTrie {
         this._removeToken(this._root, token)
     }
 
-    public match(token: string, parentScopes?: string[]) {
-        return this._match(token, parentScopes)
+    public match(token: string) {
+        const { childScope, parentScopes } = this._separateParentAndChildScopes(token)
+        return this._match(childScope, parentScopes)
     }
 
     public removeAll() {
@@ -69,7 +70,7 @@ export default class TokenColorTrie {
         return !!this.find(token)
     }
 
-    public separateParentAndChildScopes(token: string) {
+    public _separateParentAndChildScopes(token: string) {
         const parts = token.split(/ /)
         const parentScopes = parts.length > 1 ? parts.slice(0, parts.length - 1) : []
         const childScope = parts[parts.length - 1]

@@ -57,7 +57,7 @@ export class TokenScorer {
         const initialRanking: TokenRanking = {
             depth: null,
             parentScopes: null,
-            numberOfParents: 0,
+            numberOfParents: null,
             highestRankedToken: null,
         }
 
@@ -66,18 +66,23 @@ export class TokenScorer {
                 return highestSoFar
             }
 
-            // themes can specify a parent scope which would not be present in the tokenization
-            // css var.indentifier -> the css is parent scope and the var.identifier is the child scope
-            const { childScope, parentScopes } = tokenTree.separateParentAndChildScopes(scope)
-            const count = parentScopes.length
-            const node = tokenTree.match(childScope, parentScopes)
+            const node = tokenTree.match(scope)
             const matchingToken = node && node.asTokenColor()
 
             if (!matchingToken) {
                 return highestSoFar
             }
 
-            const depth = childScope.split(".").length
+            const { parentScopes } = node
+            const count = parentScopes.length
+
+            // TODO: Should check here if the parent scopes match
+            // if there is no match the token should not be matched
+            // if (parentScopes.length !== node.parentScopes.length) {
+            //     return highestSoFar
+            // }
+
+            const depth = scope.split(".").length
 
             if (depth === highestSoFar.depth) {
                 // if there is a parent scope e.g. css var.indentifier.scss versus var.template.other
