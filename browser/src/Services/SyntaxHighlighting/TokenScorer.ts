@@ -6,6 +6,7 @@ interface TokenRanking {
     highestRankedToken: TokenColor
     parentScopes: string
     numberOfParents: number
+    priority: number
 }
 
 /**
@@ -55,6 +56,7 @@ export class TokenScorer {
             parentScopes: null,
             numberOfParents: null,
             highestRankedToken: null,
+            priority: null,
         }
 
         const { highestRankedToken } = scopes.reduce((highestSoFar, scope) => {
@@ -63,7 +65,7 @@ export class TokenScorer {
             }
 
             const node = tokenTree.match(scope)
-            const matchingToken = node && node.asTokenColor()
+            const matchingToken = tokenTree.convertNodeToToken(node)
 
             if (!matchingToken) {
                 return highestSoFar
@@ -71,36 +73,30 @@ export class TokenScorer {
 
             const { parentScopes } = node
             const count = parentScopes.length
-
-            // TODO: Should check here if the parent scopes match
-            // if there is no match the token should not be matched
-            // if (parentScopes.length !== node.parentScopes.length) {
-            //     return highestSoFar
-            // }
-
             const depth = scope.split(".").length
+            const priority = this._getPriority(scope)
+
+            if (priority < highestSoFar.priority) {
+                return highestSoFar
+            }
+
+            highestSoFar.priority = priority
 
             if (depth === highestSoFar.depth) {
                 // if there is a parent scope e.g. css var.indentifier.scss versus var.template.other
                 // as they have the same degree of specificity but the former has the parent scope
                 // of css, so the token with the parent selector should win out
                 // if a scope has more parents it also increases its specificty
-                if (
-                    parentScopes &&
-                    (!highestSoFar.parentScopes || highestSoFar.numberOfParents < count)
-                ) {
-                    return {
-                        highestRankedToken: matchingToken,
-                        depth,
-                        parentScopes,
-                        numberOfParents: count,
-                    }
+                if (parentScopes && highestSoFar.numberOfParents > count) {
+                    return highestSoFar
                 }
-                const highestPrecedence = this._determinePrecedence(
-                    matchingToken,
-                    highestSoFar.highestRankedToken,
-                )
-                return { ...highestSoFar, highestRankedToken: highestPrecedence, depth }
+
+                return {
+                    highestRankedToken: matchingToken,
+                    depth,
+                    parentScopes,
+                    numberOfParents: count,
+                }
             }
             if (depth > highestSoFar.depth) {
                 return { ...highestSoFar, highestRankedToken: matchingToken, depth }
@@ -115,30 +111,15 @@ export class TokenScorer {
         return this._BANNED_TOKENS.some(token => scope.includes(token))
     }
 
-    private _getPriority = (token: TokenColor) => {
-        const priorities = Object.keys(this._SCOPE_PRIORITIES)
-        return priorities.reduce(
-            (acc, priority) =>
-                token.scope.includes(priority) && this._SCOPE_PRIORITIES[priority] < acc.priority
-                    ? { priority: this._SCOPE_PRIORITIES[priority], token }
-                    : acc,
-            { priority: 0, token },
+    private _getPriority = (scope: string) => {
+        const tokenPriorities = Object.keys(this._SCOPE_PRIORITIES).reduce<number>(
+            (currentPriority, scopePriority) =>
+                scope.includes(scopePriority) &&
+                this._SCOPE_PRIORITIES[scopePriority] < currentPriority
+                    ? this._SCOPE_PRIORITIES[scopePriority]
+                    : currentPriority,
+            0,
         )
-    }
-
-    /**
-     * Assign each token a priority based on `SCOPE_PRIORITIES` and then
-     * sort by priority take the first aka the highest priority one
-     *
-     * @name _determinePrecedence
-     * @function
-     * @param {TokenColor[]} ...tokens
-     * @returns {TokenColor}
-     */
-    private _determinePrecedence(...tokens: TokenColor[]): TokenColor {
-        const [{ token }] = tokens
-            .map(this._getPriority)
-            .sort((prev, next) => next.priority - prev.priority)
-        return token
+        return tokenPriorities
     }
 }

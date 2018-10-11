@@ -70,6 +70,11 @@ export default class TokenColorTrie {
         return !!this.find(token)
     }
 
+    public convertNodeToToken(node: TrieNode | string) {
+        const trieNode = typeof node === "string" ? this.find(node) : node
+        return trieNode ? trieNode.asTokenColor() : null
+    }
+
     public _separateParentAndChildScopes(token: string) {
         const parts = token.split(/ /)
         const parentScopes = parts.length > 1 ? parts.slice(0, parts.length - 1) : []

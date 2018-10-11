@@ -80,7 +80,7 @@ export class TokenColors implements IDisposable {
         this._subscriptions = []
     }
 
-    private _updateTokenColors = (): void => {
+    private _updateTokenColors = () => {
         const {
             activeTheme: {
                 colors: { "editor.tokenColors": themeTokens = [] },
@@ -98,7 +98,6 @@ export class TokenColors implements IDisposable {
         this._tokenColors = this._convertThemeTokenScopes(combinedColors)
         this._tokenTree.removeAll()
         this._tokenTree.setTokens(this._tokenColors)
-        // console.log("this._tokenTree: ", this._tokenTree)
 
         this._onTokenColorsChangedEvent.dispatch()
     }
