@@ -140,6 +140,16 @@ export default class TokenColorTrie {
         return parentSettings
     }
 
+    private _compare(childScopes: string[], parentScopes: string[]) {
+        if (!childScopes.length && !parentScopes.length) {
+            return true
+        }
+        const child = new Set(childScopes)
+        const parent = new Set(parentScopes)
+        const intersection = new Set([...child].filter(x => parent.has(x)))
+        return !!intersection.size
+    }
+
     /**
      * if the lowest scope level doesn't match then we go up one level
      * i.e. constant.numeric.special -> constant.numeric
@@ -162,8 +172,10 @@ export default class TokenColorTrie {
     private _findToken(node: TrieNode, token: string, parentScopes: string[] = []): TrieNode {
         const [scope, ...parts] = token.split(".")
         const child = node.children.get(scope)
+
         if (child) {
-            if (!parts.length) {
+            const parentsMatch = this._compare(child.parentScopes, parentScopes)
+            if (!parts.length && parentsMatch) {
                 const parentSettings = this._getParentScopeSettings(parentScopes)
                 child.settings = { ...parentSettings, ...child.settings }
                 return child
