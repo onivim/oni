@@ -41,6 +41,9 @@ export class TokenColors implements IDisposable {
 
     private _defaultTokenColors: TokenColor[] = []
 
+    // TODO: Deprecate this once tokenTrie is finalised as this
+    // allocates a bunch of memory to store that is no longer required
+    // with the trie
     public get tokenColors(): TokenColor[] {
         return this._tokenColors
     }
@@ -95,6 +98,7 @@ export class TokenColors implements IDisposable {
         this._tokenColors = this._convertThemeTokenScopes(combinedColors)
         this._tokenTree.removeAll()
         this._tokenTree.setTokens(this._tokenColors)
+        // console.log("this._tokenTree: ", this._tokenTree)
 
         this._onTokenColorsChangedEvent.dispatch()
     }
