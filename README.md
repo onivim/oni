@@ -141,6 +141,7 @@ Some available plugins created by Oni users are listed below (if you'd like to a
 plugin to this list please create a PR updating this **README** with the details).
 
 *   [Oni Touchbar Plugin](https://github.com/jordan-arenstein/oni-plugin-touchbar) - by [jordan-arenstein](https://github.com/jordan-arenstein?tab=overview&from=2018-07-01&to=2018-07-31)
+*   [quickFind](https://github.com/marene/quickFind) - by [marene](https://github.com/marene)
     *   Themes
         *   [Night Owl](https://github.com/Akin909/oni-theme-night-owl)
 
