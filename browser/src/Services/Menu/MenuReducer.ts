@@ -129,6 +129,8 @@ export function createReducer<T, FilteredT extends T>() {
                     return s
                 }
 
+                // Note that for language server completions, the `filterFunc` is a no-op - the
+                // items are filtered elsewhere (but this FILTER_MENU action is still dispatched).
                 const filterFunc = s.filterFunction
                 const filteredOptionsSorted = filterFunc(s.options, a.payload.filter)
 
@@ -136,6 +138,7 @@ export function createReducer<T, FilteredT extends T>() {
                     ...s,
                     filter: a.payload.filter,
                     filteredOptions: filteredOptionsSorted,
+                    selectedIndex: 0,
                 }
             }
             default:
