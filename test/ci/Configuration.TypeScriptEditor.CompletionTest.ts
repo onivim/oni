@@ -44,7 +44,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     const hasCompletionElement = () =>
         getCompletionElement() && getCompletionElement().textContent.indexOf("automation") >= 0
 
-    await oni.automation.waitFor(hasCompletionElement)
+    await oni.automation.waitFor(hasCompletionElement, 120000)
 
     assert.ok(hasCompletionElement(), "Got completion element!")
 }

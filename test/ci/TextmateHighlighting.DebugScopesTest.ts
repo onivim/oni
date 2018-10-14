@@ -29,7 +29,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
             types.Position.create(0, 0),
         )
         return tokens && tokens.scopes && tokens.scopes.length > 0
-    }, 10000)
+    }, 120000)
 
     oni.automation.sendKeys("w")
 
@@ -37,7 +37,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     await oni.automation.waitFor(() => {
         element = getElementByClassName("quick-info-debug-scopes")
         return !!element
-    })
+    }, 120000)
 
     await oni.automation.waitFor(() => {
         const items = element.getElementsByTagName("li")
