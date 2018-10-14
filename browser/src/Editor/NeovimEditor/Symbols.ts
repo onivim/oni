@@ -2,18 +2,20 @@
  * CodeAction.ts
  *
  */
-
+import * as _ from "lodash"
+import { ErrorCodes } from "vscode-jsonrpc/lib/messages"
 import * as types from "vscode-languageserver-types"
 
 import * as Oni from "oni-api"
-
-import { MenuManager } from "./../../Services/Menu"
+import * as Log from "oni-core-logging"
 
 import { LanguageManager } from "./../../Services/Language"
+import { Menu, MenuManager } from "./../../Services/Menu"
 
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
-import { asObservable } from "./../../Utility"
+import { asObservable, sleep } from "./../../Utility"
+
 import { Definition } from "./Definition"
 
 export class Symbols {
@@ -59,19 +61,9 @@ export class Symbols {
             .debounceTime(25)
             .do(() => menu.setLoading(true))
             .concatMap(async (newText: string) => {
-                const buffer = this._editor.activeBuffer
-                const symbols: types.SymbolInformation[] = await this._languageManager.sendLanguageServerRequest(
-                    buffer.language,
-                    buffer.filePath,
-                    "workspace/symbol",
-                    {
-                        textDocument: {
-                            uri: Helpers.wrapPathInFileUri(buffer.filePath),
-                        },
-                        query: newText,
-                    },
-                )
-                return symbols
+                return this._requestSymbols(this._editor.activeBuffer, "workspace/symbol", menu, {
+                    query: newText,
+                })
             })
             .subscribe((newItems: types.SymbolInformation[]) => {
                 menu.setLoading(false)
@@ -94,15 +86,10 @@ export class Symbols {
 
         const buffer = this._editor.activeBuffer
 
-        const result: types.SymbolInformation[] = await this._languageManager.sendLanguageServerRequest(
-            buffer.language,
-            buffer.filePath,
+        const result: types.SymbolInformation[] = await this._requestSymbols(
+            buffer,
             "textDocument/documentSymbol",
-            {
-                textDocument: {
-                    uri: Helpers.wrapPathInFileUri(buffer.filePath),
-                },
-            },
+            menu,
         )
 
         const options: Oni.Menu.MenuOption[] = result.map(item => this._symbolInfoToMenuItem(item))
@@ -174,5 +161,41 @@ export class Symbols {
             default:
                 return "question"
         }
+    }
+
+    /**
+     * Send a request for symbols, retrying if the server is not ready, as long as the menu is open.
+     */
+    private async _requestSymbols(
+        buffer: Oni.Buffer,
+        command: string,
+        menu: Menu,
+        options: any = {},
+    ): Promise<types.SymbolInformation[]> {
+        while (menu.isOpen()) {
+            try {
+                return await this._languageManager.sendLanguageServerRequest(
+                    buffer.language,
+                    buffer.filePath,
+                    command,
+                    _.extend(
+                        {
+                            textDocument: {
+                                uri: Helpers.wrapPathInFileUri(buffer.filePath),
+                            },
+                        },
+                        options,
+                    ),
+                )
+            } catch (e) {
+                if (e.code === ErrorCodes.ServerNotInitialized) {
+                    Log.warn("[Symbols] Language server not yet initialised, trying again...")
+                    await sleep(1000)
+                } else {
+                    throw e
+                }
+            }
+        }
+        return []
     }
 }
