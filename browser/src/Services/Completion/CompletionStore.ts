@@ -134,6 +134,16 @@ export const completionResultsReducer: Reducer<ICompletionResults> = (
             return {
                 ...state,
                 completions: state.completions.map(completion => {
+                    // Prefer `detail` field if available, to avoid splatting e.g. methods with
+                    // the same name but different signature.
+                    if (completion.detail && action.completionItemWithDetails.detail) {
+                        if (completion.detail === action.completionItemWithDetails.detail) {
+                            return action.completionItemWithDetails
+                        } else {
+                            return completion
+                        }
+                    }
+
                     if (completion.label === action.completionItemWithDetails.label) {
                         return action.completionItemWithDetails
                     } else {
