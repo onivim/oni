@@ -3,6 +3,7 @@
  *
  * Selectors are functions that take a state and derive a value from it.
  */
+import * as _ from "lodash"
 
 import { ICompletionState } from "./CompletionState"
 
@@ -67,25 +68,69 @@ export const filterCompletionOptions = (
     if (!searchText) {
         return items
     }
-
     if (!items || !items.length) {
         return null
     }
 
+    // Must start with first letter in searchText, and then be at least abbreviated by searchText.
     const filterRegEx = new RegExp("^" + searchText.split("").join(".*") + ".*")
-
     const filteredOptions = items.filter(f => {
         const textToFilterOn = f.filterText || f.label
         return textToFilterOn.match(filterRegEx)
     })
+    const sortedOptions = filteredOptions.sort((itemA, itemB) => {
+        const itemASortText = itemA.filterText || itemA.label
+        const itemBSortText = itemB.filterText || itemB.label
 
-    return filteredOptions.sort((itemA, itemB) => {
-        const itemAFilterText = itemA.filterText || itemA.label
-        const itemBFilterText = itemB.filterText || itemB.label
+        const indexOfA = itemASortText.indexOf(searchText)
+        const indexOfB = itemBSortText.indexOf(searchText)
 
-        const indexOfA = itemAFilterText.indexOf(searchText)
-        const indexOfB = itemBFilterText.indexOf(searchText)
-
-        return indexOfB - indexOfA
+        // Ensure abbreviated matches are sorted below exact matches.
+        if (indexOfA >= 0 && indexOfB === -1) {
+            return -1
+        } else if (indexOfA === -1 && indexOfB >= 0) {
+            return 1
+            // Else sort by label to keep related results together.
+        } else if (itemASortText < itemBSortText) {
+            return -1
+        } else if (itemASortText > itemBSortText) {
+            return 1
+            // Fallback to sort by language server specified sortText.
+        } else if (itemA.sortText < itemB.sortText) {
+            return -1
+        } else if (itemA.sortText > itemB.sortText) {
+            return 1
+        }
+        return 0
     })
+    // Language servers can return duplicate entries (e.g. cquery).
+    const uniqueOptions: types.CompletionItem[] = _uniq(sortedOptions)
+
+    return uniqueOptions
+}
+
+/**
+ * Get unique completion items, assuming they're sorted so duplicates are contiguous.
+ *
+ * Adapted from https://github.com/lodash/lodash/blob/master/.internal/baseSortedUniq.js, since
+ * lodash has no `sortedUniqWith` function.
+ */
+const _uniq = (array: types.CompletionItem[]) => {
+    let seenReduced: any
+    let index = -1
+    let resIndex = 0
+
+    const { length } = array
+    const result = []
+
+    while (++index < length) {
+        const value = array[index]
+        const reduced = _.omit(value, "sortText")
+        // Omit the `sortText` which can be different even if all other attributes are the same.
+        if (!index || !_.isEqual(reduced, seenReduced)) {
+            seenReduced = reduced
+            result[resIndex++] = value
+        }
+    }
+    return result
 }
