@@ -7,6 +7,7 @@ import { ErrorCodes } from "vscode-jsonrpc/lib/messages"
 
 import { Definition } from "../../../src/Editor/NeovimEditor/Definition"
 import { Symbols } from "../../../src/Editor/NeovimEditor/Symbols"
+import { wrapPathInFileUri } from "../../../src/Plugins/Api/LanguageClient/LanguageClientHelpers"
 import { LanguageManager } from "../../../src/Services/Language"
 import { Menu, MenuManager } from "../../../src/Services/Menu"
 
@@ -175,7 +176,7 @@ describe("Symbols", () => {
                 "mocklang",
                 buffer.filePath,
                 "mock command",
-                { mock: "option", textDocument: { uri: "file://mock/path" } },
+                { mock: "option", textDocument: { uri: wrapPathInFileUri(buffer.filePath) } },
             )
             assert.equal(await request, "mock result")
         })
