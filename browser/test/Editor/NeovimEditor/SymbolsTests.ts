@@ -1,4 +1,5 @@
 import * as assert from "assert"
+import * as path from "path"
 import * as sinon from "sinon"
 
 import { Event } from "oni-types"
@@ -121,7 +122,7 @@ describe("Symbols", () => {
             menu.isOpen.returns(true)
             buffer = sinon.stub()
             buffer.language = "mocklang"
-            buffer.filePath = "/mock/path"
+            buffer.filePath = path.join("mock", "path")
         })
 
         it("throws on unknown errors", async () => {
@@ -172,9 +173,9 @@ describe("Symbols", () => {
             sinon.assert.alwaysCalledWith(
                 languageManager.sendLanguageServerRequest,
                 "mocklang",
-                "/mock/path",
+                buffer.filePath,
                 "mock command",
-                { mock: "option", textDocument: { uri: "file:///mock/path" } },
+                { mock: "option", textDocument: { uri: "file://mock/path" } },
             )
             assert.equal(await request, "mock result")
         })
