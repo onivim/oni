@@ -149,7 +149,9 @@ describe("Symbols", () => {
             languageManager.sendLanguageServerRequest.onCall(2).returns("mock result")
 
             // action
-            const request: Promise<any> = symbols["_requestSymbols"](buffer, "mock command", menu)
+            const request: Promise<any> = symbols["_requestSymbols"](buffer, "mock command", menu, {
+                mock: "option",
+            })
 
             // confirm
             sinon.assert.callCount(languageManager.sendLanguageServerRequest, 1)
@@ -167,6 +169,13 @@ describe("Symbols", () => {
             sinon.assert.callCount(languageManager.sendLanguageServerRequest, 3)
             clock.tick(1000)
             await waitForPromiseResolution()
+            sinon.assert.alwaysCalledWith(
+                languageManager.sendLanguageServerRequest,
+                "mocklang",
+                "/mock/path",
+                "mock command",
+                { mock: "option", textDocument: { uri: "file:///mock/path" } },
+            )
             assert.equal(await request, "mock result")
         })
 
