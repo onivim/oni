@@ -1,8 +1,12 @@
 import { TokenColor } from "./../TokenColors"
+import TokenColorsTrie from "./../TokenColorsTrie"
 
 interface TokenRanking {
     depth: number
     highestRankedToken: TokenColor
+    parentScopes: string
+    numberOfParents: number
+    priority: number
 }
 
 /**
@@ -14,14 +18,17 @@ interface TokenRanking {
 export class TokenScorer {
     /**
      * meta tokens are not intended for syntax highlighting but for other types of plugins
+     * however vscode seems to accept styles for these so for the purposes of interop we
+     * also allow meta token styling
      * source is a token that All items are given effectively giving it no value from the
      * point of view of syntax highlighting as it distinguishes nothing
      *
      * see: https://www.sublimetext.com/docs/3/scope_naming.html
      */
-    private _BANNED_TOKENS = ["meta", "source"]
+    private _BANNED_TOKENS = ["source"]
     private readonly _SCOPE_PRIORITIES = {
         support: 1,
+        meta: -1,
     }
 
     /**
@@ -40,90 +47,79 @@ export class TokenScorer {
      * @name rankTokenScopes
      * @function
      * @param {string[]} scopes
-     * @param {TokenColor[]} themeColors
+     * @param {TokenColorsTrie} tokenTree
      * @returns {TokenColor}
      */
-    public rankTokenScopes(scopes: string[], themeColors: TokenColor[]): TokenColor {
-        const initialRanking: TokenRanking = { highestRankedToken: null, depth: null }
+    public rankTokenScopes(scopes: string[], tokenTree: TokenColorsTrie): TokenColor {
+        const initialRanking: TokenRanking = {
+            depth: null,
+            parentScopes: null,
+            numberOfParents: null,
+            highestRankedToken: null,
+            priority: null,
+        }
+
         const { highestRankedToken } = scopes.reduce((highestSoFar, scope) => {
             if (this._isBannedScope(scope)) {
                 return highestSoFar
             }
 
-            const matchingToken = this._getMatchingToken(scope, themeColors)
+            const node = tokenTree.match(scope)
+            const matchingToken = tokenTree.convertNodeToToken(node)
 
             if (!matchingToken) {
                 return highestSoFar
             }
 
+            const { parentScopes } = node
+            const count = parentScopes.length
             const depth = scope.split(".").length
+            const priority = this._getPriority(scope)
+
+            if (priority < highestSoFar.priority) {
+                return highestSoFar
+            }
+
+            highestSoFar.priority = priority
+
             if (depth === highestSoFar.depth) {
-                const highestPrecedence = this._determinePrecedence(
-                    matchingToken,
-                    highestSoFar.highestRankedToken,
-                )
-                return { highestRankedToken: highestPrecedence, depth }
+                // if there is a parent scope e.g. css var.indentifier.scss versus var.template.other
+                // as they have the same degree of specificity but the former has the parent scope
+                // of css, so the token with the parent selector should win out
+                // if a scope has more parents it also increases its specificty
+                if (parentScopes && highestSoFar.numberOfParents > count) {
+                    return highestSoFar
+                }
+
+                return {
+                    highestRankedToken: matchingToken,
+                    depth,
+                    parentScopes,
+                    numberOfParents: count,
+                }
             }
             if (depth > highestSoFar.depth) {
-                return { highestRankedToken: matchingToken, depth }
+                return { ...highestSoFar, highestRankedToken: matchingToken, depth }
             }
             return highestSoFar
         }, initialRanking)
-        return highestRankedToken || null
+
+        return highestRankedToken
     }
 
     private _isBannedScope = (scope: string) => {
         return this._BANNED_TOKENS.some(token => scope.includes(token))
     }
 
-    private _getPriority = (token: TokenColor) => {
-        const priorities = Object.keys(this._SCOPE_PRIORITIES)
-        return priorities.reduce(
-            (acc, priority) =>
-                token.scope.includes(priority) && this._SCOPE_PRIORITIES[priority] < acc.priority
-                    ? { priority: this._SCOPE_PRIORITIES[priority], token }
-                    : acc,
-            { priority: 0, token },
+    private _getPriority = (scope: string) => {
+        const tokenPriorities = Object.keys(this._SCOPE_PRIORITIES).reduce<number>(
+            (currentPriority, scopePriority) =>
+                scope.includes(scopePriority) &&
+                this._SCOPE_PRIORITIES[scopePriority] < currentPriority
+                    ? this._SCOPE_PRIORITIES[scopePriority]
+                    : currentPriority,
+            0,
         )
-    }
-
-    /**
-     * Assign each token a priority based on `SCOPE_PRIORITIES` and then
-     * sort by priority take the first aka the highest priority one
-     *
-     * @name _determinePrecedence
-     * @function
-     * @param {TokenColor[]} ...tokens
-     * @returns {TokenColor}
-     */
-    private _determinePrecedence(...tokens: TokenColor[]): TokenColor {
-        const [{ token }] = tokens
-            .map(this._getPriority)
-            .sort((prev, next) => next.priority - prev.priority)
-        return token
-    }
-
-    /**
-     * if the lowest scope level doesn't match then we go up one level
-     * i.e. constant.numeric.special -> constant.numeric
-     * and search the theme colors for a match
-     *
-     * @name _getMatchingToken
-     * @function
-     * @param {string} scope
-     * @param {TokenColor[]} theme
-     * @returns {TokenColor}
-     */
-    private _getMatchingToken(scope: string, theme: TokenColor[]): TokenColor {
-        const parts = scope.split(".")
-        if (parts.length < 2) {
-            return null
-        }
-        const matchingToken = theme.find(color => color.scope === scope)
-        if (matchingToken) {
-            return matchingToken
-        }
-        const currentScope = parts.slice(0, parts.length - 1).join(".")
-        return this._getMatchingToken(currentScope, theme)
+        return tokenPriorities
     }
 }

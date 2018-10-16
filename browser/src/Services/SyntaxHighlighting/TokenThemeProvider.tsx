@@ -190,8 +190,8 @@ class TokenThemeProvider extends React.Component<IProps, IState> {
 
     public generateTokens({ defaultMap = defaultsToMap, defaultTokens }: IGenerateTokenArgs) {
         const newTokens = Object.keys(defaultMap).reduce((acc, defaultTokenName) => {
-            const defaultToken = this.props.tokenColors.find(
-                token => token.scope === defaultTokenName,
+            const defaultToken = this.props.tokenColors.find(token =>
+                token.scope.includes(defaultTokenName),
             )
             if (defaultToken) {
                 const tokens = defaultMap[defaultTokenName].map(name =>

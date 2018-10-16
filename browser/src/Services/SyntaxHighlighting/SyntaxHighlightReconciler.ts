@@ -4,11 +4,11 @@
  * Handles enhanced syntax highlighting
  */
 
+import { Buffer, Editor } from "oni-api"
 import * as Log from "oni-core-logging"
 
 import { TokenColor, TokenColors } from "./../TokenColors"
-
-import { NeovimEditor } from "./../../Editor/NeovimEditor"
+import { prettyPrint } from "./../../Utility"
 
 import { HighlightInfo } from "./Definitions"
 import {
@@ -18,21 +18,37 @@ import {
 } from "./SyntaxHighlightingStore"
 import { TokenScorer } from "./TokenScorer"
 
+import { IBufferHighlightsUpdater } from "../../Editor/BufferHighlights"
 import * as Selectors from "./SyntaxHighlightSelectors"
 
-// SyntaxHighlightReconciler
-//
-// Essentially a renderer / reconciler, that will push
-// highlight calls to the active buffer based on the active
-// window and viewport
+interface IBufferWithSyntaxHighlighter extends Buffer {
+    updateHighlights?: (
+        tokenColors: TokenColor[],
+        highlightCallback: (args: IBufferHighlightsUpdater) => void,
+    ) => void
+}
+
+export interface IEditorWithSyntaxHighlighter extends Editor {
+    activeBuffer: IBufferWithSyntaxHighlighter
+}
+
+/**
+ * SyntaxHighlightReconciler
+ *
+ * Essentially a renderer / reconciler, that will push
+ * highlight calls to the active buffer based on the active
+ * window and viewport
+ * @name SyntaxHighlightReconciler
+ * @class
+ */
 export class SyntaxHighlightReconciler {
     private _previousState: { [line: number]: ISyntaxHighlightLineInfo } = {}
     private _tokenScorer = new TokenScorer()
 
-    constructor(private _editor: NeovimEditor, private _tokenColors: TokenColors) {}
+    constructor(private _editor: IEditorWithSyntaxHighlighter, private _tokenColors: TokenColors) {}
 
     public update(state: ISyntaxHighlightState) {
-        const activeBuffer: any = this._editor.activeBuffer
+        const { activeBuffer } = this._editor
 
         if (!activeBuffer) {
             return
@@ -77,6 +93,15 @@ export class SyntaxHighlightReconciler {
                 }
             })
 
+            // Get only the token colors that apply to the visible section of the buffer
+            const visibleTokens = tokens.reduce((accumulator, { highlights }) => {
+                if (highlights) {
+                    const tokenColors = highlights.map(({ tokenColor }) => tokenColor)
+                    accumulator.push(...tokenColors)
+                }
+                return accumulator
+            }, [])
+
             filteredLines.forEach(line => {
                 const lineNumber = parseInt(line, 10)
                 this._previousState[line] = Selectors.getLineFromBuffer(
@@ -87,26 +112,22 @@ export class SyntaxHighlightReconciler {
 
             if (tokens.length) {
                 Log.verbose(
-                    "[SyntaxHighlightReconciler] Applying changes to " + tokens.length + " lines.",
+                    `[SyntaxHighlightReconciler] Applying changes to ${tokens.length} lines.`,
                 )
-                activeBuffer.updateHighlights(
-                    this._tokenColors.tokenColors,
-                    (highlightUpdater: any) => {
-                        tokens.forEach(token => {
-                            const { line, highlights } = token
-                            if (Log.isDebugLoggingEnabled()) {
-                                Log.debug(
-                                    "[SyntaxHighlightingReconciler] Updating tokens for line: " +
-                                        token.line +
-                                        " | " +
-                                        JSON.stringify(highlights),
-                                )
-                            }
+                activeBuffer.updateHighlights(visibleTokens, highlightUpdater => {
+                    tokens.forEach(token => {
+                        const { line, highlights } = token
+                        if (Log.isDebugLoggingEnabled()) {
+                            Log.debug(
+                                `[SyntaxHighlightingReconciler] Updating tokens for line: ${line} | ${prettyPrint(
+                                    highlights,
+                                )}`,
+                            )
+                        }
 
-                            highlightUpdater.setHighlightsForLine(line, highlights)
-                        })
-                    },
-                )
+                        highlightUpdater.setHighlightsForLine(line, highlights)
+                    })
+                })
             }
         }
     }
@@ -121,8 +142,7 @@ export class SyntaxHighlightReconciler {
     }
 
     private _getHighlightGroupFromScope(scopes: string[]): TokenColor {
-        const configurationColors = this._tokenColors.tokenColors
-        const highestRanked = this._tokenScorer.rankTokenScopes(scopes, configurationColors)
+        const highestRanked = this._tokenScorer.rankTokenScopes(scopes, this._tokenColors.tokenTree)
         return highestRanked
     }
 }

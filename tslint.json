@@ -11,6 +11,7 @@
         "no-implicit-dependencies": false,
         "no-object-literal-type-assertion": false,
         "no-submodule-imports": false,
+        "ordered-imports": false,
         "no-reference": false,
         "no-namespace": false,
         "object-literal-key-quotes": false,
@@ -25,6 +26,7 @@
             "check-format"
         ],
         "whitespace": false,
+        "no-trailing-whitespace": [true, "ignore-template-strings"],
         "trailing-comma": [
             true,
             {

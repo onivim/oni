@@ -8,8 +8,13 @@
 
 import { Event, IDisposable, IEvent } from "oni-types"
 
+import { Configuration, IConfigurationValues } from "./Configuration"
+import { ThemeManager } from "./Themes"
+
+import TokenColorTrie from "./TokenColorsTrie"
+
 export interface TokenColor {
-    scope: string
+    scope: string[]
     settings: TokenColorStyle
     // private field for determining where a token came from
     _source?: string
@@ -18,6 +23,7 @@ export interface TokenColor {
 export interface ThemeToken {
     scope: string | string[]
     settings: TokenColorStyle
+    _source?: string
 }
 
 export interface TokenColorStyle {
@@ -27,18 +33,23 @@ export interface TokenColorStyle {
     fontStyle: "bold" | "italic" | "bold italic"
 }
 
-import { Configuration, IConfigurationValues } from "./Configuration"
-import { ThemeManager } from "./Themes"
-
 export class TokenColors implements IDisposable {
     private _subscriptions: IDisposable[] = []
     private _tokenColors: TokenColor[] = []
+    private _tokenTree = new TokenColorTrie()
     private _onTokenColorsChangedEvent: Event<void> = new Event<void>()
 
     private _defaultTokenColors: TokenColor[] = []
 
+    // TODO: Deprecate this once tokenTrie is finalised as this
+    // allocates a bunch of memory to store that is no longer required
+    // with the trie
     public get tokenColors(): TokenColor[] {
         return this._tokenColors
+    }
+
+    public get tokenTree() {
+        return this._tokenTree
     }
 
     public get onTokenColorsChanged(): IEvent<void> {
@@ -46,9 +57,7 @@ export class TokenColors implements IDisposable {
     }
 
     constructor(private _configuration: Configuration, private _themeManager: ThemeManager) {
-        const sub1 = this._themeManager.onThemeChanged.subscribe(() => {
-            this._updateTokenColors()
-        })
+        const sub1 = this._themeManager.onThemeChanged.subscribe(this._updateTokenColors)
 
         const sub2 = this._configuration.onConfigurationChanged.subscribe(
             (newValues: Partial<IConfigurationValues>) => {
@@ -71,36 +80,49 @@ export class TokenColors implements IDisposable {
         this._subscriptions = []
     }
 
-    private _flattenThemeTokens = (themeTokens: ThemeToken[] = []) => {
-        const multidimensionalTokens = themeTokens.map(token => {
-            if (Array.isArray(token.scope)) {
-                return token.scope.map(s => ({
-                    scope: s,
-                    settings: token.settings,
-                }))
-            }
-            return token
-        })
-        return [].concat(...multidimensionalTokens).filter(t => !!t.scope)
-    }
-
-    private _updateTokenColors(): void {
+    private _updateTokenColors = () => {
         const {
             activeTheme: {
-                colors: { "editor.tokenColors": tokenColorsFromTheme = [] },
+                colors: { "editor.tokenColors": themeTokens = [] },
             },
         } = this._themeManager
 
-        const themeTokens = this._flattenThemeTokens(tokenColorsFromTheme)
         const userColors = this._configuration.getValue("editor.tokenColors")
 
-        this._tokenColors = this._mergeTokenColors({
+        const combinedColors = this._mergeTokenColors({
             user: userColors,
             theme: themeTokens,
             defaults: this._defaultTokenColors,
         })
 
+        this._tokenColors = this._convertThemeTokenScopes(combinedColors)
+        this._tokenTree.removeAll()
+        this._tokenTree.setTokens(this._tokenColors)
+
         this._onTokenColorsChangedEvent.dispatch()
+    }
+
+    /**
+     * Theme tokens can pass in token scopes as a string or an array
+     * this converts all token scopes passed in to an array of strings
+     *
+     * @name convertThemeTokenScopes
+     * @function
+     * @param {ThemeToken[]} tokens
+     * @returns {TokenColor[]}
+     */
+    private _convertThemeTokenScopes(tokens: ThemeToken[]) {
+        // TODO: figure out how space separated token scopes should be handled
+        // token.scope.split(" ") -> convert "meta.var string.quoted" -> ["meta.var", "string.quoted"]
+        // this however breaks prioritisation of tokens
+        return tokens.map(token => {
+            const scope = !token.scope
+                ? []
+                : Array.isArray(token.scope)
+                    ? token.scope
+                    : [token.scope]
+            return { ...token, scope }
+        })
     }
 
     /**
@@ -111,34 +133,32 @@ export class TokenColors implements IDisposable {
      * user source
      */
     private _mergeTokenColors(tokens: {
-        user: TokenColor[]
+        user: ThemeToken[]
         defaults: TokenColor[]
-        theme: TokenColor[]
+        theme: ThemeToken[]
     }) {
-        return Object.keys(tokens).reduce(
-            (output, key) => {
-                const tokenColors: TokenColor[] = tokens[key]
-                return tokenColors.reduce((mergedTokens, currentToken) => {
+        return Object.entries(tokens).reduce<ThemeToken[]>(
+            (output, [_source, tokenColors]) =>
+                tokenColors.reduce((mergedTokens, currentToken) => {
                     const duplicateToken = mergedTokens.find(t => currentToken.scope === t.scope)
                     if (duplicateToken) {
                         return mergedTokens.map(existingToken => {
                             if (existingToken.scope === duplicateToken.scope) {
                                 return this._mergeSettings(existingToken, {
                                     ...currentToken,
-                                    _source: key,
+                                    _source,
                                 })
                             }
                             return existingToken
                         })
                     }
-                    return [...mergedTokens, { ...currentToken, _source: key }]
-                }, output)
-            },
-            [] as TokenColor[],
+                    return [...mergedTokens, { ...currentToken, _source }]
+                }, output),
+            [],
         )
     }
 
-    private _mergeSettings(prev: TokenColor, next: TokenColor) {
+    private _mergeSettings(prev: ThemeToken, next: ThemeToken) {
         const priority = {
             user: 2,
             theme: 1,

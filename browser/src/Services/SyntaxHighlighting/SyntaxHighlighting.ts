@@ -28,7 +28,10 @@ import {
 } from "./SyntaxHighlightingStore"
 
 import { ISyntaxHighlighter } from "./ISyntaxHighlighter"
-import { SyntaxHighlightReconciler } from "./SyntaxHighlightReconciler"
+import {
+    IEditorWithSyntaxHighlighter,
+    SyntaxHighlightReconciler,
+} from "./SyntaxHighlightReconciler"
 import { getLineFromBuffer } from "./SyntaxHighlightSelectors"
 
 import * as Utility from "./../../Utility"
@@ -45,7 +48,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
     constructor(private _editor: NeovimEditor, private _tokenColors: TokenColors) {
         this._store = createSyntaxHighlightStore()
 
-        this._reconciler = new SyntaxHighlightReconciler(this._editor, this._tokenColors)
+        this._reconciler = new SyntaxHighlightReconciler(
+            this._editor as IEditorWithSyntaxHighlighter,
+            this._tokenColors,
+        )
         this._unsubscribe = this._store.subscribe(() => {
             const state = this._store.getState()
             this._reconciler.update(state)
@@ -62,12 +68,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
         bottomLineInView: number,
     ): void {
         Log.verbose(
-            "[SyntaxHighlighting.notifyViewportChanged] - bufferId: " +
-                bufferId +
-                " topLineInView: " +
-                topLineInView +
-                " bottomLineInView: " +
-                bottomLineInView,
+            `[SyntaxHighlighting.notifyViewportChanged] -
+             bufferId: ${bufferId} 
+             topLineInView: ${topLineInView}
+             bottomLineInView:  ${bottomLineInView}`,
         )
 
         const state = this._store.getState()
@@ -87,6 +91,10 @@ export class SyntaxHighlighter implements ISyntaxHighlighter {
             topVisibleLine: topLineInView,
             bottomVisibleLine: bottomLineInView,
         })
+    }
+
+    public async notifyColorschemeRedraw(bufferId: string) {
+        this._store.dispatch({ type: "SYNTAX_RESET_BUFFER", bufferId })
     }
 
     public async notifyBufferUpdate(evt: Oni.EditorBufferChangedEventArgs): Promise<void> {
@@ -154,6 +162,10 @@ export class NullSyntaxHighlighter implements ISyntaxHighlighter {
         bufferId: string,
         position: types.Position,
     ): ISyntaxHighlightTokenInfo {
+        return null
+    }
+
+    public notifyColorschemeRedraw(id: string): void {
         return null
     }
 

@@ -23,6 +23,7 @@ import * as Language from "./../../src/Services/Language"
 import { createCompletablePromise, ICompletablePromise } from "./../../src/Utility"
 
 import { TokenColor } from "./../../src/Services/TokenColors"
+import TokenColorsTrie from "./../../src/Services/TokenColorsTrie"
 
 export class MockWindowSplit {
     public get id(): string {
@@ -41,7 +42,15 @@ export class MockWindowSplit {
 }
 
 export class MockTokenColors {
-    constructor(private _tokenColors: TokenColor[] = []) {}
+    private _tokenTree: TokenColorsTrie
+    constructor(private _tokenColors: TokenColor[] = []) {
+        this._tokenTree = new TokenColorsTrie()
+        this._tokenTree.setTokens(this._tokenColors)
+    }
+
+    public get tokenTree(): TokenColorsTrie {
+        return this._tokenTree
+    }
 
     public get tokenColors(): TokenColor[] {
         return this._tokenColors

@@ -311,3 +311,8 @@ export function get<T>(obj: T, ...paths: string[]): string {
         .split(".")
         .reduce((a, b) => (a && a[b] ? a[b] : null), obj)
 }
+
+export function prettyPrint<T extends object>(item: T, spacing = 2) {
+    // tslint:disable-next-line
+    console.log(JSON.stringify(item, null, spacing))
+}
