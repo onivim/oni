@@ -167,7 +167,6 @@ export const QuickInfoTitle: React.SFC<ITextProps> = props => {
 
 export const QuickInfoDocumentation: React.SFC<ITextProps> = props => {
     const { text = "", html, tokenStyles } = props
-    console.log("text: ", text)
     if (text && text.length) {
         const lines = props.text.split(os.EOL)
         const divs = lines.map((l, i) => <div key={`${l}-${i}`}>{l}</div>)
