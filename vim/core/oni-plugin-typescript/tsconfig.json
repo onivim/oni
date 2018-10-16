@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "lib": ["dom", "es2017"],
+        "module": "commonjs",
+        "preserveConstEnums": true,
+        "outDir": "./lib",
+        "declaration": true,
+        "sourceMap": true,
+        "target": "ES5",
+        "types": []
+    },
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules", "typings/browser.d.ts", "typings/browser", "ui-tests"]
+}
