@@ -38,8 +38,14 @@ export class LanguageServiceDefinitionRequestor {
         line: number,
         column: number,
     ): Promise<IDefinitionResult> {
-        const args = { ...Helpers.createTextDocumentPositionParams(filePath, line, column) }
+        const [oneBasedLine, oneBasedColumn] = [line, column].map(num => num + 1)
+        const definitionPositionParams = {
+            ...Helpers.createTextDocumentPositionParams(filePath, oneBasedLine, oneBasedColumn),
+        }
 
+        // FIXME: Added for debugging
+        Log.info(`Definition requested at line: ${line}`)
+        Log.info(`Definition requested at column: ${column}`)
         const token = await this._editor.activeBuffer.getTokenAt(line, column)
 
         if (!token) {
@@ -55,7 +61,7 @@ export class LanguageServiceDefinitionRequestor {
                 fileLanguage,
                 filePath,
                 "textDocument/definition",
-                args,
+                definitionPositionParams,
             )
         } catch (ex) {
             Log.warn(ex)
