@@ -28,6 +28,10 @@ import { TypeScriptServerHost } from "./TypeScriptServerHost"
 import * as Utility from "./Utility"
 
 export const activate = (oni: Oni.Plugin.Api) => {
+    const deprecated = true
+    if (deprecated) {
+        return null
+    }
     let _host: TypeScriptServerHost = null
 
     const anyConfig = oni.configuration as any
