@@ -646,11 +646,11 @@
         "fix-lint:test": "tslint --fix --project test/tsconfig.json --config tslint.json",
         "lint": "yarn run lint:browser && yarn run lint:main && yarn run lint:test",
         "lint:browser":
-            "tslint --project browser/tsconfig.json --config tslint.json && tslint --project vim/core/oni-plugin-typescript/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
+            "tslint --project browser/tsconfig.json --config tslint.json && tslint --project extensions/oni-plugin-markdown-preview/tsconfig.json --config tslint.json",
         "lint:cli": "tslint --project cli/tsconfig.json --config tslint.json",
         "lint:main": "tslint --project main/tsconfig.json --config tslint.json",
         "lint:test":
-            "tslint --project test/tsconfig.json --config tslint.json && tslint vim/core/oni-plugin-typescript/src/**/*.ts && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
+            "tslint --project test/tsconfig.json --config tslint.json && tslint extensions/oni-plugin-markdown-preview/src/**/*.ts",
         "pack": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=1 build --publish never",
         "ccov:instrument":
             "nyc instrument --all true --sourceMap false lib_test/browser/src lib_test/browser/src_ccov",
