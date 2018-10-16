@@ -40,7 +40,7 @@ export class LanguageServiceDefinitionRequestor {
     ): Promise<IDefinitionResult> {
         const args = { ...Helpers.createTextDocumentPositionParams(filePath, line, column) }
 
-        const token: Oni.IToken = await this._editor.activeBuffer.getTokenAt(line, column)
+        const token = await this._editor.activeBuffer.getTokenAt(line, column)
 
         if (!token) {
             return {

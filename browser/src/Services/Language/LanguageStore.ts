@@ -301,10 +301,12 @@ export const queryDefinitionEpic = (
                 // FIXME: Added for debugging
                 Log.info(`Definition requested at line: ${line}`)
                 Log.info(`Definition requested at column: ${column}`)
+
+                const oneBasedLineNumber = line + 1
                 const result = await definitionRequestor.getDefinition(
                     language,
                     filePath,
-                    line,
+                    oneBasedLineNumber,
                     column,
                 )
                 return {
