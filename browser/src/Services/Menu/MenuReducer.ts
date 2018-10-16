@@ -63,32 +63,6 @@ export function createReducer<T, FilteredT extends T>() {
                     isLoading: false,
                 }
             }
-            case "SET_DETAILED_MENU_ITEM": {
-                if (!s || !s.options) {
-                    return s
-                }
-
-                if (!a.payload.detailedItem) {
-                    return s
-                }
-
-                const options = s.options.map(entry => {
-                    // TODO: Decide on canonical interface for menu options
-                    if ((entry as any).label === a.payload.detailedItem.label) {
-                        return a.payload.detailedItem
-                    } else {
-                        return entry
-                    }
-                })
-
-                const filterFunc = s.filterFunction
-                const filteredOptions2 = filterFunc(options, s.filter)
-                return {
-                    ...s,
-                    options,
-                    filteredOptions: filteredOptions2,
-                }
-            }
             case "SET_MENU_ITEMS": {
                 if (!s || s.id !== a.payload.id) {
                     return s
@@ -129,6 +103,8 @@ export function createReducer<T, FilteredT extends T>() {
                     return s
                 }
 
+                // Note that for language server completions, the `filterFunc` is a no-op - the
+                // items are filtered elsewhere (but this FILTER_MENU action is still dispatched).
                 const filterFunc = s.filterFunction
                 const filteredOptionsSorted = filterFunc(s.options, a.payload.filter)
 
@@ -136,6 +112,7 @@ export function createReducer<T, FilteredT extends T>() {
                     ...s,
                     filter: a.payload.filter,
                     filteredOptions: filteredOptionsSorted,
+                    selectedIndex: 0,
                 }
             }
             default:

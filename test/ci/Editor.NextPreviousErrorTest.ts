@@ -29,7 +29,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
             errors[filePath]["language-typescript"] &&
             errors[filePath]["language-typescript"].length === 3
         )
-    })
+    }, 120000)
 
     // nextError jumps to 1st error
     oni.commands.executeCommand("oni.editor.nextError")
