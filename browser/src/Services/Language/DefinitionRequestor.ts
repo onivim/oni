@@ -38,9 +38,8 @@ export class LanguageServiceDefinitionRequestor {
         line: number,
         column: number,
     ): Promise<IDefinitionResult> {
-        const [oneBasedLine, oneBasedColumn] = [line, column].map(num => num + 1)
         const definitionPositionParams = {
-            ...Helpers.createTextDocumentPositionParams(filePath, oneBasedLine, oneBasedColumn),
+            ...Helpers.createTextDocumentPositionParams(filePath, line, column),
         }
 
         // FIXME: Added for debugging
