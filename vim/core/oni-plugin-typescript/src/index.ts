@@ -63,32 +63,32 @@ export const activate = (oni: Oni.Plugin.Api) => {
 
             const language = Utility.getLanguageFromFileName(fileName)
 
-            // connection.notify("textDocument/publishDiagnostics", language, {
-            //     uri: oni.language.wrapPathInFileUri(fileName),
-            //     diagnostics: errors,
-            // })
+            connection.notify("textDocument/publishDiagnostics", language, {
+                uri: oni.language.wrapPathInFileUri(fileName),
+                diagnostics: errors,
+            })
         })
 
-        // connection.subscribeToRequest("completionItem/resolve", getCompletionDetails(host))
-        //
-        // connection.subscribeToNotification("textDocument/didChange", protocolChangeFile(host))
-        // connection.subscribeToNotification("textDocument/didSave", onSaved(host))
-        //
-        // connection.subscribeToRequest("textDocument/completion", getCompletions(oni, host))
-        // connection.subscribeToRequest("textDocument/codeAction", getCodeActions(oni, host))
-        // connection.subscribeToRequest("textDocument/definition", getDefinition(oni, host))
-        // connection.subscribeToRequest("textDocument/hover", getQuickInfo(oni, host))
-        // connection.subscribeToRequest("textDocument/rangeFormatting", formatRange(oni, host))
-        // connection.subscribeToRequest("textDocument/references", findAllReferences(oni, host))
-        // connection.subscribeToRequest("textDocument/rename", doRename(oni, host))
-        // connection.subscribeToRequest("textDocument/signatureHelp", getSignatureHelp(oni, host))
-        // connection.subscribeToRequest("textDocument/documentSymbol", getDocumentSymbols(oni, host))
-        //
-        // connection.subscribeToRequest(
-        //     "workspace/executeCommand",
-        //     executeCommand(connection, oni, host),
-        // )
-        // connection.subscribeToRequest("workspace/symbol", getWorkspaceSymbols(oni, host))
+        connection.subscribeToRequest("completionItem/resolve", getCompletionDetails(host))
+
+        connection.subscribeToNotification("textDocument/didChange", protocolChangeFile(host))
+        connection.subscribeToNotification("textDocument/didSave", onSaved(host))
+
+        connection.subscribeToRequest("textDocument/completion", getCompletions(oni, host))
+        connection.subscribeToRequest("textDocument/codeAction", getCodeActions(oni, host))
+        connection.subscribeToRequest("textDocument/definition", getDefinition(oni, host))
+        connection.subscribeToRequest("textDocument/hover", getQuickInfo(oni, host))
+        connection.subscribeToRequest("textDocument/rangeFormatting", formatRange(oni, host))
+        connection.subscribeToRequest("textDocument/references", findAllReferences(oni, host))
+        connection.subscribeToRequest("textDocument/rename", doRename(oni, host))
+        connection.subscribeToRequest("textDocument/signatureHelp", getSignatureHelp(oni, host))
+        connection.subscribeToRequest("textDocument/documentSymbol", getDocumentSymbols(oni, host))
+
+        connection.subscribeToRequest(
+            "workspace/executeCommand",
+            executeCommand(connection, oni, host),
+        )
+        connection.subscribeToRequest("workspace/symbol", getWorkspaceSymbols(oni, host))
     }
 
     const getHost = () => {
@@ -115,83 +115,81 @@ export const activate = (oni: Oni.Plugin.Api) => {
         oni.language.registerLanguageClient("typescript", _lightweightLanguageClient)
     }
 
-    if (!existingTsLSP) {
-        const connection = new LanguageConnection(_lightweightLanguageClient)
+    const connection = new LanguageConnection(_lightweightLanguageClient)
 
-        // Subscribe to textDocument/didOpen initially, to kick off
-        // initialization of the language server
+    // Subscribe to textDocument/didOpen initially, to kick off
+    // initialization of the language server
 
-        const protocolOpenFile = (message: string, payload: any) => {
-            const textDocument: any = payload.textDocument
-            const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
+    const protocolOpenFile = (message: string, payload: any) => {
+        const textDocument: any = payload.textDocument
+        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
 
-            getHost().openFile(filePath, textDocument.text)
-        }
-        // connection.subscribeToNotification("textDocument/didOpen", protocolOpenFile)
+        getHost().openFile(filePath, textDocument.text)
+    }
+    connection.subscribeToNotification("textDocument/didOpen", protocolOpenFile)
 
-        const isSingleLineChange = (range: types.Range): boolean => {
-            if (range.start.line === range.end.line) {
-                return true
-            }
-
-            if (
-                range.start.character === 0 &&
-                range.end.character === 0 &&
-                range.start.line + 1 === range.end.line
-            ) {
-                return true
-            }
-
-            return false
+    const isSingleLineChange = (range: types.Range): boolean => {
+        if (range.start.line === range.end.line) {
+            return true
         }
 
-        const removeNewLines = (str: string) => {
-            return str.replace(/(\r\n|\n|\r)/gm, "")
+        if (
+            range.start.character === 0 &&
+            range.end.character === 0 &&
+            range.start.line + 1 === range.end.line
+        ) {
+            return true
         }
 
-        const protocolChangeFile = (host: TypeScriptServerHost) => async (
-            message: string,
-            payload: any,
-        ) => {
-            const textDocument: types.TextDocumentIdentifier = payload.textDocument
-            const contentChanges: types.TextDocumentContentChangeEvent[] = payload.contentChanges
+        return false
+    }
 
-            if (!contentChanges || !contentChanges.length) {
-                return
-            }
+    const removeNewLines = (str: string) => {
+        return str.replace(/(\r\n|\n|\r)/gm, "")
+    }
 
-            if (contentChanges.length > 1) {
-                oni.log.warn("Only handling first content change")
-            }
+    const protocolChangeFile = (host: TypeScriptServerHost) => async (
+        message: string,
+        payload: any,
+    ) => {
+        const textDocument: types.TextDocumentIdentifier = payload.textDocument
+        const contentChanges: types.TextDocumentContentChangeEvent[] = payload.contentChanges
 
-            const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-
-            const change = contentChanges[0]
-            if (!change.range) {
-                host.updateFile(filePath, change.text)
-            } else if (isSingleLineChange(change.range) && change.text) {
-                host.changeLineInFile(
-                    filePath,
-                    change.range.start.line + 1,
-                    removeNewLines(change.text),
-                )
-            } else {
-                oni.log.warn("Unhandled change request!")
-            }
-
-            const saveFile = oni.configuration.getValue<string>("debug.typescript.saveFile")
-            if (saveFile) {
-                host.saveTo(filePath, saveFile)
-            }
-
-            // Update errors for modified file
-            host.getErrors(filePath)
+        if (!contentChanges || !contentChanges.length) {
+            return
         }
 
-        const onSaved = (host: TypeScriptServerHost) => (protocolName: string, payload: any) => {
-            const textDocument = payload.textDocument
-            const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
-            host.getErrorsAcrossProject(filePath)
+        if (contentChanges.length > 1) {
+            oni.log.warn("Only handling first content change")
         }
+
+        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
+
+        const change = contentChanges[0]
+        if (!change.range) {
+            host.updateFile(filePath, change.text)
+        } else if (isSingleLineChange(change.range) && change.text) {
+            host.changeLineInFile(
+                filePath,
+                change.range.start.line + 1,
+                removeNewLines(change.text),
+            )
+        } else {
+            oni.log.warn("Unhandled change request!")
+        }
+
+        const saveFile = oni.configuration.getValue<string>("debug.typescript.saveFile")
+        if (saveFile) {
+            host.saveTo(filePath, saveFile)
+        }
+
+        // Update errors for modified file
+        host.getErrors(filePath)
+    }
+
+    const onSaved = (host: TypeScriptServerHost) => (protocolName: string, payload: any) => {
+        const textDocument = payload.textDocument
+        const filePath = oni.language.unwrapFileUriPath(textDocument.uri)
+        host.getErrorsAcrossProject(filePath)
     }
 }
