@@ -6749,10 +6749,6 @@ lodash.create@3.1.1:
     lodash._basecreate "^3.0.0"
     lodash._isiterateecall "^3.0.0"
 
-lodash.debounce@^4.0.8:
-  version "4.0.8"
-  resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
-
 lodash.flattendeep@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/lodash.flattendeep/-/lodash.flattendeep-4.4.0.tgz#fb030917f86a3134e5bc9bec0d69e0013ddfedb2"
@@ -7935,6 +7931,10 @@ p-cancelable@^0.3.0:
 p-cancelable@^0.4.0:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/p-cancelable/-/p-cancelable-0.4.1.tgz#35f363d67d52081c8d9585e37bcceb7e0bbcb2a0"
+
+p-debounce@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/p-debounce/-/p-debounce-1.0.0.tgz#cb7f2cbeefd87a09eba861e112b67527e621e2fd"
 
 p-each-series@^1.0.0:
   version "1.0.0"
@@ -10684,14 +10684,14 @@ typedarray@^0.0.6, typedarray@~0.0.5:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
 
-typescript-language-server@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/typescript-language-server/-/typescript-language-server-0.3.0.tgz#f9594408ae7db2b21c1d2179d9470ed65c4b9906"
+typescript-language-server@^0.3.6:
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/typescript-language-server/-/typescript-language-server-0.3.6.tgz#729a9b697055e16f8f3b7c0b1f13838b40076818"
   dependencies:
     command-exists "1.2.6"
     commander "^2.11.0"
     fs-extra "^7.0.0"
-    lodash.debounce "^4.0.8"
+    p-debounce "^1.0.0"
     tempy "^0.2.1"
     vscode-languageserver "^4.4.0"
     vscode-uri "^1.0.5"
