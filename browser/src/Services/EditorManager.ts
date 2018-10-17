@@ -79,7 +79,7 @@ export class EditorManager implements Oni.EditorManager {
     /**
      * Internal Methods
      */
-    public setActiveEditor(editor: Oni.Editor) {
+    public setActiveEditor(editor: IEditorWithCandidates) {
         this._activeEditor = editor
 
         const oldEditor = this._anyEditorProxy.getUnderlyingEditor()
@@ -220,7 +220,7 @@ class AnyEditorProxy implements Oni.Editor {
      * Internal methods
      */
 
-    public setActiveEditor(newEditor: Oni.Editor) {
+    public setActiveEditor(newEditor: IEditorWithCandidates) {
         this._activeEditor = newEditor
 
         this._subscriptions.forEach(d => d.dispose())
@@ -229,12 +229,8 @@ class AnyEditorProxy implements Oni.Editor {
             return
         }
 
-        const newEditorWithCandidates = newEditor as IEditorWithCandidates
-
         this._subscriptions = [
-            newEditorWithCandidates.onBufferDelete.subscribe(val =>
-                this._onBufferDelete.dispatch(val),
-            ),
+            newEditor.onBufferDelete.subscribe(val => this._onBufferDelete.dispatch(val)),
             newEditor.onModeChanged.subscribe(val => this._onModeChanged.dispatch(val)),
             newEditor.onBufferEnter.subscribe(val => this._onBufferEnter.dispatch(val)),
             newEditor.onBufferLeave.subscribe(val => this._onBufferLeave.dispatch(val)),
