@@ -3,7 +3,8 @@
  *
  * Selectors are functions that take a state and derive a value from it.
  */
-import * as _ from "lodash"
+import * as isEqual from "lodash/isEqual"
+import * as omit from "lodash/omit"
 
 import { ICompletionState } from "./CompletionState"
 
@@ -125,9 +126,9 @@ const _uniq = (array: types.CompletionItem[]) => {
 
     while (++index < length) {
         const value = array[index]
-        const reduced = _.omit(value, "sortText")
         // Omit the `sortText` which can be different even if all other attributes are the same.
-        if (!index || !_.isEqual(reduced, seenReduced)) {
+        const reduced = omit(value, "sortText")
+        if (!index || !isEqual(reduced, seenReduced)) {
             seenReduced = reduced
             result[resIndex++] = value
         }
