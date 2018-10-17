@@ -4,7 +4,7 @@
  * Entry point for ONI's TypeScript Language Service integraiton
  */
 
-/// <reference path="./../../../../node_modules/typescript/lib/protocol.d.ts" />
+/// <reference path="./../../../node_modules/typescript/lib/protocol.d.ts" />
 
 import * as os from "os"
 import * as path from "path"
@@ -28,10 +28,6 @@ import { TypeScriptServerHost } from "./TypeScriptServerHost"
 import * as Utility from "./Utility"
 
 export const activate = (oni: Oni.Plugin.Api) => {
-    const deprecated = true
-    if (deprecated) {
-        return null
-    }
     let _host: TypeScriptServerHost = null
 
     const anyConfig = oni.configuration as any
