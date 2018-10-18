@@ -21,7 +21,7 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
     public async getEnvironmentVariables(): Promise<any> {
         if (!this._shellEnv) {
             this._shellEnv = await this._shellEnvPromise
-            return this._shellEnv.sync()
+            return this._shellEnv.default.sync()
         }
     }
 }
