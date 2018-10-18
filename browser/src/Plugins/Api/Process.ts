@@ -18,21 +18,38 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
         this._shellEnvPromise = import("shell-env")
     }
 
-    public async getEnvironmentVariables(): Promise<NodeJS.ProcessEnv> {
+    private _logFailure(error: Error) {
+        Log.warn(
+            `[Oni environment fetcher]: unable to get enviroment variables because: ${
+                error.message
+            }`,
+        )
+    }
+
+    private async _fetchEnvironmentVariables(): Promise<NodeJS.ProcessEnv> {
         if (!this._shellEnv) {
             this._shellEnv = await this._shellEnvPromise
             try {
                 const env = this._shellEnv.default.sync()
                 return env
             } catch (error) {
-                Log.warn(
-                    `[Oni environment fetcher]: unable to get enviroment variables because: ${
-                        error.message
-                    }`,
-                )
+                this._logFailure(error)
             }
         }
         return {}
+    }
+
+    private async _getEmptyEnvironment(): Promise<NodeJS.ProcessEnv> {
+        return new Promise<NodeJS.ProcessEnv>(resolve => {
+            setTimeout(() => {
+                this._logFailure(new Error("Shell env fetch request timeout out after 150ms"))
+                resolve({})
+            }, 150)
+        })
+    }
+
+    public async getEnvironmentVariables(): Promise<NodeJS.ProcessEnv> {
+        return Promise.race([this._fetchEnvironmentVariables(), this._getEmptyEnvironment()])
     }
 }
 
