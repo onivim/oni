@@ -18,7 +18,7 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
         this._shellEnvPromise = import("shell-env")
     }
 
-    public async getEnvironmentVariables(): Promise<NodeJS.ProcessEnv | void> {
+    public async getEnvironmentVariables(): Promise<NodeJS.ProcessEnv> {
         if (!this._shellEnv) {
             this._shellEnv = await this._shellEnvPromise
             try {
@@ -30,9 +30,10 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
                         error.message
                     }`,
                 )
-                return null
+                return {}
             }
         }
+        return {}
     }
 }
 
@@ -139,7 +140,7 @@ export class Process implements Oni.Process {
 
         try {
             if (!this._env) {
-                this._env = (await this._shellEnvironmentFetcher.getEnvironmentVariables()) || {}
+                this._env = await this._shellEnvironmentFetcher.getEnvironmentVariables()
             }
             existingPath = process.env.Path || process.env.PATH
         } catch (e) {
