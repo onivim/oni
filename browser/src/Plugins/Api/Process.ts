@@ -18,10 +18,20 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
         this._shellEnvPromise = import("shell-env")
     }
 
-    public async getEnvironmentVariables(): Promise<any> {
+    public async getEnvironmentVariables(): Promise<NodeJS.ProcessEnv | void> {
         if (!this._shellEnv) {
             this._shellEnv = await this._shellEnvPromise
-            return this._shellEnv.default.sync()
+            try {
+                const env = this._shellEnv.default.sync()
+                return env
+            } catch (error) {
+                Log.warn(
+                    `[Oni environment fetcher]: unable to get enviroment variables because: ${
+                        error.message
+                    }`,
+                )
+                return null
+            }
         }
     }
 }
