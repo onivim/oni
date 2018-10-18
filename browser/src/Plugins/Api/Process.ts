@@ -30,7 +30,6 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
                         error.message
                     }`,
                 )
-                return {}
             }
         }
         return {}
