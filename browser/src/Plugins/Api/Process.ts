@@ -41,7 +41,9 @@ export class Process implements Oni.Process {
     public _spawnedProcessIds: number[] = []
     private _env: NodeJS.ProcessEnv
 
-    constructor(private _shellEnvironmentFetcher = new ShellEnvironmentFetcher()) {}
+    constructor(
+        private _shellEnvironmentFetcher: IShellEnvironmentFetcher = new ShellEnvironmentFetcher(),
+    ) {}
 
     public getPathSeparator = () => {
         return Platform.isWindows() ? ";" : ":"
