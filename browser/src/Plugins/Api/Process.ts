@@ -15,41 +15,25 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
     private _shellEnv: any
 
     constructor() {
+        // Dynamic imports return { default: Module }
         this._shellEnvPromise = import("shell-env")
     }
 
-    private _logFailure(error: Error) {
-        Log.warn(
-            `[Oni environment fetcher]: unable to get enviroment variables because: ${
-                error.message
-            }`,
-        )
-    }
-
-    private async _fetchEnvironmentVariables(): Promise<NodeJS.ProcessEnv> {
+    public async getEnvironmentVariables(): Promise<NodeJS.ProcessEnv> {
         if (!this._shellEnv) {
             this._shellEnv = await this._shellEnvPromise
             try {
                 const env = this._shellEnv.default.sync()
                 return env
             } catch (error) {
-                this._logFailure(error)
+                Log.warn(
+                    `[Oni environment fetcher]: unable to get enviroment variables because: ${
+                        error.message
+                    }`,
+                )
             }
         }
         return {}
-    }
-
-    private async _getEmptyEnvironment(): Promise<NodeJS.ProcessEnv> {
-        return new Promise<NodeJS.ProcessEnv>(resolve => {
-            setTimeout(() => {
-                this._logFailure(new Error("Shell env fetch request timeout out after 150ms"))
-                resolve({})
-            }, 150)
-        })
-    }
-
-    public async getEnvironmentVariables(): Promise<NodeJS.ProcessEnv> {
-        return Promise.race([this._fetchEnvironmentVariables(), this._getEmptyEnvironment()])
     }
 }
 
@@ -57,9 +41,7 @@ export class Process implements Oni.Process {
     public _spawnedProcessIds: number[] = []
     private _env: NodeJS.ProcessEnv
 
-    constructor(
-        private _shellEnvironmentFetcher: IShellEnvironmentFetcher = new ShellEnvironmentFetcher(),
-    ) {}
+    constructor(private _shellEnvironmentFetcher = new ShellEnvironmentFetcher()) {}
 
     public getPathSeparator = () => {
         return Platform.isWindows() ? ";" : ":"
