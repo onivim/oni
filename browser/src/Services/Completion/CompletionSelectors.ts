@@ -4,6 +4,7 @@
  * Selectors are functions that take a state and derive a value from it.
  */
 
+import { configuration } from "./../Configuration"
 import { ICompletionState } from "./CompletionState"
 
 import * as types from "vscode-languageserver-types"
@@ -11,6 +12,31 @@ import * as types from "vscode-languageserver-types"
 const EmptyCompletions: types.CompletionItem[] = []
 
 import * as CompletionUtility from "./CompletionUtility"
+
+export const shouldFilterBeCaseSensitive = (searchString: string): boolean => {
+    // TODO: Technically, this makes the reducer 'impure',
+    // which is not ideal - need to refactor eventually.
+    //
+    // One option is to plumb through the configuration setting
+    // from the top-level, but it might be worth extracting
+    // out the filter strategy in general.
+    const caseSensitivitySetting = configuration.getValue("editor.completions.caseSensitive")
+
+    if (caseSensitivitySetting === false) {
+        return false
+    } else if (caseSensitivitySetting === true) {
+        return true
+    } else {
+        // "Smart" casing strategy
+        // If the string is all lower-case, not case sensitive..
+        if (searchString === searchString.toLowerCase()) {
+            return false
+            // Otherwise, it is case sensitive..
+        } else {
+            return true
+        }
+    }
+}
 
 export const getFilteredCompletions = (state: ICompletionState): types.CompletionItem[] => {
     if (!state.completionResults.completions || !state.completionResults.completions.length) {
@@ -72,12 +98,13 @@ export const filterCompletionOptions = (
         return null
     }
 
-    const filterRegEx = new RegExp("^" + searchText.split("").join(".*") + ".*")
+    const isCaseSensitive = shouldFilterBeCaseSensitive(searchText)
 
-    const filteredOptions = items.filter(f => {
-        const textToFilterOn = f.filterText || f.label
-        return textToFilterOn.match(filterRegEx)
-    })
+    if (!isCaseSensitive) {
+        searchText = searchText.toLocaleLowerCase()
+    }
+
+    const filteredOptions = processSearchText(searchText, items, isCaseSensitive)
 
     return filteredOptions.sort((itemA, itemB) => {
         const itemAFilterText = itemA.filterText || itemA.label
@@ -87,5 +114,23 @@ export const filterCompletionOptions = (
         const indexOfB = itemBFilterText.indexOf(searchText)
 
         return indexOfB - indexOfA
+    })
+}
+
+export const processSearchText = (
+    searchText: string,
+    items: types.CompletionItem[],
+    isCaseSensitive: boolean,
+): types.CompletionItem[] => {
+    const filterRegExp = new RegExp(".*" + searchText.split("").join(".*") + ".*")
+
+    return items.filter(f => {
+        let textToFilterOn = f.filterText || f.label
+
+        if (!isCaseSensitive) {
+            textToFilterOn = textToFilterOn.toLowerCase()
+        }
+
+        return textToFilterOn.match(filterRegExp)
     })
 }

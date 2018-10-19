@@ -131,6 +131,7 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickInfo.delay": 500,
 
     "editor.completions.mode": "oni",
+    "editor.completions.caseSensitive": true,
     "editor.errors.slideOnFocus": true,
     "editor.formatting.formatOnSwitchToNormalMode": false,
 
