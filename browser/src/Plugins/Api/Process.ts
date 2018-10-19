@@ -10,9 +10,15 @@ export interface IShellEnvironmentFetcher {
     getEnvironmentVariables(): Promise<any>
 }
 
+interface IShellEnv {
+    default: {
+        sync: (shell?: string) => NodeJS.ProcessEnv
+    }
+}
+
 export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
     private _shellEnvPromise: Promise<any>
-    private _shellEnv: any
+    private _shellEnv: IShellEnv
 
     constructor() {
         // Dynamic imports return { default: Module }
@@ -33,7 +39,7 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
                 )
             }
         }
-        return {}
+        return this._shellEnv.default.sync()
     }
 }
 
