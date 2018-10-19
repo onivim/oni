@@ -51,6 +51,11 @@ export const bufferReducer: Reducer<IBufferSyntaxHighlightState> = (
     action: ISyntaxHighlightAction,
 ) => {
     switch (action.type) {
+        case "SYNTAX_RESET_BUFFER":
+            return {
+                ...state,
+                lines: linesReducer(state.lines, action),
+            }
         case "SYNTAX_UPDATE_BUFFER":
             return {
                 ...state,
@@ -125,6 +130,21 @@ export const linesReducer: Reducer<SyntaxHighlightLines> = (
             }
             return newState
         }
+        case "SYNTAX_RESET_BUFFER":
+            const resetState = Object.entries(state).reduce<SyntaxHighlightLines>(
+                (newResetState, [lineNumber, line]) => {
+                    newResetState[lineNumber] = {
+                        tokens: [],
+                        ruleStack: null,
+                        ...line,
+                        dirty: true,
+                    }
+                    return newResetState
+                },
+                {},
+            )
+            return resetState
+
         case "SYNTAX_UPDATE_BUFFER":
             const updatedBufferState: SyntaxHighlightLines = {
                 ...state,

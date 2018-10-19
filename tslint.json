@@ -25,6 +25,7 @@
             "check-format"
         ],
         "whitespace": false,
+        "no-trailing-whitespace": [true, "ignore-template-strings"],
         "trailing-comma": [
             true,
             {
