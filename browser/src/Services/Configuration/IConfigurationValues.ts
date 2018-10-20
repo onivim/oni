@@ -111,6 +111,10 @@ export interface IConfigurationValues {
     // Set this to 'false' to avoid loading the default config, and load settings from init.vim instead.
     "oni.useDefaultConfig": boolean
 
+    // This string represents the path to the shell that the user would like oni to use to extract
+    // environment variables that it uses derives the $PATH variable from.
+    "oni.userShell": string
+
     // By default, user's init.vim is not loaded, to avoid conflicts.
     // Set this to `true` to enable loading of init.vim.
     // Set this to a string to override the init.vim path.

@@ -30,7 +30,9 @@ export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
             this._shellEnv = await this._shellEnvPromise
         }
         try {
-            const env = this._shellEnv.default.sync()
+            const userShell = configuration.getValue<string>("oni.userShell")
+            const shell = typeof userShell === "string" ? userShell : undefined
+            const env = this._shellEnv.default.sync(shell)
             return env
         } catch (error) {
             Log.warn(
