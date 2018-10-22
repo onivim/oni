@@ -165,6 +165,9 @@ export interface IConfigurationValues {
     "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode
     "editor.quickOpen.showHidden": boolean
 
+    // this is new command to replace the above legacy editor prefixed command
+    "quickOpen.defaultOpenMode": Oni.FileOpenMode
+
     "editor.errors.slideOnFocus": boolean
     "editor.formatting.formatOnSwitchToNormalMode": boolean // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun
 
