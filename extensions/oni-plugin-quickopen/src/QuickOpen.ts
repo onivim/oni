@@ -343,8 +343,8 @@ export class QuickOpen {
 
     private getDefaultOpenMode(): Oni.FileOpenMode {
         const legacy = this._oni.configuration.getValue("editor.quickOpen.defaultOpenMode", null)
-        // the valid of the defaultOpenMode is an enum that includes 0 so we check that the value
-        // is a number and that number is an opetion in the file open mode enum
+        // the value of the defaultOpenMode is a numerical enum that includes 0 so we check that the value
+        // is a number and that number is an option in the file open mode enum
         if (!isNaN(legacy) && legacy in Oni.FileOpenMode) {
             return legacy
         }
