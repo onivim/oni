@@ -71,10 +71,9 @@ export class Workspace implements Oni.Workspace.Api {
     }
 
     public async applyEdits(edits: types.WorkspaceEdit): Promise<void> {
-        let editsToUse = edits
-        if (edits.documentChanges) {
-            editsToUse = convertTextDocumentChangesToFileMap(edits.documentChanges)
-        }
+        const editsToUse = edits.documentChanges
+            ? convertTextDocumentChangesToFileMap(edits.documentChanges)
+            : edits.changes
 
         const files = Object.keys(editsToUse)
 
