@@ -18,6 +18,8 @@ export interface IDefinitionResult {
     token: Oni.IToken | null
 }
 
+type Location = types.Location | types.Location[]
+
 export interface IDefinitionRequestor {
     getDefinition(
         fileLanguage: string,
@@ -36,9 +38,14 @@ export class LanguageServiceDefinitionRequestor {
         line: number,
         column: number,
     ): Promise<IDefinitionResult> {
-        const args = { ...Helpers.createTextDocumentPositionParams(filePath, line, column) }
+        const definitionPositionParams = {
+            ...Helpers.createTextDocumentPositionParams(filePath, line, column),
+        }
 
-        const token: Oni.IToken = await this._editor.activeBuffer.getTokenAt(line, column)
+        // FIXME: Added for debugging
+        Log.info(`Definition requested at line: ${line}`)
+        Log.info(`Definition requested at column: ${column}`)
+        const token = await this._editor.activeBuffer.getTokenAt(line, column)
 
         if (!token) {
             return {
@@ -47,13 +54,13 @@ export class LanguageServiceDefinitionRequestor {
             }
         }
 
-        let result: types.Location | types.Location[] = null
+        let result: Location = null
         try {
             result = await this._languageManager.sendLanguageServerRequest(
                 fileLanguage,
                 filePath,
                 "textDocument/definition",
-                args,
+                definitionPositionParams,
             )
         } catch (ex) {
             Log.warn(ex)
@@ -66,9 +73,7 @@ export class LanguageServiceDefinitionRequestor {
     }
 }
 
-export const getFirstLocationFromArray = (
-    result: types.Location | types.Location[],
-): types.Location => {
+export const getFirstLocationFromArray = (result: Location): types.Location => {
     if (!result) {
         return null
     }

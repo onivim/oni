@@ -14,7 +14,7 @@ import {
 } from "./LanguageClientProcess"
 import * as LanguageManager from "./LanguageManager"
 
-import { getRootProjectFileFunc } from "./../../Utility"
+import { getRootProjectFile } from "./../../Utility"
 
 export interface ILightweightLanguageConfiguration {
     languageServer?: ILightweightLanguageServerConfiguration
@@ -102,20 +102,16 @@ const createLanguageClientFromConfig = (
         ? { module: lightweightCommand }
         : { command: lightweightCommand }
 
-    let pathResolver = simplePathResolver
-
-    if (rootFiles) {
-        pathResolver = getRootProjectFileFunc(rootFiles)
-    }
+    const getWorkingDirectory = rootFiles ? getRootProjectFile(rootFiles) : simplePathResolver
 
     const serverRunOptions: ServerRunOptions = {
         ...commandOrModule,
         args,
-        workingDirectory: pathResolver,
+        workingDirectory: getWorkingDirectory,
     }
 
     const initializationOptions: InitializationOptions = {
-        rootPath: pathResolver,
+        rootPath: getWorkingDirectory,
     }
     const languageClient = new LanguageClient(
         language,

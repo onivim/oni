@@ -293,10 +293,10 @@ export const queryDefinitionEpic = (
         .switchMap(() => {
             const state = store.getState()
 
-            const { filePath, language } = state.activeBuffer
-            const { line, column } = state.cursor
-
             return Observable.defer(async () => {
+                const { filePath, language } = state.activeBuffer
+                const { line, column } = state.cursor
+
                 const result = await definitionRequestor.getDefinition(
                     language,
                     filePath,

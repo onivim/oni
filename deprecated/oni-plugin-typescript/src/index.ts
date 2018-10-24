@@ -4,7 +4,7 @@
  * Entry point for ONI's TypeScript Language Service integraiton
  */
 
-/// <reference path="./../../../../node_modules/typescript/lib/protocol.d.ts" />
+/// <reference path="./../../../node_modules/typescript/lib/protocol.d.ts" />
 
 import * as os from "os"
 import * as path from "path"

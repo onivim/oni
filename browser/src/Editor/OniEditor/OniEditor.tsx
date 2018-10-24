@@ -87,6 +87,10 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
         return this._neovimEditor.onBufferLeave
     }
 
+    public get onBufferDelete(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._neovimEditor.onBufferDelete
+    }
+
     public get onBufferChanged(): IEvent<Oni.EditorBufferChangedEventArgs> {
         return this._neovimEditor.onBufferChanged
     }

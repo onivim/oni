@@ -8,15 +8,12 @@
  * should be opened.
  */
 
-import * as React from "react"
-
 import * as assert from "assert"
-import * as os from "os"
 import * as path from "path"
 
 import * as Oni from "oni-api"
 
-import { createNewFile, getTemporaryFolder, waitForCommand } from "./Common"
+import { getTemporaryFolder, waitForCommand } from "./Common"
 
 const emptyConfigPath = path.join(getTemporaryFolder(), "config.js")
 

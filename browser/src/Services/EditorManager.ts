@@ -15,6 +15,10 @@ import * as types from "vscode-languageserver-types"
 
 import { remote } from "electron"
 
+export interface IEditorWithCandidates extends Oni.Editor {
+    onBufferDelete: IEvent<Oni.EditorBufferEventArgs>
+}
+
 export class EditorManager implements Oni.EditorManager {
     private _allEditors: Oni.Editor[] = []
     private _activeEditor: Oni.Editor = null
@@ -75,7 +79,7 @@ export class EditorManager implements Oni.EditorManager {
     /**
      * Internal Methods
      */
-    public setActiveEditor(editor: Oni.Editor) {
+    public setActiveEditor(editor: IEditorWithCandidates) {
         this._activeEditor = editor
 
         const oldEditor = this._anyEditorProxy.getUnderlyingEditor()
@@ -100,6 +104,7 @@ class AnyEditorProxy implements Oni.Editor {
     private _onModeChanged = new Event<Oni.Vim.Mode>()
     private _onBufferEnter = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferLeave = new Event<Oni.EditorBufferEventArgs>()
+    private _onBufferDelete = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferChanged = new Event<Oni.EditorBufferChangedEventArgs>()
     private _onBufferSaved = new Event<Oni.EditorBufferEventArgs>()
     private _onBufferScrolled = new Event<Oni.EditorBufferScrolledEventArgs>()
@@ -157,6 +162,10 @@ class AnyEditorProxy implements Oni.Editor {
         return this._onBufferLeave
     }
 
+    public get onBufferDelete(): IEvent<Oni.EditorBufferEventArgs> {
+        return this._onBufferDelete
+    }
+
     public get onBufferSaved(): IEvent<Oni.EditorBufferEventArgs> {
         return this._onBufferSaved
     }
@@ -211,7 +220,7 @@ class AnyEditorProxy implements Oni.Editor {
      * Internal methods
      */
 
-    public setActiveEditor(newEditor: Oni.Editor) {
+    public setActiveEditor(newEditor: IEditorWithCandidates) {
         this._activeEditor = newEditor
 
         this._subscriptions.forEach(d => d.dispose())
@@ -221,6 +230,7 @@ class AnyEditorProxy implements Oni.Editor {
         }
 
         this._subscriptions = [
+            newEditor.onBufferDelete.subscribe(val => this._onBufferDelete.dispatch(val)),
             newEditor.onModeChanged.subscribe(val => this._onModeChanged.dispatch(val)),
             newEditor.onBufferEnter.subscribe(val => this._onBufferEnter.dispatch(val)),
             newEditor.onBufferLeave.subscribe(val => this._onBufferLeave.dispatch(val)),
