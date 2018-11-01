@@ -61,6 +61,7 @@ export const buildMenu = (mainWindow, loadInit) => {
     }
 
     const isWindows = os.platform() === "win32"
+    const isDarwin = os.platform() === "darwin"
 
     const preferences = {
         label: "Preferences",
@@ -146,8 +147,31 @@ export const buildMenu = (mainWindow, loadInit) => {
 
     reopenWithEncoding.submenu.push(...encodingList)
 
+    if (process.platform === "darwin") {
+        menu.push({
+            label: app.getName(),
+            submenu: [
+                {
+                    label: "About " + app.getName(),
+                    click(item, focusedWindow) {
+                        executeOniCommand(focusedWindow, "oni.about")
+                    },
+                },
+                { type: "separator" },
+                preferences,
+                { type: "separator" },
+                { role: "services", submenu: [] },
+                { type: "separator" },
+                { role: "hide" },
+                { role: "hideothers" },
+                { role: "unhide" },
+                { type: "separator" },
+                { role: "quit" },
+            ],
+        })
+    }
     menu.push({
-        label: isWindows ? "File" : "Oni",
+        label: "File",
         submenu: [
             {
                 label: "New File",
@@ -225,10 +249,7 @@ export const buildMenu = (mainWindow, loadInit) => {
             {
                 type: "separator",
             },
-            preferences,
-            {
-                type: "separator",
-            },
+            ...(isDarwin ? [] : [preferences, { type: "separator" }]),
             {
                 label: "Close File",
                 click(item, focusedWindow) {
@@ -245,16 +266,6 @@ export const buildMenu = (mainWindow, loadInit) => {
                 label: "Close All File",
                 click(item, focusedWindow) {
                     executeVimCommand(focusedWindow, ":%bw")
-                },
-            },
-            {
-                type: "separator",
-            },
-            {
-                label: "Exit",
-                accelerator: "CmdOrCtrl+Q",
-                click(item, focusedWindow) {
-                    app.quit()
                 },
             },
         ],
@@ -728,6 +739,37 @@ export const buildMenu = (mainWindow, loadInit) => {
         ],
     })
 
+    // View menu
+    menu.push({
+        label: "View",
+        submenu: [
+            {
+                label: "Command Palette...",
+                accelerator: "CmdOrCtrl+O+Shift+P",
+                click(item, focusedWindow) {
+                    executeOniCommand(focusedWindow, "commands.show")
+                },
+            },
+            { type: "separator" },
+            {
+                label: "Explorer",
+                accelerator: "CmdOrCtrl+O+Shift+E",
+                click(item, focusedWindow) {
+                    executeOniCommand(focusedWindow, "explorer.toggle")
+                },
+            },
+            {
+                label: "Search",
+                accelerator: "CmdOrCtrl+O+Shift+F",
+                click(item, focusedWindow) {
+                    executeOniCommand(focusedWindow, "search.searchAllFiles")
+                },
+            },
+            { type: "separator" },
+            { role: "togglefullscreen" },
+        ],
+    })
+
     // Help menu
     menu.push({
         label: "Help",
@@ -771,10 +813,8 @@ export const buildMenu = (mainWindow, loadInit) => {
                 type: "separator",
             },
             {
-                label: "Developer Tools",
-                click(item, focusedWindow) {
-                    executeOniCommand(focusedWindow, "oni.debug.openDevTools")
-                },
+                role: "toggledevtools",
+                accelerator: "",
             },
         ],
     })
