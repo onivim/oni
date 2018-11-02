@@ -149,6 +149,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode.ExistingTab,
     "editor.quickOpen.showHidden": true,
 
+    "quickOpen.defaultOpenMode": Oni.FileOpenMode.Edit,
+
     "editor.split.mode": "native",
 
     "editor.typingPrediction": true,
