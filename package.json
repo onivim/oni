@@ -61,11 +61,11 @@
             "artifactName": "${productName}-${version}-${arch}-linux.${ext}",
             "maintainer": "bryphe@outlook.com",
             "target": [
-              "tar.gz",
-              "deb",
-              "rpm",
-              "pacman",
-              "AppImage"
+                "tar.gz",
+                "deb",
+                "rpm",
+                "pacman",
+                "AppImage"
             ]
         },
         "win": {
