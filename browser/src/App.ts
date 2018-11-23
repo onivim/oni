@@ -105,7 +105,7 @@ export const start = async (args: string[]): Promise<void> => {
     const cssPromise = import("./CSS")
     const completionProvidersPromise = import("./Services/Completion/CompletionProviders")
 
-    const parsedArgs = minimist(args)
+    const parsedArgs = minimist(args, { string: "_" })
     const currentWorkingDirectory = process.cwd()
     const normalizedFiles = parsedArgs._.map(
         arg => (path.isAbsolute(arg) ? arg : path.join(currentWorkingDirectory, arg)),
