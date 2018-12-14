@@ -176,6 +176,7 @@ const BaseConfiguration: IConfigurationValues = {
     "explorer.maxUndoFileSizeInBytes": 500_000,
 
     "environment.additionalPaths": [],
+    "environment.additionalVariables": {},
 
     "keyDisplayer.showInInsertMode": false,
 

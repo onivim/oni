@@ -155,12 +155,26 @@ export class Process implements Oni.Process {
             existingPath = process.env.Path || process.env.PATH
         }
 
+        let additionalEnvironmentVariables =
+            configuration.getValue("environment.additionalVariables") || {}
+
         const requiredOptions = {
             env: {
                 ...process.env,
                 ...this._env,
                 ...originalSpawnOptions.env,
+                ...additionalEnvironmentVariables,
             },
+        }
+
+        // TODO: Workaround for the bug fix here:
+        // https://github.com/neovim/neovim/pull/9345
+        // Once 0.3.2 is available and we've switched, we won't need this anymore.
+        if (Platform.isMac() && !requiredOptions.env["LANG"]) {
+            requiredOptions.env["LANG"] = "en_us.UTF-8"
+            Log.warn(
+                "'LANG' environment variable not set, using default value of 'en_us.UTF-8'. Consider setting environment.additionalVariables['LANG'].",
+            )
         }
 
         requiredOptions.env.PATH = this.mergePathEnvironmentVariable(
