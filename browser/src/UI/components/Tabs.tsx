@@ -63,7 +63,7 @@ const TabsWrapper = styled<ITabsWrapperProps, "div">("div")`
     align-items: flex-end;
     width: 100%;
     overflow-x: hidden;
-    border-bottom: 4px solid ${themeGet("tabs.background")};
+    border-bottom: 4px solid ${themeGet("tabs.borderBottom", "tabs.background")};
     font-family: ${props => props.fontFamily};
     font-size: ${props => props.fontSize};
     transform: translateY(-3px);

@@ -26,7 +26,7 @@ import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpe
 
 import { Configuration } from "./../Configuration"
 import { EditorManager } from "./../EditorManager"
-import { convertTextDocumentEditsToFileMap } from "./../Language/Edits"
+import { convertTextDocumentChangesToFileMap } from "./../Language/Edits"
 
 import { WorkspaceConfiguration } from "./WorkspaceConfiguration"
 
@@ -71,10 +71,9 @@ export class Workspace implements Oni.Workspace.Api {
     }
 
     public async applyEdits(edits: types.WorkspaceEdit): Promise<void> {
-        let editsToUse = edits
-        if (edits.documentChanges) {
-            editsToUse = convertTextDocumentEditsToFileMap(edits.documentChanges)
-        }
+        const editsToUse = edits.documentChanges
+            ? convertTextDocumentChangesToFileMap(edits.documentChanges)
+            : edits.changes
 
         const files = Object.keys(editsToUse)
 

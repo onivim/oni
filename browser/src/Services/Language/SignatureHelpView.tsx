@@ -2,6 +2,7 @@ import * as React from "react"
 
 import * as types from "vscode-languageserver-types"
 
+import { getDocumentationText } from "../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 import {
     QuickInfoDocumentation,
     QuickInfoElement,
@@ -66,7 +67,9 @@ export const getElementsFromType = (signatureHelp: types.SignatureHelp): JSX.Ele
                 {elements}
             </Title>
             {!!(selectedArgument && selectedArgument.documentation) && (
-                <QuickInfoDocumentation text={selectedArgument.documentation} />
+                <QuickInfoDocumentation
+                    text={getDocumentationText(selectedArgument.documentation)}
+                />
             )}
         </React.Fragment>
     )

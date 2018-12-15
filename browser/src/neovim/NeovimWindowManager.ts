@@ -50,6 +50,11 @@ export interface NeovimActiveWindowState {
     dimensions: Oni.Shapes.Rectangle
 }
 
+type Lines = string[]
+type Height = number
+type Width = number
+type WindowPosition = [number, number]
+
 export interface NeovimInactiveWindowState {
     windowNumber: number
     dimensions: Oni.Shapes.Rectangle
@@ -70,6 +75,12 @@ export class NeovimWindowManager extends Utility.Disposable {
         this._scrollObservable = new Subject<EventContext>()
 
         const updateScroll = (evt: EventContext) => this._scrollObservable.next(evt)
+
+        const handleCommandLineEvent = async () => {
+            const ctx = await this._neovimInstance.getContext()
+            updateScroll(ctx)
+        }
+
         // First element of the BufEnter event is the current buffer
         this.trackDisposable(
             this._neovimInstance.autoCommands.onBufEnter.subscribe(bufs =>
@@ -87,6 +98,12 @@ export class NeovimWindowManager extends Utility.Disposable {
         this.trackDisposable(this._neovimInstance.autoCommands.onWinEnter.subscribe(updateScroll))
         this.trackDisposable(
             this._neovimInstance.autoCommands.onCursorMoved.subscribe(updateScroll),
+        )
+        this.trackDisposable(
+            this._neovimInstance.onCommandLineShow.subscribe(handleCommandLineEvent),
+        )
+        this.trackDisposable(
+            this._neovimInstance.onCommandLineHide.subscribe(handleCommandLineEvent),
         )
         this.trackDisposable(this._neovimInstance.autoCommands.onVimResized.subscribe(updateScroll))
         this.trackDisposable(this._neovimInstance.onScroll.subscribe(updateScroll))
@@ -167,31 +184,38 @@ export class NeovimWindowManager extends Utility.Disposable {
         currentWinId: number,
         context: EventContext,
     ): Promise<NeovimActiveWindowState> {
+        const positionCalls = [
+            ["nvim_call_function", ["line", ["w0"]]],
+            ["nvim_call_function", ["line", ["w$"]]],
+        ]
+        // We query the top and bottom line positions again despite these being on the context
+        // as the values from the `BufferUpdate` event can be incorrect
+        const [[topLine, bottomLine]] = await this._neovimInstance.request<[[number, number], any]>(
+            "nvim_call_atomic",
+            [positionCalls],
+        )
+
         const atomicCalls = [
             ["nvim_win_get_position", [currentWinId]],
             ["nvim_win_get_width", [currentWinId]],
             ["nvim_win_get_height", [currentWinId]],
-            [
-                "nvim_buf_get_lines",
-                [context.bufferNumber, context.windowTopLine - 1, context.windowBottomLine, false],
-            ],
+            ["nvim_buf_get_lines", [context.bufferNumber, topLine - 1, bottomLine, false]],
         ]
 
-        const response = await this._neovimInstance.request("nvim_call_atomic", [atomicCalls])
+        const response = await this._neovimInstance.request<
+            Array<[WindowPosition, Width, Height, Lines]>
+        >("nvim_call_atomic", [atomicCalls])
 
         if (!response) {
             return null
         }
 
-        const values = response[0]
+        const [values] = response
 
         if (values.length === 4) {
             // Grab the results of the `nvim_atomic_call`, as they are returned in an array
-            const position = values[0]
+            const [position, width, height, lines] = values
             const [row, col] = position
-            const width = values[1]
-            const height = values[2]
-            const lines = values[3]
 
             // The 'gutterOffset' (difference between `wincol` and `column`) is the size of the gutter
             // (for example, line numbers). The buffer isn't in that space, so we need to account
@@ -270,10 +294,8 @@ export class NeovimWindowManager extends Utility.Disposable {
 
         if (values.length === 3) {
             // Grab the results of the `nvim_atomic_call`, as they are returned in an array
-            const position = values[0]
+            const [position, width, height] = values
             const [row, col] = position
-            const width = values[1]
-            const height = values[2]
 
             const dimensions = {
                 x: col,

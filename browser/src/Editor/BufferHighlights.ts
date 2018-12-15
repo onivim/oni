@@ -16,8 +16,13 @@ export interface IBufferHighlightsUpdater {
     clearHighlightsForLine(line: number): void
 }
 
-// Helper class to efficiently update
-// buffer highlights in a batch.
+/**
+ * Helper class to efficiently update
+ * buffer highlights in a batch
+ *
+ * @name BufferHighlightsUpdater
+ * @class
+ */
 export class BufferHighlightsUpdater implements IBufferHighlightsUpdater {
     private _calls: any[] = []
 

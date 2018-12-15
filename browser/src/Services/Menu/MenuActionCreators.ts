@@ -66,13 +66,6 @@ export const setMenuItems = (id: string, items: any[]) => ({
     },
 })
 
-export const setDetailedMenuItem = (item: any) => ({
-    type: "SET_DETAILED_MENU_ITEM",
-    payload: {
-        detailedItem: item,
-    },
-})
-
 export const hidePopupMenu = () => (dispatch: any, getState: any) => {
     const state = getState()
 

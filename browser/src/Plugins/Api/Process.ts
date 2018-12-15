@@ -10,19 +10,38 @@ export interface IShellEnvironmentFetcher {
     getEnvironmentVariables(): Promise<any>
 }
 
+interface IShellEnv {
+    default: {
+        sync: (shell?: string) => NodeJS.ProcessEnv
+    }
+}
+
 export class ShellEnvironmentFetcher implements IShellEnvironmentFetcher {
     private _shellEnvPromise: Promise<any>
-    private _shellEnv: any
+    private _shellEnv: IShellEnv
 
     constructor() {
+        // Dynamic imports return { default: Module }
         this._shellEnvPromise = import("shell-env")
     }
 
-    public async getEnvironmentVariables(): Promise<any> {
+    public async getEnvironmentVariables(): Promise<NodeJS.ProcessEnv> {
         if (!this._shellEnv) {
             this._shellEnv = await this._shellEnvPromise
-            return this._shellEnv.sync()
         }
+        try {
+            const userShell = configuration.getValue<string>("oni.userShell")
+            const shell = typeof userShell === "string" ? userShell : undefined
+            const env = this._shellEnv.default.sync(shell)
+            return env
+        } catch (error) {
+            Log.warn(
+                `[Oni environment fetcher]: unable to get enviroment variables because: ${
+                    error.message
+                }`,
+            )
+        }
+        return {}
     }
 }
 
@@ -129,19 +148,33 @@ export class Process implements Oni.Process {
 
         try {
             if (!this._env) {
-                this._env = (await this._shellEnvironmentFetcher.getEnvironmentVariables()) || {}
+                this._env = await this._shellEnvironmentFetcher.getEnvironmentVariables()
             }
             existingPath = process.env.Path || process.env.PATH
         } catch (e) {
             existingPath = process.env.Path || process.env.PATH
         }
 
+        const additionalEnvironmentVariables =
+            configuration.getValue("environment.additionalVariables") || {}
+
         const requiredOptions = {
             env: {
                 ...process.env,
                 ...this._env,
                 ...originalSpawnOptions.env,
+                ...additionalEnvironmentVariables,
             },
+        }
+
+        // TODO: Workaround for the bug fix here:
+        // https://github.com/neovim/neovim/pull/9345
+        // Once 0.3.2 is available and we've switched, we won't need this anymore.
+        if (Platform.isMac() && !requiredOptions.env.LANG) {
+            requiredOptions.env.LANG = "en_us.UTF-8"
+            Log.warn(
+                "'LANG' environment variable not set, using default value of 'en_us.UTF-8'. Consider setting environment.additionalVariables['LANG'].",
+            )
         }
 
         requiredOptions.env.PATH = this.mergePathEnvironmentVariable(

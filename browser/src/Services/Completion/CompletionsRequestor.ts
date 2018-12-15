@@ -10,6 +10,7 @@ import * as Log from "oni-core-logging"
 import * as Helpers from "./../../Plugins/Api/LanguageClient/LanguageClientHelpers"
 
 import { LanguageManager } from "./../Language"
+import { IServerCapabilities } from "./../Language/ServerCapabilities"
 
 export interface CompletionsRequestContext {
     language: string
@@ -86,6 +87,12 @@ export class LanguageServiceCompletionsRequestor implements ICompletionsRequesto
         filePath: string,
         completionItem: types.CompletionItem,
     ): Promise<types.CompletionItem> {
+        const caps: IServerCapabilities = await this._languageManager.getCapabilitiesForLanguage(
+            language,
+        )
+        if (!caps.completionProvider.resolveProvider) {
+            return completionItem
+        }
         let result
         try {
             result = await this._languageManager.sendLanguageServerRequest(

@@ -315,19 +315,15 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             this._actions.setColors(updatedColors)
         }
 
-        this._colors.onColorsChanged.subscribe(() => onColorsChanged())
+        this._colors.onColorsChanged.subscribe(onColorsChanged)
         onColorsChanged()
 
-        const onTokenColorschanged = () => {
-            if (this._neovimInstance.isInitialized) {
-                this._neovimInstance.tokenColorSynchronizer.synchronizeTokenColors(
-                    this._tokenColors.tokenColors,
-                )
-            }
-        }
-
         this.trackDisposable(
-            this._tokenColors.onTokenColorsChanged.subscribe(() => onTokenColorschanged()),
+            this._tokenColors.onTokenColorsChanged.subscribe(() => {
+                if (this._neovimInstance.isInitialized) {
+                    this._syntaxHighlighter.notifyColorschemeRedraw(`${this.activeBuffer.id}`)
+                }
+            }),
         )
 
         // Overlays
@@ -1292,6 +1288,8 @@ export class NeovimEditor extends Editor implements Oni.Editor {
 
     private async _onColorsChanged(): Promise<void> {
         const newColorScheme = await this._neovimInstance.eval<string>("g:colors_name")
+        const { bufferNumber } = await this._neovimInstance.getContext()
+        this._syntaxHighlighter.notifyColorschemeRedraw(`${bufferNumber}`)
 
         // In error cases, the neovim API layer returns an array
         if (typeof newColorScheme !== "string") {

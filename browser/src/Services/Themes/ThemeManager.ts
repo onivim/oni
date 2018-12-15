@@ -35,6 +35,7 @@ export interface IThemeColors {
 
     "tabs.background": string
     "tabs.foreground": string
+    "tabs.borderBottom": string
     "tabs.active.foreground": string
     "tabs.active.background": string
 
@@ -288,6 +289,7 @@ export const DefaultThemeColors: IThemeColors = {
 
     "tabs.background": ColorBlack,
     "tabs.foreground": ColorWhite,
+    "tabs.borderBottom": null,
     "tabs.active.background": null,
     "tabs.active.foreground": null,
 

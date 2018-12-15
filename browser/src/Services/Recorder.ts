@@ -144,8 +144,8 @@ class Recorder implements Oni.Recorder {
 const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
     return new Promise<ArrayBuffer>((resolve, reject) => {
         const fileReader = new FileReader()
-        fileReader.onload = function() {
-            const arrayBuffer = this.result
+        fileReader.onload = evt => {
+            const arrayBuffer = fileReader.result as ArrayBuffer
             resolve(arrayBuffer)
         }
         fileReader.readAsArrayBuffer(blob)
