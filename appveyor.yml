@@ -36,6 +36,24 @@ install:
     - yarn install
     - yarn run check-cached-binaries
 
+artifacts:
+    - path: dist/*.exe
+      name: SetupExe
+     - path: dist/*.zip
+      name: ProductZip
+     - path: dist/media/screenshot-win32.png
+      name: DemoScreenshot
+ deploy:
+    - provider: GitHub
+      repository: onivim/oni
+      auth_token:
+          secure: IUThGC/uAhOIpZ+B/yS/tMBPBETwL1qttaaTbZYmbSP468Lmd0buoleDLSxrrLpH
+      draft: false
+      prerelease: false
+      force_update: true
+      on:
+          appveyor_repo_tag: true
+
 # Post-install test scripts.
 test_script:
     - powershell build/script/appveyor-test.ps1
