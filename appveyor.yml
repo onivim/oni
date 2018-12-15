@@ -44,7 +44,7 @@ artifacts:
     - path: dist/media/screenshot-win32.png
       name: DemoScreenshot
 
- deploy:
+deploy:
     - provider: GitHub
       repository: onivim/oni
       auth_token:
