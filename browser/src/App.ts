@@ -111,7 +111,13 @@ export const start = async (args: string[]): Promise<void> => {
         arg => (path.isAbsolute(arg) ? arg : path.join(currentWorkingDirectory, arg)),
     )
 
-    const filesToOpen = normalizedFiles.filter(f => fs.existsSync(f) && fs.statSync(f).isFile())
+    const filesToOpen = normalizedFiles.filter(f => {
+        if (fs.existsSync(f)) {
+            return fs.statSync(f).isFile()
+        } else {
+            return true
+        }
+    })
     const foldersToOpen = normalizedFiles.filter(
         f => fs.existsSync(f) && fs.statSync(f).isDirectory(),
     )
