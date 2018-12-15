@@ -214,6 +214,9 @@ export interface IConfigurationValues {
     // (and available in terminal integration, later)
     "environment.additionalPaths": string[]
 
+    // Additional environment variables that override the default settings
+    "environment.additionalVariables": any
+
     // User configurable array of files for which
     // the image layer opens
     "editor.imageLayerExtensions": string[]
