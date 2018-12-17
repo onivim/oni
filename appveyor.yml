@@ -39,11 +39,12 @@ install:
 artifacts:
     - path: dist/*.exe
       name: SetupExe
-     - path: dist/*.zip
+    - path: dist/*.zip
       name: ProductZip
-     - path: dist/media/screenshot-win32.png
+    - path: dist/media/screenshot-win32.png
       name: DemoScreenshot
- deploy:
+
+deploy:
     - provider: GitHub
       repository: onivim/oni
       auth_token:
