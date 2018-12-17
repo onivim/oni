@@ -3,7 +3,7 @@
     "author": "",
     "email": "bryphe@outlook.com",
     "homepage": "https://www.onivim.io",
-    "version": "0.3.9",
+    "version": "0.3.10",
     "description": "Code editor with a modern twist on modal editing - powered by neovim.",
     "keywords": [
         "vim",
