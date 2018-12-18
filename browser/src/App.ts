@@ -105,11 +105,13 @@ export const start = async (args: string[]): Promise<void> => {
     const cssPromise = import("./CSS")
     const completionProvidersPromise = import("./Services/Completion/CompletionProviders")
 
-    const parsedArgs = minimist(args, { string: "_" })
+    const parsedArgs = minimist(args, { "--": true, string: "_" })
     const currentWorkingDirectory = process.cwd()
     const normalizedFiles = parsedArgs._.map(
         arg => (path.isAbsolute(arg) ? arg : path.join(currentWorkingDirectory, arg)),
     )
+
+    const additionalArgs = parsedArgs["--"] || [];
 
     const filesToOpen = normalizedFiles.filter(f => {
         if (fs.existsSync(f)) {
@@ -293,6 +295,7 @@ export const start = async (args: string[]): Promise<void> => {
     const initializeAllEditors = async () => {
         await startEditors(
             filesToOpen,
+            additionalArgs,
             Colors.getInstance(),
             CompletionProviders.getInstance(),
             configuration,

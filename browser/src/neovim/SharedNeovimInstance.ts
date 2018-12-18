@@ -167,6 +167,7 @@ class SharedNeovimInstance implements SharedNeovimInstance {
 
     public async start(): Promise<void> {
         const startOptions: INeovimStartOptions = {
+            additionalArgs: [],
             runtimePaths: this._pluginManager.getAllRuntimePaths(),
             loadInitVim: false,
             useDefaultConfig: true,
