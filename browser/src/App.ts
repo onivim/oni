@@ -111,7 +111,7 @@ export const start = async (args: string[]): Promise<void> => {
         arg => (path.isAbsolute(arg) ? arg : path.join(currentWorkingDirectory, arg)),
     )
 
-    const additionalArgs = parsedArgs["--"] || [];
+    const additionalArgs = parsedArgs["--"] || []
 
     const filesToOpen = normalizedFiles.filter(f => {
         if (fs.existsSync(f)) {

@@ -1001,8 +1001,13 @@ export class NeovimEditor extends Editor implements Oni.Editor {
         additionalArgs?: string[],
         startOptions?: Partial<INeovimStartOptions>,
     ): Promise<void> {
-        Log.info("[NeovimEditor::init] Called with filesToOpen: " + filesToOpen + " and args: " + additionalArgs);
-        additionalArgs = additionalArgs || [];
+        Log.info(
+            "[NeovimEditor::init] Called with filesToOpen: " +
+                filesToOpen +
+                " and args: " +
+                additionalArgs,
+        )
+        additionalArgs = additionalArgs || []
         const defaultOptions: INeovimStartOptions = {
             runtimePaths: this._pluginManager.getAllRuntimePaths(),
             transport: this._configuration.getValue("experimental.neovim.transport"),

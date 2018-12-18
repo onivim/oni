@@ -128,15 +128,15 @@ export const startNeovim = async (
 
     const argsToPass = initVimArg
         .concat([
-        "--cmd",
-        `let &rtp.=',${joinedRuntimePaths}'`,
-        "--cmd",
-        "let g:gui_oni = 1",
-        "-N",
-        "--embed",
+            "--cmd",
+            `let &rtp.=',${joinedRuntimePaths}'`,
+            "--cmd",
+            "let g:gui_oni = 1",
+            "-N",
+            "--embed",
         ])
         .concat(options.additionalArgs)
-        .concat(["--"]);
+        .concat(["--"])
 
     Log.verbose(
         "[NeovimProcessSpawner::startNeovim] Sending these args to Neovim: " +

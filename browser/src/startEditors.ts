@@ -53,5 +53,5 @@ export const startEditors = async (
     )
     windowManager.createSplit("horizontal", editor)
 
-    await editor.init(filesToOpen, additionalArgs);
+    await editor.init(filesToOpen, additionalArgs)
 }
