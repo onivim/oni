@@ -474,20 +474,15 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
             })
 
             const version = await this.getApiVersion()
-            let startUpErrorsChecked = false
 
             if (
                 version.major > 0 ||
                 version.minor > 3 ||
                 (version.minor === 3 && version.patch >= 2)
             ) {
-                // We can't call _checkAndFixIfBlocked here, since the buffers etc are not
-                // setup yet. Instead, defer the call until after we have attached the UI.
-                // We also want to look at removing the call entirely for 0.3.2, once we have
-                // externalised messages, to stop the hacky implementation we have here.
+                // No need to make the hacky call for NeoVim 0.3.2 and above.
             } else {
                 await this._checkAndFixIfBlocked()
-                startUpErrorsChecked = true
             }
 
             const size = this._getSize()
@@ -502,10 +497,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                 Log.info("Attach success")
                 Performance.endMeasure("NeovimInstance.Start.Attach")
-
-                if (startUpErrorsChecked === false) {
-                    await this._checkAndFixIfBlocked()
-                }
 
                 // TODO: #702 - Batch these calls via `nvim_call_atomic`
                 // Override completeopt so Oni works correctly with external popupmenu
