@@ -63,8 +63,6 @@ class WildMenu extends React.Component<Props, State> {
         currentPage: 1,
         itemsPerPage: 10,
     }
-    private selectedElement: HTMLUListElement
-    private containerElement: HTMLUListElement
 
     public componentWillReceiveProps(next: Props) {
         if (next.selected !== this.props.selected) {
@@ -80,16 +78,10 @@ class WildMenu extends React.Component<Props, State> {
 
         return (
             visible && (
-                <WildMenuList innerRef={e => (this.containerElement = e)}>
+                <WildMenuList>
                     {currentItems &&
                         currentItems.map((option, i) => (
-                            <WildMenuItem
-                                innerRef={e =>
-                                    i === current - 1 ? (this.selectedElement = e) : null
-                                }
-                                selected={i === current}
-                                key={option + i}
-                            >
+                            <WildMenuItem selected={i === current} key={option + i}>
                                 <span>
                                     <Icon name="file-text" />
                                 </span>

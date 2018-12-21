@@ -18,7 +18,7 @@ export const test = async (oni: Oni.Plugin.Api) => {
     oni.automation.sendKeys("window.a")
 
     // Wait for completion popup to show
-    await oni.automation.waitFor(() => getCompletionElement() !== null)
+    await oni.automation.waitFor(() => getCompletionElement() !== null, 120000)
 
     // Check for 'alert' as an available completion
     const completionElement = getCompletionElement()

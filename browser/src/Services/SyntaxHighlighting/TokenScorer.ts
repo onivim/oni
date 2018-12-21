@@ -119,7 +119,7 @@ export class TokenScorer {
         if (parts.length < 2) {
             return null
         }
-        const matchingToken = theme.find(color => color.scope === scope)
+        const matchingToken = theme.find(color => color.scope.includes(scope))
         if (matchingToken) {
             return matchingToken
         }

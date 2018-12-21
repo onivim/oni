@@ -25,7 +25,7 @@ describe("SyntaxHighlightReconciler", () => {
 
         mockTokenColors = new Mocks.MockTokenColors([
             {
-                scope: "scope.test",
+                scope: ["scope.test"],
                 settings: {
                     background: COLOR_BLACK,
                     foreground: COLOR_WHITE,
@@ -90,7 +90,7 @@ describe("SyntaxHighlightReconciler", () => {
             {
                 range: types.Range.create(0, 0, 0, 5),
                 tokenColor: {
-                    scope: "scope.test",
+                    scope: ["scope.test"],
                     settings: {
                         background: COLOR_BLACK,
                         foreground: COLOR_WHITE,
@@ -151,7 +151,7 @@ describe("SyntaxHighlightReconciler", () => {
             {
                 range: types.Range.create(0, 0, 0, 5),
                 tokenColor: {
-                    scope: "scope.test",
+                    scope: ["scope.test"],
                     settings: {
                         background: COLOR_BLACK,
                         foreground: COLOR_WHITE,

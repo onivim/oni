@@ -109,6 +109,8 @@ const BaseConfiguration: IConfigurationValues = {
 
     "oni.enhancedSyntaxHighlighting": true,
 
+    "oni.userShell": undefined,
+
     "oni.loadInitVim": false,
 
     "oni.hideMenu": false,
@@ -147,6 +149,8 @@ const BaseConfiguration: IConfigurationValues = {
     "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode.ExistingTab,
     "editor.quickOpen.showHidden": true,
 
+    "quickOpen.defaultOpenMode": Oni.FileOpenMode.Edit,
+
     "editor.split.mode": "native",
 
     "editor.typingPrediction": true,
@@ -172,6 +176,7 @@ const BaseConfiguration: IConfigurationValues = {
     "explorer.maxUndoFileSizeInBytes": 500_000,
 
     "environment.additionalPaths": [],
+    "environment.additionalVariables": {},
 
     "keyDisplayer.showInInsertMode": false,
 

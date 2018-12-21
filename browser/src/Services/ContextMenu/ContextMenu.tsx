@@ -160,10 +160,6 @@ export class ContextMenu {
         )
     }
 
-    public updateItem(item: any): void {
-        this._actions.setDetailedMenuItem(item)
-    }
-
     public hide(): void {
         this._actions.hidePopupMenu()
     }

@@ -111,6 +111,10 @@ export interface IConfigurationValues {
     // Set this to 'false' to avoid loading the default config, and load settings from init.vim instead.
     "oni.useDefaultConfig": boolean
 
+    // This string represents the path to the shell that the user would like oni to use to extract
+    // environment variables that it uses derives the $PATH variable from.
+    "oni.userShell": string
+
     // By default, user's init.vim is not loaded, to avoid conflicts.
     // Set this to `true` to enable loading of init.vim.
     // Set this to a string to override the init.vim path.
@@ -165,6 +169,9 @@ export interface IConfigurationValues {
     "editor.quickOpen.alternativeOpenMode": Oni.FileOpenMode
     "editor.quickOpen.showHidden": boolean
 
+    // this is new command to replace the above legacy editor prefixed command
+    "quickOpen.defaultOpenMode": Oni.FileOpenMode
+
     "editor.errors.slideOnFocus": boolean
     "editor.formatting.formatOnSwitchToNormalMode": boolean // TODO: Make this setting reliable. If formatting is slow, it will hose edits... not fun
 
@@ -206,6 +213,9 @@ export interface IConfigurationValues {
     // Additional paths to include when launching sub-process from Oni
     // (and available in terminal integration, later)
     "environment.additionalPaths": string[]
+
+    // Additional environment variables that override the default settings
+    "environment.additionalVariables": any
 
     // User configurable array of files for which
     // the image layer opens

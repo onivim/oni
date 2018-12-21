@@ -146,7 +146,7 @@ export class CanvasRenderer implements INeovimRenderer {
             row.forEach((span: ISpan) => {
                 // All spans that have changed in current rendering pass
 
-                const rowIndex = Number.parseInt(y)
+                const rowIndex = Number.parseInt(y, 10)
 
                 const currentCell = screenInfo.getCell(span.startX, rowIndex)
 

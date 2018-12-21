@@ -75,6 +75,12 @@ export class NeovimWindowManager extends Utility.Disposable {
         this._scrollObservable = new Subject<EventContext>()
 
         const updateScroll = (evt: EventContext) => this._scrollObservable.next(evt)
+
+        const handleCommandLineEvent = async () => {
+            const ctx = await this._neovimInstance.getContext()
+            updateScroll(ctx)
+        }
+
         // First element of the BufEnter event is the current buffer
         this.trackDisposable(
             this._neovimInstance.autoCommands.onBufEnter.subscribe(bufs =>
@@ -92,6 +98,12 @@ export class NeovimWindowManager extends Utility.Disposable {
         this.trackDisposable(this._neovimInstance.autoCommands.onWinEnter.subscribe(updateScroll))
         this.trackDisposable(
             this._neovimInstance.autoCommands.onCursorMoved.subscribe(updateScroll),
+        )
+        this.trackDisposable(
+            this._neovimInstance.onCommandLineShow.subscribe(handleCommandLineEvent),
+        )
+        this.trackDisposable(
+            this._neovimInstance.onCommandLineHide.subscribe(handleCommandLineEvent),
         )
         this.trackDisposable(this._neovimInstance.autoCommands.onVimResized.subscribe(updateScroll))
         this.trackDisposable(this._neovimInstance.onScroll.subscribe(updateScroll))
@@ -172,12 +184,17 @@ export class NeovimWindowManager extends Utility.Disposable {
         currentWinId: number,
         context: EventContext,
     ): Promise<NeovimActiveWindowState> {
+        const positionCalls = [
+            ["nvim_call_function", ["line", ["w0"]]],
+            ["nvim_call_function", ["line", ["w$"]]],
+        ]
         // We query the top and bottom line positions again despite these being on the context
         // as the values from the `BufferUpdate` event can be incorrect
-        const [topLine, bottomLine] = await Promise.all([
-            this._neovimInstance.callFunction("line", ["w0"]),
-            this._neovimInstance.callFunction("line", ["w$"]),
-        ])
+        const [[topLine, bottomLine]] = await this._neovimInstance.request<[[number, number], any]>(
+            "nvim_call_atomic",
+            [positionCalls],
+        )
+
         const atomicCalls = [
             ["nvim_win_get_position", [currentWinId]],
             ["nvim_win_get_width", [currentWinId]],
