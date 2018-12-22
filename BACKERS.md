@@ -64,6 +64,8 @@ Thanks you to all our backers for making Oni possible!
 
 *   @mikl
 *   Tom Boland
+*   Simon Smith
+*   [JavaScript.Ninja](https://www.patreon.com/search?q=javascript.ninja)
 
 ## Backers via BountySource
 
@@ -81,6 +83,7 @@ Thanks you to all our backers for making Oni possible!
 *   @nithesh
 *   @erandac
 *   @appelgriebsch
+*   Mateusz Wieloch
 
 ## Backers via PayPal
 
@@ -147,6 +150,20 @@ Thanks you to all our backers for making Oni possible!
 *   Jon Plotner
 *   Patrick Ball
 *   Grégory Reinbold
+*   Antti Holvikari
+*   Christopher Auer
+*   Daniel Falk
+*   David Froger
+*   Dominic Saadi
+*   Gianni Chiappetta
+*   Jake Swanson
+*   James Herdman
+*   Jannis Kaiser
+*   Kosuke Hamada
+*   Lance
+*   Marius Gripsgard
+*   Matti Klock
+*   Selwyn
 
 <a href="https://opencollective.com/oni/tiers/backer/0/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/0/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/backer/1/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/1/avatar.png"></a>
