@@ -157,9 +157,9 @@ export class TargetsVimPluginTutorial implements ITutorial {
     public get metadata(): ITutorialMetadata {
         return {
             id: "oni.tutorials.targets_plugin",
-            name: "Target.vim plugin",
+            name: "Targets.vim plugin",
             description:
-                'Target.vim is a plugin installed by default to help move between pairs of characters such as (), {}, or "".  It does this by adding various text objects to operate on and expand simple commands like \'di"\'.',
+                'Targets.vim is a plugin installed by default to help move between pairs of characters such as (), {}, or "".  It does this by adding various text objects to operate on and expand simple commands like \'di"\'.',
             level: 300,
         }
     }
