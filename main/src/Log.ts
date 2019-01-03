@@ -9,7 +9,7 @@ const logs = []
 let _isVerbose = false
 
 const isVerbose = () =>
-    process.argv.filter(arg => arg.indexOf("--verbose") >= 0).length > 0 || _isVerbose
+    process.argv.some(arg => arg.includes("--verbose")) || _isVerbose
 
 export const setVerbose = (verbose: boolean) => {
     _isVerbose = verbose
