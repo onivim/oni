@@ -90,6 +90,7 @@ Thanks you to all our backers for making Oni possible!
 *   @mchalkley
 *   @am2605
 *   Nathan Ensmenger
+*   Cesar Avitia
 
 ## Backers via OpenCollective
 
