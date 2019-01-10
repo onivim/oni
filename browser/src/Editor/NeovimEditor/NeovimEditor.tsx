@@ -1007,6 +1007,7 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             neovimPath: this._configuration.getValue("debug.neovimPath"),
             loadInitVim: this._configuration.getValue("oni.loadInitVim"),
             useDefaultConfig: this._configuration.getValue("oni.useDefaultConfig"),
+            initialColorScheme: this._configuration.getValue("ui.colorscheme"),
         }
 
         const combinedOptions = {

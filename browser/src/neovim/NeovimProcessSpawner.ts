@@ -32,6 +32,11 @@ export interface INeovimStartOptions {
     // Explicitly specify the path to Neovim. If not specified,
     // the default path will be used.
     neovimPath?: string
+
+    // Initial colorscheme to start neovim with.
+    // This is used to prevent any flash of color now that rendering
+    // happens before any options are set.
+    initialColorScheme?: string
 }
 
 const DefaultStartOptions: INeovimStartOptions = {
@@ -127,6 +132,8 @@ export const startNeovim = async (
         `let &rtp.=',${joinedRuntimePaths}'`,
         "--cmd",
         "let g:gui_oni = 1",
+        "--cmd",
+        `color ${options.initialColorScheme}`,
         "-N",
         "--embed",
         "--",
