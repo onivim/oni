@@ -207,6 +207,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _isDisposed: boolean = false
     private _initPromise: Promise<void>
     private _isLeaving: boolean
+    private _hasEnteredVim: boolean
     private _currentVimDirectory: string
 
     private _inputQueue: PromiseQueue = new PromiseQueue()
@@ -263,6 +264,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get isInitialized(): boolean {
         return this._initComplete
+    }
+
+    public get hasEnteredVim(): boolean {
+        return this._hasEnteredVim
     }
 
     public get quickFix(): IQuickFixList {
@@ -982,6 +987,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 if (eventName === "DirChanged") {
                     this._updateProcessDirectory()
                 } else if (eventName === "VimEnter") {
+                    this._hasEnteredVim = true
                     this._onEnter.dispatch()
                 } else if (eventName === "VimLeave") {
                     this._isLeaving = true

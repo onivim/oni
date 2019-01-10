@@ -1016,6 +1016,14 @@ export class NeovimEditor extends Editor implements Oni.Editor {
 
         await this._neovimInstance.start(combinedOptions)
 
+        if (this._neovimInstance.hasEnteredVim) {
+            await this._onSuccessfulOpen(filesToOpen)
+        } else {
+            this._neovimInstance.onEnter.subscribe(() => {
+                this._onSuccessfulOpen(filesToOpen)
+            })
+        }
+
         this._hasLoaded = true
         this._isFirstRender = true
         this._scheduleRender()
@@ -1039,10 +1047,6 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             ) {
                 this.setColorSchemeFromTheme(newTheme)
             }
-        })
-
-        this._neovimInstance.onEnter.subscribe(() => {
-            this._onSuccessfulOpen(filesToOpen)
         })
 
         this._actions.setLoadingComplete()
