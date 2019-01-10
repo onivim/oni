@@ -503,7 +503,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 // await this.command("set completeopt=longest,menu")
 
                 // Set title after attaching listeners so we can get the initial title.
-                await this.command("set title")
+                // await this.command("set title")
 
                 Performance.endMeasure("NeovimInstance.Start")
                 this._initComplete = true

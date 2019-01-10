@@ -1016,14 +1016,18 @@ export class NeovimEditor extends Editor implements Oni.Editor {
 
         await this._neovimInstance.start(combinedOptions)
 
+        this._hasLoaded = true
+        this._isFirstRender = true
+        this._scheduleRender()
+
         if (this._errorInitializing) {
             return
         }
 
-        VimConfigurationSynchronizer.synchronizeConfiguration(
-            this._neovimInstance,
-            this._configuration.getValues(),
-        )
+        // VimConfigurationSynchronizer.synchronizeConfiguration(
+        //     this._neovimInstance,
+        //     this._configuration.getValues(),
+        // )
 
         this._themeManager.onThemeChanged.subscribe(() => {
             const newTheme = this._themeManager.activeTheme
@@ -1037,22 +1041,20 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             }
         })
 
-        if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
-            await this.setColorSchemeFromTheme(this._themeManager.activeTheme)
-        }
+        // if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
+        //     await this.setColorSchemeFromTheme(this._themeManager.activeTheme)
+        // }
 
-        if (filesToOpen && filesToOpen.length > 0) {
-            await this.openFiles(filesToOpen, { openMode: Oni.FileOpenMode.Edit })
-        } else {
-            if (this._configuration.getValue("experimental.welcome.enabled")) {
-                this._onShowWelcomeScreen.dispatch()
-            }
-        }
+        // if (filesToOpen && filesToOpen.length > 0) {
+        //     await this.openFiles(filesToOpen, { openMode: Oni.FileOpenMode.Edit })
+        // } else {
+        //     if (this._configuration.getValue("experimental.welcome.enabled")) {
+        //         this._onShowWelcomeScreen.dispatch()
+        //     }
+        // }
 
         this._actions.setLoadingComplete()
 
-        this._hasLoaded = true
-        this._isFirstRender = true
         this._scheduleRender()
     }
 
