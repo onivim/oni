@@ -139,6 +139,7 @@ augroup OniEventListeners
     autocmd! DirChanged * :call OniNotifyEvent("DirChanged")
     autocmd! VimResized * :call OniNotifyEvent("VimResized")
     autocmd! VimLeave * :call OniNotifyEvent("VimLeave")
+    autocmd! VimEnter * :call OniNotifyEvent("VimEnter")
 augroup END
 
 augroup OniNotifyBufferUpdates

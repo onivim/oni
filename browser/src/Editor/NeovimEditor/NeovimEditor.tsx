@@ -1024,10 +1024,10 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             return
         }
 
-        // VimConfigurationSynchronizer.synchronizeConfiguration(
-        //     this._neovimInstance,
-        //     this._configuration.getValues(),
-        // )
+        VimConfigurationSynchronizer.synchronizeConfiguration(
+            this._neovimInstance,
+            this._configuration.getValues(),
+        )
 
         this._themeManager.onThemeChanged.subscribe(() => {
             const newTheme = this._themeManager.activeTheme
@@ -1041,20 +1041,11 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             }
         })
 
-        // if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
-        //     await this.setColorSchemeFromTheme(this._themeManager.activeTheme)
-        // }
-
-        // if (filesToOpen && filesToOpen.length > 0) {
-        //     await this.openFiles(filesToOpen, { openMode: Oni.FileOpenMode.Edit })
-        // } else {
-        //     if (this._configuration.getValue("experimental.welcome.enabled")) {
-        //         this._onShowWelcomeScreen.dispatch()
-        //     }
-        // }
+        this._neovimInstance.onEnter.subscribe(() => {
+            this._onSuccessfulOpen(filesToOpen)
+        })
 
         this._actions.setLoadingComplete()
-
         this._scheduleRender()
     }
 
@@ -1195,6 +1186,29 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             currentBuffer.windowTopLine - 1,
             currentBuffer.windowBottomLine - 1,
         )
+    }
+
+    private async _onSuccessfulOpen(filesToOpen: string[]): Promise<void> {
+        // These actions should be performed once Neovim has fully started.
+        // This may not happen if neovim has errors on launch (i.e. user init.vim errors)
+        // or in other non-error based cases like a swap file existing.
+        // That is, anything that would cause terminal neovim to show a message before
+        // the welcome screen.
+
+        // Set title after attaching listeners so we can get the initial title.
+        await this._neovimInstance.command("set title")
+
+        if (this._themeManager.activeTheme && this._themeManager.activeTheme.baseVimTheme) {
+            await this.setColorSchemeFromTheme(this._themeManager.activeTheme)
+        }
+
+        if (filesToOpen && filesToOpen.length > 0) {
+            await this.openFiles(filesToOpen, { openMode: Oni.FileOpenMode.Edit })
+        } else {
+            if (this._configuration.getValue("experimental.welcome.enabled")) {
+                this._onShowWelcomeScreen.dispatch()
+            }
+        }
     }
 
     private _onFileTypeChanged(evt: EventContext): void {
