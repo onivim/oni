@@ -241,6 +241,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
     private _onHidePopupMenu = new Event<void>()
     private _onShowPopupMenu = new Event<INeovimCompletionInfo>()
     private _onSelectPopupMenu = new Event<number>()
+    private _onEnter = new Event<void>()
     private _onLeave = new Event<void>()
     private _onMessage = new Event<IMessageInfo>()
 
@@ -282,6 +283,10 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
     public get onError(): IEvent<Error | string> {
         return this._onErrorEvent
+    }
+
+    public get onEnter(): IEvent<void> {
+        return this._onEnter
     }
 
     public get onLeave(): IEvent<void> {
@@ -501,9 +506,6 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 // TODO: #702 - Batch these calls via `nvim_call_atomic`
                 // Override completeopt so Oni works correctly with external popupmenu
                 // await this.command("set completeopt=longest,menu")
-
-                // Set title after attaching listeners so we can get the initial title.
-                // await this.command("set title")
 
                 Performance.endMeasure("NeovimInstance.Start")
                 this._initComplete = true
@@ -979,6 +981,8 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
 
                 if (eventName === "DirChanged") {
                     this._updateProcessDirectory()
+                } else if (eventName === "VimEnter") {
+                    this._onEnter.dispatch()
                 } else if (eventName === "VimLeave") {
                     this._isLeaving = true
                     this._onLeave.dispatch()
