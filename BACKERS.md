@@ -164,6 +164,20 @@ Thanks you to all our backers for making Oni possible!
 *   Marius Gripsgard
 *   Matti Klock
 *   Selwyn
+*   Saito Nakamura
+*   artalar
+*   Jeff Hertzler
+*   Drew Lazzeri
+*   Bob Gunion
+*   Daniel Blanco
+*   Philip Larson
+*   Josemar Luedke
+*   Mateusz Wieloch
+*   Marc Agbanchenou
+*   Andrew Myers
+*   Corey T Kump
+*   Claudia Hardman
+*   Krakonos
 
 <a href="https://opencollective.com/oni/tiers/backer/0/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/0/avatar.png"></a>
 <a href="https://opencollective.com/oni/tiers/backer/1/website" target="_blank"><img src="https://opencollective.com/oni/tiers/backer/1/avatar.png"></a>
