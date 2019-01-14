@@ -129,6 +129,7 @@ export const startNeovim = async (
         "let g:gui_oni = 1",
         "-N",
         "--embed",
+        "--headless",
         "--",
     ])
 
