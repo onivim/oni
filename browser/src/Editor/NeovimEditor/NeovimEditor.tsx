@@ -1015,15 +1015,11 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             ...startOptions,
         }
 
+        // Subscribe before calling "start" to avoid race-condition
+        this._neovimInstance.onEnter.subscribe(() => {
+            this._onSuccessfulOpen(filesToOpen)
+        })
         await this._neovimInstance.start(combinedOptions)
-
-        if (this._neovimInstance.hasEnteredVim) {
-            await this._onSuccessfulOpen(filesToOpen)
-        } else {
-            this._neovimInstance.onEnter.subscribe(() => {
-                this._onSuccessfulOpen(filesToOpen)
-            })
-        }
 
         this._hasLoaded = true
         this._isFirstRender = true
