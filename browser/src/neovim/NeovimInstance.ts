@@ -508,9 +508,9 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
                 // await this.command("set completeopt=longest,menu")
 
                 Performance.endMeasure("NeovimInstance.Start")
-                this._initComplete = true
             } catch (err) {
                 this._onError(err)
+            } finally {
                 this._initComplete = true
             }
         })
