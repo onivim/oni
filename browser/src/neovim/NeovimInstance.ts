@@ -452,8 +452,7 @@ export class NeovimInstance extends EventEmitter implements INeovimInstance {
         this._initPromise = startNeovim(startOptions).then(async nv => {
             Log.info("NeovimInstance: Neovim started")
 
-            // Workaround for issue where UI
-            // can fail to attach if there is a UI-blocking error
+            // Workaround for issue where UI can fail to attach if there is a UI-blocking error
             // nv.input("<ESC>")
 
             this._neovim = nv
