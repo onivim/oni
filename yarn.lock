@@ -1961,10 +1961,6 @@ browserslist@~1.3.5:
   dependencies:
     caniuse-db "^1.0.30000525"
 
-bs-platform@2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-2.1.0.tgz#63560ff8f7142c9c0631559df1c35590b9f6d8b2"
-
 bser@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/bser/-/bser-2.0.0.tgz#9ac78d3ed5d915804fd87acb158bc797147a1719"
