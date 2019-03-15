@@ -76,7 +76,7 @@ const WindowsOnlyTests = [
     "Regression.1819.AutoReadCheckTimeTest",
 ]
 
-const OSXOnlyTests = ["AutoCompletionTest-Reason", "OSX.WindowTitleTest"]
+const OSXOnlyTests = ["OSX.WindowTitleTest"]
 
 // tslint:disable:no-console
 
