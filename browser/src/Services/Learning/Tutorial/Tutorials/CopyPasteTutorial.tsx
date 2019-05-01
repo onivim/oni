@@ -70,7 +70,7 @@ export class CopyPasteTutorial implements ITutorial {
                 Line2PostPaste2,
             ]),
             new Stages.WaitForStateStage(
-                "Copied text can be pasted multiple times, past again with 'p'",
+                "Copied text can be pasted multiple times, paste again with 'p'",
                 [Line2PostPaste2, Line2PostPaste2, Line1, Line1, Line2PostPaste2],
             ),
             new Stages.SetBufferStage([TransposeLine]),
