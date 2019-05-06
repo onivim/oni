@@ -23,25 +23,10 @@
 	<a href="https://discord.gg/7maEAxV">
 		<img src="https://img.shields.io/discord/417774914645262338.svg" alt="Join the chat on discord!">
 	</a>
-	<a href="https://opencollective.com/oni#backer">
-		<img src="https://opencollective.com/oni/backers/badge.svg" alt="Backers on Open Collective">
-	</a>
-	<a href="https://www.bountysource.com/teams/oni">
-		<img src="https://api.bountysource.com/badge/tracker?tracker_id=48462304" alt="BountySource Active Bounties">
-	</a>
 	<a href="https://github.com/onivim/oni/releases">
 		<img src="https://img.shields.io/github/downloads/onivim/oni/total.svg" alt="Total Downloads">
 	</a>
 </p>
-
-
-<h2 align="center">Supporting Oni</h2>
-
-Oni is an independent, MIT-licensed open source project. Please consider supporting Oni by:
-
-*   [Become a backer or sponsor on Patreon](https://www.patreon.com/onivim)
-*   [Become a backer or sponsor on Open Collective](https://opencollective.com/oni)
-*   [Become a backer on BountySource](https://www.bountysource.com/teams/oni)
 
 ## Introduction
 
@@ -122,10 +107,6 @@ plugin to this list please create a PR updating this **README** with the details
 
 There many ways to get involved & contribute to Oni:
 
-*   Support Oni financially by making a donation via:
-    *   [Patreon](https://patreon.com/onivim)
-    *   [OpenCollective](https://opencollective.com/oni)
-    *   [Bountysource](https://salt.bountysource.com/teams/oni)
 *   Thumbs up existing [issues](https://github.com/onivim/oni/issues) if they impact you.
 *   [Create an issue](https://github.com/onivim/oni/issues) for bugs or new features.
 *   Review and update our [documentation](https://github.com/onivim/oni/wiki).
