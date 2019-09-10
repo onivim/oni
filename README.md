@@ -38,8 +38,6 @@ The vision of Oni is to build an editor that allows you to go from _thought to c
     <img src="https://user-images.githubusercontent.com/13532591/36127305-9c7b6b80-1011-11e8-85dd-0345788c0b56.png"/>
 </p>
 
-This repository is under **active development**, and until 1.0 please consider everything unstable.
-
 Check out [Releases](https://github.com/onivim/oni/releases) for the latest binaries, or [Build Oni](https://github.com/onivim/oni/wiki/Development) from source. Consider making a donation via [OpenCollective](https://opencollective.com/oni) [BountySource](https://salt.bountysource.com/teams/oni) if you find this project useful!
 
 ## Features
