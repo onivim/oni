@@ -1,11 +1,11 @@
+---
+__NOTE:__ This repository is unmaintained - we are focusing on [Onivim 2](https://github.com/onivim/oni2) and [libvim](https://github.com/onivim/libvim).
+---
+
 <p align="center">
 	<img src="./assets/oni-header.png" alt="Logo">
     <h3 align="center">Modern Modal Editing</h3>
 </p>
-
----
-> :construction: __NOTE:__ We're now shifting our focus to building [Oni 2](https://github.com/onivim/oni2) :construction_worker_man: :construction_worker_woman:
----
 
 <p align="center">
 	<a href="https://travis-ci.org/onivim/oni">
