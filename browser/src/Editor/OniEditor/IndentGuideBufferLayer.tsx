@@ -3,11 +3,13 @@ import * as React from "react"
 import * as detectIndent from "detect-indent"
 import * as flatten from "lodash/flatten"
 import * as last from "lodash/last"
-import * as memoize from "lodash/memoize"
+import moize from "moize"
 import * as Oni from "oni-api"
 
 import { IBuffer } from "../BufferManager"
 import styled, { pixel, withProps } from "./../../UI/components/common"
+
+type IContext = Oni.BufferLayerRenderContext
 
 interface IWrappedLine {
     start: number
@@ -54,25 +56,179 @@ const IndentLine = withProps<IProps>(styled.span).attrs({
     position: absolute;
 `
 
+const determineIfShouldSkip = (props: LinePropsWithLevels, options: ConfigOptions) => {
+    const skipFirstIndentLine = options.skipFirst && props.levelOfIndentation === props.indentBy - 1
+    return skipFirstIndentLine
+}
+
+/**
+ * Remove one indent from left positioning and move lines slightly inwards -
+ * by a third of a character for a better visual appearance
+ */
+const calculateLeftPosition = (props: LinePropsWithLevels) => {
+    const adjustedLeft =
+        props.left -
+        props.indentSize -
+        props.levelOfIndentation * props.indentSize +
+        props.characterWidth / 3
+
+    return adjustedLeft
+}
+
+interface IIndentsPerLine {
+    guidePositions: IndentLinesProps[]
+    options: ConfigOptions
+}
+
+const IndentsPerLine: React.SFC<IIndentsPerLine> = ({ guidePositions, options }) => {
+    const indents = guidePositions.map((props, idx) =>
+        // Create a line per indentation
+        Array.from({ length: props.indentBy }, (_, levelOfIndentation) => {
+            const lineProps = { ...props, levelOfIndentation }
+            const adjustedLeft = calculateLeftPosition(lineProps)
+            const shouldSkip = determineIfShouldSkip(lineProps, options)
+            const key = `${props.line.trim()}-${idx}-${levelOfIndentation}`
+            return (
+                !shouldSkip && (
+                    <IndentLine
+                        key={key}
+                        top={props.top}
+                        left={adjustedLeft}
+                        color={options.color}
+                        height={props.height}
+                        data-id="indent-line"
+                    />
+                )
+            )
+        }),
+    )
+    return <>{flatten(indents)}</>
+}
+
+const MemoizedIndentsPerLine = moize.reactSimple(IndentsPerLine, {
+    isDeepEqual: true,
+})
+
+interface IGuideLines {
+    context: IContext
+    userSpacing: number
+    configuration: ConfigOptions
+}
+
+/**
+ * Calculates the position of each indent guide element using shiftwidth or tabstop if no
+ * shift width available
+ */
+const IndentGuideLines: React.SFC<IGuideLines> = ({ context, ...props }) => {
+    const wrappedLines = getWrappedLines(context)
+    const { visibleLines, fontPixelHeight, fontPixelWidth, topBufferLine } = context
+    const indentSize = props.userSpacing * fontPixelWidth
+
+    // TODO: If the beginning of the visible lines is wrapping no lines are drawn
+    const { allIndentations } = visibleLines.reduce(
+        (acc, line, currentLineNumber) => {
+            const rawIndentation = detectIndent(line)
+            const regularisedIndent = regulariseIndentation(rawIndentation, props.userSpacing)
+            const previous = last(acc.allIndentations)
+            const height = Math.ceil(fontPixelHeight)
+
+            // start position helps determine the initial indent offset
+            const startPosition = context.bufferToScreen({
+                line: topBufferLine,
+                character: regularisedIndent,
+            })
+
+            const wrappedLine = wrappedLines.find(wrapped => wrapped.line === line)
+            const levelsOfWrapping = wrappedLine ? wrappedLine.end - wrappedLine.start : 1
+            const adjustedHeight = height * levelsOfWrapping
+
+            if (!startPosition) {
+                return acc
+            }
+
+            const { pixelX: left, pixelY: top } = context.screenToPixel({
+                screenX: startPosition.screenX,
+                screenY: currentLineNumber,
+            })
+
+            const adjustedTop = top + acc.wrappedHeightAdjustment
+
+            // Only adjust height for Subsequent lines!
+            if (wrappedLine) {
+                acc.wrappedHeightAdjustment += adjustedHeight
+            }
+
+            if (!line && previous) {
+                acc.allIndentations.push({
+                    ...previous,
+                    line,
+                    top: adjustedTop,
+                })
+                return acc
+            }
+
+            const indent = {
+                left,
+                line,
+                indentSize,
+                top: adjustedTop,
+                height: adjustedHeight,
+                characterWidth: fontPixelWidth,
+                indentBy: regularisedIndent / props.userSpacing,
+            }
+
+            acc.allIndentations.push(indent)
+
+            return acc
+        },
+        { allIndentations: [], wrappedHeightAdjustment: 0 },
+    )
+
+    return <MemoizedIndentsPerLine guidePositions={allIndentations} options={props.configuration} />
+}
+
+const getWrappedLines = (ctx: Partial<IContext>): IWrappedLine[] => {
+    const { lines } = ctx.visibleLines.reduce(
+        (acc, line, index) => {
+            const currentLine = ctx.topBufferLine + index
+            const bufferInfo = ctx.bufferToScreen({ line: currentLine, character: 0 })
+
+            if (bufferInfo && bufferInfo.screenY) {
+                const { screenY: screenLine } = bufferInfo
+                if (acc.expectedLine !== screenLine) {
+                    acc.lines.push({
+                        start: acc.expectedLine,
+                        end: screenLine,
+                        line,
+                    })
+                    acc.expectedLine = screenLine + 1
+                    return acc
+                }
+                acc.expectedLine += 1
+            }
+            return acc
+        },
+        { lines: [], expectedLine: 1 },
+    )
+    return lines
+}
+
+const regulariseIndentation = (indentation: detectIndent.IndentInfo, userSpacing: number) => {
+    const isOddBy = indentation.amount % userSpacing
+    const amountToIndent = isOddBy ? indentation.amount - isOddBy : indentation.amount
+    return amountToIndent
+}
+
 interface IndentLayerArgs {
     buffer: IBuffer
     configuration: Oni.Configuration
 }
 
 class IndentGuideBufferLayer implements Oni.BufferLayer {
-    public render = memoize((bufferLayerContext: Oni.BufferLayerRenderContext) => {
-        return <Container id={this.id}>{this._renderIndentLines(bufferLayerContext)}</Container>
-    })
-
     private _buffer: IBuffer
     private _userSpacing: number
-    private _configuration: Oni.Configuration
+    private _configuration: ConfigOptions
 
-    constructor({ buffer, configuration }: IndentLayerArgs) {
-        this._buffer = buffer
-        this._configuration = configuration
-        this._userSpacing = this._buffer.shiftwidth || this._buffer.tabstop
-    }
     get id() {
         return "indent-guides"
     }
@@ -81,173 +237,25 @@ class IndentGuideBufferLayer implements Oni.BufferLayer {
         return "Indent Guide Lines"
     }
 
-    private _getIndentLines = (guidePositions: IndentLinesProps[], options: ConfigOptions) => {
-        return flatten(
-            guidePositions.map((props, idx) => {
-                const indents: JSX.Element[] = []
-                // Create a line per indentation
-                for (
-                    let levelOfIndentation = 0;
-                    levelOfIndentation < props.indentBy;
-                    levelOfIndentation++
-                ) {
-                    const lineProps = { ...props, levelOfIndentation }
-                    const adjustedLeft = this._calculateLeftPosition(lineProps)
-                    const shouldSkip = this._determineIfShouldSkip(lineProps, options)
-                    const key = `${props.line.trim()}-${idx}-${levelOfIndentation}`
-                    indents.push(
-                        !shouldSkip && (
-                            <IndentLine
-                                key={key}
-                                top={props.top}
-                                left={adjustedLeft}
-                                color={options.color}
-                                height={props.height}
-                                data-id="indent-line"
-                            />
-                        ),
-                    )
-                }
-                return indents
-            }),
-        )
-    }
-
-    private _determineIfShouldSkip(props: LinePropsWithLevels, options: ConfigOptions) {
-        const skipFirstIndentLine =
-            options.skipFirst && props.levelOfIndentation === props.indentBy - 1
-
-        return skipFirstIndentLine
-    }
-
-    /**
-     * Remove one indent from left positioning and move lines slightly inwards -
-     * by a third of a character for a better visual appearance
-     */
-    private _calculateLeftPosition(props: LinePropsWithLevels) {
-        const adjustedLeft =
-            props.left -
-            props.indentSize -
-            props.levelOfIndentation * props.indentSize +
-            props.characterWidth / 3
-
-        return adjustedLeft
-    }
-
-    private _getWrappedLines(context: Oni.BufferLayerRenderContext): IWrappedLine[] {
-        const { lines } = context.visibleLines.reduce(
-            (acc, line, index) => {
-                const currentLine = context.topBufferLine + index
-                const bufferInfo = context.bufferToScreen({ line: currentLine, character: 0 })
-
-                if (bufferInfo && bufferInfo.screenY) {
-                    const { screenY: screenLine } = bufferInfo
-                    if (acc.expectedLine !== screenLine) {
-                        acc.lines.push({
-                            start: acc.expectedLine,
-                            end: screenLine,
-                            line,
-                        })
-                        acc.expectedLine = screenLine + 1
-                    } else {
-                        acc.expectedLine += 1
-                    }
-                }
-                return acc
-            },
-            { lines: [], expectedLine: 1 },
-        )
-        return lines
-    }
-
-    private _regulariseIndentation(indentation: detectIndent.IndentInfo) {
-        const isOddBy = indentation.amount % this._userSpacing
-        const amountToIndent = isOddBy ? indentation.amount - isOddBy : indentation.amount
-        return amountToIndent
-    }
-
-    /**
-     * Calculates the position of each indent guide element using shiftwidth or tabstop if no
-     * shift width available
-     * @name _renderIndentLines
-     * @function
-     * @param {Oni.BufferLayerRenderContext} bufferLayerContext The buffer layer context
-     * @returns {JSX.Element[]} An array of react elements
-     */
-    private _renderIndentLines = (bufferLayerContext: Oni.BufferLayerRenderContext) => {
-        // TODO: If the beginning of the visible lines is wrapping no lines are drawn
-        const wrappedScreenLines = this._getWrappedLines(bufferLayerContext)
-
-        const options = {
-            color: this._configuration.getValue<string>("experimental.indentLines.color"),
-            skipFirst: this._configuration.getValue<boolean>("experimental.indentLines.skipFirst"),
+    constructor({ buffer, configuration }: IndentLayerArgs) {
+        this._buffer = buffer
+        this._configuration = {
+            color: configuration.getValue<string>("experimental.indentLines.color"),
+            skipFirst: configuration.getValue<boolean>("experimental.indentLines.skipFirst"),
         }
+        this._userSpacing = this._buffer.shiftwidth || this._buffer.tabstop
+    }
 
-        const { visibleLines, fontPixelHeight, fontPixelWidth, topBufferLine } = bufferLayerContext
-        const indentSize = this._userSpacing * fontPixelWidth
-
-        const { allIndentations } = visibleLines.reduce(
-            (acc, line, currenLineNumber) => {
-                const rawIndentation = detectIndent(line)
-
-                const regularisedIndent = this._regulariseIndentation(rawIndentation)
-
-                const previous = last(acc.allIndentations)
-                const height = Math.ceil(fontPixelHeight)
-
-                // start position helps determine the initial indent offset
-                const startPosition = bufferLayerContext.bufferToScreen({
-                    line: topBufferLine,
-                    character: regularisedIndent,
-                })
-
-                const wrappedLine = wrappedScreenLines.find(wrapped => wrapped.line === line)
-                const levelsOfWrapping = wrappedLine ? wrappedLine.end - wrappedLine.start : 1
-                const adjustedHeight = height * levelsOfWrapping
-
-                if (!startPosition) {
-                    return acc
-                }
-
-                const { pixelX: left, pixelY: top } = bufferLayerContext.screenToPixel({
-                    screenX: startPosition.screenX,
-                    screenY: currenLineNumber,
-                })
-
-                const adjustedTop = top + acc.wrappedHeightAdjustment
-
-                // Only adjust height for Subsequent lines!
-                if (wrappedLine) {
-                    acc.wrappedHeightAdjustment += adjustedHeight
-                }
-
-                if (!line && previous) {
-                    acc.allIndentations.push({
-                        ...previous,
-                        line,
-                        top: adjustedTop,
-                    })
-                    return acc
-                }
-
-                const indent = {
-                    left,
-                    line,
-                    indentSize,
-                    top: adjustedTop,
-                    height: adjustedHeight,
-                    characterWidth: fontPixelWidth,
-                    indentBy: regularisedIndent / this._userSpacing,
-                }
-
-                acc.allIndentations.push(indent)
-
-                return acc
-            },
-            { allIndentations: [], wrappedHeightAdjustment: 0 },
+    public render = (bufferLayerContext: IContext) => {
+        return (
+            <Container id={this.id}>
+                <IndentGuideLines
+                    context={bufferLayerContext}
+                    userSpacing={this._userSpacing}
+                    configuration={this._configuration}
+                />
+            </Container>
         )
-
-        return this._getIndentLines(allIndentations, options)
     }
 }
 
