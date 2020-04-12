@@ -15,6 +15,12 @@ interface FileSummary {
     working_dir: string
 }
 
+interface IFetchRemote {
+    branch: string
+    remote: string
+    currentDir: string
+}
+
 export class GitVersionControlProvider implements VCS.VersionControlProvider {
     private readonly _name = "git"
     private _onPluginActivated = new Event<void>("Oni::VCSPluginActivated")
@@ -56,7 +62,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
         return this._onPluginDeactivated
     }
 
-    get isActivated(): boolean {
+    get isActivated() {
         return this._isActivated
     }
 
@@ -77,7 +83,7 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
     public async canHandleWorkspace(dir?: string) {
         try {
             return this._git(this._projectRoot)
-                .silent()
+                .silent(true)
                 .checkIsRepo()
         } catch (e) {
             this._oni.log.warn(
@@ -158,13 +164,15 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
     }
 
     public getLogs = async (file?: string): Promise<VCS.Logs> => {
-        try {
-            // n - represents the number of logs to get alternative is to use ["--max-count=25"]
-            const options = { file, n: 25 }
-            return this._git(this._projectRoot).log(options)
-        } catch (e) {
-            this._handleVCSError(e, "get logs")
-        }
+        return this._attempt(
+            () => {
+                // n - represents the number of logs to get alternative is to use ["--max-count=25"]
+                const options = { file, n: 25 }
+                return this._git(this._projectRoot).log(options)
+            },
+            "get logs",
+            false,
+        )
     }
 
     public getDiff = async () => {
@@ -176,76 +184,68 @@ export class GitVersionControlProvider implements VCS.VersionControlProvider {
     }
 
     public commitFiles = async (message: string[], files?: string[]): Promise<VCS.Commits> => {
-        try {
+        return this._attempt(async () => {
             const commit = await this._git(this._projectRoot).commit(message, files)
-            const changed = (files || []).map(file => ({
+            const changedFiles = files || []
+            const changed = changedFiles.map(file => ({
                 path: file,
                 status: VCS.Statuses.committed,
             }))
             this._onFileStatusChanged.dispatch(changed)
             return commit
-        } catch (e) {
-            this._handleVCSError(e, "commit files")
-        }
+        }, "commit files")
     }
 
     public stageFile = async (file: string) => {
-        try {
+        return this._attempt(async () => {
             await this._git(this._projectRoot).add(file)
             this._onStagedFilesChanged.dispatch(file)
             this._onFileStatusChanged.dispatch([{ path: file, status: VCS.Statuses.staged }])
-        } catch (e) {
-            this._handleVCSError(e, `add ${file}`)
-        }
+        }, `add ${file}`)
     }
 
-    public fetchBranchFromRemote = async ({
-        branch,
-        currentDir,
-        remote = null,
-    }: {
-        branch: string
-        remote: string
-        currentDir: string
-    }) => {
-        try {
-            return this._git(this._projectRoot).fetch(remote, branch)
-        } catch (e) {
-            this._handleVCSError(e, "to fetch branch")
-        }
+    public fetchBranchFromRemote = async ({ branch, currentDir, remote = null }: IFetchRemote) => {
+        return this._attempt(
+            () => this._git(this._projectRoot).fetch(remote, branch),
+            "to fetch branch",
+        )
     }
 
-    public getLocalBranches = async () => {
-        try {
-            return this._git(this._projectRoot).branchLocal()
-        } catch (e) {
-            this._handleVCSError(e, "get local branches")
-        }
+    public getLocalBranches = () => {
+        return this._attempt(() => this._git(this._projectRoot).branchLocal(), "get local branches")
     }
 
-    public getBranch = async (): Promise<string | void> => {
-        try {
-            const status = await this._git(this._projectRoot).status()
-            return status.current
-        } catch (e) {
-            this._handleVCSError(e, "get current status")
-        }
+    public getBranch = (): Promise<string | void> => {
+        return this._attempt(async () => {
+            const { current } = await this._git(this._projectRoot).status()
+            this._oni.log.info({ current })
+            return current
+        }, "get current status")
     }
 
-    public async changeBranch(targetBranch: string) {
-        try {
+    public changeBranch = (targetBranch: string) => {
+        return this._attempt(async () => {
             await this._git(this._projectRoot).checkout(targetBranch)
             this._onBranchChange.dispatch(targetBranch)
-        } catch (e) {
-            this._handleVCSError(e, "change branch")
+        }, "change branch")
+    }
+
+    private async _attempt<R>(fn: () => Promise<R>, action?: string, throwError: boolean = false) {
+        try {
+            return fn()
+        } catch (error) {
+            this._handleVCSError(error, action, throwError)
         }
     }
 
-    private _handleVCSError(error: Error, attemptedAction: string) {
+    private _handleVCSError(error: Error, attemptedAction: string, throwError = true) {
         this._oni.log.warn(error)
-        throw new Error(
-            `[Oni Git Provider]: Unable to ${attemptedAction} because: ${error.message}`,
-        )
+        // throw a formatted error so the vcs manager can deal with errors itself
+        if (throwError) {
+            throw new Error(
+                `[Oni Git Provider]: Unable to ${attemptedAction} because: ${error.message}`,
+            )
+        }
     }
 
     private _formatRawBlame(rawOutput: string): VCS.Blame {

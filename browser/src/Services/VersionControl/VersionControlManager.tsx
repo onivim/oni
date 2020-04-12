@@ -2,6 +2,7 @@ import { capitalize } from "lodash"
 import * as Oni from "oni-api"
 import * as Log from "oni-core-logging"
 import { IDisposable } from "oni-types"
+import * as PQueue from "p-queue"
 import * as React from "react"
 
 import { store, SupportedProviders, VersionControlPane, VersionControlProvider } from "./"
@@ -28,6 +29,7 @@ export class VersionControlManager {
     private _subscriptions: IDisposable[] = []
     private _providers = new Map<string, VersionControlProvider>()
     private _bufferLayerManager = getBufferLayerInstance()
+    private _queue = new PQueue()
 
     constructor(
         private _oni: Oni.Plugin.Api,
@@ -67,9 +69,10 @@ export class VersionControlManager {
         notification.show()
     }
 
-    public deactivateProvider(): void {
+    public async deactivateProvider() {
+        await this._queue.onIdle()
         this._vcsProvider.deactivate()
-        this._subscriptions.map(s => s.dispose())
+        this._subscriptions.map(sub => sub && sub.dispose())
         if (this._vcsStatusItem) {
             this._vcsStatusItem.hide()
         }
@@ -87,10 +90,10 @@ export class VersionControlManager {
             case isSameProvider:
                 break
             case noCompatibleProvider:
-                this.deactivateProvider()
+                await this.deactivateProvider()
                 break
             case newReplacementProvider:
-                this.deactivateProvider()
+                await this.deactivateProvider()
                 await this._activateVCSProvider(newProvider)
                 break
             case compatibleProvider:
@@ -119,8 +122,8 @@ export class VersionControlManager {
     private _activateVCSProvider = async (provider: VersionControlProvider) => {
         this._vcs = provider.name
         this._vcsProvider = provider
-        await this._initialize()
         provider.activate()
+        await this._initialize()
     }
 
     private async _initialize() {
@@ -141,6 +144,7 @@ export class VersionControlManager {
                 )
                 this._sidebar.add("code-fork", vcsPane) // TODO: Refactor API
             }
+
             // TODO: this should only be active if this is a file under version control
             this._bufferLayerManager.addBufferLayer(
                 buffer =>
@@ -164,17 +168,19 @@ export class VersionControlManager {
     private _setupSubscriptions() {
         this._subscriptions = [
             this._oni.editors.activeEditor.onBufferEnter.subscribe(async () => {
-                await this._updateBranchIndicator()
+                await this._queue.add(this._updateBranchIndicator)
             }),
             this._vcsProvider.onBranchChanged.subscribe(async newBranch => {
-                await this._updateBranchIndicator(newBranch)
-                await this._oni.editors.activeEditor.neovim.command("e!")
+                await this._queue.add(async () => {
+                    await this._updateBranchIndicator(newBranch)
+                    await this._oni.editors.activeEditor.neovim.command("e!")
+                })
             }),
             this._oni.editors.activeEditor.onBufferSaved.subscribe(async () => {
-                await this._updateBranchIndicator()
+                await this._queue.add(this._updateBranchIndicator)
             }),
             (this._oni.workspace as any).onFocusGained.subscribe(async () => {
-                await this._updateBranchIndicator()
+                await this._queue.add(this._updateBranchIndicator)
             }),
         ]
     }
@@ -216,7 +222,6 @@ export class VersionControlManager {
         }
 
         try {
-            // FIXME: there is race condition on deactivation of the provider
             const branch = await this._vcsProvider.getBranch()
             const diff = await this._vcsProvider.getDiff()
 
