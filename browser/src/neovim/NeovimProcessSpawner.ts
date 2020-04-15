@@ -32,6 +32,9 @@ export interface INeovimStartOptions {
     // Explicitly specify the path to Neovim. If not specified,
     // the default path will be used.
     neovimPath?: string
+
+    // Additional arguments to pass directly to Neovim
+    additionalArgs: string[]
 }
 
 const DefaultStartOptions: INeovimStartOptions = {
@@ -39,6 +42,7 @@ const DefaultStartOptions: INeovimStartOptions = {
     transport: "stdio",
     loadInitVim: true,
     useDefaultConfig: true,
+    additionalArgs: [],
 }
 
 const getSessionFromProcess = async (
@@ -122,15 +126,17 @@ export const startNeovim = async (
         initVimArg = ["-u", loadInitVimConfigOption]
     }
 
-    const argsToPass = initVimArg.concat([
-        "--cmd",
-        `let &rtp.=',${joinedRuntimePaths}'`,
-        "--cmd",
-        "let g:gui_oni = 1",
-        "-N",
-        "--embed",
-        "--",
-    ])
+    const argsToPass = initVimArg
+        .concat([
+            "--cmd",
+            `let &rtp.=',${joinedRuntimePaths}'`,
+            "--cmd",
+            "let g:gui_oni = 1",
+            "-N",
+            "--embed",
+        ])
+        .concat(options.additionalArgs)
+        .concat(["--"])
 
     Log.verbose(
         "[NeovimProcessSpawner::startNeovim] Sending these args to Neovim: " +

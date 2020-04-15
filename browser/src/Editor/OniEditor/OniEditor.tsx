@@ -331,10 +331,10 @@ export class OniEditor extends Utility.Disposable implements Oni.Editor {
         this._neovimEditor.bufferDelete(bufferId)
     }
 
-    public async init(filesToOpen: string[]): Promise<void> {
+    public async init(filesToOpen: string[], additionalArgs?: string[]): Promise<void> {
         Log.info("[OniEditor::init] Called with filesToOpen: " + filesToOpen)
 
-        return this._neovimEditor.init(filesToOpen)
+        return this._neovimEditor.init(filesToOpen, additionalArgs)
     }
 
     public async input(key: string): Promise<void> {

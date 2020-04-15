@@ -22,7 +22,8 @@ import { windowManager } from "./Services/WindowManager"
 import { Workspace } from "./Services/Workspace"
 
 export const startEditors = async (
-    args: any,
+    filesToOpen: string[],
+    additionalArgs: string[],
     colors: Colors,
     completionProviders: CompletionProviders,
     configuration: Configuration,
@@ -52,5 +53,5 @@ export const startEditors = async (
     )
     windowManager.createSplit("horizontal", editor)
 
-    await editor.init(args)
+    await editor.init(filesToOpen, additionalArgs)
 }
