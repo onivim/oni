@@ -136,11 +136,6 @@ Several other great neovim front-end UIs [here](https://github.com/neovim/neovim
 
 Thank you!
 
-## Contributors
-
-This project exists thanks to all the people who have [contributed](CONTRIBUTING.md):
-<a href="https://github.com/onivim/oni/graphs/contributors"><img src="https://opencollective.com/oni/contributors.svg?width=890" /></a>
-
 ## License
 
 MIT License. Copyright (c) Bryan Phelps
