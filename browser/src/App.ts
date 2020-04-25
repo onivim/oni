@@ -289,12 +289,13 @@ export const start = async (args: string[]): Promise<void> => {
 
     const CompletionProviders = await completionProvidersPromise
     CompletionProviders.activate(languageManager)
+    const completionProviders = CompletionProviders.getInstance()
 
     const initializeAllEditors = async () => {
         await startEditors(
             filesToOpen,
             Colors.getInstance(),
-            CompletionProviders.getInstance(),
+            completionProviders,
             configuration,
             diagnostics,
             languageManager,

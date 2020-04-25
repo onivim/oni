@@ -96,6 +96,9 @@ import WildMenu from "./../../UI/components/WildMenu"
 
 import { CanvasRenderer, WebGLRenderer } from "../../Renderer"
 import { getInstance as getNotificationsInstance } from "./../../Services/Notifications"
+import NeovimCompletionsRequestor, {
+    INeovimWithCompletions,
+} from "../../Services/Completion/NeovimCompletionsRequestor"
 
 type NeovimError = [number, string]
 
@@ -239,13 +242,13 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             </Provider>,
         )
 
-        this._popupMenu = new NeovimPopupMenu(
-            this._neovimInstance.onShowPopupMenu,
-            this._neovimInstance.onHidePopupMenu,
-            this._neovimInstance.onSelectPopupMenu,
-            this.onBufferEnter,
-            this._toolTipsProvider,
-        )
+        // this._popupMenu = new NeovimPopupMenu(
+        //     this._neovimInstance.onShowPopupMenu,
+        //     this._neovimInstance.onHidePopupMenu,
+        //     this._neovimInstance.onSelectPopupMenu,
+        //     this.onBufferEnter,
+        //     this._toolTipsProvider,
+        // )
 
         const notificationManager = getNotificationsInstance()
         this._neovimInstance.onMessage.subscribe(messageInfo => {
@@ -723,6 +726,13 @@ export class NeovimEditor extends Editor implements Oni.Editor {
             this._languageIntegration.onHideDefinition.subscribe(definition => {
                 this._actions.hideDefinition()
             }),
+        )
+
+        const neovimCompletion = new NeovimCompletionsRequestor(this
+            .neovim as INeovimWithCompletions)
+        this._completionProviders.registerCompletionProvider(
+            "oni.completions.neovim",
+            neovimCompletion,
         )
 
         this._commands = new NeovimEditorCommands(
