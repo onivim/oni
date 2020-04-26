@@ -59,6 +59,21 @@ export interface IRemoveBufferLayerAction {
     }
 }
 
+export interface IUpdateBufferDecorationsAction {
+    type: "UPDATE_DECORATIONS"
+    payload: {
+        decorations: State.IDecoration[]
+        layerId: string
+    }
+}
+
+export interface IClearBufferDecorationsAction {
+    type: "CLEAR_DECORATIONS"
+    payload: {
+        layerId: string
+    }
+}
+
 export interface ISetViewportAction {
     type: "SET_VIEWPORT"
     payload: {
@@ -293,6 +308,8 @@ export type Action<K extends keyof IConfigurationValues> = SimpleAction | Action
 export type SimpleAction =
     | IAddBufferLayerAction
     | IRemoveBufferLayerAction
+    | IUpdateBufferDecorationsAction
+    | IClearBufferDecorationsAction
     | IBufferEnterAction
     | IBufferSaveAction
     | IBufferUpdateAction
@@ -453,6 +470,19 @@ export const removeBufferLayer = (
         bufferId,
         layer,
     },
+})
+
+export const updateBufferDecorations = (
+    decorations: State.IDecoration[],
+    layerId: string,
+): IUpdateBufferDecorationsAction => ({
+    type: "UPDATE_DECORATIONS",
+    payload: { decorations, layerId },
+})
+
+export const clearBufferDecorations = (layerId: string): IClearBufferDecorationsAction => ({
+    type: "CLEAR_DECORATIONS",
+    payload: { layerId },
 })
 
 export const bufferEnter = (buffers: Array<InactiveBufferContext | EventContext>) => ({

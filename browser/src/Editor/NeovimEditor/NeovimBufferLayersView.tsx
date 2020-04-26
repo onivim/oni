@@ -12,17 +12,29 @@ import * as Oni from "oni-api"
 
 import { NeovimActiveWindow } from "./NeovimActiveWindow"
 
+import { clearBufferDecorations, updateBufferDecorations } from "./NeovimEditorActions"
 import * as State from "./NeovimEditorStore"
 
 import styled, { StackLayer } from "../../UI/components/common"
 
-export interface NeovimBufferLayersViewProps {
+interface StateProps {
     activeWindowId: number
     windows: State.IWindow[]
     layers: State.Layers
     fontPixelWidth: number
     fontPixelHeight: number
+    decorations: State.IDecorations
 }
+
+type UpdateDecorations = (decorations: State.IDecoration[], layerId: string) => void
+type ClearDecorations = (layerId: string) => void
+
+interface DispatchProps {
+    updateBufferDecorations: UpdateDecorations
+    clearBufferDecorations: ClearDecorations
+}
+
+export interface NeovimBufferLayersViewProps extends StateProps, DispatchProps {}
 
 const InnerLayer = styled.div`
     position: absolute;
@@ -33,17 +45,20 @@ const InnerLayer = styled.div`
     overflow: hidden;
 `
 
-export interface LayerContextWithCursor extends Oni.BufferLayerRenderContext {
+export interface UpdatedLayerContext extends Oni.BufferLayerRenderContext {
     cursorLine: number
     cursorColumn: number
+    decorations: State.IDecorations
+    updateBufferDecorations: UpdateDecorations
+    clearBufferDecorations: ClearDecorations
 }
 
 export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLayersViewProps, {}> {
-    public render(): JSX.Element {
+    public render() {
         const containers = this.props.windows.map(windowState => {
             const layers: Oni.BufferLayer[] = this.props.layers[windowState.bufferId] || []
 
-            const layerContext: LayerContextWithCursor = {
+            const layerContext: UpdatedLayerContext = {
                 isActive: windowState.windowId === this.props.activeWindowId,
                 windowId: windowState.windowId,
                 fontPixelWidth: this.props.fontPixelWidth,
@@ -57,6 +72,9 @@ export class NeovimBufferLayersView extends React.PureComponent<NeovimBufferLaye
                 bottomBufferLine: windowState.bottomBufferLine,
                 cursorColumn: windowState.column,
                 cursorLine: windowState.line,
+                decorations: this.props.decorations,
+                updateBufferDecorations: this.props.updateBufferDecorations,
+                clearBufferDecorations: this.props.clearBufferDecorations,
             }
 
             const layerElements = layers.map(layer => {
@@ -110,12 +128,13 @@ const getWindowPixelDimensions = (win: State.IWindow) => {
     }
 }
 
-const EmptyState: NeovimBufferLayersViewProps = {
+const EmptyState: StateProps = {
     activeWindowId: -1,
     layers: {},
     windows: [],
     fontPixelHeight: -1,
     fontPixelWidth: -1,
+    decorations: {},
 }
 
 const getActiveVimTabPage = (state: State.IState) => state.activeVimTabPage
@@ -132,7 +151,7 @@ const windowSelector = createSelector(
     },
 )
 
-const mapStateToProps = (state: State.IState): NeovimBufferLayersViewProps => {
+const mapStateToProps = (state: State.IState) => {
     if (!state.activeVimTabPage) {
         return EmptyState
     }
@@ -140,12 +159,21 @@ const mapStateToProps = (state: State.IState): NeovimBufferLayersViewProps => {
     const windows = windowSelector(state)
 
     return {
-        activeWindowId: state.windowState.activeWindow,
         windows,
         layers: state.layers,
+        activeWindowId: state.windowState.activeWindow,
         fontPixelWidth: state.fontPixelWidth,
         fontPixelHeight: state.fontPixelHeight,
+        decorations: state.decorations,
     }
 }
 
-export const NeovimBufferLayers = connect(mapStateToProps)(NeovimBufferLayersView)
+const mapDispatchToProps = {
+    updateBufferDecorations,
+    clearBufferDecorations,
+}
+
+export const NeovimBufferLayers = connect<StateProps, DispatchProps, {}>(
+    mapStateToProps,
+    mapDispatchToProps,
+)(NeovimBufferLayersView)

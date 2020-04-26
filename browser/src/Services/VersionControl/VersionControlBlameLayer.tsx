@@ -5,7 +5,7 @@ import * as React from "react"
 import { Transition } from "react-transition-group"
 import { Position } from "vscode-languageserver-types"
 
-import { LayerContextWithCursor } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
+import { UpdatedLayerContext } from "../../Editor/NeovimEditor/NeovimBufferLayersView"
 import styled, { pixel, textOverflow, withProps } from "../../UI/components/common"
 import { getTimeSince } from "../../Utility"
 import { VersionControlProvider } from "./"
@@ -30,7 +30,8 @@ interface ILineDetails {
     lastEmptyLine: number
 }
 
-export interface IProps extends LayerContextWithCursor {
+export interface IProps extends UpdatedLayerContext {
+    id: string
     getBlame: (lineOne: number, lineTwo: number) => Promise<IBlame>
     timeout: number
     cursorScreenLine: number
@@ -43,6 +44,8 @@ export interface IProps extends LayerContextWithCursor {
 
 export interface IState {
     blame: IBlame
+    message: string
+    position: IBlamePosition
     showBlame: boolean
     currentLineContent: string
     currentCursorBufferLine: number
@@ -104,16 +107,18 @@ export class Blame extends React.PureComponent<IProps, IState> {
     // Reset show blame to false when props change - do it here so it happens before rendering
     // hide if the current line has changed or if the text of the line has changed
     // aka input is in progress or if there is an empty line
-    public static getDerivedStateFromProps(nextProps: IProps, prevState: IState) {
-        const lineNumberChanged = nextProps.cursorBufferLine !== prevState.currentCursorBufferLine
-        const lineContentChanged = prevState.currentLineContent !== nextProps.currentLine
+    public static getDerivedStateFromProps(nextProps: IProps, state: IState) {
+        const lineNumberChanged = nextProps.cursorBufferLine !== state.currentCursorBufferLine
+        const lineContentChanged = state.currentLineContent !== nextProps.currentLine
         if (
-            (prevState.showBlame && (lineNumberChanged || lineContentChanged)) ||
+            (state.showBlame && (lineNumberChanged || lineContentChanged)) ||
             !nextProps.currentLine
         ) {
             return {
                 showBlame: false,
-                blame: prevState.blame,
+                blame: state.blame,
+                message: state.message,
+                position: state.position,
                 currentLineContent: nextProps.currentLine,
                 currentCursorBufferLine: nextProps.cursorBufferLine,
             }
@@ -125,11 +130,13 @@ export class Blame extends React.PureComponent<IProps, IState> {
         error: null,
         blame: null,
         showBlame: null,
+        message: null,
+        position: null,
         currentLineContent: this.props.currentLine,
         currentCursorBufferLine: this.props.cursorBufferLine,
     }
 
-    private _timeout: any
+    private _timeout: any // typing as NodeJS.Timer causes TS error/bug
     private readonly DURATION = 300
     private readonly LEFT_OFFSET = 4
 
@@ -150,7 +157,7 @@ export class Blame extends React.PureComponent<IProps, IState> {
         if (prevProps.cursorBufferLine !== cursorBufferLine && currentLine) {
             await this.updateBlame(cursorBufferLine, cursorBufferLine)
             if (mode === "auto") {
-                return this.resetTimer()
+                this.resetTimer()
             }
         }
     }
@@ -216,31 +223,41 @@ export class Blame extends React.PureComponent<IProps, IState> {
         return this.getPosition()
     }
 
-    // TODO: possibly add a caching strategy so a new call isn't made each time or
-    // get a blame for the entire file and store it
     public updateBlame = async (lineOne: number, lineTwo: number) => {
         const outOfBounds = this.isOutOfBounds(lineOne, lineTwo)
         const blame = !outOfBounds ? await this.props.getBlame(lineOne, lineTwo) : null
-        this.setState({ blame })
+        // The blame must be passed in here since it is not yet set in state
+        const { message, position } = this.canFit(blame)
+        this.setState({ blame, position, message })
     }
 
     public formatCommitDate(timestamp: string) {
         return new Date(parseInt(timestamp, 10) * 1000)
     }
 
-    public getPosition(positionToRender?: Position): IBlamePosition {
+    public getPosition(newPosition?: Position): IBlamePosition {
         const emptyPosition: IBlamePosition = {
             hide: true,
             top: null,
             left: null,
         }
-        if (!positionToRender) {
+
+        if (!newPosition) {
+            this.props.clearBufferDecorations(this.props.id)
             return emptyPosition
         }
-        const position = this.props.bufferToPixel(positionToRender)
+
+        const position = this.props.bufferToPixel(newPosition)
+
         if (!position) {
+            this.props.clearBufferDecorations(this.props.id)
             return emptyPosition
         }
+
+        // Update the buffer layers store with the position of the git blame decoration
+        const line = newPosition.line + 1
+        this.props.updateBufferDecorations([{ line }], this.props.id)
+
         return {
             hide: false,
             top: position.pixelY,
@@ -254,10 +271,9 @@ export class Blame extends React.PureComponent<IProps, IState> {
         )
     }
 
-    public getBlameText = (numberOfTruncations = 0) => {
-        const { blame } = this.state
+    public getBlameText = (blame: IBlame, numberOfTruncations = 0) => {
         if (!blame) {
-            return null
+            return ""
         }
         const { author, hash, committer_time } = blame
         const formattedDate = this.formatCommitDate(committer_time)
@@ -278,16 +294,16 @@ export class Blame extends React.PureComponent<IProps, IState> {
     // Recursively calls get blame text if the message will not fit onto the screen up
     // to a limit of 6 times each time removing one word from the blame message
     // if after 6 attempts the message is still not small enougth then we render the popup
-    public canFit = (truncationAmount = 0): ICanFit => {
+    public canFit = (blame: IBlame, truncationAmount = 0): ICanFit => {
         const { visibleLines, dimensions, cursorScreenLine } = this.props
-        const message = this.getBlameText(truncationAmount)
+        const message = this.getBlameText(blame, truncationAmount)
         const currentLine = visibleLines[cursorScreenLine] || ""
         const canFit = dimensions.width > currentLine.length + message.length + this.LEFT_OFFSET
 
         if (!canFit && truncationAmount <= 6) {
-            return this.canFit(truncationAmount + 1)
+            return this.canFit(blame, truncationAmount + 1)
         }
-        const truncatedOrFullMessage = canFit ? message : this.getBlameText()
+        const truncatedOrFullMessage = canFit ? message : this.getBlameText(blame)
         return {
             canFit,
             message: truncatedOrFullMessage,
@@ -296,11 +312,10 @@ export class Blame extends React.PureComponent<IProps, IState> {
     }
 
     public render() {
-        const { blame, showBlame, error } = this.state
+        const { blame, showBlame, error, message, position } = this.state
         if (!blame || !showBlame || error) {
             return null
         }
-        const { message, position } = this.canFit()
         return (
             <Transition in={blame && showBlame} timeout={this.DURATION}>
                 {(state: TransitionStates) => (
@@ -358,7 +373,7 @@ export default class VersionControlBlameLayer implements BufferLayer {
         return { timeout, mode, fontFamily }
     }
 
-    public render(context: LayerContextWithCursor) {
+    public render(context: UpdatedLayerContext) {
         const cursorBufferLine = context.cursorLine + 1
         const cursorScreenLine = cursorBufferLine - context.topBufferLine
         const config = this.getConfigOpts()
@@ -366,6 +381,7 @@ export default class VersionControlBlameLayer implements BufferLayer {
         return (
             activated && (
                 <Blame
+                    id={this.id}
                     {...context}
                     mode={config.mode}
                     timeout={config.timeout}
