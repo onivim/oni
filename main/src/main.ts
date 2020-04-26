@@ -1,6 +1,6 @@
 import * as path from "path"
 
-import { app, BrowserWindow, ipcMain, Menu } from "electron"
+import { app, BrowserWindow, ipcMain, Menu, systemPreferences } from "electron"
 
 import * as PersistentSettings from "electron-settings"
 
@@ -119,6 +119,18 @@ if (!isDevelopment && !isDebug && !isAutomation) {
     app.on("ready", async () => {
         if (!isAutomation) {
             await addDevExtensions()
+        }
+
+        if (process.platform.includes("darwin")) {
+            const pressAndHold = systemPreferences.getUserDefault(
+                "ApplePressAndHoldEnabled",
+                "boolean",
+            )
+
+            if (pressAndHold) {
+                const untypedPrefs = systemPreferences as any
+                untypedPrefs.setUserDefault("ApplePressAndHoldEnabled", "boolean", false)
+            }
         }
         loadFileFromArguments(process.platform, argsToUse, process.env.ONI_CWD || process.cwd())
     })
