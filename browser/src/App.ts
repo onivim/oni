@@ -153,6 +153,11 @@ export const start = async (args: string[]): Promise<void> => {
         }
     }
 
+    const baseConfig = parsedArgs["base-config"]
+    if (baseConfig) {
+        configuration.addConfigurationFile(baseConfig)
+    }
+
     configuration.start()
 
     configChange(configuration.getValues()) // initialize values
